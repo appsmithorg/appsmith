@@ -11,10 +11,13 @@ import {
   table,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test Create Api and Bind to Table widget V2", function () {
-  before(() => {
-    agHelper.AddDsl("tableV2TextPaginationDsl");
-  });
+describe(
+  "Test Create Api and Bind to Table widget V2",
+  { tags: ["@tag.Binding"] },
+  function () {
+    before(() => {
+      agHelper.AddDsl("tableV2TextPaginationDsl");
+    });
 
   it("1. Create an API and Execute the API and bind with Table", function () {
     apiPage.CreateAndFillApi(
@@ -40,15 +43,15 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     agHelper.WaitUntilToastDisappear("done");
   });
 
-  it("2. Bug #22477: should check whether the next page button is disabled and not clickable when last page is reached", () => {
-    /**
-     * Flow:
-     * Update total records count to 20
-     * Click next page
-     */
+    it("2. Bug #22477: should check whether the next page button is disabled and not clickable when last page is reached", () => {
+      /**
+       * Flow:
+       * Update total records count to 20
+       * Click next page
+       */
 
-    propPane.UpdatePropertyFieldValue("Total Records", "20");
-    agHelper.GetNClick(table._nextPage("v2"));
+      propPane.UpdatePropertyFieldValue("Total Records", "20");
+      agHelper.GetNClick(table._nextPage("v2"));
 
     agHelper.AssertAttribute(table._nextPage("v2"), "disabled", "disabled");
     agHelper.AssertElementAbsence(locators._toastMsg);
