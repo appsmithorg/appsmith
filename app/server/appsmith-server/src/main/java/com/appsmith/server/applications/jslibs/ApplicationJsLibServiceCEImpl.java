@@ -1,8 +1,8 @@
 package com.appsmith.server.applications.jslibs;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibServiceCE;
 import com.mongodb.client.result.UpdateResult;
@@ -15,22 +15,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.completeFieldName;
+
 @RequiredArgsConstructor
 @Service
 public class ApplicationJsLibServiceCEImpl implements ContextBasedJsLibServiceCE<Application> {
 
-    private final ApplicationService applicationService;
+    protected final ApplicationService applicationService;
 
     @Override
-    public Mono<Set<CustomJSLibContextDTO>> getAllJSLibContextDTOFromContext(
+    public Mono<Set<CustomJSLibContextDTO>> getAllVisibleJSLibContextDTOFromContext(
             String contextId, String branchName, Boolean isViewMode) {
         return applicationService
                 .findByIdAndBranchName(
                         contextId,
                         List.of(
                                 isViewMode
-                                        ? FieldName.PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS
-                                        : FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS),
+                                        ? completeFieldName(QApplication.application.publishedCustomJSLibs)
+                                        : completeFieldName(QApplication.application.unpublishedCustomJSLibs)),
                         branchName)
                 .map(application -> {
                     if (isViewMode) {
@@ -49,7 +51,7 @@ public class ApplicationJsLibServiceCEImpl implements ContextBasedJsLibServiceCE
     public Mono<UpdateResult> updateJsLibsInContext(
             String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
         Map<String, Object> fieldNameValueMap =
-                Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOSet);
+                Map.of(completeFieldName(QApplication.application.unpublishedCustomJSLibs), updatedJSLibDTOSet);
         return applicationService.update(contextId, fieldNameValueMap, branchName);
     }
 }

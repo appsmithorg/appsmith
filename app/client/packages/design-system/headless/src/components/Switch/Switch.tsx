@@ -16,8 +16,8 @@ import type { CheckboxGroupContextType } from "../Checkbox";
 
 export interface SwitchProps
   extends Omit<SpectrumSwitchProps, keyof StyleProps>,
-    Validation,
-    InlineLabelProps {
+    InlineLabelProps,
+    Validation<boolean> {
   className?: string;
 }
 
