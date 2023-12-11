@@ -19,35 +19,35 @@ public class PasswordResetTokenRepositoryCake {
 
     // From CrudRepository
     public Mono<PasswordResetToken> save(PasswordResetToken entity) {
-        return Mono.justOrEmpty(repository.save(entity));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
 
     public Flux<PasswordResetToken> saveAll(Iterable<PasswordResetToken> entities) {
-        return Flux.fromIterable(repository.saveAll(entities));
+        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
     public Mono<PasswordResetToken> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
-    public Mono<PasswordResetToken> findByEmail(String email) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
-    public Mono<PasswordResetToken> archive(PasswordResetToken entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    public Mono<PasswordResetToken> findByEmail(String email) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
     }
 
     public Mono<PasswordResetToken> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
     public boolean archiveById(String id) {
         return repository.archiveById(id);
+    }
+
+    public Mono<PasswordResetToken> archive(PasswordResetToken entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 }

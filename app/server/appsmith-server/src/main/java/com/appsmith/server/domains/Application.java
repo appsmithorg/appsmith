@@ -42,11 +42,11 @@ public class Application extends BaseDomain {
     String name;
 
     @ManyToOne
-    @JoinColumn(name = "workspace_id", referencedColumnName = "id")
+    @JoinColumn(name = "workspace_id", referencedColumnName = "id", insertable = false, updatable = false)
     @JsonView(Views.Public.class)
     private Workspace workspace;
 
-    @Column(name = "workspace_id", insertable = false, updatable = false)
+    @Column(name = "workspace_id")
     private String workspaceId;
 
     @OneToMany

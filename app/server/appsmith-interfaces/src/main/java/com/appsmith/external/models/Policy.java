@@ -10,14 +10,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.Type;
 
 import java.util.Set;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -27,15 +25,6 @@ public class Policy {
     private Long id;
 
     String permission;
-
-    @Type(JsonBinaryType.class)
-    @Column(columnDefinition = "jsonb")
-    @Deprecated
-    private Set<String> users;
-
-    // @Type(JsonBinaryType.class)
-    // @Deprecated
-    // private Set<String> groups;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")

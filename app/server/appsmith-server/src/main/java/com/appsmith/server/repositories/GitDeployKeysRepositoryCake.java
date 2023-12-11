@@ -19,15 +19,15 @@ public class GitDeployKeysRepositoryCake {
 
     // From CrudRepository
     public Mono<GitDeployKeys> save(GitDeployKeys entity) {
-        return Mono.justOrEmpty(repository.save(entity));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
 
     public Flux<GitDeployKeys> saveAll(Iterable<GitDeployKeys> entities) {
-        return Flux.fromIterable(repository.saveAll(entities));
+        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
     public Mono<GitDeployKeys> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
@@ -43,11 +43,11 @@ public class GitDeployKeysRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<GitDeployKeys> findByEmail(String email) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
-    }
-
     public boolean archiveById(String id) {
         return repository.archiveById(id);
+    }
+
+    public Mono<GitDeployKeys> findByEmail(String email) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
     }
 }

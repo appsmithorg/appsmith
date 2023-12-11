@@ -21,74 +21,17 @@ public class WorkspaceRepositoryCake {
 
     // From CrudRepository
     public Mono<Workspace> save(Workspace entity) {
-        return Mono.justOrEmpty(repository.save(entity));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
 
     public Flux<Workspace> saveAll(Iterable<Workspace> entities) {
-        return Flux.fromIterable(repository.saveAll(entities));
+        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
     public Mono<Workspace> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
-
-    public Mono<Long> countByDeletedAtNull() {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.countByDeletedAtNull()));
-    }
-
-    public Flux<Workspace> findAll(AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAll(permission)));
-    }
-
-    public Mono<Workspace> findByName(String name) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name)));
-    }
-
-    public Flux<Workspace> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
-    }
-
-    public Flux<Workspace> findAllWorkspaces() {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllWorkspaces()));
-    }
-
-    public Mono<Workspace> findBySlug(String slug) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findBySlug(slug)));
-    }
-
-    public Mono<Workspace> setUserPermissionsInObject(Workspace obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
-    }
-
-    public Flux<Workspace> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByIdAndPluginsPluginId(workspaceId, pluginId)));
-    }
-
-    public Mono<Workspace> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
-    }
-
-    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name, aclPermission)));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Workspace> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
-    }
 
     public Flux<Workspace> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
@@ -99,15 +42,72 @@ public class WorkspaceRepositoryCake {
         return Flux.defer(() -> Flux.fromIterable(repository.findByIdsIn(workspaceIds, tenantId, aclPermission, sort)));
     }
 
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    }
+
+    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name, aclPermission)));
+    }
+
+    public Flux<Workspace> findAll(AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAll(permission)));
+    }
+
+    public Mono<Workspace> findBySlug(String slug) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findBySlug(slug)));
+    }
+
+    public Flux<Workspace> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Mono<Workspace> setUserPermissionsInObject(Workspace obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Flux<Workspace> findAllWorkspaces() {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllWorkspaces()));
+    }
+
+    public Flux<Workspace> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
+    }
+
+    public Mono<Workspace> findByName(String name) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name)));
+    }
+
+    public Mono<Workspace> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
     public Mono<Workspace> archive(Workspace entity) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
+    public Mono<Workspace> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public Mono<Workspace> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
     }
 
     public Mono<Workspace> setUserPermissionsInObject(Workspace obj) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
 
-    public Mono<Workspace> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByIdAndPluginsPluginId(workspaceId, pluginId)));
+    }
+
+    public Mono<Long> countByDeletedAtNull() {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.countByDeletedAtNull()));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

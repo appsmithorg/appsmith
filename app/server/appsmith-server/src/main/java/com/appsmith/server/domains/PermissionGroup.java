@@ -2,11 +2,13 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.Permission;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.util.Set;
 
@@ -35,9 +37,11 @@ public class PermissionGroup extends BaseDomain {
     @Deprecated
     private Set<Permission> permissions;
 
-    @ManyToMany
-    private Set<User> assignedToUsers;
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    private Set<User> assignedToUserIds;
 
-    @OneToMany
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private Set<User> assignedToGroupIds;
 }

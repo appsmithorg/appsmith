@@ -4,11 +4,14 @@ import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
@@ -23,11 +26,14 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
 @Component
@@ -46,7 +52,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
-        return Mono.empty(); /*
+        // return Mono.empty(); /*
 
         // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
         // return the cached permission group ids.
@@ -54,9 +60,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return getPermissionGroupsOfAnonymousUser();
         }
 
-        if (user.getEmail() == null
-                || user.getEmail().isEmpty()
-                || user.getId() == null) {
+        if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
@@ -93,7 +97,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .map(query -> mongoOperations.find(query, PermissionGroup.class))
                 .flatMapMany(obj -> obj)
                 .map(permissionGroup -> permissionGroup.getId())
-                .collect(Collectors.toSet());*/
+                .collect(Collectors.toSet()); // */
     }
 
     @Override
@@ -145,7 +149,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         }
 
         Criteria anonymousUserCriteria =
-                Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
+                Criteria.where(fieldName(QUser.user.email)).is(ANONYMOUS_USER);
         Criteria tenantIdCriteria =
                 Criteria.where(fieldName(QUser.user.tenantId)).is(tenantId);
 

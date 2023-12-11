@@ -205,13 +205,13 @@ def generate_cake_class(domain):
 
         // From CrudRepository
         public Mono<{domain}> save({domain} entity) {{
-            return Mono.justOrEmpty(repository.save(entity));
+            return {MONO_WRAPPER % "repository.save(entity)"};
         }}
         public Flux<{domain}> saveAll(Iterable<{domain}> entities) {{
-            return Flux.fromIterable(repository.saveAll(entities));
+            return {FLUX_WRAPPER % "repository.saveAll(entities)"};
         }}
         public Mono<{domain}> findById(String id) {{
-            return Mono.justOrEmpty(repository.findById(id));
+            return {MONO_WRAPPER % "repository.findById(id)"};
         }}
         // End from CrudRepository
     """
@@ -221,7 +221,7 @@ def generate_cake_class(domain):
 
     try:
         repo_class_path = next(server_root.rglob(domain + "Repository.java"))
-    except StopIteration as e:
+    except StopIteration:
         print(f"Could not find {domain}Repository.java")
         return
 

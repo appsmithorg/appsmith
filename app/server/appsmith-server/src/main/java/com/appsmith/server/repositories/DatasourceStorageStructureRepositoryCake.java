@@ -20,15 +20,15 @@ public class DatasourceStorageStructureRepositoryCake {
 
     // From CrudRepository
     public Mono<DatasourceStorageStructure> save(DatasourceStorageStructure entity) {
-        return Mono.justOrEmpty(repository.save(entity));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
 
     public Flux<DatasourceStorageStructure> saveAll(Iterable<DatasourceStorageStructure> entities) {
-        return Flux.fromIterable(repository.saveAll(entities));
+        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
     public Mono<DatasourceStorageStructure> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
@@ -45,10 +45,6 @@ public class DatasourceStorageStructureRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.updateStructure(datasourceId, environmentId, structure)));
     }
 
-    public Mono<DatasourceStorageStructure> archive(DatasourceStorageStructure entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
-    }
-
     public Mono<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
             String datasourceId, String environmentId) {
         return Mono.defer(
@@ -57,5 +53,9 @@ public class DatasourceStorageStructureRepositoryCake {
 
     public boolean archiveById(String id) {
         return repository.archiveById(id);
+    }
+
+    public Mono<DatasourceStorageStructure> archive(DatasourceStorageStructure entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 }

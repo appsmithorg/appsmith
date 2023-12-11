@@ -8,15 +8,12 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
         implements CustomPermissionGroupRepositoryCE {
@@ -97,9 +94,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
+        return Collections.emptyList(); /*
         Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .in(userIds);
         return queryAll(
-                List.of(assignedToUserIdCriteria), includeFields, permission, Optional.empty(), NO_RECORD_LIMIT);
+                List.of(assignedToUserIdCriteria), includeFields, permission, Optional.empty(), NO_RECORD_LIMIT);*/
     }
 }

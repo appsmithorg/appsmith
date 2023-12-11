@@ -21,17 +21,45 @@ public class ConfigRepositoryCake {
 
     // From CrudRepository
     public Mono<Config> save(Config entity) {
-        return Mono.justOrEmpty(repository.save(entity));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
 
     public Flux<Config> saveAll(Iterable<Config> entities) {
-        return Flux.fromIterable(repository.saveAll(entities));
+        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
     public Mono<Config> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
+
+    public Mono<Config> setUserPermissionsInObject(Config obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    }
+
+    public Flux<Config> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
+    }
+
+    public Mono<Config> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public Mono<Config> setUserPermissionsInObject(Config obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
+    }
+
+    public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByNameAsUser(name, user, permission)));
+    }
+
+    public Mono<Config> findByName(String name) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name)));
+    }
 
     public Mono<Config> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
@@ -42,48 +70,20 @@ public class ConfigRepositoryCake {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
-    public Flux<Config> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
-    }
-
-    public Flux<Config> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
-    }
-
-    public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByNameAsUser(name, user, permission)));
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<Config> findByName(String name) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name)));
+    public Mono<Config> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
     }
 
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
 
-    public Mono<Config> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
-    }
-
     public Mono<Config> findByName(String name, AclPermission permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name, permission)));
     }
 
-    public Mono<Config> setUserPermissionsInObject(Config obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
-    }
-
-    public Mono<Config> setUserPermissionsInObject(Config obj) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
-    }
-
-    public Mono<Config> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    public Flux<Config> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
     }
 
     public Mono<Config> archive(Config entity) {

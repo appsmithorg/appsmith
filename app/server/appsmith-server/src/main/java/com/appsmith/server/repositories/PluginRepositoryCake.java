@@ -21,15 +21,15 @@ public class PluginRepositoryCake {
 
     // From CrudRepository
     public Mono<Plugin> save(Plugin entity) {
-        return Mono.justOrEmpty(repository.save(entity));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
 
     public Flux<Plugin> saveAll(Iterable<Plugin> entities) {
-        return Flux.fromIterable(repository.saveAll(entities));
+        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
     public Mono<Plugin> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
@@ -37,32 +37,32 @@ public class PluginRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByPackageName(packageName)));
     }
 
-    public Mono<Plugin> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
-    public Mono<Plugin> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
-    }
-
-    public Flux<Plugin> findByType(PluginType pluginType) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findByType(pluginType)));
-    }
-
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<Plugin> archive(Plugin entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
     public Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         return Flux.defer(() -> Flux.fromIterable(repository.findAllByIdsWithoutPermission(ids, includeFields)));
     }
 
+    public Mono<Plugin> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    }
+
+    public Mono<Plugin> archive(Plugin entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
+    public Mono<Plugin> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
     public Flux<Plugin> queryAll(List<Criteria> criterias, AclPermission permission) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Flux<Plugin> findByDefaultInstall(Boolean isDefaultInstall) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findByDefaultInstall(isDefaultInstall)));
     }
 
     public Flux<Plugin> queryAll(
@@ -74,31 +74,31 @@ public class PluginRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByName(name)));
     }
 
-    public Mono<Plugin> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    public Mono<Plugin> setUserPermissionsInObject(Plugin obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
 
     public Flux<Plugin> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Mono<Plugin> setUserPermissionsInObject(Plugin obj) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
+    public Mono<Plugin> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
     public Flux<Plugin> findDefaultPluginIcons() {
         return Flux.defer(() -> Flux.fromIterable(repository.findDefaultPluginIcons()));
     }
 
-    public Flux<Plugin> findByDefaultInstall(Boolean isDefaultInstall) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findByDefaultInstall(isDefaultInstall)));
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 
     public Mono<Plugin> setUserPermissionsInObject(Plugin obj, Set<String> permissionGroups) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
+    public Flux<Plugin> findByType(PluginType pluginType) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findByType(pluginType)));
     }
 }

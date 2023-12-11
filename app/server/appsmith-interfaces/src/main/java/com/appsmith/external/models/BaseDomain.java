@@ -3,6 +3,7 @@ package com.appsmith.external.models;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -57,7 +58,7 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @JsonView(Views.Internal.class)
     @ToString.Exclude
     protected Set<Policy> policies;

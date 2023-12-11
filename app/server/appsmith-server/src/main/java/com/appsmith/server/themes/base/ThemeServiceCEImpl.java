@@ -183,14 +183,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<String> getDefaultThemeId() {
-        return Mono.empty(); /*
-        if (StringUtils.isEmpty(defaultThemeId)) {
-            return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
-                defaultThemeId = theme.getId();
-                return theme.getId();
-            });
-        }
-        return Mono.just(defaultThemeId);*/
+        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
+            defaultThemeId = theme.getId();
+            return theme.getId();
+        });
     }
 
     @Override
