@@ -52,8 +52,8 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -249,7 +249,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         }
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-                        final String authorizationHeader = "Basic " + Base64.getEncoder().encodeToString(clientCredentials);
+                        final String authorizationHeader =
+                                "Basic " + Base64.getEncoder().encodeToString(clientCredentials);
                         builder.defaultHeader("Authorization", authorizationHeader);
                     } else {
                         return Mono.error(
