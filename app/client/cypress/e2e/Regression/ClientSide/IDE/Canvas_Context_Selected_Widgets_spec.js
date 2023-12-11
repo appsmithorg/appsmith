@@ -71,7 +71,7 @@ describe("Canvas context widget selection", function () {
     EditorNavigation.SelectEntityByName(api1, EntityType.Api);
 
     //navigate back to page1
-    cy.get(".t--close-editor").click();
+    EditorNavigation.ShowCanvas();
     cy.wait(500);
 
     //verify the Camera1 is selected in page1
@@ -129,7 +129,7 @@ describe("Canvas context widget selection", function () {
     EditorNavigation.SelectEntityByName(api1, EntityType.Api);
 
     //navigate back to page1
-    cy.get(".t--close-editor").click();
+    EditorNavigation.ShowCanvas();
     cy.wait(500);
 
     //verify the 2 widgets are selected in page1
@@ -175,7 +175,7 @@ describe("Canvas context widget selection", function () {
     cy.wait(500);
 
     //navigate back to page1
-    cy.get(".t--close-editor").click();
+    EditorNavigation.ShowCanvas();
     cy.wait(500);
 
     //verify the Modal1 is selected and open in page1
@@ -228,7 +228,7 @@ describe("Canvas context widget selection", function () {
     cy.wait(500);
 
     //navigate back to page1
-    cy.get(".t--close-editor").click();
+    EditorNavigation.ShowCanvas();
     cy.wait(500);
 
     //verify the Modal1 is open and Text1 is selected in page1
@@ -283,7 +283,7 @@ describe("Canvas context widget selection", function () {
     cy.wait(500);
 
     //navigate back to page1
-    cy.get(".t--close-editor").click();
+    EditorNavigation.ShowCanvas();
     cy.wait(500);
 
     //verify the tab 2 is open and Button 4 is selected in page1
