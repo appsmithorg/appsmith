@@ -864,6 +864,136 @@ public class ActionServiceCE_Test {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testActionWithGraphQLDatasourceMoustacheBinding() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("moustacheDatasource");
+        externalDatasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("graphql-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        datasourceConfiguration.setHeaders(List.of(new Property("key", "{{one.text}}")));
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        externalDatasource.setDatasourceStorages(storages);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionOne");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionDTO> newActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
+
+        StepVerifier.create(newActionMono)
+                .assertNext(actionDTO -> {
+                    assertThat(actionDTO).isNotNull();
+                    assertThat(actionDTO.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(actionDTO.getJsonPathKeys()).isEqualTo(Set.of("one.text"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionHasPathKeyEntryWhenActionIsUpdated() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("moustacheDatasource");
+        externalDatasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        datasourceConfiguration.setHeaders(List.of(new Property("key", "{{two.text}}")));
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        externalDatasource.setDatasourceStorages(storages);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionOne");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionDTO> newActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
+
+        Mono<ActionDTO> updatedActionMono = newActionMono.flatMap(createdAction -> {
+            action.getActionConfiguration().setBody("New Body");
+            return layoutActionService.updateSingleAction(createdAction.getId(), action);
+        });
+
+        StepVerifier.create(updatedActionMono)
+                .assertNext(actionDTO -> {
+                    assertThat(actionDTO).isNotNull();
+                    assertThat(actionDTO.getActionConfiguration().getBody()).isEqualTo("New Body");
+                    assertThat(actionDTO.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(actionDTO.getJsonPathKeys()).isEqualTo(Set.of("two.text"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionWithNonAPITypeDatasourceMoustacheBinding() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("moustacheDatasource");
+        externalDatasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("postgres-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setHeaders(List.of(new Property("key", "{{one.text}}")));
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        externalDatasource.setDatasourceStorages(storages);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionOne");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionDTO> newActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
+
+        StepVerifier.create(newActionMono)
+                .assertNext(actionDTO -> {
+                    assertThat(actionDTO).isNotNull();
+                    assertThat(actionDTO.getJsonPathKeys().size()).isEqualTo(0);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void checkNewActionAndNewDatasourceAnonymousPermissionInPublicApp() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));

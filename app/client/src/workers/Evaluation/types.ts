@@ -42,6 +42,7 @@ export interface EvalTreeRequestData {
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
   appMode?: APP_MODE;
+  widgetsMeta: Record<string, any>;
 }
 
 export interface EvalTreeResponseData {

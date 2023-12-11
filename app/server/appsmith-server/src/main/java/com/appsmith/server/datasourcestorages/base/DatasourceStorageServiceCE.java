@@ -3,10 +3,12 @@ package com.appsmith.server.datasourcestorages.base;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.MustacheBindingToken;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface DatasourceStorageServiceCE {
 
@@ -50,4 +52,6 @@ public interface DatasourceStorageServiceCE {
     DatasourceStorageDTO createDatasourceStorageDTOFromDatasourceStorage(DatasourceStorage datasourceStorage);
 
     DatasourceStorage createDatasourceStorageFromDatasource(Datasource datasource, String environmentId);
+
+    Flux<Set<MustacheBindingToken>> getBindingTokensForDatasourceStorages(Datasource datasource);
 }

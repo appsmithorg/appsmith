@@ -33,7 +33,6 @@ import {
   getCurrentApplicationId,
   getGsheetProjectID,
   getGsheetToken,
-  getPagePermissions,
 } from "selectors/editorSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
@@ -86,7 +85,6 @@ import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
-  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -104,7 +102,6 @@ interface StateProps extends JSONtoFormProps {
   applicationId: string;
   canManageDatasource?: boolean;
   canDeleteDatasource?: boolean;
-  canCreateDatasourceActions?: boolean;
   isSaving: boolean;
   isTesting: boolean;
   isDeleting: boolean;
@@ -548,7 +545,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      canCreateDatasourceActions,
       canDeleteDatasource,
       canManageDatasource,
       datasource,
@@ -601,7 +597,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       <>
         {!hiddenHeader && (
           <DSFormHeader
-            canCreateDatasourceActions={canCreateDatasourceActions || false}
             canDeleteDatasource={canDeleteDatasource || false}
             canManageDatasource={canManageDatasource || false}
             datasource={datasource}
@@ -775,13 +770,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourcePermissions,
   );
 
-  const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
-    pagePermissions,
-  );
-
   const gsheetToken = getGsheetToken(state);
   const gsheetProjectID = getGsheetProjectID(state);
   const documentationLinks = getPluginDocumentationLinks(state);
@@ -858,7 +846,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
-    canCreateDatasourceActions,
     gsheetToken,
     gsheetProjectID,
     showDebugger,

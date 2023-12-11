@@ -39,10 +39,13 @@ describe("List widget V2 Serverside Pagination", () => {
     table.AssertPageNumber_List(1, false, "v2");
     //agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
     table.NavigateToNextPage_List("v2");
+    cy.wait(500);
     //agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
     table.NavigateToNextPage_List("v2");
+    cy.wait(500);
     table.AssertPageNumber_List(3, true, "v2");
     table.NavigateToPreviousPage_List("v2");
+    cy.wait(500);
     deployMode.DeployApp();
   });
 
