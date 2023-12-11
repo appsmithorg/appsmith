@@ -144,10 +144,10 @@ jobs:
         run: |
           if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
            echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
-           echo 'cache_download_key=airgap-docker-image' >> "$GITHUB_ENV" 
+           echo 'cache_download_key=airgap-docker-image' >> "$GITHUB_ENV"
           else
            echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
-           echo 'cache_download_key=docker-image' >> "$GITHUB_ENV" 
+           echo 'cache_download_key=docker-image' >> "$GITHUB_ENV"
            fi
 
       - name: Log the docker container name
@@ -183,22 +183,35 @@ jobs:
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
 
+      - name: Set APPSMITH_LICENSE_KEY based on Airgapped Enabled flag
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ "${{ inputs.airgap-enabled }}" == 'true' ]]; then
+            export APPSMITH_LICENSE_KEY=${{ secrets.APPSMITH_LICENSE_KEY }}
+          else
+            export APPSMITH_LICENSE_KEY="VALID-LICENSE-KEY"
+          fi
+
       - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+          APPSMITH_LICENSE_KEY: ${{ env.APPSMITH_LICENSE_KEY }}
+          LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY: ${{ secrets.LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY }}
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
-          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 -p 6001:6001 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+          docker run --name test-event-driver -d \
+            -p 22:22 -p 5001:5001 -p 3306:3306 -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 -p 6001:6001 \
+            --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+            -v ~/git-server/repos:/git-server/repos \
+            appsmith/test-event-driver:latest
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e KEYGEN_API_URL=http://host.docker.internal:5001 \
             -e KEYGEN_BYPASS_SIGNATURE_VERIFICATION=true \
+            -e CREATE_DUMMY_LICENSES=true \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_DATABASE=cs \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
@@ -231,7 +244,7 @@ jobs:
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" \
-            -e APPSMITH_LICENSE_KEY="VALID-LICENSE-KEY" \
+            -e APPSMITH_LICENSE_KEY="$APPSMITH_LICENSE_KEY" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
