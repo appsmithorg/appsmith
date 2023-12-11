@@ -1,17 +1,21 @@
 /// <reference types="Cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
 import {
-  homePage,
-  gsheetHelper,
-  dataSources,
   agHelper,
   assertHelper,
-  table,
+  dataSources,
   deployMode,
-  locators,
   draggableWidgets,
+  gsheetHelper,
+  homePage,
+  locators,
+  table,
 } from "../../support/Objects/ObjectsCore";
 import PageList from "../../support/Pages/PageList";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
@@ -53,7 +57,7 @@ describe("GSheet Miscellaneous Tests", function () {
   });
 
   it("1. Add query from active ds tab and verify", () => {
-    dataSources.CreateQueryFromActiveTab(dataSourceName);
+    dataSources.CreateQueryForDS(dataSourceName);
     // entityExplorer.CreateNewDsQuery(dataSourceName);
     agHelper.RenameWithInPane("Fetch_Details");
     dataSources.ValidateNSelectDropdown(
@@ -104,9 +108,13 @@ describe("GSheet Miscellaneous Tests", function () {
 
   it("4. Generate CRUD page from active datasource page and verify", () => {
     // Navigating to active datasource page
-    dataSources.NavigateFromActiveDS(dataSourceName, false, false);
+    EditorNavigation.SelectEntityByName(dataSourceName, EntityType.Datasource);
 
     // Select the spreadsheet and sheet name
+    PageLeftPane.expandCollapseItem(spreadSheetName);
+    PageLeftPane.assertPresence("Sheet1");
+    PageLeftPane.expandCollapseItem("Sheet1");
+    agHelper.ClickButton("Generate new page");
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, spreadSheetName);
     agHelper.Sleep(1000);

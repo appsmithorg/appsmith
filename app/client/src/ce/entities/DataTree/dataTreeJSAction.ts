@@ -2,11 +2,20 @@ import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { MetaArgs } from "@appsmith/entities/DataTree/types";
+import type {
+  JSActionEntity,
+  JSActionEntityConfig,
+  MetaArgs,
+} from "@appsmith/entities/DataTree/types";
 
 const reg = /this\./g;
 
-export const generateDataTreeJSAction = (js: JSCollectionData): any => {
+export const generateDataTreeJSAction = (
+  js: JSCollectionData,
+): {
+  unEvalEntity: JSActionEntity;
+  configEntity: JSActionEntityConfig;
+} => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};

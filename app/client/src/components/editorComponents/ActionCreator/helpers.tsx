@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import React from "react";
 import {
   getFunctionNameFromJsObjectExpression,
@@ -17,16 +18,20 @@ import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type {
+  ActionData,
+  ActionDataState,
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getCurrentActions,
   getJSCollectionFromName,
   getCurrentJSCollections,
+  getQueryModuleInstances,
 } from "@appsmith/selectors/entitiesSelector";
 import {
   getModalDropdownList,
@@ -61,6 +66,8 @@ import {
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 const actionList: {
   label: string;
@@ -383,6 +390,16 @@ export function useModalDropdownList(handleClose: () => void) {
   return finalList;
 }
 
+export const getQueryInstanceIcon = (type: MODULE_TYPE): ReactNode => {
+  if (type === MODULE_TYPE.QUERY) {
+    return (
+      <EntityIcon>
+        <Icon name="module" />
+      </EntityIcon>
+    );
+  }
+};
+
 export function getApiQueriesAndJSActionOptionsWithChildren(
   pageId: string,
   plugins: any,
@@ -390,9 +407,16 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   jsActions: Array<JSCollectionData>,
   dispatch: any,
   handleClose: () => void,
+  queryModuleInstances: ModuleInstanceDataState,
 ) {
   // this function gets a list of all the queries/apis and attaches it to actionList
-  getApiAndQueryOptions(plugins, actions, dispatch, handleClose);
+  getApiAndQueryOptions(
+    plugins,
+    actions,
+    dispatch,
+    handleClose,
+    queryModuleInstances,
+  );
 
   // this function gets a list of all the JS Objects and attaches it to actionList
   getJSOptions(pageId, jsActions, dispatch);
@@ -405,6 +429,7 @@ function getApiAndQueryOptions(
   actions: ActionDataState,
   dispatch: any,
   handleClose: () => void,
+  queryModuleInstances: ModuleInstanceDataState,
 ) {
   const createQueryObject: TreeDropdownOption = {
     label: "New query",
@@ -422,12 +447,12 @@ function getApiAndQueryOptions(
     },
   };
 
-  const queries = actions.filter(
-    (action) => action.config.pluginType === PluginType.DB,
+  const queries: ActionDataState = actions.filter(
+    (action: ActionData) => action.config.pluginType === PluginType.DB,
   );
 
-  const apis = actions.filter(
-    (action) =>
+  const apis: ActionDataState = actions.filter(
+    (action: ActionData) =>
       action.config.pluginType === PluginType.API ||
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE ||
@@ -465,6 +490,15 @@ function getApiAndQueryOptions(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
         ),
+      } as TreeDropdownOption);
+    });
+    queryModuleInstances.forEach((instance) => {
+      (queryOptions.children as TreeDropdownOption[]).push({
+        label: instance.config.name,
+        id: instance.config.id,
+        value: instance.config.name,
+        type: queryOptions.value,
+        icon: getQueryInstanceIcon(instance.config.type),
       } as TreeDropdownOption);
     });
   }
@@ -546,6 +580,9 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const actions = useSelector(getCurrentActions);
   const jsActions = useSelector(getCurrentJSCollections);
+  const queryModuleInstances = useSelector(
+    getQueryModuleInstances,
+  ) as unknown as ModuleInstanceDataState;
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
@@ -555,5 +592,6 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     jsActions,
     dispatch,
     handleClose,
+    queryModuleInstances,
   );
 }

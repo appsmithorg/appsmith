@@ -2,10 +2,8 @@
 
 import EditorNavigation, {
   EntityType,
-  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 
 import {
   dataSources,
@@ -53,7 +51,7 @@ describe("Entity explorer tests related to query and datasource", function () {
       .blur();
 
     cy.testSaveDatasource();
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryAfterDSSaved(datasourceName);
 
     EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     agHelper.RenameWithInPane(`${datasourceName}new`, false);
