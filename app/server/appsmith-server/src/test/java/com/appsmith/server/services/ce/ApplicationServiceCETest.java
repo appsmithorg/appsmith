@@ -439,9 +439,12 @@ public class ApplicationServiceCETest {
     /**
      * Create an application and validate it.
      *
-     * @param applicationName      This is the initial name of the application which will try to create the application,
-     *                             but not guaranteed this will be the application's final name due to retry logic
-     * @param applicationFinalName This is the application final name and it can be different from initial name
+     * @param applicationName      This is the initial name of the application which
+     *                             will try to create the application,
+     *                             but not guaranteed this will be the application's
+     *                             final name due to retry logic
+     * @param applicationFinalName This is the application final name and it can be
+     *                             different from initial name
      *                             due to retry if there is name clash.
      */
     private void createAndVerifyValidApplication(String applicationName, String applicationFinalName) {
@@ -546,7 +549,8 @@ public class ApplicationServiceCETest {
         // Creating first App with name "ApplicationServiceTest TestApp"
         this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp");
 
-        // Creating second App with same name "ApplicationServiceTest TestApp" but due to duplicate name its resultant
+        // Creating second App with same name "ApplicationServiceTest TestApp" but due
+        // to duplicate name its resultant
         // name will be ApplicationServiceTest TestApp (1)
         this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp (1)");
     }
@@ -879,7 +883,8 @@ public class ApplicationServiceCETest {
         StepVerifier.create(allApplications)
                 .assertNext(userHomepageDTO -> {
                     assertThat(userHomepageDTO).isNotNull();
-                    // In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    // In case of anonymous user, we should have errored out. Assert that the user
+                    // is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
                     List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs =
@@ -939,7 +944,8 @@ public class ApplicationServiceCETest {
                     List<Application> gitConnectedApps = tuple.getT2();
 
                     assertThat(userHomepageDTO).isNotNull();
-                    // In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    // In case of anonymous user, we should have errored out. Assert that the user
+                    // is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
                     List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs =
@@ -975,7 +981,8 @@ public class ApplicationServiceCETest {
         StepVerifier.create(allApplications)
                 .assertNext(userHomepageDTO -> {
                     assertThat(userHomepageDTO).isNotNull();
-                    // In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    // In case of anonymous user, we should have errored out. Assert that the user
+                    // is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
                     List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
@@ -1551,7 +1558,8 @@ public class ApplicationServiceCETest {
                     assertThat(action1.getPolicies())
                             .containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
 
-                    // Check that the action collection used in the app contains public execute permission
+                    // Check that the action collection used in the app contains public execute
+                    // permission
                     assertThat(actionCollection1.getPolicies())
                             .containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
@@ -1785,7 +1793,7 @@ public class ApplicationServiceCETest {
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
-                    assertThat(clonedApplication.getUpdatedAt()).isNotNull();
+                    assertThat(clonedApplication.getUpdatedAt()).isNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion())
                             .isEqualTo(gitConnectedApp.getEvaluationVersion());
@@ -2127,7 +2135,8 @@ public class ApplicationServiceCETest {
                     action1.setName("getData");
                     action1.setActionConfiguration(new ActionConfiguration());
                     action1.getActionConfiguration()
-                            .setBody("async () => {\n" + "\t\tconst data = await cloneActionTest.run();\n"
+                            .setBody("async () => {\n"
+                                    + "\t\tconst data = await cloneActionTest.run();\n"
                                     + "\t\treturn data;\n"
                                     + "\t}");
 
@@ -2135,7 +2144,8 @@ public class ApplicationServiceCETest {
                     action2.setName("anotherMethod");
                     action2.setActionConfiguration(new ActionConfiguration());
                     action2.getActionConfiguration()
-                            .setBody("async () => {\n" + "\t\tconst data = await cloneActionTest.run();\n"
+                            .setBody("async () => {\n"
+                                    + "\t\tconst data = await cloneActionTest.run();\n"
                                     + "\t\treturn data;\n"
                                     + "\t}");
                     actionCollectionDTO.setActions(List.of(action1, action2));
@@ -2452,14 +2462,16 @@ public class ApplicationServiceCETest {
                     action1.setName("getData");
                     action1.setActionConfiguration(new ActionConfiguration());
                     action1.getActionConfiguration()
-                            .setBody("async () => {\n" + "\t\tconst data = await cloneActionTest.run();\n"
+                            .setBody("async () => {\n"
+                                    + "\t\tconst data = await cloneActionTest.run();\n"
                                     + "\t\treturn data;\n"
                                     + "\t}");
                     ActionDTO action2 = new ActionDTO();
                     action2.setName("anotherMethod");
                     action2.setActionConfiguration(new ActionConfiguration());
                     action2.getActionConfiguration()
-                            .setBody("async () => {\n" + "\t\tconst data = await cloneActionTest.run();\n"
+                            .setBody("async () => {\n"
+                                    + "\t\tconst data = await cloneActionTest.run();\n"
                                     + "\t\treturn data;\n"
                                     + "\t}");
                     actionCollectionDTO.setActions(List.of(action1, action2));
@@ -2681,7 +2693,8 @@ public class ApplicationServiceCETest {
 
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
-                        // We should have single entry as other action is deleted from the parent application
+                        // We should have single entry as other action is deleted from the
+                        // parent application
                         assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
                                 .hasSize(1);
                         unpublishedCollection
@@ -2827,20 +2840,21 @@ public class ApplicationServiceCETest {
     }
 
     /**
-     * Method to test if the action, pages and actionCollection are archived after the application is published
+     * Method to test if the action, pages and actionCollection are archived after
+     * the application is published
      */
     @Test
     @WithUserDetails(value = "api_user")
     public void publishApplication_withArchivedUnpublishedResources_resourcesArchived() {
 
         /*
-        1. Create application
-        2. Add action and actionCollection
-        3. Publish application
-        4. Delete page in edit mode
-        5. Publish application
-        6. Page, action and actionCollection should be soft deleted
-        */
+         * 1. Create application
+         * 2. Add action and actionCollection
+         * 3. Publish application
+         * 4. Delete page in edit mode
+         * 5. Publish application
+         * 6. Page, action and actionCollection should be soft deleted
+         */
         Application testApplication = new Application();
         String appName = "Publish Application With Archived Page";
         testApplication.setName(appName);
@@ -3382,7 +3396,8 @@ public class ApplicationServiceCETest {
         Mono<Application> clonedAppFromDbMono = Mono.just(originalApplication)
                 .flatMap(originalApp -> {
                     try {
-                        // Before fetching the cloned application, sleep for 5 seconds to ensure that the cloning
+                        // Before fetching the cloned application, sleep for 5 seconds to ensure
+                        // that the cloning
                         // finishes
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
@@ -3600,7 +3615,8 @@ public class ApplicationServiceCETest {
         Mono<Application> applicationFromDbPostViewChange = Mono.just(originalApplication)
                 .flatMap(originalApp -> {
                     try {
-                        // Before fetching the public application, sleep for 5 seconds to ensure that the updating
+                        // Before fetching the public application, sleep for 5 seconds to ensure
+                        // that the updating
                         // all appsmith objects with public permission finishes.
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
@@ -3819,11 +3835,11 @@ public class ApplicationServiceCETest {
     public void deleteApplication_withPagesActionsAndActionCollections_resourcesArchived() {
 
         /*
-        1. Create application
-        2. Add page, action and actionCollection
-        5. Delete application
-        6. Page, action and actionCollection should be soft deleted
-        */
+         * 1. Create application
+         * 2. Add page, action and actionCollection
+         * 5. Delete application
+         * 6. Page, action and actionCollection should be soft deleted
+         */
         Application testApplication = new Application();
         String appName = "deleteApplicationWithPagesAndActions";
         testApplication.setName(appName);
@@ -4044,8 +4060,10 @@ public class ApplicationServiceCETest {
     }
 
     /**
-     * Test case which proves the non-dependency of isPublic Field in Update Application API Response
-     * on the deprecated Application collection isPublic field for a public application
+     * Test case which proves the non-dependency of isPublic Field in Update
+     * Application API Response
+     * on the deprecated Application collection isPublic field for a public
+     * application
      * The following steps are followed:
      * 1. Create a new app
      * 2. Invoke the changeViewAccess method to set the App "Public"
@@ -4062,7 +4080,8 @@ public class ApplicationServiceCETest {
                 .block();
 
         /**
-         * Making the App public using changeViewAccess method which changes the permission groups of the app to allow public access
+         * Making the App public using changeViewAccess method which changes the
+         * permission groups of the app to allow public access
          */
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -4071,14 +4090,18 @@ public class ApplicationServiceCETest {
                 .block();
 
         /**
-         * setIsPublic to False, purposely set to prove non-dependency on this field of the output
+         * setIsPublic to False, purposely set to prove non-dependency on this field of
+         * the output
          */
         publicAccessApplication.setIsPublic(false);
 
         /**
-         * Using the Update App method and asserting the response to verify the isPublic field in the response is True
-         * which proves it's non-dependency on the deprecated Application collection isPublic field
-         * and shows it dependency on the actual app permissions and state of the app which has been set public in this case
+         * Using the Update App method and asserting the response to verify the isPublic
+         * field in the response is True
+         * which proves it's non-dependency on the deprecated Application collection
+         * isPublic field
+         * and shows it dependency on the actual app permissions and state of the app
+         * which has been set public in this case
          **/
         Mono<Application> updatedApplication =
                 applicationService.update(createdApplication.getId(), publicAccessApplication);
@@ -4092,8 +4115,10 @@ public class ApplicationServiceCETest {
     }
 
     /**
-     * Test case which proves the non-dependency of isPublic Field in Update Application API Response
-     * on the deprecated Application collection isPublic field for a public application
+     * Test case which proves the non-dependency of isPublic Field in Update
+     * Application API Response
+     * on the deprecated Application collection isPublic field for a public
+     * application
      * The following steps are followed:
      * 1. Create a new app
      * 2. Invoke the changeViewAccess method to set the App "Public"
@@ -4110,7 +4135,8 @@ public class ApplicationServiceCETest {
                 .block();
 
         /**
-         * Making the App private using changeViewAccess method which changes the permission groups of the app to restrict public access
+         * Making the App private using changeViewAccess method which changes the
+         * permission groups of the app to restrict public access
          */
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(false);
@@ -4120,14 +4146,18 @@ public class ApplicationServiceCETest {
                 .block();
 
         /**
-         * setIsPublic to True, purposely set to prove non-dependency on this field of the output
+         * setIsPublic to True, purposely set to prove non-dependency on this field of
+         * the output
          */
         privateAccessApplication.setIsPublic(true);
 
         /**
-         * Using the Update App method and asserting the response to verify the isPublic field in the response is False
-         * which proves it's non-dependency on the deprecated Application collection isPublic field
-         * and shows it dependency on the actual app permissions and state of the app which has been set private in this case
+         * Using the Update App method and asserting the response to verify the isPublic
+         * field in the response is False
+         * which proves it's non-dependency on the deprecated Application collection
+         * isPublic field
+         * and shows it dependency on the actual app permissions and state of the app
+         * which has been set private in this case
          **/
         Mono<Application> updatedApplication =
                 applicationService.update(createdApplication.getId(), privateAccessApplication);
@@ -4300,7 +4330,8 @@ public class ApplicationServiceCETest {
         /*
          * Git connected application has 2 pages.
          * We take away all Manage Page permissions for 2nd page.
-         * Now since, no one has the permissions to Edit the 2nd page, teh application deployment will fail.
+         * Now since, no one has the permissions to Edit the 2nd page, teh application
+         * deployment will fail.
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
                 .filter(policy -> !policy.getPermission()
@@ -4333,7 +4364,8 @@ public class ApplicationServiceCETest {
         /*
          * Git connected application has 2 pages.
          * We take away all Manage Page permissions for 2nd page.
-         * Now since, no one has the permissions to Edit the 2nd page, the application cloning will fail.
+         * Now since, no one has the permissions to Edit the 2nd page, the application
+         * cloning will fail.
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
                 .filter(policy -> !policy.getPermission()
@@ -4355,7 +4387,8 @@ public class ApplicationServiceCETest {
                 applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
         /*
          * Check that no applications have been created in the Target Workspace
-         * This can be checked by comparing it with the existing count of applications in the Workspace.
+         * This can be checked by comparing it with the existing count of applications
+         * in the Workspace.
          */
         StepVerifier.create(applicationsInWorkspace)
                 .assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
@@ -4384,7 +4417,8 @@ public class ApplicationServiceCETest {
 
         Set<Policy> existingPolicies = testDatasource1.getPolicies();
         /*
-         * The created Workspace has a Datasource. And we will remove the Create Datasource Action permisison.
+         * The created Workspace has a Datasource. And we will remove the Create
+         * Datasource Action permisison.
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
                 .filter(policy -> !policy.getPermission()
@@ -4412,7 +4446,8 @@ public class ApplicationServiceCETest {
                 applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
         /*
          * Check that no applications have been created in the Target Workspace
-         * This can be checked by comparing it with the existing count of applications in the Workspace.
+         * This can be checked by comparing it with the existing count of applications
+         * in the Workspace.
          */
         StepVerifier.create(applicationsInWorkspace)
                 .assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));

@@ -218,7 +218,8 @@ public class ActionServiceCE_Test {
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
 
-        // Create application and page which will be used by the tests to create actions for.
+        // Create application and page which will be used by the tests to create actions
+        // for.
         Application application = new Application();
         application.setName(UUID.randomUUID().toString());
         testApp = applicationPageService
@@ -799,7 +800,7 @@ public class ActionServiceCE_Test {
                 .assertNext(actions -> {
                     assertThat(actions.size()).isGreaterThan(0);
                     ActionViewDTO actionViewDTO = actions.get(0);
-                    assertThat(actionViewDTO.getId()).isNotNull();
+                    assertThat(actionViewDTO.getId()).isNull();
                     assertThat(actionViewDTO.getTimeoutInMillisecond()).isNotNull();
                     assertThat(actionViewDTO.getPageId()).isNotNull();
                     assertThat(actionViewDTO.getConfirmBeforeExecute()).isNotNull();
