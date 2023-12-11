@@ -21,9 +21,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ActionCollection extends ActionCollectionCE {
 
     @JsonView(Views.Public.class)
-    String moduleId;
-
-    @JsonView(Views.Public.class)
     String moduleInstanceId;
 
     @JsonView(Views.Public.class)

@@ -5,6 +5,8 @@ import type {
 } from "@appsmith/constants/ModuleInstanceConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
+import type { JSCollection } from "entities/JSCollection";
+import type { OnUpdateSettingsProps } from "pages/Editor/JSEditor/JSFunctionSettings";
 
 export interface CreateQueryModuleInstancePayload {
   sourceModuleId: string;
@@ -36,7 +38,9 @@ export interface SetupModuleInstancePayload {
   viewMode: boolean;
 }
 
-export type UpdateModuleInstanceSettingsPayload = Action;
+export type UpdateModuleInstanceSettingsPayload = Action | JSCollection;
+
+export type UpdateJSModuleInstanceSettingsPayload = OnUpdateSettingsProps;
 
 export interface UpdateModuleInstanceOnPageLoadSettingsPayload {
   actionId: string;
@@ -54,6 +58,11 @@ export interface DeleteModuleInstancePayload {
 
 export interface RunQueryModuleInstancePayload {
   id: string;
+}
+
+export interface SetModuleInstanceActiveJSActionPayload {
+  jsCollectionId: string;
+  jsActionId: string;
 }
 
 export const createQueryModuleInstance = (
@@ -119,3 +128,12 @@ export const runQueryModuleInstance = (
   type: ReduxActionTypes.RUN_QUERY_MODULE_INSTANCE_INIT,
   payload,
 });
+
+export const setModuleInstanceActiveJSAction = (
+  payload: SetModuleInstanceActiveJSActionPayload,
+) => {
+  return {
+    type: ReduxActionTypes.SET_MODULE_INSTANCE_ACTIVE_JS_ACTION,
+    payload,
+  };
+};

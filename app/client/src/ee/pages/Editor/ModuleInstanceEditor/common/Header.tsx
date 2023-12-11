@@ -1,17 +1,17 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Link } from "design-system";
+import { Link } from "design-system";
 
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import ModuleInstanceNameEditor from "./ModuleInstanceNameEditor";
 import { useHistory } from "react-router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { builderURL } from "@appsmith/RouteBuilder";
 import type { AppsmithLocationState } from "utils/history";
 import EditorContextMenu from "./EditorContextMenu";
-import { noop } from "lodash";
-import { getIsModuleInstanceRunningStatus } from "@appsmith/selectors/moduleInstanceSelectors";
+import { deleteModuleInstance } from "@appsmith/actions/moduleInstanceActions";
+import { hasDeleteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -39,23 +39,24 @@ const StyledBackLink = styled(Link)`
 
 interface HeaderProps {
   moduleInstance: ModuleInstance;
-  onRunClick: () => void;
-  isExecutePermitted: boolean;
+  children: React.ReactNode;
 }
 
-function Header({
-  isExecutePermitted,
-  moduleInstance,
-  onRunClick,
-}: HeaderProps) {
+function Header({ children, moduleInstance }: HeaderProps) {
   const history = useHistory<AppsmithLocationState>();
   const pageId = useSelector(getCurrentPageId);
-  const { isRunning } = useSelector((state) =>
-    getIsModuleInstanceRunningStatus(state, moduleInstance.id),
-  );
+  const dispatch = useDispatch();
   const onBack = () => {
     history.push(builderURL({ pageId }));
   };
+
+  const onDelete = () => {
+    dispatch(deleteModuleInstance({ id: moduleInstance.id }));
+  };
+
+  const isDeletePermitted = hasDeleteModuleInstancePermission(
+    moduleInstance?.userPermissions,
+  );
 
   return (
     <StyledContainer>
@@ -72,17 +73,11 @@ function Header({
           <ModuleInstanceNameEditor moduleInstance={moduleInstance} />
         </StyledSubheaderSection>
         <StyledSubheaderSection>
-          <EditorContextMenu isDeletePermitted onDelete={noop} />
-          <Button
-            className="t--run-module-instance"
-            data-guided-tour-id="run-module-instance"
-            isDisabled={!isExecutePermitted}
-            isLoading={isRunning}
-            onClick={onRunClick}
-            size="md"
-          >
-            Run
-          </Button>
+          <EditorContextMenu
+            isDeletePermitted={isDeletePermitted}
+            onDelete={onDelete}
+          />
+          {children}
         </StyledSubheaderSection>
       </StyledSubheader>
     </StyledContainer>

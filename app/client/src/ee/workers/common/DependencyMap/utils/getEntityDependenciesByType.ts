@@ -3,6 +3,8 @@ export * from "ce/workers/common/DependencyMap/utils/getEntityDependenciesByType
 import type {
   DataTreeEntityConfig,
   DataTreeEntityObject,
+  JSModuleInstanceEntity,
+  JSModuleInstanceEntityConfig,
   ModuleInputsConfig,
   ModuleInputsEntity,
   QueryModuleInstanceEntity,
@@ -18,7 +20,10 @@ import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import { getDependencyFromEntityPath } from "workers/common/DependencyMap/utils/getEntityDependencies";
 import { find, union } from "lodash";
 import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
-import { isQueryModuleInstance } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  isJSModuleInstance,
+  isQueryModuleInstance,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export const getDependencies = {
   ...CE_getDependencies,
@@ -52,6 +57,47 @@ export function getModuleInstanceDependencies(
       allKeys as Record<string, true>,
     );
   }
+
+  if (isJSModuleInstance(entity)) {
+    return JSModuleInstanceDependencies(
+      entity as JSModuleInstanceEntity,
+      entityConfig as JSModuleInstanceEntityConfig,
+      allKeys as Record<string, true>,
+    );
+  }
+}
+
+export function JSModuleInstanceDependencies(
+  entity: JSModuleInstanceEntity,
+  entityConfig: JSModuleInstanceEntityConfig,
+  allKeys: Record<string, true>,
+) {
+  let dependencies: Record<string, string[]> = {};
+  const jsActionReactivePaths = entityConfig.reactivePaths || {};
+  const jsActionDependencyMap = entityConfig.dependencyMap || {};
+  const jsObjectName = entityConfig.name || "";
+
+  for (const [propertyPath, pathDeps] of Object.entries(
+    jsActionDependencyMap,
+  )) {
+    const fullPropertyPath = `${jsObjectName}.${propertyPath}`;
+    const propertyPathDependencies: string[] = pathDeps
+      .map((dependentPath) => `${jsObjectName}.${dependentPath}`)
+      .filter((path) => allKeys.hasOwnProperty(path));
+    dependencies[fullPropertyPath] = propertyPathDependencies;
+  }
+
+  for (const reactivePath of Object.keys(jsActionReactivePaths)) {
+    const fullPropertyPath = `${jsObjectName}.${reactivePath}`;
+    const reactivePathDependencies = getDependencyFromEntityPath(
+      reactivePath,
+      entity,
+    );
+    const existingDeps = dependencies[fullPropertyPath] || [];
+    const newDeps = union(existingDeps, reactivePathDependencies);
+    dependencies = { ...dependencies, [fullPropertyPath]: newDeps };
+  }
+  return dependencies;
 }
 
 export function QueryModuleInstanceDependencies(
@@ -83,7 +129,6 @@ export function QueryModuleInstanceDependencies(
     const newDependencies = union(existingDeps, dynamicPathDependencies);
     dependencies = { ...dependencies, [fullPropertyPath]: newDependencies };
   }
-
   return dependencies;
 }
 
@@ -151,6 +196,42 @@ export function getModuleInstancePathDependencies(
       allKeys,
     );
   }
+
+  if (isJSModuleInstance(entity)) {
+    return getJSModulePathDependencies(
+      entity,
+      entityConfig,
+      fullPropertyPath,
+      allKeys,
+    );
+  }
+}
+
+export function getJSModulePathDependencies(
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+  fullPropertyPath: string,
+  allKeys: Record<string, true>,
+) {
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+  const jsActionReactivePaths = entityConfig.reactivePaths || {};
+  let dependencies: string[] = [];
+  const jsInternalDependencyMap = entityConfig.dependencyMap || {};
+  const jsPathInternalDependencies =
+    jsInternalDependencyMap[propertyPath]
+      ?.map((dep) => `${entityConfig.name}.${dep}`)
+      ?.filter((path) => allKeys.hasOwnProperty(path)) || [];
+
+  dependencies = union(dependencies, jsPathInternalDependencies);
+
+  if (jsActionReactivePaths.hasOwnProperty(propertyPath)) {
+    const propertyPathDependencies = getDependencyFromEntityPath(
+      propertyPath,
+      entity,
+    );
+    dependencies = union(dependencies, propertyPathDependencies);
+  }
+  return dependencies;
 }
 
 export function getQueryModulePathDependencies(

@@ -23,7 +23,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -126,7 +126,7 @@ public class ActionCollectionServiceImplTest {
     private PolicyGenerator policyGenerator;
 
     @MockBean
-    private CrudModuleService crudModuleService;
+    private ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
 
     @BeforeEach
     public void setUp() {
@@ -159,7 +159,7 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionRepository,
                 pagePermission,
                 actionPermission,
-                crudModuleService);
+                actionCollectionModuleEntityService);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(

@@ -11,9 +11,11 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -531,6 +533,14 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 policyGenerator.getAllChildPermissions(pagePermissions, ModuleInstance.class).stream()
                         .toList();
 
+        List<AclPermission> modulePermissions = appsmithRole.getPermissions().stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Module.class))
+                .toList();
+
+        List<AclPermission> packagePermissions = appsmithRole.getPermissions().stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Package.class))
+                .toList();
+
         return Map.of(
                 Workspace.class.getSimpleName(),
                 workspacePermissions,
@@ -545,7 +555,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 NewAction.class.getSimpleName(),
                 actionPermissions,
                 ModuleInstance.class.getSimpleName(),
-                moduleInstancePermissions);
+                moduleInstancePermissions,
+                Module.class.getSimpleName(),
+                modulePermissions,
+                Package.class.getSimpleName(),
+                packagePermissions);
     }
 
     /**

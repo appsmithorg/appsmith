@@ -73,6 +73,7 @@ function PackageCardListRenderer({
             <Button
               className="t--new-package-button createnew"
               isLoading={isCreatingPackage}
+              kind="secondary"
               onClick={createPackage}
               size="md"
               startIcon="plus"

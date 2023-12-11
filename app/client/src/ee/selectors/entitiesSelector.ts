@@ -7,7 +7,7 @@ import {
   getJSCollections,
   selectFilesForExplorer as CE_selectFilesForExplorer,
 } from "ce/selectors/entitiesSelector";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
 import {
   getAllModules,
   getCurrentModuleId,
@@ -156,3 +156,24 @@ export const getActionData = (
   );
   if (moduleInstanceAction) return moduleInstanceAction.data;
 };
+
+export const getQueryModuleInstances = createSelector(
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInstances, moduleInstanceEntities) => {
+    const queryModuleInstances = Object.values(moduleInstances).map(
+      (instance) => {
+        if (instance.type === MODULE_TYPE.QUERY) {
+          const getPublicAction = moduleInstanceEntities.actions.find(
+            (entity) => entity.config.moduleInstanceId === instance.id,
+          );
+          return {
+            config: instance,
+            data: getPublicAction?.data,
+          };
+        }
+      },
+    );
+    return queryModuleInstances;
+  },
+);

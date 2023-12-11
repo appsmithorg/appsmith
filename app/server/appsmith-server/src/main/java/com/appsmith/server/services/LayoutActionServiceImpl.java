@@ -8,9 +8,10 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -33,7 +34,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
 
     private final DatasourceService datasourceService;
     private final DatasourcePermission datasourcePermission;
-    private final CrudModuleService crudModuleService;
+    private final ModuleEntityService<NewAction> newActionModuleEntityService;
     private final CrudWorkflowEntityService crudWorkflowEntityService;
 
     public LayoutActionServiceImpl(
@@ -48,7 +49,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             PagePermission pagePermission,
             ActionPermission actionPermission,
             DatasourcePermission datasourcePermission,
-            CrudModuleService crudModuleService,
+            ModuleEntityService<NewAction> newActionModuleEntityService,
             CrudWorkflowEntityService crudWorkflowEntityService) {
 
         super(
@@ -65,7 +66,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
 
         this.datasourceService = datasourceService;
         this.datasourcePermission = datasourcePermission;
-        this.crudModuleService = crudModuleService;
+        this.newActionModuleEntityService = newActionModuleEntityService;
         this.crudWorkflowEntityService = crudWorkflowEntityService;
     }
 
@@ -93,7 +94,9 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
     public Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName) {
 
         if (isModuleAction(action)) {
-            return crudModuleService.createPrivateModuleAction(action, branchName);
+            return newActionModuleEntityService
+                    .createPrivateEntity((ModuleConsumable) action, branchName)
+                    .map(createdEntity -> (ActionDTO) createdEntity);
         }
 
         if (isWorkflowContext(action)) {

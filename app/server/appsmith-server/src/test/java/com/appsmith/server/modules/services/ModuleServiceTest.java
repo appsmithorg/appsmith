@@ -9,12 +9,14 @@ import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackageDTO;
@@ -57,20 +59,25 @@ import reactor.test.StepVerifier;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.appsmith.server.acl.AclPermission.CREATE_MODULE_EXECUTABLES;
+import static com.appsmith.server.acl.AclPermission.CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_MODULES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_MODULES;
+import static com.appsmith.server.acl.AclPermission.READ_MODULES;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class ModuleServiceTest {
+class ModuleServiceTest {
 
     @Autowired
     PackagePermissionChecker packagePermissionChecker;
@@ -130,19 +137,19 @@ public class ModuleServiceTest {
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
-    public void setup() {
+    void setup() {
 
         User currentUser = sessionUserService.getCurrentUser().block();
         if (!currentUser.getEmail().equals("api_user")) {
             // Don't do any setups
             return;
         }
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_audit_logs_enabled))
                 .thenReturn(Mono.just(TRUE));
 
         doReturn(FALSE).when(commonConfig).isCloudHosting();
 
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_query_module_enabled)))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_query_module_enabled))
                 .thenReturn(Mono.just(TRUE));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -223,7 +230,7 @@ public class ModuleServiceTest {
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
     }
 
-    public void setupTestPackage() {
+    void setupTestPackage() {
         PackageDTO newPackage = new PackageDTO();
         newPackage.setName(UUID.randomUUID().toString());
         newPackage.setColor("#C2DAF0");
@@ -235,7 +242,7 @@ public class ModuleServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testCreateModuleWithValidInput() {
+    void testCreateQueryModule_withValidInput_initializesRequiredProperties() {
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("GetUsersModule");
         moduleDTO.setType(ModuleType.QUERY_MODULE);
@@ -255,12 +262,72 @@ public class ModuleServiceTest {
                     assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
                     assertThat(createdModule.getSettingsForm()).isNotNull();
                     assertThat(createdModule.getUserPermissions()).isNotEmpty();
-                    verifySettingsForCreator(createdModule);
+                    verifyQueryModuleSettingsForCreator(createdModule);
                 })
                 .verifyComplete();
     }
 
-    private void verifySettingsForCreator(ModuleDTO moduleDTO) {
+    @WithUserDetails(value = "api_user")
+    @Test
+    void testCreateJSModule_withValidInput_initializesRequiredProperties() {
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("MockJSModule");
+        moduleDTO.setType(ModuleType.JS_MODULE);
+        moduleDTO.setPackageId(packageId);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setName("moduleFunc1");
+        moduleActionDTO.setWorkspaceId(workspaceId);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("function () { return \"foo\" }");
+        moduleActionDTO.setActionConfiguration(actionConfiguration);
+        moduleActionDTO.setClientSideExecution(true);
+
+        ModuleActionCollectionDTO moduleActionCollectionDTO = new ModuleActionCollectionDTO();
+        moduleActionCollectionDTO.setPluginType(PluginType.JS);
+        moduleActionCollectionDTO.setName("moduleJSObject");
+        moduleActionCollectionDTO.setBody("export default { moduleFunc1() { return \"foo\" } }");
+        moduleActionCollectionDTO.setWorkspaceId(workspaceId);
+
+        Plugin installedJsPlugin =
+                pluginRepository.findByPackageName("installed-js-plugin").block();
+
+        moduleActionCollectionDTO.setPluginId(installedJsPlugin.getId());
+
+        moduleDTO.setEntity(moduleActionCollectionDTO);
+
+        Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+
+        StepVerifier.create(moduleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    assertThat(createdModule.getName()).isEqualTo("MockJSModule");
+                    assertThat(createdModule.getSettingsForm()).isNotNull();
+                    Set<String> userPermissions = createdModule.getUserPermissions();
+                    assertThat(userPermissions).isNotEmpty();
+                    assertThat(userPermissions).hasSize(5);
+                    assertThat(userPermissions).allMatch(permission -> {
+                        Set<AclPermission> permissionSet = Set.of(
+                                READ_MODULES,
+                                CREATE_MODULE_EXECUTABLES,
+                                CREATE_MODULE_INSTANCES,
+                                MANAGE_MODULES,
+                                DELETE_MODULES);
+
+                        return permissionSet.contains(AclPermission.getPermissionByValue(permission, Module.class));
+                    });
+                    verifyJSModuleSettingsForCreator(createdModule);
+                })
+                .verifyComplete();
+    }
+
+    private void verifyJSModuleSettingsForCreator(ModuleDTO moduleDTO) {
+        JsonNode jsonNode = objectMapper.valueToTree(moduleDTO.getSettingsForm());
+
+        assertThat(jsonNode.isEmpty()).isTrue();
+    }
+
+    private void verifyQueryModuleSettingsForCreator(ModuleDTO moduleDTO) {
         JsonNode jsonNode = objectMapper.valueToTree(moduleDTO.getSettingsForm());
         // Check if "Run query on page load" is NOT present in the children array
         JsonNode childrenNode = jsonNode.get(0)
@@ -283,7 +350,7 @@ public class ModuleServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testUpdateModuleWithValidInput() {
+    void testUpdateModuleWithValidInput() {
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("GetUsersModuleV2");
         moduleDTO.setType(ModuleType.QUERY_MODULE);
@@ -316,9 +383,9 @@ public class ModuleServiceTest {
                 .assertNext(updatedModule -> {
                     assertThat(updatedModule.getName()).isEqualTo(moduleDTO.getName());
                     assertThat(updatedModule.getInputsForm()).isNotEmpty();
-                    assertThat(updatedModule.getInputsForm().size()).isEqualTo(1);
+                    assertThat(updatedModule.getInputsForm()).hasSize(1);
                     assertThat(updatedModule.getUserPermissions()).isNotEmpty();
-                    verifySettingsForCreator(updatedModule);
+                    verifyQueryModuleSettingsForCreator(updatedModule);
                 })
                 .verifyComplete();
 
@@ -338,7 +405,7 @@ public class ModuleServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testDeleteModuleWithNoModuleInstancesShouldDeleteModule() {
+    void testDeleteModuleWithNoModuleInstancesShouldDeleteModule() {
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("DeleteModuleTest");
         moduleDTO.setType(ModuleType.QUERY_MODULE);
@@ -371,7 +438,7 @@ public class ModuleServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testDeleteModuleWithModuleInstancesShouldNotDeleteModule() {
+    void testDeleteModuleWithModuleInstancesShouldNotDeleteModule() {
 
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("CannotDeleteModuleTest");
@@ -414,7 +481,7 @@ public class ModuleServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testGetEntitiesShouldReturnAtLeastOneEntity() {
+    void testGetEntitiesShouldReturnAtLeastOneEntity() {
 
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("PublicEntityTestModule");
@@ -443,7 +510,7 @@ public class ModuleServiceTest {
         StepVerifier.create(moduleActionsMono)
                 .assertNext(moduleConsumables -> {
                     assertThat(moduleConsumables).isNotNull();
-                    assertThat(moduleConsumables).size().isGreaterThanOrEqualTo(1);
+                    assertThat(moduleConsumables).size().isPositive();
                     moduleConsumables.forEach(moduleConsumable -> {
                         ModuleActionDTO moduleActionDTO1 = (ModuleActionDTO) moduleConsumable;
                         assertThat(moduleActionDTO1.getContextType()).isEqualTo(CreatorContextType.MODULE);
@@ -455,7 +522,7 @@ public class ModuleServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testDeletePackageShouldPassWhenNoModuleHasAnyInstances() {
+    void testDeletePackageShouldPassWhenNoModuleHasAnyInstances() {
         final PackageDTO aPackage = new PackageDTO();
         aPackage.setName("PackagePublishableEntitiesNegativeTest");
         aPackage.setColor("#C2DAF0");
@@ -529,14 +596,14 @@ public class ModuleServiceTest {
 
         StepVerifier.create(allModulesMono)
                 .assertNext(allModules -> {
-                    assertThat(allModules.size()).isEqualTo(0);
+                    assertThat(allModules).isEmpty();
                 })
                 .verifyComplete();
     }
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testDeletePackageShouldFailWhenModuleHasInstances() {
+    void testDeletePackageShouldFailWhenModuleHasInstances() {
         final PackageDTO aPackage = new PackageDTO();
         aPackage.setName("PackagePublishableEntitiesNegativeTest");
         aPackage.setColor("#C2DAF0");
@@ -618,14 +685,14 @@ public class ModuleServiceTest {
 
         StepVerifier.create(allModulesMono)
                 .assertNext(allModules -> {
-                    assertThat(allModules.size()).isEqualTo(2);
+                    assertThat(allModules).hasSize(2);
                 })
                 .verifyComplete();
     }
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testCreatePrivateModuleAction() {
+    void testCreatePrivateModuleAction() {
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("testCreatePrivateModuleAction");
         moduleDTO.setType(ModuleType.QUERY_MODULE);
@@ -664,7 +731,7 @@ public class ModuleServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testCreatePrivateModuleActionCollection() {
+    void testCreatePrivateModuleActionCollection() {
 
         Mockito.doReturn(Mono.just(new Plugin())).when(pluginService).findById(Mockito.any());
 
@@ -681,7 +748,7 @@ public class ModuleServiceTest {
 
         ModuleDTO createdModule = crudModuleService.createModule(moduleDTO).block();
 
-        ActionCollectionDTO privateModuleActionCollection = new ActionCollectionDTO();
+        ModuleActionCollectionDTO privateModuleActionCollection = new ModuleActionCollectionDTO();
         privateModuleActionCollection.setName("firstPrivateModuleActionCollection");
         privateModuleActionCollection.setPluginId("pluginId");
         privateModuleActionCollection.setPluginType(PluginType.JS);
@@ -706,8 +773,7 @@ public class ModuleServiceTest {
                     assertThat(createdModuleActionCollection.getIsPublic()).isFalse();
 
                     assertThat(createdModuleActionCollection.getActions()).isNotNull();
-                    assertThat(createdModuleActionCollection.getActions().size())
-                            .isEqualTo(1);
+                    assertThat(createdModuleActionCollection.getActions()).hasSize(1);
                     assertThat(createdModuleActionCollection
                                     .getActions()
                                     .get(0)

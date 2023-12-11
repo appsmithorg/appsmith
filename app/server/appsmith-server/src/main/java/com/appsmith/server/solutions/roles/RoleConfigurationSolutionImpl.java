@@ -10,11 +10,14 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GacEntityMetadata;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QModule;
 import com.appsmith.server.domains.QModuleInstance;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
@@ -33,6 +36,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
+import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -120,6 +124,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ModuleInstanceRepository moduleInstanceRepository;
+    private final ModuleRepository moduleRepository;
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
@@ -140,6 +145,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             NewActionRepository newActionRepository,
             ActionCollectionRepository actionCollectionRepository,
             ModuleInstanceRepository moduleInstanceRepository,
+            ModuleRepository moduleRepository,
             AnalyticsService analyticsService,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
@@ -159,6 +165,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
         this.moduleInstanceRepository = moduleInstanceRepository;
+        this.moduleRepository = moduleRepository;
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
         this.datasourceRepository = datasourceRepository;
@@ -1265,7 +1272,10 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                         + fieldName(QNewAction.newAction.publishedAction.datasource) + "."
                         + fieldName(QNewAction.newAction.publishedAction.datasource.id));
         List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
-        List<String> includedFieldsForModuleInstance = List.of(fieldName(QModuleInstance.moduleInstance.id));
+        List<String> includedFieldsForModuleInstance = List.of(
+                fieldName(QModuleInstance.moduleInstance.id), fieldName(QModuleInstance.moduleInstance.sourceModuleId));
+        List<String> includedFieldsForModule =
+                List.of(fieldName(QModule.module.id), fieldName(QModule.module.packageId));
 
         Mono<List<NewPage>> allPagesInApplicationMono = newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(applicationId), includeFieldsForPage)
@@ -1277,20 +1287,33 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         Mono<List<ActionCollection>> allActionCollectionInApplicationMono = actionCollectionRepository
                 .findAllByApplicationIds(List.of(applicationId), includeFieldsForActionCollection)
                 .collectList();
-        Mono<List<ModuleInstance>> allModuleInstancesInApplicationMono = moduleInstanceRepository
+        Flux<ModuleInstance> moduleInstancesFlux = moduleInstanceRepository
                 .findAllByApplicationIds(List.of(applicationId), includedFieldsForModuleInstance)
+                .cache();
+
+        Mono<List<ModuleInstance>> allModuleInstancesInApplicationMono = moduleInstancesFlux.collectList();
+
+        Mono<List<String>> moduleIdListMono = moduleInstancesFlux
+                .map(ModuleInstance::getSourceModuleId)
+                .distinct()
+                .collectList();
+
+        Mono<List<Module>> allModulesUsedInApplicationMono = moduleIdListMono
+                .flatMapMany(moduleIdList -> moduleRepository.findAllById(moduleIdList, includedFieldsForModule))
                 .collectList();
 
         return Mono.zip(
                         allPagesInApplicationMono,
                         allActionsInApplicationMono,
                         allActionCollectionInApplicationMono,
-                        allModuleInstancesInApplicationMono)
+                        allModuleInstancesInApplicationMono,
+                        allModulesUsedInApplicationMono)
                 .flatMap(tuple -> {
                     List<NewPage> newPages = tuple.getT1();
                     List<NewAction> newActions = tuple.getT2();
                     List<ActionCollection> actionCollections = tuple.getT3();
                     List<ModuleInstance> moduleInstances = tuple.getT4();
+                    List<Module> modules = tuple.getT5();
                     Set<String> datasourceIds = getAllDatasourceIdsFromActions(newActions);
 
                     Map<String, Class> entityIdEntityClassMap = new HashMap<>();
@@ -1355,6 +1378,28 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                                 toBeRemovedPermissions.getOrDefault(ModuleInstance.class.getSimpleName(), List.of()));
                     });
 
+                    Set<String> packageIds = new HashSet<>();
+
+                    modules.forEach(module -> {
+                        packageIds.add(module.getPackageId());
+                        entityIdEntityClassMap.put(module.getId(), Module.class);
+                        toBeAddedPermissionsForEntities.put(
+                                module.getId(),
+                                toBeAddedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                module.getId(),
+                                toBeRemovedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
+                    });
+
+                    packageIds.forEach(packageId -> {
+                        entityIdEntityClassMap.put(packageId, Package.class);
+                        toBeAddedPermissionsForEntities.put(
+                                packageId, toBeAddedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                packageId,
+                                toBeRemovedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
+                    });
+
                     return bulkUpdateEntityPoliciesForApplicationRole(
                             entityIdEntityClassMap,
                             roleId,
@@ -1398,7 +1443,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         List<String> applicationsRevokedInApplicationResourcesTab = new ArrayList<>();
 
         Mono<List<Boolean>> collectEntitiesAndSideEffectEntities = Flux.fromIterable(entityIdEntityClassMap.entrySet())
-                .map(entry -> {
+                .flatMap(entry -> {
                     String entityId = entry.getKey();
                     Class<?> clazz = entry.getValue();
                     List<AclPermission> toBeAddedPermissions =
@@ -1434,7 +1479,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                     }
                     return Mono.just(TRUE);
                 })
-                .map(value -> true)
                 .collectList();
 
         Flux<Boolean> updateEntityPoliciesAndSideEffectsFlux = updateEntityPoliciesAndSideEffects(
@@ -1544,13 +1588,13 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
      *     <li>Prepares maps for entity IDs to entity classes, to-be-added permissions, and to-be-removed permissions.</li>
      *     <li>Invokes bulkUpdateEntityPoliciesForApplicationRole to update permissions for all entities.</li>
      * </ol>
-     *
+     * <p>
      * Note: Permissions for ActionCollections are not yet implemented (TODO).
      *
-     * @param workflowId The ID of the workflow to be updated.
-     * @param workspaceId The ID of the workspace containing the workflow.
-     * @param roleId The ID of the role for which permissions are to be updated.
-     * @param toBeAddedPermissions A map containing entity class names and the corresponding permissions to be added.
+     * @param workflowId             The ID of the workflow to be updated.
+     * @param workspaceId            The ID of the workspace containing the workflow.
+     * @param roleId                 The ID of the role for which permissions are to be updated.
+     * @param toBeAddedPermissions   A map containing entity class names and the corresponding permissions to be added.
      * @param toBeRemovedPermissions A map containing entity class names and the corresponding permissions to be removed.
      */
     @Override

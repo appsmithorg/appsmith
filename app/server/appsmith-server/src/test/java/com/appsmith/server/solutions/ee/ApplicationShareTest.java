@@ -21,7 +21,9 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
@@ -57,8 +59,10 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
+import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -137,7 +141,9 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_MODULES;
 import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
@@ -268,6 +274,12 @@ public class ApplicationShareTest {
     @Autowired
     ModuleInstanceRepository moduleInstanceRepository;
 
+    @Autowired
+    ModuleRepository moduleRepository;
+
+    @Autowired
+    PackageRepository packageRepository;
+
     Workspace workspace;
 
     List<PermissionGroup> defaultWorkspaceRoles;
@@ -287,6 +299,7 @@ public class ApplicationShareTest {
             READ_MODULE_INSTANCES.getValue(),
             MANAGE_MODULE_INSTANCES.getValue(),
             DELETE_MODULE_INSTANCES.getValue());
+
     final Set<String> newActionPermissions = Set.of(
             MANAGE_ACTIONS.getValue(), DELETE_ACTIONS.getValue(), READ_ACTIONS.getValue(), EXECUTE_ACTIONS.getValue());
 
@@ -595,6 +608,15 @@ public class ApplicationShareTest {
                 .findById(moduleInstanceDTO.getId())
                 .block()
                 .getPolicies();
+
+        Module module =
+                moduleRepository.findById(moduleInstanceDTO.getSourceModuleId()).block();
+
+        Set<Policy> modulePolicies = module.getPolicies();
+
+        Set<Policy> packagePolicies =
+                packageRepository.findById(module.getPackageId()).block().getPolicies();
+
         Set<Policy> composedActionPolicies = newActionRepository
                 .findById(createModuleInstanceResponseDTO
                         .getEntities()
@@ -716,6 +738,32 @@ public class ApplicationShareTest {
                 .allMatch(policy -> moduleInstancePermissions.contains(policy.getPermission()));
         moduleInstancePolicies.forEach(
                 policy -> assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId()));
+
+        modulePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Module.class);
+            assertThat(permissionByValue).isNotNull();
+            if (permissionByValue == READ_MODULES) {
+                assertThat(permissionGroups).contains(devApplicationRole.getId());
+            } else {
+                assertThat(permissionGroups).doesNotContain(devApplicationRole.getId());
+            }
+        });
+
+        packagePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Package.class);
+            assertThat(permissionByValue).isNotNull();
+            if (permissionByValue == READ_PACKAGES) {
+                assertThat(permissionGroups).contains(devApplicationRole.getId());
+            } else {
+                assertThat(permissionGroups).doesNotContain(devApplicationRole.getId());
+            }
+        });
 
         assertThat(composedActionPolicies).allMatch(policy -> newActionPermissions.contains(policy.getPermission()));
         composedActionPolicies.forEach(
@@ -1229,6 +1277,15 @@ public class ApplicationShareTest {
                 .findById(moduleInstanceDTO.getId())
                 .block()
                 .getPolicies();
+
+        Module module =
+                moduleRepository.findById(moduleInstanceDTO.getSourceModuleId()).block();
+
+        Set<Policy> modulePolicies = module.getPolicies();
+
+        Set<Policy> packagePolicies =
+                packageRepository.findById(module.getPackageId()).block().getPolicies();
+
         Set<Policy> composedActionPolicies = newActionRepository
                 .findById(createModuleInstanceResponseDTO
                         .getEntities()
@@ -1350,6 +1407,24 @@ public class ApplicationShareTest {
                 }
                 case EXECUTE_MODULE_INSTANCES -> assertThat(permissionGroups).contains(viewApplicationRole.getId());
             }
+        });
+
+        modulePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Module.class);
+            assertThat(permissionByValue).isNotNull();
+            assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+        });
+
+        packagePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Package.class);
+            assertThat(permissionByValue).isNotNull();
+            assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
         });
 
         assertThat(composedActionPolicies).allMatch(policy -> newActionPermissions.contains(policy.getPermission()));
@@ -1505,10 +1580,20 @@ public class ApplicationShareTest {
                 .getPolicies();
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
+
         Set<Policy> moduleInstancePolicies = moduleInstanceRepository
                 .findById(moduleInstanceDTO.getId())
                 .block()
                 .getPolicies();
+
+        Module module =
+                moduleRepository.findById(moduleInstanceDTO.getSourceModuleId()).block();
+
+        Set<Policy> modulePolicies = module.getPolicies();
+
+        Set<Policy> packagePolicies =
+                packageRepository.findById(module.getPackageId()).block().getPolicies();
+
         Set<Policy> composedActionPolicies = newActionRepository
                 .findById(createModuleInstanceResponseDTO
                         .getEntities()
@@ -1632,6 +1717,34 @@ public class ApplicationShareTest {
                 }
                 case EXECUTE_MODULE_INSTANCES -> assertThat(permissionGroups)
                         .contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            }
+        });
+
+        modulePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Module.class);
+            assertThat(permissionByValue).isNotNull();
+            if (permissionByValue == READ_MODULES) {
+                assertThat(permissionGroups).contains(devApplicationRole.getId());
+                assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+            } else {
+                assertThat(permissionGroups).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
+            }
+        });
+
+        packagePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Package.class);
+            assertThat(permissionByValue).isNotNull();
+            if (permissionByValue == READ_PACKAGES) {
+                assertThat(permissionGroups).contains(devApplicationRole.getId());
+                assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+            } else {
+                assertThat(permissionGroups).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
         });
 

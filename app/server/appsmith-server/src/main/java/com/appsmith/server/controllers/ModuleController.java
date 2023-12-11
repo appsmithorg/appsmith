@@ -19,11 +19,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -44,10 +42,7 @@ public class ModuleController {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ModuleDTO>> createModule(
-            @Valid @RequestBody ModuleDTO resource,
-            @RequestHeader(name = "Origin", required = false) String originHeader,
-            ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ModuleDTO>> createModule(@Valid @RequestBody ModuleDTO resource) {
         log.debug("Going to create module under package {}", resource.getPackageId());
         return crudModuleService
                 .createModule(resource)

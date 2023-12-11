@@ -62,7 +62,7 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
                         branchedContextId, contextType, moduleInstancePermission.getEditPermission());
             } else {
                 moduleInstanceFlux = repository.findAllByContextIdAndContextType(
-                        branchedContextId, contextType, moduleInstancePermission.getReadPermission());
+                        branchedContextId, contextType, moduleInstancePermission.getExecutePermission());
             }
 
             return moduleInstanceFlux

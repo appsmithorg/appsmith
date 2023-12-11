@@ -2,6 +2,7 @@ export * from "ce/entities/DataTree/utils";
 import type {
   ActionEntity,
   JSActionEntity,
+  JSModuleInstanceEntity,
   ModuleInputsConfig,
   ModuleInputsEntity,
   QueryModuleInstanceEntity,
@@ -60,7 +61,8 @@ export function isWidgetActionOrJsObject(
   | WidgetEntity
   | JSActionEntity
   | ModuleInputsEntity
-  | QueryModuleInstanceEntity {
+  | QueryModuleInstanceEntity
+  | JSModuleInstanceEntity {
   return (
     CE_isWidgetActionOrJsObject(entity) ||
     isModuleInput(entity) ||

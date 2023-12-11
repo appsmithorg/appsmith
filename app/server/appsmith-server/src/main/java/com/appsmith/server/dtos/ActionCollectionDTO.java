@@ -4,11 +4,11 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ce.ActionCollectionCE_DTO;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEmbeddable;
-import kotlin.jvm.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 
 @Getter
 @Setter

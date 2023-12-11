@@ -31,8 +31,8 @@ function ModuleEditor({ match }: ModuleEditorProps) {
     urlBuilder.setCurrentModuleId(moduleId);
 
     return () => {
-      dispatch(setCurrentModule(null));
-      urlBuilder.setCurrentModuleId(null);
+      dispatch(setCurrentModule(undefined));
+      urlBuilder.setCurrentModuleId(undefined);
     };
   }, [moduleId]);
 

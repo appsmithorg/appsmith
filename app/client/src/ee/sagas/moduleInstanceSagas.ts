@@ -46,6 +46,9 @@ import {
 } from "@appsmith/constants/messages";
 import * as log from "loglevel";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
+import type { JSCollection } from "entities/JSCollection";
+import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 
 export interface RefactorModuleInstanceNameProps {
   id: string;
@@ -260,7 +263,7 @@ function* updateModuleInstanceOnPageLoadSettingsSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_ERROR,
-      payload: { error },
+      payload: { error, id: action.payload.actionId },
     });
   }
 }
@@ -269,15 +272,25 @@ function* updateModuleInstanceSettingsSaga(
   action: ReduxAction<UpdateModuleInstanceSettingsPayload>,
 ) {
   try {
-    const response: ApiResponse<Action> = yield call(
-      ActionAPI.updateAction,
-      action.payload,
-    );
+    const isJSCollection = Boolean("actions" in action.payload);
+    let response:
+      | ApiResponse<JSCollectionCreateUpdateResponse>
+      | ApiResponse<Action>
+      | undefined;
+
+    if (isJSCollection) {
+      response = yield JSActionAPI.updateJSCollection(
+        action.payload as JSCollection,
+      );
+    } else {
+      response = yield call(ActionAPI.updateAction, action.payload as Action);
+    }
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS,
-        payload: response.data,
+        payload: response?.data,
       });
     }
   } catch (error) {

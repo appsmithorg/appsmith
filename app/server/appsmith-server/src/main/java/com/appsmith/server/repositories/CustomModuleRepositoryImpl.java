@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.QLayout;
@@ -70,5 +71,11 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
         criteria.add(layoutCriterion);
 
         return queryOne(criteria, permission);
+    }
+
+    @Override
+    public Flux<Module> findAllById(List<String> moduleIdList, List<String> includedFieldsForModule) {
+        Criteria applicationCriteria = Criteria.where(FieldName.ID).in(moduleIdList);
+        return queryAll(List.of(applicationCriteria), includedFieldsForModule, null, null, NO_RECORD_LIMIT);
     }
 }
