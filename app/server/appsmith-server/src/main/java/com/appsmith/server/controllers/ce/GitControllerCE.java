@@ -334,7 +334,7 @@ public class GitControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/app/{defaultApplicationId}/auto-commit/progress")
+    @GetMapping("/auto-commit/progress/app/{defaultApplicationId}")
     public Mono<ResponseDTO<AutoCommitProgressDTO>> getAutoCommitProgress(
             @PathVariable String defaultApplicationId, @RequestParam String branchName) {
         return service.getAutoCommitProgress(defaultApplicationId, branchName)
@@ -342,7 +342,7 @@ public class GitControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PatchMapping("/app/{defaultApplicationId}/auto-commit/toggle")
+    @PatchMapping("/auto-commit/toggle/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Boolean>> toggleAutoCommitEnabled(@PathVariable String defaultApplicationId) {
         return service.toggleAutoCommitEnabled(defaultApplicationId)
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));

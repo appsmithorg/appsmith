@@ -3224,6 +3224,11 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Boolean> toggleAutoCommitEnabled(String defaultApplicationId) {
         return getApplicationById(defaultApplicationId)
+                .flatMap(application -> checkPermissionOnWorkspace(
+                                application.getWorkspaceId(),
+                                workspacePermission.getApplicationCreatePermission(),
+                                "Configure auto commit")
+                        .thenReturn(application))
                 .map(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (gitApplicationMetadata.getAutoCommitConfig() == null) {
