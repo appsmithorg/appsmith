@@ -23,7 +23,6 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const LeftPaneContainer = styled.div`
   height: 100%;
-  min-width: 150px;
   border-right: 1px solid var(--ads-v2-color-border);
   background: var(--ads-v2-color-bg);
 `;
