@@ -100,8 +100,6 @@ describe("Git sync apps", function () {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-
-    //cy.wait(3000);
     table.ReadTableRowColumnData(0, 1).then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
@@ -276,9 +274,9 @@ describe("Git sync apps", function () {
       tempBranch = branName;
     });
     // create jsObject and rename it
-    jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName(`${newPage} Copy`, EntityType.Page);
 
+    jsEditor.CreateJSObject('return "Success";');
     // create postgres select query
     dataSources.CreateQueryForDS(
       datasourceName,
