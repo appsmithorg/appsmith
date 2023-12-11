@@ -1,6 +1,6 @@
 import React from "react";
 import GitUserSettings from "./GitUserSettings";
-import GitDisconnect from "./GitDisconnect";
+import DangerZone from "./DangerZone";
 import styled from "styled-components";
 import { Divider, ModalBody } from "design-system";
 import GitDefaultBranch from "./GitDefaultBranch";
@@ -32,7 +32,7 @@ function GitSettings() {
             <GitProtectedBranches />
           </>
         ) : null}
-        {isGitAdmin && <GitDisconnect />}
+        {isGitAdmin && <DangerZone />}
       </Container>
     </ModalBody>
   );
