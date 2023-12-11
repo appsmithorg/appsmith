@@ -163,10 +163,10 @@ jobs:
         run: |
           args=()
           if [[ "${{ inputs.skip-tests }}" == "true" ]]; then
-            args+=("-DskipTests")
+            args+=("-DskipTests ")
           fi
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            args+=("-DfailIfNoTests=false -Dtest=${{ steps.failed_tests.outputs.tests }}")
+            args+=("-DfailIfNoTests=false -Dtest=\"${{ steps.failed_tests.outputs.tests }}\" ")
           fi
           args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           mvn --batch-mode versions:set \
