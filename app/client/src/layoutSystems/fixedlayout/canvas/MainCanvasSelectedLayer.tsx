@@ -12,7 +12,6 @@ const SelectedState = styled.div<{
 }>`
   border: 1px solid
     ${({ isSelected }) => (isSelected ? "#F86A2B" : "transparent")};
-  height: 100%;
 `;
 
 const WidgetName = styled.div`
