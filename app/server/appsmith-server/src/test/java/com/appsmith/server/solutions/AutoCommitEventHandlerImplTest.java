@@ -70,7 +70,8 @@ public class AutoCommitEventHandlerImplTest {
 
     @AfterEach
     public void afterTest() {
-        redisUtils.finishAutoCommit(defaultApplicationId);
+        redisUtils.finishAutoCommit(defaultApplicationId).block();
+        redisUtils.releaseFileLock(defaultApplicationId).block();
     }
 
     @Test

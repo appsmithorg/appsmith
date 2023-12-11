@@ -118,8 +118,9 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
 
     public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
         return addFileLock(autoCommitEvent.getApplicationId())
-                .then(redisUtils.startAutoCommit(autoCommitEvent.getApplicationId(), autoCommitEvent.getBranchName()))
-                .then(dslMigrationUtils.getLatestDslVersion())
+                .flatMap(fileLocked ->
+                        redisUtils.startAutoCommit(autoCommitEvent.getApplicationId(), autoCommitEvent.getBranchName()))
+                .flatMap(autoCommitLocked -> dslMigrationUtils.getLatestDslVersion())
                 .flatMap(latestSchemaVersion -> resetUncommittedChanges(autoCommitEvent)
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 20))
                         .then(fileUtils.reconstructApplicationJsonFromGitRepo(
