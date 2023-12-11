@@ -141,6 +141,8 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitApplicationMetadata.class), eq(branchName)))
                 .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
+                .thenReturn(Mono.just(Boolean.TRUE));
 
         Mono<Boolean> autoCommitMono = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)

@@ -6,7 +6,6 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
@@ -489,10 +488,6 @@ public class GitFileUtils {
         // be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
         removeUnwantedFieldsFromBaseDomain(action);
-    }
-
-    private void removeUnwantedFieldFromDatasourc(Datasource datasource) {
-        removeUnwantedFieldsFromBaseDomain(datasource);
     }
 
     private void removeUnwantedFieldFromActionCollection(ActionCollection actionCollection) {

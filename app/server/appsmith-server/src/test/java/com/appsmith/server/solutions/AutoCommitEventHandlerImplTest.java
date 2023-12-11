@@ -18,9 +18,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -43,7 +43,7 @@ public class AutoCommitEventHandlerImplTest {
     @MockBean
     ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
+    @SpyBean
     RedisUtils redisUtils;
 
     @MockBean
@@ -174,7 +174,7 @@ public class AutoCommitEventHandlerImplTest {
 
         StepVerifier.create(autoCommitEventHandler
                         .autoCommitDSLMigration(autoCommitEvent)
-                        .zipWith(redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
+                        .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
                     assertThat(tuple2.getT1()).isTrue();
                     assertThat(tuple2.getT2()).isEqualTo(100);
