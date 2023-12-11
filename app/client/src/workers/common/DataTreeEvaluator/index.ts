@@ -192,6 +192,10 @@ export default class DataTreeEvaluator {
     return this.evalTree;
   }
 
+  getEvalProps() {
+    return this.evalProps;
+  }
+
   setEvalTree(evalTree: DataTree) {
     this.evalTree = evalTree;
   }

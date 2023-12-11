@@ -42,6 +42,18 @@ export const initialState: EditorReduxState = {
 };
 
 export const handlers = {
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      currentPageId: undefined,
+      currentPageName: undefined,
+      currentLayoutId: undefined,
+      currentApplicationId: undefined,
+      pageWidgetId: undefined,
+      pageActions: undefined,
+      layoutOnLoadActionErrors: undefined,
+    };
+  },
   [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: false };
   },
