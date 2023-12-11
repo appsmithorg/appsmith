@@ -27,7 +27,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests", () => {
+describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
   it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.BUTTON_GROUP,
@@ -305,8 +305,6 @@ describe("Autocomplete tests", () => {
           .type(".");
 
         agHelper.GetNAssertElementText(locators._hints, "geolocation");
-
-        cy.get(".t--close-editor").click();
       });
   });
 
