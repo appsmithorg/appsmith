@@ -22,7 +22,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getIsAutocommitModalOpen } from "selectors/gitSyncSelectors";
 
 function DisableAutocommitModal() {
-  const isAutocommitModal = useSelector(getIsAutocommitModalOpen);
+  const isAutocommitModalOpen = useSelector(getIsAutocommitModalOpen);
 
   const dispatch = useDispatch();
 
@@ -40,7 +40,7 @@ function DisableAutocommitModal() {
       onOpenChange={(open: boolean) => {
         if (!open) handleClose();
       }}
-      open={isAutocommitModal}
+      open={isAutocommitModalOpen}
     >
       <ModalContent
         data-testid="t--autocommit-git-modal"

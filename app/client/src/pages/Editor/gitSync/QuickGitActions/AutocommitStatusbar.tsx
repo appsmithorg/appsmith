@@ -39,9 +39,10 @@ export default function AutocommitStatusbar({
     if (completed) {
       setPercentage(100);
       if (onHide) {
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           onHide && onHide();
         }, 1000);
+        return () => clearTimeout(timeout);
       }
     } else {
       if (percentage < 90) {
