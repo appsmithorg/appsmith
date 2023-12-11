@@ -4,7 +4,7 @@ import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
 import { HelpText } from "./HelpText";
-import type { StyleProps } from "@react-types/shared";
+import type { StyleProps, ValidationState } from "@react-types/shared";
 
 export type FieldProps = Omit<
   SpectrumFieldProps,
@@ -13,6 +13,7 @@ export type FieldProps = Omit<
   fieldType?: "field" | "field-group";
   labelClassName?: string;
   helpTextClassName?: string;
+  validationState?: ValidationState;
 };
 
 export type FieldRef = Ref<HTMLDivElement>;
@@ -83,7 +84,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     <div
       {...wrapperProps}
       className={wrapperClassName}
-      data-disabled={isDisabled ? "" : undefined}
+      data-disabled={Boolean(isDisabled) ? "" : undefined}
       data-field=""
       data-field-type={fieldType}
       ref={ref}

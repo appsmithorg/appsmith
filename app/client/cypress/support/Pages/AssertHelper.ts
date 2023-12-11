@@ -1,6 +1,4 @@
 import "cypress-wait-until";
-import { ObjectsRegistry } from "../Objects/Registry";
-import { ReusableHelper } from "../Objects/ReusableHelper";
 
 export const EntityItems = {
   Page: 0,
@@ -13,7 +11,7 @@ export const EntityItems = {
 
 export type EntityItemsType = (typeof EntityItems)[keyof typeof EntityItems];
 
-export class AssertHelper extends ReusableHelper {
+export class AssertHelper {
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   public isMac = Cypress.platform === "darwin";
