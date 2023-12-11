@@ -113,13 +113,17 @@ function QueryEditor(props: QueryEditorProps) {
     [pageId, history, integrationEditorURL],
   );
 
+  const isPagesPaneEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
   return (
     <QueryEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
-      closeEditorLink={closeEditorLink}
+      closeEditorLink={isPagesPaneEnabled ? null : closeEditorLink}
       moreActionsMenu={moreActionsMenu}
       onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={onEntityNotFoundBackClick}
