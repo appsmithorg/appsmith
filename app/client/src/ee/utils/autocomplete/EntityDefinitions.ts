@@ -1,11 +1,17 @@
 export * from "ce/utils/autocomplete/EntityDefinitions";
-
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type {
+  JSModuleInstanceEntity,
+  JSModuleInstanceEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 import { GLOBAL_FUNCTIONS as CE_GLOBAL_FUNCTIONS } from "ce/utils/autocomplete/EntityDefinitions";
 import { isString } from "lodash";
 import type { Def } from "tern";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import {
+  generateJSFunctionTypeDef,
+  generateTypeDef,
+} from "utils/autocomplete/defCreatorUtils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -33,13 +39,6 @@ export const ModuleInstanceDefMap = {
       "!url":
         "https://docs.appsmith.com/reference/appsmith-framework/query-object#data-array",
     };
-    let inputsDef = generateTypeDef(entity.inputs);
-
-    if (isString(inputsDef)) {
-      inputsDef = {
-        "!type": inputsDef,
-      };
-    }
     if (isString(dataDef)) {
       dataCustomDef["!type"] = dataDef;
     } else {
@@ -56,7 +55,6 @@ export const ModuleInstanceDefMap = {
           "Boolean that indicates whether the query is currently being executed.",
       },
       data: dataCustomDef,
-      inputs: inputsDef,
       run: {
         "!type": "fn(params?: {}) -> +Promise",
         "!url":
@@ -71,5 +69,29 @@ export const ModuleInstanceDefMap = {
       },
     };
   },
-  [MODULE_TYPE.JS]: () => {},
+  [MODULE_TYPE.JS]: (props: Record<string, any>) => {
+    const { configTree, entity, entityName, extraDefsToDefine, jsData } = props;
+    const entityConfig = configTree[entityName] as JSModuleInstanceEntityConfig;
+    const metaObj = entityConfig.meta;
+    const jsPropertiesDef: Def = {};
+
+    for (const funcName in metaObj) {
+      const funcTypeDef = generateJSFunctionTypeDef(
+        jsData,
+        `${entityName}.${funcName}`,
+        extraDefsToDefine,
+      );
+      jsPropertiesDef[funcName] = funcTypeDef;
+      // To also show funcName.data in autocompletion hint, we explictly add it here
+      jsPropertiesDef[`${funcName}.data`] = funcTypeDef.data;
+    }
+
+    for (let i = 0; i < entityConfig?.variables?.length; i++) {
+      const varKey = entityConfig?.variables[i];
+      const varValue = (entity as JSModuleInstanceEntity)[varKey];
+      jsPropertiesDef[varKey] = generateTypeDef(varValue, extraDefsToDefine);
+    }
+
+    return jsPropertiesDef;
+  },
 };

@@ -2,11 +2,7 @@ import type { AxiosPromise } from "axios";
 import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
 
 import Api from "api/Api";
-import type {
-  MODULE_TYPE,
-  Module,
-  ModuleAction,
-} from "@appsmith/constants/ModuleConstants";
+import type { MODULE_TYPE, Module } from "@appsmith/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";
 import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
@@ -25,9 +21,9 @@ export interface CreateModulePayload {
   };
 }
 
-export type UpdateModuleActionsResponse = ModuleAction;
+export type UpdateModuleActionsResponse = Action;
 
-export type FetchModuleActionsResponse = ModuleAction[];
+export type FetchModuleActionsResponse = Action[];
 
 const BASE_URL = "v1/modules";
 
@@ -51,7 +47,7 @@ class ModuleApi extends Api {
   }
 
   static async updateAction(
-    payload: ModuleAction,
+    payload: Action,
   ): Promise<AxiosPromise<ApiResponse<UpdateModuleActionsResponse>>> {
     const { id, moduleId } = payload;
     const url = `${BASE_URL}/${moduleId}/${id}`;

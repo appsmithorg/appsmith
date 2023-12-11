@@ -6,9 +6,15 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { Def } from "tern";
 import { omit } from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { isQueryModuleInstance } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  isJSModuleInstance,
+  isQueryModuleInstance,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { ModuleInstanceDefMap } from "./EntityDefinitions";
-import type { QueryModuleInstanceEntity } from "@appsmith/entities/DataTree/types";
+import type {
+  JSModuleInstanceEntity,
+  QueryModuleInstanceEntity,
+} from "@appsmith/entities/DataTree/types";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export const entityDefGeneratorMap: EntityDefGeneratorMap = {
@@ -38,6 +44,13 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
       CE_entityDefGeneratorMap[ENTITY_TYPE_VALUE.ACTION](props);
     }
   },
+  [ENTITY_TYPE_VALUE.JSACTION]: (props) => {
+    const { configTree, entityName } = props;
+    const entityConfig = configTree[entityName];
+    if (!entityConfig.hasOwnProperty("moduleInstanceId")) {
+      CE_entityDefGeneratorMap[ENTITY_TYPE_VALUE.JSACTION](props);
+    }
+  },
   [ENTITY_TYPE_VALUE.MODULE_INSTANCE]: (props) => {
     const { def, entity, entityMap, entityName } = props;
     if (isQueryModuleInstance(entity)) {
@@ -46,6 +59,14 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
       entityMap.set(entityName, {
         type: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
         subType: MODULE_TYPE.QUERY,
+      });
+    }
+    if (isJSModuleInstance(entity)) {
+      const jsEntity = entity as JSModuleInstanceEntity;
+      def[entityName] = ModuleInstanceDefMap[jsEntity.type](props);
+      entityMap.set(entityName, {
+        type: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
+        subType: MODULE_TYPE.JS,
       });
     }
   },

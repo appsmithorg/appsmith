@@ -4,7 +4,6 @@ import ModuleApi from "@appsmith/api/ModuleApi";
 import { updateActionAPICall as CE_updateActionAPICall } from "ce/sagas/ApiCallerSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";
-import type { ModuleAction } from "@appsmith/constants/ModuleConstants";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 
 export function* updateActionAPICall(action: Action) {
@@ -20,7 +19,7 @@ export function* updateActionAPICall(action: Action) {
       const response: ApiResponse<Action> = yield ModuleApi.updateAction({
         ...action,
         type: ENTITY_TYPE_VALUE.ACTION,
-      } as unknown as ModuleAction);
+      } as unknown as Action);
 
       return response;
     }

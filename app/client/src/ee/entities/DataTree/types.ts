@@ -8,6 +8,7 @@ import type {
   EvaluationSubstitutionType,
   DataTreeSeed as CE_DataTreeSeed,
   ActionDispatcher,
+  MetaArgs,
 } from "ce/entities/DataTree/types";
 import type { EntityConfig } from "ce/entities/DataTree/types";
 import type { ModuleInstanceReducerState } from "@appsmith/reducers/entityReducers/moduleInstancesReducer";
@@ -50,6 +51,22 @@ export interface QueryModuleInstanceEntityConfig extends EntityConfig {
   reactivePaths: Record<string, EvaluationSubstitutionType>;
 }
 
+export interface JSModuleInstanceEntityConfig extends EntityConfig {
+  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  type: MODULE_TYPE.JS;
+  moduleId: string;
+  dynamicBindingPathList: DynamicPath[];
+  moduleInstanceId: string;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
+  variables: Array<string>;
+  dependencyMap: DependencyMap;
+  name: string;
+  actionId: string;
+  publicEntityName: string;
+  meta: Record<string, MetaArgs>;
+}
+
 export interface QueryModuleInstanceEntity {
   ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.QUERY;
@@ -63,9 +80,20 @@ export interface QueryModuleInstanceEntity {
   inputs: Record<string, string>;
 }
 
+export interface JSModuleInstanceEntity {
+  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  type: MODULE_TYPE.JS;
+  actionId: string;
+  moduleId: string;
+  moduleInstanceId: string;
+  [propName: string]: any;
+  inputs: Record<string, string>;
+}
+
 export type EE_DataTreeEntityObject =
   | ModuleInputsEntity
-  | QueryModuleInstanceEntity;
+  | QueryModuleInstanceEntity
+  | JSModuleInstanceEntity;
 
 export type DataTreeEntityObject =
   | CE_DataTreeEntityObject
@@ -77,7 +105,8 @@ export type UnEvalTreeEntityObject =
 
 export type EE_DataTreeEntityConfig =
   | ModuleInputsConfig
-  | QueryModuleInstanceEntityConfig;
+  | QueryModuleInstanceEntityConfig
+  | JSModuleInstanceEntityConfig;
 
 export type DataTreeEntityConfig =
   | CE_DataTreeEntityConfig
