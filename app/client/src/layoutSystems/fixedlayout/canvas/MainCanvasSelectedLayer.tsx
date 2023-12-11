@@ -11,7 +11,8 @@ const SelectedState = styled.div<{
   isSelected: boolean;
 }>`
   border: 1px solid
-    ${({ isSelected }) => (isSelected ? "#F86A2B" : "transparent")};
+    ${({ isSelected }) =>
+      isSelected ? "var(--ads-v2-color-orange-500)" : "transparent"};
 `;
 
 const WidgetName = styled.div`
