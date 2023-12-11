@@ -218,8 +218,7 @@ public class ActionServiceCE_Test {
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
 
-        // Create application and page which will be used by the tests to create actions
-        // for.
+        // Create application and page which will be used by the tests to create actions for.
         Application application = new Application();
         application.setName(UUID.randomUUID().toString());
         testApp = applicationPageService
