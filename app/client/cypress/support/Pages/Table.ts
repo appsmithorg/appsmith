@@ -242,10 +242,7 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
   ) {
     this.agHelper
-      .GetElement(
-        this._tableRowColumnData(rowIndex, colIndex, tableVersion),
-        30000,
-      )
+      .GetElement(this._tableRowColumnData(rowIndex, colIndex, tableVersion))
       .waitUntil(($ele) =>
         cy.wrap($ele).children("span").should("not.be.empty"),
       );
@@ -253,7 +250,7 @@ export class Table {
 
   public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
     this.agHelper
-      .GetElement(this._tableEmptyColumnData(tableVersion))
+      .GetElement(this._tableEmptyColumnData(tableVersion), "noVerify")
       .children()
       .should("have.length", 0); //or below
     //expect($children).to.have.lengthOf(0)
@@ -291,7 +288,7 @@ export class Table {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return this.agHelper
-      .GetElement(this._tableRowColumnData(rowNum, colNum, tableVersion), 30000)
+      .GetElement(this._tableRowColumnData(rowNum, colNum, tableVersion))
       .invoke("text");
   }
 

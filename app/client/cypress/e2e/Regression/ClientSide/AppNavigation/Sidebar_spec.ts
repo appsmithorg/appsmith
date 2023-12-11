@@ -11,7 +11,7 @@ import {
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Sidebar navigation style", function () {
+describe("Test Sidebar navigation style", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     // Import an application
     homePage.NavigateToHome();

@@ -98,8 +98,10 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                                     if (StringUtils.hasLength(action.getCollectionId())) {
                                         updatableCollectionIds.add(action.getCollectionId());
                                     }
-                                    newActionService.extractAndSetJsonPathKeys(newAction);
-                                    return newActionService.save(newAction);
+
+                                    return newActionService
+                                            .extractAndSetJsonPathKeys(newAction)
+                                            .then(newActionService.save(newAction));
                                 });
                     });
                 })

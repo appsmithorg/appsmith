@@ -14,7 +14,10 @@ import {
   getApplicationByIdFromWorkspaces,
   getIsFetchingApplications,
 } from "@appsmith/selectors/applicationSelectors";
-import { importTemplateIntoApplicationViaOnboardingFlow } from "actions/templateActions";
+import {
+  importTemplateIntoApplicationViaOnboardingFlow,
+  setActiveLoadingTemplateId,
+} from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
 
 const FiltersWrapper = styled.div`
@@ -61,6 +64,7 @@ const StartWithTemplates = ({
     AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
     // When fork template is clicked to add a new app using the template
     if (!isImportingTemplate && application) {
+      dispatch(setActiveLoadingTemplateId(template.id));
       dispatch(
         importTemplateIntoApplicationViaOnboardingFlow(
           template.id,
