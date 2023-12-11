@@ -11,7 +11,7 @@ import EditorNavigation, {
 } from "../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../locators/commonlocators.json");
 
-describe("JSEditor tests", function () {
+describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
   before(() => {
     agHelper.AddDsl("promisesStoreValueDsl");
   });
