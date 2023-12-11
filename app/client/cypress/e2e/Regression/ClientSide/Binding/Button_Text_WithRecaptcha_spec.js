@@ -5,9 +5,9 @@ import EditorNavigation, {
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe(, { tags: ["@tag.Binding"] }
+describe(
   "Binding the Button widget with Text widget using Recpatcha v3",
-  { tags: ["@tag.excludeForAirgap"] }, 
+  { tags: ["@tag.excludeForAirgap", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("buttonRecaptchaDsl");
