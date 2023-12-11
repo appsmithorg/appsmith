@@ -2,29 +2,26 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React, { useEffect } from "react";
-import Masonry from "react-masonry-css";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getSearchedTemplateList,
   getTemplateFilterSelector,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
-import Template from "../Template";
 import RequestTemplate from "../Template/RequestTemplate";
 import LoadingScreen from "../TemplatesModal/LoadingScreen";
-import { Wrapper, SubheadingText, HorizontalLine } from "./StyledComponents";
+import {
+  Wrapper,
+  SubheadingText,
+  HorizontalLine,
+  TemplateGrid,
+} from "./StyledComponents";
 import {
   TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
   TEMPLATE_ALL_FILTER_FUNCTION_VALUE,
 } from "../constants";
-
-const breakpointColumnsObject = {
-  default: 4,
-  3000: 3,
-  1500: 3,
-  1024: 2,
-  800: 1,
-};
+import BuildingBlock from "../BuildingBlock";
+import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 
 interface StartWithTemplateListProps {
   isForkingEnabled: boolean;
@@ -68,24 +65,17 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
         <>
           <SubheadingText kind="heading-m">Building blocks</SubheadingText>
 
-          <Masonry
-            breakpointCols={breakpointColumnsObject}
-            className="grid"
-            columnClassName="grid_column"
-          >
+          <TemplateGrid>
             {buildingBlocks.map((template) => (
-              <Template
-                hideForkTemplateButton={props.isForkingEnabled}
-                isBuildingBlock
+              <BuildingBlock
+                buildingBlock={template}
                 key={template.id}
                 onClick={props.onTemplateClick}
                 onForkTemplateClick={props.onForkTemplateClick}
-                size="large"
-                template={template}
               />
             ))}
             {onlyBuildingBlocksFilterSet && <RequestTemplate />}
-          </Masonry>
+          </TemplateGrid>
         </>
       )}
 
@@ -93,25 +83,20 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
 
       {!onlyBuildingBlocksFilterSet && (
         <>
-          <SubheadingText kind="heading-m">Templates</SubheadingText>
+          <SubheadingText kind="heading-m">Operations</SubheadingText>
 
-          <Masonry
-            breakpointCols={breakpointColumnsObject}
-            className="grid"
-            columnClassName="grid_column"
-          >
+          <TemplateGrid>
             {useCaseTemplates.map((template) => (
-              <Template
+              <FixedHeightTemplate
                 hideForkTemplateButton={props.isForkingEnabled}
                 key={template.id}
                 onClick={props.onTemplateClick}
                 onForkTemplateClick={props.onForkTemplateClick}
-                size="large"
                 template={template}
               />
             ))}
             <RequestTemplate />
-          </Masonry>
+          </TemplateGrid>
         </>
       )}
     </Wrapper>

@@ -9,7 +9,6 @@ import LargeTemplate from "./LargeTemplate";
 import {
   createMessage,
   FORK_THIS_TEMPLATE,
-  FORK_THIS_TEMPLATE_BUILDING_BLOCK,
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "@appsmith/RouteBuilder";
 import { Position } from "@blueprintjs/core";
@@ -74,7 +73,6 @@ const TemplateDatasources = styled.div`
 
 export interface TemplateProps {
   hideForkTemplateButton: boolean;
-  isBuildingBlock?: boolean;
   template: TemplateInterface;
   size?: string;
   onClick?: (id: string) => void;
@@ -96,13 +94,11 @@ export interface TemplateLayoutProps extends TemplateProps {
 export function TemplateLayout(props: TemplateLayoutProps) {
   const { datasources, description, functions, id, screenshotUrls, title } =
     props.template;
+
   const [showForkModal, setShowForkModal] = useState(false);
   const isImportingTemplateToApp = useSelector(
     isImportingTemplateToAppSelector,
   );
-  const FORK_BUTTON_TOOLTIP_TEXT = props.isBuildingBlock
-    ? FORK_THIS_TEMPLATE_BUILDING_BLOCK
-    : FORK_THIS_TEMPLATE;
   const onClick = () => {
     if (props.onClick) {
       props.onClick(id);
@@ -165,7 +161,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
             </TemplateDatasources>
             {props.hideForkTemplateButton && (
               <Tooltip
-                content={createMessage(FORK_BUTTON_TOOLTIP_TEXT)}
+                content={createMessage(FORK_THIS_TEMPLATE)}
                 placement={Position.BOTTOM}
               >
                 <Button
