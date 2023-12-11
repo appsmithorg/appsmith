@@ -3,6 +3,7 @@ export enum EditorState {
   EDITOR = "EDITOR",
   SETTINGS = "SETTINGS",
   LIBRARIES = "LIBRARIES",
+  ADD = "ADD",
 }
 
 export interface SidebarButton {
@@ -18,6 +19,12 @@ export const TopButtons: SidebarButton[] = [
     icon: "file-copy-2-line",
     title: "Editor",
     urlSuffix: "",
+  },
+  {
+    state: EditorState.ADD,
+    icon: "add-more",
+    title: "Add",
+    urlSuffix: "add",
   },
   {
     state: EditorState.DATA,

@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
 import {
+  ADD_PATH,
   APP_LIBRARIES_EDITOR_PATH,
   APP_SETTINGS_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
@@ -20,6 +21,7 @@ import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks"
 import { PagesPane } from "../PagesPane";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import GlobalAdd from "./GlobalAdd";
 
 export const LeftPaneContainer = styled.div`
   height: 100%;
@@ -49,6 +51,11 @@ const LeftPane = () => {
             `${path}${INTEGRATION_EDITOR_PATH}`,
             `${path}${SAAS_GSHEET_EDITOR_ID_PATH}`,
           ]}
+        />
+        <SentryRoute
+          component={GlobalAdd}
+          exact
+          path={[`${path}${ADD_PATH}`]}
         />
         <SentryRoute
           component={LibrarySidePane}

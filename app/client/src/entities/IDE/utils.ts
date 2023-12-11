@@ -11,7 +11,7 @@ import { EditorState } from "./constants";
 
 export function getCurrentAppState(currentUrl: string): EditorState {
   const match = matchPath<{
-    appState?: "datasource" | "settings" | "libraries";
+    appState?: "datasource" | "settings" | "libraries" | "add";
     datasourceId?: string;
     selectedTab?: string;
   }>(currentUrl, {
@@ -36,6 +36,8 @@ export function getCurrentAppState(currentUrl: string): EditorState {
       return EditorState.SETTINGS;
     } else if (appState === "libraries") {
       return EditorState.LIBRARIES;
+    } else if (appState === "add") {
+      return EditorState.ADD;
     } else {
       return EditorState.EDITOR;
     }

@@ -182,3 +182,9 @@ export const queryListURL = (props: URLBuilderParams): string =>
     ...props,
     suffix: `queries`,
   });
+
+export const queryAddURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
+    ...props,
+    suffix: `queries/add`,
+  });

@@ -31,7 +31,6 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_BASE_PATH,
-  QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -160,7 +159,6 @@ const _pagesPane = () => {
             component={QueriesSection}
             path={[
               `${path}${CURL_IMPORT_PAGE_PATH}`,
-              `${path}${QUERIES_EDITOR_ID_PATH}`,
               `${path}${API_EDITOR_ID_PATH}`,
               `${path}${SAAS_EDITOR_API_ID_PATH}`,
               `${path}${QUERIES_EDITOR_BASE_PATH}`,

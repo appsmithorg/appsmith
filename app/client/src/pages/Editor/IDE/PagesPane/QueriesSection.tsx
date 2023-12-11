@@ -29,7 +29,11 @@ const QueriesSection = () => {
       overflow="scroll"
     >
       <Switch>
-        <SentryRoute component={AddQuery} exact path={`${path}${ADD_PATH}`} />
+        <SentryRoute
+          component={AddQuery}
+          exact
+          path={[`${path}${ADD_PATH}`, `${path}/:queryId/add`]}
+        />
         <SentryRoute component={ListQuery} />
       </Switch>
     </QueriesContainer>
