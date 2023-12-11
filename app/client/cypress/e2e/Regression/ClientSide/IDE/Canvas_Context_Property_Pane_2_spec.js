@@ -1,7 +1,10 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let propertyControlSelector, propertySectionState;
 const page1 = "Page1";
@@ -11,11 +14,11 @@ const api1 = "API1";
 describe("Canvas context Property Pane", function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
-    _.entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
   });
 
   beforeEach(() => {
@@ -102,7 +105,7 @@ describe("Canvas context Property Pane", function () {
       },
       "Table1",
     );
-
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -130,6 +133,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -157,6 +161,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -243,7 +248,7 @@ function verifyPropertyPaneContext(
 
   //Navigate to API1 Pane and back
   EditorNavigation.SelectEntityByName(api1, EntityType.Api);
-  cy.get(".t--close-editor").click();
+  EditorNavigation.ShowCanvas();
   cy.wait(500);
 
   //assert Callback

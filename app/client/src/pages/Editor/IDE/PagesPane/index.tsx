@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { withProfiler } from "@sentry/react";
-import { Divider, Flex, SegmentedControl } from "design-system";
-import { useLocation } from "react-router";
+import { Flex, SegmentedControl } from "design-system";
+import { Switch, useLocation, useRouteMatch } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
-import { FocusEntity } from "navigation/FocusEntity";
-import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { QueriesJS } from "./Queries_JS";
 import ExplorerWidgetGroup from "pages/Editor/Explorer/Widgets/WidgetGroup";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -21,6 +19,23 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import Pages from "pages/Editor/Explorer/Pages";
+import { JSSection } from "./JS_Section";
+import { QueriesSection } from "./QueriesSection";
+import { SentryRoute } from "@appsmith/AppRouter";
+import {
+  API_EDITOR_ID_PATH,
+  BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  CURL_IMPORT_PAGE_PATH,
+  JS_COLLECTION_EDITOR_PATH,
+  JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  WIDGETS_EDITOR_BASE_PATH,
+  WIDGETS_EDITOR_ID_PATH,
+} from "constants/routes";
+import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
 
 enum TabsType {
   QUERIES = "queries",
@@ -36,6 +51,7 @@ const _pagesPane = () => {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const { path } = useRouteMatch();
 
   /**
    * useEffect to identify the entity from the path
@@ -47,10 +63,12 @@ const _pagesPane = () => {
     ).entity;
     switch (entity) {
       case FocusEntity.QUERY:
+      case FocusEntity.QUERY_LIST:
       case FocusEntity.API:
         setSelected(TabsType.QUERIES);
         break;
       case FocusEntity.JS_OBJECT:
+      case FocusEntity.JS_OBJECT_LIST:
         setSelected(TabsType.JS);
         break;
       case FocusEntity.CANVAS:
@@ -92,7 +110,6 @@ const _pagesPane = () => {
   };
   return (
     <Flex
-      border="1px solid var(--ads-v2-color-border)"
       className="ide-pages-pane"
       flexDirection="column"
       gap="spacing-2"
@@ -103,6 +120,7 @@ const _pagesPane = () => {
       {/* divider is inside the Pages component */}
       <Flex
         alignItems="center"
+        backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
         className="ide-pages-pane__header"
         justifyContent="space-between"
         padding="spaces-2"
@@ -130,7 +148,6 @@ const _pagesPane = () => {
           value={selected}
         />
       </Flex>
-      <Divider />
       <Flex
         className="ide-pages-pane__content"
         flexDirection="column"
@@ -138,17 +155,41 @@ const _pagesPane = () => {
         overflow="hidden"
         width="100%"
       >
-        {(selected === TabsType.QUERIES || selected === TabsType.JS) && (
-          <QueriesJS paneType={selected} />
-        )}
-
-        {selected === TabsType.UI && (
-          <ExplorerWidgetGroup
-            addWidgetsFn={showWidgetsSidebar}
-            searchKeyword=""
-            step={0}
+        <Switch>
+          <SentryRoute
+            component={QueriesSection}
+            path={[
+              `${path}${CURL_IMPORT_PAGE_PATH}`,
+              `${path}${QUERIES_EDITOR_ID_PATH}`,
+              `${path}${API_EDITOR_ID_PATH}`,
+              `${path}${SAAS_EDITOR_API_ID_PATH}`,
+              `${path}${QUERIES_EDITOR_BASE_PATH}`,
+            ]}
           />
-        )}
+          <SentryRoute
+            component={JSSection}
+            path={[
+              `${path}${JS_COLLECTION_EDITOR_PATH}`,
+              `${path}${JS_COLLECTION_ID_PATH}`,
+            ]}
+          />
+          <SentryRoute
+            component={() => (
+              <ExplorerWidgetGroup
+                addWidgetsFn={showWidgetsSidebar}
+                searchKeyword=""
+                step={0}
+              />
+            )}
+            path={[
+              BUILDER_PATH_DEPRECATED,
+              BUILDER_PATH,
+              BUILDER_CUSTOM_PATH,
+              `${path}${WIDGETS_EDITOR_BASE_PATH}`,
+              `${path}${WIDGETS_EDITOR_ID_PATH}`,
+            ]}
+          />
+        </Switch>
       </Flex>
     </Flex>
   );

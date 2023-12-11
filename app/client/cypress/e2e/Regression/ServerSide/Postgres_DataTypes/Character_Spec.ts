@@ -10,7 +10,10 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Character Datatype tests", function () {
@@ -31,9 +34,7 @@ describe("Character Datatype tests", function () {
 
   it("1. Creating table - chartypes", () => {
     query = `create table charTypes(serialid serial primary key, "One(1)" char, "AsMany" varchar, "Limited(4)" varchar(4), "Unlimited" text)`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
   });
@@ -107,7 +108,7 @@ describe("Character Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("4. Inserting record (null values) - chartypes", () => {
@@ -364,17 +365,18 @@ describe("Character Datatype tests", function () {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.chartypes", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });

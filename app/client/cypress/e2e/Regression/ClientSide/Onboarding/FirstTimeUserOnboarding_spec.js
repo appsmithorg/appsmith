@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
@@ -51,8 +52,7 @@ describe("FirstTimeUserOnboarding", function () {
         .realHover()
         .should("have.css", "cursor", "auto");
       agHelper.GetNClick(OnboardingLocator.checklistActionBtn);
-      EditorNavigation.SelectEntityByName("Movies", EntityType.Datasource);
-      agHelper.GetNClick(OnboardingLocator.createQuery);
+      dataSources.CreateQueryForDS("Movies");
 
       agHelper.Sleep();
       agHelper.GetNClick(debuggerHelper.locators._helpButton);
@@ -138,8 +138,7 @@ describe("FirstTimeUserOnboarding", function () {
         .should("have.css", "cursor", "auto");
       cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
       cy.get(OnboardingLocator.checklistActionBtn).click();
-      cy.get(OnboardingLocator.createQuery).should("be.visible");
-      cy.get(OnboardingLocator.createQuery).click();
+      dataSources.CreateQueryAfterDSSaved();
       cy.wait(1000);
       agHelper.GetNClick(debuggerHelper.locators._helpButton);
       cy.get(OnboardingLocator.checklistStatus).should("contain", "2 of 5");
@@ -193,7 +192,7 @@ describe("FirstTimeUserOnboarding", function () {
   it("3. onboarding flow - should check directly opening widget pane", function () {
     agHelper.AssertElementVisibility(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     agHelper.AssertElementVisibility(OnboardingLocator.widgetSidebar);
     agHelper.AssertElementVisibility(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);

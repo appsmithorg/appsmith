@@ -12,7 +12,9 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -28,15 +30,13 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
 
   it("1. Creating supporting api's for generating random UUID's", () => {
-    entityExplorer.NavigateToSwitcher("Explorer");
     cy.fixture("datasources").then((datasourceFormData) => {
       apiPage.CreateAndFillApi(datasourceFormData.uuid1Api, "version1");
       apiPage.CreateAndFillApi(datasourceFormData.uuid4Api, "version4");
@@ -46,9 +46,7 @@ describe("UUID Datatype tests", function () {
 
   it("2. Creating table query - uuidtype", () => {
     query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, nil uuid);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     dataSources.RunQuery();
   });
 
@@ -91,7 +89,7 @@ describe("UUID Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("5. Inserting record - uuidtype", () => {
@@ -246,13 +244,10 @@ describe("UUID Datatype tests", function () {
   it("10. Validating UUID functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyUUIDFunctions");
-
+    PageLeftPane.expandCollapseItem("Queries/JS");
     //Validating use of extention
     query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyUUIDFunctions");
     dataSources.RunQueryNVerifyResponseViews(1);
     dataSources.AssertQueryResponseHeaders(["affectedRows"]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
@@ -326,7 +321,8 @@ describe("UUID Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("11. Deleting records - uuidtype", () => {
@@ -384,20 +380,21 @@ describe("UUID Datatype tests", function () {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype", false);
   });
 
   it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
 
   it("16. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

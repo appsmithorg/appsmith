@@ -1,13 +1,14 @@
 import {
   agHelper,
   dataSources,
-  entityExplorer,
   entityItems,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -44,7 +45,7 @@ describe("Datasource form related tests", function () {
       agHelper.GetNClick(dataSources._editButton);
       dataSources.UpdatePassword("docker");
       dataSources.VerifySchema(dataSourceName, "public.", true);
-      agHelper.GetNClick(dataSources._createQuery);
+      dataSources.CreateQueryAfterDSSaved(dataSourceName);
     });
   });
 
@@ -53,7 +54,7 @@ describe("Datasource form related tests", function () {
     EditorNavigation.SelectEntityByName(dataSourceName, EntityType.Datasource);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
@@ -70,7 +71,7 @@ describe("Datasource form related tests", function () {
       dataSources.CreateMockDB("Users");
       dataSources.CreateQueryAfterDSSaved();
       dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-      entityExplorer.ExpandCollapseEntity("public.users");
+      PageLeftPane.expandCollapseItem("public.users");
       dataSources.VerifyColumnSchemaOnQueryEditor("id");
       dataSources.FilterAndVerifyDatasourceSchemaBySearch(
         "public.us",

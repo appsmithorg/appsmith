@@ -1,3 +1,5 @@
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -17,7 +19,7 @@ describe("Tab widget test", function () {
       .type(tableName, { force: true })
       .should("have.value", tableName);
     //Rename Table widget with api name validation test
-    _.entityExplorer.AssertEntityPresenceInExplorer("Table1");
+    PageLeftPane.assertPresence("Table1");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.RenameEntity(apiName);
     cy.validateMessage(apiName);

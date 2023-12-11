@@ -6,7 +6,6 @@ import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import type { Action } from "entities/Action";
 import PostBodyData from "./PostBodyData";
-import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -25,6 +24,7 @@ import CommonEditorForm from "./CommonEditorForm";
 import Pagination from "./Pagination";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { ApiEditorContext } from "./ApiEditorContext";
+import { actionResponseDisplayDataFormats } from "../utils";
 
 const NoBodyMessage = styled.div`
   margin-top: 20px;
@@ -162,39 +162,23 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   }
 
   const responses = getActionResponses(state);
+  const actionResponse = responses[apiId];
   let hasResponse = false;
   let suggestedWidgets;
-  if (apiId && apiId in responses) {
-    const response = responses[apiId] || EMPTY_RESPONSE;
+  if (actionResponse) {
     hasResponse =
-      !isEmpty(response.statusCode) && response.statusCode[0] === "2";
-    suggestedWidgets = response.suggestedWidgets;
+      !isEmpty(actionResponse.statusCode) &&
+      actionResponse.statusCode[0] === "2";
+    suggestedWidgets = actionResponse.suggestedWidgets;
   }
 
   const actionData = getActionData(state, apiId);
-  let responseDisplayFormat: { title: string; value: string };
-  let responseDataTypes: { key: string; title: string }[];
-  if (!!actionData && actionData.responseDisplayFormat) {
-    responseDataTypes = actionData.dataTypes.map((data) => {
-      return {
-        key: data.dataType,
-        title: data.dataType,
-      };
-    });
-    responseDisplayFormat = {
-      title: actionData.responseDisplayFormat,
-      value: actionData.responseDisplayFormat,
-    };
-  } else {
-    responseDataTypes = [];
-    responseDisplayFormat = {
-      title: "",
-      value: "",
-    };
-  }
+  const { responseDataTypes, responseDisplayFormat } =
+    actionResponseDisplayDataFormats(actionData);
 
   return {
     actionName,
+    actionResponse,
     apiId,
     httpMethodFromForm,
     actionConfigurationHeaders,

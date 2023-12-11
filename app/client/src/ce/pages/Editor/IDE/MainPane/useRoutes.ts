@@ -1,5 +1,6 @@
 import WidgetsEditor from "pages/Editor/WidgetsEditor";
 import {
+  API_EDITOR_ID_ADD_PATH,
   API_EDITOR_ID_PATH,
   APP_LIBRARIES_EDITOR_PATH,
   APP_SETTINGS_EDITOR_PATH,
@@ -15,6 +16,9 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
+  ADD_PATH,
+  QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -28,6 +32,7 @@ import JSEditor from "pages/Editor/JSEditor";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 import ListView from "pages/Editor/SaaSEditor/ListView";
 import {
+  SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
   SAAS_EDITOR_PATH,
@@ -39,6 +44,8 @@ import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
 import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
+import { JSBlankState } from "../../../../../pages/Editor/JSEditor/JSBlankState";
+import { QueriesBlankState } from "../../../../../pages/Editor/QueryEditor/QueriesBlankState";
 
 export interface RouteReturnType extends RouteProps {
   key: string;
@@ -85,17 +92,32 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "ApiEditor",
       component: ApiEditor,
       exact: true,
-      path: `${path}${API_EDITOR_ID_PATH}`,
+      path: [
+        `${path}${API_EDITOR_ID_PATH}`,
+        `${path}${API_EDITOR_ID_ADD_PATH}`,
+      ],
+    },
+    {
+      key: "QueryEditorList",
+      component: QueriesBlankState,
+      exact: true,
+      path: [
+        `${path}${QUERIES_EDITOR_BASE_PATH}`,
+        `${path}${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`,
+      ],
     },
     {
       key: "QueryEditor",
       component: QueryEditor,
       exact: true,
-      path: `${path}${QUERIES_EDITOR_ID_PATH}`,
+      path: [
+        `${path}${QUERIES_EDITOR_ID_PATH}`,
+        `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
+      ],
     },
     {
-      key: "JSEditor Collection",
-      component: JSEditor,
+      key: "JSEditorList",
+      component: JSBlankState,
       exact: true,
       path: `${path}${JS_COLLECTION_EDITOR_PATH}`,
     },
@@ -109,7 +131,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "CurlImportEditor",
       component: CurlImportEditor,
       exact: true,
-      path: `${path}${CURL_IMPORT_PAGE_PATH}`,
+      path: [
+        `${path}${CURL_IMPORT_PAGE_PATH}`,
+        `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
+      ],
     },
     {
       key: "SAASList",
@@ -127,7 +152,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "SAASEditor",
       component: QueryEditor,
       exact: true,
-      path: `${path}${SAAS_EDITOR_API_ID_PATH}`,
+      path: [
+        `${path}${SAAS_EDITOR_API_ID_PATH}`,
+        `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
+      ],
     },
     {
       key: "DatasourceEditor",

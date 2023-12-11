@@ -1,10 +1,12 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -25,7 +27,6 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
@@ -196,7 +197,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private Mono<ApplicationJson> exportFilteredCustomJSLib(
             String applicationId, List<String> customJSLibSet, ApplicationJson applicationJson, String branchName) {
         return customJSLibService
-                .getAllJSLibsInApplication(applicationId, branchName, false)
+                .getAllJSLibsInContext(applicationId, CreatorContextType.APPLICATION, branchName, false)
                 .flatMap(customJSLibs -> {
                     List<CustomJSLib> updatedCustomJSLibList = customJSLibs.stream()
                             .filter(customJSLib -> customJSLibSet.contains(customJSLib.getId()))

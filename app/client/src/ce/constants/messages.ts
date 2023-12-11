@@ -375,6 +375,7 @@ export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
 export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
+export const SAMPLE_DATASOURCES = () => "Sample datasources";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -1025,7 +1026,7 @@ export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
   "Kindly create a new repository and provide its remote SSH URL here. We require an empty repository to continue.";
 export const READ_DOCS = () => "Read Docs";
 export const COPY_SSH_URL_MESSAGE = () =>
-  "In your repo, copy the Remote SSH URL & paste it in the input field below.";
+  "To generate the SSH Key, in your repo, copy the Remote SSH URL & paste it in the input field below.";
 export const REMOTE_URL_INPUT_LABEL = () => "Remote SSH URL";
 export const HOW_TO_COPY_REMOTE_URL = () =>
   "How to copy & paste SSH remote URL";
@@ -1510,6 +1511,8 @@ export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
+export const JS_TOGGLE_SWITCH_JS_MESSAGE =
+  "Switch to JS mode to customize your data using javascript";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
@@ -1703,6 +1706,7 @@ export const SELECT_WORKSPACE = () => "Select workspace";
 export const FORK_TEMPLATE = () => "Fork template";
 export const TEMPLATES = () => "Templates";
 export const FORK_THIS_TEMPLATE = () => "Use template";
+export const FORK_THIS_TEMPLATE_BUILDING_BLOCK = () => "Use building block";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
@@ -1733,6 +1737,8 @@ export const FETCHING_TEMPLATES = () => "Loading template details";
 export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
 
 export const TEMPLATES_BACK_BUTTON = () => "Back";
+export const SKIP_START_WITH_USE_CASE_TEMPLATES = () =>
+  "Skip this step, I’ll do it later";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -2249,7 +2255,7 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
 export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
 export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
   "Choose an option that fits your approach, and let's shape your app together.";
-export const START_FROM_TEMPLATE_TITLE = () => "Start with use-case";
+export const START_FROM_TEMPLATE_TITLE = () => "Start with template";
 export const START_FROM_TEMPLATE_SUBTITLE = () =>
   "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
 export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
@@ -2269,6 +2275,10 @@ export const PAGES_PANE_TEXTS = {
   queries_tab: () => "Queries",
   js_tab: () => "JS",
   ui_tab: () => "UI",
+  query_blank_state: () => "Write your first query or API to access data",
+  js_blank_state: () => "Use JS to transform your data or write business logic",
+  query_blank_button: () => "New Query/API",
+  js_blank_button: () => "New JS Object",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2289,3 +2299,5 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubheading: () => "Import partial application from file",
   },
 };
+
+export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";

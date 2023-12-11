@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -21,7 +22,6 @@ import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -283,6 +283,28 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         dsl = unEscapeDslKeys(dsl, layout.getMongoEscapedWidgetNames());
 
         return dsl;
+    }
+
+    @Override
+    public Mono<String> updatePageLayoutsByPageId(String pageId) {
+        // Mono.just(null) will throw an NPE, if pageId is null.
+        if (!StringUtils.hasLength(pageId)) {
+            return Mono.just("");
+        }
+        return Mono.justOrEmpty(pageId)
+                // fetch the unpublished page
+                .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
+                .flatMapMany(page -> {
+                    if (page.getLayouts() == null) {
+                        return Mono.empty();
+                    }
+                    return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
+                        layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                        return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
+                    });
+                })
+                .collectList()
+                .then(Mono.just(pageId));
     }
 
     private JSONObject unEscapeDslKeys(JSONObject dsl, Set<String> escapedWidgetNames) {

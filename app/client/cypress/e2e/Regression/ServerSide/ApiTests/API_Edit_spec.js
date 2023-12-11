@@ -1,6 +1,8 @@
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -39,8 +41,8 @@ describe("API Panel Test Functionality", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.assertAbsence("SecondAPI");
   });
 
   it("2. Should update loading state after cancellation of confirmation for run query", function () {

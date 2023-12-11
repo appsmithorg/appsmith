@@ -20,6 +20,7 @@ import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -45,14 +46,24 @@ const Canvas = (props: CanvasProps) => {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
-  const { theme } = useTheme({
+  const themeSetting = useSelector(getAppThemeSettings);
+  const themeProps = {
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
     fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  });
+  };
+  const wdsThemeProps = {
+    borderRadius: themeSetting.borderRadius,
+    seedColor: themeSetting.accentColor,
+    colorMode: themeSetting.colorMode,
+    fontFamily: themeSetting.fontFamily as FontFamily,
+    userSizing: themeSetting.sizing,
+    userDensity: themeSetting.density,
+  };
+  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
 
   /**
    * background for canvas
@@ -60,13 +71,13 @@ const Canvas = (props: CanvasProps) => {
   let backgroundForCanvas;
 
   if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
-    if (isWDSV2Enabled) {
+    if (isWDSEnabled) {
       backgroundForCanvas = "var(--color-bg)";
     } else {
       backgroundForCanvas = "initial";
     }
   } else {
-    if (isWDSV2Enabled) {
+    if (isWDSEnabled) {
       backgroundForCanvas = "var(--color-bg)";
     } else {
       backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
@@ -74,7 +85,6 @@ const Canvas = (props: CanvasProps) => {
   }
 
   const focusRef = useWidgetFocus();
-  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const marginHorizontalClass = props.enableMainCanvasResizer
     ? `mx-0`

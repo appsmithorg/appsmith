@@ -18,6 +18,7 @@ export * from "./components/TextArea";
 export * from "./components/Spinner";
 export * from "./components/Menu";
 export * from "./components/Modal";
+export * from "./components/TagGroup";
 
 export * from "./utils";
 export * from "./styles";

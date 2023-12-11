@@ -1,9 +1,6 @@
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
@@ -23,9 +20,8 @@ describe("Addwidget from Query and bind with other widgets", function () {
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
-      cy.NavigateToActiveDSQueryPane(datasourceName);
+      _.dataSources.CreateQueryAfterDSSaved("SELECT * FROM configs LIMIT 10;");
       // Resetting the default query and rewriting a new one
-      _.dataSources.EnterQuery("SELECT * FROM configs LIMIT 10;");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
       // Mock the response for this test

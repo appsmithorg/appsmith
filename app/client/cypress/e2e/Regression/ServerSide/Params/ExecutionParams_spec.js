@@ -30,14 +30,12 @@ describe("API Panel Test Functionality", function () {
   });
 
   it("2. Create and runs query", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryAfterDSSaved(
+      "select * from {{ this.params.tableName || 'users' }} limit 10",
+    );
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch).last().click({ force: true });
     cy.xpath(queryLocators.query).click({ force: true });
-    dataSources.EnterQuery(
-      "select * from {{ this.params.tableName || 'users' }} limit 10",
-    );
-    cy.WaitAutoSave();
     cy.runQuery();
   });
 

@@ -5,8 +5,8 @@ import { uniqueId } from "lodash";
 import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
-import { trace } from "@opentelemetry/api";
-
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { convertWebworkerSpansToRegularSpans } from "UITelemetry/generateWebWorkerTraces";
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -165,11 +165,9 @@ export class GracefulWorkerService {
     this._channels.set(messageId, ch);
     const mainThreadStartTime = performance.now();
     let timeTaken;
+    const span = startRootSpan(method);
 
     try {
-      const tracer = trace.getTracer("eval");
-      const span = tracer?.startSpan(method);
-
       sendMessage.call(this._Worker, {
         messageType: MessageType.REQUEST,
         body: {
@@ -181,11 +179,17 @@ export class GracefulWorkerService {
 
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
-      span?.end();
       timeTaken = response.timeTaken;
       const { data: responseData } = response;
+      span &&
+        convertWebworkerSpansToRegularSpans(
+          span,
+          responseData.webworkerTelemetry,
+        );
       return responseData;
     } finally {
+      endSpan(span);
+
       // Log perf of main thread and worker
       const mainThreadEndTime = performance.now();
       const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;

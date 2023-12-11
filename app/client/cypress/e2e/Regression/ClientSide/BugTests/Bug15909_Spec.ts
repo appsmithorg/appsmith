@@ -8,7 +8,6 @@ describe("JS Function Execution", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
   });
   it("1. Shows js function data as part of autocompletion hints", function () {
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>{
