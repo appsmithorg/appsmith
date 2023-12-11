@@ -224,6 +224,7 @@ public class ModuleInstanceTestHelper {
         PackageDTO aPackage = getPackageRequestDTO();
 
         PackageDTO packageDTO = createPackage(moduleInstanceTestHelperDTO, aPackage);
+        moduleInstanceTestHelperDTO.setSourcePackageDTO(packageDTO);
 
         ModuleDTO moduleReqDTO = createModuleRequestDTO(moduleInstanceTestHelperDTO, packageDTO);
 

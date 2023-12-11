@@ -458,6 +458,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<List<ModuleInstance>> archiveModuleInstancesByRootModuleInstanceId(String rootModuleInstanceId) {
         return repository
                 .findAllByRootModuleInstanceId(
@@ -474,5 +475,11 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                     return repository.archive(composedModuleInstance);
                 })
                 .collectList();
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Flux<ModuleInstance> findAllUnpublishedByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
+        return repository.findAllUnpublishedByModuleUUID(moduleUUID, permission);
     }
 }

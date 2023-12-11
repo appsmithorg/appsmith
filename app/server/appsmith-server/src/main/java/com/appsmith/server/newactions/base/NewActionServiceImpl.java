@@ -426,6 +426,12 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Flux<NewAction> findPublicActionsByModuleInstanceId(
+            String moduleInstanceId, Optional<AclPermission> permission) {
+        return repository.findPublicActionsByModuleInstanceId(moduleInstanceId, permission);
+    }
+
+    @Override
     public Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,
             CreatorContextType contextType,

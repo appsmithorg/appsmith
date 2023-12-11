@@ -32,4 +32,6 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
 
     Flux<NewAction> findByWorkflowIds(
             List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
+
+    Flux<NewAction> findPublicActionsByModuleInstanceId(String moduleInstanceId, Optional<AclPermission> permission);
 }

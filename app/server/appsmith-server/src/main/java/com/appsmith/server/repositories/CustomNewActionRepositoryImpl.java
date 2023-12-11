@@ -162,6 +162,17 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findPublicActionsByModuleInstanceId(
+            String moduleInstanceId, Optional<AclPermission> permission) {
+        Criteria publicActionInModuleInstanceCriteria = Criteria.where(fieldName(QNewAction.newAction.moduleInstanceId))
+                .is(moduleInstanceId)
+                .and((fieldName(QNewAction.newAction.isPublic)))
+                .is(Boolean.TRUE);
+
+        return queryAll(List.of(publicActionInModuleInstanceCriteria), permission);
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         if (contextType == CreatorContextType.PAGE) {

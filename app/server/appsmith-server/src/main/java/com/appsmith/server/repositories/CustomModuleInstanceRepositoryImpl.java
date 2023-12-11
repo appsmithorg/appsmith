@@ -57,16 +57,20 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Flux<ModuleInstance> findAllUnpublishedByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
+        List<Criteria> criteria = new ArrayList<>();
         Criteria contextIdAndContextTypeCriteria = where(contextTypeToContextIdPathMap.get(contextType))
                 .is(contextId)
                 .and(fieldName(QModuleInstance.moduleInstance.contextType))
                 .is(contextType);
 
-        Criteria deletedAtNullCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance)
-                        + "." + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
-                .isNull();
+        criteria.add(contextIdAndContextTypeCriteria);
 
-        return queryAll(List.of(contextIdAndContextTypeCriteria, deletedAtNullCriterion), Optional.of(permission));
+        Criteria deletedCriteria = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+                        + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
+                .is(null);
+        criteria.add(deletedCriteria);
+
+        return queryAll(criteria, Optional.of(permission));
     }
 
     @Override
@@ -120,5 +124,21 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
         return updateByCriteria(List.of(applicationIdCriterion, deletedFromUnpublishedCriteria), update, permission);
+    }
+
+    @Override
+    public Flux<ModuleInstance> findAllUnpublishedByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria moduleUUIDCriterion =
+                where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
+
+        Criteria notDeletedCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+                        + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
+                .is(null);
+
+        criteria.add(moduleUUIDCriterion);
+        criteria.add(notDeletedCriterion);
+
+        return queryAll(criteria, permission);
     }
 }

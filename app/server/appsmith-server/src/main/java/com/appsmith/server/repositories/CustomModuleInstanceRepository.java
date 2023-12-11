@@ -29,4 +29,6 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
     Flux<ModuleInstance> findAllByApplicationId(String applicationId, Optional<AclPermission> permission);
 
     Mono<UpdateResult> archiveDeletedUnpublishedModuleInstances(String applicationId, AclPermission permission);
+
+    Flux<ModuleInstance> findAllUnpublishedByModuleUUID(String moduleUUID, Optional<AclPermission> permission);
 }
