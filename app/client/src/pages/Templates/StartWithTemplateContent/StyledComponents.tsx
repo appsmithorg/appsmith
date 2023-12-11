@@ -31,5 +31,5 @@ export const HorizontalLine = styled.div`
 export const TemplateGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-gap: 16px; /* Adjust the gap according to your design */
+  grid-gap: 16px;
 `;
