@@ -144,7 +144,7 @@ describe("Test Create Api and Bind to Table widget", function () {
 
     cy.ValidatePaginateResponseUrlData(apiLocators.apiPaginationPrevTest);
     cy.get("@postExecute.all");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0);
     agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();

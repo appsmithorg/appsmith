@@ -118,16 +118,16 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Numericid", "2147483647.2147484"); //2147483647.2147483647
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("922337203685477");
     });
-    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("865456.987654567");
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("2147483647.2147484");
     });
   });
@@ -140,16 +140,16 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Numericid", "9877700000.143423"); //9877700000.14342340008876
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("-922337203685477"); //-9223372036854775808
     });
-    table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("232143455655456.34");
     });
-    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("9877700000.143423");
     });
   });
@@ -162,16 +162,16 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Numericid", "86542300099.1"); //86542300099.1000099999876
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("12233720368547758");
     });
-    table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("877675655441232.1");
     });
-    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("86542300099.1");
     });
   });
@@ -185,16 +185,16 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Numericid", "76542300099.10988", true); //76542300099.109876788
     agHelper.ClickButton("Update");
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
-    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("11233720368547758");
     });
-    table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("777675655441232.1");
     });
-    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("76542300099.10988");
     });
   });
@@ -205,10 +205,10 @@ describe("Numeric Datatype tests", function () {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
   });
@@ -222,16 +222,16 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Numericid", "66542300099.00088", true); //66542300099.0008767675
     agHelper.ClickButton("Update");
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
-    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("11133720368547700");
     });
-    table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("777575655441232.1");
     });
-    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("66542300099.00088");
     });
   });
@@ -244,16 +244,16 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Numericid", "87654356.98765436"); // 87654356.987654356
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("11111720368547700");
     });
-    table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("8765456.987654345");
     });
-    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("87654356.98765436");
     });
   });
@@ -263,10 +263,10 @@ describe("Numeric Datatype tests", function () {
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.Sleep(3000); //for CI to finish delete
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 3rd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("4");
     });
   });
@@ -286,16 +286,16 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Numericid", "87654356.98765436"); // 87654356.9876543567
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("5"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("11111720368547700");
     });
-    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("8765456.987654345");
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("87654356.98765436");
     });
   });

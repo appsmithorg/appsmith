@@ -152,7 +152,7 @@ describe("List Widget Functionality", function () {
 
   it("7. it checks pagination", function () {
     // clicking on second pagination button
-    table.NavigateToSpecificPage_List(2, "v1");
+    table.NavigateToSpecificPage_List(2, "v2");
 
     // now we are on the second page which shows first the 3rd item in the list
     agHelper.GetNAssertElementText(

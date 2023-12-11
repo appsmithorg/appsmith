@@ -215,12 +215,12 @@ describe("Git import flow ", function () {
     // validate data binding in edit and deploy mode
     cy.latestDeployPreview();
     cy.get(".tbody").should("have.length", 2);
-    table.AssertTableLoaded(0, 1, "v1");
+    table.AssertTableLoaded(0, 1, "v2");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
     cy.get(".t--page-switch-tab").contains("Page1 Copy").click({ force: true });
-    table.AssertTableLoaded(0, 1, "v1");
+    table.AssertTableLoaded(0, 1, "v2");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
     deployMode.NavigateBacktoEditor();

@@ -105,7 +105,7 @@ describe("MySQL Datatype tests", function () {
     cy.wait(2000);
     inputData.result.forEach((res_array, i) => {
       res_array.forEach((value, j) => {
-        table.ReadTableRowColumnData(j, i, "v1", 0).then(($cellData) => {
+        table.ReadTableRowColumnData(j, i, "v2", 0).then(($cellData) => {
           if (i === inputData.result.length - 1) {
             const obj = JSON.parse($cellData);
             expect(JSON.stringify(obj)).to.eq(JSON.stringify(value));
