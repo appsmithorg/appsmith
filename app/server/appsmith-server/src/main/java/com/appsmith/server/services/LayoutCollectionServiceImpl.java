@@ -1,10 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -22,7 +24,7 @@ import static com.appsmith.server.modules.helpers.ModuleUtils.isModuleActionColl
 @Slf4j
 public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl implements LayoutCollectionService {
 
-    private final CrudModuleService crudModuleService;
+    private final ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
 
     public LayoutCollectionServiceImpl(
             NewPageService newPageService,
@@ -36,7 +38,7 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             ActionCollectionRepository actionCollectionRepository,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            CrudModuleService crudModuleService) {
+            ModuleEntityService<ActionCollection> actionCollectionModuleEntityService) {
         super(
                 newPageService,
                 layoutActionService,
@@ -49,14 +51,16 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                 actionCollectionRepository,
                 pagePermission,
                 actionPermission);
-        this.crudModuleService = crudModuleService;
+        this.actionCollectionModuleEntityService = actionCollectionModuleEntityService;
     }
 
     @Override
     public Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collection, String branchName) {
 
-        if (isModuleActionCollection(collection)) {
-            return crudModuleService.createPrivateModuleActionCollection(collection, branchName);
+        if (Boolean.TRUE.equals(isModuleActionCollection(collection))) {
+            return actionCollectionModuleEntityService
+                    .createPrivateEntity((ModuleConsumable) collection, branchName)
+                    .map(entity -> (ActionCollectionDTO) entity);
         }
 
         return super.createCollection(collection, branchName);

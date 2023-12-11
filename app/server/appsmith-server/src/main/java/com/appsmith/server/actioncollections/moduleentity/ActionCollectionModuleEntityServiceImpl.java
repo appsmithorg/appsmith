@@ -1,0 +1,112 @@
+package com.appsmith.server.actioncollections.moduleentity;
+
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Module;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ModuleConsumable;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
+import com.appsmith.server.modules.permissions.ModulePermissionChecker;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+@RequiredArgsConstructor
+public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityService<ActionCollection> {
+
+    private final ModulePermissionChecker modulePermissionChecker;
+    private final PolicyGenerator policyGenerator;
+    private final ActionCollectionService actionCollectionService;
+
+    @Override
+    public Mono<ModuleConsumable> createPublicEntity(
+            String workspaceId, Module module, ModuleConsumable moduleConsumable) {
+        return this.createModuleActionCollection(
+                Optional.of(workspaceId), module.getId(), (ActionCollectionDTO) moduleConsumable, true);
+    }
+
+    private Mono<ModuleConsumable> createModuleActionCollection(
+            Optional<String> workspaceIdOptional,
+            String moduleId,
+            ActionCollectionDTO actionCollectionDTO,
+            boolean isPublic) {
+        return modulePermissionChecker
+                .checkIfCreateExecutableAllowedAndReturnModuleAndWorkspaceId(moduleId, workspaceIdOptional)
+                .flatMap(tuple -> {
+                    Module module = tuple.getT1();
+                    String workspaceId = tuple.getT2();
+                    ActionCollection moduleActionCollection =
+                            generateActionCollectionDomain(moduleId, workspaceId, isPublic, actionCollectionDTO);
+                    Set<Policy> childActionCollectionPolicies =
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                    moduleActionCollection.setPolicies(childActionCollectionPolicies);
+
+                    return actionCollectionService
+                            .validateAndSaveCollection(moduleActionCollection)
+                            .map(collectionDTO -> (ModuleConsumable) collectionDTO);
+                });
+    }
+
+    private ActionCollection generateActionCollectionDomain(
+            String moduleId, String workspaceId, boolean isPublic, ActionCollectionDTO actionCollectionDTO) {
+        ActionCollection actionCollection = new ActionCollection();
+        actionCollection.setWorkspaceId(workspaceId);
+        actionCollection.setIsPublic(isPublic);
+
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setIsPublic(isPublic);
+        actionCollectionDTO.setModuleId(moduleId);
+        actionCollectionDTO.setDefaultResources(new DefaultResources());
+        actionCollectionDTO.setContextType(CreatorContextType.MODULE);
+
+        // Ensure that all actions in the collection have the same contextType and moduleId as the collection itself
+        actionCollectionDTO.getActions().stream().forEach(action -> {
+            action.setIsPublic(isPublic);
+            action.setModuleId(moduleId);
+            action.setContextType(CreatorContextType.MODULE);
+        });
+
+        actionCollection.setUnpublishedCollection(actionCollectionDTO);
+        actionCollection.setPublishedCollection(new ActionCollectionDTO());
+        actionCollection.setDefaultResources(new DefaultResources());
+
+        return actionCollection;
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<ModuleConsumable> createPrivateEntity(ModuleConsumable entity, String branchName) {
+
+        ActionCollectionDTO actionCollectionDTO = (ActionCollectionDTO) entity;
+
+        // branchName handling is left as a TODO for future git implementation for git connected modules.
+
+        if (!StringUtils.hasLength(actionCollectionDTO.getModuleId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID));
+        }
+
+        return this.createModuleActionCollection(
+                Optional.empty(), actionCollectionDTO.getModuleId(), actionCollectionDTO, false);
+    }
+
+    @Override
+    public Mono<Object> getPublicEntitySettingsForm(String moduleId) {
+        return Mono.just(List.of());
+    }
+}

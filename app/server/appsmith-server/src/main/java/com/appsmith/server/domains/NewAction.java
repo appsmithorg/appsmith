@@ -15,6 +15,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document
 public class NewAction extends NewActionCE {
+
+    // Fields in action that are not allowed to change between published and unpublished versions
+    @JsonView(Views.Public.class)
+    String packageId;
+
     @JsonView(Views.Public.class)
     String moduleInstanceId;
 
