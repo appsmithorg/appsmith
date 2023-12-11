@@ -22,7 +22,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests", () => {
+describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
   it("1. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
     // create js object - JSObject1
     jsEditor.CreateJSObject(jsObjectBody, {
