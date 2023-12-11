@@ -318,7 +318,9 @@ export const redistributeSpaceWithDynamicMinWidth = (
   } else {
     spaceDistributedArray.splice(index, 1);
   }
-
+  if (spaceDistributedArray.length === 1) {
+    return [SectionColumns];
+  }
   // Check if the layout should be evenly distributed
   if (evenlyDistributedLayout) {
     const updatedEvenDistributionSpace =
@@ -365,7 +367,9 @@ export const redistributeSpaceWithDynamicMinWidth = (
 
   // Calculate the rounding error distribution among the zones
   const roundOffForBiggestSpace =
-    roundingError % (spaceDistributedArray.length - 1);
+    roundingError !== 0
+      ? roundingError % (spaceDistributedArray.length - 1)
+      : 0;
   const evenDistributionSpaceWithRoundingError =
     (roundingError - roundOffForBiggestSpace) /
     (spaceDistributedArray.length - 1);
