@@ -495,3 +495,8 @@ export const setIsAutocommitModalOpen = (isAutocommitModalOpen: boolean) => ({
   type: ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN,
   payload: { isAutocommitModalOpen },
 });
+
+export const setIsAutocommitInProgress = (isAutocommitInProgress: boolean) => ({
+  type: ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_IN_PROGRESS,
+  payload: { isAutocommitInProgress },
+});

@@ -249,3 +249,6 @@ export const getIsAutocommitEnabled = (state: AppState) =>
 
 export const getIsAutocommitModalOpen = (state: AppState) =>
   state.ui.gitSync.isAutocommitModalOpen;
+
+export const getIsAutocommitInProgress = (state: AppState) =>
+  state.ui.gitSync.isAutocommitInProgress;

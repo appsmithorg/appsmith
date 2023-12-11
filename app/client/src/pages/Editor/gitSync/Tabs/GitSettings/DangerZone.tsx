@@ -101,47 +101,45 @@ function GitDisconnect() {
         </SectionTitle>
       </HeadContainer>
       <ZoneContainer>
-        <BodyContainer>
-          <BodyInnerContainer>
-            <Text kind="heading-xs" renderAs="p">
-              {createMessage(AUTOCOMMIT)}
-            </Text>
-            <Text renderAs="p">{createMessage(AUTOCOMMIT_MESSAGE)}</Text>
-          </BodyInnerContainer>
-          <Button
-            data-testid="t--git-disconnect-btn"
-            kind={isAutocommitEnabled ? "error" : "secondary"}
-            onClick={handleToggleAutocommit}
-            size="md"
-          >
-            {isAutocommitEnabled
-              ? createMessage(AUTOCOMMIT_DISABLE)
-              : createMessage(AUTOCOMMIT_ENABLE)}
-          </Button>
-        </BodyContainer>
         {isAutocommitFeatureEnabled ? (
           <>
-            <StyledDivider />
             <BodyContainer>
               <BodyInnerContainer>
                 <Text kind="heading-xs" renderAs="p">
-                  {createMessage(DISCONNECT_GIT)}
+                  {createMessage(AUTOCOMMIT)}
                 </Text>
-                <Text renderAs="p">
-                  {createMessage(DISCONNECT_GIT_MESSAGE)}
-                </Text>
+                <Text renderAs="p">{createMessage(AUTOCOMMIT_MESSAGE)}</Text>
               </BodyInnerContainer>
               <Button
                 data-testid="t--git-disconnect-btn"
-                kind="error"
-                onClick={handleDisconnect}
+                kind={isAutocommitEnabled ? "error" : "secondary"}
+                onClick={handleToggleAutocommit}
                 size="md"
               >
-                {createMessage(DISCONNECT_GIT)}
+                {isAutocommitEnabled
+                  ? createMessage(AUTOCOMMIT_DISABLE)
+                  : createMessage(AUTOCOMMIT_ENABLE)}
               </Button>
             </BodyContainer>
+            <StyledDivider />
           </>
         ) : null}
+        <BodyContainer>
+          <BodyInnerContainer>
+            <Text kind="heading-xs" renderAs="p">
+              {createMessage(DISCONNECT_GIT)}
+            </Text>
+            <Text renderAs="p">{createMessage(DISCONNECT_GIT_MESSAGE)}</Text>
+          </BodyInnerContainer>
+          <Button
+            data-testid="t--git-disconnect-btn"
+            kind="error"
+            onClick={handleDisconnect}
+            size="md"
+          >
+            {createMessage(DISCONNECT_GIT)}
+          </Button>
+        </BodyContainer>
       </ZoneContainer>
     </Container>
   );
