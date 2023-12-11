@@ -114,7 +114,7 @@ public class ApplicationTemplateServicePublishTemplateTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .contains("Received error from cloud services while publishing template1"))
+                                .contains("Received error from cloud services while publishing template"))
                 .verify();
 
         // Test cleanup

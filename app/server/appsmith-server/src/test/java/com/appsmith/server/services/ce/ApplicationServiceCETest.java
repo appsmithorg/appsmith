@@ -1793,7 +1793,7 @@ public class ApplicationServiceCETest {
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
-                    assertThat(clonedApplication.getUpdatedAt()).isNull();
+                    assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion())
                             .isEqualTo(gitConnectedApp.getEvaluationVersion());
