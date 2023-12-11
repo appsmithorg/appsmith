@@ -147,9 +147,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 }
                                 return newActionImportableService
                                         .updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO)
+                                                application, importingMetaDTO, mappedImportableResourcesDTO, true)
                                         .then(newPageImportableService.updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO))
+                                                application, importingMetaDTO, mappedImportableResourcesDTO, true))
                                         .thenReturn(application);
                             });
                 })
@@ -209,17 +209,19 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> datasourceMono = datasourceImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> customJsLibMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, true);
 
         return pluginMono.then(datasourceMono).then(customJsLibMono).then();
     }
@@ -235,14 +237,16 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> actionCollectionMono = actionCollectionImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         return actionMono.then(actionCollectionMono).then();
     }
@@ -283,9 +287,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         return Mono.just(pageName);
                     }
                     applicationJson.getActionCollectionList().forEach(actionCollection -> {
-                        actionCollection.getPublishedCollection().setPageId(pageName);
                         actionCollection.getUnpublishedCollection().setPageId(pageName);
-
+                        if (actionCollection.getPublishedCollection() != null) {
+                            actionCollection.getPublishedCollection().setPageId(pageName);
+                        }
                         String collectionName = actionCollection.getId().split("_")[1];
                         actionCollection.setId(pageName + "_" + collectionName);
                         actionCollection.setGitSyncId(null);

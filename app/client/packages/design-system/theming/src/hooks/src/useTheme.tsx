@@ -44,7 +44,7 @@ export function useTheme(props: UseThemeProps = {}) {
     userSizing,
   );
 
-  const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
+  const [theme, setTheme] = useState(tokensAccessor.getAllTokens);
 
   useEffect(() => {
     if (colorMode) {
