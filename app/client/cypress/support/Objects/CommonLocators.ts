@@ -221,7 +221,6 @@ export class CommonLocators {
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
   _modalWrapper = "[data-testid='modal-wrapper']";
-  _editorBackButton = ".t--close-editor";
   _dialogCloseButton = ".ads-v2-modal__content-header-close-button";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _evalValuePopover = ".t--CodeEditor-evaluatedValue";

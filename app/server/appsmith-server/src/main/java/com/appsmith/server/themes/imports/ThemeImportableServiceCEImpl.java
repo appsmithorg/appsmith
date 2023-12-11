@@ -53,7 +53,8 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             // appending to existing app, theme should not change
             return Mono.empty().then();
