@@ -329,13 +329,13 @@ public class GitFileUtils {
     }
 
     protected Stream<Field> getAllFields(ApplicationJson applicationJson) {
-        Optional<Class<?>> currentType = Optional.of(applicationJson.getClass());
+        Class<?> currentType = applicationJson.getClass();
 
         Set<Class<?>> classes = new HashSet<>();
 
-        while (currentType.isPresent()) {
-            classes.add(currentType.get());
-            currentType = Optional.ofNullable(currentType.get().getSuperclass());
+        while (currentType != null) {
+            classes.add(currentType);
+            currentType = currentType.getSuperclass();
         }
 
         return classes.stream().flatMap(currentClass -> Arrays.stream(currentClass.getDeclaredFields()));
