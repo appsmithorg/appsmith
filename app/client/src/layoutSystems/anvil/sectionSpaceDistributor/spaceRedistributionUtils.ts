@@ -245,7 +245,9 @@ export const redistributeSpaceWithRatios = (
   // Return the resulting array after redistribution
   return spaceDistributedArray;
 };
-
+const RELATIVELY_LARGE_ZONE_THRESHOLD = 0.8;
+const LARGE_SMALL_ZONE_THRESHOLD = 0.7;
+const LARGE_SMALL_ZONE_SHRINK_THRESHOLD = 0.7;
 /**
  * Redistributes space within a section while preserving zone ratios and minimum column width.
  *
@@ -286,7 +288,8 @@ export const redistributeSpaceWithDynamicMinWidth = (
   if (Math.abs(zoneChangeFactor) < ZoneMinColumnWidth)
     return spaceDistributedArray;
   const largestZoneThreshold =
-    0.8 * (SectionColumns / spaceDistributedArray.length);
+    RELATIVELY_LARGE_ZONE_THRESHOLD *
+    (SectionColumns / spaceDistributedArray.length);
   const largestZoneIndex = spaceDistributedArray.findIndex(
     (each: number) =>
       each === Math.max(...spaceDistributedArray) &&
@@ -297,7 +300,8 @@ export const redistributeSpaceWithDynamicMinWidth = (
   // Calculate the maximum space that can be added or removed without violating the minimum column width
 
   const smallestZone = Math.min(...spaceDistributedArray);
-  const isSmallestZoneLargeRelatively = smallestZone > 0.7 * largestZoneSpace;
+  const isSmallestZoneLargeRelatively =
+    smallestZone > LARGE_SMALL_ZONE_THRESHOLD * largestZoneSpace;
   const spaceWelcomed = isSmallestZoneLargeRelatively
     ? Math.max(smallestZone - 2, ZoneMinColumnWidth)
     : SectionColumns - ZoneMinColumnWidth * spaceDistributedArray.length;
@@ -349,9 +353,12 @@ export const redistributeSpaceWithDynamicMinWidth = (
   // Iterate over each zone and ensure each number is not less than ZoneMinColumnWidth
   for (let i = 0; i < spaceDistributedArray.length; i++) {
     const minColumns =
+      zoneChangeFactor > 0 &&
       isSmallestZoneLargeRelatively &&
-      spaceDistributedArray[i] >= 0.7 * largestZoneSpace
-        ? Math.round(0.7 * spaceDistributedArray[i])
+      spaceDistributedArray[i] >= LARGE_SMALL_ZONE_THRESHOLD * largestZoneSpace
+        ? Math.round(
+            LARGE_SMALL_ZONE_SHRINK_THRESHOLD * spaceDistributedArray[i],
+          )
         : ZoneMinColumnWidth;
     const adjustedSpace = Math.max(
       Math.round(newlyAdjustedValues[i]),
