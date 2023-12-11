@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.Range;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
+import reactor.netty.http.HttpProtocol;
 
 import java.util.HashSet;
 import java.util.List;
@@ -65,16 +66,10 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
     @JsonAdapter(HttpMethodConverter.class)
     HttpMethod httpMethod;
 
-    HttpVersion httpVersion;
+    HttpProtocol httpVersion;
     // Paginated API fields
     String next;
     String prev;
-
-    public enum HttpVersion {
-        HTTP1,
-        HTTP2,
-        H2C
-    }
 
     /**
      * This field is supposed to hold a set of paths that are expected to contain bindings that refer to the same action

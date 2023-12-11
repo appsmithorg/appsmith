@@ -46,7 +46,7 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
   httpMethod: HTTP_METHOD.POST,
-  httpVersion: HTTP_PROTOCOL.V1,
+  httpVersion: HTTP_PROTOCOL.HTTP11,
   headers: [
     { key: CONTENT_TYPE_HEADER_KEY, value: POST_BODY_FORMAT_OPTIONS.JSON },
     { key: "", value: "" },

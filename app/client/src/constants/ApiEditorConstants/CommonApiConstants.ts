@@ -9,8 +9,8 @@ export enum HTTP_METHOD {
 }
 
 export enum HTTP_PROTOCOL {
-  V1 = "HTTP1",
-  V2 = "HTTP2",
+  HTTP11 = "HTTP1",
+  H2 = "HTTP2",
   H2C = "H2C",
 }
 
@@ -34,11 +34,10 @@ export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({
   value: method,
 }));
 
-export const HTTP_PROTOCOL_VERSIONS = Object.values(HTTP_PROTOCOL).map(
-  (version) => ({
-    value: version,
-  }),
-);
+export const HTTP_PROTOCOL_VERSIONS = Object.keys(HTTP_PROTOCOL).map((key) => ({
+  label: HTTP_PROTOCOL[key as keyof typeof HTTP_PROTOCOL],
+  value: key,
+}));
 
 export const EMPTY_KEY_VALUE_PAIRS = [
   { key: "", value: "" },
