@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Position } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
-import { isImportingTemplateToAppSelector } from "selectors/templatesSelectors";
+import { activeLoadingTemplateId } from "selectors/templatesSelectors";
 import { templateIdUrl } from "@appsmith/RouteBuilder";
 
 export interface BuildingBlockProps {
@@ -26,10 +26,7 @@ export interface BuildingBlockProps {
 
 const BuildingBlock = (props: BuildingBlockProps) => {
   const { description, id, screenshotUrls, title } = props.buildingBlock;
-
-  const isImportingTemplateToApp = useSelector(
-    isImportingTemplateToAppSelector,
-  );
+  const loadingTemplateId = useSelector(activeLoadingTemplateId);
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
     if (props.onForkTemplateClick) {
@@ -70,7 +67,7 @@ const BuildingBlock = (props: BuildingBlockProps) => {
             <Button
               className="t--fork-template fork-button"
               isIconButton
-              isLoading={props.onForkTemplateClick && isImportingTemplateToApp}
+              isLoading={props.onForkTemplateClick && loadingTemplateId === id}
               onClick={onForkButtonTrigger}
               size="sm"
               startIcon="plus"
