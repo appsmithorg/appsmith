@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS data update on button click", function () {
+describe("JS data update on button click", { tags: ["@tag.JS"] }, function () {
   before(() => {
     agHelper.AddDsl("jsFunctionTriggerDsl");
   });

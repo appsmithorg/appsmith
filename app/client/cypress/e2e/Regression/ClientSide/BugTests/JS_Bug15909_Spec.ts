@@ -3,7 +3,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS Function Execution", function () {
+describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
   });

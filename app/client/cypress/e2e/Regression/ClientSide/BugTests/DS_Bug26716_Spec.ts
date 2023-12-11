@@ -9,8 +9,8 @@ import EditorNavigation, {
 let dsName: any, userMock: string, movieMock: string;
 
 describe(
-  "excludeForAirgap",
   "Bug 26716: Datasource selected from entity explorer should be correctly highlighted",
+  { tags: ["@tag.excludeForAirgap",  "@tag.Datasource"] },
   function () {
     it("1. Create users and movies mock datasources and switch between them through entity explorer, check the active state", function () {
       dataSources.CreateMockDB("Users").then((mockDBName) => {

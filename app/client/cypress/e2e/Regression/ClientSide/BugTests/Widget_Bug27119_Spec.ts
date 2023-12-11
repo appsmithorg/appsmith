@@ -8,7 +8,7 @@ import {
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Reset widget action", () => {
+describe("Reset widget action", { tags: ["@tag.Widget"] }, () => {
   it("Reset widget to default after setValue has been applied", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "John");

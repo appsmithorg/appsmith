@@ -6,7 +6,7 @@ import EditorNavigation, {
 const locator = ObjectsRegistry.CommonLocators,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("JS Function Execution", function () {
+describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
   before(() => {
     agHelper.AddDsl("formWithtabdsl");
   });

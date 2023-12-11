@@ -3,7 +3,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Fix UQI query switching", function () {
+describe("Fix UQI query switching", { tags: ["@tag.Datasource"] }, function () {
   it("1. The command of the query must be preserved and should not default to initial value after changed.", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreateDataSource("Mongo", false, false);

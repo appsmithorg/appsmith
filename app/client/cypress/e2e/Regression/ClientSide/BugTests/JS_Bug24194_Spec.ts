@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Responsiveness of linting", () => {
+describe("Responsiveness of linting", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
   });
