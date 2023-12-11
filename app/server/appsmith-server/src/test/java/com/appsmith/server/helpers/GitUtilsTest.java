@@ -1,8 +1,8 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.AutoCommitConfig;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
