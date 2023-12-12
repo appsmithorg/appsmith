@@ -4,7 +4,7 @@ import { Flex } from "design-system";
 import { Switch, useRouteMatch } from "react-router";
 
 import { SentryRoute } from "@appsmith/AppRouter";
-import { ADD_PATH } from "constants/routes";
+import { ADD_PATH, WIDGETS_EDITOR_ID_PATH } from "constants/routes";
 import { ListWidgets } from "./ListWidgets";
 import { AddWidgets } from "./AddWidgets";
 
@@ -29,7 +29,14 @@ const WidgetsSection = () => {
       overflow="scroll"
     >
       <Switch>
-        <SentryRoute component={AddWidgets} exact path={`${path}${ADD_PATH}`} />
+        <SentryRoute
+          component={AddWidgets}
+          exact
+          path={[
+            `${path}${ADD_PATH}`,
+            `${path}${WIDGETS_EDITOR_ID_PATH}${ADD_PATH}`,
+          ]}
+        />
         <SentryRoute component={ListWidgets} />
       </Switch>
     </WidgetsContainer>

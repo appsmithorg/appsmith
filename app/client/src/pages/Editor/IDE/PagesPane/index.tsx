@@ -28,7 +28,6 @@ import {
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_BASE_PATH,
-  WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
 import { WidgetsSection } from "./WidgetsSection";
@@ -163,7 +162,6 @@ const _pagesPane = () => {
               BUILDER_PATH,
               BUILDER_CUSTOM_PATH,
               `${path}${WIDGETS_EDITOR_BASE_PATH}`,
-              `${path}${WIDGETS_EDITOR_ID_PATH}`,
             ]}
           />
         </Switch>
