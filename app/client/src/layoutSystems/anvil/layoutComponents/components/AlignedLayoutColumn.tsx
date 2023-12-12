@@ -11,9 +11,6 @@ import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts
 class AlignedLayoutColumn extends BaseLayoutComponent {
   constructor(props: LayoutComponentProps) {
     super(props);
-    this.state = {
-      order: [...props.layoutOrder, props.layoutId],
-    };
   }
 
   static type: LayoutComponentTypes =

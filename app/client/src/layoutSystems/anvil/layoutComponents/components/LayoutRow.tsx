@@ -10,9 +10,6 @@ import { deriveRowHighlights } from "layoutSystems/anvil/utils/layouts/highlight
 class LayoutRow extends BaseLayoutComponent {
   constructor(props: LayoutComponentProps) {
     super(props);
-    this.state = {
-      order: [...props.layoutOrder, props.layoutId],
-    };
   }
 
   static type: LayoutComponentTypes = LayoutComponentTypes.LAYOUT_ROW;

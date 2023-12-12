@@ -11,9 +11,6 @@ import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/ren
 class AlignedWidgetRow extends BaseLayoutComponent {
   constructor(props: LayoutComponentProps) {
     super(props);
-    this.state = {
-      order: [...props.layoutOrder, props.layoutId],
-    };
   }
 
   static type: LayoutComponentTypes = LayoutComponentTypes.ALIGNED_WIDGET_ROW;

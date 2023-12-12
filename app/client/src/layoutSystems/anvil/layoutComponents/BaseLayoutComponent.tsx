@@ -23,6 +23,13 @@ abstract class BaseLayoutComponent extends PureComponent<
   LayoutComponentProps,
   LayoutComponentState
 > {
+  constructor(props: LayoutComponentProps) {
+    super(props);
+    this.state = {
+      order: [...props.layoutOrder, props.layoutId],
+    };
+  }
+
   static type: LayoutComponentTypes;
 
   // Add a child widget / layout to the parent layout component.

@@ -11,9 +11,6 @@ import BaseLayoutComponent from "../BaseLayoutComponent";
 class AlignedWidgetColumn extends BaseLayoutComponent {
   constructor(props: LayoutComponentProps) {
     super(props);
-    this.state = {
-      order: [...props.layoutOrder, props.layoutId],
-    };
   }
 
   static type: LayoutComponentTypes =

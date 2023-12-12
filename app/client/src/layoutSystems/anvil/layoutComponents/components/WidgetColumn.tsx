@@ -11,9 +11,6 @@ import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highli
 class WidgetColumn extends BaseLayoutComponent {
   constructor(props: LayoutComponentProps) {
     super(props);
-    this.state = {
-      order: [...props.layoutOrder, props.layoutId],
-    };
   }
 
   static getChildTemplate(props: LayoutProps): LayoutProps | null {
