@@ -164,18 +164,15 @@ describe("List widget V2 page number and page size", () => {
       cy.addDsl(dslWithServerSide);
       // Open Datasource editor
       cy.wait(2000);
-      _.dataSources.CreateMockDB("Users").then(() => {
-        _.dataSources.CreateQueryAfterDSSaved();
+
+      _.dataSources.CreateDataSource("Postgres");
+      cy.get("@dsName").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved(
+          "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
+        );
         _.dataSources.ToggleUsePreparedStatement(false);
+        _.dataSources.RunQuery();
       });
-      // writing query to get the schema
-      _.dataSources.EnterQuery(
-        "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-      );
-
-      cy.WaitAutoSave();
-
-      cy.runQuery();
 
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
