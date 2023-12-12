@@ -1,5 +1,5 @@
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
-import type { SizeConfig } from "WidgetProvider/constants";
+import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
 import { MOBILE_BREAKPOINT } from "./constants";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import WidgetFactory from "WidgetProvider/factory";
@@ -87,3 +87,8 @@ export const getWidgetSizeConfiguration = (
         },
   };
 };
+
+export function isLargeWidget(type: string): boolean {
+  const config: AnvilConfig | null = WidgetFactory.getWidgetAnvilConfig(type);
+  return config && config.isLargeWidget;
+}

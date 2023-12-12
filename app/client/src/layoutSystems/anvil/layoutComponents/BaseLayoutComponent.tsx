@@ -42,8 +42,11 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   // get template of layout component to wrap new widgets in.
-  static getChildTemplate(_props: LayoutProps): LayoutProps | null {
-    return null && _props;
+  static getChildTemplate(
+    _props: LayoutProps,
+    _widgets?: WidgetLayoutProps[],
+  ): LayoutProps | null {
+    return null && _props && _widgets;
   }
 
   getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
@@ -64,6 +67,14 @@ abstract class BaseLayoutComponent extends PureComponent<
   // Get a list of child widgetIds rendered by the layout.
   static extractChildWidgetIds(props: LayoutProps): string[] {
     return this.rendersWidgets ? extractWidgetIdsFromLayoutProps(props) : [];
+  }
+
+  // Get types of widgets that are allowed in this layout component.
+  static getWhitelistedTypes(props: LayoutProps): string[] {
+    if (props.allowedWidgetTypes && props.allowedWidgetTypes.length) {
+      return props.allowedWidgetTypes;
+    }
+    return [];
   }
 
   // Remove a child widget / layout from the layout component.
