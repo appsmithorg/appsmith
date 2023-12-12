@@ -12,6 +12,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -61,7 +62,8 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper,
-            TransactionalOperator transactionalOperator) {
+            TransactionalOperator transactionalOperator,
+            GitAutoCommitHelper gitAutoCommitHelper) {
         super(
                 userService,
                 userDataService,
@@ -88,7 +90,8 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 redisUtils,
                 observationRegistry,
                 gitPrivateRepoHelper,
-                transactionalOperator);
+                transactionalOperator,
+                gitAutoCommitHelper);
     }
 
     @Override
