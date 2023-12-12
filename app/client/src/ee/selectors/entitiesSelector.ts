@@ -174,6 +174,24 @@ export const getQueryModuleInstances = createSelector(
         }
       },
     );
-    return queryModuleInstances;
+    return queryModuleInstances.filter((instance) => !!instance);
   },
 );
+
+/**
+ *
+ * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )
+ */
+export const getJSCollectionFromAllEntities = (
+  state: AppState,
+  actionId: string,
+) => {
+  const jsaction = find(
+    [
+      ...state.entities.jsActions,
+      ...state.entities.moduleInstanceEntities.jsCollections,
+    ],
+    (a) => a.config.id === actionId,
+  );
+  return jsaction && jsaction.config;
+};
