@@ -144,6 +144,13 @@ export const builderURL = (props: URLBuilderParams): string => {
   return urlBuilder.build(props);
 };
 
+export const IDEAddURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: "add",
+  });
+};
+
 export const widgetURL = (
   props: URLBuilderParams & { selectedWidgets: string[] },
 ) => {

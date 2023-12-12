@@ -47,7 +47,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, IDEAddURL, viewerURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
@@ -60,6 +60,8 @@ import {
   NO_PERMISSION_TO_SELECT_FOR_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { useFeatureFlag } from "../../utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -127,6 +129,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const dispatch = useDispatch();
+  const isPagesPaneEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
@@ -446,11 +451,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const editModeURL = useMemo(() => {
     if (!props.application.defaultPageId) return "";
+    if (isPagesPaneEnabled) {
+      return IDEAddURL({ pageId: props.application.defaultPageId, params });
+    }
     return builderURL({
       pageId: props.application.defaultPageId,
       params,
     });
-  }, [props.application.defaultPageId, params]);
+  }, [props.application.defaultPageId, params, isPagesPaneEnabled]);
 
   const viewModeURL = useMemo(() => {
     if (!props.application.defaultPageId) return "";
@@ -473,14 +481,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const editApp = useCallback(() => {
     setURLParams();
-    history.push(
-      builderURL({
-        pageId: props.application.defaultPageId,
-        params,
-      }),
-    );
+    history.push(editModeURL);
     dispatch(getCurrentUser());
-  }, [props.application.defaultPageId]);
+  }, [editModeURL]);
 
   const handleMultipleSelection = (event: any) => {
     if ((event as MouseEvent).ctrlKey || (event as MouseEvent).metaKey) {
