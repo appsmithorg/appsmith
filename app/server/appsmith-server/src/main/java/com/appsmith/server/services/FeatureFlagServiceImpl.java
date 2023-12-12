@@ -8,7 +8,6 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.ce.FeatureFlagServiceCEImpl;
-import org.ff4j.FF4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +24,6 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
 
     public FeatureFlagServiceImpl(
             SessionUserService sessionUserService,
-            FF4j ff4j,
             TenantService tenantService,
             UserIdentifierService userIdentifierService,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
@@ -33,7 +31,6 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
             AirgapInstanceConfig airgapInstanceConfig) {
         super(
                 sessionUserService,
-                ff4j,
                 tenantService,
                 userIdentifierService,
                 cacheableFeatureFlagHelper,

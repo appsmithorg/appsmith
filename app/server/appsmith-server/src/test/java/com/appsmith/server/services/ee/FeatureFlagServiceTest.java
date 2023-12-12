@@ -18,7 +18,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
 import lombok.extern.slf4j.Slf4j;
-import org.ff4j.FF4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,9 +45,6 @@ public class FeatureFlagServiceTest {
     SessionUserService sessionUserService;
 
     @Autowired
-    FF4j ff4j;
-
-    @Autowired
     TenantService tenantService;
 
     @Autowired
@@ -73,7 +69,6 @@ public class FeatureFlagServiceTest {
     public void setup() {
         featureFlagService = new FeatureFlagServiceImpl(
                 sessionUserService,
-                ff4j,
                 tenantService,
                 userIdentifierService,
                 cacheableFeatureFlagHelper,
