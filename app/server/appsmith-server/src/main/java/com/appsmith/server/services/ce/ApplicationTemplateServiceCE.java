@@ -26,4 +26,6 @@ public interface ApplicationTemplateServiceCE {
     Mono<ApplicationTemplate> getFilters();
 
     Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource);
+
+    Mono<Application> publishAppsmithTemplate(CommunityTemplateDTO resource);
 }

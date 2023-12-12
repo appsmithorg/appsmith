@@ -26,6 +26,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -331,6 +332,10 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     private Mono<ApplicationTemplate> uploadCommunityTemplateToCS(CommunityTemplateUploadDTO communityTemplate) {
         String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload-community-template";
+        return uploadTemplate(communityTemplate, url);
+    }
+
+    @NotNull private Mono<ApplicationTemplate> uploadTemplate(CommunityTemplateUploadDTO communityTemplate, String url) {
         String authHeader = "Authorization";
         String payload;
         try {
@@ -393,6 +398,40 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     return analyticsService
                             .sendEvent(
                                     AnalyticsEvents.COMMUNITY_TEMPLATE_PUBLISHED.getEventName(),
+                                    user.getUsername(),
+                                    data)
+                            .thenReturn(application);
+                });
+    }
+
+    private Mono<ApplicationTemplate> uploadAppsmithTemplateToCS(CommunityTemplateUploadDTO communityTemplate) {
+        String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload";
+        return uploadTemplate(communityTemplate, url);
+    }
+
+    @Override
+    public Mono<Application> publishAppsmithTemplate(CommunityTemplateDTO resource) {
+        return exportApplicationService
+                .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
+                .flatMap(appJson -> uploadAppsmithTemplateToCS(
+                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
+                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+                .flatMap(application -> {
+                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+                    applicationAccessDTO.setPublicAccess(true);
+                    return applicationService
+                            .changeViewAccess(application.getId(), resource.getBranchName(), applicationAccessDTO)
+                            .zipWith(sessionUserService.getCurrentUser());
+                })
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    User user = tuple.getT2();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, application.getWorkspaceId());
+                    return analyticsService
+                            .sendEvent(
+                                    AnalyticsEvents.APPSMITH_TEMPLATE_PUBLISHED.getEventName(),
                                     user.getUsername(),
                                     data)
                             .thenReturn(application);
