@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { getIsAppSidebarAnnouncementEnabled } from "selectors/ideSelectors";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
@@ -9,7 +9,9 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import SidebarComponent from "./SidebarComponent";
-import { BottomButtons, TopButtons } from "entities/IDE/constants";
+import { BottomButtons, EditorState, TopButtons } from "entities/IDE/constants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 function Sidebar() {
   const dispatch = useDispatch();
@@ -21,6 +23,16 @@ function Sidebar() {
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const guidedTourEnabled = useSelector(inGuidedTour);
+  const isPagePaneSegmentsEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
+  const SidebarTopButtons = TopButtons.filter((button) => {
+    if (button.state === EditorState.ADD) {
+      return isPagePaneSegmentsEnabled;
+    }
+    return true;
+  });
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -51,7 +63,7 @@ function Sidebar() {
       bottomButtons={BottomButtons}
       isAppSidebarAnnouncementEnabled={isAppSidebarAnnouncementEnabled}
       onClick={onClick}
-      topButtons={TopButtons}
+      topButtons={SidebarTopButtons}
     />
   );
 }
