@@ -17,23 +17,28 @@ import com.appsmith.server.dtos.ApiKeyRequestDto;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApiKeyService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
+import com.mongodb.bulk.BulkWriteResult;
 import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +46,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AppsmithRole.WORKFLOW_EXECUTOR;
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
+import static java.lang.Boolean.TRUE;
 
 @Service
 public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompatibleImpl
@@ -53,6 +59,9 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
     private final PolicyGenerator policyGenerator;
     private final ApiKeyService apiKeyService;
     private final WorkflowHelper workflowHelper;
+    private final TransactionalOperator transactionalOperator;
+    private final NewActionService newActionService;
+    private final ActionPermission actionPermission;
 
     public InteractWorkflowServiceImpl(
             Scheduler scheduler,
@@ -68,7 +77,10 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
             RoleConfigurationSolution roleConfigurationSolution,
             PolicyGenerator policyGenerator,
             ApiKeyService apiKeyService,
-            WorkflowHelper workflowHelper) {
+            WorkflowHelper workflowHelper,
+            TransactionalOperator transactionalOperator,
+            NewActionService newActionService,
+            ActionPermission actionPermission) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workflowPermission = workflowPermission;
         this.userRepository = userRepository;
@@ -78,6 +90,9 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
         this.policyGenerator = policyGenerator;
         this.apiKeyService = apiKeyService;
         this.workflowHelper = workflowHelper;
+        this.transactionalOperator = transactionalOperator;
+        this.newActionService = newActionService;
+        this.actionPermission = actionPermission;
     }
 
     /**
@@ -154,7 +169,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
         // Update the workflow to indicate that token has been generated
         Mono<String> generateApiKeyAndUpdateTokenGeneratedMono =
                 generateApiKeyForWorkflowBotUser.flatMap(generatedToken -> repository
-                        .updateGeneratedTokenForWorkflow(workflowId, Boolean.TRUE, Optional.empty())
+                        .updateGeneratedTokenForWorkflow(workflowId, TRUE, Optional.empty())
                         .thenReturn(generatedToken));
 
         return workflowBotUserMono
@@ -202,7 +217,61 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
                 .flatMap(workflowBotUser ->
                         apiKeyService.archiveAllApiKeysForUserWithoutPermissionCheck(workflowBotUser.getUsername()))
                 .then(repository.updateGeneratedTokenForWorkflow(workflowId, Boolean.FALSE, Optional.empty()))
-                .thenReturn(Boolean.TRUE);
+                .thenReturn(TRUE);
+    }
+
+    /**
+     * Publishes a workflow identified by the provided workflow ID.
+     *
+     * <p>
+     * The method performs the following steps:
+     * </p>
+     * <ol>
+     *   <li>Retrieves the workflow using the provided workflow ID and publish permission.</li>
+     *   <li>Sets the last deployed timestamp of the workflow to the current instant.</li>
+     *   <li>Publishes actions associated with the workflow using {@link NewActionService#publishActionsForWorkflows}.</li>
+     *   <li>Saves the updated workflow with the new last deployed timestamp.</li>
+     *   <li>Commits the transaction using the provided {@link TransactionalOperator}.</li>
+     * </ol>
+     *
+     * <p>
+     * <b>TODO:</b>
+     * </p>
+     * <ul>
+     *   <li>Publish Action Collections as well. (Currently marked as TODO)</li>
+     * </ul>
+     *
+     * <p>
+     *
+     * <p>
+     * <b>Notes:</b>
+     * </p>
+     * <ul>
+     *   <li>The workflow's last deployed timestamp is updated to the current instant.</li>
+     *   <li>Actions associated with the workflow are published, and the method caches the updated workflow.</li>
+     *   <li>The transactional operator is used to ensure atomicity of the transaction.</li>
+     * </ul>
+     *
+     * @param workflowId The ID of the workflow to be published.
+     * @return A Mono emitting the published workflow.
+     */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
+    public Mono<Workflow> publishWorkflow(String workflowId) {
+        return repository
+                .findById(workflowId, workflowPermission.getPublishPermission())
+                .flatMap(workflow -> {
+                    workflow.setLastDeployedAt(Instant.now());
+                    Mono<List<BulkWriteResult>> publishActionsForWorkflows =
+                            newActionService.publishActionsForWorkflows(
+                                    workflowId, actionPermission.getEditPermission());
+                    // TODO: Publish Action Collections as well.
+                    Mono<Workflow> updateDeployedAtForWorkflowMono =
+                            repository.save(workflow).cache();
+                    return Mono.zip(updateDeployedAtForWorkflowMono, publishActionsForWorkflows)
+                            .then(updateDeployedAtForWorkflowMono);
+                })
+                .as(transactionalOperator::transactional);
     }
 
     private Mono<PermissionGroup> getOrCreateWorkflowRole(Workflow workflow, User user) {

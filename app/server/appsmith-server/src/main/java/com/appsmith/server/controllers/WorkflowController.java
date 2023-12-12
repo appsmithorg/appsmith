@@ -136,4 +136,12 @@ public class WorkflowController {
                 .archiveBearerTokenForWebhook(id)
                 .map(archived -> new ResponseDTO<>(HttpStatus.OK.value(), archived, null));
     }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/publish/{workflowId}")
+    public Mono<ResponseDTO<Workflow>> publish(@PathVariable String workflowId) {
+        return interactWorkflowService
+                .publishWorkflow(workflowId)
+                .map(publishedWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), publishedWorkflow, null));
+    }
 }

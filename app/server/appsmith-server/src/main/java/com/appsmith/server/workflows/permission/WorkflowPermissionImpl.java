@@ -29,4 +29,9 @@ public class WorkflowPermissionImpl implements WorkflowPermission {
     public AclPermission getActionCreationPermission() {
         return AclPermission.WORKFLOW_CREATE_ACTIONS;
     }
+
+    @Override
+    public AclPermission getPublishPermission() {
+        return AclPermission.PUBLISH_WORKFLOWS;
+    }
 }

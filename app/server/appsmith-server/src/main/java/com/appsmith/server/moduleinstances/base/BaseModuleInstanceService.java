@@ -1,8 +1,8 @@
 package com.appsmith.server.moduleinstances.base;
 
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import reactor.core.publisher.Mono;
 
 public interface BaseModuleInstanceService {

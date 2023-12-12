@@ -251,11 +251,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ConsumablePackagesAndModulesDTO> getAllPackagesForConsumer(String workspaceId) {
-        Mono<Workspace> workspaceMono = workspaceService
-                .findById(workspaceId, workspacePermission.getReadPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)));
-        return workspaceMono.then(repository
+        return repository
                 .findAllConsumablePackages(workspaceId, packagePermission.getReadPermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.VIEW))
                 .collectList()
@@ -271,7 +267,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
 
                         return Mono.just(consumablePackagesAndModulesDTO);
                     });
-                }));
+                });
     }
 
     private Update prepareUpdatableFieldsForPackage(PackageDTO packageResource) {

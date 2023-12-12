@@ -1,8 +1,16 @@
 package com.appsmith.server.workflows.interact;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserApiKey;
@@ -10,13 +18,19 @@ import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApiKeyRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +40,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.models.CreatorContextType.WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_WORKFLOWS;
@@ -90,10 +109,29 @@ class InteractWorkflowServiceTest {
     private ReactiveMongoOperations reactiveMongoOperations;
 
     @Autowired
+    private EnvironmentPermission environmentPermission;
+
+    @Autowired
+    private PluginRepository pluginRepository;
+
+    @Autowired
+    private DatasourceService datasourceService;
+
+    @Autowired
     private UserUtils userUtils;
+
+    @Autowired
+    private CrudWorkflowEntityService crudWorkflowEntityService;
+
+    @Autowired
+    private NewActionRepository newActionRepository;
 
     private Workspace workspace;
     private Workflow workflow;
+    private Datasource datasource;
+
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
 
     @BeforeEach
     public void setup() {
@@ -110,15 +148,37 @@ class InteractWorkflowServiceTest {
                 FeatureFlagEnum.release_workflows_enabled.name(),
                 TRUE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Workspace workspace1 = new Workspace();
-        workspace1.setName("CrudApprovalRequestServiceTest");
+        workspace1.setName("Workspace - InteractWorkflowServiceTest");
         workspace = workspaceService.create(workspace1).block();
 
-        Workflow workflow1 = new Workflow();
-        workflow1.setName("CrudApprovalRequestServiceTest");
-        workflow =
-                crudWorkflowService.createWorkflow(workflow1, workspace.getId()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
+
+        Workflow toCreateWorkflow = new Workflow();
+        toCreateWorkflow.setName("Workflow - InteractWorkflowServiceTest");
+        workflow = crudWorkflowService
+                .createWorkflow(toCreateWorkflow, workspace.getId())
+                .block();
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("Datasource - InteractWorkflowServiceTest");
+        externalDatasource.setWorkspaceId(workspace.getId());
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        externalDatasource.setDatasourceStorages(storages);
+        datasource = datasourceService.create(externalDatasource).block();
     }
 
     @Test
@@ -191,5 +251,46 @@ class InteractWorkflowServiceTest {
         Workflow workflowPostArchivingToken =
                 workflowRepository.findById(workflow.getId()).block();
         assertThat(workflowPostArchivingToken.getTokenGenerated()).isFalse();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPublishWorkflows() {
+        String name = "testPublishWorkflows";
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setName(name);
+        actionDTO.setWorkflowId(workflow.getId());
+        actionDTO.setDatasource(datasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionDTO.setActionConfiguration(actionConfiguration);
+        actionDTO.setWorkspaceId(workspace.getId());
+        actionDTO.setContextType(WORKFLOW);
+
+        ActionDTO workflowActionDTO =
+                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
+
+        NewAction workflowActionBeforePublishing =
+                newActionRepository.findById(workflowActionDTO.getId()).block();
+        ActionDTO publishedActionBeforePublishing = workflowActionBeforePublishing.getPublishedAction();
+        assertThat(publishedActionBeforePublishing.getWorkflowId()).isNullOrEmpty();
+        assertThat(publishedActionBeforePublishing.getName()).isNullOrEmpty();
+        assertThat(publishedActionBeforePublishing.getContextType()).isNull();
+        assertThat(publishedActionBeforePublishing.getActionConfiguration()).isNull();
+
+        // TODO: Add action collection assertions as well.
+
+        Workflow publishedWorkflow =
+                interactWorkflowService.publishWorkflow(workflow.getId()).block();
+        assertThat(publishedWorkflow.getLastDeployedAt()).isNotEmpty();
+        assertThat(Instant.parse(publishedWorkflow.getLastDeployedAt())).isBefore(Instant.now());
+
+        NewAction workflowActionAfterPublishing =
+                newActionRepository.findById(workflowActionDTO.getId()).block();
+        ActionDTO publishedActionAfterPublishing = workflowActionAfterPublishing.getPublishedAction();
+        assertThat(publishedActionAfterPublishing.getWorkflowId()).isEqualTo(workflow.getId());
+        assertThat(publishedActionAfterPublishing.getName()).isEqualTo(name);
+        assertThat(publishedActionAfterPublishing.getContextType()).isEqualTo(WORKFLOW);
+        assertThat(publishedActionAfterPublishing.getActionConfiguration()).isNotNull();
     }
 }

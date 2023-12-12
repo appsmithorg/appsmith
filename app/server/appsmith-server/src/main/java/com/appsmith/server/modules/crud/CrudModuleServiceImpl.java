@@ -52,6 +52,7 @@ import java.util.Set;
 
 import static com.appsmith.external.models.ModuleType.JS_MODULE;
 import static com.appsmith.external.models.ModuleType.QUERY_MODULE;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.completeFieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
@@ -426,5 +427,13 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         return repository
                 .findByIdAndLayoutsIdAndViewMode(creatorId, layoutId, permission, resourceModes)
                 .flatMap(module -> generateModuleByViewMode(module, resourceModes));
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Flux<Module> findUniqueReferencesByIds(Set<String> ids, Optional<AclPermission> permission) {
+        List<String> projectionFields =
+                List.of(completeFieldName(QModule.module.packageUUID), completeFieldName(QModule.module.moduleUUID));
+        return repository.findAllByIds(ids, projectionFields, permission);
     }
 }

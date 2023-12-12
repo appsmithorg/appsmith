@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -780,6 +781,64 @@ class ModuleServiceTest {
                                     .getActionConfiguration()
                                     .getBody())
                             .isEqualTo("mockBody");
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    void testGetEntitiesShouldReturnEntitiesForPackageEditor() {
+        final PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("PackageEditorGetEntitiesTest");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> packageId = new AtomicReference<>();
+        AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+
+        // create package
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    packageId.set(createdPackage.getId());
+                    testPackageRef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("Module1");
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setPackageId(packageId.get());
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleIdRef = new AtomicReference<>();
+
+        StepVerifier.create(moduleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    moduleIdRef.set(createdModule.getId());
+                    assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
+                })
+                .verifyComplete();
+
+        Mono<ModuleEntitiesDTO> getEntitiesMono =
+                crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
+
+        StepVerifier.create(getEntitiesMono)
+                .assertNext(allEntities -> {
+                    assertThat(allEntities).isNotNull();
+                    assertThat(allEntities.getActions().size()).isEqualTo(1);
+                    assertThat(allEntities.getActions().get(0).getName()).isEqualTo("Module1");
+                    assertThat(allEntities.getJsCollections().size()).isEqualTo(0);
                 })
                 .verifyComplete();
     }

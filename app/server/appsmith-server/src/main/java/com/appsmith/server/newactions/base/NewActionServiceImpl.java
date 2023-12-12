@@ -40,6 +40,8 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.validations.EntityValidationService;
 import com.appsmith.server.workflows.helpers.WorkflowUtils;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -423,6 +425,21 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 })
                 .flatMap(repository::archive)
                 .collectList();
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
+        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+                repository.archiveDeletedUnpublishedActionsForWorkflows(workflowId, aclPermission);
+        Mono<List<BulkWriteResult>> publishActionsForWorkflows =
+                repository.publishActionsForWorkflows(workflowId, aclPermission);
+        return archiveDeletedUnpublishedActions.then(publishActionsForWorkflows);
+    }
+
+    @Override
+    public Flux<NewAction> findPublicActionsByModuleInstanceId(
+            String moduleInstanceId, Optional<AclPermission> permission) {
+        return repository.findPublicActionsByModuleInstanceId(moduleInstanceId, permission);
     }
 
     @Override

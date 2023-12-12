@@ -1,6 +1,10 @@
-package com.appsmith.external.models;
+package com.appsmith.server.dtos;
 
 import com.appsmith.external.helpers.Identifiable;
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.ModuleType;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -41,7 +45,6 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     String name;
 
-    @Transient
     @JsonView(Views.Public.class)
     CreatorContextType contextType;
 
@@ -53,17 +56,18 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    @Transient
-    @JsonView(Views.Public.class)
-    String pageId;
+    @JsonView(Views.Internal.class)
+    String pageId; // if module is instantiated in the context of PAGE then this moduleId will have the id of that page
 
-    @Transient
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     String moduleId;
 
     // We will look for dynamic bindings only in the `value` field of the `inputs` map
     @JsonView(Views.Public.class)
     Map<String, String> inputs;
+
+    @JsonView({Views.Export.class})
+    PublicEntityDTO publicEntity;
 
     @JsonView(Views.Public.class)
     List<Property> dynamicBindingPathList;
@@ -82,4 +86,11 @@ public class ModuleInstanceDTO implements Identifiable {
 
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
+
+    public void sanitiseForExport() {
+        this.setDefaultResources(null);
+        if (this.getUserPermissions() != null) {
+            this.getUserPermissions().clear();
+        }
+    }
 }

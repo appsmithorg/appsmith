@@ -6,7 +6,7 @@ const {
   GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -48,8 +48,8 @@ describe("Admin settings page", function () {
   });
 
   it(
-    "excludeForAirgap",
     "4. Should test that settings page tab redirects",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.get(".admin-settings-menu-option").click();
@@ -70,8 +70,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "airgap",
     "4. Should test that settings page tab redirects and developer settings doesn't exist - airgap",
+    { tags: ["@tag.airgap"] },
     () => {
       cy.visit("/applications", { timeout: 60000 });
       if (!Cypress.env("AIRGAPPED")) {
@@ -97,8 +97,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "5. Should test that authentication page redirects",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -117,8 +117,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "airgap",
     "5. Should test that authentication page redirects and google and github auth doesn't exist - airgap",
+    { tags: ["@tag.airgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -131,8 +131,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "6. Should test that configure link redirects to google signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -151,8 +151,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "7. Should test that configure link redirects to github signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();

@@ -133,7 +133,6 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
             ActionCollection sourceActionCollection, ActionCollection toBeInstantiatedActionCollection) {
         // Set the published data of source to the unpublished data of the new instance
         toBeInstantiatedActionCollection.setUnpublishedCollection(sourceActionCollection.getPublishedCollection());
-
         // Reset the published data with an empty DTO
         toBeInstantiatedActionCollection.setPublishedCollection(new ActionCollectionDTO());
     }

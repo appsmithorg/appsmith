@@ -1,5 +1,6 @@
 package com.appsmith.server.workflows.interact;
 
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.WorkflowRepository;
@@ -32,6 +33,11 @@ public class InteractWorkflowServiceCECompatibleImpl extends BaseWorkflowService
 
     @Override
     public Mono<Boolean> archiveBearerTokenForWebhook(String workflowId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<Workflow> publishWorkflow(String workflowId) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

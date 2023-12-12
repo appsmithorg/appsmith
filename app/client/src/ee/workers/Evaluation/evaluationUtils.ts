@@ -5,7 +5,10 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isAPathDynamicBindingPath as CE_isAPathDynamicBindingPath } from "ce/workers/Evaluation/evaluationUtils";
+import {
+  isAPathDynamicBindingPath as CE_isAPathDynamicBindingPath,
+  isAnyJSAction as CE_isAnyJSAction,
+} from "ce/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
@@ -66,3 +69,11 @@ export const isAPathDynamicBindingPath = (
     isModuleInputDynamic(entity, propertyPath)
   );
 };
+
+/**
+ *
+ * isAnyJSAction checks if the entity is a JSAction ( or a JSModuleInstance on EE )
+ */
+export function isAnyJSAction(entity: DataTreeEntity) {
+  return CE_isAnyJSAction(entity) || isJSModuleInstance(entity);
+}

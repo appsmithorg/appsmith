@@ -1,6 +1,8 @@
 package com.appsmith.server.modules.crud.entity;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.dtos.ModuleActionDTO;
+import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ModuleConsumable;
@@ -18,6 +20,11 @@ public class CrudModuleEntityServiceCECompatibleImpl implements CrudModuleEntity
 
     @Override
     public Mono<List<ModuleConsumable>> getModuleActions(String moduleId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<ModuleEntitiesDTO> getAllEntities(String contextId, CreatorContextType contextType, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

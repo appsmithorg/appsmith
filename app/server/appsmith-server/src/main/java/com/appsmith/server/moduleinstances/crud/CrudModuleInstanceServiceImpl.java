@@ -2,7 +2,6 @@ package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -24,6 +23,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
@@ -206,15 +206,10 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                         moduleInstance.setApplicationId(page.getApplicationId());
                         moduleInstance.setSourceModuleId(sourceModule.getId());
                         moduleInstance.setModuleUUID(sourceModule.getModuleUUID());
-                        moduleInstance.setContextType(moduleInstanceReqDTO.getContextType());
-
-                        this.setContextId(
-                                moduleInstance,
-                                moduleInstanceReqDTO.getContextId(),
-                                moduleInstanceReqDTO.getContextType());
 
                         ModuleInstanceDTO unpublishedModuleInstanceDTO = prepareUnpublishedModuleInstanceFromRequest(
                                 moduleInstanceReqDTO, sourceModule.getPublishedModule());
+
                         moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
                         moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
 
@@ -300,7 +295,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         });
     }
 
-    private void setContextId(ModuleInstance moduleInstance, String contextId, CreatorContextType contextType) {
+    private void setContextId(ModuleInstanceDTO moduleInstance, String contextId, CreatorContextType contextType) {
         if (contextType == CreatorContextType.PAGE) {
             moduleInstance.setPageId(contextId);
             moduleInstance.setModuleId(null);
@@ -316,6 +311,10 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
             ModuleInstanceDTO moduleInstanceReqDTO, ModuleDTO sourceModuleDTO) {
         ModuleInstanceDTO moduleInstanceDTO = new ModuleInstanceDTO();
         moduleInstanceDTO.setName(moduleInstanceReqDTO.getName());
+
+        moduleInstanceDTO.setContextType(moduleInstanceReqDTO.getContextType());
+        this.setContextId(
+                moduleInstanceDTO, moduleInstanceReqDTO.getContextId(), moduleInstanceReqDTO.getContextType());
 
         Map<String, String> inputs = transformModuleInputsToModuleInstance(sourceModuleDTO);
         moduleInstanceDTO.setInputs(inputs);
@@ -458,6 +457,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<List<ModuleInstance>> archiveModuleInstancesByRootModuleInstanceId(String rootModuleInstanceId) {
         return repository
                 .findAllByRootModuleInstanceId(
@@ -474,5 +474,18 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                     return repository.archive(composedModuleInstance);
                 })
                 .collectList();
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Flux<ModuleInstance> findByPageIds(
+            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return repository.findByPageIds(unpublishedPages, optionalPermission);
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Flux<ModuleInstance> findAllUnpublishedByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
+        return repository.findAllUnpublishedByModuleUUID(moduleUUID, permission);
     }
 }

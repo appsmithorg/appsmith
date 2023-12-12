@@ -92,6 +92,9 @@ public class GitServiceTest {
     @Autowired
     ApplicationRepository applicationRepository;
 
+    @Autowired
+    UserDataService userDataService;
+
     private static final GitProfile testUserProfile = new GitProfile();
 
     private String workspaceId;
@@ -147,7 +150,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), anyString(), anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         Mockito.any(Path.class), Mockito.any(ApplicationJson.class), anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
     }

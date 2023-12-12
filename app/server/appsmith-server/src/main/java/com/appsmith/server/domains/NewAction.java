@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ce.NewActionCE;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -31,4 +32,20 @@ public class NewAction extends NewActionCE {
 
     @JsonView(Views.Public.class)
     String workflowId;
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        super.sanitiseToExportDBObject();
+
+        if (Boolean.TRUE.equals(this.getIsPublic())) {
+            ActionDTO unpublishedAction = this.getUnpublishedAction();
+            if (unpublishedAction != null) {
+                unpublishedAction.setActionConfiguration(null);
+            }
+            ActionDTO publishedAction = this.getPublishedAction();
+            if (publishedAction != null) {
+                publishedAction.setActionConfiguration(null);
+            }
+        }
+    }
 }

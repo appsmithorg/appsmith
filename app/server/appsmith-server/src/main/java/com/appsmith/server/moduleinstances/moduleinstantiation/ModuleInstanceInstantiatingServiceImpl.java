@@ -3,12 +3,12 @@ package com.appsmith.server.moduleinstances.moduleinstantiation;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.EntityType;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.moduleinstances.base.BaseModuleInstanceServiceImpl;
@@ -47,7 +47,7 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
-        Flux<ModuleInstance> allModuleInstancesFlux = repository.findAllByContextIdAndContextType(
+        Flux<ModuleInstance> allModuleInstancesFlux = repository.findAllPublishedByContextIdAndContextType(
                 moduleInstantiatingMetaDTO.getSourceModuleId(),
                 CreatorContextType.MODULE,
                 moduleInstancePermission.getReadPermission());
@@ -56,13 +56,14 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
                     ModuleInstance toBeInstantiatedModuleInstance =
                             createNewModuleInstanceFromSource(sourceModuleInstance);
                     setUnpublishedAndPublishedData(sourceModuleInstance, toBeInstantiatedModuleInstance);
-                    setContextTypeAndContextId(toBeInstantiatedModuleInstance, moduleInstantiatingMetaDTO);
+
                     toBeInstantiatedModuleInstance.setRootModuleInstanceId(
                             moduleInstantiatingMetaDTO.getRootModuleInstanceId());
 
                     ModuleInstanceDTO unpublishedModuleInstance =
                             toBeInstantiatedModuleInstance.getUnpublishedModuleInstance();
                     setFullyQualifiedName(moduleInstantiatingMetaDTO, unpublishedModuleInstance);
+                    setContextTypeAndContextId(unpublishedModuleInstance, moduleInstantiatingMetaDTO);
 
                     setPolicies(moduleInstantiatingMetaDTO, toBeInstantiatedModuleInstance);
 
@@ -159,7 +160,7 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
     }
 
     private void setContextTypeAndContextId(
-            ModuleInstance toBeInstantiatedModuleInstance, ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+            ModuleInstanceDTO toBeInstantiatedModuleInstance, ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         toBeInstantiatedModuleInstance.setContextType(moduleInstantiatingMetaDTO.getContextType());
         // Set the value of `contextId` to the respective field based on the `contextType`
         if (CreatorContextType.PAGE.equals(moduleInstantiatingMetaDTO.getContextType())) {
