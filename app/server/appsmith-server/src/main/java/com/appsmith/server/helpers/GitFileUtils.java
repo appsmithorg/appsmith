@@ -45,10 +45,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -159,7 +161,7 @@ public class GitFileUtils {
         applicationJson.setPublishedTheme(null);
 
         // Pass metadata
-        Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
+        Iterable<String> keys = getAllFields(applicationJson)
                 .map(Field::getName)
                 .filter(name -> !blockedMetadataFields.contains(name))
                 .collect(Collectors.toList());
@@ -323,6 +325,19 @@ public class GitFileUtils {
         resourceMap.clear();
 
         return applicationReference;
+    }
+
+    protected Stream<Field> getAllFields(ApplicationJson applicationJson) {
+        Class<?> currentType = applicationJson.getClass();
+
+        Set<Class<?>> classes = new HashSet<>();
+
+        while (currentType != null) {
+            classes.add(currentType);
+            currentType = currentType.getSuperclass();
+        }
+
+        return classes.stream().flatMap(currentClass -> Arrays.stream(currentClass.getDeclaredFields()));
     }
 
     /**

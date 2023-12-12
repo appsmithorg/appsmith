@@ -88,7 +88,9 @@ public enum AnalyticsEvents {
 
     PARTIAL_IMPORT,
 
-    PARTIAL_EXPORT;
+    PARTIAL_EXPORT,
+
+    COMMUNITY_TEMPLATE_PUBLISHED;
 
     private final String eventName;
 
