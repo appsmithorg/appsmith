@@ -1,6 +1,5 @@
 ---
-# Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
-docker_edition: 'ce'
+docker_edition: 'ee'
 docker_package: 'docker-{{ docker_edition }}'
 docker_package_state: present
 
