@@ -22,7 +22,7 @@ import {
   ModalHeader,
   Text,
 } from "design-system";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 import { getCurrentPageName } from "selectors/editorSelectors";
@@ -63,6 +63,16 @@ const PartiaExportModal = ({ handleModalClose, isModalOpen }: Props) => {
   useEffect(() => {
     setCustomJsLibraries(libraries.filter((lib) => !!lib.url));
   }, [libraries]);
+
+  const disableExportCTA = useMemo(() => {
+    return (
+      !selectedParams.jsObjects.length &&
+      !selectedParams.datasources.length &&
+      !selectedParams.customJSLibs.length &&
+      !selectedParams.widgets.length &&
+      !selectedParams.queries.length
+    );
+  }, [selectedParams]);
 
   const { appWideDS } = useAppWideAndOtherDatasource();
   const entities = useEntitesToExport(
@@ -169,7 +179,8 @@ const PartiaExportModal = ({ handleModalClose, isModalOpen }: Props) => {
               {createMessage(PARTIAL_IMPORT_EXPORT.export.fullPageCta)}
             </Button>
             <Button
-              isLoading={partialImportExportLoadingState.isExporting}
+              isDisabled={disableExportCTA}
+            isLoading={partialImportExportLoadingState.isExporting}
               onClick={onExportClick}
               size="md"
             >

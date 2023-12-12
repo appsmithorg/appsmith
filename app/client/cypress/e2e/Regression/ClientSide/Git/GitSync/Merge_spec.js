@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let repoName;
 let childBranchKey = "ChildBranch";
 let mainBranch = "master";
-describe("Git sync modal: merge tab", function () {
+describe("Git sync modal: merge tab", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

@@ -36,7 +36,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction);
 
-    NewAction extractAndSetJsonPathKeys(NewAction newAction);
+    Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
@@ -73,7 +73,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
 
-    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO);
+    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
@@ -136,7 +136,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
-    Flux<NewAction> findByListOfPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+    Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
 
     Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,
@@ -144,4 +144,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
             AclPermission permission,
             boolean viewMode,
             boolean includeJs);
+
+    NewAction generateActionDomain(ActionDTO action);
+
+    void updateDefaultResourcesInAction(NewAction newAction);
 }

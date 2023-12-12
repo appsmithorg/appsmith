@@ -30,6 +30,9 @@ if (APPSMITH_CUSTOM_DOMAIN != null) {
 
 const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
 
+const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
+  .replace(/;.*$/, "")
+
 const parts = []
 
 parts.push(`
@@ -64,7 +67,7 @@ parts.push(`
 
   header {
     -Server
-    Content-Security-Policy "frame-ancestors ${process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS ?? "'self' *"}"
+    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
   }
 
@@ -84,7 +87,10 @@ parts.push(`
     import file_server
     skip_log
   }
-  error /static/* 404
+
+  handle /static/* {
+    error 404
+  }
 
   handle /info {
     root * /opt/appsmith
