@@ -64,6 +64,7 @@ const _pagesPane = () => {
       case FocusEntity.CANVAS:
       case FocusEntity.NONE:
       case FocusEntity.PROPERTY_PANE:
+      case FocusEntity.WIDGET_LIST:
         setSelected(TabsType.UI);
         break;
     }

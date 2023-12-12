@@ -1,5 +1,6 @@
 import { matchPath } from "react-router";
 import {
+  ADD_PATH,
   API_EDITOR_ID_ADD_PATH,
   API_EDITOR_ID_PATH,
   BUILDER_CUSTOM_PATH,
@@ -9,7 +10,6 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
-  ADD_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -38,6 +38,8 @@ export enum FocusEntity {
   APP_STATE = "APP_STATE",
   LIBRARY = "LIBRARY",
   SETTINGS = "SETTINGS",
+  ADD = "ADD",
+  WIDGET_LIST = "WIDGET_LIST",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
@@ -45,6 +47,7 @@ export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,
   [FocusEntity.JS_OBJECT]: FocusEntity.JS_OBJECT_LIST,
   [FocusEntity.QUERY]: FocusEntity.QUERY_LIST,
+  [FocusEntity.PROPERTY_PANE]: FocusEntity.WIDGET_LIST,
 };
 
 export interface FocusEntityInfo {
@@ -195,6 +198,14 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       appState: EditorState.EDITOR,
     };
   }
+  if (match.params.entity === "widgets") {
+    return {
+      entity: FocusEntity.WIDGET_LIST,
+      id: "",
+      pageId: match.params.pageId,
+      appState: EditorState.EDITOR,
+    };
+  }
   if (match.params.entity === "queries") {
     return {
       entity: FocusEntity.QUERY_LIST,
@@ -225,6 +236,14 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         entity: FocusEntity.SETTINGS,
         id: "",
         appState: EditorState.SETTINGS,
+        pageId: match.params.pageId,
+      };
+    }
+    if (match.params.entity === "add") {
+      return {
+        entity: FocusEntity.ADD,
+        id: "",
+        appState: EditorState.ADD,
         pageId: match.params.pageId,
       };
     }

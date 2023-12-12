@@ -221,18 +221,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
     {
       type: ConfigType.Redux,
-      name: FocusElement.SelectedWidgets,
-      selector: getSelectedWidgets,
-      setter: (widgetIds: string[]) =>
-        selectWidgetInitAction(
-          SelectionRequestType.Multiple,
-          widgetIds,
-          NavigationMethod.ContextSwitching,
-        ),
-      defaultValue: [],
-    },
-    {
-      type: ConfigType.Redux,
       name: FocusElement.PropertyPaneWidth,
       selector: getPropertyPaneWidth,
       setter: setPropertyPaneWidthAction,
@@ -345,6 +333,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.LIBRARY]: [],
   [FocusEntity.SETTINGS]: [],
+  [FocusEntity.ADD]: [],
   [FocusEntity.QUERY_LIST]: [
     {
       type: ConfigType.URL,
@@ -361,6 +350,20 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getSelectedJSObjectId,
       setter: setSelectedJSObject,
       defaultValue: getFirstJSObjectId,
+    },
+  ],
+  [FocusEntity.WIDGET_LIST]: [
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.SelectedWidgets,
+      selector: getSelectedWidgets,
+      setter: (widgetIds: string[]) =>
+        selectWidgetInitAction(
+          SelectionRequestType.Multiple,
+          widgetIds,
+          NavigationMethod.ContextSwitching,
+        ),
+      defaultValue: [],
     },
   ],
 };

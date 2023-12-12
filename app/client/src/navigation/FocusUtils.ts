@@ -5,6 +5,7 @@ import {
   datasourcesEditorURL,
   jsCollectionListURL,
   queryListURL,
+  widgetListURL,
 } from "@appsmith/RouteBuilder";
 
 export const getEntityParentUrl = (
@@ -23,6 +24,9 @@ export const getEntityParentUrl = (
   }
   if (parentEntity === FocusEntity.QUERY_LIST) {
     return queryListURL({ pageId: entityInfo.pageId });
+  }
+  if (parentEntity === FocusEntity.WIDGET_LIST) {
+    return widgetListURL({ pageId: entityInfo.pageId });
   }
   return "";
 };
