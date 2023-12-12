@@ -38,7 +38,7 @@ describe(
       assertHelper
         .WaitForNetworkCall("importNewApplication")
         .then((response: any) => {
-          agHelper.Sleep();
+          //agHelper.Sleep();
           const { isPartialImport } = response.body.data;
           if (isPartialImport) {
             // should reconnect modal
@@ -97,20 +97,20 @@ describe(
 
       table.AssertPageNumber(1, "On", "v2");
       table.NavigateToNextPage(true, "v2"); //page 2
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      //agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2");
       table.AssertSelectedRow(selectedRow);
 
       table.NavigateToNextPage(true, "v2"); //page 3
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      //agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitForTableEmpty("v2"); //page 3
       table.NavigateToPreviousPage(true, "v2"); //page 2
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      //agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2");
       table.AssertSelectedRow(selectedRow);
 
       table.NavigateToPreviousPage(true, "v2"); //page 1
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      //agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2");
       table.AssertSelectedRow(selectedRow);
       table.AssertPageNumber(1, "On", "v2");
@@ -335,7 +335,7 @@ describe(
 
       agHelper.ClickButton("Confirm");
       agHelper.AssertElementAbsence(locators._toastMsg); //Making sure internal api doesnt throw error
-      agHelper.Sleep(3000);
+      //agHelper.Sleep(3000);
       table.SearchTable("Suggestion");
       table.WaitUntilTableLoad(0, 0, "v2");
 
@@ -349,14 +349,14 @@ describe(
     });
 
     it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
-      agHelper.Sleep(2000);
+      //agHelper.Sleep(2000);
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
-      agHelper.Sleep(2000);
+      //agHelper.Sleep(2000);
       table.SelectTableRow(0, 1, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
       );
-      agHelper.Sleep(2000);
+      //agHelper.Sleep(2000);
       agHelper
         .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
         .type("-updating title");
@@ -403,7 +403,7 @@ describe(
         "multiselectwidget",
       );
       agHelper.ClickButton("Save");
-      agHelper.Sleep(2000);
+      //agHelper.Sleep(2000);
       table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
         expect(cellData).to.be.equal("Troubleshooting");
       });
@@ -414,17 +414,17 @@ describe(
         );
       });
 
-      agHelper.Sleep(2000); //allowing time to save!
+      //agHelper.Sleep(2000); //allowing time to save!
     });
 
     it("10. Validate Deleting the newly created issue", () => {
-      agHelper.Sleep(2000);
+      //agHelper.Sleep(2000);
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
       table.SelectTableRow(0, 0, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
       );
-      agHelper.Sleep();
+      //agHelper.Sleep();
       cy.get(table._trashIcon).closest("div").click({ force: true });
       agHelper.WaitUntilEleDisappear(locators._widgetInDeployed("tabswidget"));
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
