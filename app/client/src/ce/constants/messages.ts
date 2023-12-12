@@ -2284,9 +2284,9 @@ export const PAGES_PANE_TEXTS = {
 export const PARTIAL_IMPORT_EXPORT = {
   export: {
     modalHeading: () => "Export",
-    modalSubHeading: () => "Select entities below to export from the Page",
-    cta: () => "Export selected entities",
-    fullPageCta: () => "Export full page",
+    modalSubHeading: () => "Select the entities you want to export",
+    cta: () => "Export",
+    fullPageCta: () => "Export all",
     sections: {
       jsObjects: () => "JS objects",
       databases: () => "Databases",
