@@ -52,9 +52,6 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const isCanvasResizing: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  );
 
   /** POSITIONS OBSERVER LOGIC */
   // Create a ref so that this DOM node can be
@@ -169,7 +166,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       },
       ...borderStyles,
     };
-  }, [borderStyles, isDragging, isSelected, onHoverZIndex, isCanvasResizing]);
+  }, [borderStyles, isDragging, isSelected, onHoverZIndex]);
 
   return (
     <Flex
