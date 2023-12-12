@@ -58,16 +58,16 @@ describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
       },
     );
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    cy.wait("@getPage");
     //cy.wait(2000);
     // verify text in the text widget
-    cy.get(".t--draggable-textwidget span")
-      .eq(5)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(
-          "Step 4: Value is Green and will default to undefined",
-        );
-      });
+
+    agHelper.AssertText(
+      ".t--draggable-textwidget span",
+      "text",
+      "Step 4: Value is Green and will default to undefined",
+      5,
+    );
     // toggle off the switch
     cy.get(".t--switch-widget-active .bp3-control-indicator").click({
       force: true,
@@ -79,14 +79,13 @@ describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
     cy.get(".menu-item-text").eq(2).click({ force: true });
     //cy.wait(2000);
     // verify text in the text widget
-    cy.get(".t--draggable-textwidget span")
-      .eq(5)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(
-          "Step 4: Value is Red and will default to undefined",
-        );
-      });
+
+    agHelper.AssertText(
+      ".t--draggable-textwidget span",
+      "text",
+      "Step 4: Value is Red and will default to undefined",
+      5,
+    );
     // move to page  2 on table widget
     agHelper.GetNClick(commonlocators.tableNextPage);
     cy.get(".t--table-widget-page-input").within(() => {
