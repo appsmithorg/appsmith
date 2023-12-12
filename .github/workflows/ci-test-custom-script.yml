@@ -318,6 +318,19 @@ jobs:
             fi
           fi
 
+      - name: Set cypress tags to exclude - new steps
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]] && [[ -n "${{ inputs.tags }}" ]]; then
+            echo "CYPRESS_grepTags=${{ inputs.tags }}+-@tag.excludeForAirgap" >> $GITHUB_ENV
+          elif [[ "${{ inputs.airgap-enabled }}" == "false" ]] && [[ -n "${{ inputs.tags }}" ]]; then
+            echo "CYPRESS_grepTags=${{ inputs.tags }}+-@tag.airgap" >> $GITHUB_ENV
+          elif [[ -z "${{ inputs.tags }}" ]]; then
+            echo "CYPRESS_grepTags=-@tag.airgap" >> $GITHUB_ENV
+          fi
+      - name: Echo grepTags
+          run: echo $CYPRESS_grepTags
+
       - name: Run the cypress test
         uses: cypress-io/github-action@v6
         env:
@@ -362,7 +375,6 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
@@ -383,7 +395,7 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-          CYPRESS_grepTags: ${{ inputs.tags }} # This is a comma separated list of tags to run a subset of the suite
+          CYPRESS_grepTags: ${{ env.CYPRESS_grepTags }} # This is a comma separated list of tags to run a subset of the suite
           CYPRESS_SKIP_FLAKY: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
         with:
