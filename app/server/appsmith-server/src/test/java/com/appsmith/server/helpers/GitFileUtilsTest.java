@@ -186,8 +186,8 @@ public class GitFileUtilsTest {
                         Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Path.of("orgId", "appId", "repoName")));
 
-        Mono<Path> resultMono =
-                gitFileUtils.saveApplicationToLocalRepo(Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
+        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
+                Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
 
         StepVerifier.create(resultMono)
                 .assertNext(path -> {
@@ -240,7 +240,7 @@ public class GitFileUtilsTest {
                 .thenReturn(Mono.just(applicationReference));
 
         Mono<ApplicationJson> resultMono = gitFileUtils
-                .reconstructApplicationJsonFromGitRepo("orgId", "appId", "repoName", "branch")
+                .reconstructApplicationJsonFromGitRepoWithAnalytics("orgId", "appId", "repoName", "branch")
                 .cache();
 
         StepVerifier.create(resultMono)
