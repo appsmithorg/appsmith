@@ -488,8 +488,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
-    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        return repository.findByListOfPageIds(pageIds, permission);
+    public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        return repository.findByPageIds(pageIds, permission);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
@@ -42,13 +43,16 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -101,6 +105,25 @@ public class GitFileUtils {
     public Mono<Path> saveApplicationToLocalRepo(
             Path baseRepoSuffix, ApplicationJson applicationJson, String branchName)
             throws IOException, GitAPIException {
+        /*
+           1. Checkout to branch
+           2. Create application reference for appsmith-git module
+           3. Save application to git repo
+        */
+
+        ApplicationGitReference applicationReference = createApplicationReference(applicationJson);
+        // Save application to git repo
+        try {
+            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
+        } catch (IOException | GitAPIException e) {
+            log.error("Error occurred while saving files to local git repo: ", e);
+            throw Exceptions.propagate(e);
+        }
+    }
+
+    public Mono<Path> saveApplicationToLocalRepoWithAnalytics(
+            Path baseRepoSuffix, ApplicationJson applicationJson, String branchName)
+            throws IOException, GitAPIException {
 
         /*
            1. Checkout to branch
@@ -108,12 +131,9 @@ public class GitFileUtils {
            3. Save application to git repo
         */
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE.getEventName());
-        ApplicationGitReference applicationReference = createApplicationReference(applicationJson);
         // Save application to git repo
         try {
-            Mono<Path> repoPathMono = fileUtils
-                    .saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName)
-                    .cache();
+            Mono<Path> repoPathMono = saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, branchName);
             return Mono.zip(repoPathMono, sessionUserService.getCurrentUser()).flatMap(tuple -> {
                 stopwatch.stopTimer();
                 Path repoPath = tuple.getT1();
@@ -140,6 +160,18 @@ public class GitFileUtils {
         }
     }
 
+    public Mono<Path> saveApplicationToLocalRepo(
+            String workspaceId,
+            String defaultApplicationId,
+            String repoName,
+            ApplicationJson applicationJson,
+            String branchName)
+            throws GitAPIException, IOException {
+        Path baseRepoSuffix = Paths.get(workspaceId, defaultApplicationId, repoName);
+
+        return saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, branchName);
+    }
+
     /**
      * Method to convert application resources to the structure which can be serialised by appsmith-git module for
      * serialisation
@@ -159,7 +191,7 @@ public class GitFileUtils {
         applicationJson.setPublishedTheme(null);
 
         // Pass metadata
-        Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
+        Iterable<String> keys = getAllFields(applicationJson)
                 .map(Field::getName)
                 .filter(name -> !blockedMetadataFields.contains(name))
                 .collect(Collectors.toList());
@@ -170,8 +202,8 @@ public class GitFileUtils {
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
 
-        // Remove policies from the themes
-        applicationJson.getEditModeTheme().setPolicies(null);
+        // Remove internal fields from the themes
+        removeUnwantedFieldsFromBaseDomain(applicationJson.getEditModeTheme());
 
         applicationReference.setTheme(applicationJson.getEditModeTheme());
 
@@ -311,18 +343,33 @@ public class GitFileUtils {
 
         // Send datasources
         applicationJson.getDatasourceList().forEach(datasource -> {
+            removeUnwantedFieldsFromBaseDomain(datasource);
             resourceMap.put(datasource.getName(), datasource);
         });
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
         applicationJson.getCustomJSLibList().forEach(jsLib -> {
+            removeUnwantedFieldsFromBaseDomain(jsLib);
             resourceMap.put(jsLib.getUidString(), jsLib);
         });
         applicationReference.setJsLibraries(new HashMap<>(resourceMap));
         resourceMap.clear();
 
         return applicationReference;
+    }
+
+    protected Stream<Field> getAllFields(ApplicationJson applicationJson) {
+        Class<?> currentType = applicationJson.getClass();
+
+        Set<Class<?>> classes = new HashSet<>();
+
+        while (currentType != null) {
+            classes.add(currentType);
+            currentType = currentType.getSuperclass();
+        }
+
+        return classes.stream().flatMap(currentClass -> Arrays.stream(currentClass.getDeclaredFields()));
     }
 
     /**
@@ -333,34 +380,45 @@ public class GitFileUtils {
      * @param branchName           for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepoWithAnalytics(
             String workspaceId, String defaultApplicationId, String repoName, String branchName) {
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
+
+        return Mono.zip(
+                        reconstructApplicationJsonFromGitRepo(workspaceId, defaultApplicationId, repoName, branchName),
+                        sessionUserService.getCurrentUser())
+                .flatMap(tuple -> {
+                    stopwatch.stopTimer();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID,
+                            defaultApplicationId,
+                            FieldName.ORGANIZATION_ID,
+                            workspaceId,
+                            FieldName.FLOW_NAME,
+                            stopwatch.getFlow(),
+                            "executionTime",
+                            stopwatch.getExecutionTime());
+                    return analyticsService
+                            .sendEvent(
+                                    AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
+                                    tuple.getT2().getUsername(),
+                                    data)
+                            .thenReturn(tuple.getT1());
+                });
+    }
+
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(
+            String workspaceId, String defaultApplicationId, String repoName, String branchName) {
+
         Mono<ApplicationGitReference> appReferenceMono = fileUtils.reconstructApplicationReferenceFromGitRepo(
                 workspaceId, defaultApplicationId, repoName, branchName);
-        return Mono.zip(appReferenceMono, sessionUserService.getCurrentUser()).flatMap(tuple -> {
-            ApplicationGitReference applicationReference = tuple.getT1();
+        return appReferenceMono.map(applicationReference -> {
             // Extract application metadata from the json
             ApplicationJson metadata =
                     getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
-            stopwatch.stopTimer();
-            final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID,
-                    defaultApplicationId,
-                    FieldName.ORGANIZATION_ID,
-                    workspaceId,
-                    FieldName.FLOW_NAME,
-                    stopwatch.getFlow(),
-                    "executionTime",
-                    stopwatch.getExecutionTime());
-            return analyticsService
-                    .sendEvent(
-                            AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
-                            tuple.getT2().getUsername(),
-                            data)
-                    .thenReturn(applicationJson);
+            return applicationJson;
         });
     }
 
@@ -416,10 +474,16 @@ public class GitFileUtils {
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
+    private void removeUnwantedFieldsFromBaseDomain(BaseDomain baseDomain) {
+        baseDomain.setPolicies(null);
+        baseDomain.setUserPermissions(null);
+    }
+
     private void removeUnwantedFieldsFromPage(NewPage page) {
         // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
         // be same, so we only commit unpublished PageDTO.
         page.setPublishedPage(null);
+        removeUnwantedFieldsFromBaseDomain(page);
     }
 
     private void removeUnwantedFieldsFromApplication(Application application) {
@@ -429,6 +493,8 @@ public class GitFileUtils {
         application.setIsPublic(null);
         application.setSlug(null);
         application.setPublishedApplicationDetail(null);
+        removeUnwantedFieldsFromBaseDomain(application);
+        // we can call the sanitiseToExportDBObject() from BaseDomain as well here
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {
@@ -436,12 +502,14 @@ public class GitFileUtils {
         // will
         // be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
+        removeUnwantedFieldsFromBaseDomain(action);
     }
 
     private void removeUnwantedFieldFromActionCollection(ActionCollection actionCollection) {
         // As we are publishing the app and then committing to git we expect the published and unpublished
         // ActionCollectionDTO will be same, so we only commit unpublished ActionCollectionDTO.
         actionCollection.setPublishedCollection(null);
+        removeUnwantedFieldsFromBaseDomain(actionCollection);
     }
 
     private ApplicationJson getApplicationJsonFromGitReference(ApplicationGitReference applicationReference) {

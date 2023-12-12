@@ -59,6 +59,7 @@ import {
   DataTreeDiffEvent,
   resetValidationErrorsForEntityProperty,
   isAPathDynamicBindingPath,
+  isAnyJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -1395,7 +1396,7 @@ export default class DataTreeEvaluator {
           const { errors: evalErrors, result } = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
-            !!entity && isJSAction(entity),
+            !!entity && isAnyJSAction(entity),
             contextData,
             callBackData,
           );

@@ -10,7 +10,7 @@ import {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Test app's navigation settings", function () {
+describe("Test app's navigation settings", { tags: ["@tag.IDE"] }, function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
     AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.AssertElementVisibility(
