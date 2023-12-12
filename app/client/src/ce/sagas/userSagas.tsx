@@ -541,6 +541,10 @@ export function* fetchFeatureFlags() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      // This is done only for the purpose of having DP for start with data enabled for all users
+      // Please check https://github.com/appsmithorg/appsmith/issues/29540
+      response.data["ab_create_new_apps_enabled"] = true;
+
       yield put(
         fetchFeatureFlagsSuccess({
           ...DEFAULT_FEATURE_FLAG_VALUE,
