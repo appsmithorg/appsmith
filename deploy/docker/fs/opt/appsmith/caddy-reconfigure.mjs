@@ -33,6 +33,10 @@ const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
+const bind = (APPSMITH_CUSTOM_DOMAIN || ":80")
+  .replace(/^https?:\/\//, "")
+  .replace(/\/$/, "")
+
 const parts = []
 
 parts.push(`
@@ -121,7 +125,7 @@ localhost:80 127.0.0.1:80 {
   import all-config
 }
 
-${APPSMITH_CUSTOM_DOMAIN || ":80"} {
+${bind} {
   import all-config
   ${tlsConfig}
 }
