@@ -19,14 +19,14 @@ export const getResponsiveMinWidth = (
 ): Record<string, string> | undefined => {
   if (!config) {
     return isFillWidget
-      ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
+      ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "auto" }
       : undefined;
   }
   if (!isFillWidget) return config;
   const minWidth = config["base"];
   return {
     ...config,
-    base: "100%",
+    base: `max(100%, ${minWidth})`, // using a max between 100% and minWidth because zones can go below mobile breakpoints even on larger screens.
     [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] ?? minWidth,
   };
 };
