@@ -32,4 +32,5 @@ export const TemplateGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   grid-gap: 16px;
+  margin-top: ${(props) => props.theme.spaces[9]}px;
 `;

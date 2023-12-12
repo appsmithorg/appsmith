@@ -6,20 +6,20 @@ const FixedHeightTemplate = styled(TemplateLayout)`
     .title {
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 1; /* Limit to 1 line */
+      -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
     }
     .categories {
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 1; /* Limit to 1 line */
+      -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
     }
     .description {
       height: 85px;
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 4; /* Limit to 4 lines */
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
     }
   }

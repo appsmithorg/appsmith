@@ -31,6 +31,10 @@ export const BuildingBlockContent = styled.div`
 
   .title {
     color: var(--ads-v2-color-fg-emphasis-plus);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
   }
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
@@ -39,7 +43,7 @@ export const BuildingBlockContent = styled.div`
     height: 65px;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 4; /* Limit to 4 lines */
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
   }
 `;
