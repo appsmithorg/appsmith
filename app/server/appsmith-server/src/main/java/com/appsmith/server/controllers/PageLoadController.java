@@ -55,20 +55,20 @@ public class PageLoadController {
     private final UserService userService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
+
     @Autowired
     public PageLoadController(
-        NewActionService newActionService,
-        NewPageService newPageService,
-        ActionCollectionService actionCollectionService,
-        PluginService pluginService,
-        DatasourceService datasourceService,
-        ThemeService themeService,
-        CustomJSLibService customJSLibService,
-        SessionUserService sessionUserService,
-        UserService userService,
-        UserDataService userDataService,
-        TenantService tenantService
-        ) {
+            NewActionService newActionService,
+            NewPageService newPageService,
+            ActionCollectionService actionCollectionService,
+            PluginService pluginService,
+            DatasourceService datasourceService,
+            ThemeService themeService,
+            CustomJSLibService customJSLibService,
+            SessionUserService sessionUserService,
+            UserService userService,
+            UserDataService userDataService,
+            TenantService tenantService) {
         this.newActionService = newActionService;
         this.newPageService = newPageService;
         this.actionCollectionService = actionCollectionService;
@@ -86,42 +86,54 @@ public class PageLoadController {
     @GetMapping("/one-api/{pageId}")
     @ResponseStatus(HttpStatus.FOUND)
     public Mono<ResponseDTO<HashMap<String, Object>>> getData(
-        @PathVariable String pageId,
-        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName
-    ) {
+            @PathVariable String pageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         HashMap<String, Object> result = new HashMap<>();
 
         Mono<List<ActionViewDTO>> actionDTOMono =
-            newActionService.getActionsForViewMode(null, pageId, branchName).collectList();
+                newActionService.getActionsForViewMode(null, pageId, branchName).collectList();
         Mono<NewPage> pageMono = newPageService.getById(pageId);
-        Mono<List<Plugin>> pluginsMono = pluginService.getAllPluginsUsingPageId(pageId).collectList();
-        Mono<List<ActionCollectionViewDTO>> actionCollectionsMono = actionCollectionService.getActionCollectionsForViewMode(null, pageId, branchName).collectList();
-        Mono<List<CustomJSLib>> jsLibsMono = customJSLibService.getAllJSLibsInApplicationUsingPageId(pageId, branchName, true);
-        Mono<List<Theme>> themesMono = themeService.getApplicationThemesUsingPageId(pageId, branchName).collectList();
-        Mono<UserProfileDTO> userProfileDTOMono = sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
+        Mono<List<Plugin>> pluginsMono =
+                pluginService.getAllPluginsUsingPageId(pageId).collectList();
+        Mono<List<ActionCollectionViewDTO>> actionCollectionsMono = actionCollectionService
+                .getActionCollectionsForViewMode(null, pageId, branchName)
+                .collectList();
+        Mono<List<CustomJSLib>> jsLibsMono =
+                customJSLibService.getAllJSLibsInApplicationUsingPageId(pageId, branchName, true);
+        Mono<List<Theme>> themesMono =
+                themeService.getApplicationThemesUsingPageId(pageId, branchName).collectList();
+        Mono<UserProfileDTO> userProfileDTOMono =
+                sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
         Mono<Map<String, Boolean>> ffMono = userDataService.getFeatureFlagsForCurrentUser();
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
 
-        return Mono.zip(actionDTOMono, pageMono, pluginsMono, actionCollectionsMono, themesMono,
-            userProfileDTOMono, ffMono, tenantMono)
-            .map(tuple8 -> {
-                List<ActionViewDTO> actions = tuple8.getT1();
-                NewPage page = tuple8.getT2();
-                List<Plugin> plugins = tuple8.getT3();
-                List<ActionCollectionViewDTO> actionCollections = tuple8.getT4();
-                List<Theme> themes = tuple8.getT5();
-                UserProfileDTO user = tuple8.getT6();
-                Map<String, Boolean> ff = tuple8.getT7();
-                Tenant tenant = tuple8.getT8();
-                result.put("page", page);
-                result.put("plugins", plugins);
-                result.put("actionCollections", actionCollections);
-                result.put("themes", themes);
-                result.put("user", user);
-                result.put("ff", ff);
-                result.put("tenant", tenant);
-                result.put("actions", actions);
-                return new ResponseDTO<>(HttpStatus.OK.value(), result, null);
-            });
+        return Mono.zip(
+                        actionDTOMono,
+                        pageMono,
+                        pluginsMono,
+                        actionCollectionsMono,
+                        themesMono,
+                        userProfileDTOMono,
+                        ffMono,
+                        tenantMono)
+                .map(tuple8 -> {
+                    List<ActionViewDTO> actions = tuple8.getT1();
+                    NewPage page = tuple8.getT2();
+                    List<Plugin> plugins = tuple8.getT3();
+                    List<ActionCollectionViewDTO> actionCollections = tuple8.getT4();
+                    List<Theme> themes = tuple8.getT5();
+                    UserProfileDTO user = tuple8.getT6();
+                    Map<String, Boolean> ff = tuple8.getT7();
+                    Tenant tenant = tuple8.getT8();
+                    result.put("page", page);
+                    result.put("plugins", plugins);
+                    result.put("actionCollections", actionCollections);
+                    result.put("themes", themes);
+                    result.put("user", user);
+                    result.put("ff", ff);
+                    result.put("tenant", tenant);
+                    result.put("actions", actions);
+                    return new ResponseDTO<>(HttpStatus.OK.value(), result, null);
+                });
     }
 }
