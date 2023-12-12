@@ -1,4 +1,4 @@
-import { Checkbox, Text } from "design-system";
+import { Checkbox } from "design-system";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import React from "react";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
@@ -7,6 +7,7 @@ import {
   CheckboxContainer,
   CheckboxWrapper,
 } from "./StyledSheet";
+import { getWidgetIdsForSelection } from "./partialExportUtils";
 
 interface BaseProps {
   selectedWidgetIds: string[];
@@ -43,32 +44,14 @@ interface WidgetSelectorProps extends BaseProps {
   widgetList: CanvasStructure[];
 }
 function WidgetSelector({
-  selectAllchecked,
   selectedWidgetIds,
   updateSelectAllChecked,
   updateSelectedWidgets,
   widgetList,
 }: WidgetSelectorProps) {
-  const toggleNestedChildrenSelection = (
-    node: CanvasStructure,
-    selectedWidgetIds: string[],
-    checked: boolean,
-  ) => {
-    const isSelected = selectedWidgetIds.includes(node.widgetId);
-    if (checked) {
-      !isSelected && selectedWidgetIds.push(node.widgetId);
-    } else {
-      isSelected &&
-        selectedWidgetIds.splice(selectedWidgetIds.indexOf(node.widgetId), 1);
-    }
-    node?.children?.forEach((child) => {
-      toggleNestedChildrenSelection(child, selectedWidgetIds, checked);
-    });
-  };
-
   const toggleNode = (node: CanvasStructure, checked: boolean) => {
     const prevSelectedWidgetIds = [...selectedWidgetIds];
-    toggleNestedChildrenSelection(node, prevSelectedWidgetIds, checked);
+    getWidgetIdsForSelection(node, prevSelectedWidgetIds, checked);
     updateSelectedWidgets(prevSelectedWidgetIds);
     if (!checked) updateSelectAllChecked(false);
   };
@@ -100,26 +83,8 @@ function WidgetSelector({
       </div>
     );
   }
-
-  const handleSelectAllClick = (checked: boolean) => {
-    const prevSelectedWidgetIds = [...selectedWidgetIds];
-    widgetList.forEach((widget) => {
-      toggleNestedChildrenSelection(widget, prevSelectedWidgetIds, checked);
-    });
-    updateSelectedWidgets(prevSelectedWidgetIds);
-    updateSelectAllChecked(checked);
-  };
   return (
     <CheckboxWrapper>
-      <Checkbox
-        className="mb-4"
-        isSelected={selectAllchecked}
-        onChange={handleSelectAllClick}
-      >
-        <Text kind="body-m" renderAs="p">
-          Select All
-        </Text>
-      </Checkbox>
       <CheckBoxGrid>
         {widgetList.map((widget) => renderWidget(widget, 0, false))}
       </CheckBoxGrid>

@@ -10,30 +10,71 @@ import {
 import { Icon } from "design-system";
 import { ControlIcons } from "icons/ControlIcons";
 import { MenuIcons } from "icons/MenuIcons";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
-import { groupQueriesNJSObjets } from "./partialExportUtils";
-import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
+import {
+  getWidgetIdsForSelection,
+  groupQueriesNJSObjets,
+} from "./partialExportUtils";
+
+interface EntityCollapsibleState {
+  jsObjects: { isOpen: boolean; allChecked: boolean };
+  datasources: { isOpen: boolean; allChecked: boolean };
+  customJSLibs: { isOpen: boolean; allChecked: boolean };
+  widgets: { isOpen: boolean; allChecked: boolean };
+  queries: { isOpen: boolean; allChecked: boolean };
+}
 
 export function useEntitesToExport(
   selectedParams: PartialExportParams,
   setSelectedParams: React.Dispatch<React.SetStateAction<PartialExportParams>>,
-  onEntitySelected: (
-    keyToUpdate: keyof PartialExportParams,
-    id: string,
-    selected: boolean,
-  ) => void,
-  widgetSelectAllChecked: boolean,
-  setWidgetSelectAllChecked: (checked: boolean) => void,
   customJsLibraries: JSLibrary[],
 ) {
   const { appWideDS } = useAppWideAndOtherDatasource();
   const files = useSelector(selectFilesForExplorer);
   const canvasWidgets = useSelector(selectWidgetsForCurrentPage);
+  const [entityCollapsibleState, setEntityCollapsibleState] =
+    useState<EntityCollapsibleState>({
+      jsObjects: { isOpen: false, allChecked: false },
+      datasources: { isOpen: false, allChecked: false },
+      customJSLibs: { isOpen: false, allChecked: false },
+      widgets: { isOpen: false, allChecked: false },
+      queries: { isOpen: false, allChecked: false },
+    });
+
+  function onEntitySelected(
+    keyToUpdate: keyof PartialExportParams,
+    id: string,
+    selected: boolean,
+  ) {
+    const prevSelectedIdsCopy = [...selectedParams[keyToUpdate]];
+    if (selected) {
+      prevSelectedIdsCopy.push(id);
+    } else {
+      prevSelectedIdsCopy.splice(prevSelectedIdsCopy.indexOf(id), 1);
+    }
+    setSelectedParams((prev: PartialExportParams): PartialExportParams => {
+      const toUpdate = { ...prev, [keyToUpdate]: prevSelectedIdsCopy };
+      return toUpdate;
+    });
+  }
+  const updateEntityCollapsibleState = (
+    entityName: keyof EntityCollapsibleState,
+    isOpen: boolean,
+  ) => {
+    setEntityCollapsibleState((prev) => ({
+      ...prev,
+      [entityName]: {
+        ...prev[entityName],
+        isOpen,
+      },
+    }));
+  };
 
   return useMemo(() => {
     const groupedData: Record<string, any> = groupQueriesNJSObjets(files);
@@ -62,6 +103,16 @@ export function useEntitesToExport(
           }));
           event.stopPropagation();
         },
+        onSelectAllClick: (checked: boolean) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            jsObjects: checked
+              ? jsObjects
+                ? jsObjects.map((item: any) => item.id)
+                : []
+              : [],
+          }));
+        },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
       },
       {
@@ -83,6 +134,12 @@ export function useEntitesToExport(
             datasources: [],
           }));
           event.stopPropagation();
+        },
+        onSelectAllClick: (checked: boolean) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            datasources: checked ? appWideDS.map((item: any) => item.id) : [],
+          }));
         },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.databases),
       },
@@ -106,6 +163,16 @@ export function useEntitesToExport(
           }));
           event.stopPropagation();
         },
+        onSelectAllClick: (checked: boolean) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            queries: checked
+              ? Object.values(groupedData).flatMap((item: any) =>
+                  item.map((query: any) => query.id),
+                )
+              : [],
+          }));
+        },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.queries),
       },
       {
@@ -128,14 +195,24 @@ export function useEntitesToExport(
           }));
           event.stopPropagation();
         },
+        onSelectAllClick: (checked: boolean) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            customJSLibs: checked
+              ? customJsLibraries?.map((item) => item?.id || "") || []
+              : [],
+          }));
+        },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.customLibs),
       },
       {
         content: canvasWidgets ? (
           <WidgetsExport
-            selectAllchecked={widgetSelectAllChecked}
+            selectAllchecked={entityCollapsibleState.widgets.allChecked}
             selectedWidgetIds={selectedParams.widgets}
-            updateSelectAllChecked={setWidgetSelectAllChecked}
+            updateSelectAllChecked={(checked) =>
+              updateEntityCollapsibleState("widgets", checked)
+            }
             updateSelectedWidgets={(widgets) =>
               setSelectedParams((prev) => ({ ...prev, widgets }))
             }
@@ -143,14 +220,33 @@ export function useEntitesToExport(
           />
         ) : null,
         icon: <ControlIcons.GROUP_CONTROL height={16} keepColors width={16} />,
+        isOpen: entityCollapsibleState.widgets.isOpen,
+        isSelectAllChecked: entityCollapsibleState.widgets.allChecked,
         shouldShowReset: !!selectedParams.widgets.length,
         onResetClick: (event: React.MouseEvent<HTMLElement>) => {
           setSelectedParams((prev) => ({
             ...prev,
             widgets: [],
           }));
-          setWidgetSelectAllChecked(false);
+          updateEntityCollapsibleState("widgets", false);
           event.stopPropagation();
+        },
+        onSelectAllClick: (checked: boolean) => {
+          setSelectedParams((prev) => {
+            const widgets = [...prev.widgets];
+            getWidgetIdsForSelection(canvasWidgets!, widgets, checked);
+            return {
+              ...prev,
+              widgets,
+            };
+          });
+          setEntityCollapsibleState((prev) => ({
+            ...prev,
+            widgets: {
+              isOpen: checked,
+              allChecked: checked,
+            },
+          }));
         },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.widgets),
       },
@@ -162,5 +258,6 @@ export function useEntitesToExport(
     canvasWidgets,
     selectedParams,
     setSelectedParams,
+    entityCollapsibleState,
   ]);
 }

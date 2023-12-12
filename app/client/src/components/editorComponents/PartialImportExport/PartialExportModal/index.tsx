@@ -12,6 +12,7 @@ import {
 import { partialExportWidgets } from "actions/widgetActions";
 import {
   Button,
+  Checkbox,
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
@@ -50,7 +51,6 @@ const PartiaExportModal = ({ handleModalClose, isModalOpen }: Props) => {
   const [selectedParams, setSelectedParams] = useState<PartialExportParams>(
     selectedParamsInitValue,
   );
-  const [widgetSelectAllChecked, setWidgetSelectAllChecked] = useState(false);
 
   const files = useSelector(selectFilesForExplorer);
   const libraries = useSelector(selectLibrariesForExplorer);
@@ -68,28 +68,8 @@ const PartiaExportModal = ({ handleModalClose, isModalOpen }: Props) => {
   const entities = useEntitesToExport(
     selectedParams,
     setSelectedParams,
-    onEntitySelected,
-    widgetSelectAllChecked,
-    setWidgetSelectAllChecked,
     customJsLibraries,
   );
-
-  function onEntitySelected(
-    keyToUpdate: keyof PartialExportParams,
-    id: string,
-    selected: boolean,
-  ) {
-    const prevSelectedIdsCopy = [...selectedParams[keyToUpdate]];
-    if (selected) {
-      prevSelectedIdsCopy.push(id);
-    } else {
-      prevSelectedIdsCopy.splice(prevSelectedIdsCopy.indexOf(id), 1);
-    }
-    setSelectedParams((prev: PartialExportParams): PartialExportParams => {
-      const toUpdate = { ...prev, [keyToUpdate]: prevSelectedIdsCopy };
-      return toUpdate;
-    });
-  }
 
   const onExportClick = () => {
     dispatch(
@@ -118,7 +98,7 @@ const PartiaExportModal = ({ handleModalClose, isModalOpen }: Props) => {
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
       <ModalContent>
         <ModalHeader>
-          <Text className="title" kind="heading-xl">
+          <Text className="title" kind="heading-m">
             {createMessage(PARTIAL_IMPORT_EXPORT.export.modalHeading)}{" "}
             {currentPageName ? ` - ${currentPageName}` : ""}
           </Text>
@@ -128,21 +108,40 @@ const PartiaExportModal = ({ handleModalClose, isModalOpen }: Props) => {
         </Text>
         <ScrollableSection>
           {entities.map(
-            ({ content, icon, onResetClick, shouldShowReset, title }) => (
+            ({
+              content,
+              icon,
+              isOpen,
+              isSelectAllChecked,
+              onResetClick,
+              onSelectAllClick,
+              shouldShowReset,
+              title,
+            }) => (
               <>
-                <Collapsible className="mt-4" key={title}>
+                <Collapsible className="mt-4" isOpen={isOpen} key={title}>
                   <CollapsibleHeader>
                     <div className="w-full flex justify-between">
-                      <Text
-                        kind="heading-s"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        {icon} {title}
-                      </Text>
+                      <div className=" flex items-center justify-start">
+                        <Checkbox
+                          className="flex"
+                          isSelected={isSelectAllChecked}
+                          onChange={onSelectAllClick}
+                        >
+                          &nbsp;
+                        </Checkbox>
+                        <Text
+                          className="w-full"
+                          kind="heading-s"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
+                          {icon} {title}
+                        </Text>
+                      </div>
 
                       {shouldShowReset && (
                         <Button

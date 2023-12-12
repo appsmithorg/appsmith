@@ -71,3 +71,20 @@ export function getAllExportableIds(
     widgets: allWidgets,
   };
 }
+
+export const getWidgetIdsForSelection = (
+  node: CanvasStructure,
+  selectedWidgetIds: string[],
+  checked: boolean,
+) => {
+  const isSelected = selectedWidgetIds.includes(node.widgetId);
+  if (checked) {
+    !isSelected && selectedWidgetIds.push(node.widgetId);
+  } else {
+    isSelected &&
+      selectedWidgetIds.splice(selectedWidgetIds.indexOf(node.widgetId), 1);
+  }
+  node?.children?.forEach((child) => {
+    getWidgetIdsForSelection(child, selectedWidgetIds, checked);
+  });
+};
