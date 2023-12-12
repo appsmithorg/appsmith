@@ -8,19 +8,28 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -28,6 +37,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Slf4j
 public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEImpl
         implements CustomNewActionRepository {
+    private final MongoTemplate mongoTemplate;
 
     public CustomNewActionRepositoryImpl(
             ReactiveMongoOperations mongoOperations,
@@ -35,6 +45,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             CacheableRepositoryHelper cacheableRepositoryHelper,
             MongoTemplate mongoTemplate) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper, mongoTemplate);
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -159,6 +170,59 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Criteria workflowCriteria =
                 Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
         return queryAll(List.of(workflowCriteria), includeFields, aclPermission, Optional.empty());
+    }
+
+    @Override
+    public Mono<UpdateResult> archiveDeletedUnpublishedActionsForWorkflows(
+            String workflowId, AclPermission aclPermission) {
+        Criteria workflowIdCriteria =
+                where(fieldName(QNewAction.newAction.workflowId)).is(workflowId);
+        String unpublishedDeletedAtFieldName = String.format(
+                "%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
+        Criteria deletedFromUnpublishedCriteria =
+                where(unpublishedDeletedAtFieldName).ne(null);
+
+        Update update = new Update();
+        update.set(FieldName.DELETED, true);
+        update.set(FieldName.DELETED_AT, Instant.now());
+        return updateByCriteria(List.of(workflowIdCriteria, deletedFromUnpublishedCriteria), update, aclPermission);
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
+        Criteria workflowIdCriteria =
+                where(fieldName(QNewAction.newAction.workflowId)).is(workflowId);
+
+        Mono<Set<String>> permissionGroupsMono =
+                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(aclPermission));
+
+        return permissionGroupsMono
+                .flatMap(permissionGroups -> Mono.fromCallable(() -> {
+                            AggregationOperation matchAggregationWithPermission;
+                            if (aclPermission == null) {
+                                matchAggregationWithPermission =
+                                        Aggregation.match(new Criteria().andOperator(notDeleted()));
+                            } else {
+                                matchAggregationWithPermission = Aggregation.match(new Criteria()
+                                        .andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
+                            }
+                            AggregationOperation matchAggregation = Aggregation.match(workflowIdCriteria);
+                            AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
+                            AggregationOperation addFieldsOperation = Aggregation.addFields()
+                                    .addField(fieldName(QNewAction.newAction.publishedAction))
+                                    .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
+                                    .build();
+                            Aggregation combinedAggregation = Aggregation.newAggregation(
+                                    matchAggregation,
+                                    matchAggregationWithPermission,
+                                    wholeProjection,
+                                    addFieldsOperation);
+                            return mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
+                        })
+                        .subscribeOn(Schedulers.boundedElastic()))
+                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
     }
 
     @Override
