@@ -14,6 +14,7 @@ public class UrlCE {
     public static final String DATASOURCE_URL = BASE_URL + VERSION + "/datasources";
     public static final String SAAS_URL = BASE_URL + VERSION + "/saas";
     public static final String ACTION_URL = BASE_URL + VERSION + "/actions";
+    public static final String PAGE_LOAD_URL = BASE_URL + VERSION + "/pageload";
     public static final String USER_URL = BASE_URL + VERSION + "/users";
     public static final String APPLICATION_URL = BASE_URL + VERSION + "/" + Entity.APPLICATIONS;
     public static final String PAGE_URL = BASE_URL + VERSION + "/" + Entity.PAGES;
