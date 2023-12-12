@@ -17,14 +17,19 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
+import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,8 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
     private final ModulePermissionChecker modulePermissionChecker;
     private final PolicyGenerator policyGenerator;
     private final ActionCollectionService actionCollectionService;
+    private final ActionPermission actionPermission;
+    private final NewActionService newActionService;
 
     @Override
     public Mono<ModuleConsumable> createPublicEntity(
@@ -103,6 +110,41 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
 
         return this.createModuleActionCollection(
                 Optional.empty(), actionCollectionDTO.getModuleId(), actionCollectionDTO, false);
+    }
+
+    @Override
+    public Mono<List<ModuleConsumable>> getAllEntitiesForPackageEditor(
+            String contextId, CreatorContextType contextType) {
+        Flux<ActionCollection> actionCollectionFlux =
+                actionCollectionService.findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
+                        contextId, contextType, actionPermission.getEditPermission(), false);
+
+        Mono<List<ActionCollectionDTO>> actionCollectionsMono = actionCollectionFlux
+                .flatMap(actionCollection ->
+                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
+                .collectList();
+
+        return actionCollectionsMono.flatMap(actionCollections -> {
+            List<String> collectionIds = actionCollections.stream()
+                    .map(actionCollection -> actionCollection.getId())
+                    .collect(Collectors.toList());
+
+            Map<String, ActionCollectionDTO> collectionIdToActionCollectionMap = actionCollections.stream()
+                    .collect(Collectors.toMap(
+                            actionCollection -> actionCollection.getId(), actionCollection -> actionCollection));
+
+            return newActionService
+                    .findAllJSActionsByCollectionIds(collectionIds, null)
+                    .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, false))
+                    .map(actionDTO -> {
+                        ActionCollectionDTO actionCollectionDTO =
+                                collectionIdToActionCollectionMap.get(actionDTO.getCollectionId());
+                        actionCollectionDTO.getActions().add(actionDTO);
+
+                        return (ModuleConsumable) actionCollectionDTO;
+                    })
+                    .collectList();
+        });
     }
 
     @Override

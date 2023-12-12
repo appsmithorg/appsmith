@@ -15,8 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public abstract class CrudModuleServiceCECompatibleImpl extends BaseModuleServiceImpl
-        implements CrudModuleServiceCECompatible {
+public class CrudModuleServiceCECompatibleImpl extends BaseModuleServiceImpl implements CrudModuleServiceCECompatible {
     public CrudModuleServiceCECompatibleImpl(ModuleRepository moduleRepository) {
         super(moduleRepository);
     }

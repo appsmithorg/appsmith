@@ -4,13 +4,17 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
+import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ModuleConsumable;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ModuleRepository;
@@ -30,17 +34,24 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
     private final ModuleRepository moduleRepository;
     private final NewActionService newActionService;
     private final ModulePermission modulePermission;
+    // TODO: Remove actionPermission once we remove the dependency on `getActions`
     private final ActionPermission actionPermission;
+    private final ModuleEntityService<NewAction> newActionModuleEntityService;
+    private final ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
 
     public CrudModuleEntityServiceImpl(
             ModuleRepository moduleRepository,
             NewActionService newActionService,
             ModulePermission modulePermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ModuleEntityService<NewAction> newActionModuleEntityService,
+            ModuleEntityService<ActionCollection> actionCollectionModuleEntityService) {
         this.moduleRepository = moduleRepository;
         this.newActionService = newActionService;
         this.modulePermission = modulePermission;
         this.actionPermission = actionPermission;
+        this.newActionModuleEntityService = newActionModuleEntityService;
+        this.actionCollectionModuleEntityService = actionCollectionModuleEntityService;
     }
 
     /**
@@ -102,5 +113,24 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
                 .map(actionList -> actionList.stream()
                         .map(actionDTO -> (ModuleConsumable) actionDTO)
                         .collect(Collectors.toList())));
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<ModuleEntitiesDTO> getAllEntities(String contextId, CreatorContextType contextType, String branchName) {
+
+        Mono<List<ModuleConsumable>> actionsMono =
+                newActionModuleEntityService.getAllEntitiesForPackageEditor(contextId, contextType);
+        Mono<List<ModuleConsumable>> actionCollectionsMono =
+                actionCollectionModuleEntityService.getAllEntitiesForPackageEditor(contextId, contextType);
+
+        return Mono.zip(actionsMono, actionCollectionsMono).flatMap(tuple2 -> {
+            ModuleEntitiesDTO moduleEntitiesDTO = new ModuleEntitiesDTO();
+            List<ActionDTO> actionDTOs = (List<ActionDTO>) (List<?>) tuple2.getT1();
+            List<ActionCollectionDTO> actionCollectionDTOs = (List<ActionCollectionDTO>) (List<?>) tuple2.getT2();
+            moduleEntitiesDTO.setActions(actionDTOs);
+            moduleEntitiesDTO.setJsCollections(actionCollectionDTOs);
+            return Mono.just(moduleEntitiesDTO);
+        });
     }
 }

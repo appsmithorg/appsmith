@@ -1,9 +1,11 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.crud.CrudModuleService;
@@ -97,5 +99,15 @@ public class ModuleController {
         return crudModuleEntityService
                 .getModuleActions(moduleId)
                 .map(moduleActions -> new ResponseDTO<>(HttpStatus.OK.value(), moduleActions, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{moduleId}/entities")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<ModuleEntitiesDTO>> getModuleEntities(@PathVariable String moduleId) {
+        return crudModuleEntityService
+                .getAllEntities(moduleId, CreatorContextType.MODULE, null)
+                .map(moduleInstanceEntitiesDTO ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), moduleInstanceEntitiesDTO, null));
     }
 }

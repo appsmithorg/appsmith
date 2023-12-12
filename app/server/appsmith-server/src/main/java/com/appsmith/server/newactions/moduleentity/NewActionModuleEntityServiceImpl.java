@@ -20,10 +20,12 @@ import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -39,6 +41,7 @@ public class NewActionModuleEntityServiceImpl extends NewActionModuleEntityServi
     private final PolicyGenerator policyGenerator;
     private final ModulePermissionChecker modulePermissionChecker;
     private final PluginService pluginService;
+    private final ActionPermission actionPermission;
 
     @Override
     public Mono<ModuleConsumable> createPublicEntity(
@@ -96,6 +99,18 @@ public class NewActionModuleEntityServiceImpl extends NewActionModuleEntityServi
         }
 
         return createModuleAction(Optional.empty(), action.getModuleId(), (ModuleActionDTO) entity, false);
+    }
+
+    @Override
+    public Mono<List<ModuleConsumable>> getAllEntitiesForPackageEditor(
+            String contextId, CreatorContextType contextType) {
+        Flux<NewAction> actionFlux = newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
+                contextId, contextType, actionPermission.getEditPermission(), false, false);
+
+        return actionFlux
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(actionDTO -> (ModuleConsumable) actionDTO)
+                .collectList();
     }
 
     @Override

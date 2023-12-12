@@ -245,10 +245,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         }
         List<Criteria> criteriaList = new ArrayList<>();
 
-        String contextIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
-        String contextTypePath = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.contextType);
+        String contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
+        String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
 
@@ -265,7 +263,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(criteriaList, Optional.of(permission));
     }
 
     @Override
@@ -296,7 +294,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(criteriaList, Optional.of(permission));
     }
 
     @Override
