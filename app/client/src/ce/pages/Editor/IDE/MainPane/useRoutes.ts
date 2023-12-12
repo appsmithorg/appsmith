@@ -72,6 +72,11 @@ function useRoutes(path: string): RouteReturnType[] {
         `${path}${WIDGETS_EDITOR_ID_PATH}`,
         `${path}${APP_LIBRARIES_EDITOR_PATH}`,
         `${path}${APP_SETTINGS_EDITOR_PATH}`,
+        `${BUILDER_PATH_DEPRECATED}${ADD_PATH}`,
+        `${BUILDER_PATH}${ADD_PATH}`,
+        `${BUILDER_CUSTOM_PATH}${ADD_PATH}`,
+        `${path}${WIDGETS_EDITOR_BASE_PATH}${ADD_PATH}`,
+        `${path}${WIDGETS_EDITOR_ID_PATH}${ADD_PATH}`,
       ],
     },
     {

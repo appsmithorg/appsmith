@@ -1,23 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { withProfiler } from "@sentry/react";
 import { Flex, SegmentedControl } from "design-system";
 import { Switch, useLocation, useRouteMatch } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import ExplorerWidgetGroup from "pages/Editor/Explorer/Widgets/WidgetGroup";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
   builderURL,
   jsCollectionListURL,
   queryListURL,
 } from "@appsmith/RouteBuilder";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import Pages from "pages/Editor/Explorer/Pages";
 import { JSSection } from "./JS_Section";
 import { QueriesSection } from "./QueriesSection";
@@ -36,6 +31,7 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
+import { WidgetsSection } from "./WidgetsSection";
 
 enum TabsType {
   QUERIES = "queries",
@@ -47,10 +43,6 @@ const _pagesPane = () => {
   const location = useLocation();
   const [selected, setSelected] = useState<TabsType | undefined>(undefined);
   const pageId = useSelector(getCurrentPageId);
-  const dispatch = useDispatch();
-  const isFirstTimeUserOnboardingEnabled = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
   const { path } = useRouteMatch();
 
   /**
@@ -78,15 +70,6 @@ const _pagesPane = () => {
         break;
     }
   }, [location.pathname]);
-
-  const showWidgetsSidebar = useCallback(() => {
-    AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
-    history.push(builderURL({ pageId }));
-    dispatch(forceOpenWidgetPanel(true));
-    if (isFirstTimeUserOnboardingEnabled) {
-      dispatch(toggleInOnboardingWidgetSelection(true));
-    }
-  }, [isFirstTimeUserOnboardingEnabled, pageId]);
 
   /**
    * Callback to handle the segment change
@@ -174,13 +157,7 @@ const _pagesPane = () => {
             ]}
           />
           <SentryRoute
-            component={() => (
-              <ExplorerWidgetGroup
-                addWidgetsFn={showWidgetsSidebar}
-                searchKeyword=""
-                step={0}
-              />
-            )}
+            component={WidgetsSection}
             path={[
               BUILDER_PATH_DEPRECATED,
               BUILDER_PATH,
