@@ -19,7 +19,7 @@ import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
-import type { JSCollection, JSAction } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { Text } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
@@ -60,6 +60,7 @@ const ResponseContainer = styled.div`
   min-height: ${TAB_MIN_HEIGHT};
   background-color: var(--ads-v2-color-bg);
   height: ${ActionExecutionResizerHeight}px;
+  border-top: 1px solid var(--ads-v2-color-border);
 
   .ads-v2-tabs__panel {
     ${CodeEditorWithGutterStyles};
@@ -106,23 +107,18 @@ export enum JSResponseState {
 }
 
 interface ReduxStateProps {
-  responses: Record<string, any>;
-  isExecuting: Record<string, boolean>;
-  isDirty: Record<string, boolean>;
-  seletedJsObject?: JSCollectionData;
+  errorCount: number;
 }
 
 type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     currentFunction: JSAction | null;
     theme?: EditorTheme;
-    jsObject: JSCollection;
-    errorCount: number;
     errors: Array<EvaluationError>;
     disabled: boolean;
     isLoading: boolean;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-    selectedJSObject: JSCollectionData | undefined;
+    jsCollectionData: JSCollectionData | undefined;
   };
 
 function JSResponseView(props: Props) {
@@ -131,17 +127,17 @@ function JSResponseView(props: Props) {
     disabled,
     errorCount,
     errors,
-    isDirty,
-    isExecuting,
     isLoading,
-    jsObject,
+    jsCollectionData,
     onButtonClick,
-    responses,
-    selectedJSObject,
   } = props;
   const [responseStatus, setResponseStatus] = useState<JSResponseState>(
     JSResponseState.NoResponse,
   );
+  const jsObject = jsCollectionData?.config;
+  const responses = (jsCollectionData && jsCollectionData.data) || {};
+  const isDirty = (jsCollectionData && jsCollectionData.isDirty) || {};
+  const isExecuting = (jsCollectionData && jsCollectionData.isExecuting) || {};
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const response =
@@ -152,7 +148,6 @@ function JSResponseView(props: Props) {
   const hasExecutionParseErrors = responseStatus === JSResponseState.IsDirty;
   // error found while trying to parse JS Object
   const hasJSObjectParseError = errors.length > 0;
-
   const isSaving = useSelector(getIsSavingEntity);
   useEffect(() => {
     setResponseStatus(
@@ -180,17 +175,17 @@ function JSResponseView(props: Props) {
     let errorObject: Log | undefined;
     //get JS execution error from redux store.
     if (
-      selectedJSObject &&
-      selectedJSObject.config &&
-      selectedJSObject.activeJSActionId
+      jsCollectionData &&
+      jsCollectionData.config &&
+      jsCollectionData.activeJSActionId
     ) {
       every(filteredErrors, (error) => {
         if (
           includes(
             error.id,
-            selectedJSObject?.config.id +
+            jsCollectionData?.config.id +
               "-" +
-              selectedJSObject?.activeJSActionId,
+              jsCollectionData?.activeJSActionId,
           )
         ) {
           errorObject = error;
@@ -269,7 +264,7 @@ function JSResponseView(props: Props) {
                     folding
                     height={"100%"}
                     input={{
-                      value: response,
+                      value: response as string,
                     }}
                   />
                 )}
@@ -345,27 +340,9 @@ function JSResponseView(props: Props) {
   ) : null;
 }
 
-const mapStateToProps = (
-  state: AppState,
-  props: { jsObject: JSCollection },
-) => {
-  const jsActions = state.entities.jsActions;
-  const { jsObject } = props;
-
+const mapStateToProps = (state: AppState) => {
   const errorCount = state.ui.debugger.context.errorCount;
-  const selectedJSObject =
-    jsObject &&
-    jsActions.find(
-      (action: JSCollectionData) => action.config.id === jsObject.id,
-    );
-  const responses = (selectedJSObject && selectedJSObject.data) || {};
-  const isDirty = (selectedJSObject && selectedJSObject.isDirty) || {};
-  const isExecuting = (selectedJSObject && selectedJSObject.isExecuting) || {};
   return {
-    responses,
-    isExecuting,
-    isDirty,
-    selectedJSObject: selectedJSObject,
     errorCount,
   };
 };
