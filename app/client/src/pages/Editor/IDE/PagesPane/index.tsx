@@ -9,9 +9,9 @@ import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import {
-  builderURL,
   jsCollectionListURL,
   queryListURL,
+  widgetListURL,
 } from "@appsmith/RouteBuilder";
 import Pages from "pages/Editor/Explorer/Pages";
 import { JSSection } from "./JS_Section";
@@ -85,7 +85,7 @@ const _pagesPane = () => {
         history.push(jsCollectionListURL({ pageId }));
         break;
       case TabsType.UI:
-        history.push(builderURL({ pageId }));
+        history.push(widgetListURL({ pageId }));
         break;
     }
   };

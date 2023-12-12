@@ -153,6 +153,13 @@ export const widgetURL = (
   });
 };
 
+export const widgetListURL = (props: URLBuilderParams) => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `widgets`,
+  });
+};
+
 export const viewerURL = (props: URLBuilderParams): string => {
   return urlBuilder.build(props, APP_MODE.PUBLISHED);
 };

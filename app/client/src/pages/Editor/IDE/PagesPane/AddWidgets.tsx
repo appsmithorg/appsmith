@@ -1,19 +1,17 @@
 import React, { useCallback } from "react";
 import { Flex, Text, Button } from "design-system";
-import { useLocation } from "react-router";
 import { useSelector } from "react-redux";
 
-import { ADD_PATH } from "constants/routes";
 import history from "utils/history";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
+import { widgetListURL } from "@appsmith/RouteBuilder";
 
 const AddWidgets = () => {
-  const location = useLocation();
   const pageId = useSelector(getCurrentPageId) as string;
 
   const closeButtonClickHandler = useCallback(() => {
-    history.push(location.pathname.replace(`${ADD_PATH}`, ""));
+    history.push(widgetListURL({ pageId }));
   }, [pageId]);
 
   return (
