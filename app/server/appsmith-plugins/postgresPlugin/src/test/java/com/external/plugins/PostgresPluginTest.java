@@ -558,9 +558,15 @@ public class PostgresPluginTest {
                             },
                             possessionsTable.getTemplates().toArray());
 
-                    final DatasourceStructure.Table usersTable =
-                            structure.getTables().get(4);
-                    assertEquals("public.users", usersTable.getName());
+                    DatasourceStructure.Table usersTable = null;
+                    String tableToBeFound = "public.users";
+                    for (DatasourceStructure.Table table : structure.getTables()) {
+                        if (table.getName().equals(tableToBeFound)) {
+                            usersTable = table;
+                            break;
+                        }
+                    }
+                    assertNotNull(usersTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
