@@ -1,13 +1,13 @@
 package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.QModuleInstance;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -61,7 +61,7 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
                 moduleInstanceFlux = repository.findAllUnpublishedByContextIdAndContextType(
                         branchedContextId, contextType, moduleInstancePermission.getEditPermission());
             } else {
-                moduleInstanceFlux = repository.findAllByContextIdAndContextType(
+                moduleInstanceFlux = repository.findAllPublishedByContextIdAndContextType(
                         branchedContextId, contextType, moduleInstancePermission.getExecutePermission());
             }
 

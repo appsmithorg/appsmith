@@ -1293,13 +1293,12 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
 
         Mono<List<ModuleInstance>> allModuleInstancesInApplicationMono = moduleInstancesFlux.collectList();
 
-        Mono<List<String>> moduleIdListMono = moduleInstancesFlux
-                .map(ModuleInstance::getSourceModuleId)
-                .distinct()
-                .collectList();
+        Mono<Set<String>> moduleIdListMono =
+                moduleInstancesFlux.map(ModuleInstance::getSourceModuleId).collect(Collectors.toSet());
 
         Mono<List<Module>> allModulesUsedInApplicationMono = moduleIdListMono
-                .flatMapMany(moduleIdList -> moduleRepository.findAllById(moduleIdList, includedFieldsForModule))
+                .flatMapMany(moduleIdSet ->
+                        moduleRepository.findAllByIds(moduleIdSet, includedFieldsForModule, Optional.empty()))
                 .collectList();
 
         return Mono.zip(

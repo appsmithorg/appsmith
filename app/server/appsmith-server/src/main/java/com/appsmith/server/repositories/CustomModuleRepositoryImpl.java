@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.QLayout;
@@ -17,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -74,8 +74,14 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     }
 
     @Override
-    public Flux<Module> findAllById(List<String> moduleIdList, List<String> includedFieldsForModule) {
-        Criteria applicationCriteria = Criteria.where(FieldName.ID).in(moduleIdList);
-        return queryAll(List.of(applicationCriteria), includedFieldsForModule, null, null, NO_RECORD_LIMIT);
+    public Flux<Module> findAllByIds(
+            Set<String> ids, List<String> projectionFields, Optional<AclPermission> permission) {
+        Criteria idCriteria = where(fieldName(QModule.module.id)).in(ids);
+        return queryAll(
+                List.of(idCriteria),
+                Optional.ofNullable(projectionFields),
+                permission,
+                Optional.empty(),
+                NO_RECORD_LIMIT);
     }
 }

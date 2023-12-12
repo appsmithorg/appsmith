@@ -145,4 +145,5 @@ public class FieldName extends FieldNameCE {
     public static final String WORKFLOW_EXECUTOR_DESCRIPTION =
             "This role is an auto-created role, and will be have the permission to execute the Workflow and all it's related resources.";
     public static final String PACKAGE = "package";
+    public static final String MODULE_INSTANCE_LIST = "moduleInstanceList";
 }

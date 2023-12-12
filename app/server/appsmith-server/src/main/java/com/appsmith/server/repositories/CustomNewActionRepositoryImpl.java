@@ -293,6 +293,20 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(completeFieldName(QNewAction.newAction.unpublishedAction.pageId))
+                .in(pageIds);
+
+        Criteria notAModuleInstancePrivateEntity = new Criteria();
+        notAModuleInstancePrivateEntity.orOperator(
+                where(completeFieldName(QNewAction.newAction.rootModuleInstanceId))
+                        .exists(false),
+                where(completeFieldName(QNewAction.newAction.isPublic)).exists(true));
+
+        return queryAll(List.of(pageIdCriteria, notAModuleInstancePrivateEntity), permission);
+    }
+
+    @Override
     public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
         List<Criteria> criteria = new ArrayList<>();

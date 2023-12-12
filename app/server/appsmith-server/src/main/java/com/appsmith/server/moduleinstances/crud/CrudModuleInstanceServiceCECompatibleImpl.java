@@ -1,10 +1,10 @@
 package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -44,6 +44,12 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     @Override
     public Mono<List<ModuleInstance>> archiveModuleInstancesByRootModuleInstanceId(String rootModuleInstanceId) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Flux<ModuleInstance> findByPageIds(
+            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return Flux.empty();
     }
 
     @Override

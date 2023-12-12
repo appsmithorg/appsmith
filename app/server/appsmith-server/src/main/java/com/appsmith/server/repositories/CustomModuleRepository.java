@@ -9,6 +9,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public interface CustomModuleRepository extends AppsmithRepository<Module> {
     Flux<Module> getAllModulesByPackageId(String packageId, AclPermission permission);
@@ -20,5 +22,5 @@ public interface CustomModuleRepository extends AppsmithRepository<Module> {
     Mono<Module> findByIdAndLayoutsIdAndViewMode(
             String creatorId, String layoutId, AclPermission permission, ResourceModes resourceModes);
 
-    Flux<Module> findAllById(List<String> moduleIdList, List<String> includedFieldsForModule);
+    Flux<Module> findAllByIds(Set<String> ids, List<String> projectionFields, Optional<AclPermission> permission);
 }

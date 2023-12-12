@@ -2,7 +2,6 @@ package com.appsmith.server.refactors.applications;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -13,6 +12,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;

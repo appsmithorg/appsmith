@@ -140,4 +140,18 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
                         contextId, branchName, updatedHiddenJSLibDTOSet))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
+
+    @Override
+    public Mono<List<CustomJSLib>> getAllVisibleJSLibsInContext(
+            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+        return contextBasedService
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .flatMapMany(repository::findCustomJsLibsInContext)
+                .collectList()
+                .map(jsLibList -> {
+                    jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
+                    return jsLibList;
+                });
+    }
 }

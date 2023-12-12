@@ -3,7 +3,6 @@ package com.appsmith.server.packages.publish;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
@@ -13,6 +12,7 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PublishingMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -52,7 +52,6 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
     private final LayoutModuleInstanceService layoutModuleInstanceService;
     private final NewActionService newActionService;
     private final LayoutActionService layoutActionService;
-    ;
     private final TransactionalOperator transactionalOperator;
 
     public PublishPackageServiceImpl(
@@ -223,11 +222,8 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                     Flux<NewAction> newPublicActionFlux = newActionService.findPublicActionsByModuleInstanceId(
                             newModuleInstance.getId(), Optional.empty());
 
-                    Mono<ModuleInstanceDTO> mergeOldAndNewInputsAndUpdateModuleInstanceMono =
-                            mergeOldAndNewInputsAndUpdateModuleInstance(
-                                    publishingMetaDTO, oldModuleInstance, newModuleInstance, newPublicActionFlux);
-
-                    return mergeOldAndNewInputsAndUpdateModuleInstanceMono;
+                    return mergeOldAndNewInputsAndUpdateModuleInstance(
+                            publishingMetaDTO, oldModuleInstance, newModuleInstance, newPublicActionFlux);
                 });
     }
 
@@ -236,7 +232,7 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
         ModuleInstanceDTO moduleInstanceReqDTO = new ModuleInstanceDTO();
         moduleInstanceReqDTO.setName(
                 oldModuleInstance.getUnpublishedModuleInstance().getName());
-        setContextTypeAndContextId(oldModuleInstance, moduleInstanceReqDTO);
+        setContextTypeAndContextId(oldModuleInstance.getUnpublishedModuleInstance(), moduleInstanceReqDTO);
         moduleInstanceReqDTO.setSourceModuleId(newSourceModule.getId());
         return moduleInstanceReqDTO;
     }
@@ -258,12 +254,13 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                 }));
     }
 
-    private void setContextTypeAndContextId(ModuleInstance oldModuleInstance, ModuleInstanceDTO moduleInstanceReqDTO) {
-        moduleInstanceReqDTO.setContextType(oldModuleInstance.getContextType());
-        if (oldModuleInstance.getContextType().equals(CreatorContextType.PAGE)) {
-            moduleInstanceReqDTO.setContextId(oldModuleInstance.getPageId());
-        } else if (oldModuleInstance.getContextType().equals(CreatorContextType.MODULE)) {
-            moduleInstanceReqDTO.setContextId(oldModuleInstance.getModuleId());
+    private void setContextTypeAndContextId(
+            ModuleInstanceDTO oldModuleInstanceDTO, ModuleInstanceDTO moduleInstanceReqDTO) {
+        moduleInstanceReqDTO.setContextType(oldModuleInstanceDTO.getContextType());
+        if (oldModuleInstanceDTO.getContextType().equals(CreatorContextType.PAGE)) {
+            moduleInstanceReqDTO.setContextId(oldModuleInstanceDTO.getPageId());
+        } else if (oldModuleInstanceDTO.getContextType().equals(CreatorContextType.MODULE)) {
+            moduleInstanceReqDTO.setContextId(oldModuleInstanceDTO.getModuleId());
         }
     }
 

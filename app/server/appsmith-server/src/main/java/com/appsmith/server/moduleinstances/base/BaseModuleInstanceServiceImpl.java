@@ -2,11 +2,11 @@ package com.appsmith.server.moduleinstances.base;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ValidationUtils;
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 
 public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanceService {
 
-    private final ModuleInstanceRepository moduleInstanceRepository;
+    private final ModuleInstanceRepository repository;
 
-    public BaseModuleInstanceServiceImpl(ModuleInstanceRepository moduleInstanceRepository) {
-        this.moduleInstanceRepository = moduleInstanceRepository;
+    public BaseModuleInstanceServiceImpl(ModuleInstanceRepository repository) {
+        this.repository = repository;
     }
 
     @Override
@@ -33,12 +33,12 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
         moduleInstanceDTO.setType(moduleInstance.getType());
         moduleInstanceDTO.setModuleUUID(moduleInstance.getModuleUUID());
         moduleInstanceDTO.setSourceModuleId(moduleInstance.getSourceModuleId());
-        moduleInstanceDTO.setContextType(moduleInstance.getContextType());
-        if (moduleInstance.getContextType() == CreatorContextType.PAGE) {
-            moduleInstanceDTO.setContextId(moduleInstance.getPageId());
+        moduleInstanceDTO.setContextType(moduleInstanceDTO.getContextType());
+        if (moduleInstanceDTO.getContextType() == CreatorContextType.PAGE) {
+            moduleInstanceDTO.setContextId(moduleInstanceDTO.getPageId());
             moduleInstanceDTO.setApplicationId(moduleInstance.getApplicationId());
-        } else if (moduleInstance.getContextType() == CreatorContextType.MODULE) {
-            moduleInstanceDTO.setContextId(moduleInstance.getModuleId());
+        } else if (moduleInstanceDTO.getContextType() == CreatorContextType.MODULE) {
+            moduleInstanceDTO.setContextId(moduleInstanceDTO.getModuleId());
         }
         moduleInstanceDTO.setUserPermissions(moduleInstance.getUserPermissions());
 
