@@ -163,7 +163,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
                         "value", properties.get("title").asText()));
             }
         }
-        Collections.sort(sheetsList, Comparator.comparing(sheet -> sheet.get("label")));
+        Collections.sort(sheetsList, Comparator.comparing(sheet -> sheet.getOrDefault("label", "")));
         return this.objectMapper.valueToTree(sheetsList);
     }
 }
