@@ -33,6 +33,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
+import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -697,21 +698,7 @@ public class CrudModuleInstanceServiceTest {
                 .block();
 
         // Add another input in the module, setting a default value, and publish again
-        ModuleInput limitInput = new ModuleInput();
-        limitInput.setLabel("limitInput");
-        limitInput.setPropertyName("inputs.limitInput");
-        limitInput.setDefaultValue("7");
-        limitInput.setControlType("INPUT_TEXT");
-
-        ModuleInputForm limitInputForm = new ModuleInputForm();
-        limitInputForm.setId(UUID.randomUUID().toString());
-        limitInputForm.setSectionName("");
-        List<ModuleInput> inputChildren = new ArrayList<>();
-        inputChildren.add(limitInput);
-        limitInputForm.setChildren(inputChildren);
-
-        List<ModuleInputForm> moduleInputsForm = createdModule.getInputsForm();
-        moduleInputsForm.get(0).getChildren().add(limitInput);
+        addAnotherInputFieldToExistingModule(createdModule);
 
         // Update the module with the new input
         crudModuleService.updateModule(createdModule, createdModule.getId()).block();
@@ -1040,21 +1027,7 @@ public class CrudModuleInstanceServiceTest {
                 .block();
 
         // Add another input in the module, setting a default value, and publish again
-        ModuleInput limitInput = new ModuleInput();
-        limitInput.setLabel("limitInput");
-        limitInput.setPropertyName("inputs.limitInput");
-        limitInput.setDefaultValue("7");
-        limitInput.setControlType("INPUT_TEXT");
-
-        ModuleInputForm limitInputForm = new ModuleInputForm();
-        limitInputForm.setId(UUID.randomUUID().toString());
-        limitInputForm.setSectionName("");
-        List<ModuleInput> inputChildren = new ArrayList<>();
-        inputChildren.add(limitInput);
-        limitInputForm.setChildren(inputChildren);
-
-        List<ModuleInputForm> moduleInputsForm = createdModule.getInputsForm();
-        moduleInputsForm.get(0).getChildren().add(limitInput);
+        addAnotherInputFieldToExistingModule(createdModule);
 
         // Update the module with the new input
         crudModuleService.updateModule(createdModule, createdModule.getId()).block();
@@ -1132,6 +1105,182 @@ public class CrudModuleInstanceServiceTest {
             assertThat(actionDTO.getId()).isEqualTo(onPageLoadActionIdRef.get());
             return true;
         });
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testAutoUpgradeShouldRemoveDeletedInputsFromOlderVersionOfModuleInstances() {
+        // Create a module
+        ModuleDTO moduleReqDTO = createModuleRequestDTO();
+        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
+
+        // Publish the package
+        publishPackageService.publishPackage(createdModule.getPackageId()).block();
+
+        // Fetch the published module DTO
+        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
+
+        // Create a module instance from the newly created and published module
+        ModuleInstanceDTO moduleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
+
+        // Create module instance and retrieve the response
+        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+
+        ModuleInstanceDTO moduleInstanceDTO = createdModuleInstanceResponseDTO.getModuleInstance();
+
+        updatePublicActionProperties(moduleInstanceDTO);
+
+        // Override the default value of the input in the parent app
+        Map<String, String> moduleInstanceInputs = moduleInstanceDTO.getInputs();
+        moduleInstanceInputs.put("genderInput", "{{appGenderInput.text}}");
+
+        // Update the module instance with the overridden input value
+        moduleInstanceDTO = layoutModuleInstanceService
+                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceDTO.getId(), null, false)
+                .block();
+
+        List<NewAction> oldPublicActions = newActionService
+                .findPublicActionsByModuleInstanceId(moduleInstanceDTO.getId(), Optional.empty())
+                .collectList()
+                .block();
+        assertThat(oldPublicActions.size()).isEqualTo(1);
+
+        layoutActionService
+                .setExecuteOnLoad(oldPublicActions.get(0).getId(), null, true)
+                .block();
+
+        addAnotherInputFieldToExistingModule(createdModule);
+
+        // Update the module with the new input
+        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
+
+        // Publish the package again
+        publishPackageService
+                .publishPackage(
+                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                .block();
+
+        // Verify that the old module instance was deleted as part of the auto-upgrade process
+        ModuleInstance oldModuleInstance =
+                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
+        assertThat(oldModuleInstance).isNull();
+
+        // Verify the new module instance has the correct input values
+        Mono<List<ModuleInstanceDTO>> moduleInstancesMono =
+                layoutModuleInstanceService.getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
+                        CreatorContextType.PAGE,
+                        ResourceModes.EDIT,
+                        null);
+
+        // Verify that properties of public action is retained
+        StepVerifier.create(moduleInstancesMono)
+                .assertNext(moduleInstanceDTOS -> {
+                    assertThat(moduleInstanceDTOS).isNotNull();
+                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
+                    ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
+
+                    assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
+                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(2);
+                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
+                            .isEqualTo("{{appGenderInput.text}}");
+                    assertThat(moduleInstanceVerificationDTO.getInputs().get("limitInput"))
+                            .isEqualTo("7");
+                })
+                .verifyComplete();
+
+        // Remove an input field and publish the package
+        createdModule.getInputsForm().get(0).getChildren().remove(0);
+        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
+
+        // Publish the package again
+        publishPackageService
+                .publishPackage(
+                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                .block();
+
+        // Verify that properties of public action is retained
+        StepVerifier.create(moduleInstancesMono)
+                .assertNext(moduleInstanceDTOS -> {
+                    assertThat(moduleInstanceDTOS).isNotNull();
+                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
+                    ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
+
+                    assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
+                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(1);
+                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
+                            .isNull();
+                    assertThat(moduleInstanceVerificationDTO.getInputs().get("limitInput"))
+                            .isEqualTo("7");
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testGetModuleInstanceEntitiesShouldReturnRespectiveFieldsBasedOnViewMode() {
+        // Create a module
+        ModuleDTO moduleReqDTO = createModuleRequestDTO();
+        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
+
+        // Publish the package
+        publishPackageService.publishPackage(createdModule.getPackageId()).block();
+
+        // Fetch the published module DTO
+        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
+
+        // Create a module instance from the newly created and published module
+        ModuleInstanceDTO moduleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
+
+        // Create module instance and retrieve the response
+        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+
+        ModuleInstanceEntitiesDTO editModeModuleInstanceEntitiesDTO = crudModuleInstanceService
+                .getAllEntities(moduleInstanceTestHelperDTO.getPageDTO().getId(), CreatorContextType.PAGE, null, false)
+                .block();
+        assertThat(editModeModuleInstanceEntitiesDTO.getActions().size()).isEqualTo(1);
+        ActionViewDTO editModeActionViewDTO =
+                editModeModuleInstanceEntitiesDTO.getActions().get(0);
+        assertThat(editModeActionViewDTO.getModuleInstanceId())
+                .isEqualTo(createdModuleInstanceResponseDTO.getModuleInstance().getId());
+        assertThat(editModeActionViewDTO.getPluginId()).isNotNull();
+        assertThat(editModeActionViewDTO.getExecuteOnLoad()).isNotNull();
+        assertThat(editModeActionViewDTO.getIsPublic()).isTrue();
+
+        ModuleInstanceEntitiesDTO viewModeModeModuleInstanceEntitiesDTO = crudModuleInstanceService
+                .getAllEntities(moduleInstanceTestHelperDTO.getPageDTO().getId(), CreatorContextType.PAGE, null, true)
+                .block();
+        assertThat(viewModeModeModuleInstanceEntitiesDTO.getActions().size()).isEqualTo(1);
+        ActionViewDTO videModeActionViewDTO =
+                viewModeModeModuleInstanceEntitiesDTO.getActions().get(0);
+        assertThat(videModeActionViewDTO.getModuleInstanceId())
+                .isEqualTo(createdModuleInstanceResponseDTO.getModuleInstance().getId());
+        assertThat(videModeActionViewDTO.getPluginId()).isNull();
+        assertThat(videModeActionViewDTO.getExecuteOnLoad()).isNull();
+        assertThat(videModeActionViewDTO.getIsPublic()).isTrue();
+    }
+
+    private void addAnotherInputFieldToExistingModule(ModuleDTO moduleDTO) {
+        // Add another input in the module, setting a default value, and publish again
+        ModuleInput limitInput = new ModuleInput();
+        limitInput.setLabel("limitInput");
+        limitInput.setPropertyName("inputs.limitInput");
+        limitInput.setDefaultValue("7");
+        limitInput.setControlType("INPUT_TEXT");
+
+        ModuleInputForm limitInputForm = new ModuleInputForm();
+        limitInputForm.setId(UUID.randomUUID().toString());
+        limitInputForm.setSectionName("");
+        List<ModuleInput> inputChildren = new ArrayList<>();
+        inputChildren.add(limitInput);
+        limitInputForm.setChildren(inputChildren);
+
+        List<ModuleInputForm> moduleInputsForm = moduleDTO.getInputsForm();
+        moduleInputsForm.get(0).getChildren().add(limitInput);
     }
 
     private ModuleInstanceDTO createModuleInstanceReq(ModuleDTO sourceModuleDTO, String name) {
