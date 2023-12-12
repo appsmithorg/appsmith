@@ -133,7 +133,7 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.985;
+      color.oklch.l = 0.96;
     }
 
     // Cold colors can have a bit more chroma while staying perceptually neutral
@@ -619,7 +619,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgElevation1() {
     const color = this.bg.clone();
 
-    color.oklch.l += 0.01;
+    color.oklch.l += 0.015;
 
     return color;
   }
@@ -627,7 +627,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgElevation2() {
     const color = this.bgElevation1.clone();
 
-    color.oklch.l += 0.01;
+    color.oklch.l += 0.012;
 
     return color;
   }
