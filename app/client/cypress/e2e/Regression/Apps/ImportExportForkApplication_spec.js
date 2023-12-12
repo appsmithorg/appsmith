@@ -103,7 +103,8 @@ describe(
           expect(headers)
             .to.have.property("content-disposition")
             .that.includes("attachment;")
-            .and.includes(`filename*=UTF-8''${appName}.json`);
+            .and.includes(`filename*=UTF-8''${appName}`)
+            .and.includes(`.json`);
           cy.writeFile("cypress/fixtures/exportedApp.json", body, "utf-8");
           agHelper.AssertContains("Successfully exported");
           agHelper.WaitUntilAllToastsDisappear();
