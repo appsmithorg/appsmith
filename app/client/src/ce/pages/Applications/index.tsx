@@ -108,6 +108,7 @@ import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
+import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -786,6 +787,7 @@ export function ApplicationsSection(props: any) {
       {workspacesListComponent}
       <>
         <GitSyncModal isImport />
+        <DisableAutocommitModal />
         <DisconnectGitModal />
       </>
       <ReconnectDatasourceModal />

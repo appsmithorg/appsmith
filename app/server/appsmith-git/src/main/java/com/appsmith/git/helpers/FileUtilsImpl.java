@@ -703,7 +703,7 @@ public class FileUtilsImpl implements FileInterface {
      * @param gson
      * @return resource stored in the JSON file
      */
-    private Object readFile(Path filePath, Gson gson) {
+    public static Object readFile(Path filePath, Gson gson) {
 
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
@@ -938,7 +938,7 @@ public class FileUtilsImpl implements FileInterface {
         return fileFormatVersion.getAsInt();
     }
 
-    private boolean isFileFormatCompatible(int savedFileFormat) {
+    public static boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
     }
 
