@@ -1,12 +1,10 @@
-import React from "react";
-
 import BaseLayoutComponent from "../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
   type LayoutComponentProps,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { FlexLayout } from "./FlexLayout";
+import type { FlexLayoutProps } from "./FlexLayout";
 import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedRowHighlights";
 import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/renderUtils";
 
@@ -28,35 +26,13 @@ class AlignedWidgetRow extends BaseLayoutComponent {
 
   static rendersWidgets: boolean = true;
 
-  render() {
-    const {
-      canvasId,
-      isDropTarget,
-      layoutId,
-      layoutIndex,
-      layoutStyle,
-      parentDropTarget,
-      renderMode,
-    } = this.props;
-
-    return (
-      <FlexLayout
-        alignSelf="stretch"
-        canvasId={canvasId}
-        columnGap="4px"
-        direction="row"
-        isDropTarget={!!isDropTarget}
-        layoutId={layoutId}
-        layoutIndex={layoutIndex}
-        parentDropTarget={parentDropTarget}
-        renderMode={renderMode}
-        wrap="wrap"
-        {...(layoutStyle || {})}
-      >
-        {this.renderDraggingArena()}
-        {this.renderChildWidgets()}
-      </FlexLayout>
-    );
+  getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
+    return {
+      ...super.getFlexLayoutProps(),
+      alignSelf: "stretch",
+      direction: "row",
+      wrap: "wrap",
+    };
   }
 }
 

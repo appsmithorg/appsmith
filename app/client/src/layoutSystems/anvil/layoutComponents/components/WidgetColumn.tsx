@@ -1,5 +1,3 @@
-import React from "react";
-
 import BaseLayoutComponent from "../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
@@ -7,7 +5,7 @@ import {
   LayoutComponentTypes,
   type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { FlexLayout } from "./FlexLayout";
+import type { FlexLayoutProps } from "./FlexLayout";
 import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/columnHighlights";
 
 class WidgetColumn extends BaseLayoutComponent {
@@ -35,32 +33,11 @@ class WidgetColumn extends BaseLayoutComponent {
 
   static rendersWidgets: boolean = true;
 
-  render() {
-    const {
-      canvasId,
-      isDropTarget,
-      layoutId,
-      layoutIndex,
-      layoutStyle,
-      parentDropTarget,
-      renderMode,
-    } = this.props;
-
-    return (
-      <FlexLayout
-        canvasId={canvasId}
-        direction="column"
-        isDropTarget={!!isDropTarget}
-        layoutId={layoutId}
-        layoutIndex={layoutIndex}
-        parentDropTarget={parentDropTarget}
-        renderMode={renderMode}
-        {...(layoutStyle || {})}
-      >
-        {this.renderDraggingArena()}
-        {this.renderChildWidgets()}
-      </FlexLayout>
-    );
+  getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
+    return {
+      ...super.getFlexLayoutProps(),
+      direction: "column",
+    };
   }
 }
 

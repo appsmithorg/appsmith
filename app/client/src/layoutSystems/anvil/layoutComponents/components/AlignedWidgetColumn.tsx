@@ -1,12 +1,10 @@
-import React from "react";
-
 import {
   type DeriveHighlightsFn,
   type LayoutComponentProps,
   LayoutComponentTypes,
   type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { FlexLayout } from "./FlexLayout";
+import type { FlexLayoutProps } from "./FlexLayout";
 import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedColumnHighlights";
 import BaseLayoutComponent from "../BaseLayoutComponent";
 
@@ -36,32 +34,11 @@ class AlignedWidgetColumn extends BaseLayoutComponent {
 
   static rendersWidgets: boolean = true;
 
-  render() {
-    const {
-      canvasId,
-      isDropTarget,
-      layoutId,
-      layoutIndex,
-      layoutStyle,
-      parentDropTarget,
-      renderMode,
-    } = this.props;
-
-    return (
-      <FlexLayout
-        canvasId={canvasId}
-        direction="column"
-        isDropTarget={!!isDropTarget}
-        layoutId={layoutId}
-        layoutIndex={layoutIndex}
-        parentDropTarget={parentDropTarget}
-        renderMode={renderMode}
-        {...(layoutStyle || {})}
-      >
-        {this.renderDraggingArena()}
-        {this.renderChildLayouts()}
-      </FlexLayout>
-    );
+  getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
+    return {
+      ...super.getFlexLayoutProps(),
+      direction: "column",
+    };
   }
 }
 
