@@ -289,7 +289,10 @@ export function* moveWidgetsToSection(
   /**
    * Step 3: Add moved widgets to the section.
    */
-  const { canvasWidgets } = yield call(
+  const result: {
+    canvasWidgets: CanvasWidgetsReduxState;
+    updatesPayload: CrudWidgetsPayload;
+  } = yield call(
     addWidgetsToSection,
     widgets,
     transformMovedWidgets(widgets, movedWidgets, highlight),
@@ -299,5 +302,5 @@ export function* moveWidgetsToSection(
     updatesPayload,
   );
 
-  return canvasWidgets;
+  return result;
 }

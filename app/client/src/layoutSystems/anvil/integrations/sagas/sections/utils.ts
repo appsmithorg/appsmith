@@ -166,6 +166,7 @@ export function* addWidgetToSection(
   const res: {
     canvasWidgets: CanvasWidgetsReduxState;
     section: WidgetProps;
+    updatesPayload: CrudWidgetsPayload;
   } = yield call(
     addWidgetsToSection,
     allWidgets,
@@ -178,7 +179,10 @@ export function* addWidgetToSection(
   sectionWidget = res.canvasWidgets[highlight.canvasId];
 
   return {
-    ...res.canvasWidgets,
-    [sectionWidget.widgetId]: sectionWidget,
+    widgets: {
+      ...res.canvasWidgets,
+      [sectionWidget.widgetId]: sectionWidget,
+    },
+    updatesPayload: res.updatesPayload,
   };
 }

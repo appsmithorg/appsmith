@@ -1,6 +1,7 @@
 import {
   type ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   BlueprintOperationTypes,
@@ -56,6 +57,7 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { crudMultipleWidgets } from "actions/controlActions";
+import { callEvalWithoutReplay } from "sagas/autoHeightSagas/batcher";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(
@@ -106,18 +108,23 @@ function* addSuggestedWidgetsAnvilSaga(
     const mainCanvasHighLight: AnvilHighlightInfo = yield call(
       getMainCanvasLastRowHighlight,
     );
-    const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    const res: {
+      widgets: CanvasWidgetsReduxState;
+      updatesPayload: CrudWidgetsPayload;
+    } = yield call(
       addNewChildToDSL,
       mainCanvasHighLight,
       newWidgetParams,
       true,
       false,
     );
+    let updatedWidgets: CanvasWidgetsReduxState = res.widgets;
     updatedWidgets[newWidgetParams.newWidgetId] = {
       ...updatedWidgets[newWidgetParams.newWidgetId],
       ...newWidget.props,
     };
-    yield put(saveAnvilLayout(updatedWidgets));
+    console.log("#### add suggested widgets", { res });
+    yield put(performAnvilChecks(res.updatesPayload));
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [
         newWidgetParams.newWidgetId,
@@ -218,6 +225,7 @@ export function* addNewChildToDSL(
       ];
     });
   }
+  console.log("#### addNewChild", { updatesPayload });
   return { widgets: updatedWidgets, updatesPayload };
 }
 
@@ -479,8 +487,9 @@ export function* performAnvilChecksSaga(
   try {
     const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { updates } = action.payload;
-    console.log("#### performAnvilChecks", { updates });
+    console.log("#### pre performAnvilChecks", { updates, action });
     const { add, remove, update }: CrudWidgetsPayload = updates;
+    console.log("#### performAnvilChecks", { add, remove, update });
     let newUpdates: UpdateWidgetsPayload = { ...update };
     let newRemove: string[] = [...(remove ?? [])];
     /**
@@ -501,6 +510,11 @@ export function* performAnvilChecksSaga(
         }
       }
     }
+    console.log("#### post performAnvilChecks", {
+      add,
+      remove: newRemove,
+      update: newUpdates,
+    });
     yield put(
       crudMultipleWidgets({ add, remove: newRemove, update: newUpdates }),
     );
@@ -582,6 +596,10 @@ export default function* anvilDraggingSagas() {
     takeLatest(
       AnvilReduxActionTypes.PERFORM_ANVIL_CHECKS_BEFORE_UPDATE,
       performAnvilChecksSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CRUD_MULTIPLE_WIDGETS_AND_PROPERTIES,
+      callEvalWithoutReplay,
     ),
   ]);
 }

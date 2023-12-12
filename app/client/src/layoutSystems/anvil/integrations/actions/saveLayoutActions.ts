@@ -17,6 +17,7 @@ export const saveAnvilLayout = (
 };
 
 export const performAnvilChecks = (updates: CrudWidgetsPayload) => {
+  console.log("#### action", { updates });
   return {
     type: AnvilReduxActionTypes.PERFORM_ANVIL_CHECKS_BEFORE_UPDATE,
     payload: { updates },
