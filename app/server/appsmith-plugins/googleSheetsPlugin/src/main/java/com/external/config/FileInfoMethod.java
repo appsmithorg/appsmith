@@ -17,6 +17,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -161,6 +163,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
                         "value", properties.get("title").asText()));
             }
         }
+        Collections.sort(sheetsList, Comparator.comparing(sheet -> sheet.get("label")));
         return this.objectMapper.valueToTree(sheetsList);
     }
 }
