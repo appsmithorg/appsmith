@@ -58,7 +58,7 @@ describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
       },
     );
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.wait(2000);
+    //cy.wait(2000);
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
       .eq(5)
@@ -77,7 +77,7 @@ describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
     // select an option from select widget
     cy.get(".bp3-button.select-button").click({ force: true });
     cy.get(".menu-item-text").eq(2).click({ force: true });
-    cy.wait(2000);
+    //cy.wait(2000);
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
       .eq(5)
@@ -92,7 +92,7 @@ describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
     cy.get(".t--table-widget-page-input").within(() => {
       cy.get("input.bp3-input").should("have.value", "2");
     });
-    cy.wait(1000);
+    //cy.wait(1000);
 
     // hit audio play button and trigger actions
     EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget);

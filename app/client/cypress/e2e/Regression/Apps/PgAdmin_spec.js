@@ -65,8 +65,8 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
   it("2. Add new table from app page, View and Delete table", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     // adding new table
-    cy.xpath(appPage.addNewtable).click({ force: true });
-    cy.wait(2000);
+    agHelper.GetNClick(appPage.addNewtable, 0, true);
+    //cy.wait(2000);
     agHelper.AssertElementAbsence(appPage.loadButton, 40000); //for CI
     agHelper.WaitUntilEleAppear(appPage.addTablename);
     cy.generateUUID().then((UUID) => {
@@ -86,7 +86,8 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     cy.get(widgetsPage.switchWidgetInactive).last().click();
     cy.xpath(appPage.submitButton).click({ force: true });
     cy.xpath(appPage.addColumn).should("be.visible");
-    cy.wait(500);
+    agHelper.AssertElementVisibility(appPage.addColumn);
+    //cy.wait(500);
     cy.xpath(appPage.submitButton).first().click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.xpath(appPage.addNewtable).should("be.visible");
