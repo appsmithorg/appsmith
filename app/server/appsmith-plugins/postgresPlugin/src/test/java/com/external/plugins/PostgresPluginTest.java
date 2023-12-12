@@ -286,6 +286,17 @@ public class PostgresPluginTest {
         return dsConfig;
     }
 
+    private DatasourceStructure.Table findTableByName(List<DatasourceStructure.Table> tables, String tableToBeFound) {
+        DatasourceStructure.Table tableFound = null;
+        for (DatasourceStructure.Table table : tables) {
+            if (table.getName().equals(tableToBeFound)) {
+                tableFound = table;
+                break;
+            }
+        }
+        return tableFound;
+    }
+
     @Test
     public void testConnectPostgresContainer() {
 
@@ -486,14 +497,7 @@ public class PostgresPluginTest {
                     assertNotNull(structure);
                     assertEquals(5, structure.getTables().size());
 
-                    DatasourceStructure.Table campusTable = null;
-                    String campusTableToBeFound = "public.campus";
-                    for (DatasourceStructure.Table table : structure.getTables()) {
-                        if (table.getName().equals(campusTableToBeFound)) {
-                            campusTable = table;
-                            break;
-                        }
-                    }
+                    DatasourceStructure.Table campusTable = findTableByName(structure.getTables(), "public.campus");
                     assertNotNull(campusTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
@@ -504,14 +508,8 @@ public class PostgresPluginTest {
                             campusTable.getColumns().toArray());
                     assertEquals(campusTable.getKeys().size(), 0);
 
-                    DatasourceStructure.Table dataTypeTestTable = null;
-                    String dataTypeTestTableToBeFound = "public.datatypetest";
-                    for (DatasourceStructure.Table table : structure.getTables()) {
-                        if (table.getName().equals(dataTypeTestTableToBeFound)) {
-                            dataTypeTestTable = table;
-                            break;
-                        }
-                    }
+                    DatasourceStructure.Table dataTypeTestTable =
+                            findTableByName(structure.getTables(), "public.datatypetest");
                     assertNotNull(dataTypeTestTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
@@ -525,14 +523,8 @@ public class PostgresPluginTest {
                             dataTypeTestTable.getColumns().toArray());
                     assertEquals(dataTypeTestTable.getKeys().size(), 1);
 
-                    DatasourceStructure.Table possessionsTable = null;
-                    String possessionsTableToBeFound = "public.possessions";
-                    for (DatasourceStructure.Table table : structure.getTables()) {
-                        if (table.getName().equals(possessionsTableToBeFound)) {
-                            possessionsTable = table;
-                            break;
-                        }
-                    }
+                    DatasourceStructure.Table possessionsTable =
+                            findTableByName(structure.getTables(), "public.possessions");
                     assertNotNull(possessionsTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
@@ -576,14 +568,7 @@ public class PostgresPluginTest {
                             },
                             possessionsTable.getTemplates().toArray());
 
-                    DatasourceStructure.Table usersTable = null;
-                    String usersTableToBeFound = "public.users";
-                    for (DatasourceStructure.Table table : structure.getTables()) {
-                        if (table.getName().equals(usersTableToBeFound)) {
-                            usersTable = table;
-                            break;
-                        }
-                    }
+                    DatasourceStructure.Table usersTable = findTableByName(structure.getTables(), "public.users");
                     assertNotNull(usersTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
@@ -651,14 +636,8 @@ public class PostgresPluginTest {
                             },
                             usersTable.getTemplates().toArray());
 
-                    DatasourceStructure.Table sampleTable = null;
-                    String sampleTableToBeFound = "sample_schema.sample_table";
-                    for (DatasourceStructure.Table table : structure.getTables()) {
-                        if (table.getName().equals(sampleTableToBeFound)) {
-                            sampleTable = table;
-                            break;
-                        }
-                    }
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "sample_schema.sample_table");
                     assertNotNull(sampleTable);
                     assertEquals("sample_schema", sampleTable.getSchema());
                     assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
