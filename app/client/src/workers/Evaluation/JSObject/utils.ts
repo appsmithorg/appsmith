@@ -16,10 +16,10 @@ import type {
   JSCollectionData,
   JSExecutionData,
   JSExecutionError,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import type { JSAction } from "entities/JSCollection";
-import { getCurrentJSCollections } from "@appsmith/selectors/entitiesSelector";
+import { getAllJSCollections } from "@appsmith/selectors/entitiesSelector";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
@@ -325,9 +325,8 @@ export function* sortJSExecutionDataByCollectionId(
   // Sorted errors by collectionId
   const sortedErrors: BatchedJSExecutionErrors = {};
 
-  const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
-    getCurrentJSCollections,
-  );
+  const JSCollectionsForCurrentPage: JSCollectionData[] =
+    yield select(getAllJSCollections);
 
   for (const jsfuncFullName of Object.keys(data)) {
     const jsAction = getJSActionFromJSCollections(
