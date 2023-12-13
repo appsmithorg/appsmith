@@ -89,14 +89,14 @@ export function EntityProperties() {
 
   const moduleInstanceQueryEntity = useSelector(
     (state: AppState) =>
-      state.entities.moduleInstanceEntities?.actions.find(
+      state.entities.moduleInstanceEntities?.actions?.find(
         (action: ActionData) => action.config.moduleInstanceId === entityId,
       ),
   );
 
   const moduleInstanceJSEntity = useSelector(
     (state: AppState) =>
-      state.entities.moduleInstanceEntities?.jsCollections.find(
+      state.entities.moduleInstanceEntities?.jsCollections?.find(
         (action: JSCollectionData) =>
           action.config.moduleInstanceId === entityId,
       ),
