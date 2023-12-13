@@ -23,7 +23,7 @@ interface MenuItemsType {
   menuItems: ActionEntityContextMenuItemsEnum[];
 }
 
-// Create a context for the pageId
+// Create a context for the files with actions and parent entity details
 export const FilesContext = createContext<
   FilesContextContextProps & MenuItemsType
 >({} as FilesContextContextProps & MenuItemsType);
