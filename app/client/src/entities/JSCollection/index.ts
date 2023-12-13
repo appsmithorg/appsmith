@@ -23,6 +23,10 @@ export interface JSCollection {
   moduleId?: string;
   moduleInstanceId?: string;
   workflowId?: string;
+  // This is used to identify the main js collection of a workflow
+  // main js collection is the entrypoint for a workflow
+  // cannot be deleted or renamed
+  isMainJSCollection?: boolean;
 }
 
 export interface JSActionConfig {
