@@ -37,8 +37,8 @@ interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
-  canManageAction?: boolean;
-  canDeleteAction?: boolean;
+  canManageAction: boolean;
+  canDeleteAction: boolean;
 }
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
