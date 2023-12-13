@@ -16,6 +16,8 @@ import {
   deleteWidgetFromPreset,
 } from "./deletionUtils";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import ButtonWidget from "widgets/ButtonWidget/widget";
+import InputWidget from "widgets/InputWidgetV2/widget";
 
 describe("Layouts - deletionUtils tests", () => {
   beforeAll(() => {
@@ -24,7 +26,9 @@ describe("Layouts - deletionUtils tests", () => {
   describe("deleteWidgetFromLayout", () => {
     it("should return layoutProps as is, if widgetId is falsy", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
-      expect(deleteWidgetFromLayout(layout, "")).toEqual(layout);
+      expect(deleteWidgetFromLayout(layout, "", ButtonWidget.type)).toEqual(
+        layout,
+      );
     });
     it("should remove widget from the layout", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
@@ -34,6 +38,7 @@ describe("Layouts - deletionUtils tests", () => {
       const res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout as LayoutProps,
         widgetId,
+        ButtonWidget.type,
       );
       if (!res) return;
       expect(res.layout.length).toEqual(originalLength - 1);
@@ -50,6 +55,7 @@ describe("Layouts - deletionUtils tests", () => {
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         (layout.layout[0] as WidgetLayoutProps).widgetId,
+        ButtonWidget.type,
       );
       if (!res) return;
       expect(res.layout.length).toEqual(originalLength - 1);
@@ -63,6 +69,7 @@ describe("Layouts - deletionUtils tests", () => {
       res = deleteWidgetFromLayout(
         res,
         (res.layout[0] as WidgetLayoutProps).widgetId,
+        InputWidget.type,
       );
       expect(res).toBeUndefined();
     });
@@ -75,6 +82,7 @@ describe("Layouts - deletionUtils tests", () => {
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         (layout.layout[0] as WidgetLayoutProps).widgetId,
+        ButtonWidget.type,
       );
       if (!res) return;
       expect(res.layout.length).toEqual(originalLength - 1);
@@ -88,6 +96,7 @@ describe("Layouts - deletionUtils tests", () => {
       res = deleteWidgetFromLayout(
         res,
         (res.layout[0] as WidgetLayoutProps).widgetId,
+        InputWidget.type,
       );
       if (!res) return;
       expect(res.layout.length).toEqual(0);
@@ -107,6 +116,7 @@ describe("Layouts - deletionUtils tests", () => {
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         widgetId,
+        ButtonWidget.type,
       );
       if (!res) return;
       expect((res.layout as WidgetLayoutProps[]).length).toEqual(
@@ -120,6 +130,7 @@ describe("Layouts - deletionUtils tests", () => {
       res = deleteWidgetFromLayout(
         res,
         (res.layout[0] as WidgetLayoutProps).widgetId,
+        InputWidget.type,
       );
       expect(res).toBeUndefined();
     });
@@ -137,6 +148,7 @@ describe("Layouts - deletionUtils tests", () => {
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         (layout.layout[0] as WidgetLayoutProps).widgetId,
+        ButtonWidget.type,
       );
       if (!res) return;
 
@@ -153,6 +165,7 @@ describe("Layouts - deletionUtils tests", () => {
       res = deleteWidgetFromLayout(
         res,
         (res.layout[0] as WidgetLayoutProps).widgetId,
+        InputWidget.type,
       );
 
       if (!res) return;
@@ -163,6 +176,7 @@ describe("Layouts - deletionUtils tests", () => {
       const res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         "randomWidgetId",
+        ButtonWidget.type,
       );
       expect(res).toEqual(layout);
       expect(res?.layout.length).toEqual(layout.layout.length);
@@ -189,6 +203,7 @@ describe("Layouts - deletionUtils tests", () => {
         [layout2, layout],
         ((layout.layout[0] as LayoutProps).layout[0] as WidgetLayoutProps)
           .widgetId,
+        ButtonWidget.type,
       );
 
       expect((res[1].layout[0] as LayoutProps).layout.length).toEqual(
@@ -220,6 +235,7 @@ describe("Layouts - deletionUtils tests", () => {
       let res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
         (layout2.layout[0] as WidgetLayoutProps).widgetId,
+        ButtonWidget.type,
       );
       expect(res.length).toEqual(2);
 
@@ -227,6 +243,7 @@ describe("Layouts - deletionUtils tests", () => {
       res = deleteWidgetFromPreset(
         res,
         (res[0].layout[0] as WidgetLayoutProps).widgetId,
+        InputWidget.type,
       );
       expect(res.length).toEqual(1);
       expect(res[0].layoutId).toEqual(layout.layoutId);
