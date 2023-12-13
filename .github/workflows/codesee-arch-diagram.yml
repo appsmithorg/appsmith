@@ -1,9 +1,5 @@
 # This workflow was added by CodeSee. Learn more at https://codesee.io/
 # This is v2.0 of this workflow file
-on:
-  push:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
 
 name: CodeSee
 
