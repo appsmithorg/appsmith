@@ -11,6 +11,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
@@ -23,12 +24,14 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -147,24 +150,24 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         return policiesForPermission.stream().collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByWorkspaceId(
-            String workspaceId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
+    public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(
+            Set<AclPermission> permissions, List<User> users) {
+        Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());
 
-        return datasourceRepository
-                // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByWorkspaceId(workspaceId /*, datasourcePermission.getExecutePermission()*/)
-                // In case we have come across a datasource for this workspace that the current user is not allowed to
-                // manage, move on.
-                .switchIfEmpty(Mono.empty())
-                .map(
-                        datasource -> {
-                            if (addPolicyToObject) {
-                                return addPoliciesToExistingObject(newPoliciesMap, datasource);
-                            } else {
-                                return removePoliciesFromExistingObject(newPoliciesMap, datasource);
-                            }
-                        }); /*.collectList()
-                            .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));*/
+        return permissions.stream()
+                .map(perm -> {
+                    // Create a policy for the invited user using the permission as per the role
+                    Policy policyWithCurrentPermission = Policy.builder()
+                            .permission(perm.getValue())
+                            // .users(usernames)
+                            .build();
+                    // Generate any and all lateral policies that might come with the current permission
+                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, usernames, null);
+                    policiesForUser.add(policyWithCurrentPermission);
+                    return policiesForUser;
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(

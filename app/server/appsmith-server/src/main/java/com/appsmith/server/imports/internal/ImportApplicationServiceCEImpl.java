@@ -718,8 +718,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 applicationJson,
                 false);
 
-        Mono<Void> combinedActionExportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
-        return List.of(combinedActionExportablesMono);
+        Mono<Void> combinedActionImportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
+        return List.of(combinedActionImportablesMono);
     }
 
     private Mono<Void> applicationSpecificImportedEntities(

@@ -62,9 +62,9 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Optional<NewAction> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
-    List<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission);
+    List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
 
-    List<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
     List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission);

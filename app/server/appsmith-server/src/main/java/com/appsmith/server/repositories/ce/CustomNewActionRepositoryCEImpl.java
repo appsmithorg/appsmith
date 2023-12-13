@@ -5,6 +5,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
@@ -24,6 +26,8 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -56,16 +60,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
-        Criteria applicationIdCriteria =
-                where("applicationId").is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission);*/
+        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
+        return queryAll(List.of(applicationIdCriteria), aclPermission);
     }
 
     @Override
     public List<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
-        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
+        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission, sort);
     }
 
@@ -179,12 +181,19 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Collections.emptyList(); /*
+        List<Criteria> criteriaList =
+                this.getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
+
+        return queryAll(criteriaList, aclPermission, sort);
+    }
+
+    protected List<Criteria> getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(
+            String name, List<String> pageIds, Boolean viewMode) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
          * all possible fields
-         * /
+         */
         List<Criteria> criteriaList = new ArrayList<>();
 
         // Fetch published actions
@@ -228,8 +237,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                     .is(null);
             criteriaList.add(deletedCriteria);
         }
-
-        return queryAll(criteriaList, aclPermission, sort);*/
+        return criteriaList;
     }
 
     @Override
@@ -328,10 +336,15 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return Collections.emptyList(); /*
 
-        Criteria applicationCriteria =
-                where("applicationId").is(applicationId);
+        Criteria applicationCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
         return queryAll(List.of(applicationCriteria), aclPermission, sort);*/
+    }
+
+    protected Criteria getCriterionForFindByApplicationId(String applicationId) {
+        Criteria applicationCriteria =
+                where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        return applicationCriteria;
     }
 
     @Override
@@ -339,10 +352,15 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
         return Collections.emptyList(); /*
 
+        List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
+
+        return queryAll(criteria, aclPermission);
+    }
+
+    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, Boolean viewMode) {
         List<Criteria> criteria = new ArrayList<>();
 
-        Criteria applicationCriterion =
-                where("applicationId").is(applicationId);
+
         criteria.add(applicationCriterion);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -354,7 +372,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             criteria.add(deletedCriterion);
         }
 
-        return queryAll(criteria, aclPermission);*/
     }
 
     @Override
@@ -402,19 +419,20 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
-        return Collections.emptyList(); /*
+    public List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
 
-        Criteria pageIdCriteria = where("unpublishedAction" + "."
-                        + "pageId")
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .in(pageIds);
 
-        return queryAll(List.of(pageIdCriteria), permission);*/
+        return queryAll(List.of(pageIdCriteria), permission);
     }
 
     @Override
-    public List<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where("unpublishedAction" + "." + "pageId").in(pageIds);
+    public List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
+                .in(pageIds);
 
         return queryAll(List.of(pageIdCriteria), permission);
     }
@@ -423,10 +441,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
         return Collections.emptyList(); /*
-        List<Criteria> criteria = new ArrayList<>();
 
-        Criteria applicationCriterion =
-                where("applicationId").is(applicationId);
         criteria.add(applicationCriterion);
 
         Criteria nonJsTypeCriteria =
@@ -440,15 +455,15 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                             + "deletedAt")
                     .is(null);
             criteria.add(deletedCriterion);
-        }
+        }*/
 
-        return queryAll(criteria, aclPermission);*/
     }
 
     @Override
     public List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Collections.emptyList(); /*
+        return Collections.emptyList();/*
+
         List<Criteria> criteriaList = new ArrayList<>();
 
         Criteria nonJsTypeCriteria =
@@ -496,9 +511,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                             + "deletedAt")
                     .is(null);
             criteriaList.add(deletedCriteria);
-        }
+        }*/
 
-        return queryAll(criteriaList, aclPermission, sort);*/
     }
 
     /**
@@ -571,7 +585,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
         return Optional.empty(); /*
-        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
+        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
+
 
         Optional<Set<String>> permissionGroupsMono =
                 Optional.of(getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission)));
@@ -607,8 +622,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
-        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
-        String unpublishedDeletedAtFieldName = String.format("%s.%s", "unpublishedAction", "deletedAt");
+        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
+        String unpublishedDeletedAtFieldName = String.format(
+                "%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
 

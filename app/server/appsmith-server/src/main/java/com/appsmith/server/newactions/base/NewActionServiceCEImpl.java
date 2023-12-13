@@ -996,6 +996,21 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     @Override
     public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions) {
+        return getUnpublishedActionsFromRepo(params, includeJsActions)
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
+                .flatMap(this::setTransientFieldsInUnpublishedAction)
+                // this generates four different tags, (ApplicationId, FieldId) *(True, False)
+                .tag(
+                        "includeJsAction",
+                        (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID : FieldName.APPLICATION_ID)
+                                + includeJsActions.toString())
+                .name(GET_ACTION_REPOSITORY_CALL)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
+    protected Flux<NewAction> getUnpublishedActionsFromRepo(
+            MultiValueMap<String, String> params, Boolean includeJsActions) {
         String name = null;
         List<String> pageIds = new ArrayList<>();
 
@@ -1036,17 +1051,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             }
         }
 
-        return actionsFromRepository
-                .collectList()
-                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
-                .flatMap(this::setTransientFieldsInUnpublishedAction)
-                // this generates four different tags, (ApplicationId, FieldId) *(True, False)
-                .tag(
-                        "includeJsAction",
-                        (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID : FieldName.APPLICATION_ID)
-                                + includeJsActions.toString())
-                .name(GET_ACTION_REPOSITORY_CALL)
-                .tap(Micrometer.observation(observationRegistry));
+        return actionsFromRepository;
     }
 
     @Override
@@ -1756,9 +1761,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     }
 
     @Override
-    public Flux<NewAction> findByListOfPageIds(
-            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
-        return repository.findByListOfPageIds(unpublishedPages, optionalPermission);
+    public Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return repository.findByPageIds(unpublishedPages, optionalPermission);
     }
 
     @Override

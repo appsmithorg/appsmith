@@ -6,6 +6,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -57,7 +58,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             NewPageRepositoryCake newPageRepository,
             DatasourceRepositoryCake datasourceRepository,
             DatasourcePermission datasourcePermission,
-            DSLMigrationUtils dslMigrationUtils) {
+            DSLMigrationUtils dslMigrationUtils,
+            GitAutoCommitHelper gitAutoCommitHelper) {
 
         super(
                 workspaceService,
@@ -86,6 +88,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 newPageRepository,
                 datasourceRepository,
                 datasourcePermission,
-                dslMigrationUtils);
+                dslMigrationUtils,
+                gitAutoCommitHelper);
     }
 }

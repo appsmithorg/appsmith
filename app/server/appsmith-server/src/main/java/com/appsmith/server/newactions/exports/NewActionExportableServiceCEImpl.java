@@ -51,7 +51,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
         Flux<NewAction> actionFlux =
-                newActionService.findByListOfPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+                newActionService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
 
         return actionFlux
                 .collectList()

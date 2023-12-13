@@ -109,3 +109,8 @@ export const importTemplateIntoApplicationViaOnboardingFlow = (
     workspaceId,
   },
 });
+
+export const setActiveLoadingTemplateId = (templateId: string) => ({
+  type: ReduxActionTypes.SET_ACTIVE_LOADING_TEMPLATE_ID,
+  payload: templateId,
+});

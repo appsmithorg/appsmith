@@ -10,6 +10,7 @@ import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,11 +47,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return queryAll(List.of(applicationCriteria), aclPermission, sort);*/
     }
 
-    @Override
-    public List<ActionCollection> findByApplicationIdAndViewMode(
-            String applicationId, boolean viewMode, AclPermission aclPermission) {
+    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
         return Collections.emptyList(); /*
-
         List<Criteria> criteria = new ArrayList<>();
 
         Criteria applicationCriterion = where(fieldName(QActionCollection.actionCollection.applicationId))
@@ -65,18 +63,21 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     .is(null);
             criteria.add(deletedCriterion);
         }
+        return criteria;*/
+    }
+
+    @Override
+    public List<ActionCollection> findByApplicationIdAndViewMode(
+            String applicationId, boolean viewMode, AclPermission aclPermission) {
+        return Collections.emptyList(); /*
+
+        List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
         return queryAll(criteria, aclPermission);*/
     }
 
-    @Override
-    public List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-            String name,
-            List<String> pageIds,
-            boolean viewMode,
-            String branchName,
-            AclPermission aclPermission,
-            Sort sort) {
+    protected List<Criteria> getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+            String branchName, boolean viewMode, String name, List<String> pageIds) {
         return Collections.emptyList(); /*
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
@@ -137,6 +138,20 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     .is(null);
             criteriaList.add(deletedCriteria);
         }
+        return criteriaList;*/
+    }
+
+    @Override
+    public List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+            String name,
+            List<String> pageIds,
+            boolean viewMode,
+            String branchName,
+            AclPermission aclPermission,
+            Sort sort) {
+        return Collections.emptyList(); /*
+        List<Criteria> criteriaList = this.getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+                branchName, viewMode, name, pageIds);
 
         return queryAll(criteriaList, aclPermission, sort);*/
     }
@@ -201,7 +216,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public List<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+    public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         return Collections.emptyList(); /*
         Criteria pageIdCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
                              + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
@@ -210,10 +225,11 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public List<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+    public List<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
         return Collections.emptyList(); /*
-        Criteria pageIdCriteria =
-                where("unpublishedCollection" + "." + "pageId").in(pageIds);
+        Criteria pageIdCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                        + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
+                .in(pageIds);
         return queryAll(List.of(pageIdCriteria), permission);*/
     }
 

@@ -30,6 +30,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -45,7 +47,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     private final ExportableService<Datasource> datasourceExportableService;
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<NewPage> newPageExportableService;
-    private final ExportableService<NewAction> newActionExportableService;
+    protected final ExportableService<NewAction> newActionExportableService;
     private final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ExportableService<Theme> themeExportableService;
     private final ExportableService<CustomJSLib> customJSLibExportableService;
@@ -169,7 +171,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                 .thenReturn(applicationJson);*/
     }
 
-    private Mono<Void> sanitizeEntities(
+    protected Mono<Void> sanitizeEntities(
             SerialiseApplicationObjective serialiseFor,
             ApplicationJson applicationJson,
             MappedExportableResourcesDTO mappedResourcesDTO,
@@ -178,6 +180,9 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                 exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
 
         newPageExportableService.sanitizeEntities(exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
+
+        newActionExportableService.sanitizeEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
 
         return Mono.empty().then();
     }
@@ -252,7 +257,9 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
 
         Mono<Void> combinedActionExportablesMono = actionCollectionExportablesMono.then(newActionExportablesMono);
 
-        return List.of(combinedActionExportablesMono);
+        List<Mono<Void>> monos = new ArrayList<>();
+        monos.add(combinedActionExportablesMono);
+        return monos;
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {

@@ -30,6 +30,17 @@ if (APPSMITH_CUSTOM_DOMAIN != null) {
 
 const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
 
+const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
+  .replace(/;.*$/, "")
+
+const bind = [
+  // The custom domain is expected to only have the domain. So if it has protocol or trailing slash, we remove it.
+  (APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, ""),
+  // Also bind to http on 80, so that if the cert provisioning fails, we can still serve on http.
+  // But this still means that if cert provisioning is successful, http will be redirected to https.
+  ":80",
+].join(" ")
+
 const parts = []
 
 parts.push(`
@@ -64,7 +75,7 @@ parts.push(`
 
   header {
     -Server
-    Content-Security-Policy "frame-ancestors ${process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS ?? "'self' *"}"
+    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
   }
 
@@ -118,7 +129,7 @@ localhost:80 127.0.0.1:80 {
   import all-config
 }
 
-${APPSMITH_CUSTOM_DOMAIN || ":80"} {
+${bind} {
   import all-config
   ${tlsConfig}
 }

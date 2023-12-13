@@ -6,6 +6,7 @@ import com.appsmith.server.repositories.CustomUserRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
 
@@ -14,6 +15,15 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
     Optional<User> findByEmailIgnoreCase(String email);
 
     Optional<Long> countByDeletedAtNull();
+
+    /**
+     * This method returns the count of all users that are not deleted and are not system generated.
+     *
+     * @param excludeSystemGenerated If true, then the count of all users that are not deleted and are not system
+     *                               generated is returned.
+     * @return  The count of all users that are not deleted and are not system generated.
+     */
+    Optional<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated);
 
     Optional<User> findByEmailAndTenantId(String email, String tenantId);
 

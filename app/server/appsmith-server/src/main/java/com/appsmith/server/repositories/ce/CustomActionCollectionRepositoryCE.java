@@ -44,9 +44,9 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
-    List<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission);
+    List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
 
-    List<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    List<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
     Optional<List<InsertManyResult>> bulkInsert(List<ActionCollection> newActions);
 

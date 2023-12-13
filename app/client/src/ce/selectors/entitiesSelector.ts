@@ -1405,3 +1405,11 @@ export const selectJSForPagespane = createSelector(
 export const getQueryModuleInstances = () => {
   return [];
 };
+
+export const getAllJSCollections = createSelector(
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (currentContextJSCollections, moduleInstanceJSCollections) => {
+    return [...moduleInstanceJSCollections, ...currentContextJSCollections];
+  },
+);
