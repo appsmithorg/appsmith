@@ -1,6 +1,6 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
-import IconSVG from "../icon.svg";
+import IconSVG from "../../icon.svg";
 
 export const baseConfig: WidgetBaseConfiguration = {
   name: "Zone",

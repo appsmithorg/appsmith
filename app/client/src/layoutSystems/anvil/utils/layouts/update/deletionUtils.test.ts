@@ -23,11 +23,11 @@ describe("Layouts - deletionUtils tests", () => {
   });
   describe("deleteWidgetFromLayout", () => {
     it("should return layoutProps as is, if widgetId is falsy", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock();
+      const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
       expect(deleteWidgetFromLayout(layout, "")).toEqual(layout);
     });
     it("should remove widget from the layout", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock();
+      const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
 
       const originalLength: number = layout.layout.length;
       const widgetId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
@@ -44,7 +44,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return undefined if layout is temporary and empty after deletion", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isPermanent: false,
-      });
+      }).layout;
       // layout has two widgets
       const originalLength: number = layout.layout.length;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
@@ -69,7 +69,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return empty layout on deleting last widget, if the layout is permanent", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isPermanent: true,
-      });
+      }).layout;
       // layout has two widgets
       const originalLength: number = layout.layout.length;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
@@ -95,7 +95,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return undefined if AlignedRow is temporary and empty after deletion", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock({
         isPermanent: false,
-      });
+      }).layout;
       // start alignment has two widgets
       const originalStartLength: number = (
         layout.layout as WidgetLayoutProps[]
@@ -126,7 +126,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return empty AlignedRow on deleting last widget, if the layout is permanent", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock({
         isPermanent: true,
-      });
+      }).layout;
       // start alignment has two widgets
       const originalStartLength: number = (
         layout.layout as WidgetLayoutProps[]
@@ -159,7 +159,7 @@ describe("Layouts - deletionUtils tests", () => {
       expect(res.layout.length).toEqual(0);
     });
     it("should return the layout as is if widgetId is not present in the layout", () => {
-      const layout: LayoutComponentProps = generateAlignedRowMock();
+      const layout: LayoutComponentProps = generateAlignedRowMock().layout;
       const res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         "randomWidgetId",
@@ -182,8 +182,9 @@ describe("Layouts - deletionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock(
         {},
         false,
-      );
-      const layout2: LayoutComponentProps = generateLayoutComponentMock();
+      ).layout;
+      const layout2: LayoutComponentProps =
+        generateLayoutComponentMock().layout;
       const res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
         ((layout.layout[0] as LayoutProps).layout[0] as WidgetLayoutProps)
@@ -210,11 +211,11 @@ describe("Layouts - deletionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock(
         {},
         false,
-      );
+      ).layout;
       // layout2 has two child widgets
       const layout2: LayoutComponentProps = generateLayoutComponentMock({
         isPermanent: false,
-      });
+      }).layout;
       // delete the first widget
       let res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],

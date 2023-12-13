@@ -22,6 +22,7 @@ import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/Al
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { getAlignmentLayoutId } from "../layoutUtils";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("AlignedRow highlights", () => {
   beforeAll(() => {
@@ -31,7 +32,7 @@ describe("AlignedRow highlights", () => {
     it("should return three initial highlights if layout is empty", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock({
         layout: [],
-      });
+      }).layout;
       const { layoutId } = layout;
 
       const startPosition: LayoutElementPosition = {
@@ -120,7 +121,7 @@ describe("AlignedRow highlights", () => {
 
   describe("fill child widget", () => {
     it("should not render highlights for alignments", () => {
-      const layout: LayoutComponentProps = generateAlignedRowMock();
+      const layout: LayoutComponentProps = generateAlignedRowMock().layout;
       const { layoutId } = layout;
 
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
@@ -203,10 +204,18 @@ describe("AlignedRow highlights", () => {
       // Create AlignedWidgetRow layout with two buttons at start and center alignments.
       const layout: LayoutComponentProps = generateAlignedRowMock({
         layout: [
-          { widgetId: button1.widgetId, alignment: FlexLayerAlignment.Start },
-          { widgetId: button2.widgetId, alignment: FlexLayerAlignment.Center },
+          {
+            widgetId: button1.widgetId,
+            alignment: FlexLayerAlignment.Start,
+            widgetType: ButtonWidget.type,
+          },
+          {
+            widgetId: button2.widgetId,
+            alignment: FlexLayerAlignment.Center,
+            widgetType: ButtonWidget.type,
+          },
         ],
-      });
+      }).layout;
       const { layoutId } = layout;
 
       const layoutPosition: LayoutElementPosition = {

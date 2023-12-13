@@ -1,9 +1,10 @@
 import React, { type ReactNode } from "react";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import type {
-  LayoutComponentProps,
-  LayoutProps,
-  WidgetLayoutProps,
+import {
+  LayoutComponentTypes,
+  type LayoutComponentProps,
+  type LayoutProps,
+  type WidgetLayoutProps,
 } from "../anvilTypes";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import { isFillWidgetPresentInList } from "./widgetUtils";
@@ -129,6 +130,7 @@ export function renderWidgetsInAlignedRow(
     flexBasis: { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
     flexGrow: 1,
     flexShrink: 1,
+    layoutType: LayoutComponentTypes.WIDGET_ROW,
     parentDropTarget: props.parentDropTarget,
     renderMode: props.renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },

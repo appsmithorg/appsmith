@@ -14,11 +14,11 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 export function generateLayoutComponentMock(
   data: Partial<LayoutComponentProps> = {},
   rendersWidgets = true,
-): LayoutComponentProps {
+): { layout: LayoutComponentProps; childrenMap: Record<string, WidgetProps> } {
   if (data?.layoutType === LayoutComponentTypes.ALIGNED_WIDGET_ROW)
     return generateAlignedRowMock(data, rendersWidgets);
-  const layout: WidgetLayoutProps[] | LayoutComponentProps[] = [],
-    childrenMap: { [key: string]: WidgetProps } = {};
+  const layout: WidgetLayoutProps[] | LayoutComponentProps[] = [];
+  let childrenMap: { [key: string]: WidgetProps } = {};
   let type = LayoutComponentTypes.WIDGET_ROW;
   if (rendersWidgets) {
     /**
@@ -43,28 +43,38 @@ export function generateLayoutComponentMock(
     childrenMap[inputWidget.widgetId] = inputWidget;
   } else {
     type = LayoutComponentTypes.LAYOUT_ROW;
-    (layout as LayoutComponentProps[]).push(generateLayoutComponentMock());
-    (layout as LayoutComponentProps[]).push(generateLayoutComponentMock());
+    const mock1 = generateLayoutComponentMock();
+    const mock2 = generateLayoutComponentMock();
+    (layout as LayoutComponentProps[]).push(mock1.layout);
+    (layout as LayoutComponentProps[]).push(mock2.layout);
+    childrenMap = {
+      ...childrenMap,
+      ...mock1.childrenMap,
+      ...mock2.childrenMap,
+    };
   }
   return {
-    layout,
-    layoutId: generateReactKey(),
-    layoutIndex: 0,
-    layoutStyle: {},
-    layoutType: type,
+    layout: {
+      layout,
+      layoutId: generateReactKey(),
+      layoutIndex: 0,
+      layoutStyle: {},
+      layoutType: type,
 
-    allowedWidgetTypes: [],
-    canvasId: "",
-    children: [],
-    childTemplate: null,
-    isDropTarget: false,
-    insertChild: rendersWidgets,
-    isPermanent: false,
+      allowedWidgetTypes: [],
+      canvasId: "",
+      children: [],
+      childTemplate: null,
+      isDropTarget: false,
+      insertChild: rendersWidgets,
+      isPermanent: false,
 
-    layoutOrder: [],
-    parentDropTarget: "",
-    renderMode: RenderModes.CANVAS,
-    ...data,
+      layoutOrder: [],
+      parentDropTarget: "",
+      renderMode: RenderModes.CANVAS,
+      ...data,
+    },
+    childrenMap,
   };
 }
 
@@ -80,7 +90,7 @@ export function generateLayoutComponentMock(
 export function generateAlignedRowMock(
   data: Partial<LayoutComponentProps> = {},
   rendersWidgets = true,
-): LayoutComponentProps {
+): { layout: LayoutComponentProps; childrenMap: Record<string, WidgetProps> } {
   const layout: WidgetLayoutProps[] = [],
     childrenMap: { [key: string]: WidgetProps } = {};
   if (rendersWidgets) {
@@ -100,23 +110,26 @@ export function generateAlignedRowMock(
     childrenMap[inputWidget.widgetId] = inputWidget;
   }
   return {
-    layout,
-    layoutId: "",
-    layoutIndex: 0,
-    layoutStyle: {},
-    layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
+    layout: {
+      layout,
+      layoutId: "",
+      layoutIndex: 0,
+      layoutStyle: {},
+      layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
 
-    allowedWidgetTypes: [],
-    canvasId: "",
-    children: [],
-    childTemplate: null,
-    isDropTarget: false,
-    insertChild: rendersWidgets,
-    isPermanent: false,
+      allowedWidgetTypes: [],
+      canvasId: "",
+      children: [],
+      childTemplate: null,
+      isDropTarget: false,
+      insertChild: rendersWidgets,
+      isPermanent: false,
 
-    layoutOrder: [],
-    parentDropTarget: "",
-    renderMode: RenderModes.CANVAS,
-    ...data,
+      layoutOrder: [],
+      parentDropTarget: "",
+      renderMode: RenderModes.CANVAS,
+      ...data,
+    },
+    childrenMap,
   };
 }
