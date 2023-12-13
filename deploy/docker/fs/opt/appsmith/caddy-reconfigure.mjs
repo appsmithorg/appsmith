@@ -33,13 +33,8 @@ const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
-const bind = [
-  // The custom domain is expected to only have the domain. So if it has protocol or trailing slash, we remove it.
-  (APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, ""),
-  // Also bind to http on 80, so that if the cert provisioning fails, we can still serve on http.
-  // But this still means that if cert provisioning is successful, http will be redirected to https.
-  //":80",
-].join(" ")
+// The custom domain is expected to only have the domain. So if it has protocol or trailing slash, we remove it.
+const bind = (APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, "")
 
 const parts = []
 
@@ -125,15 +120,19 @@ parts.push(`
   }
 }
 
-localhost:80 127.0.0.1:80 {
+# We bind to http on 80, so that if the cert provisioning fails, we can still serve on http.
+# But this still means that if cert provisioning is successful, http will be redirected to https.
+:80 {
   import all-config
-}
-
-${bind} {
-  import all-config
-  ${tlsConfig}
 }
 `)
+
+if (bind !== "") {
+  parts.push(`${bind} {
+    import all-config
+    ${tlsConfig}
+  }`)
+}
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
