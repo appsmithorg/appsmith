@@ -12,8 +12,10 @@ export const createNewQueryBasedOnParentEntity = (
   dsId: string,
   parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
-  if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-    return createNewQueryAction(entityId, from, dsId);
+  switch (parentEntityType) {
+    case ACTION_PARENT_ENTITY_TYPE.PAGE:
+    default:
+      return createNewQueryAction(entityId, from, dsId);
   }
 };
 
@@ -23,8 +25,10 @@ export const createNewAPIBasedOnParentEntity = (
   apiType?: string,
   parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
-  if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-    return createNewApiAction(entityId, from, apiType);
+  switch (parentEntityType) {
+    case ACTION_PARENT_ENTITY_TYPE.PAGE:
+    default:
+      return createNewApiAction(entityId, from, apiType);
   }
 };
 
@@ -33,7 +37,9 @@ export const createNewJSCollectionBasedOnParentEntity = (
   from: EventLocation,
   parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
-  if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-    return createNewJSCollection(entityId, from);
+  switch (parentEntityType) {
+    case ACTION_PARENT_ENTITY_TYPE.PAGE:
+    default:
+      return createNewJSCollection(entityId, from);
   }
 };
