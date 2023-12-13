@@ -43,12 +43,13 @@ class PerformanceLoggingHandler implements ObservationHandler<Observation.Contex
                 (double) memoryMXBean.getHeapMemoryUsage().getCommitted() / 1073741824);
 
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-        String cpuString = "";
+        StringBuilder cpuString = new StringBuilder();
 
         for (Long threadID : threadMXBean.getAllThreadIds()) {
             ThreadInfo info = threadMXBean.getThreadInfo(threadID);
-            cpuString += String.format("{ " + info.getThreadName() + ", " + info.getThreadState() + ", "
-                    + threadMXBean.getThreadCpuTime(threadID) / 1000000 + "ms },");
+            cpuString.append(String.format(
+                    "{ %s, %s, %dms },",
+                    info.getThreadName(), info.getThreadState(), threadMXBean.getThreadCpuTime(threadID) / 1000000));
         }
 
         return memoryString + "\n" + cpuString;
@@ -82,7 +83,7 @@ class PerformanceLoggingHandler implements ObservationHandler<Observation.Contex
         long localRequestID = context.getOrDefault("requestID", 0);
 
         log.info(
-                "\nRequest ID : {}\nError Encountered: {}\nTime Taken {} ms\nError: {}\nContext: {}\nRequest ID: {}\n{}\n",
+                "\nRequest ID : {}\nError Encountered: {}\nTime Taken {} ms\nError: {}\nContext: {}\n{}\n",
                 localRequestID,
                 context.getName(),
                 executionTime,
