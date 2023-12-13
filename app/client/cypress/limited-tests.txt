@@ -3,7 +3,6 @@
 cypress/e2e/Regression/ClientSide/Widgets/ListV2/ListV2_PageNo_PageSize_spec.js
 cypress/e2e/Regression/ClientSide/Widgets/ListV2/Listv2_BasicServerSideData_spec.js
 cypress/e2e/Sanity/Datasources/MockDBs_Spec.ts
-cypress/e2e/Regression/Apps/PromisesApp_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*

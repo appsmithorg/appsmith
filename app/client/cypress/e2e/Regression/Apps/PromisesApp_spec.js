@@ -11,19 +11,22 @@ import EditorNavigation, {
 } from "../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../locators/commonlocators.json");
 
-describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
-  before(() => {
-    agHelper.AddDsl("promisesStoreValueDsl");
-  });
+describe(
+  "Promises App tests",
+  { tags: ["@tag.Widget", "@tag.JS"] },
+  function () {
+    before(() => {
+      agHelper.AddDsl("promisesStoreValueDsl");
+    });
 
-  it("1. Testing promises with resetWidget, storeValue action and API call", () => {
-    apiPage.CreateAndFillApi(
-      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
-      "TC1api",
-    );
-    apiPage.RunAPI();
-    jsEditor.CreateJSObject(
-      `export default {
+    it("1. Testing promises with resetWidget, storeValue action and API call", () => {
+      apiPage.CreateAndFillApi(
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+        "TC1api",
+      );
+      apiPage.RunAPI();
+      jsEditor.CreateJSObject(
+        `export default {
         myFun1: async () => { //comment
           await this.clearStore()		//clear store value before running the case
           return resetWidget('Switch1')
@@ -50,80 +53,81 @@ describe("JSEditor tests", { tags: ["@tag.Widget", "@tag.JS"] }, function () {
            })
         }
       }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-      },
-    );
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.wait("@getPage");
-    // verify text in the text widget
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+        },
+      );
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      cy.wait("@getPage");
+      // verify text in the text widget
 
-    agHelper.AssertText(
-      ".t--draggable-textwidget span",
-      "text",
-      "Step 4: Value is Green and will default to undefined",
-      5,
-    );
-    // toggle off the switch
-    cy.get(".t--switch-widget-active .bp3-control-indicator").click({
-      force: true,
-    });
-    agHelper.AssertContains("Switch widget has changed");
-
-    // select an option from select widget
-    cy.get(".bp3-button.select-button").click({ force: true });
-    cy.get(".menu-item-text").eq(2).click({ force: true });
-    // verify text in the text widget
-
-    agHelper.AssertText(
-      ".t--draggable-textwidget span",
-      "text",
-      "Step 4: Value is Red and will default to undefined",
-      5,
-    );
-    // move to page  2 on table widget
-    agHelper.GetNClick(commonlocators.tableNextPage);
-    cy.get(".t--table-widget-page-input").within(() => {
-      cy.get("input.bp3-input").should("have.value", "2");
-    });
-
-    // hit audio play button and trigger actions
-    EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget);
-    agHelper.GetElement("audio").then(($audio) => {
-      $audio[0].play();
-    });
-    assertHelper.AssertNetworkStatus("@postExecute");
-    // verify text is visible
-    agHelper.AssertContains(
-      "Step 4: Value is Green and will default to GREEN",
-      "be.visible",
-      ".t--draggable-textwidget span",
-    );
-
-    agHelper.GetNClick(commonlocators.tableNextPage);
-    agHelper.ValidateToastMessage("Success running API query");
-    agHelper.ValidateToastMessage("GREEN");
-    agHelper.GetElement(".t--table-widget-page-input").within(() => {
-      agHelper.ValidateFieldInputValue("input.bp3-input", "2");
-    });
-  });
-
-  it("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
-    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
-    jsEditor.SelectFunctionDropdown("clearStore");
-    jsEditor.RunJSObj();
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.xpath("//span[text()='Clear store']").click({ force: true });
-    cy.get(".t--draggable-textwidget span")
-      .eq(5)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(
-          "Step 4: Value is Green and will default to undefined",
-        );
+      agHelper.AssertText(
+        ".t--draggable-textwidget span",
+        "text",
+        "Step 4: Value is Green and will default to undefined",
+        5,
+      );
+      // toggle off the switch
+      cy.get(".t--switch-widget-active .bp3-control-indicator").click({
+        force: true,
       });
-  });
-});
+      agHelper.AssertContains("Switch widget has changed");
+
+      // select an option from select widget
+      cy.get(".bp3-button.select-button").click({ force: true });
+      cy.get(".menu-item-text").eq(2).click({ force: true });
+      // verify text in the text widget
+
+      agHelper.AssertText(
+        ".t--draggable-textwidget span",
+        "text",
+        "Step 4: Value is Red and will default to undefined",
+        5,
+      );
+      // move to page  2 on table widget
+      agHelper.GetNClick(commonlocators.tableNextPage);
+      cy.get(".t--table-widget-page-input").within(() => {
+        cy.get("input.bp3-input").should("have.value", "2");
+      });
+
+      // hit audio play button and trigger actions
+      EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget);
+      agHelper.GetElement("audio").then(($audio) => {
+        $audio[0].play();
+      });
+      assertHelper.AssertNetworkStatus("@postExecute");
+      // verify text is visible
+      agHelper.AssertContains(
+        "Step 4: Value is Green and will default to GREEN",
+        "be.visible",
+        ".t--draggable-textwidget span",
+      );
+
+      agHelper.GetNClick(commonlocators.tableNextPage);
+      agHelper.ValidateToastMessage("Success running API query");
+      agHelper.ValidateToastMessage("GREEN");
+      agHelper.GetElement(".t--table-widget-page-input").within(() => {
+        agHelper.ValidateFieldInputValue("input.bp3-input", "2");
+      });
+    });
+
+    it("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
+      EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
+      jsEditor.SelectFunctionDropdown("clearStore");
+      jsEditor.RunJSObj();
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      cy.xpath("//span[text()='Clear store']").click({ force: true });
+      cy.get(".t--draggable-textwidget span")
+        .eq(5)
+        .invoke("text")
+        .then((text) => {
+          expect(text).to.equal(
+            "Step 4: Value is Green and will default to undefined",
+          );
+        });
+    });
+  },
+);
