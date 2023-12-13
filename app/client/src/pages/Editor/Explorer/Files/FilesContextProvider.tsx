@@ -4,7 +4,7 @@ import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpe
 
 export enum ActionEntityContextMenuItemsEnum {
   EDIT_NAME = "Edit Name",
-  SHOW_BINDING = "Show Binding",
+  SHOW_BINDING = "Show Bindings",
   COPY = "Copy",
   MOVE = "Move",
   DELETE = "Delete",
