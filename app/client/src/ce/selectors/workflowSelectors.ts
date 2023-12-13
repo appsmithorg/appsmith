@@ -1,7 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import type { WorkflowMetadata } from "@appsmith/constants/WorkflowConstants";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 const DEFAULT_WORKFLOW_LIST: WorkflowMetadata[] = [];
 
@@ -27,4 +27,4 @@ export const getCurrentWorkflowActions = (state: AppState): ActionData[] => [];
 export const getCurrentWorkflowJSActions = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   state: AppState,
-): JSCollectionDataState[] => [];
+): JSCollectionData[] => [];
