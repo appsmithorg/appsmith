@@ -7,6 +7,16 @@ export const getLastSelectedWidget = (state: AppState) =>
 export const getSelectedWidgets = (state: AppState) =>
   state.ui.widgetDragResize.selectedWidgets;
 
+export const getDefaultWidgetSelection = (state: AppState) => {
+  const widgetIds = Object.keys(state.entities.canvasWidgets);
+  // Since main container is always in widgets, we want to check if there is
+  // another widget that is not the main container
+  if (widgetIds.length > 1) {
+    return [widgetIds[1]];
+  }
+  return [];
+};
+
 /**
  * Selector to use id and provide the status of saving an API.
  */

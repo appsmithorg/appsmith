@@ -29,6 +29,7 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   getAllDatasourceCollapsibleState,
+  getDefaultWidgetSelection,
   getDsViewModeValues,
   getSelectedWidgets,
 } from "selectors/ui";
@@ -81,10 +82,10 @@ import {
   getSelectedQueryId,
 } from "./FocusSelectors";
 import {
+  setAppUrl,
+  setPageUrl,
   setSelectedDatasource,
   setSelectedJSObject,
-  setPageUrl,
-  setAppUrl,
   setSelectedQuery,
 } from "./FocusSetters";
 import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
@@ -359,11 +360,13 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getSelectedWidgets,
       setter: (widgetIds: string[]) =>
         selectWidgetInitAction(
-          SelectionRequestType.Multiple,
+          widgetIds.length
+            ? SelectionRequestType.Multiple
+            : SelectionRequestType.Empty,
           widgetIds,
           NavigationMethod.ContextSwitching,
         ),
-      defaultValue: [],
+      defaultValue: getDefaultWidgetSelection,
     },
   ],
 };
