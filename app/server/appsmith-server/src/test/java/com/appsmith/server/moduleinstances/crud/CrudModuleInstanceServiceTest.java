@@ -1283,6 +1283,130 @@ public class CrudModuleInstanceServiceTest {
         moduleInputsForm.get(0).getChildren().add(limitInput);
     }
 
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testAutoUpgradeShouldPassWhenModuleNameIsUpdatedAndModuleInstanceExistsForTheOlderVersion() {
+        // Create a module
+        ModuleDTO moduleReqDTO = createModuleRequestDTO();
+        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
+
+        // Publish the package
+        publishPackageService.publishPackage(createdModule.getPackageId()).block();
+
+        // Fetch the published module DTO
+        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
+
+        // Create a module instance from the newly created and published module
+        ModuleInstanceDTO moduleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
+
+        // Create module instance and retrieve the response
+        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+
+        ModuleInstanceDTO moduleInstanceDTO = createdModuleInstanceResponseDTO.getModuleInstance();
+
+        updatePublicActionProperties(moduleInstanceDTO);
+
+        // Override the default value of the input in the parent app
+        Map<String, String> moduleInstanceInputs = moduleInstanceDTO.getInputs();
+        moduleInstanceInputs.put("genderInput", "{{appGenderInput.text}}");
+
+        // Update the module instance with the overridden input value
+        moduleInstanceDTO = layoutModuleInstanceService
+                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceDTO.getId(), null, false)
+                .block();
+
+        List<NewAction> oldPublicActions = newActionService
+                .findPublicActionsByModuleInstanceId(moduleInstanceDTO.getId(), Optional.empty())
+                .collectList()
+                .block();
+        assertThat(oldPublicActions.size()).isEqualTo(1);
+
+        layoutActionService
+                .setExecuteOnLoad(oldPublicActions.get(0).getId(), null, true)
+                .block();
+
+        // Change the name of the module to verify that it should not have any impact on auto-upgrade
+        createdModule.setName("NameGotChangedInThisVersion");
+
+        // Update the module with the new input
+        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
+
+        // Publish the package again
+        publishPackageService
+                .publishPackage(
+                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                .block();
+
+        // Verify that the old module instance was deleted as part of the auto-upgrade process
+        ModuleInstance oldModuleInstance =
+                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
+        assertThat(oldModuleInstance).isNull();
+
+        // Verify the new module instance has the correct input values
+        Mono<List<ModuleInstanceDTO>> moduleInstancesMono =
+                layoutModuleInstanceService.getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
+                        CreatorContextType.PAGE,
+                        ResourceModes.EDIT,
+                        null);
+
+        AtomicReference<String> moduleInstanceIdRef = new AtomicReference<>();
+
+        // Verify that properties of public action is retained
+        StepVerifier.create(moduleInstancesMono)
+                .assertNext(moduleInstanceDTOS -> {
+                    assertThat(moduleInstanceDTOS).isNotNull();
+                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
+                    ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
+
+                    assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
+                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(1);
+                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
+                            .isEqualTo("{{appGenderInput.text}}");
+                    moduleInstanceIdRef.set(moduleInstanceVerificationDTO.getId());
+                })
+                .verifyComplete();
+
+        AtomicReference<String> onPageLoadActionIdRef = new AtomicReference<>();
+
+        StepVerifier.create(newActionService
+                        .findAllUnpublishedComposedActionsByRootModuleInstanceId(
+                                moduleInstanceIdRef.get(), READ_ACTIONS, false)
+                        .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                        .collectList())
+                .assertNext(actions -> {
+                    assertThat(actions).isNotNull();
+                    assertThat(actions.size()).isEqualTo(1);
+                    ActionDTO moduleActionDTO = actions.get(0);
+
+                    assertThat(moduleActionDTO.getConfirmBeforeExecute()).isTrue();
+                    assertThat(moduleActionDTO.getExecuteOnLoad()).isTrue();
+                    onPageLoadActionIdRef.set(moduleActionDTO.getId());
+                })
+                .verifyComplete();
+
+        // Double-check the onPageLoad computation by fetching the page DSL
+
+        Layout pageLayout = newPageService
+                .findById(moduleInstanceTestHelperDTO.getPageDTO().getId(), Optional.empty())
+                .block()
+                .getUnpublishedPage()
+                .getLayouts()
+                .get(0);
+
+        final Set<DslExecutableDTO> firstSet =
+                pageLayout.getLayoutOnLoadActions().get(0);
+        Assertions.assertThat(firstSet).allMatch(actionDTO -> {
+            assertThat(Set.of("_$GetFilteredUsers1$_NameGotChangedInThisVersion")
+                            .contains(actionDTO.getName()))
+                    .isTrue();
+            assertThat(actionDTO.getId()).isEqualTo(onPageLoadActionIdRef.get());
+            return true;
+        });
+    }
+
     private ModuleInstanceDTO createModuleInstanceReq(ModuleDTO sourceModuleDTO, String name) {
         ModuleInstanceDTO moduleInstanceReqDTO = new ModuleInstanceDTO();
         moduleInstanceReqDTO.setSourceModuleId(sourceModuleDTO.getId());

@@ -2,15 +2,17 @@ package com.appsmith.server.workflows.crud;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -23,7 +25,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
@@ -48,16 +49,16 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 @Service
 public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl implements CrudWorkflowService {
 
-    private final DatasourceService datasourceService;
     private final NewActionService newActionService;
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
     private final PolicyGenerator policyGenerator;
     private final WorkflowHelper workflowHelper;
     private final ActionPermission actionPermission;
-    private final DatasourcePermission datasourcePermission;
     private final WorkflowPermission workflowPermission;
     private final WorkspacePermission workspacePermission;
+    private final CrudWorkflowEntityService crudWorkflowEntityService;
+    private final ActionCollectionService actionCollectionService;
 
     public CrudWorkflowServiceImpl(
             Scheduler scheduler,
@@ -66,27 +67,27 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
             ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService,
-            DatasourceService datasourceService,
             NewActionService newActionService,
             WorkspaceService workspaceService,
             SessionUserService sessionUserService,
             PolicyGenerator policyGenerator,
             WorkflowHelper workflowHelper,
             ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission,
             WorkflowPermission workflowPermission,
-            WorkspacePermission workspacePermission) {
+            WorkspacePermission workspacePermission,
+            CrudWorkflowEntityService crudWorkflowEntityService,
+            ActionCollectionService actionCollectionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.datasourceService = datasourceService;
+        this.crudWorkflowEntityService = crudWorkflowEntityService;
         this.newActionService = newActionService;
         this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.policyGenerator = policyGenerator;
         this.workflowHelper = workflowHelper;
         this.actionPermission = actionPermission;
-        this.datasourcePermission = datasourcePermission;
         this.workflowPermission = workflowPermission;
         this.workspacePermission = workspacePermission;
+        this.actionCollectionService = actionCollectionService;
     }
 
     @Override
@@ -101,7 +102,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
 
-        return workspaceService
+        Mono<Workflow> createdWorkflowMono = workspaceService
                 .findById(workspaceId, workspacePermission.getWorkflowCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)))
@@ -117,7 +118,20 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                     resource.setModifiedBy(currentUser.getUsername());
 
                     return createSuffixedWorkflow(resource, resource.getName(), 0);
-                });
+                })
+                .cache();
+
+        Mono<ActionCollectionDTO> mainActionCollectionDTOMono = createdWorkflowMono
+                .flatMap(workflowHelper::generateMainActionCollectionDTO)
+                .flatMap(mainActionCollection ->
+                        crudWorkflowEntityService.createWorkflowActionCollection(mainActionCollection, null));
+
+        return Mono.zip(createdWorkflowMono, mainActionCollectionDTOMono).flatMap(pair -> {
+            Workflow workflow = pair.getT1();
+            ActionCollectionDTO mainActionCollection = pair.getT2();
+            workflow.setMainJsObjectId(mainActionCollection.getId());
+            return repository.save(workflow);
+        });
     }
 
     private Mono<Workflow> createSuffixedWorkflow(Workflow workflow, String name, int suffix) {
@@ -271,7 +285,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
      *   <li>Retrieves the workflow to be deleted based on the provided workflow ID with delete permissions checked.</li>
      *   <li>If the workflow is not found, an error with the corresponding ACL no-resource-found code is thrown.</li>
      *   <li>Archives all associated actions by invoking <code>archiveActionsByWorkflowId()</code> from the new action service.</li>
-     *   <li>TODO: Archives action collections as well.</li>
+     *   <li>Archives all associated action collections by invoking <code>archiveActionCollectionByWorkflowId()</code> from the action collection service.</li>
      *   <li>Deletes the workflow bot role and user associated with the workflow.</li>
      *   <li>Combines the results of archiving the workflow bot role and user and archiving associated actions.</li>
      *   <li>Archives the workflow itself in the repository and returns the archived workflow.</li>
@@ -294,7 +308,9 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                     // Archive all Actions.
                     Mono<List<NewAction>> archiveActionsByWorkflowIdMono = newActionService.archiveActionsByWorkflowId(
                             workflowToDelete.getId(), Optional.of(actionPermission.getDeletePermission()));
-                    // TODO: Archive action collections as well.
+                    Mono<List<ActionCollection>> archiveActionCollectionsByWorkflowIdMono =
+                            actionCollectionService.archiveActionCollectionByWorkflowId(
+                                    workflowToDelete.getId(), Optional.of(actionPermission.getDeletePermission()));
 
                     // Delete the Workflow Bot User and Role.
                     Mono<Boolean> archiveWorkflowBotRoleAndUserMono =
@@ -302,6 +318,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
                     return archiveWorkflowBotRoleAndUserMono
                             .then(archiveActionsByWorkflowIdMono)
+                            .then(archiveActionCollectionsByWorkflowIdMono)
                             .then(repository.archive(workflowToDelete).thenReturn(workflowToDelete));
                 });
     }

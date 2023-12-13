@@ -1,6 +1,7 @@
 package com.appsmith.server.workflows.crud;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -16,6 +17,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApprovalRequestRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -36,6 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -113,6 +116,12 @@ class CrudApprovalRequestServiceTest {
     @SpyBean
     private WorkflowProxyHelper workflowProxyHelper;
 
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    private PluginExecutor pluginExecutor;
+
     Workspace workspace = null;
     Workflow workflow = null;
     PermissionGroup workspaceAdminRole = null;
@@ -130,6 +139,9 @@ class CrudApprovalRequestServiceTest {
 
     @BeforeEach
     void setUp() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))

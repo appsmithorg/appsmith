@@ -1,6 +1,7 @@
 package com.appsmith.server.workflows.helpers;
 
 import com.appsmith.server.domains.Workflow;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import reactor.core.publisher.Mono;
 
 public interface WorkflowHelper {
@@ -13,4 +14,6 @@ public interface WorkflowHelper {
     Mono<Boolean> updateWorkflowBotRoleAndUserDetails(Workflow actualWorkflow, Workflow updatedWorkflow);
 
     Mono<Boolean> archiveWorkflowBotRoleAndUser(Workflow workflow);
+
+    Mono<ActionCollectionDTO> generateMainActionCollectionDTO(Workflow workflow);
 }

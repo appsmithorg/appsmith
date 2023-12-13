@@ -1,5 +1,6 @@
 package com.appsmith.server.workflows.helpers;
 
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUser;
@@ -8,6 +9,7 @@ import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -30,6 +33,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -70,11 +74,20 @@ class WorkflowHelperTest {
     @Autowired
     ReactiveMongoOperations reactiveMongoOperations;
 
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    private PluginExecutor pluginExecutor;
+
     private Workspace workspace;
     private Workflow workflow;
 
     @BeforeEach
     void setUp() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))

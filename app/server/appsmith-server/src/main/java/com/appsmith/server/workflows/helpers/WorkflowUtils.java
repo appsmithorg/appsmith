@@ -2,6 +2,7 @@ package com.appsmith.server.workflows.helpers;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 
 import java.util.Objects;
 
@@ -13,5 +14,12 @@ public class WorkflowUtils {
             return FALSE;
         }
         return CreatorContextType.WORKFLOW.equals(action.getContextType());
+    }
+
+    public static boolean isWorkflowContext(ActionCollectionDTO actionCollection) {
+        if (Objects.isNull(actionCollection)) {
+            return FALSE;
+        }
+        return CreatorContextType.WORKFLOW.equals(actionCollection.getContextType());
     }
 }

@@ -5,9 +5,12 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -16,11 +19,13 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserApiKey;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApiKeyRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -42,7 +47,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
@@ -53,6 +57,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -105,8 +110,11 @@ class InteractWorkflowServiceTest {
     @Autowired
     WorkflowRepository workflowRepository;
 
-    @Autowired
-    private ReactiveMongoOperations reactiveMongoOperations;
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    private PluginExecutor pluginExecutor;
 
     @Autowired
     private EnvironmentPermission environmentPermission;
@@ -126,15 +134,18 @@ class InteractWorkflowServiceTest {
     @Autowired
     private NewActionRepository newActionRepository;
 
+    @Autowired
+    private ActionCollectionRepository actionCollectionRepository;
+
     private Workspace workspace;
     private Workflow workflow;
     private Datasource datasource;
 
-    @MockBean
-    private PluginExecutorHelper pluginExecutorHelper;
-
     @BeforeEach
     public void setup() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
@@ -270,6 +281,18 @@ class InteractWorkflowServiceTest {
         ActionDTO workflowActionDTO =
                 crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
 
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName(name);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(WORKFLOW);
+
+        ActionCollectionDTO workflowActionCollectionDTO = crudWorkflowEntityService
+                .createWorkflowActionCollection(actionCollectionDTO, null)
+                .block();
+
         NewAction workflowActionBeforePublishing =
                 newActionRepository.findById(workflowActionDTO.getId()).block();
         ActionDTO publishedActionBeforePublishing = workflowActionBeforePublishing.getPublishedAction();
@@ -278,7 +301,29 @@ class InteractWorkflowServiceTest {
         assertThat(publishedActionBeforePublishing.getContextType()).isNull();
         assertThat(publishedActionBeforePublishing.getActionConfiguration()).isNull();
 
-        // TODO: Add action collection assertions as well.
+        ActionCollection workflowMainActionCollectionBeforePublishing = actionCollectionRepository
+                .findById(workflow.getMainJsObjectId())
+                .block();
+        ActionCollectionDTO publishedActionCollectionBeforePublishingMainJSObject =
+                workflowMainActionCollectionBeforePublishing.getPublishedCollection();
+        assertThat(publishedActionCollectionBeforePublishingMainJSObject.getWorkflowId())
+                .isNullOrEmpty();
+        assertThat(publishedActionCollectionBeforePublishingMainJSObject.getName())
+                .isNullOrEmpty();
+        assertThat(publishedActionCollectionBeforePublishingMainJSObject.getContextType())
+                .isNull();
+
+        ActionCollection workflowAdditionalActionCollectionBeforePublishing = actionCollectionRepository
+                .findById(workflowActionCollectionDTO.getId())
+                .block();
+        ActionCollectionDTO publishedActionCollectionBeforePublishingAdditionalJSObject =
+                workflowAdditionalActionCollectionBeforePublishing.getPublishedCollection();
+        assertThat(publishedActionCollectionBeforePublishingAdditionalJSObject.getWorkflowId())
+                .isNullOrEmpty();
+        assertThat(publishedActionCollectionBeforePublishingAdditionalJSObject.getName())
+                .isNullOrEmpty();
+        assertThat(publishedActionCollectionBeforePublishingAdditionalJSObject.getContextType())
+                .isNull();
 
         Workflow publishedWorkflow =
                 interactWorkflowService.publishWorkflow(workflow.getId()).block();
@@ -292,5 +337,29 @@ class InteractWorkflowServiceTest {
         assertThat(publishedActionAfterPublishing.getName()).isEqualTo(name);
         assertThat(publishedActionAfterPublishing.getContextType()).isEqualTo(WORKFLOW);
         assertThat(publishedActionAfterPublishing.getActionConfiguration()).isNotNull();
+
+        ActionCollection workflowMainActionCollectionAfterPublishing = actionCollectionRepository
+                .findById(workflow.getMainJsObjectId())
+                .block();
+        ActionCollectionDTO publishedActionCollectionAfterPublishingMainJSObject =
+                workflowMainActionCollectionAfterPublishing.getPublishedCollection();
+        assertThat(publishedActionCollectionAfterPublishingMainJSObject.getWorkflowId())
+                .isEqualTo(workflow.getId());
+        assertThat(publishedActionCollectionAfterPublishingMainJSObject.getName())
+                .isEqualTo("Main");
+        assertThat(publishedActionCollectionAfterPublishingMainJSObject.getContextType())
+                .isEqualTo(WORKFLOW);
+
+        ActionCollection workflowAdditionalActionCollectionAfterPublishing = actionCollectionRepository
+                .findById(workflowActionCollectionDTO.getId())
+                .block();
+        ActionCollectionDTO publishedActionCollectionAfterPublishingAdditionalJSObject =
+                workflowAdditionalActionCollectionAfterPublishing.getPublishedCollection();
+        assertThat(publishedActionCollectionAfterPublishingAdditionalJSObject.getWorkflowId())
+                .isEqualTo(workflow.getId());
+        assertThat(publishedActionCollectionAfterPublishingAdditionalJSObject.getName())
+                .isEqualTo(name);
+        assertThat(publishedActionCollectionAfterPublishingAdditionalJSObject.getContextType())
+                .isEqualTo(WORKFLOW);
     }
 }

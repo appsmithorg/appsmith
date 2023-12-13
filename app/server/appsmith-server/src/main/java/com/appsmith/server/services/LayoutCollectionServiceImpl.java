@@ -14,17 +14,21 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.LayoutCollectionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import static com.appsmith.server.modules.helpers.ModuleUtils.isModuleActionCollection;
+import static com.appsmith.server.workflows.helpers.WorkflowUtils.isWorkflowContext;
 
 @Service
 @Slf4j
 public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl implements LayoutCollectionService {
 
     private final ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
+
+    private final CrudWorkflowEntityService crudWorkflowEntityService;
 
     public LayoutCollectionServiceImpl(
             NewPageService newPageService,
@@ -38,7 +42,8 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             ActionCollectionRepository actionCollectionRepository,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            ModuleEntityService<ActionCollection> actionCollectionModuleEntityService) {
+            ModuleEntityService<ActionCollection> actionCollectionModuleEntityService,
+            CrudWorkflowEntityService crudWorkflowEntityService) {
         super(
                 newPageService,
                 layoutActionService,
@@ -52,6 +57,7 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                 pagePermission,
                 actionPermission);
         this.actionCollectionModuleEntityService = actionCollectionModuleEntityService;
+        this.crudWorkflowEntityService = crudWorkflowEntityService;
     }
 
     @Override
@@ -61,6 +67,10 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             return actionCollectionModuleEntityService
                     .createPrivateEntity((ModuleConsumable) collection, branchName)
                     .map(entity -> (ActionCollectionDTO) entity);
+        }
+
+        if (isWorkflowContext(collection)) {
+            return crudWorkflowEntityService.createWorkflowActionCollection(collection, branchName);
         }
 
         return super.createCollection(collection, branchName);

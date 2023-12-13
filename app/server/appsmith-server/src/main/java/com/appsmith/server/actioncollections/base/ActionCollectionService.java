@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ActionCollectionService extends ActionCollectionServiceCE {
     Mono<List<ActionCollection>> archiveActionCollectionsByModuleId(String moduleId);
@@ -15,4 +16,9 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
 
     Flux<ActionCollection> findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission editPermission);
+
+    Mono<List<ActionCollection>> archiveActionCollectionByWorkflowId(
+            String workflowId, Optional<AclPermission> permission);
+
+    Mono<List<ActionCollection>> publishActionCollectionsForWorkflow(String workflowId, AclPermission aclPermission);
 }

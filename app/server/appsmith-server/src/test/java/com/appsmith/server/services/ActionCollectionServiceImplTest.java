@@ -28,12 +28,14 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ApplicationPermissionImpl;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PagePermissionImpl;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -98,6 +100,9 @@ public class ActionCollectionServiceImplTest {
     NewActionService newActionService;
 
     @MockBean
+    NewActionRepository newActionRepository;
+
+    @MockBean
     ApplicationService applicationService;
 
     @MockBean
@@ -128,6 +133,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
 
+    @MockBean
+    private CrudWorkflowEntityService crudWorkflowEntityService;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -145,6 +153,7 @@ public class ActionCollectionServiceImplTest {
                 applicationService,
                 responseUtils,
                 applicationPermission,
+                newActionRepository,
                 actionPermission);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
@@ -159,7 +168,8 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionRepository,
                 pagePermission,
                 actionPermission,
-                actionCollectionModuleEntityService);
+                actionCollectionModuleEntityService,
+                crudWorkflowEntityService);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(

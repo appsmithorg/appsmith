@@ -26,4 +26,7 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO {
     @JsonView(Views.Public.class)
     @Transient
     Boolean isPublic;
+
+    @JsonView(Views.Public.class)
+    String workflowId;
 }

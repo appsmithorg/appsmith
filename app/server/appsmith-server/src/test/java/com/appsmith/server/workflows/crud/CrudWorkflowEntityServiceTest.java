@@ -2,21 +2,24 @@ package com.appsmith.server.workflows.crud;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
@@ -38,8 +41,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.external.models.CreatorContextType.WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -80,6 +85,9 @@ class CrudWorkflowEntityServiceTest {
 
     @Autowired
     private CrudWorkflowEntityService crudWorkflowEntityService;
+
+    @Autowired
+    private ActionCollectionRepository actionCollectionRepository;
 
     Workspace workspace;
     String defaultEnvironmentId;
@@ -147,7 +155,7 @@ class CrudWorkflowEntityServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionDTO.setActionConfiguration(actionConfiguration);
         actionDTO.setWorkspaceId(workspace.getId());
-        actionDTO.setContextType(CreatorContextType.WORKFLOW);
+        actionDTO.setContextType(WORKFLOW);
 
         ActionDTO workflowActionDTO =
                 crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
@@ -234,7 +242,7 @@ class CrudWorkflowEntityServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionDTO.setActionConfiguration(actionConfiguration);
         actionDTO.setWorkspaceId(workspace.getId());
-        actionDTO.setContextType(CreatorContextType.WORKFLOW);
+        actionDTO.setContextType(WORKFLOW);
 
         ActionDTO workflowActionDTO =
                 crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
@@ -250,5 +258,98 @@ class CrudWorkflowEntityServiceTest {
                 newActionRepository.findById(workflowActionDTO.getId()).block();
         assert updatedAction != null;
         assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo(testName + "_updated");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testValid_createWorkflowActionCollection() {
+        String testName = "testValid_createWorkflowAction";
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName(testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(WORKFLOW);
+
+        ActionCollectionDTO workflowActionCollectionDTO = crudWorkflowEntityService
+                .createWorkflowActionCollection(actionCollectionDTO, null)
+                .block();
+
+        assertThat(workflowActionCollectionDTO.getWorkflowId()).isEqualTo(workflow.getId());
+        assertThat(workflowActionCollectionDTO.getWorkspaceId()).isEqualTo(workspace.getId());
+        Set<String> expectedUserPermissions = Set.of(
+                MANAGE_ACTIONS.getValue(),
+                READ_ACTIONS.getValue(),
+                EXECUTE_ACTIONS.getValue(),
+                DELETE_ACTIONS.getValue());
+        assertThat(workflowActionCollectionDTO.getUserPermissions())
+                .containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
+
+        ActionCollection createdNewAction = actionCollectionRepository
+                .findById(workflowActionCollectionDTO.getId())
+                .block();
+        assertThat(createdNewAction.getWorkflowId()).isEqualTo(workflow.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testValid_createWorkflowActionCollection_withAction() {
+        String testName = "testValid_createWorkflowActionCollection_withAction";
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName(testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testValid_createWorkflowActionCollection_withAction");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("testValid_createWorkflowActionCollection_withAction");
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollectionDTO workflowActionCollectionDTO = crudWorkflowEntityService
+                .createWorkflowActionCollection(actionCollectionDTO, null)
+                .block();
+
+        assertThat(workflowActionCollectionDTO.getWorkflowId()).isEqualTo(workflow.getId());
+        assertThat(workflowActionCollectionDTO.getWorkspaceId()).isEqualTo(workspace.getId());
+        Set<String> expectedUserPermissions = Set.of(
+                MANAGE_ACTIONS.getValue(),
+                READ_ACTIONS.getValue(),
+                EXECUTE_ACTIONS.getValue(),
+                DELETE_ACTIONS.getValue());
+        assertThat(workflowActionCollectionDTO.getUserPermissions())
+                .containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
+        assertThat(workflowActionCollectionDTO.getActions()).hasSize(1);
+        ActionDTO actionInsideWorkflowActionCollectionDTO =
+                workflowActionCollectionDTO.getActions().get(0);
+        assertThat(actionInsideWorkflowActionCollectionDTO.getWorkflowId()).isEqualTo(workflow.getId());
+
+        ActionCollection createdActionCollection = actionCollectionRepository
+                .findById(workflowActionCollectionDTO.getId())
+                .block();
+        assertThat(createdActionCollection.getWorkflowId()).isEqualTo(workflow.getId());
+        String actionInActionCollectionId =
+                workflowActionCollectionDTO.getActions().get(0).getId();
+        NewAction actionInActionCollection =
+                newActionRepository.findById(actionInActionCollectionId).block();
+        assertThat(actionInActionCollection.getUnpublishedAction().getContextType())
+                .isEqualTo(WORKFLOW);
+        assertThat(actionInActionCollection.getUnpublishedAction().getCollectionId())
+                .isEqualTo(createdActionCollection.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testInvalid_createWorkflowActionCollection_noWorkflowId() {
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        AppsmithException validParameterNameException =
+                assertThrows(AppsmithException.class, () -> crudWorkflowEntityService
+                        .createWorkflowActionCollection(actionCollectionDTO, null)
+                        .block());
+        assertThat(validParameterNameException.getMessage())
+                .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKFLOW_ID));
     }
 }

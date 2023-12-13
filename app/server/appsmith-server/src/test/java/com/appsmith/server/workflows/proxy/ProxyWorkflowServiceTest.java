@@ -1,5 +1,6 @@
 package com.appsmith.server.workflows.proxy;
 
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
@@ -8,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -38,6 +40,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -90,6 +93,12 @@ public class ProxyWorkflowServiceTest {
     @Autowired
     ProxyWorkflowService proxyWorkflowService;
 
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    private PluginExecutor pluginExecutor;
+
     Workspace workspace = null;
     Workflow workflow = null;
     PermissionGroup workspaceAdminRole = null;
@@ -107,6 +116,9 @@ public class ProxyWorkflowServiceTest {
 
     @BeforeEach
     void setUp() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))

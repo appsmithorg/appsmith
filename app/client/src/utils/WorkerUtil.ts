@@ -184,7 +184,7 @@ export class GracefulWorkerService {
       span &&
         convertWebworkerSpansToRegularSpans(
           span,
-          responseData.webworkerTelemetry,
+          responseData?.webworkerTelemetry,
         );
       return responseData;
     } finally {

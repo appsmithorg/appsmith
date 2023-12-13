@@ -357,7 +357,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     protected void setGitSyncIdInNewAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
         if (ModuleUtils.isModuleContext(action)) {
-            newAction.setGitSyncId(action.getModuleId() + "_" + new ObjectId());
+            if (newAction.getGitSyncId() == null) {
+                newAction.setGitSyncId(action.getModuleId() + "_" + new ObjectId());
+            }
         } else {
             super.setGitSyncIdInNewAction(newAction);
         }

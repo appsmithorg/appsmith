@@ -1,6 +1,7 @@
 package com.appsmith.server.workflows.crud;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.FeatureFlagService;
@@ -49,6 +50,15 @@ class CrudWorkflowEntityServiceCECompatibleTest {
     void updateWorkflowAction() {
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudWorkflowEntityService
                 .updateWorkflowAction("action-id", new ActionDTO())
+                .block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void createWorkflowActionCollection() {
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudWorkflowEntityService
+                .createWorkflowActionCollection(new ActionCollectionDTO(), null)
                 .block());
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
     }
