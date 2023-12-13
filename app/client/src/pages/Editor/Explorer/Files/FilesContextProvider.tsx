@@ -1,10 +1,10 @@
 import React, { createContext, useMemo } from "react";
-import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 interface FilesContextContextProps {
   canCreateActions: boolean;
   parentEntityId: string; // page, workflow or module
-  parentEntityType: ACTION_PARENT_ENTITY_TYPE;
+  parentEntityType: ActionParentEntityTypeInterface;
 }
 
 type FilesContextProviderProps =

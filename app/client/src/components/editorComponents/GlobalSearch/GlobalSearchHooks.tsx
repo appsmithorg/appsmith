@@ -37,7 +37,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
-import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
 
 export const useFilteredFileOperations = (
@@ -138,7 +138,7 @@ export const useFilteredAndSortedFileOperations = ({
     (
       entityId: string,
       from: EventLocation,
-      entityType?: ACTION_PARENT_ENTITY_TYPE,
+      entityType?: ActionParentEntityTypeInterface,
     ) =>
       createNewQueryBasedOnParentEntity(entityId, from, dsId, entityType);
 
