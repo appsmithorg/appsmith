@@ -116,6 +116,7 @@ public class AutoCommitEventHandlerImplTest {
         autoCommitEvent.setAuthorName("test author");
         autoCommitEvent.setAuthorEmail("testauthor@example.com");
         autoCommitEvent.setWorkspaceId("test-workspace-id");
+        autoCommitEvent.setRepoUrl("git@example.com:exampleorg/example-repo.git");
         return autoCommitEvent;
     }
 
