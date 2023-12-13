@@ -7,6 +7,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
+import { klona } from "klona";
 
 const initialState: JSCollectionDataState = [];
 export interface JSCollectionData {
@@ -461,6 +462,10 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return jsCollection;
     }),
+
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
+  },
 });
 
 export default jsActionsReducer;
