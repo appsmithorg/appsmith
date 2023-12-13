@@ -11,6 +11,7 @@ import {
 import { useDispatch } from "react-redux";
 import { updateZoneCountAction } from "layoutSystems/anvil/integrations/actions/sectionActions";
 
+// Constants for the minimum and maximum zone count
 const MIN = 1;
 const MAX = 4;
 
@@ -30,18 +31,23 @@ const ZoneNumInput = ({
   zoneCount: any;
 }) => {
   const dispatch = useDispatch();
+
+  // Handling onChange event for the NumberInput
+  const handleInputChange = (value: string | undefined) => {
+    const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
+    if (v === zoneCount) {
+      return;
+    }
+    // Dispatching an action to update the zone count
+    dispatch(updateZoneCountAction(widgetId, v));
+  };
+
   return (
     <NumberInput
       disableTextInput
       max={max}
       min={min}
-      onChange={(value: string | undefined) => {
-        const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
-        if (v === zoneCount) {
-          return;
-        }
-        dispatch(updateZoneCountAction(widgetId, v));
-      }}
+      onChange={handleInputChange}
       ref={ref}
       scale={steps}
       value={zoneCount}
@@ -67,10 +73,12 @@ class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
   }
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
+    // Checking if the event is related to keypress in a StepComponent
     if (
       e.detail.component === "StepComponent" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
+      // Emitting an analytics event and stopping event propagation
       emitInteractionAnalyticsEvent(this.componentRef.current, {
         key: e.detail.meta.key,
       });
@@ -78,6 +86,7 @@ class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
     }
   };
 
+  // Getting controls for the step type
   getStepTypeControls = () => {
     return {
       min: MIN,
@@ -104,6 +113,7 @@ class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
     return "ZONE_STEPPER";
   }
 
+  // Static method to check if the value can be displayed in UI
   static canDisplayValueInUI(
     config: ZoneStepperControlProps,
     value: any,

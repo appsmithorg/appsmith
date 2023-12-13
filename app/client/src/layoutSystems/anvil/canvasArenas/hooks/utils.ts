@@ -1,8 +1,79 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
+import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import WidgetFactory from "WidgetProvider/factory";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { AnvilDraggedWidgetTypesEnum } from "../types";
 
 const DEFAULT_DROP_RANGE = 10;
 
+/**
+ * Function to determine the types of widgets being dragged based on an array of dragged blocks.
+ * @param {DraggedWidget[]} draggedBlocks - Array of dragged widget blocks with type information.
+ * @returns {AnvilDraggedWidgetTypesEnum} - Enum representing the type of widgets being dragged.
+ */
+export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
+  // Extracting unique widget types from the array of dragged blocks
+  const extractWidgetTypesDragged: string[] = draggedBlocks.reduce(
+    (widgetTypesArray, each) => {
+      // Checking if the widget type is not already in the array and adding it if not present
+      if (!widgetTypesArray.includes(each.type)) {
+        widgetTypesArray.push(each.type);
+      }
+      return widgetTypesArray;
+    },
+    [] as string[],
+  );
+
+  // Determining the overall dragged widget type based on the extracted types
+  const draggedWidgetTypes =
+    extractWidgetTypesDragged.length > 1
+      ? AnvilDraggedWidgetTypesEnum.WIDGETS
+      : extractWidgetTypesDragged[0] === ZoneWidget.type
+      ? AnvilDraggedWidgetTypesEnum.ZONE
+      : extractWidgetTypesDragged[0] === SectionWidget.type
+      ? AnvilDraggedWidgetTypesEnum.SECTION
+      : AnvilDraggedWidgetTypesEnum.WIDGETS;
+
+  // Returning the final dragged widget type
+  return draggedWidgetTypes;
+};
+
+/**
+ * getDraggedBlocks function returns an array of DraggedWidget.
+ * If the dragged widget is a new widget pulled out of the widget cards,
+ * specific info like type, widgetId and responsiveBehavior are filled using dragDetails
+ */
+
+export const getDraggedBlocks = (
+  isNewWidget: boolean,
+  dragDetails: DragDetails,
+  selectedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+): DraggedWidget[] => {
+  if (isNewWidget) {
+    const { newWidget } = dragDetails;
+    return [
+      {
+        parentId: newWidget.parentId,
+        responsiveBehavior:
+          newWidget.responsiveBehavior ??
+          WidgetFactory.getConfig(newWidget.type)?.responsiveBehavior,
+        type: newWidget.type,
+        widgetId: newWidget.widgetId,
+      },
+    ];
+  } else {
+    return selectedWidgets.map((eachWidgetId) => ({
+      parentId: allWidgets[eachWidgetId].parentId,
+      responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
+      type: allWidgets[eachWidgetId].type,
+      widgetId: eachWidgetId,
+    }));
+  }
+};
 export const getClosestHighlight = (
   e: MouseEvent,
   highlights: AnvilHighlightInfo[],

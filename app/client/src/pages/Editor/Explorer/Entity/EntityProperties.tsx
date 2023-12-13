@@ -18,7 +18,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import classNames from "classnames";
 import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
