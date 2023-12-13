@@ -138,11 +138,7 @@ function Files() {
           ),
         );
       } else if (item.redirect) {
-        item.redirect(
-          parentEntityId,
-          DatasourceCreateEntryPoints.SUBMENU,
-          parentEntityType,
-        );
+        item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
       }
     },
     [parentEntityId, dispatch],

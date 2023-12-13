@@ -263,11 +263,7 @@ export interface ActionOperation {
     location: EventLocation,
     entityType?: ActionParentEntityTypeInterface,
   ) => any;
-  redirect?: (
-    entityId: string,
-    location: EventLocation,
-    entityType?: ActionParentEntityTypeInterface,
-  ) => any;
+  redirect?: (entityId: string, location: EventLocation) => any;
   pluginId?: string;
   focusEntityType?: FocusEntity;
   dsName?: string;
