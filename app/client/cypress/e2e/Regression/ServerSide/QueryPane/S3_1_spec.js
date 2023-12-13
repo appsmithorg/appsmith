@@ -394,7 +394,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("6. Create new 'text' file in bucket for UI Operations & Verify Search, Delete operations from NewPage CRUD UI created in S3 ds & Bug 8686, 8684", function () {
     //Creating new file in bucket
-    dataSources.CreateQueryAfterDSSaved(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     dataSources.ValidateNSelectDropdown(
       "Commands",
       "List files in bucket",

@@ -33,6 +33,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import {
   getCountOfChangesToCommit,
   getGitStatus,
+  getIsAutocommitInProgress,
   getIsFetchingGitStatus,
   getIsGitConnected,
   getPullFailed,
@@ -47,6 +48,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useIsGitAdmin } from "../hooks/useIsGitAdmin";
+import AutocommitStatusbar from "./AutocommitStatusbar";
 
 interface QuickActionButtonProps {
   className?: string;
@@ -333,6 +335,11 @@ export default function QuickGitActions() {
     FEATURE_FLAG.release_git_connect_v2_enabled,
   );
 
+  const isAutocommitFeatureEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_git_autocommit_feature_enabled,
+  );
+  const isAutocommitInProgress = useSelector(getIsAutocommitInProgress);
+
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
       dispatch(
@@ -396,9 +403,13 @@ export default function QuickGitActions() {
   return isGitConnected ? (
     <Container>
       <BranchButton />
-      {quickActionButtons.map((button) => (
-        <QuickActionButton key={button.tooltipText} {...button} />
-      ))}
+      {isAutocommitFeatureEnabled && isAutocommitInProgress ? (
+        <AutocommitStatusbar completed={!isAutocommitInProgress} />
+      ) : (
+        quickActionButtons.map((button) => (
+          <QuickActionButton key={button.tooltipText} {...button} />
+        ))
+      )}
     </Container>
   ) : (
     <ConnectGitPlaceholder />

@@ -20,8 +20,6 @@ public interface PolicySolutionCE {
 
     <T extends BaseDomain> T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj);
 
-    Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username);
-
     Map<String, Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId);
 
     Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(
