@@ -3231,6 +3231,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .thenReturn(application))
                 .map(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (!application.getId().equals(gitApplicationMetadata.getDefaultApplicationId())) {
+                        log.error(
+                                "failed tp toggle auto commit. reason: {} is not the root application id",
+                                defaultApplicationId);
+                        throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "default application id");
+                    }
                     if (gitApplicationMetadata.getAutoCommitConfig() == null) {
                         gitApplicationMetadata.setAutoCommitConfig(new AutoCommitConfig());
                     }

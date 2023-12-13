@@ -65,12 +65,26 @@ public class GitApplicationMetadata implements AppsmithDomain {
     @JsonView(Views.Public.class)
     Instant lastCommittedAt;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Metadata.class)
     List<String> branchProtectionRules;
 
-    @JsonView(Views.Public.class)
+    /**
+     * This field is no more used and will be removed in future version.
+     * Please use the branchProtectionRules field to know whether a branch is protected or not.
+     */
+    @Deprecated
+    @JsonView(Views.Internal.class)
     Boolean isProtectedBranch;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Metadata.class)
     AutoCommitConfig autoCommitConfig;
+
+    public AutoCommitConfig getAutoCommitConfig() {
+        // by default, the auto commit should be enabled.
+        // new AutoCommitConfig will have enabled=true so we're returning a new object when field is null
+        if (autoCommitConfig == null) {
+            return new AutoCommitConfig();
+        }
+        return autoCommitConfig;
+    }
 }
