@@ -38,15 +38,21 @@ jobs:
           repository: yatinappsmith/testcacherepo
           path: './cacherepo'
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+      #- name: Setup upterm session
+      #  uses: lhotari/action-upterm@v1
 
       - name: Addfile
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          
         run: |
-          touch ./cacherepo/abcdefgh.txt
-          git add ./cacherepo/abcdefgh.txt
-          git commit -m "test"
+          cd ./cacherepo
+          git clone https://%cachetoken%@github.com/yatinappsmith/testcacherepo.git
+          cd testcacherepo
+          touch bcdefghtxt
+          git add bcdefghtxt
+          git commit -m "test12321321"
           git push
           
       
