@@ -1,0 +1,43 @@
+name: gitcachetest
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+jobs:
+  ci-test-limited:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+
+
+    steps:
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+       # Create cache dir
+      - name: Create cache dir
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        run: |
+          mkdir ./cacherepo
+          touch ./cacherepo.txt
+          
+      - name: Push generated webpage to another repository
+        uses: nkoppel/push-files-to-another-repository@1.1.0
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-files: './cacherepo'
+          destination-username: 'yatinappsmith'
+          destination-repository: 'yatinappsmith/testcacherepo'
+          destination-directory: 'ce/latest'
+          commit-email: 'yatin@appsmith.com'
