@@ -11,7 +11,14 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     Mono<User> findByCaseInsensitiveEmail(String email);
 
-    Mono<Long> countByDeletedAtNull();
+    /**
+     * This method returns the count of all users that are not deleted and are not system generated.
+     *
+     * @param excludeSystemGenerated If true, then the count of all users that are not deleted and are not system
+     *                               generated is returned.
+     * @return  The count of all users that are not deleted and are not system generated.
+     */
+    Mono<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated);
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
 }

@@ -45,7 +45,7 @@ import type { DebuggerReduxState } from "reducers/uiReducers/debuggerReducer";
 import type { TourReducerState } from "reducers/uiReducers/tourReducer";
 import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
 import type { JsPaneReduxState } from "reducers/uiReducers/jsPaneReducer";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { CanvasSelectionState } from "reducers/uiReducers/canvasSelectionReducer";
 import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameReducer";
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
