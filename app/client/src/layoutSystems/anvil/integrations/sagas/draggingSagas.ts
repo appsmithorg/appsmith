@@ -142,6 +142,7 @@ function* addNewChildToDSL(
         {
           widgetId: newWidget.newWidgetId,
           alignment,
+          widgetType: newWidget.type,
         },
       ]),
     },
