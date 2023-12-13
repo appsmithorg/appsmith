@@ -31,13 +31,14 @@ import type {
   WidgetDraggingUpdateParams,
   XYCord,
 } from "../../../../common/canvasArenas/ArenaTypes";
+import { WidgetDragSource } from "../../../../common/canvasArenas/ArenaTypes";
 import {
   getBlocksToDraw,
+  getBoundUpdateRelativeRowsMethod,
+  getDragCenterSpace,
   getParentDiff,
   getRelativeStartPoints,
-  getBoundUpdateRelativeRowsMethod,
   updateBottomRow as updateBottomRowHelper,
-  getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
 
 /**
@@ -111,6 +112,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const {
     draggingGroupCenter: dragCenter,
     dragGroupActualParent: dragParent,
+    dragSource,
     newWidget,
   } = dragDetails;
   const isResizing = useSelector(
@@ -247,7 +249,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
       );
       if (newWidget) {
-        addNewWidget(newWidget, movedWidgets);
+        addNewWidget(newWidget, movedWidgets, dragSource);
       }
     } else {
       bulkMoveWidgets(draggedBlocksToUpdate);
@@ -269,6 +271,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const addNewWidget = (
     newWidget: WidgetDraggingUpdateParams,
     movedWidgets: WidgetDraggingUpdateParams[],
+    source?: WidgetDragSource,
   ) => {
     const { updateWidgetParams } = newWidget;
     if (movedWidgets && movedWidgets.length) {
@@ -297,11 +300,13 @@ export const useBlocksToBeDraggedOnCanvas = ({
       });
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
-    setTimeout(() => {
-      selectWidget(SelectionRequestType.One, [
-        updateWidgetParams.payload.newWidgetId,
-      ]);
-    }, 100);
+    if (source !== WidgetDragSource.GLOBAL_ADD) {
+      setTimeout(() => {
+        selectWidget(SelectionRequestType.One, [
+          updateWidgetParams.payload.newWidgetId,
+        ]);
+      }, 100);
+    }
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,
       widgetName: dragDetails.newWidget.widgetCardName,

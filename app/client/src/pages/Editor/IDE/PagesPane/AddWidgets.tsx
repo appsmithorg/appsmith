@@ -1,11 +1,12 @@
 import React, { useCallback } from "react";
-import { Flex, Text, Button } from "design-system";
+import { Button, Flex, Text } from "design-system";
 import { useSelector } from "react-redux";
 
 import history from "utils/history";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
 import { widgetListURL } from "@appsmith/RouteBuilder";
+import { WidgetDragSource } from "../../../../layoutSystems/common/canvasArenas/ArenaTypes";
 
 const AddWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -39,7 +40,7 @@ const AddWidgets = () => {
         />
       </Flex>
       <Flex flexDirection="column" gap="spaces-3">
-        <WidgetSidebarWithTags isActive />
+        <WidgetSidebarWithTags isActive source={WidgetDragSource.UI_ADD} />
       </Flex>
     </>
   );

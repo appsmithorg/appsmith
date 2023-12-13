@@ -16,6 +16,7 @@ import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import { ExplorerWrapper } from "./Common/ExplorerWrapper";
+import { WidgetDragSource } from "../../../layoutSystems/common/canvasArenas/ArenaTypes";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -89,7 +90,10 @@ function ExplorerContent() {
         />
       </div>
 
-      <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
+      <WidgetSidebarWithTags
+        isActive={activeOption === "widgets"}
+        source={WidgetDragSource.UI_ADD}
+      />
 
       <EntityExplorer isActive={activeOption === "explorer"} />
     </ExplorerWrapper>

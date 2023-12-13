@@ -2,6 +2,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import type { WidgetDragSource } from "../../layoutSystems/common/canvasArenas/ArenaTypes";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
@@ -102,7 +103,7 @@ export const useWidgetDragResize = () => {
   // TODO(abhinav/Satish): Performance bottleneck
   return {
     setDraggingNewWidget: useCallback(
-      (isDragging: boolean, newWidgetProps: any) => {
+      (isDragging: boolean, newWidgetProps: any, source?: WidgetDragSource) => {
         if (isDragging) {
           document.body.classList.add("dragging");
         } else {
@@ -110,7 +111,7 @@ export const useWidgetDragResize = () => {
         }
         dispatch({
           type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING,
-          payload: { isDragging, newWidgetProps },
+          payload: { isDragging, newWidgetProps, source },
         });
       },
       [dispatch],

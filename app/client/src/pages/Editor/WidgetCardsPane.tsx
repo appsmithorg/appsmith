@@ -3,6 +3,7 @@ import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import PaneWrapper from "pages/common/PaneWrapper";
+import { WidgetDragSource } from "../../layoutSystems/common/canvasArenas/ArenaTypes";
 
 interface WidgetCardPaneProps {
   cards?: { [id: string]: WidgetCardProps[] };
@@ -29,7 +30,11 @@ function WidgetCardsPane(props: WidgetCardPaneProps) {
           <CardsWrapper>
             {props.cards &&
               props.cards[group].map((card: WidgetCardProps) => (
-                <WidgetCard details={card} key={card.key} />
+                <WidgetCard
+                  details={card}
+                  key={card.key}
+                  source={WidgetDragSource.UI_ADD}
+                />
               ))}
           </CardsWrapper>
         </React.Fragment>

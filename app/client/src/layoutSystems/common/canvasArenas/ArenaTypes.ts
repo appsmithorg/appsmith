@@ -29,3 +29,8 @@ export interface XYCord {
   x: number;
   y: number;
 }
+
+export enum WidgetDragSource {
+  UI_ADD = "UI_ADD",
+  GLOBAL_ADD = "GLOBAL_ADD",
+}
