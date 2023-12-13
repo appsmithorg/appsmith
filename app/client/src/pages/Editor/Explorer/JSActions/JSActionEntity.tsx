@@ -78,6 +78,7 @@ export const ExplorerJSCollectionEntity = memo(
         canManage={canManageJSAction}
         className={EntityClassNames.CONTEXT_MENU}
         id={jsAction.id}
+        isMainJSCollection={jsAction.isMainJSCollection || false}
         name={jsAction.name}
       />
     );
