@@ -8,7 +8,9 @@ import {
 } from "./CommonApiConstants";
 
 const DEFAULT_METHOD_TYPE = HTTP_METHOD.GET;
-const DEFAULT_HTTP_VERSION_TYPE = HTTP_PROTOCOL.HTTP11;
+const DEFAULT_HTTP_VERSION_TYPE = Object.keys(
+  HTTP_PROTOCOL,
+)[0] as keyof typeof HTTP_PROTOCOL;
 
 export const DEFAULT_DATASOURCE_NAME = "DEFAULT_REST_DATASOURCE";
 

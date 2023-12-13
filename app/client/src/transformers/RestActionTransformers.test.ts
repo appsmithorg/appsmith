@@ -30,7 +30,7 @@ const BASE_ACTION: ApiAction = {
   pluginType: PluginType.API,
   actionConfiguration: {
     httpMethod: "GET",
-    httpVersion: HTTP_PROTOCOL.HTTP11,
+    httpVersion: Object.keys(HTTP_PROTOCOL)[0] as keyof typeof HTTP_PROTOCOL,
     encodeParamsToggle: true,
     path: "users",
     headers: [],
