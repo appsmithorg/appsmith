@@ -3,7 +3,7 @@ import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
-import { getPageList, getPagePermissions } from "selectors/editorSelectors";
+import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
   getAllPageWidgets,
@@ -31,7 +31,6 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateActionPermission,
   getHasCreateDatasourceActionPermission,
   getHasCreateDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -40,10 +39,15 @@ import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
 
-export const useFilteredFileOperations = (
+export interface FilterFileOperationsProps {
+  canCreateActions: boolean;
+  query?: string;
+}
+
+export const useFilteredFileOperations = ({
+  canCreateActions,
   query = "",
-  canCreateActions?: boolean,
-) => {
+}: FilterFileOperationsProps) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
   const moduleOptions = useModuleOptions();
@@ -56,15 +60,6 @@ export const useFilteredFileOperations = (
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const pagePermissions = useSelector(getPagePermissions);
-
-  if (canCreateActions === undefined) {
-    canCreateActions = getHasCreateActionPermission(
-      isFeatureEnabled,
-      pagePermissions,
-    );
-  }
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,

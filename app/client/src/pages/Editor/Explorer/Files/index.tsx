@@ -49,7 +49,7 @@ function Files() {
   const [isMenuOpen, openMenu] = useState(false);
   const [query, setQuery] = useState("");
 
-  const fileOperations = useFilteredFileOperations(query, canCreateActions);
+  const fileOperations = useFilteredFileOperations({ query, canCreateActions });
 
   const onCreate = useCallback(() => {
     openMenu(true);
