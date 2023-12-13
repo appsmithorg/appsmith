@@ -26,7 +26,6 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.publish.publishable.PackagePublishableService;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.services.LayoutActionService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
@@ -269,29 +268,33 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
             ModuleInstance oldModuleInstance,
             Flux<NewAction> newPublicActionFlux) {
         return newPublicActionFlux
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                .map(newPublicAction -> {
-                    String newKey = generateActionIdentifier(oldModuleInstance, newPublicAction);
-                    publishingMetaDTO.getNewPublicActionMap().put(newKey, newPublicAction);
+                .flatMap(newAction ->
+                        Mono.zip(Mono.just(newAction), newActionService.generateActionByViewMode(newAction, false)))
+                .map(tuple2 -> {
+                    ActionDTO newPublicActionDTO = tuple2.getT2();
+                    String newKey = generateActionIdentifier(oldModuleInstance, tuple2.getT1());
+                    publishingMetaDTO.getNewPublicActionMap().put(newKey, newPublicActionDTO);
 
-                    return newPublicAction;
+                    return newPublicActionDTO;
                 })
                 .collectList();
     }
 
-    @NotNull private static String generateActionIdentifier(ModuleInstance oldModuleInstance, ActionDTO publicAction) {
-        return oldModuleInstance.getUnpublishedModuleInstance().getName() + "_" + publicAction.getName();
+    private String generateActionIdentifier(ModuleInstance oldModuleInstance, NewAction newAction) {
+        return oldModuleInstance.getUnpublishedModuleInstance().getName() + "_" + newAction.getGitSyncId();
     }
 
     private Mono<List<ActionDTO>> prepareMapForOldPublicActions(
             PublishingMetaDTO publishingMetaDTO, ModuleInstance oldModuleInstance, Flux<NewAction> publicActionFlux) {
         return publicActionFlux
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                .map(oldPublicAction -> {
-                    String oldKey = generateActionIdentifier(oldModuleInstance, oldPublicAction);
-                    publishingMetaDTO.getOldPublicActionMap().put(oldKey, oldPublicAction);
+                .flatMap(newAction ->
+                        Mono.zip(Mono.just(newAction), newActionService.generateActionByViewMode(newAction, false)))
+                .map(tuple2 -> {
+                    String oldKey = generateActionIdentifier(oldModuleInstance, tuple2.getT1());
+                    ActionDTO oldPublicActionDTO = tuple2.getT2();
+                    publishingMetaDTO.getOldPublicActionMap().put(oldKey, oldPublicActionDTO);
 
-                    return oldPublicAction;
+                    return oldPublicActionDTO;
                 })
                 .collectList();
     }
