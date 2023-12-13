@@ -28,7 +28,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type {
   CreatePackageFromWorkspacePayload,
   DeletePackagePayload,
-  FetchAllPackagesInWorkspacePayload,
+  FetchConsumablePackagesInWorkspacePayload,
   FetchPackagePayload,
   PublishPackagePayload,
 } from "@appsmith/actions/packageActions";
@@ -69,25 +69,25 @@ export function* fetchAllPackagesSaga() {
   }
 }
 
-export function* fetchAllPackagesInWorkspaceSaga(
-  action: ReduxAction<FetchAllPackagesInWorkspacePayload>,
+export function* fetchConsumablePackagesInWorkspaceSaga(
+  action: ReduxAction<FetchConsumablePackagesInWorkspacePayload>,
 ) {
   try {
     const response: ApiResponse = yield call(
-      PackageApi.fetchAllPackagesInWorkspace,
+      PackageApi.fetchConsumablePackagesInWorkspace,
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_SUCCESS,
+        type: ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_SUCCESS,
         payload: response.data,
       });
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_ERROR,
+      type: ReduxActionErrorTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_ERROR,
       payload: { error: { message: createMessage(FETCH_PACKAGES_ERROR) } },
     });
   }
@@ -296,8 +296,8 @@ export default function* packagesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ALL_PACKAGES_INIT, fetchAllPackagesSaga),
     takeLatest(
-      ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_INIT,
-      fetchAllPackagesInWorkspaceSaga,
+      ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_INIT,
+      fetchConsumablePackagesInWorkspaceSaga,
     ),
     takeLatest(
       ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_INIT,

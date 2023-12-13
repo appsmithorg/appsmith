@@ -6,7 +6,7 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 import type {
   DeletePackagePayload,
   PublishPackagePayload,
-  FetchAllPackagesInWorkspacePayload,
+  FetchConsumablePackagesInWorkspacePayload,
 } from "@appsmith/actions/packageActions";
 
 export interface CreatePackagePayload {
@@ -25,7 +25,7 @@ export interface FetchPackageResponse {
   modules: Module[];
 }
 
-export interface FetchPackagesInWorkspaceResponse {
+export interface FetchConsumablePackagesInWorkspaceResponse {
   packages: Package[];
   modules: Module[];
 }
@@ -39,9 +39,11 @@ class PackageApi extends Api {
     return Api.get(url);
   }
 
-  static async fetchAllPackagesInWorkspace(
-    payload: FetchAllPackagesInWorkspacePayload,
-  ): Promise<AxiosPromise<ApiResponse<FetchPackagesInWorkspaceResponse>>> {
+  static async fetchConsumablePackagesInWorkspace(
+    payload: FetchConsumablePackagesInWorkspacePayload,
+  ): Promise<
+    AxiosPromise<ApiResponse<FetchConsumablePackagesInWorkspaceResponse>>
+  > {
     const url = `${BASE_URL}/consumables?workspaceId=${payload.workspaceId}`;
 
     return Api.get(url);

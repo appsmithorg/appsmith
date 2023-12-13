@@ -6,15 +6,7 @@ import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/eeAppRoutes"
 import { useSelector } from "react-redux";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import ModuleEditor from "../../ModuleEditor";
-import {
-  MODULE_API_EDITOR_PATH,
-  MODULE_EDITOR_PATH,
-  MODULE_JS_COLLECTION_EDITOR_PATH,
-  MODULE_QUERY_EDITOR_PATH,
-  SAAS_EDITOR_API_ID_PATH,
-} from "@appsmith/constants/routes/packageRoutes";
-import ModuleQueryEditor from "../../ModuleEditor/ModuleQueryEditor";
-import ModuleApiEditor from "../../ModuleEditor/ModuleApiEditor";
+import { MODULE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 
 function useRoutes(path: string) {
   const ceRoutes = useCE_Routes(path);
@@ -33,28 +25,7 @@ function useRoutes(path: string) {
       {
         key: "ModuleEditor",
         component: ModuleEditor,
-        exact: true,
         path: `${MODULE_EDITOR_PATH}`,
-      },
-      {
-        key: "ModuleQueryEditor",
-        component: ModuleQueryEditor,
-        path: `${MODULE_EDITOR_PATH}${MODULE_QUERY_EDITOR_PATH}`,
-      },
-      {
-        key: "ModuleQueryEditor",
-        component: ModuleQueryEditor,
-        path: `${MODULE_EDITOR_PATH}${SAAS_EDITOR_API_ID_PATH}`,
-      },
-      {
-        key: "ModuleApiEditor",
-        component: ModuleApiEditor,
-        path: `${MODULE_EDITOR_PATH}${MODULE_API_EDITOR_PATH}`,
-      },
-      {
-        key: "ModuleJSEditor",
-        component: ModuleApiEditor,
-        path: `${MODULE_EDITOR_PATH}${MODULE_JS_COLLECTION_EDITOR_PATH}`,
       },
     ];
   }

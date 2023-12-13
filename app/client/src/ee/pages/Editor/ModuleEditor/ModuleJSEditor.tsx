@@ -37,7 +37,7 @@ function ModuleJSEditor(props: ModuleJSEditorProps) {
         moduleId={moduleId}
       />
     );
-  }, [jsCollection]);
+  }, [jsCollection, moduleId]);
 
   if (!isPackageEditorInitialized || !jsCollection) {
     return <Loader />;

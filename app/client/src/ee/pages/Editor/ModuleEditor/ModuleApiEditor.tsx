@@ -13,6 +13,8 @@ import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
 import type { PaginationField } from "api/ActionAPI";
 import { runAction } from "actions/pluginActionActions";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
+import Loader from "./Loader";
 
 interface ModuleApiEditorRouteParams {
   packageId: string;
@@ -28,6 +30,9 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
 
   const isPackageEditorInitialized = useSelector(getIsPackageEditorInitialized);
   const module = useSelector((state) => getModuleById(state, moduleId));
+  const action = useSelector((state) => getAction(state, apiId));
+
+  const isEditorInitialized = isPackageEditorInitialized && Boolean(action);
 
   const onDeleteModule = useCallback(() => {
     dispatch(deleteModule({ id: module?.id || "" }));
@@ -68,6 +73,10 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
     },
     [apiId],
   );
+
+  if (!isEditorInitialized) {
+    return <Loader />;
+  }
 
   return (
     <ApiEditorContextProvider

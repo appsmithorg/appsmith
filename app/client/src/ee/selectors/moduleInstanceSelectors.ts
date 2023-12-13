@@ -4,7 +4,7 @@ import type {
 } from "@appsmith/constants/ModuleInstanceConstants";
 import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 const DEFAULT_SAVING_STATUS = {
   isSaving: false,

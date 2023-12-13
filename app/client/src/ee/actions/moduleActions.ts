@@ -26,6 +26,10 @@ export interface CreateQueryModulePayload {
   packageId: string;
   apiType?: string;
 }
+export interface CreateJSModulePayload {
+  from: string;
+  packageId: string;
+}
 
 export interface UpdateModuleInputsPayload {
   id: string;
@@ -58,6 +62,11 @@ export const setupModule = (payload: SetupModulePayload) => ({
 
 export const createQueryModule = (payload: CreateQueryModulePayload) => ({
   type: ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
+  payload,
+});
+
+export const createJSModule = (payload: CreateJSModulePayload) => ({
+  type: ReduxActionTypes.CREATE_JS_MODULE_INIT,
   payload,
 });
 

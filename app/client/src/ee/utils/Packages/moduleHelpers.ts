@@ -28,6 +28,11 @@ export const selectAllQueryModules = (modules: Module[]) => {
   return queryModules;
 };
 
+export const selectAllJSModules = (modules: Module[]) => {
+  const jsModules = modules.filter((module) => module.type === MODULE_TYPE.JS);
+  return jsModules;
+};
+
 export const getModuleIdPackageNameMap = (
   modules: Module[],
   packages: PackagesReducerState,

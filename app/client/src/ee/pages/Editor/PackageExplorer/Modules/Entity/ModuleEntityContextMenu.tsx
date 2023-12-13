@@ -23,7 +23,7 @@ interface EntityContextMenuProps {
   canManageModule?: boolean;
   canDeleteModule?: boolean;
 }
-export function QueryModuleContextMenu(props: EntityContextMenuProps) {
+export function ModuleEntityContextMenu(props: EntityContextMenuProps) {
   const { canDeleteModule = false, canManageModule = false } = props;
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -74,4 +74,4 @@ export function QueryModuleContextMenu(props: EntityContextMenuProps) {
   );
 }
 
-export default QueryModuleContextMenu;
+export default ModuleEntityContextMenu;

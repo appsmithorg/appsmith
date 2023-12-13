@@ -5,7 +5,7 @@ import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type {
   FetchPackageResponse,
-  FetchPackagesInWorkspaceResponse,
+  FetchConsumablePackagesInWorkspaceResponse,
 } from "@appsmith/api/PackageApi";
 import { klona } from "klona";
 
@@ -46,9 +46,9 @@ const packageReducer = createImmerReducer(INITIAL_STATE, {
     return draftState;
   },
 
-  [ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_SUCCESS]: (
+  [ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_SUCCESS]: (
     draftState: PackagesReducerState,
-    action: ReduxAction<FetchPackagesInWorkspaceResponse>,
+    action: ReduxAction<FetchConsumablePackagesInWorkspaceResponse>,
   ) => {
     draftState = klona(INITIAL_STATE);
     const { packages } = action.payload;

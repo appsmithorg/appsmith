@@ -17,6 +17,7 @@ export type EditorReduxState = CE_EditorReduxState & {
   currentPackageId?: string;
   isPackagePublishing: boolean;
   isModuleFetchingActions: boolean;
+  isModuleFetchingEntities: boolean;
   currentWorkflowId?: string;
   isWorkflowEditorInitialized: boolean;
   isModuleUpdating: boolean;
@@ -27,6 +28,7 @@ export const initialState: EditorReduxState = {
   isPackageEditorInitialized: false,
   isPackagePublishing: false,
   isModuleFetchingActions: false,
+  isModuleFetchingEntities: false,
   isWorkflowEditorInitialized: false,
   isModuleUpdating: false,
 };
@@ -80,6 +82,31 @@ const handlers = {
     return {
       ...state,
       isModuleFetchingActions: false,
+    };
+  },
+
+  [ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isModuleFetchingEntities: true,
+    };
+  },
+
+  [ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isModuleFetchingEntities: false,
+    };
+  },
+
+  [ReduxActionErrorTypes.FETCH_MODULE_ENTITIES_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isModuleFetchingEntities: false,
     };
   },
 

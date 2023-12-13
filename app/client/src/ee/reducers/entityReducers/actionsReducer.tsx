@@ -7,6 +7,7 @@ import type { ActionDataState } from "ce/reducers/entityReducers/actionsReducer"
 import type { Action } from "entities/Action";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
+import type { FetchModuleEntitiesResponse } from "@appsmith/api/ModuleApi";
 
 const handlers = {
   ...CE_handlers,
@@ -26,6 +27,21 @@ const handlers = {
 
       return result;
     }
+  },
+  [ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS]: (
+    draftMetaState: ActionDataState,
+    action: ReduxAction<FetchModuleEntitiesResponse>,
+  ) => {
+    const result: ActionDataState = [];
+
+    action.payload.actions.forEach((actionPayload: Action) => {
+      result.push({
+        isLoading: false,
+        config: actionPayload,
+      });
+    });
+
+    return result;
   },
   [ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS]: (
     draftMetaState: ActionDataState,
