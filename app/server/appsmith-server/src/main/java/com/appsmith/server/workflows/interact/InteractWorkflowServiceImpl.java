@@ -5,6 +5,7 @@ import com.appsmith.external.models.Environment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -62,6 +63,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
     private final TransactionalOperator transactionalOperator;
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
+    private final ActionCollectionService actionCollectionService;
 
     public InteractWorkflowServiceImpl(
             Scheduler scheduler,
@@ -80,7 +82,8 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
             WorkflowHelper workflowHelper,
             TransactionalOperator transactionalOperator,
             NewActionService newActionService,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ActionCollectionService actionCollectionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workflowPermission = workflowPermission;
         this.userRepository = userRepository;
@@ -93,6 +96,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
         this.transactionalOperator = transactionalOperator;
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
+        this.actionCollectionService = actionCollectionService;
     }
 
     /**
@@ -230,16 +234,10 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
      *   <li>Retrieves the workflow using the provided workflow ID and publish permission.</li>
      *   <li>Sets the last deployed timestamp of the workflow to the current instant.</li>
      *   <li>Publishes actions associated with the workflow using {@link NewActionService#publishActionsForWorkflows}.</li>
+     *   <li>Publishes action collections associated with the workflow using {@link ActionCollectionService#publishActionCollectionsForWorkflow}.</li>
      *   <li>Saves the updated workflow with the new last deployed timestamp.</li>
      *   <li>Commits the transaction using the provided {@link TransactionalOperator}.</li>
      * </ol>
-     *
-     * <p>
-     * <b>TODO:</b>
-     * </p>
-     * <ul>
-     *   <li>Publish Action Collections as well. (Currently marked as TODO)</li>
-     * </ul>
      *
      * <p>
      *
@@ -265,10 +263,15 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
                     Mono<List<BulkWriteResult>> publishActionsForWorkflows =
                             newActionService.publishActionsForWorkflows(
                                     workflowId, actionPermission.getEditPermission());
-                    // TODO: Publish Action Collections as well.
+                    Mono<List<ActionCollection>> publishActionCollectionsForWorkflows =
+                            actionCollectionService.publishActionCollectionsForWorkflow(
+                                    workflowId, actionPermission.getEditPermission());
                     Mono<Workflow> updateDeployedAtForWorkflowMono =
                             repository.save(workflow).cache();
-                    return Mono.zip(updateDeployedAtForWorkflowMono, publishActionsForWorkflows)
+                    return Mono.zip(
+                                    updateDeployedAtForWorkflowMono,
+                                    publishActionsForWorkflows,
+                                    publishActionCollectionsForWorkflows)
                             .then(updateDeployedAtForWorkflowMono);
                 })
                 .as(transactionalOperator::transactional);

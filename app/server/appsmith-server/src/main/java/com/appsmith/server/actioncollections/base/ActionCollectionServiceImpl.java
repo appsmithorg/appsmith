@@ -1,5 +1,6 @@
 package com.appsmith.server.actioncollections.base;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -141,6 +142,24 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                     }
 
                     return archiveAllActionsMono.then(repository.archive(actionCollection));
+                })
+                .collectList();
+    }
+
+    @Override
+    public Mono<List<ActionCollection>> publishActionCollectionsForWorkflow(
+            String workflowId, AclPermission aclPermission) {
+        return repository
+                .findAllUnpublishedActionCollectionsByContextIdAndContextType(
+                        workflowId, CreatorContextType.WORKFLOW, aclPermission)
+                .flatMap(collection -> {
+                    // If the collection was deleted in edit mode, now this can be safely deleted from the repository
+                    if (collection.getUnpublishedCollection().getDeletedAt() != null) {
+                        return this.archiveById(collection.getId()).then(Mono.empty());
+                    }
+                    // Publish the collection by copying the unpublished collectionDTO to published collectionDTO
+                    collection.setPublishedCollection(collection.getUnpublishedCollection());
+                    return this.save(collection);
                 })
                 .collectList();
     }

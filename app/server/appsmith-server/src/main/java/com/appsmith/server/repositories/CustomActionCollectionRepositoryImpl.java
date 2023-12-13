@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -108,5 +110,44 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         Criteria workflowCriteria =
                 Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
         return queryAll(List.of(workflowCriteria), includeFields, aclPermission, Optional.empty());
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        if (Objects.isNull(contextType) || CreatorContextType.PAGE.equals(contextType)) {
+            return super.findAllUnpublishedActionCollectionsByContextIdAndContextType(
+                    contextId, contextType, permission);
+        }
+        String contextIdPath;
+        switch (contextType) {
+            case WORKFLOW -> contextIdPath = fieldName(QActionCollection.actionCollection.workflowId);
+            default -> contextIdPath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                    + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
+        }
+        String contextTypePath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        if (Objects.isNull(contextType) || CreatorContextType.PAGE.equals(contextType)) {
+            return super.findAllPublishedActionCollectionsByContextIdAndContextType(contextId, contextType, permission);
+        }
+        String contextIdPath;
+        switch (contextType) {
+            case WORKFLOW -> contextIdPath = fieldName(QActionCollection.actionCollection.workflowId);
+            default -> contextIdPath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                    + fieldName(QActionCollection.actionCollection.publishedCollection.pageId);
+        }
+        String contextTypePath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
     }
 }

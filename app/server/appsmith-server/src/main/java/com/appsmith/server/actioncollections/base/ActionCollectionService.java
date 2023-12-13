@@ -19,4 +19,6 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
 
     Mono<List<ActionCollection>> archiveActionCollectionByWorkflowId(
             String workflowId, Optional<AclPermission> permission);
+
+    Mono<List<ActionCollection>> publishActionCollectionsForWorkflow(String workflowId, AclPermission aclPermission);
 }
