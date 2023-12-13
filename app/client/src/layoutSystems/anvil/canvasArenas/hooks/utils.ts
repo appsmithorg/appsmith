@@ -9,9 +9,16 @@ import { AnvilDraggedWidgetTypesEnum } from "../types";
 
 const DEFAULT_DROP_RANGE = 10;
 
+/**
+ * Function to determine the types of widgets being dragged based on an array of dragged blocks.
+ * @param {DraggedWidget[]} draggedBlocks - Array of dragged widget blocks with type information.
+ * @returns {AnvilDraggedWidgetTypesEnum} - Enum representing the type of widgets being dragged.
+ */
 export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
+  // Extracting unique widget types from the array of dragged blocks
   const extractWidgetTypesDragged: string[] = draggedBlocks.reduce(
     (widgetTypesArray, each) => {
+      // Checking if the widget type is not already in the array and adding it if not present
       if (!widgetTypesArray.includes(each.type)) {
         widgetTypesArray.push(each.type);
       }
@@ -19,6 +26,8 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
     },
     [] as string[],
   );
+
+  // Determining the overall dragged widget type based on the extracted types
   const draggedWidgetTypes =
     extractWidgetTypesDragged.length > 1
       ? AnvilDraggedWidgetTypesEnum.WIDGETS
@@ -27,6 +36,8 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
       : extractWidgetTypesDragged[0] === SectionWidget.type
       ? AnvilDraggedWidgetTypesEnum.SECTION
       : AnvilDraggedWidgetTypesEnum.WIDGETS;
+
+  // Returning the final dragged widget type
   return draggedWidgetTypes;
 };
 

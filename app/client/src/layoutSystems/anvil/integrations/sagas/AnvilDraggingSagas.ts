@@ -46,14 +46,20 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
+// Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {
+  // Retrieve the main canvas widget
   const mainCanvas: WidgetProps = yield select(
     getWidget,
     MAIN_CONTAINER_WIDGET_ID,
   );
+
+  // Extract the layout ID and row index for the last row in the main canvas
   const layoutId: string = mainCanvas.layout[0].layoutId;
   const layoutOrder = [layoutId];
   const rowIndex = mainCanvas.layout[0].layout.length;
+
+  // Return the highlighting information for the last row in the main canvas
   return {
     canvasId: MAIN_CONTAINER_WIDGET_ID,
     layoutOrder,
@@ -68,6 +74,7 @@ export function* getMainCanvasLastRowHighlight() {
   };
 }
 
+// function to handle adding suggested widgets to the Anvil canvas
 function* addSuggestedWidgetsAnvilSaga(
   actionPayload: ReduxAction<{
     newWidget: {
@@ -80,11 +87,18 @@ function* addSuggestedWidgetsAnvilSaga(
   }>,
 ) {
   const { newWidget } = actionPayload.payload;
+
+  // Find the corresponding WDS entry for the given widget type
   const wdsEntry = Object.entries(WDS_V2_WIDGET_MAP).find(
     ([legacyType]) => legacyType === newWidget.type,
   );
+
+  // If a matching WDS entry is found, proceed with adding the suggested widget
   if (wdsEntry) {
+    // Extract the WDS type for the suggested widget
     const [, wdsType] = wdsEntry;
+
+    // Define parameters for the new widget based on the WDS type and provided dimensions
     const newWidgetParams = {
       width: (newWidget.rows || 0 / GridDefaults.DEFAULT_GRID_COLUMNS) * 100,
       height: newWidget.columns || 0 * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
@@ -92,9 +106,13 @@ function* addSuggestedWidgetsAnvilSaga(
       parentId: MAIN_CONTAINER_WIDGET_ID,
       type: wdsType,
     };
+
+    // Get highlighting information for the last row in the main canvas
     const mainCanvasHighLight: AnvilHighlightInfo = yield call(
       getMainCanvasLastRowHighlight,
     );
+
+    // Add the new widget to the DSL
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       addNewChildToDSL,
       mainCanvasHighLight,
@@ -102,11 +120,17 @@ function* addSuggestedWidgetsAnvilSaga(
       true,
       false,
     );
+
+    // Update the widget properties with the properties provided in the action payload
     updatedWidgets[newWidgetParams.newWidgetId] = {
       ...updatedWidgets[newWidgetParams.newWidgetId],
       ...newWidget.props,
     };
+
+    // Save the updated Anvil layout
     yield put(saveAnvilLayout(updatedWidgets));
+
+    // Select the added widget
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [
         newWidgetParams.newWidgetId,
@@ -115,16 +139,17 @@ function* addSuggestedWidgetsAnvilSaga(
   }
 }
 
+// function to add a new child widget to the DSL
 export function* addNewChildToDSL(
-  highlight: AnvilHighlightInfo,
+  highlight: AnvilHighlightInfo, // Highlight information for the drop zone
   newWidget: {
     width: number;
     height: number;
     newWidgetId: string;
     type: string;
   },
-  isMainCanvas: boolean,
-  isSection: boolean,
+  isMainCanvas: boolean, // Indicates if the drop zone is the main canvas
+  isSection: boolean, // Indicates if the drop zone is a section
 ) {
   const { alignment, canvasId } = highlight;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -142,7 +167,7 @@ export function* addNewChildToDSL(
   );
   const updatedParams: any = { ...newWidget, ...newParams };
 
-  // Create and add widget.
+  // Create and add the new widget to the DSL
   let updatedWidgets: CanvasWidgetsReduxState = yield call(
     getUpdateDslAfterCreatingChild,
     {
@@ -158,6 +183,7 @@ export function* addNewChildToDSL(
     },
   ];
 
+  // Handle different scenarios based on the drop zone type (main canvas, section, or generic layout)
   if (!!isMainCanvas) {
     updatedWidgets = yield call(
       addWidgetToMainCanvas,
@@ -185,16 +211,22 @@ export function* addNewChildToDSL(
   return updatedWidgets;
 }
 
+// function to handle the addition of new widgets to the Anvil layout
 function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
   try {
     const start = performance.now();
+
     const {
       dragMeta: { draggedOn },
       highlight,
       newWidget,
     } = actionPayload.payload;
+    // Check if the drop zone is the main canvas
     const isMainCanvas = draggedOn === "MAIN_CANVAS";
+    // Check if the drop zone is a section
     const isSection = draggedOn === "SECTION";
+
+    // Call the addNewChildToDSL saga to perform the actual addition of the new widget to the DSL
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       addNewChildToDSL,
       highlight,
@@ -202,11 +234,16 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
       !!isMainCanvas,
       !!isSection,
     );
+
+    // Save the updated Anvil layout
     yield put(saveAnvilLayout(updatedWidgets));
+
+    // Select the newly added widget
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
     );
-    log.debug("Anvil : add new widget took", performance.now() - start, "ms");
+
+    log.debug("Anvil: add new widget took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -218,13 +255,16 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
   }
 }
 
+// function to add widgets to the main canvas layout in Anvil
 function* addWidgetToMainCanvas(
-  allWidgets: CanvasWidgetsReduxState,
-  draggedWidgets: WidgetLayoutProps[],
-  highlight: AnvilHighlightInfo,
-  widgetId: string,
+  allWidgets: CanvasWidgetsReduxState, // Original state of all widgets
+  draggedWidgets: WidgetLayoutProps[], // Widgets being dragged
+  highlight: AnvilHighlightInfo, // Highlight information for the drop zone
+  widgetId: string, // ID of the widget being added
 ) {
-  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets }; // Create a copy of the original widgets state
+
+  // Remove the widget being added from the children of the main canvas
   updatedWidgets = {
     ...updatedWidgets,
     [highlight.canvasId]: {
@@ -234,6 +274,8 @@ function* addWidgetToMainCanvas(
       ),
     },
   };
+
+  // Call the addWidgetsToMainCanvasLayout saga to update the layout with the new widgets
   updatedWidgets = yield call(
     addWidgetsToMainCanvasLayout,
     updatedWidgets,
@@ -241,7 +283,7 @@ function* addWidgetToMainCanvas(
     highlight,
   );
 
-  return updatedWidgets;
+  return updatedWidgets; // Return the updated widgets state after the addition
 }
 
 function addWidgetToGenericLayout(

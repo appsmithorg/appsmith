@@ -9,6 +9,7 @@ import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 
+// Props interface for AnvilCanvasDraggingArena component
 interface AnvilCanvasDraggingArenaProps {
   canvasId: string;
   layoutId: string;
@@ -30,13 +31,16 @@ export const AnvilCanvasDraggingArena = (
     layoutId,
     layoutType,
   } = props;
-  // useAnvilDnDStates to fetch all states used in Anvil DnD
+
+  // Fetching all states used in Anvil DnD using the useAnvilDnDStates hook
   const anvilDragStates = useAnvilDnDStates({
     allowedWidgetTypes,
     canvasId,
     layoutId,
     layoutType,
   });
+
+  // Using the useAnvilWidgetDrop hook to handle widget dropping
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
 
   return (
