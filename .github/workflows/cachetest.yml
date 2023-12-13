@@ -29,6 +29,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: |
           mkdir ./cacherepo
+           git config --global user.email "yatin@appsmith.com"
+           git config --global user.name "Yatinappsmith"
 
       - name: Checkout
         uses: actions/checkout@v2
