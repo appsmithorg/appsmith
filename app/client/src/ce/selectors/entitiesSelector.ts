@@ -48,6 +48,7 @@ import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hook
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type { Plugin } from "api/PluginApi";
+import { getCurrentWorkflowActions } from "@appsmith/selectors/workflowSelectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -967,7 +968,7 @@ export const getDatasourceLoading = (state: AppState) => {
 export const selectFilesForExplorer = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
-  (): ActionData[] => [],
+  getCurrentWorkflowActions,
   selectDatasourceIdToNameMap,
   (actions, jsActions, workflowEntities, datasourceIdToNameMap) => {
     const files = [...actions, ...jsActions, ...workflowEntities].reduce(

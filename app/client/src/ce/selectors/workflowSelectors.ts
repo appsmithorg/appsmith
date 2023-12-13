@@ -18,3 +18,6 @@ export const getIsCurrentEditorWorkflowType = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   state: AppState,
 ) => false;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getCurrentWorkflowActions = (state: AppState) => [];
