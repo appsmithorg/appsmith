@@ -22,6 +22,7 @@ export interface JSCollection {
   isPublic?: boolean;
   moduleId?: string;
   moduleInstanceId?: string;
+  workflowId?: string;
 }
 
 export interface JSActionConfig {
