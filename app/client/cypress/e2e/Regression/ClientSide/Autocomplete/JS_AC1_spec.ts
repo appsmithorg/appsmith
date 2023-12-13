@@ -12,6 +12,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let jsName: any;
 
@@ -26,7 +27,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests", () => {
+describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
   it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.BUTTON_GROUP,
@@ -82,7 +83,7 @@ describe("Autocomplete tests", () => {
 
   it("2. Check for bindings not available in other page", () => {
     // dependent on above case: 1st page should have DocumentViewer widget
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
@@ -304,8 +305,6 @@ describe("Autocomplete tests", () => {
           .type(".");
 
         agHelper.GetNAssertElementText(locators._hints, "geolocation");
-
-        cy.get(".t--close-editor").click();
       });
   });
 

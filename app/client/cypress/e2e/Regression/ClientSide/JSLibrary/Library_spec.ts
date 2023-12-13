@@ -1,33 +1,45 @@
 import HomePage from "../../../../locators/HomePage";
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  SidebarButton,
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  deployMode,
+  homePage,
+  debuggerHelper,
+  installer,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
-    EditorNavigation.ViaSidebar(SidebarButton.Libraries);
-    _.installer.OpenInstaller();
-    _.installer.InstallLibrary("uuidjs", "UUID");
-    _.installer.uninstallLibrary("uuidjs");
-    _.installer.assertUnInstall("uuidjs");
+    AppSidebar.navigate(AppSidebarButton.Libraries);
+    installer.OpenInstaller();
+    installer.InstallLibrary("uuidjs", "UUID");
+    installer.uninstallLibrary("uuidjs");
+    installer.assertUnInstall("uuidjs");
   });
 
   it("2. Installs the library against a unique namespace when there is a collision with the existing entity", () => {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
-    _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
-    EditorNavigation.ViaSidebar(SidebarButton.Libraries);
-    _.installer.OpenInstaller();
-    _.installer.InstallLibrary("jsonwebtoken", "jsonwebtoken_1", true);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
+    AppSidebar.navigate(AppSidebarButton.Libraries);
+    installer.OpenInstaller();
+    installer.InstallLibrary("jsonwebtoken", "jsonwebtoken_1", true);
   });
 
   it("3. Checks jspdf library", () => {
-    EditorNavigation.ViaSidebar(SidebarButton.Libraries);
-    _.installer.OpenInstaller();
-    _.installer.InstallLibrary("jspdf", "jspdf");
-    _.jsEditor.CreateJSObject(
+    AppSidebar.navigate(AppSidebarButton.Libraries);
+    installer.OpenInstaller();
+    installer.InstallLibrary("jspdf", "jspdf");
+    jsEditor.CreateJSObject(
       `export default {
       myFun1: () => {
         const doc = new jspdf.jsPDF();
@@ -44,26 +56,26 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
         prettify: true,
       },
     );
-    _.jsEditor.RunJSObj();
-    _.debuggerHelper.ClickResponseTab();
-    _.agHelper.AssertContains("data:application/pdf;filename=generated.pdf");
+    jsEditor.RunJSObj();
+    debuggerHelper.ClickResponseTab();
+    agHelper.AssertContains("data:application/pdf;filename=generated.pdf");
   });
 
   it("4. ESM build should pass installation, uninstallation and reinstallation", () => {
-    EditorNavigation.ViaSidebar(SidebarButton.Libraries);
-    _.installer.OpenInstaller();
-    _.installer.InstallLibraryViaURL(
+    AppSidebar.navigate(AppSidebarButton.Libraries);
+    installer.OpenInstaller();
+    installer.InstallLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
       "fast_xml_parser",
     );
-    _.agHelper.Sleep(2000);
+    agHelper.Sleep(2000);
     // Uninstallation should succeed
-    _.installer.uninstallLibrary("fast_xml_parser");
-    _.installer.assertUnInstall("fast_xml_parser");
+    installer.uninstallLibrary("fast_xml_parser");
+    installer.assertUnInstall("fast_xml_parser");
 
     // Reinstallation should succeed with the same accessor
-    _.installer.OpenInstaller();
-    _.installer.InstallLibraryViaURL(
+    installer.OpenInstaller();
+    installer.InstallLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
       "fast_xml_parser",
     );
@@ -71,31 +83,31 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
 
   it("5. Shows list of recommended libraries", () => {
     const recommendedLibraryNames = ["jsonwebtoken", "jspdf", "bcryptjs"];
-    EditorNavigation.ViaSidebar(SidebarButton.Libraries);
-    _.installer.OpenInstaller();
-    for (const recommendedLib of recommendedLibraryNames) {
+    AppSidebar.navigate(AppSidebarButton.Libraries);
+    installer.OpenInstaller();
+    for (const [index, recommendedLib] of recommendedLibraryNames.entries()) {
       cy.contains(recommendedLib);
     }
   });
 
   it("6. Checks installation in exported/forked app", () => {
-    _.homePage.NavigateToHome();
-    _.homePage.ImportApp("library_export.json");
-    _.homePage.AssertImportToast();
-    _.agHelper.ValidateToastMessage("true");
-    _.agHelper.WaitUntilAllToastsDisappear();
+    homePage.NavigateToHome();
+    homePage.ImportApp("library_export.json");
+    homePage.AssertImportToast();
+    agHelper.ValidateToastMessage("true");
+    agHelper.WaitUntilAllToastsDisappear();
 
     //Checks installation in forked app
-    _.homePage.NavigateToHome();
-    _.homePage.ForkApplication("Library_export");
-    _.agHelper.ValidateToastMessage("true");
-    _.agHelper.WaitUntilAllToastsDisappear();
+    homePage.NavigateToHome();
+    homePage.ForkApplication("Library_export");
+    agHelper.ValidateToastMessage("true");
+    agHelper.WaitUntilAllToastsDisappear();
 
     //Deploy app and check installation
-    _.deployMode.DeployApp();
-    _.agHelper.WaitUntilToastDisappear("true");
-    _.deployMode.NavigateBacktoEditor();
-    _.agHelper.ValidateToastMessage("true");
+    deployMode.DeployApp();
+    agHelper.WaitUntilToastDisappear("true");
+    deployMode.NavigateBacktoEditor();
+    agHelper.ValidateToastMessage("true");
   });
 
   it("7. Tests library access and installation in public apps", () => {
@@ -103,12 +115,12 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     cy.get(HomePage.shareApp).click();
     //@ts-expect-error no type access
     cy.enablePublicAccess(true);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.url().then((url) => {
       appURL = url;
-      _.homePage.LogOutviaAPI();
+      homePage.LogOutviaAPI();
       cy.visit(appURL);
-      _.agHelper.AssertContains("true");
+      agHelper.AssertContains("true");
     });
   });
 });

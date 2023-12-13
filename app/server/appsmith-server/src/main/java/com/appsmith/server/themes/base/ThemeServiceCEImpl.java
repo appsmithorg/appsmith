@@ -3,6 +3,7 @@ package com.appsmith.server.themes.base;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -13,9 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.repositories.ce.ThemeRepositoryCE;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -37,7 +36,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
-public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, String> implements ThemeServiceCE {
+public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, String> implements ThemeServiceCE {
 
     private final ApplicationRepository applicationRepository;
     private final ApplicationService applicationService;

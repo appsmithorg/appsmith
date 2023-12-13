@@ -10,12 +10,14 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("storeValue Action test", () => {
+describe("storeValue Action test", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
   });
 
   it("1. Bug 14653: Running consecutive storeValue actions and await", function () {

@@ -18,6 +18,7 @@
     flex-grow: 1;
     color: var(--color-fg);
     text-overflow: ellipsis;
+    width: 100%;
 
     &:autofill,
     &:autofill:hover,

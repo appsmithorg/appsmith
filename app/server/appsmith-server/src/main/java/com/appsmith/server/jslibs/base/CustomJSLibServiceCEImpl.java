@@ -1,15 +1,17 @@
 package com.appsmith.server.jslibs.base;
 
-import com.appsmith.server.constants.FieldName;
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
@@ -21,16 +23,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
-import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
+import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
@@ -39,6 +38,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     ApplicationService applicationService;
     NewPageService newPageService;
     PagePermission pagePermission;
+    protected final ContextBasedJsLibService<Application> applicationContextBasedJsLibService;
 
     public CustomJSLibServiceCEImpl(
             Scheduler scheduler,
@@ -49,45 +49,58 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             ApplicationService applicationService,
             NewPageService newPageService,
             PagePermission pagePermission,
-            AnalyticsService analyticsService) {
+            AnalyticsService analyticsService,
+            ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-
+        this.applicationContextBasedJsLibService = applicationContextBasedJsLibService;
         this.applicationService = applicationService;
         this.newPageService = newPageService;
         this.pagePermission = pagePermission;
     }
 
-    @Override
-    public Mono<Boolean> addJSLibToApplication(
-            @NotNull String applicationId, @NotNull CustomJSLib jsLib, String branchName, Boolean isForceInstall) {
-        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
-                .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
-                .map(tuple -> {
-                    /**
-                     * TODO: try to convert it into a single update op where reading of list is not required
-                     * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
-                     */
-                    Set<CustomJSLibApplicationDTO> jsLibDTOsInApplication = tuple.getT1();
-                    CustomJSLibApplicationDTO currentJSLibDTO = tuple.getT2();
-                    if (!jsLibDTOsInApplication.contains(currentJSLibDTO)) {
-                        jsLibDTOsInApplication.add(currentJSLibDTO);
-                    }
+    protected ContextBasedJsLibService<?> getContextBasedService(@NotNull CreatorContextType contextType) {
+        return applicationContextBasedJsLibService;
+    }
 
-                    return jsLibDTOsInApplication;
+    @Override
+    public Mono<Boolean> addJSLibsToContext(
+            @NotNull String contextId,
+            CreatorContextType contextType,
+            @NotNull Set<CustomJSLib> jsLibs,
+            String branchName,
+            Boolean isForceInstall) {
+        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+
+        Mono<Set<CustomJSLibContextDTO>> persistedJsLibsMono = Flux.fromIterable(jsLibs)
+                .flatMap(jsLib -> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
+                .collect(Collectors.toSet());
+        return contextBasedService
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
+                .zipWith(persistedJsLibsMono)
+                .map(tuple -> {
+                    /*
+                     TODO: try to convert it into a single update op where reading of list is not required
+                     Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
+                    */
+                    Set<CustomJSLibContextDTO> jsLibDTOsInContext = tuple.getT1();
+                    Set<CustomJSLibContextDTO> currentJSLibDTOs = tuple.getT2();
+                    jsLibDTOsInContext.addAll(currentJSLibDTOs);
+
+                    return jsLibDTOsInContext;
                 })
-                .flatMap(updatedJSLibDTOList -> {
-                    Map<String, Object> fieldNameValueMap =
-                            Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
-                    return applicationService.update(applicationId, fieldNameValueMap, branchName);
-                })
+                .flatMap(updatedJSLibDTOSet ->
+                        contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOSet))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
-    public Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
+    public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
         return repository
-                .findByUidString(jsLib.getUidString())
+                .findUniqueCustomJsLib(jsLib)
+                // Read more why Mono.defer is used here.
+                // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
+                .switchIfEmpty(Mono.defer(() -> repository.save(jsLib)))
                 .flatMap(foundJSLib -> {
                     /*
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
@@ -96,37 +109,36 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     */
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
-                        return repository.save(jsLib).then(Mono.just(getDTOFromCustomJSLib(jsLib)));
+                        return repository.save(jsLib);
                     }
 
-                    return Mono.just(getDTOFromCustomJSLib(foundJSLib));
+                    return Mono.just(foundJSLib);
                 })
-                // Read more why Mono.defer is used here.
-                // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
-                .switchIfEmpty(
-                        Mono.defer(() -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));
+                .map(CustomJSLibContextDTO::getDTOFromCustomJSLib);
     }
 
     @Override
-    public Mono<Boolean> removeJSLibFromApplication(
-            @NotNull String applicationId, @NotNull CustomJSLib jsLib, String branchName, Boolean isForceRemove) {
-
-        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
+    public Mono<Boolean> removeJSLibFromContext(
+            @NotNull String contextId,
+            CreatorContextType contextType,
+            @NotNull CustomJSLib jsLib,
+            String branchName,
+            Boolean isForceRemove) {
+        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+        return contextBasedService
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
                 .map(jsLibDTOSet -> {
-                    /**
-                     * TODO: try to convert it into a single update op where reading of list is not required
-                     * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
-                     */
-                    CustomJSLibApplicationDTO currentJSLibDTO = getDTOFromCustomJSLib(jsLib);
+                    /*
+                     TODO: try to convert it into a single update op where reading of list is not required
+                     Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
+                    */
+                    CustomJSLibContextDTO currentJSLibDTO = getDTOFromCustomJSLib(jsLib);
                     jsLibDTOSet.remove(currentJSLibDTO);
 
                     return jsLibDTOSet;
                 })
-                .flatMap(updatedJSLibDTOList -> {
-                    Map<String, Object> fieldNameValueMap =
-                            Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
-                    return applicationService.update(applicationId, fieldNameValueMap, branchName);
-                })
+                .flatMap(updatedJSLibDTOList ->
+                        contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOList))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
@@ -139,60 +151,21 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
         return newPageService
                 .findById(pageId, pagePermission.getReadPermission())
                 .map(NewPage::getApplicationId)
-                .flatMap(applicationId -> getAllJSLibsInApplication(applicationId, branchName, isViewMode));
+                .flatMap(applicationId ->
+                        getAllJSLibsInContext(applicationId, CreatorContextType.APPLICATION, branchName, isViewMode));
     }
 
     @Override
-    public Mono<List<CustomJSLib>> getAllJSLibsInApplication(
-            @NotNull String applicationId, String branchName, Boolean isViewMode) {
-        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
-    }
-
-    @Override
-    public Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(
-            String applicationId, String branchName, Boolean isViewMode) {
-        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode)
-                .map(jsLibList -> {
-                    jsLibList.forEach(CustomJSLib::sanitiseToExportDBObject);
-                    return jsLibList;
-                });
-    }
-
-    private Mono<List<CustomJSLib>> getAllCustomJSLibsFromApplication(
-            String applicationId, String branchName, boolean isViewMode) {
-        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)
-                .map(jsLibDTOSet ->
-                        jsLibDTOSet.stream().map(dto -> dto.getUidString()).collect(Collectors.toList()))
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(uidString -> repository.findByUidString(uidString))
+    public Mono<List<CustomJSLib>> getAllJSLibsInContext(
+            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+        return contextBasedService
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .flatMapMany(repository::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
-                    Collections.sort(jsLibList, Comparator.comparing(CustomJSLib::getUidString));
+                    jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
-                });
-    }
-
-    @Override
-    public Mono<Set<CustomJSLibApplicationDTO>> getAllJSLibApplicationDTOFromApplication(
-            @NotNull String applicationId, String branchName, Boolean isViewMode) {
-        return applicationService
-                .findByIdAndBranchName(
-                        applicationId,
-                        List.of(
-                                isViewMode
-                                        ? FieldName.PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS
-                                        : FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS),
-                        branchName)
-                .map(application -> {
-                    if (isViewMode) {
-                        return application.getPublishedCustomJSLibs() == null
-                                ? new HashSet<>()
-                                : application.getPublishedCustomJSLibs();
-                    }
-
-                    return application.getUnpublishedCustomJSLibs() == null
-                            ? new HashSet<>()
-                            : application.getUnpublishedCustomJSLibs();
                 });
     }
 }

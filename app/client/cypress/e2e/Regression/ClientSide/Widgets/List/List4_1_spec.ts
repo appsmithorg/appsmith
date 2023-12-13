@@ -2,13 +2,13 @@ import {
   agHelper,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   locators,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../../fixtures/listdsl.json");
@@ -72,8 +72,8 @@ describe("List Widget Functionality", function () {
     );
     //checks currentItem binding
     // Open property pane
-    entityExplorer.ExpandCollapseEntity("List1");
-    entityExplorer.ExpandCollapseEntity("Container1");
+    PageLeftPane.expandCollapseItem("List1");
+    PageLeftPane.expandCollapseItem("Container1");
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "List1",
       "Container1",

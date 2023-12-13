@@ -33,7 +33,6 @@ import {
   getCurrentApplicationId,
   getGsheetProjectID,
   getGsheetToken,
-  getPagePermissions,
 } from "selectors/editorSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
@@ -86,11 +85,11 @@ import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
-  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -103,7 +102,6 @@ interface StateProps extends JSONtoFormProps {
   applicationId: string;
   canManageDatasource?: boolean;
   canDeleteDatasource?: boolean;
-  canCreateDatasourceActions?: boolean;
   isSaving: boolean;
   isTesting: boolean;
   isDeleting: boolean;
@@ -175,6 +173,7 @@ type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
   currentEnvironment: string;
+  isOnboardingFlow?: boolean;
 };
 interface RouteProps {
   datasourceId: string;
@@ -283,7 +282,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       this.blockRoutes();
     }
 
-    this.setViewModeFromQueryParams();
+    if (!this.props.isOnboardingFlow) {
+      this.setViewModeFromQueryParams();
+    }
 
     // When save button is clicked in DS form, routes should be unblocked
     if (this.props.isDatasourceBeingSaved) {
@@ -362,7 +363,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
-      this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
+      this.props?.match?.params?.datasourceId === TEMP_DATASOURCE_ID
     ) {
       this.props.createTempDatasource({
         pluginId,
@@ -544,7 +545,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      canCreateDatasourceActions,
       canDeleteDatasource,
       canManageDatasource,
       datasource,
@@ -556,6 +556,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       hiddenHeader,
       isDeleting,
       isInsideReconnectModal,
+      isOnboardingFlow,
       isPluginAuthFailed,
       isPluginAuthorized,
       isSaving,
@@ -596,7 +597,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       <>
         {!hiddenHeader && (
           <DSFormHeader
-            canCreateDatasourceActions={canCreateDatasourceActions || false}
             canDeleteDatasource={canDeleteDatasource || false}
             canManageDatasource={canManageDatasource || false}
             datasource={datasource}
@@ -681,6 +681,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     getSanitizedFormData={memoize(this.getSanitizedData)}
                     isInsideReconnectModal={isInsideReconnectModal}
                     isInvalid={validate(this.props.requiredFields, formData)}
+                    isOnboardingFlow={isOnboardingFlow}
                     isSaving={isSaving}
                     isTesting={isTesting}
                     onCancel={() => this.onCancel()}
@@ -769,13 +770,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourcePermissions,
   );
 
-  const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
-    pagePermissions,
-  );
-
   const gsheetToken = getGsheetToken(state);
   const gsheetProjectID = getGsheetProjectID(state);
   const documentationLinks = getPluginDocumentationLinks(state);
@@ -816,6 +810,10 @@ const mapStateToProps = (state: AppState, props: any) => {
         )
       : false;
 
+  // This is only present during onboarding flow
+  const currentApplicationIdForCreateNewApp =
+    getCurrentApplicationIdForCreateNewApp(state);
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -838,7 +836,9 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
-    applicationId: getCurrentApplicationId(state),
+    applicationId: !!currentApplicationIdForCreateNewApp
+      ? currentApplicationIdForCreateNewApp
+      : getCurrentApplicationId(state),
     canManageDatasource,
     canDeleteDatasource,
     datasourceName: datasource?.name ?? "",
@@ -846,7 +846,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
-    canCreateDatasourceActions,
     gsheetToken,
     gsheetProjectID,
     showDebugger,

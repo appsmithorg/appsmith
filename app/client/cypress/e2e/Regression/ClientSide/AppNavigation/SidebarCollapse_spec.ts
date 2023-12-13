@@ -2,16 +2,16 @@ import {
   deployMode,
   agHelper,
   appSettings,
-  locators,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Sidebar Collapse", function () {
+describe("Test Sidebar Collapse", { tags: ["@tag.IDE"] }, function () {
   it("1. Sidebar collapse button should be there", () => {
     // First make sure that nav orientation is set to side
-    EditorNavigation.ViaSidebar(SidebarButton.Settings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,

@@ -2,12 +2,28 @@ import datasource from "../../locators/DatasourcesEditor.json";
 import { ObjectsRegistry as _ } from "../Objects/Registry";
 import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
-export enum SidebarButton {
+import { LeftPane } from "./IDE/LeftPane";
+import PageList from "./PageList";
+export enum AppSidebarButton {
   Data = "Data",
-  Pages = "Pages",
+  Editor = "Editor",
   Libraries = "Libraries",
   Settings = "Settings",
 }
+export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
+
+export enum PagePaneSegment {
+  Explorer = "Explorer",
+  Widgets = "Widgets",
+}
+
+const pagePaneListItemSelector = (name: string) =>
+  "//div[contains(@class, 't--entity-name')][text()='" + name + "']";
+
+export const PageLeftPane = new LeftPane(
+  pagePaneListItemSelector,
+  Object.values(PagePaneSegment),
+);
 
 export enum EntityType {
   Widget = "Widget",
@@ -17,19 +33,9 @@ export enum EntityType {
   JSObject = "JSObject",
   Page = "Page",
 }
-
 class EditorNavigation {
-  sidebar: Sidebar;
-  ViaSidebar(button: SidebarButton, willFail?: boolean) {
-    this.sidebar.navigate(button, willFail);
-  }
-
-  constructor() {
-    this.sidebar = new Sidebar(Object.values(SidebarButton));
-  }
-
   NavigateToDatasource(name: string) {
-    this.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(datasource.datasourceCard)
       .contains(name)
       .first()
@@ -45,49 +51,36 @@ class EditorNavigation {
     clickOptions?: Partial<ClickOptions>,
     hierarchy: string[] = [],
   ) {
-    this.ViaSidebar(SidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
-    _.EntityExplorer.ExpandCollapseEntity("Widgets");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Widgets");
     hierarchy.forEach((level) => {
-      _.EntityExplorer.ExpandCollapseEntity(level);
+      PageLeftPane.expandCollapseItem(level);
     });
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click(
-        clickOptions?.ctrlKey
-          ? { ctrlKey: true, force: true }
-          : { multiple: true, force: true },
-      );
+    PageLeftPane.selectItem(name, clickOptions);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToQuery(name: string) {
-    this.ViaSidebar(SidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
-    _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click({ multiple: true, force: true });
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToJSObject(name: string) {
-    this.ViaSidebar(SidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
-    _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click({ multiple: true, force: true });
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToPage(name: string) {
-    this.ViaSidebar(SidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
-    _.EntityExplorer.ExpandCollapseEntity("Pages");
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click({ multiple: true, force: true });
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
@@ -117,6 +110,11 @@ class EditorNavigation {
         this.NavigateToPage(name);
         break;
     }
+  }
+
+  ShowCanvas() {
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageList.SelectedPageItem().click();
   }
 }
 

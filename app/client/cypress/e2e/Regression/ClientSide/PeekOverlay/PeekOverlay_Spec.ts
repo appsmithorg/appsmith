@@ -8,11 +8,15 @@ import {
   peekOverlay,
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Peek overlay", () => {
   it("1. Main test", () => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
-    entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     table.AddSampleTableData();
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,

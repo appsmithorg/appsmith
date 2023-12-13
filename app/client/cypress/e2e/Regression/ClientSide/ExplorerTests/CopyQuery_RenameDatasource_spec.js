@@ -1,5 +1,6 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -30,7 +31,7 @@ describe("Entity explorer tests related to copy query", function () {
 
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-      cy.NavigateToActiveDSQueryPane(datasourceName);
+      dataSources.CreateQueryAfterDSSaved(datasourceName);
     });
 
     cy.get("@getPluginForm").should(
@@ -45,7 +46,7 @@ describe("Entity explorer tests related to copy query", function () {
     cy.get(".t--action-name-edit-field").click({ force: true });
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Show bindings",

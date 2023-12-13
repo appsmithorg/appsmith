@@ -12,6 +12,9 @@ import {
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Boolean & Enum Datatype tests", function () {
@@ -39,18 +42,6 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
     dataSources.RunQuery();
 
-    //Select query:
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      "public.boolenumtypes",
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
     //Other queries
     query = `INSERT INTO public."boolenumtypes" ("workingday", "areweworking") VALUES ({{Insertworkingday.selectedOptionValue}}, {{Insertareweworking.isSwitchedOn}})`;
     dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
@@ -73,7 +64,18 @@ describe("Boolean & Enum Datatype tests", function () {
     query = `drop type weekdays`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropEnum");
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    //Select query:
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.boolenumtypes",
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("2. Inserting record - boolenumtypes", () => {
@@ -86,6 +88,9 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.ToggleSwitch("Areweworking");
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    // agHelper.AssertElementAbsence(
+    //   locators._specificToast("Error while inserting resource"),
+    // );
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -157,7 +162,7 @@ describe("Boolean & Enum Datatype tests", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     query = `SELECT * FROM boolenumtypes WHERE workingday > 'Tuesday';`;
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("verifyEnumOrdering");
     dataSources.EnterQuery(query);
@@ -233,17 +238,18 @@ describe("Boolean & Enum Datatype tests", function () {
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0"); //Success response for dropped table!
       });
-      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      PageLeftPane.expandCollapseItem("Queries/JS", false);
 
       //Delete queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
 
       //Delete ds
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

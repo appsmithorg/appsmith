@@ -9,6 +9,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "paths": {
       "@constants/*": ["./src/constants/*"],
       "@services/*": ["./src/services/*"],
@@ -18,6 +19,7 @@
       "@utils/*": ["./src/utils/*"]
     }
   },
-  "exclude": ["jest.config.js", "src/test"],
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["jest.config.js", "src/test", "index.js", "build.js"],
   "lib": ["es2015"]
 }

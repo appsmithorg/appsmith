@@ -1,5 +1,6 @@
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -18,7 +19,7 @@ describe("API Panel Test Functionality", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. PUT Action test API feature", function () {

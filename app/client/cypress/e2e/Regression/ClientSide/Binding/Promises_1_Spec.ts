@@ -1,17 +1,18 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import {
+  agHelper,
+  locators,
+  jsEditor,
+  propPane,
+  deployMode,
+  apiPage,
+  dataManager,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor,
-  locator = ObjectsRegistry.CommonLocators,
-  apiPage = ObjectsRegistry.ApiPage,
-  deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
-
-describe("Validate basic Promises", () => {
+describe("Validate basic Promises", { tags: ["@tag.Binding"] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -21,44 +22,47 @@ describe("Validate basic Promises", () => {
   });
 
   it("1. Verify Async Await in direct Promises", () => {
-    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     apiPage.CreateAndFillApi(
-      "https://api.genderize.io?name={{this.params.country}}",
-      "Genderize",
-      30000,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+      "RandomUser",
+    );
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockGenderAge +
+        `{{this.params.person}}`,
+      "Gender_Age",
     );
     apiPage.ValidateQueryParams({
       key: "name",
-      value: "{{this.params.country}}",
+      value: "{{this.params.person}}",
     }); // verifies Bug 10055
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{(async function(){
           const user = await RandomUser.run();
-          const gender = await Genderize.run({ country: user.results[0].location.country });
+          const gender = await Gender_Age.run({ person: user[0].name });
           await storeValue("Gender", gender);
-          await showAlert("Your country is " + JSON.stringify(appsmith.store.Gender.name) + "You could be a " + JSON.stringify(appsmith.store.Gender.gender), 'warning');
+          await showAlert("Your name is " + JSON.stringify(appsmith.store.Gender.name) + " You could be a " + JSON.stringify(appsmith.store.Gender.gender), 'warning');
         })()}}`,
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.AssertElementLength(locator._toastMsg, 1);
+    agHelper.AssertElementLength(locators._toastMsg, 1);
     agHelper.GetNAssertContains(
-      locator._toastMsg,
-      /Your country is|failed to execute/g,
+      locators._toastMsg,
+      /Your name is|failed to execute/g,
     );
 
     //Since sometimes api is failing & no 2nd toast in that case
-    // cy.get(locator._toastMsg)
+    // cy.get(locators._toastMsg)
     //   .last()
     //   .contains(/male|female|null/g);
   });
 
   it("2. Verify .then & .catch via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AddDsl("promisesBtnImgDsl", locator._buttonByText("Submit"));
+    agHelper.AddDsl("promisesBtnImgDsl", locators._buttonByText("Submit"));
     apiPage.CreateAndFillApi(
       "https://picsum.photos/200/300",
       "RandomImy",
@@ -83,21 +87,20 @@ describe("Validate basic Promises", () => {
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(
-      locator._toastMsg,
+      locators._toastMsg,
       /You have a beautiful picture|Oops!/g,
     );
   });
 
   it("3. Verify .then & .catch via JS Objects in Promises", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     apiPage.CreateAndFillApi(
-      "https://favqs.com/api/qotd",
-      "InspiringQuotes",
-      30000,
+      dataManager.dsValues[dataManager.defaultEnviorment].randomTrumpApi,
+      "WhatTrumpThinks",
     );
     jsEditor.CreateJSObject(`const user = 'You';
-return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
+return WhatTrumpThinks.run().then((res) => { showAlert("Today's Trump quote for " + user + " is " + JSON.stringify(res), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
@@ -107,8 +110,8 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     //agHelper.ValidateToastMessage("Today's quote for You")
     agHelper
       .GetNAssertContains(
-        locator._toastMsg,
-        /Today's quote for You|Unable to fetch quote for/g,
+        locators._toastMsg,
+        /Today's Trump quote for You|Unable to fetch quote for/g,
       )
       .then(($ele: string | JQuery<HTMLElement>) =>
         agHelper.AssertElementLength($ele, 1),
@@ -117,25 +120,16 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
 
   it("4. Verify Promise.race via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
-    apiPage.CreateAndFillApi(
-      "https://api.agify.io?name={{this.params.person}}",
-      "Agify",
-      30000,
-    );
-    apiPage.ValidateQueryParams({
-      key: "name",
-      value: "{{this.params.person}}",
-    }); // verifies Bug 10055
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
-      `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `,
+      `{{ Promise.race([Gender_Age.run({ person: 'Melinda' }), Gender_Age.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `,
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper
-      .AssertElementLength(locator._toastMsg, 1)
+      .AssertElementLength(locators._toastMsg, 1)
       .then(($ele: string | JQuery<HTMLElement>) =>
         agHelper.GetNAssertContains($ele, /Melinda|Trump/g),
       );
@@ -143,29 +137,37 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
 
   it("5. Verify maintaining context via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AddDsl("promisesBtnListDsl", locator._buttonByText("Submit"));
+    agHelper.AddDsl("promisesBtnListDsl", locators._buttonByText("Submit"));
     apiPage.CreateAndFillApi(
-      "https://api.jikan.moe/v4/anime?q={{this.params.name}}",
+      dataManager.dsValues[dataManager.defaultEnviorment].echoApiUrl,
       "GetAnime",
-      30000,
+      10000,
+      "POST",
     );
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    // creating post request using echo
+    cy.fixture("TestDataSet1").then(function (dataSet) {
+      dataSources.EnterQuery(JSON.stringify(dataSet.GetAnimeResponse));
+    });
+
     EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
-        "name": {{ GetAnime.data.data[0].title }},
-      "img": {{GetAnime.data.data[0].images.jpg.image_url}},
-      "synopsis": {{ GetAnime.data.data[0].synopsis }}
+        "name": {{ GetAnime.data.body.data[0].title }},
+      "img": {{GetAnime.data.body.data[0].images.jpg.image_url}},
+      "synopsis": {{ GetAnime.data.body.data[0].synopsis }}
             },
       {
-        "name": {{ GetAnime.data.data[3].title }},
-        "img": {{GetAnime.data.data[3].images.jpg.image_url}},
-        "synopsis": {{ GetAnime.data.data[3].synopsis }}
+        "name": {{ GetAnime.data.body.data[3].title }},
+        "img": {{GetAnime.data.body.data[3].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.body.data.data[3].synopsis }}
       },
       {
-        "name": {{ GetAnime.data.data[2].title }},
-        "img": {{GetAnime.data.data[2].images.jpg.image_url}},
-        "synopsis": {{ GetAnime.data.data[2].synopsis }}
+        "name": {{ GetAnime.data.body.data[2].title }},
+        "img": {{GetAnime.data.body.data[2].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.data.body.data[2].synopsis }}
       }]`,
     );
     agHelper.ValidateToastMessage(
@@ -185,13 +187,15 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(
-      locator._specificToast("Showing results for : fruits basket : the final"),
+      locators._specificToast(
+        "Showing results for : fruits basket : the final",
+      ),
     );
   });
 
   it("6: Verify Promise.all via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
@@ -200,7 +204,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       let agifyy = [];
       let animals = ['cat', 'dog', 'camel', 'rabbit', 'rat'];
       for (let step = 0; step < 5; step++) {
-        agifyy.push(Agify.run({ person: animals[step].toString() }))
+        agifyy.push(Gender_Age.run({ person: animals[step].toString() }))
       }
       return Promise.all(agifyy)
         .then((responses) => showAlert(responses.map((res) => res.name).join(',')))
@@ -215,12 +219,12 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   it("7. Bug 10150: Verify Promise.all via JSObjects", () => {
     deployMode.NavigateBacktoEditor();
     const date = new Date().toDateString();
-    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
-    jsEditor.CreateJSObject(`let allFuncs = [Genderize.run({ country: 'India' }),
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
+    jsEditor.CreateJSObject(`let allFuncs = [Gender_Age.run({ name: 'India' }),
 RandomUser.run(),
 GetAnime.run({ name: 'Gintama' }),
-InspiringQuotes.run(),
-Agify.run({ person: 'Scripty' }),
+WhatTrumpThinks.run(),
+Gender_Age.run({ person: 'Scripty' }),
 RandomImy.run()
 ]
 showAlert("Running all api's", "warning");
@@ -238,10 +242,10 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     });
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    //agHelper.AssertElementLength(locator._toastMsg, 3); //Below incases of some api's failure
-    agHelper.WaitUntilEleAppear(locator._toastMsg);
+    //agHelper.AssertElementLength(locators._toastMsg, 3); //Below incases of some api's failure
+    agHelper.WaitUntilEleAppear(locators._toastMsg);
     agHelper
-      .GetElementLength(locator._toastMsg)
+      .GetElementLength(locators._toastMsg)
       .then(($len) => expect($len).to.be.at.least(2));
     agHelper.ValidateToastMessage(date, 0);
     agHelper.ValidateToastMessage("Running all api's", 1);
@@ -252,7 +256,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     deployMode.NavigateBacktoEditor();
     agHelper.AddDsl("promisesBtnDsl");
     jsEditor.CreateJSObject(`const user = 'You';
-InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
+WhatTrumpThinks.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
@@ -262,7 +266,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     agHelper.Sleep(1000);
     agHelper
       .GetNAssertContains(
-        locator._toastMsg,
+        locators._toastMsg,
         /Today's quote for You|Unable to fetch quote for/g,
       )
       .then(($ele: string | JQuery<HTMLElement>) =>

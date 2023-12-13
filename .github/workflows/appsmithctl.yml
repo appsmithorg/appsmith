@@ -39,17 +39,14 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -96,7 +93,6 @@ jobs:
         run: |
           echo "appsmithctl_run_result=failed" >> $GITHUB_OUTPUT > ~/appsmithctl_run_result
           exit 1;
-
 
       # Set status = success
       - name: Save the status of the run

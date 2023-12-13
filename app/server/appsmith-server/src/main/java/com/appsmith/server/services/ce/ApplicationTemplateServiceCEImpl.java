@@ -2,10 +2,12 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -13,7 +15,7 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -54,8 +56,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
-
     private final ObjectMapper objectMapper;
+    private final SessionUserService sessionUserService;
 
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
@@ -67,7 +69,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            SessionUserService sessionUserService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importApplicationService = importApplicationService;
@@ -78,6 +81,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.objectMapper = objectMapper;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -331,7 +335,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         String payload;
         try {
             // Please don't use the default ObjectMapper.
-            // The default mapper is registered with views.public.class and removes few attributes due to this
+            // The default mapper is registered with views.public.class and removes few
+            // attributes due to this
             // The templates flow has different requirement hence not using the same
             ObjectMapper ow = new ObjectMapper();
             ow.registerModule(new JavaTimeModule());
@@ -375,8 +380,22 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .flatMap(application -> {
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
                     applicationAccessDTO.setPublicAccess(true);
-                    return applicationService.changeViewAccess(
-                            application.getId(), resource.getBranchName(), applicationAccessDTO);
+                    return applicationService
+                            .changeViewAccess(application.getId(), resource.getBranchName(), applicationAccessDTO)
+                            .zipWith(sessionUserService.getCurrentUser());
+                })
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    User user = tuple.getT2();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, application.getWorkspaceId());
+                    return analyticsService
+                            .sendEvent(
+                                    AnalyticsEvents.COMMUNITY_TEMPLATE_PUBLISHED.getEventName(),
+                                    user.getUsername(),
+                                    data)
+                            .thenReturn(application);
                 });
     }
 }

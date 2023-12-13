@@ -12,19 +12,19 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 let dsName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
     agHelper.AddDsl("tablev1NewDsl");
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function () {
@@ -42,8 +42,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true); //Only before calling confirmation is enabled by User here
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("GetEmployee");
+    dataSources.CreateQueryForDS(dsName, "", "GetEmployee");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
       dataSources.EnterQuery(

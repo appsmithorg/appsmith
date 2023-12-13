@@ -23,7 +23,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -66,7 +66,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
@@ -100,14 +101,18 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (!StringUtils.isEmpty(importingMetaDTO.getApplicationId())
+                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
                             && !importingMetaDTO.getAppendToApp()
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
-                        for (NewAction action : importActionResultDTO.getExistingActions()) {
-                            if (!importActionResultDTO.getImportedActionIds().contains(action.getId())) {
-                                invalidActionIds.add(action.getId());
+                        if (Boolean.FALSE.equals(isPartialImport)) {
+                            for (NewAction action : importActionResultDTO.getExistingActions()) {
+                                if (!importActionResultDTO
+                                        .getImportedActionIds()
+                                        .contains(action.getId())) {
+                                    invalidActionIds.add(action.getId());
+                                }
                             }
                         }
                         log.info("Deleting {} actions which are no more used", invalidActionIds.size());
@@ -136,7 +141,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
         ImportActionCollectionResultDTO importActionCollectionResultDTO =
@@ -156,8 +162,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (!StringUtils.isEmpty(importingMetaDTO.getApplicationId())
-                            && !importingMetaDTO.getAppendToApp()) {
+                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
+                            && !importingMetaDTO.getAppendToApp()
+                            && Boolean.FALSE.equals(isPartialImport)) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
@@ -255,7 +262,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                                 for (NewAction newAction : importedNewActionList) {
                                     if (newAction.getUnpublishedAction() == null
-                                            || !org.springframework.util.StringUtils.hasLength(newAction
+                                            || !StringUtils.hasLength(newAction
                                                     .getUnpublishedAction()
                                                     .getPageId())) {
                                         continue;
@@ -284,8 +291,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                                     if (publishedAction != null && publishedAction.getValidName() != null) {
                                         publishedAction.setId(newAction.getId());
-                                        if (!org.springframework.util.StringUtils.hasLength(
-                                                publishedAction.getPageId())) {
+                                        if (!StringUtils.hasLength(publishedAction.getPageId())) {
                                             publishedAction.setPageId(fallbackParentPageId);
                                         }
                                         NewPage publishedActionPage = updatePageInAction(

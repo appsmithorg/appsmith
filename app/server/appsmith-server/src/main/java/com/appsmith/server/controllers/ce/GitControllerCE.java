@@ -12,6 +12,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.dtos.BranchProtectionRequestDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -20,8 +21,6 @@ import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.services.GitService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -33,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -163,7 +163,7 @@ public class GitControllerCE {
             @PathVariable String defaultApplicationId,
             @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to checkout to branch {} application {} ", branchName, defaultApplicationId);
-        return service.checkoutBranch(defaultApplicationId, branchName)
+        return service.checkoutBranch(defaultApplicationId, branchName, true)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -310,13 +310,6 @@ public class GitControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/auto-commit/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<String>> autoCommitDSLMigration(
-            @PathVariable String defaultApplicationId, @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @JsonView(Views.Public.class)
     @PostMapping("/branch/app/{defaultApplicationId}/protected")
     public Mono<ResponseDTO<List<String>>> updateProtectedBranches(
             @PathVariable String defaultApplicationId,
@@ -330,5 +323,27 @@ public class GitControllerCE {
     public Mono<ResponseDTO<List<String>>> getProtectedBranches(@PathVariable String defaultApplicationId) {
         return service.getProtectedBranches(defaultApplicationId)
                 .map(list -> new ResponseDTO<>(HttpStatus.OK.value(), list, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/auto-commit/app/{defaultApplicationId}")
+    public Mono<ResponseDTO<Boolean>> autoCommit(
+            @PathVariable String defaultApplicationId, @RequestParam String branchName) {
+        return service.autoCommitApplication(defaultApplicationId, branchName)
+                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/auto-commit/progress/app/{defaultApplicationId}")
+    public Mono<ResponseDTO<AutoCommitProgressDTO>> getAutoCommitProgress(@PathVariable String defaultApplicationId) {
+        return service.getAutoCommitProgress(defaultApplicationId)
+                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PatchMapping("/auto-commit/toggle/app/{defaultApplicationId}")
+    public Mono<ResponseDTO<Boolean>> toggleAutoCommitEnabled(@PathVariable String defaultApplicationId) {
+        return service.toggleAutoCommitEnabled(defaultApplicationId)
+                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 }

@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import EditorNavigation, { EntityType } from "./EditorNavigation";
+import EditorNavigation, { EntityType, PageLeftPane } from "./EditorNavigation";
 
 type filedTypeValues =
   | "Array"
@@ -20,7 +20,6 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
@@ -208,7 +207,7 @@ export class PropertyPane {
     this.agHelper.Sleep(200);
     cy.get("body").type(`{${this.agHelper._modifierKey}}v`);
     this.agHelper.Sleep(500);
-    this.entityExplorer.AssertEntityPresenceInExplorer(widgetName + "Copy");
+    PageLeftPane.assertPresence(widgetName + "Copy");
   }
 
   public DeleteWidgetDirectlyFromPropertyPane() {
@@ -219,7 +218,7 @@ export class PropertyPane {
     EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     this.DeleteWidgetDirectlyFromPropertyPane();
     this.agHelper.Sleep(500);
-    this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
+    PageLeftPane.assertAbsence(widgetName);
   }
 
   public GetJSONFormConfigurationFileds() {
@@ -619,6 +618,7 @@ export class PropertyPane {
     this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
+    this.agHelper.WaitUntilEleAppear(this.locator._modal);
     this.agHelper.AssertAutoSave();
   }
 

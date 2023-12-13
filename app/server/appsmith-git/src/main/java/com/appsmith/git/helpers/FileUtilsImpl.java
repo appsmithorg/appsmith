@@ -84,7 +84,7 @@ public class FileUtilsImpl implements FileInterface {
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
     private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN =
-            Pattern.compile("(.*?)\\.(md|git|gitignore|yml|yaml)$");
+            Pattern.compile("(.*?)\\.(md|MD|git|gitignore|github|yml|yaml)$");
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -703,7 +703,7 @@ public class FileUtilsImpl implements FileInterface {
      * @param gson
      * @return resource stored in the JSON file
      */
-    private Object readFile(Path filePath, Gson gson) {
+    public static Object readFile(Path filePath, Gson gson) {
 
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
@@ -938,7 +938,7 @@ public class FileUtilsImpl implements FileInterface {
         return fileFormatVersion.getAsInt();
     }
 
-    private boolean isFileFormatCompatible(int savedFileFormat) {
+    public static boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
     }
 

@@ -19,6 +19,7 @@ import {
 import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
@@ -130,6 +131,7 @@ import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
 import {
+  getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
   getWorkspaceIdForImport,
 } from "@appsmith/selectors/applicationSelectors";
@@ -258,7 +260,15 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
     const { name, packageName, pluginId, skipRedirection, workspaceId } =
       actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
-    const pageId: string = yield select(getCurrentPageId);
+    const currentApplicationIdForCreateNewApp: string | undefined =
+      yield select(getCurrentApplicationIdForCreateNewApp);
+    const application: ApplicationPayload | undefined = yield select(
+      getApplicationByIdFromWorkspaces,
+      currentApplicationIdForCreateNewApp || "",
+    );
+    const pageId: string = !!currentApplicationIdForCreateNewApp
+      ? application?.defaultPageId
+      : yield select(getCurrentPageId);
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.addMockDbToDatasources(
         name,
@@ -1147,6 +1157,9 @@ function* changeDatasourceSaga(
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
   const pageId: string = yield select(getCurrentPageId);
   let data;
   if (isEmpty(draft)) {
@@ -1163,7 +1176,8 @@ function* changeDatasourceSaga(
     ),
   );
   // on reconnect modal, it shouldn't be redirected to datasource edit page
-  if (shouldNotRedirect) return;
+  // on create new app onboarding flow, it shouldn't redirect either
+  if (shouldNotRedirect || currentApplicationIdForCreateNewApp) return;
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
@@ -1397,11 +1411,13 @@ function* fetchDatasourceStructureSaga(
         });
       }
       if (!!(response.data as any)?.error) {
+        isSuccess = false;
         errorMessage = (response.data as any).error?.message;
       }
     }
   } catch (error) {
     errorMessage = (error as any)?.message;
+    isSuccess = false;
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
@@ -1514,10 +1530,12 @@ function* refreshDatasourceStructure(
         });
       }
       if (!!(response.data as any)?.error) {
-        errorMessage = (response.data as any)?.message;
+        isSuccess = false;
+        errorMessage = (response.data as any)?.error?.message;
       }
     }
   } catch (error) {
+    isSuccess = false;
     errorMessage = (error as any)?.message;
     yield put({
       type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,

@@ -2,6 +2,7 @@ package com.appsmith.server.plugins.base;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewPage;
@@ -16,7 +17,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PagePermission;

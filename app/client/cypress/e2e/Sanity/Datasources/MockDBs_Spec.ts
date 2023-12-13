@@ -7,15 +7,20 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 let dsName: any;
 import formControls from "../../../locators/FormControl.json";
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
 } from "../../../support/Pages/EditorNavigation";
+import PageList from "../../../support/Pages/PageList";
 
 describe(
   "excludeForAirgap",
   "Validate Mock Query Active Ds querying & count",
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
+      PageList.AddNewPage();
+      PageList.AddNewPage();
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
         cy.log("Mock DB Name: " + mockDBName);
@@ -30,7 +35,7 @@ describe(
         );
 
         dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
-        EditorNavigation.ViaSidebar(SidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -39,7 +44,7 @@ describe(
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.RunQueryNVerifyResponseViews(10, true);
-        EditorNavigation.ViaSidebar(SidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -65,7 +70,7 @@ describe(
         agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        EditorNavigation.ViaSidebar(SidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -76,7 +81,7 @@ describe(
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        EditorNavigation.ViaSidebar(SidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -86,8 +91,8 @@ describe(
     });
 
     afterEach(() => {
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",
@@ -98,7 +103,7 @@ describe(
         action: "Delete",
         entityType: entityItems.Query,
       });
-      EditorNavigation.ViaSidebar(SidebarButton.Data);
+      AppSidebar.navigate(AppSidebarButton.Data);
       dataSources
         .getDatasourceListItemDescription(dsName)
         .then(($queryCount) =>

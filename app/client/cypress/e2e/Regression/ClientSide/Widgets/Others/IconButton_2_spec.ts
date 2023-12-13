@@ -9,6 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Icon Button widget Tests", function () {
@@ -58,7 +59,7 @@ describe("Icon Button widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewIconButton");
-    entityExplorer.AssertEntityPresenceInExplorer("NewIconButtonCopy");
+    PageLeftPane.assertPresence("NewIconButtonCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewIconButtonCopy");
 
     // Copy paste from property pane and delete from property pane
@@ -105,17 +106,15 @@ describe("Icon Button widget Tests", function () {
     propPane.ToggleJSMode("onClick", true);
     propPane.UpdatePropertyFieldValue(
       "onClick",
-      "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
+      `{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}`,
     );
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
     );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
     agHelper.AssertURL("yahoo.com");
-    // agHelper.BrowserNavigation(-1);
-    cy.window({ timeout: 60000 }).then((win) => {
-      win.history.back();
-    });
+    cy.go("back");
+    agHelper.WaitUntilEleAppear(locators._widgetInDeployed("iconbuttonwidget"));
     assertHelper.AssertNetworkResponseData("@viewPage");
     assertHelper.AssertDocumentReady();
     agHelper.Sleep(3000); //for view page to complete loading & then navigate back

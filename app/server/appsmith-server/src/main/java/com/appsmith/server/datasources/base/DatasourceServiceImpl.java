@@ -1,6 +1,7 @@
 package com.appsmith.server.datasources.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -9,7 +10,6 @@ import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SequenceService;

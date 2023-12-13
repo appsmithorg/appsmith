@@ -1,9 +1,9 @@
 package com.appsmith.server.plugins.base;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;

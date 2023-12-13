@@ -10,10 +10,11 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
-describe("Navigate To feature", () => {
+describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
-    entityExplorer.AddNewPage(); // page 2
+    PageList.AddNewPage(); // page 2
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);

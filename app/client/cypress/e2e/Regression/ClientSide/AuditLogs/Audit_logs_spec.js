@@ -26,7 +26,7 @@ const UpgradePage = {
 
 const locators = { ...Access, ...UpgradePage };
 
-describe("Audit logs", () => {
+describe("Audit logs", { tags: ["@tag.Settings"] }, () => {
   it("1. Super user can access audit logs page", () => {
     if (CURRENT_REPO === REPO.CE) {
       cy.LogOut();

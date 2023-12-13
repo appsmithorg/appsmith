@@ -21,13 +21,9 @@ describe("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
-      entityExplorer.NavigateToSwitcher("Widgets");
-
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(

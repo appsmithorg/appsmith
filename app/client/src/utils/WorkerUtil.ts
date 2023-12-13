@@ -6,7 +6,7 @@ import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-
+import { convertWebworkerSpansToRegularSpans } from "UITelemetry/generateWebWorkerTraces";
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -181,6 +181,11 @@ export class GracefulWorkerService {
       const response = yield take(ch);
       timeTaken = response.timeTaken;
       const { data: responseData } = response;
+      span &&
+        convertWebworkerSpansToRegularSpans(
+          span,
+          responseData?.webworkerTelemetry,
+        );
       return responseData;
     } finally {
       endSpan(span);

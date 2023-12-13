@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -37,7 +42,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function () {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom", { ensureScrollable: false })
       .should("be.visible");
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     _.deployMode.DeployApp();
     _.deployMode.NavigateBacktoEditor();
     cy.CheckAndUnfoldEntityItem("Widgets");
