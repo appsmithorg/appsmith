@@ -43,7 +43,7 @@ function Files() {
   const context = useContext(FilesContext);
   const { canCreateActions, parentEntityId, parentEntityType } = context;
 
-  const files = useSelector(selectFilesForExplorer());
+  const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
   const isFilesOpen = getExplorerStatus(parentEntityId, "queriesAndJs");
   const [isMenuOpen, openMenu] = useState(false);

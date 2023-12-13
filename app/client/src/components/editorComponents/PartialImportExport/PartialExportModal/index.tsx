@@ -52,7 +52,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   const [selectedParams, setSelectedParams] = useState<PartialExportParams>(
     selectedParamsInitValue,
   );
-  const files = useSelector(selectFilesForExplorer());
+  const files = useSelector(selectFilesForExplorer);
   const { appWideDS } = useAppWideAndOtherDatasource();
   const libraries = useSelector(selectLibrariesForExplorer);
   const canvasWidgets = useSelector(selectWidgetsForCurrentPage);

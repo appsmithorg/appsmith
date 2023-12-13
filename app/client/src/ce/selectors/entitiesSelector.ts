@@ -964,66 +964,66 @@ export const getDatasourceLoading = (state: AppState) => {
   return state.entities.datasources.loading;
 };
 
-export const selectFilesForExplorer = (eeEntities: ActionData[] = []) =>
-  createSelector(
-    getCurrentActions,
-    getCurrentJSCollections,
-    selectDatasourceIdToNameMap,
-    (actions, jsActions, datasourceIdToNameMap) => {
-      const files = [...actions, ...jsActions, ...eeEntities].reduce(
-        (acc, file) => {
-          let group = "";
-          if (file.config.pluginType === PluginType.JS) {
-            group = "JS Objects";
-          } else if (file.config.pluginType === PluginType.API) {
-            group = isEmbeddedRestDatasource(file.config.datasource)
-              ? "APIs"
-              : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-          } else {
-            group = datasourceIdToNameMap[file.config.datasource.id];
-          }
-          acc = acc.concat({
-            type: file.config.pluginType,
-            entity: file,
-            group,
-          });
-          return acc;
-        },
-        [] as Array<ExplorerFileEntity>,
-      );
+export const selectFilesForExplorer = createSelector(
+  getCurrentActions,
+  getCurrentJSCollections,
+  (): ActionData[] => [],
+  selectDatasourceIdToNameMap,
+  (actions, jsActions, workflowEntities, datasourceIdToNameMap) => {
+    const files = [...actions, ...jsActions, ...workflowEntities].reduce(
+      (acc, file) => {
+        let group = "";
+        if (file.config.pluginType === PluginType.JS) {
+          group = "JS Objects";
+        } else if (file.config.pluginType === PluginType.API) {
+          group = isEmbeddedRestDatasource(file.config.datasource)
+            ? "APIs"
+            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+        } else {
+          group = datasourceIdToNameMap[file.config.datasource.id];
+        }
+        acc = acc.concat({
+          type: file.config.pluginType,
+          entity: file,
+          group,
+        });
+        return acc;
+      },
+      [] as Array<ExplorerFileEntity>,
+    );
 
-      const filesSortedByGroupName = sortBy(files, [
-        (file) => file.group?.toLowerCase(),
-        (file) => file.entity.config?.name?.toLowerCase(),
-      ]);
-      const groupedFiles = filesSortedByGroupName.reduce(
-        (acc, file) => {
-          if (acc.group !== file.group) {
-            acc.files = acc.files.concat({
-              type: "group",
-              entity: {
-                name: file.group,
-              },
-            });
-            acc.group = file.group;
-          }
+    const filesSortedByGroupName = sortBy(files, [
+      (file) => file.group?.toLowerCase(),
+      (file) => file.entity.config?.name?.toLowerCase(),
+    ]);
+    const groupedFiles = filesSortedByGroupName.reduce(
+      (acc, file) => {
+        if (acc.group !== file.group) {
           acc.files = acc.files.concat({
-            ...file,
+            type: "group",
             entity: {
-              id: file.entity.config.id,
-              name: file.entity.config.name,
+              name: file.group,
             },
           });
-          return acc;
-        },
-        {
-          group: "" as any,
-          files: [] as any,
-        },
-      );
-      return groupedFiles.files;
-    },
-  );
+          acc.group = file.group;
+        }
+        acc.files = acc.files.concat({
+          ...file,
+          entity: {
+            id: file.entity.config.id,
+            name: file.entity.config.name,
+          },
+        });
+        return acc;
+      },
+      {
+        group: "" as any,
+        files: [] as any,
+      },
+    );
+    return groupedFiles.files;
+  },
+);
 
 export const getActionValidationConfig = (state: AppState, action: any) => {
   const pluginId = action.pluginId;
