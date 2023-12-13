@@ -18,14 +18,15 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ChangeUnit(order = "038", id = "add-permissions-for-git-operations", author = " ")
-public class Migration038AddPermissionsForGitOpearations {
+public class Migration038AddPermissionsForGitOperations {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration038AddPermissionsForGitOpearations(MongoTemplate mongoTemplate) {
+    public Migration038AddPermissionsForGitOperations(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -84,24 +85,35 @@ public class Migration038AddPermissionsForGitOpearations {
     }
 
     private void addGitPoliciesToPolicySet(Set<Policy> policies, Set<String> permissionGroups) {
-        policies.add(Policy.builder()
-                .permission(AclPermission.CONNECT_TO_GIT.getValue())
-                .permissionGroups(permissionGroups)
-                .build());
+        List<String> existingPermissions =
+                policies.stream().map(Policy::getPermission).collect(Collectors.toList());
 
-        policies.add(Policy.builder()
-                .permission(AclPermission.MANAGE_DEFAULT_BRANCHES.getValue())
-                .permissionGroups(permissionGroups)
-                .build());
+        if (!existingPermissions.contains(AclPermission.CONNECT_TO_GIT.getValue())) {
+            policies.add(Policy.builder()
+                    .permission(AclPermission.CONNECT_TO_GIT.getValue())
+                    .permissionGroups(permissionGroups)
+                    .build());
+        }
 
-        policies.add(Policy.builder()
-                .permission(AclPermission.MANAGE_PROTECTED_BRANCHES.getValue())
-                .permissionGroups(permissionGroups)
-                .build());
+        if (!existingPermissions.contains(AclPermission.MANAGE_DEFAULT_BRANCHES.getValue())) {
+            policies.add(Policy.builder()
+                    .permission(AclPermission.MANAGE_DEFAULT_BRANCHES.getValue())
+                    .permissionGroups(permissionGroups)
+                    .build());
+        }
 
-        policies.add(Policy.builder()
-                .permission(AclPermission.MANAGE_AUTO_COMMIT.getValue())
-                .permissionGroups(permissionGroups)
-                .build());
+        if (!existingPermissions.contains(AclPermission.MANAGE_PROTECTED_BRANCHES.getValue())) {
+            policies.add(Policy.builder()
+                    .permission(AclPermission.MANAGE_PROTECTED_BRANCHES.getValue())
+                    .permissionGroups(permissionGroups)
+                    .build());
+        }
+
+        if (!existingPermissions.contains(AclPermission.MANAGE_AUTO_COMMIT.getValue())) {
+            policies.add(Policy.builder()
+                    .permission(AclPermission.MANAGE_AUTO_COMMIT.getValue())
+                    .permissionGroups(permissionGroups)
+                    .build());
+        }
     }
 }
