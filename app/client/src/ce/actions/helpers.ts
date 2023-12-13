@@ -10,36 +10,30 @@ export const createNewQueryBasedOnParentEntity = (
   entityId: string,
   from: EventLocation,
   dsId: string,
+  // Used in EE
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
-  switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.PAGE:
-    default:
-      return createNewQueryAction(entityId, from, dsId);
-  }
+  return createNewQueryAction(entityId, from, dsId);
 };
 
 export const createNewAPIBasedOnParentEntity = (
   entityId: string,
   from: EventLocation,
   apiType?: string,
+  // Used in EE
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
-  switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.PAGE:
-    default:
-      return createNewApiAction(entityId, from, apiType);
-  }
+  return createNewApiAction(entityId, from, apiType);
 };
 
 export const createNewJSCollectionBasedOnParentEntity = (
   entityId: string,
   from: EventLocation,
+  // Used in EE
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
-  switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.PAGE:
-    default:
-      return createNewJSCollection(entityId, from);
-  }
+  return createNewJSCollection(entityId, from);
 };
