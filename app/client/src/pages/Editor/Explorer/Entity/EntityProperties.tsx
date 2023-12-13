@@ -43,6 +43,70 @@ const EntityInfoContainer = styled.div`
 
 const selectEntityInfo = (state: AppState) => state.ui.explorer.entityInfo;
 
+const getJSActionBindings = (
+  entity: JSCollectionData,
+  entityProperties: any,
+  entityType: string,
+) => {
+  const jsCollection = entity as JSCollectionData;
+  const properties = getPropsForJSActionEntity(jsCollection);
+  if (properties) {
+    entityProperties = Object.keys(properties).map((actionProperty: string) => {
+      const value = properties[actionProperty];
+      return {
+        propertyName: actionProperty,
+        entityName: jsCollection.config.name,
+        value: value,
+        entityType,
+      };
+    });
+  }
+  return entityProperties;
+};
+
+const getActionBindings = (
+  entity: any,
+  entityDefinitions: any,
+  entityProperties: any,
+  entityType: string,
+  entityName?: string,
+) => {
+  const config = (entityDefinitions.ACTION as any)(entity as any);
+
+  if (config) {
+    entityProperties = Object.keys(config)
+      .filter((k) => k.indexOf("!") === -1)
+      .map((actionProperty: string) => {
+        let value = entity[actionProperty];
+        if (actionProperty === "isLoading") {
+          value = entity.isLoading;
+        }
+        if (actionProperty === "run") {
+          value = "Function";
+          actionProperty = actionProperty + "()";
+        }
+        if (actionProperty === "clear") {
+          value = "Function";
+          actionProperty = actionProperty + "()";
+        }
+        if (actionProperty === "data") {
+          if (isEmpty(entity.data) || !entity.data.hasOwnProperty("body")) {
+            value = {};
+          } else {
+            value = entity.data.body;
+          }
+        }
+        return {
+          propertyName: actionProperty,
+          entityName: entityName,
+          value,
+          entityType,
+        };
+      });
+  }
+  return entityProperties;
+};
+
 export function EntityProperties() {
   const ref = React.createRef<HTMLDivElement>();
   const dispatch = useDispatch();
@@ -151,63 +215,20 @@ export function EntityProperties() {
     jsActionEntity ||
     moduleInstanceQueryEntity ||
     moduleInstanceJSEntity;
-  let config: any;
   let entityProperties: any = [];
 
   if (!entity) return null;
   switch (entityType) {
     case ENTITY_TYPE.JSACTION:
-      const jsCollection = entity as JSCollectionData;
-      const properties = getPropsForJSActionEntity(jsCollection);
-      if (properties) {
-        entityProperties = Object.keys(properties).map(
-          (actionProperty: string) => {
-            const value = properties[actionProperty];
-            return {
-              propertyName: actionProperty,
-              entityName: jsCollection.config.name,
-              value: value,
-              entityType,
-            };
-          },
-        );
-      }
-      break;
+      return getJSActionBindings(entity, entityProperties, entityType);
     case ENTITY_TYPE.ACTION:
-      config = (entityDefinitions.ACTION as any)(entity as any);
-
-      if (config) {
-        entityProperties = Object.keys(config)
-          .filter((k) => k.indexOf("!") === -1)
-          .map((actionProperty: string) => {
-            let value = entity[actionProperty];
-            if (actionProperty === "isLoading") {
-              value = entity.isLoading;
-            }
-            if (actionProperty === "run") {
-              value = "Function";
-              actionProperty = actionProperty + "()";
-            }
-            if (actionProperty === "clear") {
-              value = "Function";
-              actionProperty = actionProperty + "()";
-            }
-            if (actionProperty === "data") {
-              if (isEmpty(entity.data) || !entity.data.hasOwnProperty("body")) {
-                value = {};
-              } else {
-                value = entity.data.body;
-              }
-            }
-            return {
-              propertyName: actionProperty,
-              entityName: entityName,
-              value,
-              entityType,
-            };
-          });
-      }
-      break;
+      return getActionBindings(
+        entity,
+        entityDefinitions,
+        entityProperties,
+        entityType,
+        entityName,
+      );
     case ENTITY_TYPE.WIDGET:
       const type: Exclude<
         EntityDefinitionsOptions,
@@ -216,7 +237,7 @@ export function EntityProperties() {
         | "SKELETON_WIDGET"
         | "TABS_MIGRATOR_WIDGET"
       > = entity.type;
-      config = WidgetFactory.getAutocompleteDefinitions(type);
+      let config = WidgetFactory.getAutocompleteDefinitions(type);
       if (!config) {
         return null;
       }
@@ -239,58 +260,19 @@ export function EntityProperties() {
       break;
     case ENTITY_TYPE.MODULE_INSTANCE:
       if (moduleInstanceQueryEntity) {
-        config = (entityDefinitions.ACTION as any)(entity as any);
-
-        if (config) {
-          entityProperties = Object.keys(config)
-            .filter((k) => k.indexOf("!") === -1)
-            .map((actionProperty: string) => {
-              let value = entity[actionProperty];
-              if (actionProperty === "isLoading") {
-                value = entity.isLoading;
-              }
-              if (actionProperty === "run") {
-                value = "Function";
-                actionProperty = actionProperty + "()";
-              }
-              if (actionProperty === "clear") {
-                value = "Function";
-                actionProperty = actionProperty + "()";
-              }
-              if (actionProperty === "data") {
-                if (
-                  isEmpty(entity.data) ||
-                  !entity.data.hasOwnProperty("body")
-                ) {
-                  value = {};
-                } else {
-                  value = entity.data.body;
-                }
-              }
-              return {
-                propertyName: actionProperty,
-                entityName: entityName,
-                value,
-                entityType,
-              };
-            });
-        }
+        return getActionBindings(
+          moduleInstanceQueryEntity,
+          entityDefinitions,
+          entityProperties,
+          entityType,
+          entityName,
+        );
       } else if (moduleInstanceJSEntity) {
-        const jsCollection = entity as JSCollectionData;
-        const properties = getPropsForJSActionEntity(jsCollection);
-        if (properties) {
-          entityProperties = Object.keys(properties).map(
-            (actionProperty: string) => {
-              const value = properties[actionProperty];
-              return {
-                propertyName: actionProperty,
-                entityName: jsCollection.config.name,
-                value: value,
-                entityType,
-              };
-            },
-          );
-        }
+        return getJSActionBindings(
+          moduleInstanceJSEntity,
+          entityProperties,
+          entityType,
+        );
       }
       break;
   }
