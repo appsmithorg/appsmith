@@ -13,4 +13,10 @@ public interface CustomActionCollectionRepository extends CustomActionCollection
 
     Flux<ActionCollection> findAllByRootModuleInstanceIds(
             List<String> moduleInstanceIds, Optional<AclPermission> permission);
+
+    Flux<ActionCollection> findByWorkflowId(
+            String workflowId, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
+
+    Flux<ActionCollection> findByWorkflowIds(
+            List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
 }

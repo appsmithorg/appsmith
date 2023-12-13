@@ -1,6 +1,7 @@
 package com.appsmith.server.workflows.crud;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.workflows.base.BaseWorkflowService;
 import reactor.core.publisher.Mono;
 
@@ -8,4 +9,7 @@ public interface CrudWorkflowEntityServiceCECompatible extends BaseWorkflowServi
     Mono<ActionDTO> createWorkflowAction(ActionDTO actionDTO, String branchName);
 
     Mono<ActionDTO> updateWorkflowAction(String actionId, ActionDTO actionDTO);
+
+    Mono<ActionCollectionDTO> createWorkflowActionCollection(
+            ActionCollectionDTO actionCollectionDTO, String branchName);
 }

@@ -1,22 +1,36 @@
 package com.appsmith.server.workflows.helpers;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workflow;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class WorkflowHelperImpl implements WorkflowHelper {
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserRepository userRepository;
+    private final PluginService pluginService;
 
-    public WorkflowHelperImpl(PermissionGroupRepository permissionGroupRepository, UserRepository userRepository) {
+    public WorkflowHelperImpl(
+            PermissionGroupRepository permissionGroupRepository,
+            UserRepository userRepository,
+            PluginService pluginService) {
         this.permissionGroupRepository = permissionGroupRepository;
         this.userRepository = userRepository;
+        this.pluginService = pluginService;
     }
 
     @Override
@@ -128,5 +142,49 @@ public class WorkflowHelperImpl implements WorkflowHelper {
                 .thenReturn(Boolean.TRUE);
 
         return Mono.zip(archiveWorkflowBotRoleMono, archiveWorkflowBotUserMono).thenReturn(Boolean.TRUE);
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> generateMainActionCollectionDTO(Workflow workflow) {
+        String actionFunctionBody =
+                "\n\tThis function takes in a json object as arguments (args) which can be passed when you trigger the workflow.\n"
+                        + "\n\t"
+                        + "\n\t//complete the following line to set up your first activity. Place the cursor after activities. and select the action you'd like"
+                        + "\n\t//to execute from the list menu that appears."
+                        + "\n"
+                        + "\n\tawait activities;"
+                        + "\n\t}"
+                        + "\n}";
+        String actionBody = "function ()" + actionFunctionBody;
+        String actionCollectionBody = "export default {"
+                + "\n// This is a main file for building your workflows. All activities to be executed should be defined within the workflowActivities\n"
+                + "functions. Know more"
+                + "\n"
+                + "\n\texecuteWorkflow () {"
+                + actionFunctionBody;
+
+        return pluginService.findByName("JS Functions").map(jsPlugin -> {
+            ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+            actionCollectionDTO.setWorkflowId(workflow.getId());
+            actionCollectionDTO.setBody(actionCollectionBody);
+            actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
+            actionCollectionDTO.setWorkspaceId(workflow.getWorkspaceId());
+            actionCollectionDTO.setName("Main");
+            actionCollectionDTO.setPluginType(PluginType.JS);
+            actionCollectionDTO.setPluginId(jsPlugin.getId());
+            ActionDTO actionDTO = new ActionDTO();
+            actionDTO.setContextType(CreatorContextType.WORKFLOW);
+            actionDTO.setName("executeWorkflow");
+            actionDTO.setWorkflowId(workflow.getId());
+            actionDTO.setWorkspaceId(workflow.getWorkspaceId());
+            actionDTO.setContextType(CreatorContextType.WORKFLOW);
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setJsArguments(new ArrayList<>());
+            actionConfiguration.setTimeoutInMillisecond("0");
+            actionConfiguration.setBody(actionBody);
+            actionDTO.setActionConfiguration(actionConfiguration);
+            actionCollectionDTO.setActions(List.of(actionDTO));
+            return actionCollectionDTO;
+        });
     }
 }

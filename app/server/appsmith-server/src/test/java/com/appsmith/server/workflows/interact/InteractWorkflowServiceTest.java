@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -42,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
@@ -53,6 +53,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -105,8 +106,11 @@ class InteractWorkflowServiceTest {
     @Autowired
     WorkflowRepository workflowRepository;
 
-    @Autowired
-    private ReactiveMongoOperations reactiveMongoOperations;
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    private PluginExecutor pluginExecutor;
 
     @Autowired
     private EnvironmentPermission environmentPermission;
@@ -130,11 +134,11 @@ class InteractWorkflowServiceTest {
     private Workflow workflow;
     private Datasource datasource;
 
-    @MockBean
-    private PluginExecutorHelper pluginExecutorHelper;
-
     @BeforeEach
     public void setup() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))

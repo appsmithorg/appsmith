@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomActionCollectionRepositoryCEImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -93,5 +94,19 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                         fieldName(QActionCollection.actionCollection.moduleInstanceId))
                 .exists(false);
         return nonModuleInstanceCollectionCriterion;
+    }
+
+    @Override
+    public Flux<ActionCollection> findByWorkflowId(
+            String workflowId, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
+        return this.findByWorkflowIds(List.of(workflowId), aclPermission, includeFields);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByWorkflowIds(
+            List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
+        Criteria workflowCriteria =
+                Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
+        return queryAll(List.of(workflowCriteria), includeFields, aclPermission, Optional.empty());
     }
 }
