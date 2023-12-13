@@ -16,6 +16,10 @@ import java.lang.management.ThreadMXBean;
 @Slf4j
 @ConditionalOnExpression("${logging.verbose.enabled}")
 class PerformanceLoggingHandler implements ObservationHandler<Observation.Context> {
+    /**
+     * requestID isn't thread safe. TODO : Add thread safety for request ID.
+     * Github Issue : https://github.com/appsmithorg/appsmith/issues/29581
+     */
     int requestID = 0;
 
     @Override
