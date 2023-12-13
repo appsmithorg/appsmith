@@ -38,6 +38,9 @@ jobs:
           repository: yatinappsmith/testcacherepo
           path: './cacherepo'
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       - name: Addfile
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: |
