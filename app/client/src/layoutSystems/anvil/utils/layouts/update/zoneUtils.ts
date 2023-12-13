@@ -24,17 +24,17 @@ export function* createZoneAndAddWidgets(
   parentId: string,
 ) {
   /**
-   * Step 1: Create Zone widget.
+   * Create Zone widget.
    */
   const widgetId: string = generateReactKey();
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+  let updatedWidgets: CanvasWidgetsReduxState = yield call(
     addNewWidgetToDsl,
     allWidgets,
     getCreateWidgetPayload(widgetId, ZoneWidget.type, parentId),
   );
 
   /**
-   * Step 2: Extract zone layout.
+   * Extract zone layout.
    */
   const zoneProps: FlattenedWidgetProps = updatedWidgets[widgetId];
 
@@ -42,14 +42,26 @@ export function* createZoneAndAddWidgets(
   let zoneLayout: LayoutProps = preset[0];
 
   /**
-   * Step 3: Split new widgets based on type.
+   * If dragged widget is a new widget,
+   * => Create it and add to zone.
+   * Else => update parentId of the widget.
+   */
+  updatedWidgets = yield updateDraggedWidgets(
+    updatedWidgets,
+    zoneProps.widgetId,
+    draggedWidgets,
+  );
+  zoneProps.children = updatedWidgets[zoneProps.widgetId].children;
+
+  /**
+   * Split new widgets based on type.
    * This is needed because small and large widgets can't coexist in the same row.
    * So we need to create separate rows for each large widget.
    */
   const [smallWidgets, largeWidgets] = splitWidgets(draggedWidgets);
 
   /**
-   * Step 4: Add small widgets to the zone layout.
+   * Add small widgets to the zone layout.
    */
   const zoneComp: typeof BaseLayoutComponent = LayoutFactory.get(
     zoneLayout.layoutType,
@@ -65,7 +77,7 @@ export function* createZoneAndAddWidgets(
   }
 
   /**
-   * Step 5: Add large widgets to the zone layout.
+   * Add large widgets to the zone layout.
    */
   largeWidgets.forEach((widget: WidgetLayoutProps) => {
     zoneLayout = addWidgetsToChildTemplate(
@@ -77,31 +89,14 @@ export function* createZoneAndAddWidgets(
   });
 
   /**
-   * Step 6: Update zone preset with the updated zone layout.
+   * Update zone preset with the updated zone layout.
    */
   preset[0] = zoneLayout;
 
   /**
-   * Step 7: Update canvas widget with the updated preset.
+   * Update zone widget with the updated preset.
    */
   zoneProps.layout = preset;
-
-  /**
-   * Step 8: Add new widgetIds to children of canvas widget.
-   */
-  zoneProps.children = draggedWidgets.map(
-    (widget: WidgetLayoutProps) => widget.widgetId,
-  );
-
-  /**
-   * Step 9: Revert the relationships that were originally established while creating the dragged widgets.
-   */
-  draggedWidgets.forEach((widget: WidgetLayoutProps) => {
-    updatedWidgets[widget.widgetId] = {
-      ...updatedWidgets[widget.widgetId],
-      parentId: zoneProps.widgetId,
-    };
-  });
 
   return {
     canvasWidgets: {
@@ -120,4 +115,40 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
     else smallWidgets.push(widget);
   });
   return [smallWidgets, largeWidgets];
+}
+
+function* updateDraggedWidgets(
+  allWidgets: CanvasWidgetsReduxState,
+  zoneWidgetId: string,
+  draggedWidgets: WidgetLayoutProps[],
+) {
+  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  for (const each of draggedWidgets) {
+    const { widgetId, widgetType } = each;
+    /**
+     * If widget exits.
+     * => update parentId.
+     */
+    if (updatedWidgets[widgetId]) {
+      updatedWidgets[widgetId] = {
+        ...updatedWidgets[widgetId],
+        parentId: zoneWidgetId,
+      };
+      // Add widget to Zone's children.
+      updatedWidgets[zoneWidgetId] = {
+        ...updatedWidgets[zoneWidgetId],
+        children: [...(updatedWidgets[zoneWidgetId]?.children ?? []), widgetId],
+      };
+      continue;
+    }
+    /**
+     * Create new widget with zone as the parent.
+     */
+    updatedWidgets = yield call(
+      addNewWidgetToDsl,
+      allWidgets,
+      getCreateWidgetPayload(widgetId, widgetType, zoneWidgetId),
+    );
+  }
+  return updatedWidgets;
 }

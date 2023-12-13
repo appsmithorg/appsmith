@@ -42,9 +42,6 @@ export function* createSectionAndAddWidget(
 
   const sectionProps: FlattenedWidgetProps = updatedWidgets[widgetId];
 
-  const preset: LayoutProps[] = sectionProps.layout;
-  const sectionLayout: LayoutProps = preset[0];
-
   /**
    * Step 3: Add widgets to section. and update relationships.
    */
@@ -55,7 +52,6 @@ export function* createSectionAndAddWidget(
       widgets,
       highlight,
       sectionProps,
-      sectionLayout,
     );
 
   return res;
@@ -107,10 +103,10 @@ export function* addWidgetsToSection(
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
   section: WidgetProps,
-  sectionLayout: LayoutProps,
 ) {
   let canvasWidgets = { ...allWidgets };
   let sectionProps = { ...section };
+  let sectionLayout: LayoutProps = section.layout[0];
   /**
    * Step 1: Split widgets into zones and non zones.
    *
@@ -230,7 +226,6 @@ export function* moveWidgetsToSection(
     transformMovedWidgets(widgets, movedWidgets, highlight),
     highlight,
     section,
-    section.layout[0],
   );
 
   return canvasWidgets;

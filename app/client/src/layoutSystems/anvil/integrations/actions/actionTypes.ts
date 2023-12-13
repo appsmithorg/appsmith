@@ -1,6 +1,29 @@
+import type { AnvilDragMeta } from "layoutSystems/anvil/canvasArenas/types";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+} from "layoutSystems/anvil/utils/anvilTypes";
+
 export interface AnvilReduxAction<T> {
   type: AnvilReduxActionTypes;
   payload: T;
+}
+
+export interface AnvilMoveWidgetsPayload {
+  highlight: AnvilHighlightInfo;
+  movedWidgets: DraggedWidget[];
+  dragMeta: AnvilDragMeta;
+}
+
+export interface AnvilNewWidgetsPayload {
+  highlight: AnvilHighlightInfo;
+  dragMeta: AnvilDragMeta;
+  newWidget: {
+    width: number;
+    height: number;
+    newWidgetId: string;
+    type: string;
+  };
 }
 
 export enum AnvilReduxActionTypes {
@@ -10,4 +33,5 @@ export enum AnvilReduxActionTypes {
   ANVIL_ADD_NEW_WIDGET = "ANVIL_ADD_NEW_WIDGET",
   ANVIL_MOVE_WIDGET = "ANVIL_MOVE_WIDGET",
   ANVIL_ADD_SUGGESTED_WIDGET = "ANVIL_ADD_SUGGESTED_WIDGET",
+  SAVE_ANVIL_LAYOUT = "SAVE_ANVIL_LAYOUT",
 }
