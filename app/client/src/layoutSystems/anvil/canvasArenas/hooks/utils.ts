@@ -3,8 +3,33 @@ import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import WidgetFactory from "WidgetProvider/factory";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { AnvilDraggedWidgetTypesEnum } from "../types";
 
 const DEFAULT_DROP_RANGE = 10;
+
+export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
+  const extractWidgetTypesDragged: string[] = draggedBlocks.reduce(
+    (widgetTypesArray, each) => {
+      if (!widgetTypesArray.includes(each.type)) {
+        widgetTypesArray.push(each.type);
+      }
+      return widgetTypesArray;
+    },
+    [] as string[],
+  );
+  const draggedWidgetTypes =
+    extractWidgetTypesDragged.length > 1
+      ? AnvilDraggedWidgetTypesEnum.WIDGETS
+      : extractWidgetTypesDragged[0] === ZoneWidget.type
+      ? AnvilDraggedWidgetTypesEnum.ZONE
+      : extractWidgetTypesDragged[0] === SectionWidget.type
+      ? AnvilDraggedWidgetTypesEnum.SECTION
+      : AnvilDraggedWidgetTypesEnum.WIDGETS;
+  return draggedWidgetTypes;
+};
+
 /**
  * getDraggedBlocks function returns an array of DraggedWidget.
  * If the dragged widget is a new widget pulled out of the widget cards,

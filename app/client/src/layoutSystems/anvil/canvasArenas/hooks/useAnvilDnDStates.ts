@@ -14,14 +14,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
-import type {
-  AnvilDragMeta,
-  AnvilDropTargetType,
-  DraggedWidgetTypes,
-} from "../types";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { getDraggedBlocks } from "./utils";
+import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
+import { getDraggedBlocks, getDraggedWidgetTypes } from "./utils";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -135,28 +129,15 @@ export const useAnvilDnDStates = ({
     isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
   const isMainCanvas: boolean = layoutId === mainCanvasLayoutId;
   const isSection: boolean = layoutType === LayoutComponentTypes.SECTION;
-  const extractWidgetTypesDragged: string[] = draggedBlocks.reduce(
-    (widgetTypesArray, each) => {
-      if (!widgetTypesArray.includes(each.type)) {
-        widgetTypesArray.push(each.type);
-      }
-      return widgetTypesArray;
-    },
-    [] as string[],
+  const draggedWidgetTypes = useMemo(
+    () => getDraggedWidgetTypes(draggedBlocks),
+    [draggedBlocks],
   );
-  const draggedWidgetTypes: DraggedWidgetTypes =
-    extractWidgetTypesDragged.length > 1
-      ? "WIDGETS"
-      : extractWidgetTypesDragged[0] === ZoneWidget.type
-      ? "ZONE"
-      : extractWidgetTypesDragged[0] === SectionWidget.type
-      ? "SECTION"
-      : "WIDGETS";
-  const draggedOn: AnvilDropTargetType = isMainCanvas
-    ? "MAIN_CANVAS"
+  const draggedOn = isMainCanvas
+    ? AnvilDropTargetTypesEnum.MAIN_CANVAS
     : isSection
-    ? "SECTION"
-    : "ZONE";
+    ? AnvilDropTargetTypesEnum.SECTION
+    : AnvilDropTargetTypesEnum.ZONE;
 
   return {
     activateOverlayWidgetDrop,

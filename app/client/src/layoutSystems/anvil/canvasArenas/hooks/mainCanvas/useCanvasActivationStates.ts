@@ -8,15 +8,13 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
-import type { DraggedWidgetTypes } from "../../types";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { getDraggedBlocks } from "../utils";
+import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils";
+import type { AnvilDraggedWidgetTypes } from "../../types";
 
 export interface AnvilCanvasActivationStates {
   activateOverlayWidgetDrop: boolean;
   dragDetails: DragDetails;
-  draggedWidgetTypes: DraggedWidgetTypes;
+  draggedWidgetTypes: AnvilDraggedWidgetTypes;
   isDragging: boolean;
   isNewWidget: boolean;
   layoutElementPositions: LayoutElementPositions;
@@ -67,23 +65,10 @@ export const useCanvasActivationStates = (): AnvilCanvasActivationStates => {
    */
   const activateOverlayWidgetDrop =
     isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
-  const extractWidgetTypesDragged: string[] = draggedBlocks.reduce(
-    (widgetTypesArray, each) => {
-      if (!widgetTypesArray.includes(each.type)) {
-        widgetTypesArray.push(each.type);
-      }
-      return widgetTypesArray;
-    },
-    [] as string[],
+  const draggedWidgetTypes = useMemo(
+    () => getDraggedWidgetTypes(draggedBlocks),
+    [draggedBlocks],
   );
-  const draggedWidgetTypes: DraggedWidgetTypes =
-    extractWidgetTypesDragged.length > 1
-      ? "WIDGETS"
-      : extractWidgetTypesDragged[0] === ZoneWidget.type
-      ? "ZONE"
-      : extractWidgetTypesDragged[0] === SectionWidget.type
-      ? "SECTION"
-      : "WIDGETS";
 
   return {
     activateOverlayWidgetDrop,
