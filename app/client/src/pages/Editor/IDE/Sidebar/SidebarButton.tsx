@@ -1,6 +1,7 @@
 import React from "react";
 import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
+import DatasourceStarterLayoutPrompt from "pages/Editor/Explorer/Datasources/DatasourceStarterLayoutPrompt";
 
 interface Props {
   title?: string;
@@ -39,9 +40,14 @@ const IconContainer = styled.div<{ selected: boolean }>`
   }
 `;
 
+const DATASOURCE_BUTTON_TITLE = "Data";
+
 function SidebarButton(props: Props) {
   return (
     <Container>
+      {props.title === DATASOURCE_BUTTON_TITLE && (
+        <DatasourceStarterLayoutPrompt />
+      )}
       <Tooltip
         content={props.tooltip}
         isDisabled={!!props.title && !props.tooltip}

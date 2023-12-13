@@ -32,7 +32,6 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import DatasourceStarterLayoutPrompt from "./Datasources/DatasourceStarterLayoutPrompt";
 import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 
 const NoEntityFoundSvg = importSvg(
@@ -153,8 +152,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      {/* Shows first time users only */}
-      <DatasourceStarterLayoutPrompt />
+
       {!isAppSidebarEnabled && (
         <>
           <Datasources
