@@ -71,7 +71,7 @@ function Files() {
     (isOpen: boolean) => {
       saveExplorerStatus(editorId, "queriesAndJs", isOpen);
     },
-    [parentEntityId],
+    [editorId],
   );
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
