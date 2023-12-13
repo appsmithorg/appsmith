@@ -74,6 +74,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
 
@@ -707,7 +708,7 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(
                 ConnectionContext<ConnectionPool> connectionContext, DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
-            final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
+            final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             ConnectionPool connectionPool = connectionContext.getConnection();
