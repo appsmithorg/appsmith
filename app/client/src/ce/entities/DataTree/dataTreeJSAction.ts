@@ -1,4 +1,4 @@
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
@@ -62,7 +62,7 @@ export const generateDataTreeJSAction = (
       ...variableList,
       ...actionsData,
       body: removeThisReference,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       actionId: js.config.id,
     },
     configEntity: {
@@ -70,7 +70,7 @@ export const generateDataTreeJSAction = (
       meta: meta,
       name: js.config.name,
       pluginType: js.config.pluginType,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
       reactivePaths: { ...bindingPaths },
       dynamicBindingPathList: dynamicBindingPathList,

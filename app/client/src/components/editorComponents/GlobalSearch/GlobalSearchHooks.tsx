@@ -38,6 +38,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
+import { useEditorType } from "@appsmith/hooks";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
@@ -65,13 +66,15 @@ export const useFilteredFileOperations = (query = "") => {
     userWorkspacePermissions,
   );
 
+  const editorType = useEditorType(history.location.pathname);
   // get all datasources, app ds listed first
   const allDatasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDSActionPermissionInApp(
-      isFeatureEnabled,
-      ds.userPermissions ?? [],
+    hasCreateDSActionPermissionInApp({
+      isEnabled: isFeatureEnabled,
+      dsPermissions: ds.userPermissions ?? [],
       pagePermissions,
-    ),
+      editorType,
+    }),
   );
 
   return useFilteredAndSortedFileOperations({

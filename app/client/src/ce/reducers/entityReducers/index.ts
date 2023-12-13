@@ -15,6 +15,8 @@ import canvasLevelsReducer from "reducers/entityReducers/autoHeightReducers/canv
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
 import layoutElementPositionsReducer from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { AppState } from "..";
 
 export const entityReducerObject = {
   canvasWidgets: canvasWidgetsReducer,
@@ -31,4 +33,6 @@ export const entityReducerObject = {
   autoHeightLayoutTree: autoHeightLayoutTreeReducer,
   canvasLevels: canvasLevelsReducer,
   layoutElementPositions: layoutElementPositionsReducer,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  moduleInstanceEntities: (state: AppState, action: ReduxAction<any>) => {},
 };

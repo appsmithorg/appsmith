@@ -1,6 +1,6 @@
 import { filterInternalProperties } from "..";
 import {
-  ENTITY_TYPE_VALUE,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import type {
@@ -25,7 +25,7 @@ describe("filterInternalProperties tests", () => {
       renderMode: "CANVAS",
       text: "yo",
       type: "INPUT_WIDGET_V2",
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       parentColumnSpace: 1,
       parentRowSpace: 2,
       leftColumn: 2,
@@ -58,7 +58,7 @@ describe("filterInternalProperties tests", () => {
       widgetId: "yolo",
       widgetName: "Input1",
       type: "INPUT_WIDGET_V2",
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     };
     const dataTree = {
       Input1: dataTreeEntity,

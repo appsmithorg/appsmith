@@ -6,7 +6,7 @@ import {
   entityDefinitions,
   getPropsForJSActionEntity,
 } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -23,6 +23,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
 import WidgetFactory from "WidgetProvider/factory";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 // const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -86,6 +87,21 @@ export function EntityProperties() {
     state.entities.jsActions.find((js) => js.config.id === entityId),
   );
 
+  const moduleInstanceQueryEntity = useSelector(
+    (state: AppState) =>
+      state.entities.moduleInstanceEntities?.actions.find(
+        (action: ActionData) => action.config.moduleInstanceId === entityId,
+      ),
+  );
+
+  const moduleInstanceJSEntity = useSelector(
+    (state: AppState) =>
+      state.entities.moduleInstanceEntities?.jsCollections.find(
+        (action: JSCollectionData) =>
+          action.config.moduleInstanceId === entityId,
+      ),
+  );
+
   const closeContainer = useCallback((e) => {
     e.stopPropagation();
     dispatch({
@@ -129,13 +145,18 @@ export function EntityProperties() {
     }
   }, [entityId]);
 
-  const entity: any = widgetEntity || actionEntity || jsActionEntity;
+  const entity: any =
+    widgetEntity ||
+    actionEntity ||
+    jsActionEntity ||
+    moduleInstanceQueryEntity ||
+    moduleInstanceJSEntity;
   let config: any;
   let entityProperties: any = [];
 
   if (!entity) return null;
   switch (entityType) {
-    case ENTITY_TYPE_VALUE.JSACTION:
+    case ENTITY_TYPE.JSACTION:
       const jsCollection = entity as JSCollectionData;
       const properties = getPropsForJSActionEntity(jsCollection);
       if (properties) {
@@ -152,7 +173,7 @@ export function EntityProperties() {
         );
       }
       break;
-    case ENTITY_TYPE_VALUE.ACTION:
+    case ENTITY_TYPE.ACTION:
       config = (entityDefinitions.ACTION as any)(entity as any);
 
       if (config) {
@@ -187,7 +208,7 @@ export function EntityProperties() {
           });
       }
       break;
-    case ENTITY_TYPE_VALUE.WIDGET:
+    case ENTITY_TYPE.WIDGET:
       const type: Exclude<
         EntityDefinitionsOptions,
         | "CANVAS_WIDGET"
@@ -215,6 +236,62 @@ export function EntityProperties() {
             entityType,
           };
         });
+      break;
+    case ENTITY_TYPE.MODULE_INSTANCE:
+      if (moduleInstanceQueryEntity) {
+        config = (entityDefinitions.ACTION as any)(entity as any);
+
+        if (config) {
+          entityProperties = Object.keys(config)
+            .filter((k) => k.indexOf("!") === -1)
+            .map((actionProperty: string) => {
+              let value = entity[actionProperty];
+              if (actionProperty === "isLoading") {
+                value = entity.isLoading;
+              }
+              if (actionProperty === "run") {
+                value = "Function";
+                actionProperty = actionProperty + "()";
+              }
+              if (actionProperty === "clear") {
+                value = "Function";
+                actionProperty = actionProperty + "()";
+              }
+              if (actionProperty === "data") {
+                if (
+                  isEmpty(entity.data) ||
+                  !entity.data.hasOwnProperty("body")
+                ) {
+                  value = {};
+                } else {
+                  value = entity.data.body;
+                }
+              }
+              return {
+                propertyName: actionProperty,
+                entityName: entityName,
+                value,
+                entityType,
+              };
+            });
+        }
+      } else if (moduleInstanceJSEntity) {
+        const jsCollection = entity as JSCollectionData;
+        const properties = getPropsForJSActionEntity(jsCollection);
+        if (properties) {
+          entityProperties = Object.keys(properties).map(
+            (actionProperty: string) => {
+              const value = properties[actionProperty];
+              return {
+                propertyName: actionProperty,
+                entityName: jsCollection.config.name,
+                value: value,
+                entityType,
+              };
+            },
+          );
+        }
+      }
       break;
   }
   return (

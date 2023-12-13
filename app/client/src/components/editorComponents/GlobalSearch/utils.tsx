@@ -8,7 +8,7 @@ import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
@@ -88,19 +88,20 @@ export interface SnippetBody {
   shortTitle?: string;
 }
 
-export type FilterEntity = WidgetType | ENTITY_TYPE;
+export type FilterEntity = WidgetType | EntityTypeValue;
 
-export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
-  ACTION: "All Queries",
-  WIDGET: "All Widgets",
-  JSACTION: "JS Objects",
-};
+export const filterEntityTypeLabels: Partial<Record<EntityTypeValue, string>> =
+  {
+    ACTION: "All Queries",
+    WIDGET: "All Widgets",
+    JSACTION: "JS Objects",
+  };
 
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
   return (
     WidgetFactory.widgetConfigMap.get(label as WidgetType)?.widgetName ||
     getPluginByPackageName(state, label)?.name ||
-    filterEntityTypeLabels[label as ENTITY_TYPE] ||
+    filterEntityTypeLabels[label as EntityTypeValue] ||
     label
   );
 };
