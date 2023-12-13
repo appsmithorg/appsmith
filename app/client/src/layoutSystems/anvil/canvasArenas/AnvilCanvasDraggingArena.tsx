@@ -8,7 +8,6 @@ import type {
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
-import { useCanvasActivation } from "./hooks/useCanvasActivation";
 
 interface AnvilCanvasDraggingArenaProps {
   canvasId: string;
@@ -38,7 +37,6 @@ export const AnvilCanvasDraggingArena = (
     layoutId,
     layoutType,
   });
-  useCanvasActivation(anvilDragStates);
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
 
   return (

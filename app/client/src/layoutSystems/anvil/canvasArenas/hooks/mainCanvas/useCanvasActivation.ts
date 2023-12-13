@@ -8,7 +8,7 @@ import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { debounce } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import type { AnvilDnDStates } from "./useAnvilDnDStates";
+import type { AnvilCanvasActivationStates } from "./useCanvasActivationStates";
 
 export const AnvilCanvasZIndex = {
   activated: Indices.Layer10.toString(),
@@ -32,21 +32,20 @@ const checkIfMousePositionIsInsideBlock = (
 
 const MAIN_CANVAS_BUFFER = 20;
 
-export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
-  const {
-    activateOverlayWidgetDrop,
-    dragDetails,
-    dragMeta: { draggedWidgetTypes },
-    isDragging,
-    isMainCanvas,
-    isNewWidget,
-    layoutElementPositions,
-    mainCanvasLayoutId,
-  } = anvilDragStates;
+export const useCanvasActivation = ({
+  activateOverlayWidgetDrop,
+  dragDetails,
+  draggedWidgetTypes,
+  isDragging,
+  isNewWidget,
+  layoutElementPositions,
+  mainCanvasLayoutId,
+  selectedWidgets,
+}: AnvilCanvasActivationStates) => {
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
-  const draggedWidgetPositions = anvilDragStates.selectedWidgets.map((each) => {
+  const draggedWidgetPositions = selectedWidgets.map((each) => {
     return layoutElementPositions[each];
   });
   const areSectionsDragged = draggedWidgetTypes === "SECTION";
@@ -66,8 +65,9 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
   /**
    * all layouts registered on the position observer.
    */
-  const allLayouts: any =
-    isMainCanvas && isDragging ? positionObserver.getRegisteredLayouts() : {};
+  const allLayouts: any = isDragging
+    ? positionObserver.getRegisteredLayouts()
+    : {};
 
   /**
    * all domIds of layouts on the page.
@@ -182,7 +182,7 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
     }
   };
   useEffect(() => {
-    if (isDragging && isMainCanvas) {
+    if (isDragging) {
       document?.addEventListener("mousemove", onMouseMoveWhileDragging);
       document.body.addEventListener("mouseup", onMouseUp, false);
       window.addEventListener("mouseup", onMouseUp, false);

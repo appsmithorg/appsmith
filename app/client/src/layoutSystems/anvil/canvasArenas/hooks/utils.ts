@@ -1,8 +1,43 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
+import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import WidgetFactory from "WidgetProvider/factory";
 
 const DEFAULT_DROP_RANGE = 10;
+/**
+ * getDraggedBlocks function returns an array of DraggedWidget.
+ * If the dragged widget is a new widget pulled out of the widget cards,
+ * specific info like type, widgetId and responsiveBehavior are filled using dragDetails
+ */
 
+export const getDraggedBlocks = (
+  isNewWidget: boolean,
+  dragDetails: DragDetails,
+  selectedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+): DraggedWidget[] => {
+  if (isNewWidget) {
+    const { newWidget } = dragDetails;
+    return [
+      {
+        parentId: newWidget.parentId,
+        responsiveBehavior:
+          newWidget.responsiveBehavior ??
+          WidgetFactory.getConfig(newWidget.type)?.responsiveBehavior,
+        type: newWidget.type,
+        widgetId: newWidget.widgetId,
+      },
+    ];
+  } else {
+    return selectedWidgets.map((eachWidgetId) => ({
+      parentId: allWidgets[eachWidgetId].parentId,
+      responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
+      type: allWidgets[eachWidgetId].type,
+      widgetId: eachWidgetId,
+    }));
+  }
+};
 export const getClosestHighlight = (
   e: MouseEvent,
   highlights: AnvilHighlightInfo[],

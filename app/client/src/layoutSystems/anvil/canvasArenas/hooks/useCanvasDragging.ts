@@ -9,7 +9,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { getClosestHighlight } from "./utils";
-import { AnvilCanvasZIndex } from "./useCanvasActivation";
+import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
 
 /**
  * function to render UX to denote that the widget type cannot be dropped in the layout
@@ -99,6 +99,7 @@ export const useCanvasDragging = (
   const { anvilDragStates, deriveAllHighlightsFn, onDrop } = props;
   const {
     activateOverlayWidgetDrop,
+    allowToDrop,
     draggedBlocks,
     isCurrentDraggedCanvas,
     isDragging,
@@ -134,7 +135,7 @@ export const useCanvasDragging = (
 
   useEffect(() => {
     if (stickyCanvasRef.current && slidingArenaRef.current) {
-      if (!anvilDragStates.isCurrentDraggedCanvas) {
+      if (!isCurrentDraggedCanvas) {
         const canvasCtx = stickyCanvasRef.current.getContext(
           "2d",
         ) as CanvasRenderingContext2D;
@@ -154,7 +155,7 @@ export const useCanvasDragging = (
         slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.activated;
       }
     }
-  }, [anvilDragStates.isCurrentDraggedCanvas]);
+  }, [isCurrentDraggedCanvas]);
 
   useEffect(() => {
     if (slidingArenaRef.current && isDragging) {
@@ -190,7 +191,7 @@ export const useCanvasDragging = (
             isDragging &&
             canvasIsDragging &&
             (currentRectanglesToDraw || activateOverlayWidgetDrop) &&
-            anvilDragStates.allowToDrop
+            allowToDrop
           ) {
             onDrop(
               activateOverlayWidgetDrop
@@ -206,7 +207,7 @@ export const useCanvasDragging = (
 
         const onFirstMoveOnCanvas = (e: MouseEvent) => {
           if (
-            anvilDragStates.isCurrentDraggedCanvas &&
+            isCurrentDraggedCanvas &&
             isDragging &&
             !canvasIsDragging &&
             slidingArenaRef.current
@@ -225,7 +226,7 @@ export const useCanvasDragging = (
             slidingArenaRef.current &&
             stickyCanvasRef.current
           ) {
-            if (!anvilDragStates.allowToDrop) {
+            if (!allowToDrop) {
               renderDisallowOnCanvas(slidingArenaRef.current);
               return;
             }
