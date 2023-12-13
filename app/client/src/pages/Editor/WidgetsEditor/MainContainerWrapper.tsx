@@ -227,6 +227,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
             !isPreviewingNavigation &&
             !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
+          "ml-1": true,
         })}
         id={CANVAS_VIEWPORT}
         isAppSettingsPaneWithNavigationTabOpen={

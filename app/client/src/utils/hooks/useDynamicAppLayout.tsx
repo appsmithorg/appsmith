@@ -47,7 +47,7 @@ import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
-const GUTTER_WIDTH = 72;
+const GUTTER_WIDTH = 0;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
 
 export const useDynamicAppLayout = () => {

@@ -10,7 +10,7 @@ import { createNewJSCollection } from "../../../../actions/jsPaneActions";
 import { WidgetDragSource } from "../../../../layoutSystems/common/canvasArenas/ArenaTypes";
 
 const PaneContainer = styled.div`
-  width: 250px;
+  width: 256px;
 `;
 const PaneBody = styled.div`
   height: calc(100vh - 235px);
