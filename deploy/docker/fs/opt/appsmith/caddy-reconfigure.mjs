@@ -38,7 +38,7 @@ const bind = [
   (APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, ""),
   // Also bind to http on 80, so that if the cert provisioning fails, we can still serve on http.
   // But this still means that if cert provisioning is successful, http will be redirected to https.
-  ":80",
+  //":80",
 ].join(" ")
 
 const parts = []
