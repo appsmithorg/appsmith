@@ -73,6 +73,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
+        if: inputs.skip-tests != 'true'
         id: cache-appsmith
         uses: actions/cache@v3
         with:
