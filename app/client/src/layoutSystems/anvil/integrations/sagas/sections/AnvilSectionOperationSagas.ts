@@ -18,30 +18,39 @@ import {
 } from "layoutSystems/anvil/sectionSpaceDistributor/utils";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 
+// function to update the zone count of a section widget
 function* updateZonesCountOfSectionSaga(
   actionPayload: ReduxAction<{
-    zoneCount: number;
-    sectionWidgetId: string;
+    zoneCount: number; // New zone count for the section
+    sectionWidgetId: string; // ID of the section widget
   }>,
 ) {
   const { sectionWidgetId, zoneCount } = actionPayload.payload;
+
+  // Check if the provided zone count is within the valid range (1 to 4)
   if (zoneCount <= 4 && zoneCount > 0) {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const sectionWidget = allWidgets[sectionWidgetId];
+
+    // Proceed only if the section widget and its children exist
     if (sectionWidget && sectionWidget.children) {
       const zoneOrder = sectionWidget.layout[0].layout.map(
         (each: any) => each.widgetId,
       );
+
       const currentZoneCount = zoneOrder ? zoneOrder.length : 0;
       let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
 
+      // If the new zone count is less than the current count, merge the last zones
       if (currentZoneCount > zoneCount) {
         updatedWidgets = yield call(
           mergeLastZonesOfSection,
           currentZoneCount - zoneCount,
           zoneOrder,
         );
-      } else if (currentZoneCount < zoneCount) {
+      }
+      // If the new zone count is more than the current count, add new zones
+      else if (currentZoneCount < zoneCount) {
         const updatedObj: {
           updatedWidgets: CanvasWidgetsReduxState;
           zoneIdsCreated: string[];
@@ -103,15 +112,17 @@ function* updateZonesCountOfSectionSaga(
   }
 }
 
+// function to check and delete a Section Widget automatically
 export function* checkAutoSectionDelete(
   actionPayload: ReduxAction<{
-    widgetId: string;
+    widgetId: string; // ID of the widget to check for auto-deletion
   }>,
 ) {
   try {
     const { widgetId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const canvasWidget: FlattenedWidgetProps = allWidgets[widgetId];
+
     /**
      * Return if:
      * 1. Canvas doesn't exist.
@@ -122,11 +133,16 @@ export function* checkAutoSectionDelete(
       !canvasWidget ||
       !canvasWidget.parentId ||
       canvasWidget.children?.length
-    )
+    ) {
       return;
+    }
 
     const parent: FlattenedWidgetProps = allWidgets[canvasWidget.parentId];
-    if (!parent) return;
+
+    // Return if the parent widget doesn't exist
+    if (!parent) {
+      return;
+    }
 
     /**
      * If parent is a Section Widget,
@@ -153,9 +169,10 @@ export function* checkAutoSectionDelete(
   }
 }
 
+// function to check and update the zone count of a Section Widget
 export function* checkSectionZoneCount(
   actionPayload: ReduxAction<{
-    widgetId: string;
+    widgetId: string; // ID of the widget to check for zone count
   }>,
 ) {
   try {
@@ -164,10 +181,14 @@ export function* checkSectionZoneCount(
 
     const canvasWidget: FlattenedWidgetProps = allWidgets[widgetId];
 
-    if (!canvasWidget || !canvasWidget.parentId) return;
+    // Return if the widget or its parent doesn't exist
+    if (!canvasWidget || !canvasWidget.parentId) {
+      return;
+    }
 
     const section: FlattenedWidgetProps = allWidgets[canvasWidget.parentId];
 
+    // Update the zone count if it doesn't match the actual child count
     if (section.zoneCount !== canvasWidget.children?.length) {
       yield put(
         batchUpdateWidgetProperty(section.widgetId, {

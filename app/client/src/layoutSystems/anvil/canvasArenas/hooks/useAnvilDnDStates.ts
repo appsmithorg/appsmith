@@ -11,17 +11,11 @@ import {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import WidgetFactory from "WidgetProvider/factory";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
-import type {
-  AnvilDragMeta,
-  AnvilDropTargetType,
-  DraggedWidgetTypes,
-} from "../types";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
+import { getDraggedBlocks, getDraggedWidgetTypes } from "./utils";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -35,54 +29,15 @@ export interface AnvilDnDStates {
   allowToDrop: boolean;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
-  selectedWidgets: string[];
-  isChildOfLayout: boolean;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
-  isMainCanvas: boolean;
-  isSection: boolean;
   isNewWidget: boolean;
-  isNewWidgetInitialTargetCanvas: boolean;
   layoutElementPositions: LayoutElementPositions;
   dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
 }
 
 const AnvilOverlayWidgetTypes = ["MODAL_WIDGET"];
-
-/**
- * getDraggedBlocks function returns an array of DraggedWidget.
- * If the dragged widget is a new widget pulled out of the widget cards,
- * specific info like type, widgetId and responsiveBehavior are filled using dragDetails
- */
-
-const getDraggedBlocks = (
-  isNewWidget: boolean,
-  dragDetails: DragDetails,
-  selectedWidgets: string[],
-  allWidgets: CanvasWidgetsReduxState,
-): DraggedWidget[] => {
-  if (isNewWidget) {
-    const { newWidget } = dragDetails;
-    return [
-      {
-        parentId: newWidget.parentId,
-        responsiveBehavior:
-          newWidget.responsiveBehavior ??
-          WidgetFactory.getConfig(newWidget.type)?.responsiveBehavior,
-        type: newWidget.type,
-        widgetId: newWidget.widgetId,
-      },
-    ];
-  } else {
-    return selectedWidgets.map((eachWidgetId) => ({
-      parentId: allWidgets[eachWidgetId].parentId,
-      responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
-      type: allWidgets[eachWidgetId].type,
-      widgetId: eachWidgetId,
-    }));
-  }
-};
 
 /**
  * function to validate if the widget(s) being dragged is supported by the canvas.
@@ -137,18 +92,9 @@ export const useAnvilDnDStates = ({
    */
   const isNewWidget = !!newWidget && !dragParent;
   /**
-   * boolean to indicate if the widget being dragged is this particular layout's child.
-   */
-  const isChildOfLayout = dragParent === layoutId;
-  /**
    * boolean to indicate if the widget is being dragged on this particular canvas.
    */
   const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
-  /**
-   * boolean to indicate if this canvas is the initial target canvas(Main Canvas) to activate when a new widget is dragged.
-   */
-  const isNewWidgetInitialTargetCanvas =
-    isNewWidget && layoutId === mainCanvasLayoutId;
   /**
    * boolean to indicate if the widgets being dragged are all allowed to drop in this particular canvas.
    * ex: In a From widget the header will not accept widgets like Table/List.
@@ -183,28 +129,15 @@ export const useAnvilDnDStates = ({
     isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
   const isMainCanvas: boolean = layoutId === mainCanvasLayoutId;
   const isSection: boolean = layoutType === LayoutComponentTypes.SECTION;
-  const extractWidgetTypesDragged: string[] = draggedBlocks.reduce(
-    (widgetTypesArray, each) => {
-      if (!widgetTypesArray.includes(each.type)) {
-        widgetTypesArray.push(each.type);
-      }
-      return widgetTypesArray;
-    },
-    [] as string[],
+  const draggedWidgetTypes = useMemo(
+    () => getDraggedWidgetTypes(draggedBlocks),
+    [draggedBlocks],
   );
-  const draggedWidgetTypes: DraggedWidgetTypes =
-    extractWidgetTypesDragged.length > 1
-      ? "WIDGETS"
-      : extractWidgetTypesDragged[0] === ZoneWidget.type
-      ? "ZONE"
-      : extractWidgetTypesDragged[0] === SectionWidget.type
-      ? "SECTION"
-      : "WIDGETS";
-  const draggedOn: AnvilDropTargetType = isMainCanvas
-    ? "MAIN_CANVAS"
+  const draggedOn = isMainCanvas
+    ? AnvilDropTargetTypesEnum.MAIN_CANVAS
     : isSection
-    ? "SECTION"
-    : "ZONE";
+    ? AnvilDropTargetTypesEnum.SECTION
+    : AnvilDropTargetTypesEnum.ZONE;
 
   return {
     activateOverlayWidgetDrop,
@@ -215,14 +148,9 @@ export const useAnvilDnDStates = ({
       draggedWidgetTypes,
       draggedOn,
     },
-    selectedWidgets,
-    isChildOfLayout,
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
-    isMainCanvas,
-    isSection,
-    isNewWidgetInitialTargetCanvas,
     mainCanvasLayoutId,
     layoutElementPositions,
   };

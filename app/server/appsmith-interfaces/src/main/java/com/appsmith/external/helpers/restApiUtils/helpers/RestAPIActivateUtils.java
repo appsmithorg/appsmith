@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.NoArgsConstructor;
-import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
@@ -40,6 +39,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -147,12 +147,12 @@ public class RestAPIActivateUtils {
                         } else if (MediaType.IMAGE_GIF.equals(contentType)
                                 || MediaType.IMAGE_JPEG.equals(contentType)
                                 || MediaType.IMAGE_PNG.equals(contentType)) {
-                            String encode = Base64.encode(body);
+                            String encode = Base64.getEncoder().encodeToString(body);
                             result.setBody(encode);
                             responseDataType = ResponseDataType.IMAGE;
 
                         } else if (BINARY_DATA_TYPES.contains(contentType.toString())) {
-                            String encode = Base64.encode(body);
+                            String encode = Base64.getEncoder().encodeToString(body);
                             result.setBody(encode);
                             responseDataType = ResponseDataType.BINARY;
                         } else {

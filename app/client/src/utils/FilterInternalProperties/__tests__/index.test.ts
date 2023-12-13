@@ -10,7 +10,7 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import InputWidget from "widgets/InputWidgetV2";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 describe("filterInternalProperties tests", () => {
   beforeAll(() => {

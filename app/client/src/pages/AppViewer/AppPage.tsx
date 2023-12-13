@@ -42,7 +42,7 @@ export function AppPage(props: AppPageProps) {
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
-
+  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
   useDynamicAppLayout();
 
   useEffect(() => {
@@ -85,14 +85,14 @@ export function AppPage(props: AppPageProps) {
         isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
       }
     >
-      <PageView className="t--app-viewer-page" width={width}>
+      <PageView
+        className="t--app-viewer-page"
+        width={isAnvilLayout ? "100%" : width + "px"}
+      >
         {props.widgetsStructure.widgetId &&
           renderAppsmithCanvas({
             ...props.widgetsStructure,
-            classList:
-              layoutSystemType === LayoutSystemTypes.ANVIL
-                ? ["main-anvil-canvas"]
-                : [],
+            classList: isAnvilLayout ? ["main-anvil-canvas"] : [],
           } as WidgetProps)}
       </PageView>
     </PageViewWrapper>
