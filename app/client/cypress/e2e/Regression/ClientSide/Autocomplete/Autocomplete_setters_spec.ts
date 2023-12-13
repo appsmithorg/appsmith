@@ -21,7 +21,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests for setters", () => {
+describe("Autocomplete tests for setters", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);

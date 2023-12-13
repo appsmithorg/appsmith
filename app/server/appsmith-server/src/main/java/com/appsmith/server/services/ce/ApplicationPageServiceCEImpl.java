@@ -40,6 +40,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
+import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -129,6 +130,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
+    private final GitAutoCommitHelper gitAutoCommitHelper;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -322,26 +324,27 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     Layout layout = page.getLayouts().get(0);
                     JSONObject layoutDsl = layout.getDsl();
-                    boolean isMigrationRequired = true;
-                    String versionKey = "version";
-                    if (layoutDsl.containsKey(versionKey)) {
-                        int currentDslVersion =
-                                layoutDsl.getAsNumber(versionKey).intValue();
-                        if (currentDslVersion >= latestDslVersion) {
-                            isMigrationRequired = false;
-                        }
-                    }
-
+                    boolean isMigrationRequired = GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
                     if (isMigrationRequired) {
-                        return dslMigrationUtils
-                                .migratePageDsl(layoutDsl)
+                        // if edit mode, then trigger the auto commit event
+                        Mono<Boolean> autoCommitEventRunner;
+                        if (!viewMode) {
+                            autoCommitEventRunner = gitAutoCommitHelper.autoCommitApplication(
+                                    newPage.getDefaultResources().getApplicationId(),
+                                    newPage.getDefaultResources().getBranchName());
+                        } else {
+                            autoCommitEventRunner = Mono.just(Boolean.FALSE);
+                        }
+                        // zipping them so that they can run in parallel
+                        return Mono.zip(dslMigrationUtils.migratePageDsl(layoutDsl), autoCommitEventRunner)
                                 .onErrorMap(throwable -> {
                                     log.error("Error while migrating DSL ", throwable);
                                     return new AppsmithException(
                                             AppsmithError.RTS_SERVER_ERROR,
                                             "Error while migrating to latest DSL version");
                                 })
-                                .flatMap(migratedDsl -> {
+                                .flatMap(tuple2 -> {
+                                    JSONObject migratedDsl = tuple2.getT1();
                                     // update the current page DTO with migrated dsl
                                     page.getLayouts().get(0).setDsl(migratedDsl);
 
