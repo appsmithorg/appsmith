@@ -69,7 +69,7 @@ function Files() {
 
   const onFilesToggle = useCallback(
     (isOpen: boolean) => {
-      saveExplorerStatus(parentEntityId, "queriesAndJs", isOpen);
+      saveExplorerStatus(editorId, "queriesAndJs", isOpen);
     },
     [parentEntityId],
   );
