@@ -42,7 +42,6 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
-import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -368,8 +367,6 @@ public class DatabaseChangelog1 {
                 createdAtIndex,
                 makeIndex("type"),
                 makeIndex("packageName").unique());
-
-        ensureIndexes(mongoTemplate, Role.class, createdAtIndex);
 
         ensureIndexes(
                 mongoTemplate, User.class, createdAtIndex, makeIndex("email").unique());
