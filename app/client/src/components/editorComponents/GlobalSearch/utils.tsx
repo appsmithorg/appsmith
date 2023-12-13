@@ -26,7 +26,7 @@ import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon } from "design-system";
-import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 import {
   createNewAPIBasedOnParentEntity,
   createNewJSCollectionBasedOnParentEntity,
@@ -261,12 +261,12 @@ export interface ActionOperation {
   action?: (
     entityId: string,
     location: EventLocation,
-    entityType?: ACTION_PARENT_ENTITY_TYPE,
+    entityType?: ActionParentEntityTypeInterface,
   ) => any;
   redirect?: (
     entityId: string,
     location: EventLocation,
-    entityType?: ACTION_PARENT_ENTITY_TYPE,
+    entityType?: ActionParentEntityTypeInterface,
   ) => any;
   pluginId?: string;
   focusEntityType?: FocusEntity;
@@ -281,7 +281,7 @@ export const actionOperations: ActionOperation[] = [
     action: (
       entityId: string,
       location: EventLocation,
-      entityType?: ACTION_PARENT_ENTITY_TYPE,
+      entityType?: ActionParentEntityTypeInterface,
     ) =>
       createNewAPIBasedOnParentEntity(
         entityId,
@@ -299,7 +299,7 @@ export const actionOperations: ActionOperation[] = [
     action: (
       entityId: string,
       location: EventLocation,
-      entityType?: ACTION_PARENT_ENTITY_TYPE,
+      entityType?: ActionParentEntityTypeInterface,
     ) =>
       createNewAPIBasedOnParentEntity(
         entityId,
@@ -317,7 +317,7 @@ export const actionOperations: ActionOperation[] = [
     action: (
       entityId: string,
       from: EventLocation,
-      entityType?: ACTION_PARENT_ENTITY_TYPE,
+      entityType?: ActionParentEntityTypeInterface,
     ) => createNewJSCollectionBasedOnParentEntity(entityId, from, entityType),
     focusEntityType: FocusEntity.JS_OBJECT,
   },
@@ -353,7 +353,7 @@ export const generateCreateQueryForDSOption = (
   onClick: (
     entityId: string,
     from: EventLocation,
-    entityType?: ACTION_PARENT_ENTITY_TYPE,
+    entityType?: ActionParentEntityTypeInterface,
   ) => void,
 ) => {
   return {
