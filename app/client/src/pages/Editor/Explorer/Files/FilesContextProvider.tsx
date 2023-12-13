@@ -12,6 +12,7 @@ export enum ActionEntityContextMenuItemsEnum {
 
 interface FilesContextContextProps {
   canCreateActions: boolean;
+  editorId: string; // applicationId, workflowId or packageId
   parentEntityId: string; // page, workflow or module
   parentEntityType: ActionParentEntityTypeInterface;
 }
@@ -32,6 +33,7 @@ export const FilesContext = createContext<
 export const FilesContextProvider = ({
   canCreateActions,
   children,
+  editorId,
   parentEntityId,
   parentEntityType,
 }: FilesContextProviderProps) => {
@@ -49,6 +51,7 @@ export const FilesContextProvider = ({
   const value = useMemo(() => {
     return {
       canCreateActions,
+      editorId,
       parentEntityId,
       parentEntityType,
       menuItems,

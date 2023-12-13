@@ -163,6 +163,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       />
       <FilesContextProvider
         canCreateActions={canCreateActions}
+        editorId={applicationId}
         parentEntityId={pageId}
         parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
       >

@@ -41,11 +41,13 @@ const StyledText = styled(Text)`
 function Files() {
   // Import the context
   const context = useContext(FilesContext);
-  const { canCreateActions, parentEntityId, parentEntityType } = context;
+  const { canCreateActions, editorId, parentEntityId, parentEntityType } =
+    context;
 
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
-  const isFilesOpen = getExplorerStatus(parentEntityId, "queriesAndJs");
+  // Accordion state for the app/worflow/module explorer
+  const isFilesOpen = getExplorerStatus(editorId, "queriesAndJs");
   const [isMenuOpen, openMenu] = useState(false);
   const [query, setQuery] = useState("");
 
