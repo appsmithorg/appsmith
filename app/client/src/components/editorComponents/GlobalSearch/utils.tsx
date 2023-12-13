@@ -350,11 +350,7 @@ export const createQueryOption = {
 
 export const generateCreateQueryForDSOption = (
   ds: Datasource,
-  onClick: (
-    entityId: string,
-    from: EventLocation,
-    entityType?: ActionParentEntityTypeInterface,
-  ) => void,
+  onClick: (entityId: string, from: EventLocation) => void,
 ) => {
   return {
     title: `New ${ds.name} query`,
