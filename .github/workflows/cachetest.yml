@@ -48,7 +48,7 @@ jobs:
           
         run: |
           cd ./cacherepo
-          git clone https://%cachetoken%@github.com/yatinappsmith/testcacherepo.git
+          git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
           cd testcacherepo
           touch bcdefghtxt
           git add bcdefghtxt
