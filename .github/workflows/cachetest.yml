@@ -29,15 +29,19 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: |
           mkdir ./cacherepo
-          touch ./cacherepo/cacherepo.txt
-          
-      - name: Push generated webpage to another repository
-        uses: nkoppel/push-files-to-another-repository@v1.1.2
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
-          source-files: './cacherepo'
-          destination-username: 'yatinappsmith'
-          destination-repository: 'testcacherepo'
-          destination-directory: 'ce/latest'
-          commit-email: 'yatin@appsmith.com'
+          repository: yatinappsmith/testcacherepo
+          path: './cacherepo'
+
+      - name: Addfile
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        run: |
+          touch ./cacherepo/abcdefgh.txt
+          git add ./cacherepo/abcdefgh.txt
+          git commit -m "test"
+          git push
+          
+      
