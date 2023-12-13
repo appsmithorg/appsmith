@@ -1026,6 +1026,7 @@ export const selectFilesForExplorer = createSelector(
           entity: {
             id: file.entity.config.id,
             name: file.entity.config.name,
+            isMainJSCollection: file.entity?.config?.isMainJSCollection,
           },
         });
         return acc;
