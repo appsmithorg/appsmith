@@ -106,6 +106,7 @@ function Files() {
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
+              parentEntityId={parentEntityId}
               searchKeyword={""}
               step={2}
               type={type}

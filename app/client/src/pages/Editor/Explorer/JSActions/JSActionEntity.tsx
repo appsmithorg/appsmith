@@ -4,7 +4,6 @@ import history, { NavigationMethod } from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
@@ -26,6 +25,7 @@ interface ExplorerJSCollectionEntityProps {
   id: string;
   isActive: boolean;
   type: PluginType;
+  parentEntityId: string;
 }
 
 const getUpdateJSObjectName = (id: string, name: string) => {
@@ -34,13 +34,13 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const pageId = useSelector(getCurrentPageId) as string;
     const jsAction = useSelector((state: AppState) =>
       getJSCollection(state, props.id),
     ) as JSCollection;
     const location = useLocation();
+    const { parentEntityId } = props;
     const navigateToUrl = jsCollectionIdURL({
-      pageId,
+      parentEntityId,
       collectionId: jsAction.id,
       params: {},
     });
@@ -56,7 +56,7 @@ export const ExplorerJSCollectionEntity = memo(
           invokedBy: NavigationMethod.EntityExplorer,
         });
       }
-    }, [pageId, jsAction.id, jsAction.name, location.pathname]);
+    }, [parentEntityId, jsAction.id, jsAction.name, location.pathname]);
 
     const jsActionPermissions = jsAction.userPermissions || [];
 
@@ -79,7 +79,6 @@ export const ExplorerJSCollectionEntity = memo(
         className={EntityClassNames.CONTEXT_MENU}
         id={jsAction.id}
         name={jsAction.name}
-        pageId={pageId}
       />
     );
     return (
