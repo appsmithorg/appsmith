@@ -30,12 +30,14 @@ export function generateLayoutComponentMock(
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
     (layout as WidgetLayoutProps[]).push({
-      widgetId: buttonWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetId: buttonWidget.widgetId,
+      widgetType: buttonWidget.type,
     });
     (layout as WidgetLayoutProps[]).push({
-      widgetId: inputWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetId: inputWidget.widgetId,
+      widgetType: inputWidget.type,
     });
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;
@@ -59,7 +61,6 @@ export function generateLayoutComponentMock(
     insertChild: rendersWidgets,
     isPermanent: false,
 
-    childrenMap,
     layoutOrder: [],
     parentDropTarget: "",
     renderMode: RenderModes.CANVAS,
@@ -86,12 +87,14 @@ export function generateAlignedRowMock(
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
     (layout as WidgetLayoutProps[]).push({
-      widgetId: buttonWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetId: buttonWidget.widgetId,
+      widgetType: buttonWidget.type,
     });
     (layout as WidgetLayoutProps[]).push({
-      widgetId: inputWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetId: inputWidget.widgetId,
+      widgetType: inputWidget.type,
     });
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;
@@ -111,7 +114,6 @@ export function generateAlignedRowMock(
     insertChild: rendersWidgets,
     isPermanent: false,
 
-    childrenMap,
     layoutOrder: [],
     parentDropTarget: "",
     renderMode: RenderModes.CANVAS,

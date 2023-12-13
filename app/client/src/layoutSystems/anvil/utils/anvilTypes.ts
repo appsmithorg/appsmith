@@ -5,7 +5,6 @@ import type {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import type { DropZone } from "layoutSystems/common/utils/types";
-import type { WidgetProps } from "widgets/BaseWidget";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
@@ -55,8 +54,7 @@ export interface LayoutProps {
 
 export interface LayoutComponentProps extends LayoutProps {
   canvasId: string; // Parent canvas of the layout.
-  children?: React.ReactNode; // The children of the layout component
-  childrenMap: Record<string, WidgetProps>; // Map of child widget ids to their props.
+  children?: React.ReactNode; // The children of the layout component.
   layoutIndex: number; // Index of the layout component in the parent layout.
   layoutOrder: string[]; // Top - down hierarchy of layoutIds.
   parentDropTarget: string; // layoutId of the immediate drop target parent. Could be self as well.

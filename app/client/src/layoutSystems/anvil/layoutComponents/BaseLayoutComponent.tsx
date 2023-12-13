@@ -87,11 +87,9 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   renderChildLayouts(): React.ReactNode {
-    const { canvasId, childrenMap, layout, parentDropTarget, renderMode } =
-      this.props;
+    const { canvasId, layout, parentDropTarget, renderMode } = this.props;
     return renderLayouts(
       layout as LayoutProps[],
-      childrenMap,
       canvasId,
       parentDropTarget,
       renderMode,

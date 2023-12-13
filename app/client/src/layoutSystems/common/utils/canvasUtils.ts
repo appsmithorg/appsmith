@@ -33,7 +33,7 @@ export function renderChildWidget({
   layoutSystemProps: LayoutSystemProps;
   defaultWidgetProps: Record<string, any>;
   noPad: boolean;
-}): React.ReactNode {
+}): React.ReactNode | null {
   const childWidget = {
     ...defaultWidgetProps,
     ...childWidgetData,

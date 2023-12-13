@@ -95,8 +95,9 @@ export function moveWidgets(
    * Step 3: Create WidgetLayoutProps structure for addition to new parent's layout.
    */
   const newChildren: WidgetLayoutProps[] = movedWidgets.map((each: string) => ({
-    widgetId: each,
     alignment: highlight.alignment,
+    widgetId: each,
+    widgetType: allWidgets[each].type,
   }));
 
   const newLayout = addWidgetsToPreset(
