@@ -84,7 +84,6 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     // switching on the Not Null toggle
     cy.get(widgetsPage.switchWidgetInactive).last().click();
     cy.xpath(appPage.submitButton).click({ force: true });
-    cy.xpath(appPage.addColumn).should("be.visible");
     agHelper.AssertElementVisibility(appPage.addColumn);
     cy.xpath(appPage.submitButton).first().click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
