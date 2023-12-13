@@ -27,14 +27,12 @@ describe(
 
       cy.get(homePageLocatores.importAppProgressWrapper).should("be.visible");
       cy.wait("@importNewApplication").then((interception) => {
-        //cy.wait(100);
         // should check reconnect modal openning
         const { isPartialImport } = interception.response.body.data;
         if (isPartialImport) {
           // should reconnect button
           dataSources.ReconnectSingleDSNAssert("mockdata", "PostgreSQL");
           homePage.AssertNCloseImport();
-          //cy.wait(2000);
         } else {
           cy.get(homePageLocatores.toastMessage).should(
             "contain",
@@ -48,7 +46,6 @@ describe(
           cy.get(homePageLocatores.portalMenuItem)
             .contains("Rename", { matchCase: false })
             .click({ force: true });
-          //cy.wait(2000);
           cy.get(homePageLocatores.applicationName + " input").type(appName, {
             force: true,
           });
@@ -56,10 +53,8 @@ describe(
           cy.wait("@updateApplication")
             .its("response.body.responseMeta.status")
             .should("eq", 200);
-          //cy.wait(2000);
           cy.wrap(appName).as("appname");
         });
-        //cy.wait(3000);
         // validating data binding for the imported application
         cy.xpath("//input[@value='Submit']").should("be.visible");
         cy.xpath("//span[text()='schema_name']").should("be.visible");
@@ -73,12 +68,10 @@ describe(
       // fork application
       homePage.NavigateToHome();
       cy.get(homePageLocatores.searchInput).type(`${appName}`);
-      //cy.wait(3000);
       // cy.get(homePage.applicationCard).first().trigger("mouseover");
       cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
       cy.get(homePageLocatores.forkAppFromMenu).click({ force: true });
       cy.get(homePageLocatores.forkAppWorkspaceButton).click({ force: true });
-      //cy.wait(4000);
       // validating data binding for the forked application
       cy.xpath("//input[@value='Submit']").should("be.visible");
       cy.xpath("//span[text()='schema_name']").should("be.visible");
@@ -90,7 +83,6 @@ describe(
     it("3. Export and import application and validate data binding for the widgets", function () {
       homePage.NavigateToHome();
       cy.get(homePageLocatores.searchInput).clear().type(`${appName}`);
-      //cy.wait(2000);
       //cy.get(homePageLocatores.applicationCard).first().trigger("mouseover");
       cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
       // export application
@@ -123,11 +115,8 @@ describe(
               "cypress/fixtures/exportedApp.json",
               { force: true },
             );
-            if (!Cypress.env("AIRGAPPED")) {
+            if (!Cypress.env("AIRGAPPED"))
               assertHelper.AssertNetworkStatus("@getReleaseItems");
-            } else {
-              //agHelper.Sleep(2000);
-            }
 
             // import exported application in new workspace
             // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });
@@ -139,7 +128,6 @@ describe(
                 cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
                   force: true,
                 });
-                //cy.wait(2000);
               } else {
                 cy.get(homePageLocatores.toastMessage).should(
                   "contain",
