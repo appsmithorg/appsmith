@@ -1,8 +1,7 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/Apps/MongoDBShoppingCart_spec.ts
-cypress/e2e/Regression/Apps/PgAdmin_spec.js
-cypress/e2e/Regression/Apps//PromisesApp_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/ListV2_PageNo_PageSize_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/Listv2_BasicServerSideData_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*

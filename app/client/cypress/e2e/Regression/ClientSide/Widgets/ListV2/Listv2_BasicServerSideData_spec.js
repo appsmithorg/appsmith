@@ -3,11 +3,9 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("List widget v2 - Basic server side data tests", () => {
@@ -25,26 +23,6 @@ describe("List widget v2 - Basic server side data tests", () => {
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
   });
 
-  // it(
-  //   "excludeForAirgap",
-  //   "1. shows correct number of items and binding texts",
-  //   () => {
-  //     cy.wait(2000);
-  //     cy.get(publishLocators.containerWidget).should("have.length", 3);
-  //     cy.get(publishLocators.imageWidget).should("have.length", 3);
-  //     cy.get(publishLocators.textWidget).should("have.length", 6);
-
-  //     cy.get(publishLocators.containerWidget).each(($containerEl) => {
-  //       cy.wrap($containerEl)
-  //         .get(publishLocators.textWidget)
-  //         .eq(1)
-  //         .find("span")
-  //         .invoke("text")
-  //         .should("have.length.gt", 0);
-  //     });
-  //   },
-  // );
-
   it("1. shows correct number of items and binding texts", () => {
     cy.wait(2000);
     cy.get(publishLocators.containerWidget).should("have.length", 2);
@@ -60,38 +38,6 @@ describe("List widget v2 - Basic server side data tests", () => {
         .should("have.length.gt", 0);
     });
   });
-
-  // it(
-  //   "excludeForAirgap",
-  //   "2. next page shows correct number of items and binding text",
-  //   () => {
-  //     cy.get(".t--list-widget-next-page.rc-pagination-next")
-  //       .find("button")
-  //       .click({ force: true });
-
-  //     cy.get(".rc-pagination-item").contains(2);
-
-  //     /**
-  //      * isLoading of the widget does not work properly so for a moment
-  //      * the previous data are visible which can cause the test to pass/fail.
-  //      * Adding a wait makes sure the next page data is loaded.
-  //      */
-  //     cy.wait(3000);
-
-  //     cy.get(publishLocators.containerWidget).should("have.length", 3);
-  //     cy.get(publishLocators.imageWidget).should("have.length", 3);
-  //     cy.get(publishLocators.textWidget).should("have.length", 6);
-
-  //     cy.get(publishLocators.containerWidget).each(($containerEl) => {
-  //       cy.wrap($containerEl)
-  //         .get(publishLocators.textWidget)
-  //         .eq(1)
-  //         .find("span")
-  //         .invoke("text")
-  //         .should("have.length.gt", 0);
-  //     });
-  //   },
-  // );
 
   it("2. next page shows correct number of items and binding text", () => {
     cy.get(".t--list-widget-next-page.rc-pagination-next")
@@ -155,68 +101,6 @@ describe("List widget v2 - Basic server side data tests", () => {
     // Verify if Query fired once
     cy.get(commonlocators.toastmsg).should("exist").should("have.length", 1);
   });
-
-  // it(
-  //   "excludeForAirgap",
-  //   "4. retains input values when pages are switched",
-  //   () => {
-  //     // Type a number in each of the item's input widget
-  //     cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
-  //       cy.wrap($inputWidget)
-  //         .find("input")
-  //         .type(index + 1);
-  //     });
-
-  //     // Verify the typed value
-  //     cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
-  //       cy.wrap($inputWidget)
-  //         .find("input")
-  //         .should("have.value", index + 1);
-  //     });
-
-  //     // Go to page 2
-  //     cy.get(".t--list-widget-next-page.rc-pagination-next")
-  //       .find("button")
-  //       .click({ force: true });
-
-  //     cy.get(".rc-pagination-item").contains(2);
-
-  //     /**
-  //      * isLoading of the widget does not work properly so for a moment
-  //      * the previous data are visible which can cause the test to pass/fail.
-  //      * Adding a wait makes sure the next page data is loaded.
-  //      */
-  //     cy.wait(5000);
-
-  //     // Type a number in each of the item's input widget
-  //     cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
-  //       cy.wrap($inputWidget)
-  //         .find("input")
-  //         .type(index + 4);
-  //     });
-
-  //     // Verify the typed value
-  //     cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
-  //       cy.wrap($inputWidget)
-  //         .find("input")
-  //         .should("have.value", index + 4);
-  //     });
-
-  //     // Go to page 1
-  //     cy.get(".t--list-widget-prev-page.rc-pagination-prev")
-  //       .find("button")
-  //       .click({ force: true });
-
-  //     cy.get(".rc-pagination-item").contains(1).wait(5000);
-
-  //     // Verify if previously the typed values are retained
-  //     cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
-  //       cy.wrap($inputWidget)
-  //         .find("input")
-  //         .should("have.value", index + 1);
-  //     });
-  //   },
-  // );
 
   it("4. retains input values when pages are switched", () => {
     // Type a number in each of the item's input widget
@@ -296,54 +180,7 @@ describe("List widget v2 - Basic server side data tests", () => {
     cy.get(commonlocators.toastmsg).should("exist");
   });
 
-  // it(
-  //   "excludeForAirgap",
-  //   "6. no of items rendered should be equal to page size",
-  //   () => {
-  //     cy.NavigateToDatasourceEditor();
-
-  //     // Click on sample(mock) user database.
-  //     // Choose the first data source which consists of users keyword & Click on the "New query +"" button
-  //     cy.get(datasource.mockUserDatabase).click();
-
-  //     _.dataSources.CreateQueryAfterDSSaved();
-
-  //     // Click the editing field
-  //     cy.get(".t--action-name-edit-field").click({
-  //       force: true,
-  //     });
-
-  //     // Click the editing field
-  //     cy.get(queryLocators.queryNameField).type("Query2");
-
-  //     // switching off Use Prepared Statement toggle
-  //     cy.get(queryLocators.switch).last().click({
-  //       force: true,
-  //     });
-
-  //     //.1: Click on Write query area
-
-  //     _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");
-
-  //     cy.WaitAutoSave();
-
-  //     cy.runQuery();
-
-  //     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-
-  //     cy.wait(1000);
-
-  //     cy.openPropertyPane("listwidgetv2");
-
-  //     cy.testJsontext("items", "{{Query2.data}}");
-
-  //     cy.wait(1000);
-
-  //     // Check if container no of containers are still 3
-  //     cy.get(publishLocators.containerWidget).should("have.length", 3);
-  //   },
-  // );
-  it("7. no of items rendered should be equal to page size", () => {
+  it("6. no of items rendered should be equal to page size", () => {
     _.dataSources.CreateDataSource("Postgres");
     cy.wait(1000);
     _.dataSources.CreateQueryAfterDSSaved();
