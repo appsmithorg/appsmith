@@ -38,6 +38,6 @@ jobs:
         with:
           source-files: './cacherepo'
           destination-username: 'yatinappsmith'
-          destination-repository: 'yatinappsmith/testcacherepo'
+          destination-repository: 'testcacherepo'
           destination-directory: 'ce/latest'
           commit-email: 'yatin@appsmith.com'
