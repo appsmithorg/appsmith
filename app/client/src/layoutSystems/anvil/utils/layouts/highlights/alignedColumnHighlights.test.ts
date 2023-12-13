@@ -2,7 +2,6 @@ import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutCompon
 import {
   LayoutComponentTypes,
   type LayoutComponentProps,
-  type AnvilHighlightInfo,
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
@@ -24,7 +23,7 @@ describe("AlignedColumnHighlights tests", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
         layout: [],
-      });
+      }).layout;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -35,7 +34,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -63,7 +62,7 @@ describe("AlignedColumnHighlights tests", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
         layout: [],
-      });
+      }).layout;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -74,7 +73,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -94,7 +93,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      });
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -123,7 +122,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -158,7 +157,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      });
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -187,7 +186,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -225,7 +224,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      });
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -254,7 +253,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -281,7 +280,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      });
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -313,7 +312,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Second widget (input) is being dragged over it's parent layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -341,7 +340,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      });
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -373,7 +372,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * First widget (button) is being dragged over it's parent layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -401,11 +400,11 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Create 2 rows with two widgets in each of them.
        */
-      const row1: LayoutComponentProps = generateLayoutComponentMock();
+      const row1: LayoutComponentProps = generateLayoutComponentMock().layout;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
-      const row2: LayoutComponentProps = generateLayoutComponentMock();
+      const row2: LayoutComponentProps = generateLayoutComponentMock().layout;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -418,7 +417,7 @@ describe("AlignedColumnHighlights tests", () => {
           layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
         },
         false,
-      );
+      ).layout;
 
       /**
        * Create dimensions data
@@ -485,7 +484,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Get highlights for the AlignedColumn layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         column,
         "0",
         [],
@@ -533,13 +532,13 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Create 2 rows with two widgets in each of them.
        */
-      const row1: LayoutComponentProps = generateLayoutComponentMock();
+      const row1: LayoutComponentProps = generateLayoutComponentMock().layout;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
       const row2: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
-      });
+      }).layout;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -552,7 +551,7 @@ describe("AlignedColumnHighlights tests", () => {
           layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
         },
         false,
-      );
+      ).layout;
 
       /**
        * Create dimensions data
@@ -619,7 +618,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Get highlights for the AlignedColumn layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         column,
         "0",
         [],

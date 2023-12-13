@@ -16,8 +16,10 @@ export type LayoutComponentType =
   | "ALIGNED_WIDGET_ROW"
   | "LAYOUT_COLUMN"
   | "LAYOUT_ROW"
+  | "SECTION"
   | "WIDGET_COLUMN"
-  | "WIDGET_ROW";
+  | "WIDGET_ROW"
+  | "ZONE";
 
 export enum LayoutComponentTypes {
   ALIGNED_LAYOUT_COLUMN = "ALIGNED_LAYOUT_COLUMN",
@@ -144,7 +146,7 @@ export type GetInitialHighlights = (
   isDropTarget: boolean,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetWidgetHighlights = (
   layoutProps: LayoutProps,
@@ -153,7 +155,7 @@ export type GetWidgetHighlights = (
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetLayoutHighlights = (
   layoutProps: LayoutProps,
@@ -166,7 +168,7 @@ export type GetLayoutHighlights = (
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetDimensions = (id: string) => LayoutElementPosition;
 
@@ -180,7 +182,12 @@ export type DeriveHighlightsFn = (
 export type GetHighlights = (
   widgetPositions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
+
+export interface HighlightPayload {
+  highlights: AnvilHighlightInfo[];
+  skipEntity: boolean;
+}
 
 export type UpdateHighlights = (
   arr: AnvilHighlightInfo[],

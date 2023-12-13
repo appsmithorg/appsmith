@@ -1,7 +1,6 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import {
   LayoutComponentTypes,
-  type AnvilHighlightInfo,
   type LayoutComponentProps,
   type WidgetLayoutProps,
   type DraggedWidget,
@@ -31,7 +30,7 @@ describe("columnHighlights", () => {
     it("should derive highlights for a column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -60,7 +59,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -88,7 +87,7 @@ describe("columnHighlights", () => {
     it("should discount dragged child widgets from highlight calculation", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -117,7 +116,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -145,7 +144,7 @@ describe("columnHighlights", () => {
     it("should calculate drop zones properly", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -174,7 +173,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -220,7 +219,7 @@ describe("columnHighlights", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [],
-      });
+      }).layout;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -231,7 +230,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -250,7 +249,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "center",
         },
-      });
+      }).layout;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -261,7 +260,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -284,7 +283,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "end",
         },
-      });
+      }).layout;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -295,7 +294,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -313,11 +312,11 @@ describe("columnHighlights", () => {
       /**
        * Create 2 rows with two widgets in each of them.
        */
-      const row1: LayoutComponentProps = generateLayoutComponentMock();
+      const row1: LayoutComponentProps = generateLayoutComponentMock().layout;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
-      const row2: LayoutComponentProps = generateLayoutComponentMock();
+      const row2: LayoutComponentProps = generateLayoutComponentMock().layout;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -330,7 +329,7 @@ describe("columnHighlights", () => {
           layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
         },
         false,
-      );
+      ).layout;
 
       /**
        * Create dimensions data
@@ -397,7 +396,7 @@ describe("columnHighlights", () => {
       /**
        * Get highlights for the column layout.
        */
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         column,
         "0",
         [],
