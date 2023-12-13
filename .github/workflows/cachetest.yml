@@ -29,7 +29,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: |
           mkdir ./cacherepo
-          touch ./cacherepo.txt
+          touch ./cacherepo/cacherepo.txt
           
       - name: Push generated webpage to another repository
         uses: nkoppel/push-files-to-another-repository@v1.1.2
