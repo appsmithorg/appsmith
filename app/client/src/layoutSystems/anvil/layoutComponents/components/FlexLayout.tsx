@@ -73,6 +73,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     justifyContent,
     layoutId,
     layoutIndex,
+    layoutType,
     maxHeight,
     maxWidth,
     minHeight,
@@ -95,7 +96,8 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     {
       layoutId: layoutId,
       canvasId: canvasId,
-      isDropTarget: isDropTarget,
+      isDropTarget,
+      layoutType,
       parentDropTarget,
     },
     ref,
