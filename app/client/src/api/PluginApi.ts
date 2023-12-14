@@ -4764,7 +4764,7 @@ class PluginsApi extends Api {
         },
       ],
       errorDisplay: "",
-    };
+    } as any;
   }
 
   static async fetchFormConfig(
