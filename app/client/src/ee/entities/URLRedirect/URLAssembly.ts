@@ -222,11 +222,21 @@ export class URLBuilder extends CE_URLBuilderClass {
   }
 
   resolveEntityIdForPkg(builderParams: URLBuilderParams) {
-    return builderParams.moduleId || this.getCurrentModuleId() || "";
+    return (
+      builderParams?.moduleId ||
+      builderParams?.parentEntityId ||
+      this.getCurrentModuleId() ||
+      ""
+    );
   }
 
   resolveEntityIdForWorkflow(builderParams: URLBuilderParams) {
-    return builderParams.workflowId || this.getCurrentWorkflowId() || "";
+    return (
+      builderParams?.workflowId ||
+      builderParams?.parentEntityId ||
+      this.getCurrentWorkflowId() ||
+      ""
+    );
   }
 
   build(builderParams: URLBuilderParams, mode?: APP_MODE) {

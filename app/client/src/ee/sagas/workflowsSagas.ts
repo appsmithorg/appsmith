@@ -37,9 +37,9 @@ import {
   getWorkflowsList,
 } from "@appsmith/selectors/workflowSelectors";
 import { getWorkspaces } from "ce/selectors/workspaceSelectors";
-import type { Workspaces } from "ce/constants/workspaceConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { workflowEditorURL } from "@appsmith/RouteBuilder";
+import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 
 interface CreateWorkflowSagaProps {
   workspaceId: string;

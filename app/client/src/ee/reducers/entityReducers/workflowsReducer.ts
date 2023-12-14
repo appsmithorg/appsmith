@@ -40,7 +40,11 @@ const workflowReducer = createImmerReducer(INITIAL_STATE, {
     action: ReduxAction<Workflow>,
   ) => {
     const workflowData = action.payload;
-    draftState[workflowData.id] = workflowData;
+    draftState[workflowData.id] = {
+      ...draftState[workflowData.id],
+      name: workflowData.name,
+      slug: action.payload.slug,
+    };
 
     return draftState;
   },

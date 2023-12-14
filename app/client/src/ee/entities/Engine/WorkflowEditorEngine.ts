@@ -19,12 +19,8 @@ import {
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { fetchWorkflowSaga } from "@appsmith/sagas/workflowsSagas";
 import { fetchAllPageEntityCompletion } from "actions/pageActions";
-import { fetchActions } from "actions/pluginActionActions";
-import {
-  fetchAppThemesAction,
-  fetchSelectedAppThemeAction,
-} from "actions/appThemingActions";
 import type { FetchWorkflowResponse } from "@appsmith/api/WorkflowApi";
+import { fetchWorkflowActions } from "@appsmith/actions/workflowActions";
 // TODO (Workflows): parked till jsobject pageid dissociation is done
 // import { fetchJSCollections } from "actions/jsActionActions";
 
@@ -56,25 +52,19 @@ export default class WorkflowEditorEngine {
 
   *loadPageThemesAndActions(workflowId: string) {
     const initActionsCalls = [
-      fetchActions({ applicationId: workflowId }, []),
+      fetchWorkflowActions({ workflowId }, []),
       // TODO (Workflows): parked till jsobject pageid dissociation is done
       // fetchJSCollections({ applicationId: workflowId }),
-      fetchSelectedAppThemeAction(workflowId),
-      fetchAppThemesAction(workflowId),
     ];
 
     const successActionEffects = [
       ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
       // TODO (Workflows): parked till jsobject pageid dissociation is done
       // ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
     ];
 
     const failureActionEffects = [
       ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
-      ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
       // TODO (Workflows): parked till jsobject pageid dissociation is done
       // ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
     ];

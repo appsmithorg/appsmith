@@ -1,4 +1,9 @@
+import type {
+  AnyReduxAction,
+  EvaluationReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 
 export interface CreateWorkflowFromWorkspacePayload {
   workspaceId: string;
@@ -13,6 +18,10 @@ export interface DeleteWorkflowPayload {
 }
 
 export interface InitWorkflowEditorPayload {
+  workflowId: string;
+}
+
+export interface FetchWorkflowActionsPayload {
   workflowId: string;
 }
 
@@ -59,6 +68,62 @@ export const updateWorkflowName = (value: string, workflowId: string) => {
     payload: {
       id: workflowId,
       name: value,
+    },
+  };
+};
+
+export const createWorkflowQueryAction = (
+  workflowId: string,
+  from: EventLocation,
+  datasourceId: string,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_WORKFLOW_QUERY_ACTION,
+    payload: {
+      workflowId,
+      from,
+      datasourceId,
+    },
+  };
+};
+
+export const createWorkflowAPIAction = (
+  workflowId: string,
+  from: EventLocation,
+  apiType?: string,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_WORKFLOW_API_ACTION,
+    payload: {
+      workflowId,
+      from,
+      apiType,
+    },
+  };
+};
+
+export const fetchWorkflowActions = (
+  { workflowId }: { workflowId: string },
+  postEvalActions: Array<AnyReduxAction>,
+): EvaluationReduxAction<unknown> => {
+  return {
+    type: ReduxActionTypes.FETCH_WORKFLOW_ACTIONS_INIT,
+    payload: { workflowId },
+    postEvalActions,
+  };
+};
+
+export const saveWorkflowActionName = (
+  id: string,
+  name: string,
+  workflowId: string,
+) => {
+  return {
+    type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,
+    payload: {
+      id,
+      name,
+      workflowId,
     },
   };
 };

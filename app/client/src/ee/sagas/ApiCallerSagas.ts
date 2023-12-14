@@ -8,7 +8,7 @@ import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 
 export function* updateActionAPICall(action: Action) {
   try {
-    if (action.pageId) {
+    if (action.pageId || action.workflowId) {
       const response: ApiResponse<Action> = yield call(
         CE_updateActionAPICall,
         action,
