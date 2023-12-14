@@ -288,41 +288,80 @@ class InteractWorkflowServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setWorkspaceId(workspace.getId());
         actionCollectionDTO.setContextType(WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testPublishWorkflows");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("testPublishWorkflows");
+        actionCollectionDTO.setActions(List.of(action1));
 
         ActionCollectionDTO workflowActionCollectionDTO = crudWorkflowEntityService
                 .createWorkflowActionCollection(actionCollectionDTO, null)
                 .block();
 
-        NewAction workflowActionBeforePublishing =
+        NewAction beforePublishingWorkflowAction =
                 newActionRepository.findById(workflowActionDTO.getId()).block();
-        ActionDTO publishedActionBeforePublishing = workflowActionBeforePublishing.getPublishedAction();
-        assertThat(publishedActionBeforePublishing.getWorkflowId()).isNullOrEmpty();
-        assertThat(publishedActionBeforePublishing.getName()).isNullOrEmpty();
-        assertThat(publishedActionBeforePublishing.getContextType()).isNull();
-        assertThat(publishedActionBeforePublishing.getActionConfiguration()).isNull();
+        ActionDTO beforePublishingPublishedAction = beforePublishingWorkflowAction.getPublishedAction();
+        assertThat(beforePublishingPublishedAction.getWorkflowId()).isNullOrEmpty();
+        assertThat(beforePublishingPublishedAction.getName()).isNullOrEmpty();
+        assertThat(beforePublishingPublishedAction.getContextType()).isNull();
+        assertThat(beforePublishingPublishedAction.getActionConfiguration()).isNull();
 
-        ActionCollection workflowMainActionCollectionBeforePublishing = actionCollectionRepository
+        ActionCollection beforePublishingMainJsObject = actionCollectionRepository
                 .findById(workflow.getMainJsObjectId())
                 .block();
-        ActionCollectionDTO publishedActionCollectionBeforePublishingMainJSObject =
-                workflowMainActionCollectionBeforePublishing.getPublishedCollection();
-        assertThat(publishedActionCollectionBeforePublishingMainJSObject.getWorkflowId())
+
+        ActionCollectionDTO beforePublishingPublishedCollectionMainJSObject =
+                beforePublishingMainJsObject.getPublishedCollection();
+        assertThat(beforePublishingPublishedCollectionMainJSObject.getWorkflowId())
                 .isNullOrEmpty();
-        assertThat(publishedActionCollectionBeforePublishingMainJSObject.getName())
-                .isNullOrEmpty();
-        assertThat(publishedActionCollectionBeforePublishingMainJSObject.getContextType())
+        assertThat(beforePublishingPublishedCollectionMainJSObject.getName()).isNullOrEmpty();
+        assertThat(beforePublishingPublishedCollectionMainJSObject.getContextType())
                 .isNull();
 
-        ActionCollection workflowAdditionalActionCollectionBeforePublishing = actionCollectionRepository
+        ActionCollection beforePublishingAdditionalJsObject = actionCollectionRepository
                 .findById(workflowActionCollectionDTO.getId())
                 .block();
-        ActionCollectionDTO publishedActionCollectionBeforePublishingAdditionalJSObject =
-                workflowAdditionalActionCollectionBeforePublishing.getPublishedCollection();
-        assertThat(publishedActionCollectionBeforePublishingAdditionalJSObject.getWorkflowId())
+        ActionCollectionDTO beforePublishingPublishedCollectionAdditionalJSObject =
+                beforePublishingAdditionalJsObject.getPublishedCollection();
+        assertThat(beforePublishingPublishedCollectionAdditionalJSObject.getWorkflowId())
                 .isNullOrEmpty();
-        assertThat(publishedActionCollectionBeforePublishingAdditionalJSObject.getName())
+        assertThat(beforePublishingPublishedCollectionAdditionalJSObject.getName())
                 .isNullOrEmpty();
-        assertThat(publishedActionCollectionBeforePublishingAdditionalJSObject.getContextType())
+        assertThat(beforePublishingPublishedCollectionAdditionalJSObject.getContextType())
+                .isNull();
+
+        List<NewAction> beforePublishingActionsInsideMainJsObject = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(workflow.getMainJsObjectId()), List.of())
+                .collectList()
+                .block();
+        assertThat(beforePublishingActionsInsideMainJsObject).hasSize(1);
+        NewAction beforePublishingActionInsideMainJsObject = beforePublishingActionsInsideMainJsObject.get(0);
+        ActionDTO beforePublishingPublishedActionInsideMainJsObject =
+                beforePublishingActionInsideMainJsObject.getPublishedAction();
+        assertThat(beforePublishingPublishedActionInsideMainJsObject.getWorkflowId())
+                .isNullOrEmpty();
+        assertThat(beforePublishingPublishedActionInsideMainJsObject.getName()).isNullOrEmpty();
+        assertThat(beforePublishingPublishedActionInsideMainJsObject.getContextType())
+                .isNull();
+        assertThat(beforePublishingPublishedActionInsideMainJsObject.getActionConfiguration())
+                .isNull();
+
+        List<NewAction> beforePublishingActionsInsideAdditionalJsObject = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(workflowActionCollectionDTO.getId()), List.of())
+                .collectList()
+                .block();
+        assertThat(beforePublishingActionsInsideAdditionalJsObject).hasSize(1);
+        NewAction beforePublishingActionInsideAdditionalJsObject =
+                beforePublishingActionsInsideAdditionalJsObject.get(0);
+        ActionDTO beforePublishingPublishedActionInsideAdditionalJsObject =
+                beforePublishingActionInsideAdditionalJsObject.getPublishedAction();
+        assertThat(beforePublishingPublishedActionInsideAdditionalJsObject.getWorkflowId())
+                .isNullOrEmpty();
+        assertThat(beforePublishingPublishedActionInsideAdditionalJsObject.getName())
+                .isNullOrEmpty();
+        assertThat(beforePublishingPublishedActionInsideAdditionalJsObject.getContextType())
+                .isNull();
+        assertThat(beforePublishingPublishedActionInsideAdditionalJsObject.getActionConfiguration())
                 .isNull();
 
         Workflow publishedWorkflow =
@@ -330,36 +369,68 @@ class InteractWorkflowServiceTest {
         assertThat(publishedWorkflow.getLastDeployedAt()).isNotEmpty();
         assertThat(Instant.parse(publishedWorkflow.getLastDeployedAt())).isBefore(Instant.now());
 
-        NewAction workflowActionAfterPublishing =
+        NewAction afterPublishingWorkflowAction =
                 newActionRepository.findById(workflowActionDTO.getId()).block();
-        ActionDTO publishedActionAfterPublishing = workflowActionAfterPublishing.getPublishedAction();
-        assertThat(publishedActionAfterPublishing.getWorkflowId()).isEqualTo(workflow.getId());
-        assertThat(publishedActionAfterPublishing.getName()).isEqualTo(name);
-        assertThat(publishedActionAfterPublishing.getContextType()).isEqualTo(WORKFLOW);
-        assertThat(publishedActionAfterPublishing.getActionConfiguration()).isNotNull();
+        ActionDTO afterPublishingPublishedAction = afterPublishingWorkflowAction.getPublishedAction();
+        assertThat(afterPublishingPublishedAction.getWorkflowId()).isEqualTo(workflow.getId());
+        assertThat(afterPublishingPublishedAction.getName()).isEqualTo(name);
+        assertThat(afterPublishingPublishedAction.getContextType()).isEqualTo(WORKFLOW);
+        assertThat(afterPublishingPublishedAction.getActionConfiguration()).isNotNull();
 
-        ActionCollection workflowMainActionCollectionAfterPublishing = actionCollectionRepository
+        ActionCollection afterPublishingMainJsObject = actionCollectionRepository
                 .findById(workflow.getMainJsObjectId())
                 .block();
-        ActionCollectionDTO publishedActionCollectionAfterPublishingMainJSObject =
-                workflowMainActionCollectionAfterPublishing.getPublishedCollection();
-        assertThat(publishedActionCollectionAfterPublishingMainJSObject.getWorkflowId())
+        ActionCollectionDTO afterPublishingPublishedCollectionMainJSObject =
+                afterPublishingMainJsObject.getPublishedCollection();
+        assertThat(afterPublishingPublishedCollectionMainJSObject.getWorkflowId())
                 .isEqualTo(workflow.getId());
-        assertThat(publishedActionCollectionAfterPublishingMainJSObject.getName())
-                .isEqualTo("Main");
-        assertThat(publishedActionCollectionAfterPublishingMainJSObject.getContextType())
+        assertThat(afterPublishingPublishedCollectionMainJSObject.getName()).isEqualTo("Main");
+        assertThat(afterPublishingPublishedCollectionMainJSObject.getContextType())
                 .isEqualTo(WORKFLOW);
 
-        ActionCollection workflowAdditionalActionCollectionAfterPublishing = actionCollectionRepository
+        ActionCollection afterPublishingAdditionalJsObject = actionCollectionRepository
                 .findById(workflowActionCollectionDTO.getId())
                 .block();
-        ActionCollectionDTO publishedActionCollectionAfterPublishingAdditionalJSObject =
-                workflowAdditionalActionCollectionAfterPublishing.getPublishedCollection();
-        assertThat(publishedActionCollectionAfterPublishingAdditionalJSObject.getWorkflowId())
+        ActionCollectionDTO afterPublishingPublishedCollectionAdditionalJSObject =
+                afterPublishingAdditionalJsObject.getPublishedCollection();
+        assertThat(afterPublishingPublishedCollectionAdditionalJSObject.getWorkflowId())
                 .isEqualTo(workflow.getId());
-        assertThat(publishedActionCollectionAfterPublishingAdditionalJSObject.getName())
+        assertThat(afterPublishingPublishedCollectionAdditionalJSObject.getName())
                 .isEqualTo(name);
-        assertThat(publishedActionCollectionAfterPublishingAdditionalJSObject.getContextType())
+        assertThat(afterPublishingPublishedCollectionAdditionalJSObject.getContextType())
                 .isEqualTo(WORKFLOW);
+
+        List<NewAction> afterPublishingActionsInsideMainJsObject = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(workflow.getMainJsObjectId()), List.of())
+                .collectList()
+                .block();
+        assertThat(afterPublishingActionsInsideMainJsObject).hasSize(1);
+        NewAction afterPublishingActionInsideMainJsObject = afterPublishingActionsInsideMainJsObject.get(0);
+        ActionDTO afterPublishingPublishedActionInsideMainJsObject =
+                afterPublishingActionInsideMainJsObject.getPublishedAction();
+        assertThat(afterPublishingPublishedActionInsideMainJsObject.getWorkflowId())
+                .isEqualTo(workflow.getId());
+        assertThat(afterPublishingPublishedActionInsideMainJsObject.getName()).isEqualTo("executeWorkflow");
+        assertThat(afterPublishingPublishedActionInsideMainJsObject.getContextType())
+                .isEqualTo(WORKFLOW);
+        assertThat(afterPublishingPublishedActionInsideMainJsObject.getActionConfiguration())
+                .isNotNull();
+
+        List<NewAction> afterPublishingActionsInsideAdditionalJsObject = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(workflowActionCollectionDTO.getId()), List.of())
+                .collectList()
+                .block();
+        assertThat(afterPublishingActionsInsideAdditionalJsObject).hasSize(1);
+        NewAction afterPublishingActionInsideAdditionalJsObject = afterPublishingActionsInsideAdditionalJsObject.get(0);
+        ActionDTO afterPublishingPublishedActionInsideAdditionalJsObject =
+                afterPublishingActionInsideAdditionalJsObject.getPublishedAction();
+        assertThat(afterPublishingPublishedActionInsideAdditionalJsObject.getWorkflowId())
+                .isEqualTo(workflow.getId());
+        assertThat(afterPublishingPublishedActionInsideAdditionalJsObject.getName())
+                .isEqualTo(name);
+        assertThat(afterPublishingPublishedActionInsideAdditionalJsObject.getContextType())
+                .isEqualTo(WORKFLOW);
+        assertThat(afterPublishingPublishedActionInsideAdditionalJsObject.getActionConfiguration())
+                .isNotNull();
     }
 }

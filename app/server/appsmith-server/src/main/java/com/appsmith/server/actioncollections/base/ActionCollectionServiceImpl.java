@@ -11,9 +11,12 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -37,6 +40,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
+    private final NewActionRepository newActionRepository;
 
     public ActionCollectionServiceImpl(
             Scheduler scheduler,
@@ -50,7 +54,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            NewActionRepository newActionRepository) {
         super(
                 scheduler,
                 validator,
@@ -66,6 +71,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 actionPermission);
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
+        this.newActionRepository = newActionRepository;
     }
 
     @Override
@@ -176,8 +182,18 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                     }
                     // Publish the collection by copying the unpublished collectionDTO to published collectionDTO
                     collection.setPublishedCollection(collection.getUnpublishedCollection());
-                    return this.save(collection);
+                    return publishActionsForActionCollection(collection.getId(), aclPermission)
+                            .then(this.save(collection));
                 })
                 .collectList();
+    }
+
+    private Mono<List<BulkWriteResult>> publishActionsForActionCollection(
+            String actionCollectionId, AclPermission aclPermission) {
+        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+                newActionRepository.archiveDeletedUnpublishedActionsForCollection(actionCollectionId, aclPermission);
+        Mono<List<BulkWriteResult>> publishActions =
+                newActionRepository.publishActionsForCollection(actionCollectionId, aclPermission);
+        return archiveDeletedUnpublishedActions.then(publishActions);
     }
 }
