@@ -6,6 +6,7 @@ import {
   getActions,
   getJSCollections,
   selectFilesForExplorer as CE_selectFilesForExplorer,
+  getCurrentJSCollections,
 } from "ce/selectors/entitiesSelector";
 import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
 import {
@@ -195,3 +196,11 @@ export const getJSCollectionFromAllEntities = (
   );
   return jsaction && jsaction.config;
 };
+
+export const getAllJSCollections = createSelector(
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (currentContextJSCollections, moduleInstanceJSCollections) => {
+    return [...moduleInstanceJSCollections, ...currentContextJSCollections];
+  },
+);
