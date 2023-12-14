@@ -20,15 +20,15 @@ const AddWidgets = () => {
         alignItems="center"
         borderBottom={"1px solid var(--ads-v2-color-border)"}
         justifyContent="space-between"
-        padding="spaces-4"
-        paddingBottom="spaces-3"
+        px="spaces-4"
+        py="spaces-2"
       >
         <Text
           className="overflow-hidden overflow-ellipsis whitespace-nowrap"
           color="var(--ads-v2-color-fg)"
           kind="heading-xs"
         >
-          Create new query/API
+          Drag & drop a widget
         </Text>
         <Button
           isIconButton
