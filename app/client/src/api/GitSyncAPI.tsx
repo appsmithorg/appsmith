@@ -216,6 +216,12 @@ class GitSyncAPI extends Api {
       { branchNames },
     );
   }
+
+  static async toggleAutocommit(applicationId: string) {
+    return Api.patch(
+      `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${applicationId}`,
+    );
+  }
 }
 
 export default GitSyncAPI;

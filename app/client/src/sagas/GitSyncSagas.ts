@@ -1145,6 +1145,45 @@ function* updateGitProtectedBranchesSaga({
   }
 }
 
+function* toggleAutocommitSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const currentPageId: string = yield select(getCurrentPageId);
+  let response: ApiResponse<string[]>;
+  try {
+    response = yield call(GitSyncAPI.toggleAutocommit, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+        payload: { applicationId, pageId: currentPageId },
+      });
+      toast.show(createMessage(PROTECT_BRANCH_SUCCESS), {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR,
+      payload: { error, show: true },
+    });
+  }
+}
+
 const gitRequestBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
@@ -1181,6 +1220,7 @@ const gitRequestNonBlockingActions: Record<
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
     fetchGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: toggleAutocommitSaga,
 };
 
 /**

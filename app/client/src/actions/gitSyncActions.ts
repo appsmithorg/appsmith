@@ -486,9 +486,8 @@ export const updateGitProtectedBranchesInit = (payload: {
   };
 };
 
-export const setIsAutocommitEnabled = (isAutocommitEnabled: boolean) => ({
-  type: ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_ENABLED,
-  payload: { isAutocommitEnabled },
+export const toggleAutocommitEnabledInit = () => ({
+  type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT,
 });
 
 export const setIsAutocommitModalOpen = (isAutocommitModalOpen: boolean) => ({
