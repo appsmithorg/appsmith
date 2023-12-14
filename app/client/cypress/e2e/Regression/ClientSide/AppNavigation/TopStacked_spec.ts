@@ -89,28 +89,31 @@ describe(
       agHelper.AssertElementLength(appSettings.locators._scrollArrows, 2);
 
       // Scroll to the right and page 1 should not be visible
-      agHelper
-        .GetElement(appSettings.locators._navigationMenuItem)
-        .contains(pageName)
-        .should("be.visible");
+      agHelper.GetNAssertContains(
+        appSettings.locators._navigationMenuItem,
+        pageName,
+      );
       agHelper
         .GetElement(appSettings.locators._scrollArrows)
         .last()
         .trigger("mousedown");
+      agHelper.Sleep(1500); //removing this sleep fails the case in CI, is needed for trigger event to complete
       agHelper
         .GetElement(appSettings.locators._scrollArrows)
         .last()
         .trigger("mouseup", { force: true });
-      agHelper
-        .GetElement(appSettings.locators._navigationMenuItem)
-        .contains(pageName)
-        .should("not.be.visible");
+      agHelper.GetNAssertContains(
+        appSettings.locators._navigationMenuItem,
+        pageName,
+        "not.exist",
+      );
 
       // Scroll to the left again and page 1 should be visible
       agHelper
         .GetElement(appSettings.locators._scrollArrows)
         .first()
         .trigger("mousedown", { force: true });
+      agHelper.Sleep(1500); //removing this sleep fails the case in CI, is needed for trigger event to complete
       agHelper
         .GetElement(appSettings.locators._scrollArrows)
         .first()
