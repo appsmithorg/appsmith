@@ -284,6 +284,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         if (params == null || viewMode == null) {
             return Flux.empty();
         }
+        return getActionCollectionsFromRepoByViewMode(params, viewMode)
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
+    }
+
+    protected Flux<ActionCollection> getActionCollectionsFromRepoByViewMode(
+            MultiValueMap<String, String> params, Boolean viewMode) {
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
@@ -293,8 +299,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                             params.getFirst(FieldName.APPLICATION_ID),
                             applicationPermission.getReadPermission())
                     .flatMapMany(childApplicationId -> repository.findByApplicationIdAndViewMode(
-                            childApplicationId, viewMode, actionPermission.getReadPermission()))
-                    .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
+                            childApplicationId, viewMode, actionPermission.getReadPermission()));
         }
 
         String name = null;
@@ -315,10 +320,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
-        return repository
-                .findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-                        name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort)
-                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
+        return repository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+                name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort);
     }
 
     @Override
@@ -681,13 +684,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         Mono<NewAction> sendAnalyticsMono =
                 analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
 
-        return Mono.just(newAction).flatMap(newAction1 -> {
-            Mono<ActionDTO> savedActionMono = newActionService
-                    .validateAndSaveActionToRepository(newAction)
-                    .cache();
-
-            return savedActionMono.then(sendAnalyticsMono).then(savedActionMono);
-        });
+        return newActionService
+                .validateAndSaveActionToRepository(newAction)
+                .flatMap(savedAction -> sendAnalyticsMono.thenReturn(savedAction));
     }
 
     @Override
