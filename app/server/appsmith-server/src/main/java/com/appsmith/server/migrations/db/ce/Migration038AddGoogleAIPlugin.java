@@ -43,7 +43,9 @@ public class Migration038AddGoogleAIPlugin {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        assert plugin.getId() != null;
+        if (plugin.getId() == null) {
+            log.error("Failed to insert the Google AI plugin into the database.");
+        }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }

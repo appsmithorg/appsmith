@@ -46,15 +46,17 @@ public class RequestUtils {
         if (GoogleAIConstants.GENERATE_CONTENT.equals(command)) {
             return URI.create(GOOGLE_AI_API_ENDPOINT + MODELS + "/" + model + GENERATE_CONTENT_ACTION);
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported command: " + command);
         }
     }
 
     public static Mono<ResponseEntity<byte[]>> makeRequest(
             HttpMethod httpMethod, URI uri, ApiKeyAuth apiKeyAuth, BodyInserter<?, ? super ClientHttpRequest> body) {
 
-        // Authentication will already be valid at this point
-        assert (apiKeyAuth.getValue() != null);
+        if (!StringUtils.hasText(apiKeyAuth.getValue())) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, GoogleAIErrorMessages.EMPTY_API_KEY);
+        }
 
         return webClient
                 .method(httpMethod)

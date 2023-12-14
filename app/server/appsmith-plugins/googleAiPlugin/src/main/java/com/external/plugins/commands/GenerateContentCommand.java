@@ -70,7 +70,7 @@ public class GenerateContentCommand implements GoogleAICommand {
         // throw error if no model selected
         throw new AppsmithPluginException(
                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                "generate content model is selected in the configuration");
+                "No generate content model is selected in the configuration");
     }
 
     @Override
