@@ -321,15 +321,21 @@ jobs:
       - name: Set cypress tags to exclude - new steps
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          if [[ "${{ inputs.airgap-enabled }}" == "true" ]] && [[ -n "${{ inputs.tags }}" ]]; then
-            echo "CYPRESS_grepTags=${{ inputs.tags }}+-@tag.excludeForAirgap" >> $GITHUB_ENV
-          elif [[ "${{ inputs.airgap-enabled }}" == "false" ]] && [[ -n "${{ inputs.tags }}" ]]; then
-            echo "CYPRESS_grepTags=${{ inputs.tags }}+-@tag.airgap" >> $GITHUB_ENV
-          elif [[ -z "${{ inputs.tags }}" ]]; then
-            echo "CYPRESS_grepTags=-@tag.airgap" >> $GITHUB_ENV
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            if [[ -n "${{ inputs.tags }}" ]]; then
+              echo "CYPRESS_grepTags=${{ inputs.tags }}+-@tag.excludeForAirgap" >> $GITHUB_ENV
+            else
+              echo "CYPRESS_grepTags=-@tag.excludeForAirgap" >> $GITHUB_ENV
+            fi
+          else 
+            if [[ -n "${{ inputs.tags }}" ]]; then
+              echo "CYPRESS_grepTags=${{ inputs.tags }}+-@tag.airgap" >> $GITHUB_ENV
+            else
+              echo "CYPRESS_grepTags=-@tag.airgap" >> $GITHUB_ENV
+            fi
           fi
       - name: Echo grepTags
-          run: echo $CYPRESS_grepTags
+        run: echo $CYPRESS_grepTags
 
       - name: Run the cypress test
         uses: cypress-io/github-action@v6
