@@ -95,8 +95,8 @@ public class GenerateContentCommand implements GoogleAICommand {
                     continue;
                 }
 
-                if (Role.user.toString().equals(role)
-                        && com.external.plugins.models.Type.text.toString().equals(type)) {
+                if (Role.USER.getValue().equals(role)
+                        && com.external.plugins.models.Type.TEXT.toString().equals(type)) {
                     userQueryParts.add(new GoogleAIRequestDTO.Part(content));
                 }
             }
@@ -107,7 +107,7 @@ public class GenerateContentCommand implements GoogleAICommand {
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
         }
-        googleAIRequestDTO.setContents(List.of(new GoogleAIRequestDTO.Content(Role.user, userQueryParts)));
+        googleAIRequestDTO.setContents(List.of(new GoogleAIRequestDTO.Content(Role.USER, userQueryParts)));
         return googleAIRequestDTO;
     }
 
