@@ -252,6 +252,16 @@ public class Application extends BaseDomain {
                         application.getPublishedApplicationDetail().getNavigationSetting() == null
                                 ? null
                                 : new NavigationSetting());
+        this.getUnpublishedApplicationDetail()
+                .setThemeSettings(
+                        application.getUnpublishedApplicationDetail().getThemeSettings() == null
+                                ? null
+                                : new ThemeSettings());
+        this.getPublishedApplicationDetail()
+                .setThemeSettings(
+                        application.getPublishedApplicationDetail().getThemeSettings() == null
+                                ? null
+                                : new ThemeSettings());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -412,5 +422,23 @@ public class Application extends BaseDomain {
             AUTO,
             ANVIL
         }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ThemeSettings {
+
+        @JsonView(Views.Public.class)
+        private String accentColor;
+
+        @JsonView(Views.Public.class)
+        private String borderRadius;
+
+        @JsonView(Views.Public.class)
+        private int sizing;
+
+        @JsonView(Views.Public.class)
+        private int density;
     }
 }
