@@ -21,15 +21,8 @@ import {
   SearchInput,
   Text,
 } from "design-system";
-import type { WidgetDragSource } from "../../layoutSystems/common/canvasArenas/ArenaTypes";
 
-function WidgetSidebarWithTags({
-  isActive,
-  source,
-}: {
-  isActive: boolean;
-  source: WidgetDragSource;
-}) {
+function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
   const [filteredCards, setFilteredCards] =
@@ -146,18 +139,10 @@ function WidgetSidebarWithTags({
                       ? sortBy(cardsForThisTag, (widget) => {
                           return SUGGESTED_WIDGETS_ORDER[widget.type];
                         }).map((card) => (
-                          <WidgetCard
-                            details={card}
-                            key={card.key}
-                            source={source}
-                          />
+                          <WidgetCard details={card} key={card.key} />
                         ))
                       : cardsForThisTag.map((card) => (
-                          <WidgetCard
-                            details={card}
-                            key={card.key}
-                            source={source}
-                          />
+                          <WidgetCard details={card} key={card.key} />
                         ))}
                   </div>
                 </CollapsibleContent>

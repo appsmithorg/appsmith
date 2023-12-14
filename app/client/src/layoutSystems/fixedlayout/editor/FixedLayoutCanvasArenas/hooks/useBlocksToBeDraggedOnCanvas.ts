@@ -18,27 +18,24 @@ import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena"
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type {
   WidgetDraggingBlock,
   WidgetDraggingUpdateParams,
   XYCord,
 } from "../../../../common/canvasArenas/ArenaTypes";
-import { WidgetDragSource } from "../../../../common/canvasArenas/ArenaTypes";
 import {
   getBlocksToDraw,
-  getBoundUpdateRelativeRowsMethod,
-  getDragCenterSpace,
   getParentDiff,
   getRelativeStartPoints,
+  getBoundUpdateRelativeRowsMethod,
   updateBottomRow as updateBottomRowHelper,
+  getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
 
 /**
@@ -78,7 +75,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   widgetId,
 }: FixedCanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
-  const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
 
@@ -112,7 +108,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const {
     draggingGroupCenter: dragCenter,
     dragGroupActualParent: dragParent,
-    dragSource,
     newWidget,
   } = dragDetails;
   const isResizing = useSelector(
@@ -249,7 +244,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
       );
       if (newWidget) {
-        addNewWidget(newWidget, movedWidgets, dragSource);
+        addNewWidget(newWidget, movedWidgets);
       }
     } else {
       bulkMoveWidgets(draggedBlocksToUpdate);
@@ -271,7 +266,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const addNewWidget = (
     newWidget: WidgetDraggingUpdateParams,
     movedWidgets: WidgetDraggingUpdateParams[],
-    source?: WidgetDragSource,
   ) => {
     const { updateWidgetParams } = newWidget;
     if (movedWidgets && movedWidgets.length) {
@@ -298,15 +292,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
         type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
         payload: { widgetId: tableFilterPaneState.widgetId },
       });
-    // Adding setTimeOut to allow property pane to open only after widget is loaded.
-    // Not needed for most widgets except for Modal Widget.
-    if (source !== WidgetDragSource.GLOBAL_ADD) {
-      setTimeout(() => {
-        selectWidget(SelectionRequestType.One, [
-          updateWidgetParams.payload.newWidgetId,
-        ]);
-      }, 100);
-    }
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,
       widgetName: dragDetails.newWidget.widgetCardName,

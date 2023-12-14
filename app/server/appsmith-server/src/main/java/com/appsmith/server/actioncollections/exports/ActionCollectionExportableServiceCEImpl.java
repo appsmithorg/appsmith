@@ -49,7 +49,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
         Optional<AclPermission> optionalPermission = Optional.ofNullable(actionPermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
         Flux<ActionCollection> actionCollectionFlux =
-                actionCollectionService.findByListOfPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+                actionCollectionService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
         return actionCollectionFlux
                 .collectList()
                 .map(actionCollectionList -> {

@@ -14,6 +14,10 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { ADD_PATH } from "constants/routes";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const AddQuery = () => {
   const dispatch = useDispatch();
@@ -23,7 +27,14 @@ const AddQuery = () => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  let fileOperations = useFilteredFileOperations();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+  let fileOperations = useFilteredFileOperations({ canCreateActions });
   fileOperations = fileOperations.filter(
     (fileOperation) =>
       fileOperation.focusEntityType !== FocusEntity.JS_OBJECT &&
