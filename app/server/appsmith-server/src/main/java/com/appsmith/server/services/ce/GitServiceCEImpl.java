@@ -3237,14 +3237,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 defaultApplicationId);
                         throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "default application id");
                     }
-                    if (gitApplicationMetadata.getAutoCommitConfig() == null) {
-                        gitApplicationMetadata.setAutoCommitConfig(new AutoCommitConfig());
-                    }
-                    if (gitApplicationMetadata.getAutoCommitConfig().getEnabled()) {
-                        gitApplicationMetadata.getAutoCommitConfig().setEnabled(Boolean.FALSE);
+
+                    AutoCommitConfig autoCommitConfig = gitApplicationMetadata.getAutoCommitConfig();
+                    if (autoCommitConfig.getEnabled()) {
+                        autoCommitConfig.setEnabled(Boolean.FALSE);
                     } else {
-                        gitApplicationMetadata.getAutoCommitConfig().setEnabled(Boolean.TRUE);
+                        autoCommitConfig.setEnabled(Boolean.TRUE);
                     }
+                    // need to call the setter because getter returns a default config if attribute is null
+                    application.getGitApplicationMetadata().setAutoCommitConfig(autoCommitConfig);
                     return application;
                 })
                 .flatMap(application -> applicationService
