@@ -135,6 +135,7 @@ function CustomComponent(props: CustomComponentProps) {
   const srcDoc = `
     <html>
       <head>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
         <style>${css}</style>
       </head>
       <body>
@@ -143,7 +144,7 @@ function CustomComponent(props: CustomComponentProps) {
         }</script>
         <script type="module">${script}</script>
         ${props.srcDoc.html}
-        <script type="module">
+        <script type="text/babel" data-presets="react" data-type="module">
           ${props.srcDoc.js}
         </script>
         <style>${props.srcDoc.css}</style>

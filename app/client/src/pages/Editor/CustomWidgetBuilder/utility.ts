@@ -1,18 +1,13 @@
-import * as babelParser from "@babel/standalone";
-import type {
-  CustomWidgetBuilderContextValueType,
-  DebuggerLogItem,
-} from "./types";
+// import { transform } from "@babel/standalone";
+import type { DebuggerLogItem, SrcDoc } from "./types";
 
 interface CompiledResult {
-  code: CustomWidgetBuilderContextValueType["srcDoc"];
+  code: SrcDoc;
   warnings: DebuggerLogItem[];
   errors: DebuggerLogItem[];
 }
 
-export const compileSrcDoc = (
-  srcDoc: CustomWidgetBuilderContextValueType["srcDoc"],
-): CompiledResult => {
+export const compileSrcDoc = (srcDoc: SrcDoc): CompiledResult => {
   const compiledResult: CompiledResult = {
     code: srcDoc,
     warnings: [],
@@ -20,17 +15,17 @@ export const compileSrcDoc = (
   };
 
   try {
-    const result = babelParser.transform(srcDoc.js, {
-      sourceType: "module",
-      presets: ["react"],
-      targets: {
-        esmodules: true,
-      },
-    });
+    // const result = transform(srcDoc.js, {
+    //   sourceType: "module",
+    //   presets: ["react"],
+    //   targets: {
+    //     esmodules: true,
+    //   },
+    // });
 
     compiledResult.code = {
       ...compiledResult.code,
-      js: result?.code || "",
+      // js: result?.code || "",
     };
   } catch (e) {
     compiledResult.errors.push(getBabelError(e as BabelError));
