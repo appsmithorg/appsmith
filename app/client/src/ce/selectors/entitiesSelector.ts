@@ -1388,7 +1388,7 @@ const GroupAndSortPagePaneData = (
   data = Object.keys(data)
     .sort()
     .reduce(function (acc, key) {
-      acc[key] = data[key];
+      acc[key] = sortBy(data[key], (file) => file.name);
       return acc;
     }, {} as PagePaneData);
   return data;
