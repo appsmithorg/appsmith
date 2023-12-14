@@ -44,7 +44,7 @@ class DatasourcesApi extends API {
       responseMeta: { status: 200, success: true },
       data: [],
       errorDisplay: "",
-    };
+    } as any;
   }
 
   static async createDatasource(

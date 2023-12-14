@@ -49,7 +49,7 @@ export class TenantApi extends Api {
         new: true,
       },
       errorDisplay: "",
-    };
+    } as any;
   }
 
   static async updateTenantConfig(

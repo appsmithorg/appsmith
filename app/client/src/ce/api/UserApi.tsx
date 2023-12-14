@@ -154,7 +154,7 @@ export class UserApi extends Api {
         isIntercomConsentGiven: false,
       },
       errorDisplay: "",
-    };
+    } as any;
   }
 
   static async forgotPassword(
@@ -295,7 +295,7 @@ export class UserApi extends Api {
         license_sso_oidc_enabled: false,
       },
       errorDisplay: "",
-    };
+    } as any;
   }
 
   static async createSuperUser(

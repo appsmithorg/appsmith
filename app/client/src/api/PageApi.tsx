@@ -265,7 +265,7 @@ class PageApi extends Api {
         },
       },
       errorDisplay: "",
-    };
+    } as any;
   }
 
   static savePage(
@@ -429,7 +429,7 @@ class PageApi extends Api {
         ],
       },
       errorDisplay: "",
-    };
+    } as any;
   }
 }
 

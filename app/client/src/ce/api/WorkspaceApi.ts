@@ -107,7 +107,7 @@ class WorkspaceApi extends Api {
         },
       ],
       errorDisplay: "",
-    };
+    } as any;
   }
   static async saveWorkspace(
     request: SaveWorkspaceRequest,

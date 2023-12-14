@@ -3930,7 +3930,7 @@ class AppThemingApi extends API {
         },
       ],
       errorDisplay: "",
-    };
+    } as any;
   }
 
   /**
@@ -4367,7 +4367,7 @@ class AppThemingApi extends API {
         isSystemTheme: true,
       },
       errorDisplay: "",
-    };
+    } as any;
   }
 
   /**
