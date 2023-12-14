@@ -12,8 +12,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
   });
 
   it(
-    "excludeForAirgap",
     "1. Test case while reloading and on submission",
+    {tags: ["@tag.excludeForAirgap"]},
     function () {
       /**
        * Use case:
@@ -97,8 +97,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
     },
   );
   it(
-    "airgap",
     "1. Test case while reloading and on submission - airgap",
+    {tags: ["@tag.airgap"]},
     function () {
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");

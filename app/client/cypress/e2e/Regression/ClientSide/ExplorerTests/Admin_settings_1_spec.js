@@ -70,8 +70,8 @@ describe("Admin settings page", function () {
   });
 
   it(
-    "excludeForAirgap",
     "5. should test that settings page tab redirects not airgap",
+    {tags: ["@tag.excludeForAirgap"]},
     () => {
       cy.visit(routes.APPLICATIONS, { timeout: 60000 });
       cy.wait(3000);
@@ -92,8 +92,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "airgap",
     "5. should test that settings page tab redirects and google maps doesn't exist - airgap",
+    {tags: ["@tag.airgap"]},
     () => {
       cy.visit(routes.APPLICATIONS, { timeout: 60000 });
       cy.wait(3000);

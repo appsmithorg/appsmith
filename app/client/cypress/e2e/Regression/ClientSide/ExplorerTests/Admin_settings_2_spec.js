@@ -55,8 +55,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "airgap",
     "2. should test that authentication page redirects and google and github auth doesn't exist - airgap",
+    {tags: ["@tag.airgap"]},
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -69,8 +69,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "3. should test that configure link redirects to google signup setup doc",
+    {tags: ["@tag.excludeForAirgap"]},
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();

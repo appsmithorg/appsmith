@@ -107,8 +107,8 @@ describe("FirstTimeUserOnboarding", function () {
   );
 
   it(
-    "airgap",
     "2. onboarding flow - should check the checklist page actions - airgap",
+    {tags: ["@tag.airgap"]},
     function () {
       cy.get(OnboardingLocator.introModal).should("be.visible");
 
