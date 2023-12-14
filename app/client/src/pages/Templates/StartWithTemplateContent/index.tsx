@@ -1,27 +1,26 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import {
   getSearchedTemplateList,
   getTemplateFilterSelector,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
+import BuildingBlock from "../BuildingBlock";
+import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 import RequestTemplate from "../Template/RequestTemplate";
 import LoadingScreen from "../TemplatesModal/LoadingScreen";
 import {
-  Wrapper,
-  SubheadingText,
-  HorizontalLine,
-  TemplateGrid,
-} from "./StyledComponents";
-import {
-  TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
   TEMPLATE_ALL_FILTER_FUNCTION_VALUE,
+  TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
 } from "../constants";
-import BuildingBlock from "../BuildingBlock";
-import FixedHeightTemplate from "../Template/FixedHeightTemplate";
+import {
+  HorizontalLine,
+  SubheadingText,
+  TemplateGrid,
+  Wrapper,
+} from "./StyledComponents";
 
 interface StartWithTemplateListProps {
   isForkingEnabled: boolean;
@@ -115,18 +114,11 @@ export function StartWithTemplateContent(props: StartWithTemplateContentProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const isLoading = isFetchingApplications || isFetchingTemplates;
-  const dispatch = useDispatch();
 
   const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
   const templates = useSelector(getSearchedTemplateList).filter((template) =>
     filterWithAllowPageImport ? !!template.allowPageImport : true,
   );
-
-  useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
-    });
-  }, []);
 
   if (isLoading) {
     return <LoadingScreen text="Loading templates" />;

@@ -5,12 +5,13 @@ import {
 } from "actions/templateActions";
 import { Icon, SearchInput } from "design-system";
 import { debounce } from "lodash";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
   getTemplateSearchQuery,
+  isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -22,6 +23,7 @@ import {
   SearchWrapper,
   StyledFilterCategory,
 } from "./StyledComponents";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 
 export interface Filter {
   label: string;
@@ -108,7 +110,7 @@ const FilterCategory = ({
     [],
   );
   const dispatch = useDispatch();
-  const onSelectFilter = (item: string, type: string) => {
+  const onSelectFilter = (item: string, type: "add" | "remove") => {
     // Check if "All" or "All Templates" is selected
     const allTemplatesFilterSelected =
       item === ALL_TEMPLATES_FILTER_VALUE ||
@@ -165,22 +167,20 @@ const FilterCategory = ({
 };
 
 const INPUT_DEBOUNCE_TIMER = 500;
-const DEFAULT_FILTER_LABEL = "functions";
-const DEFAULT_FILTER_LIST = ["All"];
 const StartWithTemplateFilters = (props: FilterWrapperProps) => {
   const dispatch = useDispatch();
   const filters = useSelector(getFilterListSelector);
   const selectedFilters = useSelector(getTemplateFilterSelector);
   const templateSearchQuery = useSelector(getTemplateSearchQuery);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
+
+  const isLoading = isFetchingApplications || isFetchingTemplates;
+
   const onChange = debounce((query: string) => {
     dispatch(setTemplateSearchQuery(query));
     AnalyticsUtil.logEvent("TEMPLATES_SEARCH_INPUT_EVENT", { query });
   }, INPUT_DEBOUNCE_TIMER);
-
-  useEffect(() => {
-    // Set the default "All" filter when the component mounts
-    dispatch(filterTemplates(DEFAULT_FILTER_LABEL, DEFAULT_FILTER_LIST));
-  }, []);
 
   return (
     <FilterWrapper className="filter-wrapper">
@@ -196,16 +196,17 @@ const StartWithTemplateFilters = (props: FilterWrapperProps) => {
         </div>
       </SearchWrapper>
 
-      {Object.keys(filters).map((filter) => {
-        return (
-          <FilterCategory
-            filterList={filters[filter]}
-            key={filter}
-            label={filter}
-            selectedFilters={selectedFilters[filter] ?? []}
-          />
-        );
-      })}
+      {!isLoading &&
+        Object.keys(filters).map((filter) => {
+          return (
+            <FilterCategory
+              filterList={filters[filter]}
+              key={filter}
+              label={filter}
+              selectedFilters={selectedFilters[filter] ?? []}
+            />
+          );
+        })}
     </FilterWrapper>
   );
 };

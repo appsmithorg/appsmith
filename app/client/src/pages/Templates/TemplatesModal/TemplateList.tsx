@@ -11,7 +11,7 @@ import {
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { TemplatesContent } from "..";
+import TemplatesContent from "../TemplateContent";
 import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
 
