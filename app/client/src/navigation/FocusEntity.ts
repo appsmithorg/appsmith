@@ -40,6 +40,7 @@ export enum FocusEntity {
   SETTINGS = "SETTINGS",
   ADD = "ADD",
   WIDGET_LIST = "WIDGET_LIST",
+  QUERY_ADD = "QUERY_ADD",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
@@ -175,6 +176,14 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     };
   }
   if (match.params.queryId) {
+    if (match.params.queryId == "add") {
+      return {
+        entity: FocusEntity.QUERY_ADD,
+        id: "",
+        pageId: match.params.pageId,
+        appState: EditorState.EDITOR,
+      };
+    }
     return {
       entity: FocusEntity.QUERY,
       id: match.params.queryId,

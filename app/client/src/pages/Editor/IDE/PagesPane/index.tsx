@@ -54,6 +54,7 @@ const _pagesPane = () => {
     switch (entity) {
       case FocusEntity.QUERY:
       case FocusEntity.QUERY_LIST:
+      case FocusEntity.QUERY_ADD:
       case FocusEntity.API:
         setSelected(TabsType.QUERIES);
         break;

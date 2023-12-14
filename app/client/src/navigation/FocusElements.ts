@@ -335,6 +335,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.LIBRARY]: [],
   [FocusEntity.SETTINGS]: [],
   [FocusEntity.ADD]: [],
+  [FocusEntity.QUERY_ADD]: [],
   [FocusEntity.QUERY_LIST]: [
     {
       type: ConfigType.URL,
