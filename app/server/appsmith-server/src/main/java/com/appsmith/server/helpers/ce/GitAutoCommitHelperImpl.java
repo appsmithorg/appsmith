@@ -104,6 +104,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                     autoCommitEvent.setWorkspaceId(application.getWorkspaceId());
                                     autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
                                     autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
+                                    autoCommitEvent.setRepoUrl(gitApplicationMetadata.getRemoteUrl());
                                     // it's a synchronous call, no need to return anything
                                     autoCommitEventHandler.publish(autoCommitEvent);
                                     return Boolean.TRUE;
