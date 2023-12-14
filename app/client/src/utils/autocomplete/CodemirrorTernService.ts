@@ -8,8 +8,8 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
 import TernWorkerServer from "./TernWorkerService";
@@ -95,7 +95,7 @@ interface RequestQuery {
 }
 
 export interface DataTreeDefEntityInformation {
-  type: ENTITY_TYPE;
+  type: EntityTypeValue;
   subType: string;
 }
 
@@ -510,7 +510,7 @@ class CodeMirrorTernService {
     }
 
     const shouldComputeBestMatch =
-      this.fieldEntityInformation.entityType !== ENTITY_TYPE_VALUE.JSACTION;
+      this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;
 
     completions = AutocompleteSorter.sort(
       completions,

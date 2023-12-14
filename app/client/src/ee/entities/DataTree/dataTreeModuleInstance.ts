@@ -19,7 +19,7 @@ import {
   type DependencyMap,
   type DynamicPath,
 } from "utils/DynamicBindingUtils";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { ModuleInstanceEntitiesReducerState } from "@appsmith/reducers/entityReducers/moduleInstanceEntitiesReducer";
 
 export const generateModuleInstance = (
@@ -85,7 +85,7 @@ export const generateQueryModuleInstance = (
       actionId: publicAction.config.id,
       clear: {},
       data: `{{${publicAction.config.name}.data}}`,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INSTANCE,
       inputs: moduleInstance.inputs,
       isLoading: false,
       moduleId: moduleInstance.sourceModuleId,
@@ -95,7 +95,7 @@ export const generateQueryModuleInstance = (
     },
     configEntity: {
       actionId: publicAction.config.id,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INSTANCE,
       moduleId: moduleInstance.sourceModuleId,
       moduleInstanceId: moduleInstance.id,
       type: MODULE_TYPE.QUERY,
@@ -180,7 +180,7 @@ export const generateJSModuleInstance = (
       ...variableList,
       ...actionsData,
       actionId: publicJSObject.config.id,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INSTANCE,
       type: MODULE_TYPE.JS,
       moduleId: moduleInstance.sourceModuleId,
       moduleInstanceId: moduleInstance.id,
@@ -188,7 +188,7 @@ export const generateJSModuleInstance = (
     },
     configEntity: {
       actionId: publicJSObject.config.id,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INSTANCE,
       type: MODULE_TYPE.JS,
       moduleId: moduleInstance.sourceModuleId,
       moduleInstanceId: moduleInstance.id,

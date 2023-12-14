@@ -11,8 +11,8 @@ import {
   type TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import { getJSFunctionLocationFromCursor } from "pages/Editor/JSEditor/utils";
 
 export const APPSMITH_AI = "Appsmith AI";
@@ -49,7 +49,7 @@ export const getAIContext = ({
   entityType,
   slashIndex,
 }: {
-  entityType?: ENTITY_TYPE;
+  entityType?: EntityTypeValue;
   slashIndex: number;
   currentLineValue: string;
   cursorPosition: CodeMirror.Position;
@@ -64,7 +64,7 @@ export const getAIContext = ({
     cursorCoordinates: editor.cursorCoords(true, "local"),
   };
 
-  if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
+  if (entityType === ENTITY_TYPE.JSACTION) {
     const editorValue = editor.getValue();
     const lines = editorValue.split("\n");
 

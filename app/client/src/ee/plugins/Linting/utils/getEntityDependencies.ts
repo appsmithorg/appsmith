@@ -5,7 +5,7 @@ import {
   getDependencies as CE_getDependencies,
 } from "ce/plugins/Linting/utils/getEntityDependencies";
 import type { IEntity } from "../lib/entity/types";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   type EntityWithBindings,
@@ -20,7 +20,7 @@ export const getDependencies: Record<
   (entity: IEntity) => TDependencyMap
 > = {
   ...CE_getDependencies,
-  [ENTITY_TYPE_VALUE.MODULE_INPUT]: (entity) =>
+  [ENTITY_TYPE.MODULE_INPUT]: (entity) =>
     getModuleInputsDependencies(entity as ModuleInputsEntity),
 };
 
@@ -29,7 +29,7 @@ export const getPathDependencies: Record<
   (entity: IEntity, fullPropertyPath: string) => TDependencyMap
 > = {
   ...CE_getEntityPathDependencies,
-  [ENTITY_TYPE_VALUE.MODULE_INPUT]: (entity, fullPropertyPath) =>
+  [ENTITY_TYPE.MODULE_INPUT]: (entity, fullPropertyPath) =>
     getModuleInputsPathDependencies(
       entity as ModuleInputsEntity,
       fullPropertyPath,

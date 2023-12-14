@@ -5,6 +5,7 @@ import type {
 import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 const DEFAULT_SAVING_STATUS = {
   isSaving: false,
@@ -39,7 +40,7 @@ export const getModuleInstancePublicAction = (
   moduleInstanceId: string,
 ): Action | undefined => {
   const action = state.entities.moduleInstanceEntities.actions.find(
-    (action) => {
+    (action: ActionData) => {
       return (
         action.config.moduleInstanceId === moduleInstanceId &&
         action.config.isPublic
@@ -55,11 +56,13 @@ export const getModuleInstancePublicJSCollectionData = (
   moduleInstanceId: string,
 ) => {
   const jsCollectionData: JSCollectionData | undefined =
-    state.entities.moduleInstanceEntities.jsCollections.find((js) => {
-      return (
-        js.config.moduleInstanceId === moduleInstanceId && js.config.isPublic
-      );
-    });
+    state.entities.moduleInstanceEntities.jsCollections.find(
+      (js: JSCollectionData) => {
+        return (
+          js.config.moduleInstanceId === moduleInstanceId && js.config.isPublic
+        );
+      },
+    );
 
   return jsCollectionData;
 };
@@ -72,11 +75,13 @@ export const getIsJSModuleInstanceActionExecuting = (
   if (!moduleInstanceId || !actionId) return false;
 
   const jsCollectionData: JSCollectionData | undefined =
-    state.entities.moduleInstanceEntities.jsCollections.find((js) => {
-      return (
-        js.config.moduleInstanceId === moduleInstanceId && js.config.isPublic
-      );
-    });
+    state.entities.moduleInstanceEntities.jsCollections.find(
+      (js: JSCollectionData) => {
+        return (
+          js.config.moduleInstanceId === moduleInstanceId && js.config.isPublic
+        );
+      },
+    );
 
   return jsCollectionData?.isExecuting?.[actionId] || false;
 };
@@ -86,7 +91,8 @@ export const getModuleInstanceActiveJSActionId = (
   jsCollectionId: string,
 ): string | null => {
   const jsCollection = state.entities.moduleInstanceEntities.jsCollections.find(
-    (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
+    (jsCollectionData: JSCollectionData) =>
+      jsCollectionData.config.id === jsCollectionId,
   );
   return jsCollection?.activeJSActionId ?? null;
 };
@@ -96,7 +102,7 @@ export const getModuleInstanceActionResponse = (
   actionId: string,
 ) => {
   const action = state.entities.moduleInstanceEntities.actions.find(
-    ({ config }) => config.id === actionId,
+    ({ config }: { config: Action }) => config.id === actionId,
   );
 
   return action?.data;

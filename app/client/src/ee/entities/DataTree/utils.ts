@@ -8,7 +8,7 @@ import type {
   QueryModuleInstanceEntity,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { isWidgetActionOrJsObject as CE_isWidgetActionOrJsObject } from "ce/entities/DataTree/utils";
 import {
   isModuleInput,
@@ -42,10 +42,10 @@ export const generateDataTreeModuleInputs = (
   return {
     unEvalEntity: {
       ...unEvalEntity,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INPUT,
     },
     configEntity: {
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INPUT,
       bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
       reactivePaths: { ...bindingPaths },
       dynamicBindingPathList: dynamicBindingPathList,

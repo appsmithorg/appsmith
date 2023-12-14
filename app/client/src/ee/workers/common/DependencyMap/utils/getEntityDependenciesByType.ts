@@ -14,7 +14,7 @@ import {
   getDependencies as CE_getDependencies,
   getPathDependencies as CE_getPathDependencies,
 } from "ce/workers/common/DependencyMap/utils/getEntityDependenciesByType";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import { getDependencyFromEntityPath } from "workers/common/DependencyMap/utils/getEntityDependencies";
@@ -27,7 +27,7 @@ import {
 
 export const getDependencies = {
   ...CE_getDependencies,
-  [ENTITY_TYPE_VALUE.MODULE_INPUT]: (
+  [ENTITY_TYPE.MODULE_INPUT]: (
     entity: DataTreeEntityObject,
     entityConfig: DataTreeEntityConfig,
   ) => {
@@ -36,7 +36,7 @@ export const getDependencies = {
       entityConfig as ModuleInputsConfig,
     );
   },
-  [ENTITY_TYPE_VALUE.MODULE_INSTANCE]: (
+  [ENTITY_TYPE.MODULE_INSTANCE]: (
     entity: DataTreeEntityObject,
     entityConfig: DataTreeEntityConfig,
     allKeys: Record<string, true>,
@@ -156,7 +156,7 @@ export function getModuleInputsDependencies(
 
 export const getPathDependencies = {
   ...CE_getPathDependencies,
-  [ENTITY_TYPE_VALUE.MODULE_INPUT]: (
+  [ENTITY_TYPE.MODULE_INPUT]: (
     entity: DataTreeEntity,
     entityConfig: DataTreeEntityConfig,
     fullPropertyPath: string,
@@ -167,7 +167,7 @@ export const getPathDependencies = {
       fullPropertyPath as string,
     );
   },
-  [ENTITY_TYPE_VALUE.MODULE_INSTANCE]: (
+  [ENTITY_TYPE.MODULE_INSTANCE]: (
     entity: DataTreeEntity,
     entityConfig: DataTreeEntityConfig,
     fullPropertyPath: string,

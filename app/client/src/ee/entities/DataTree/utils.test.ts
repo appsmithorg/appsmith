@@ -1,5 +1,5 @@
 import type { Module } from "@appsmith/constants/ModuleConstants";
-import { ENTITY_TYPE_VALUE, EvaluationSubstitutionType } from "./types";
+import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 
 describe("generate module inputs in datatree", () => {
@@ -30,12 +30,12 @@ describe("generate module inputs in datatree", () => {
     const expectedUnevalEntity = {
       username: "{{appsmith.user.name}}",
       email: "{{appsmith.user.email}}",
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INPUT,
     };
 
     const expectedConfig = {
       name: "inputs",
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INPUT,
       bindingPaths: {
         username: EvaluationSubstitutionType.TEMPLATE,
         email: EvaluationSubstitutionType.TEMPLATE,
