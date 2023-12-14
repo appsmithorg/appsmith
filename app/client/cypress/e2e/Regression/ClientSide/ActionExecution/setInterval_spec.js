@@ -3,6 +3,7 @@ import {
   propPane,
   deployMode,
   assertHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import data from "../../../../fixtures/TestDataSet1.json";
 import EditorNavigation, {
