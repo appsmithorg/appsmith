@@ -1,51 +1,56 @@
 package com.appsmith.server.repositories;
 
-    import com.appsmith.server.acl.AclPermission;
-    import com.appsmith.server.domains.*;
-    import com.appsmith.server.dtos.*;
-    import com.appsmith.server.projections.*;
-    import com.appsmith.external.models.*;
-    import lombok.RequiredArgsConstructor;
-    import org.springframework.stereotype.Component;
-    import org.springframework.data.domain.Sort;
-    import reactor.core.publisher.Flux;
-    import reactor.core.publisher.Mono;
-    import org.springframework.data.mongodb.core.query.*;
-    import com.mongodb.bulk.BulkWriteResult;
-    import com.mongodb.client.result.InsertManyResult;
-    import com.querydsl.core.types.dsl.StringPath;
-    import com.appsmith.server.dtos.PluginTypeAndCountDTO;
+import com.appsmith.external.models.*;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.*;
+import com.appsmith.server.dtos.*;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
+import com.appsmith.server.projections.*;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.*;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-    import java.util.*;
+import java.util.*;
 
-    @Component
-    @RequiredArgsConstructor
-    public class NewActionRepositoryCake {
-        private final NewActionRepository repository;
+@Component
+@RequiredArgsConstructor
+public class NewActionRepositoryCake {
+    private final NewActionRepository repository;
 
-        // From CrudRepository
-        public Mono<NewAction> save(NewAction entity) {
-            return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
-        }
-        public Flux<NewAction> saveAll(Iterable<NewAction> entities) {
-            return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
-        }
-        public Mono<NewAction> findById(String id) {
-            return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
-        }
-        // End from CrudRepository
+    // From CrudRepository
+    public Mono<NewAction> save(NewAction entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
+    }
+
+    public Flux<NewAction> saveAll(Iterable<NewAction> entities) {
+        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
+    }
+
+    public Mono<NewAction> findById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
+    }
+    // End from CrudRepository
 
     public Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.bulkUpdate(newActions)));
     }
 
-    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllByApplicationIdsWithoutPermission(applicationIds, includeFields)));
+    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
+            List<String> applicationIds, List<String> includeFields) {
+        return Flux.defer(() ->
+                Flux.fromIterable(repository.findAllByApplicationIdsWithoutPermission(applicationIds, includeFields)));
     }
 
-    public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, aclPermission, sort)));
+    public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
+            String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(
+                name, pageIds, viewMode, aclPermission, sort)));
     }
 
     public Mono<NewAction> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
@@ -72,8 +77,10 @@ import com.mongodb.client.result.UpdateResult;
         return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId, aclPermission)));
     }
 
-    public Flux<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
+    public Flux<NewAction> findByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission aclPermission) {
+        return Flux.defer(() ->
+                Flux.fromIterable(repository.findByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
     }
 
     public Flux<NewAction> findAllByIdIn(Iterable<String> ids) {
@@ -100,11 +107,14 @@ import com.mongodb.client.result.UpdateResult;
         return Flux.defer(() -> Flux.fromIterable(repository.findByPageId(pageId, aclPermission)));
     }
 
-    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
+            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(
+                repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
     }
 
-    public Flux<NewAction> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<NewAction> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -120,16 +130,21 @@ import com.mongodb.client.result.UpdateResult;
         return Flux.defer(() -> Flux.fromIterable(repository.findByPageIds(pageIds, permission)));
     }
 
-    public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllUnpublishedActionsByContextIdAndContextType(contextId, contextType, permission, includeJs)));
+    public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllUnpublishedActionsByContextIdAndContextType(
+                contextId, contextType, permission, includeJs)));
     }
 
-    public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
+    public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission aclPermission) {
+        return Flux.defer(() -> Flux.fromIterable(
+                repository.findNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
     }
 
     public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findByDefaultApplicationId(defaultApplicationId, permission)));
+        return Flux.defer(
+                () -> Flux.fromIterable(repository.findByDefaultApplicationId(defaultApplicationId, permission)));
     }
 
     public Flux<NewAction> findByApplicationId(String applicationId) {
@@ -140,12 +155,16 @@ import com.mongodb.client.result.UpdateResult;
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(String pageId, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, permission)));
+    public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
+            String pageId, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(
+                repository.findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, permission)));
     }
 
-    public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllPublishedActionsByContextIdAndContextType(contextId, contextType, permission, includeJs)));
+    public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllPublishedActionsByContextIdAndContextType(
+                contextId, contextType, permission, includeJs)));
     }
 
     public Mono<NewAction> retrieveById(String id) {
@@ -160,23 +179,30 @@ import com.mongodb.client.result.UpdateResult;
         return Flux.defer(() -> Flux.fromIterable(repository.findByPageIdAndViewMode(pageId, viewMode, aclPermission)));
     }
 
-    public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)));
+    public Mono<NewAction> findByBranchNameAndDefaultActionId(
+            String branchName, String defaultActionId, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(
+                repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)));
     }
 
     public Flux<NewAction> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, aclPermission, sort)));
+    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
+            String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(
+                repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, aclPermission, sort)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsForRestApiOnLoad(names, pageId, httpMethod, userSetOnLoad, aclPermission)));
+    public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
+            Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsForRestApiOnLoad(
+                names, pageId, httpMethod, userSetOnLoad, aclPermission)));
     }
 
-    public Flux<NewAction> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
+    public Flux<NewAction> findByApplicationId(
+            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId, aclPermission, sort)));
     }
 
@@ -192,28 +218,35 @@ import com.mongodb.client.result.UpdateResult;
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(Set<String> names, String pageId, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId, permission)));
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
+            Set<String> names, String pageId, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(
+                repository.findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId, permission)));
     }
 
-    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
+            String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(
+                repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsByNameInAndPageId(names, pageId, permission)));
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(
+            Set<String> names, String pageId, AclPermission permission) {
+        return Flux.defer(
+                () -> Flux.fromIterable(repository.findUnpublishedActionsByNameInAndPageId(names, pageId, permission)));
     }
 
     public Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveDeletedUnpublishedActions(applicationId, permission)));
+        return Mono.defer(
+                () -> Mono.justOrEmpty(repository.archiveDeletedUnpublishedActions(applicationId, permission)));
     }
 
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByUnpublishedNameAndPageId(name, pageId, aclPermission)));
+        return Mono.defer(
+                () -> Mono.justOrEmpty(repository.findByUnpublishedNameAndPageId(name, pageId, aclPermission)));
     }
 
     public Mono<NewAction> setUserPermissionsInObject(NewAction obj) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
-
 }

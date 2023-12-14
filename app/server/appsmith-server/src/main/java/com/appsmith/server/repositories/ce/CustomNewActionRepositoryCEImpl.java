@@ -18,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
@@ -26,8 +25,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -200,16 +197,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where("publishedAction" + "."
-                                + "name")
-                        .is(name);
+                Criteria nameCriteria = where("publishedAction" + "." + "name").is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where("publishedAction" + "."
-                                + "pageId")
-                        .in(pageIds);
+                Criteria pageCriteria =
+                        where("publishedAction" + "." + "pageId").in(pageIds);
                 criteriaList.add(pageCriteria);
             }
         }
@@ -217,24 +211,21 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where("unpublishedAction" + "."
-                                + "name")
-                        .is(name);
+                Criteria nameCriteria =
+                        where("unpublishedAction" + "." + "name").is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where("unpublishedAction" + "."
-                                + "pageId")
-                        .in(pageIds);
+                Criteria pageCriteria =
+                        where("unpublishedAction" + "." + "pageId").in(pageIds);
                 criteriaList.add(pageCriteria);
             }
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where("unpublishedAction" + "."
-                            + "deletedAt")
-                    .is(null);
+            Criteria deletedCriteria =
+                    where("unpublishedAction" + "." + "deletedAt").is(null);
             criteriaList.add(deletedCriteria);
         }
         return criteriaList;
@@ -456,13 +447,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                     .is(null);
             criteria.add(deletedCriterion);
         }*/
-
     }
 
     @Override
     public List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Collections.emptyList();/*
+        return Collections.emptyList(); /*
 
         List<Criteria> criteriaList = new ArrayList<>();
 
@@ -512,7 +502,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                     .is(null);
             criteriaList.add(deletedCriteria);
         }*/
-
     }
 
     /**

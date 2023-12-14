@@ -1,20 +1,17 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
-import com.appsmith.external.models.*;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.*;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.data.mongodb.core.query.*;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
-import com.querydsl.core.types.dsl.StringPath;
-import com.mongodb.client.result.UpdateResult;
 
 import java.util.*;
 
@@ -27,20 +24,25 @@ public class ApplicationRepositoryCake {
     public Mono<Application> save(Application entity) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
+
     public Flux<Application> saveAll(Iterable<Application> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
+
     public Mono<Application> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
-    public Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.addPageToApplication(applicationId, pageId, isDefault, defaultPageId)));
+    public Mono<UpdateResult> addPageToApplication(
+            String applicationId, String pageId, boolean isDefault, String defaultPageId) {
+        return Mono.defer(() ->
+                Mono.justOrEmpty(repository.addPageToApplication(applicationId, pageId, isDefault, defaultPageId)));
     }
 
     public Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId)));
+        return Mono.defer(
+                () -> Mono.justOrEmpty(repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId)));
     }
 
     public Mono<Application> retrieveById(String id) {
@@ -55,8 +57,10 @@ public class ApplicationRepositoryCake {
         return Flux.defer(() -> Flux.fromIterable(repository.getAllApplicationId(workspaceId)));
     }
 
-    public Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(AclPermission permission, String permissionGroupId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.getAllApplicationsCountAccessibleToARoleWithPermission(permission, permissionGroupId)));
+    public Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
+            AclPermission permission, String permissionGroupId) {
+        return Mono.defer(() -> Mono.justOrEmpty(
+                repository.getAllApplicationsCountAccessibleToARoleWithPermission(permission, permissionGroupId)));
     }
 
     public Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId) {
@@ -80,19 +84,30 @@ public class ApplicationRepositoryCake {
     }
 
     public Mono<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.countByNameAndWorkspaceId(applicationName, workspaceId, permission)));
+        return Mono.defer(
+                () -> Mono.justOrEmpty(repository.countByNameAndWorkspaceId(applicationName, workspaceId, permission)));
     }
 
     public Mono<UpdateResult> setDefaultPage(String applicationId, String pageId) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setDefaultPage(applicationId, pageId)));
     }
 
-    public Flux<Object> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(String workspaceId, AclPermission permission, String permissionGroupId) {
-        return Flux.defer(() -> Flux.fromIterable(repository.getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(workspaceId, permission, permissionGroupId)));
+    public Flux<Object> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+            String workspaceId, AclPermission permission, String permissionGroupId) {
+        return Flux.defer(
+                () -> Flux.fromIterable(repository.getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+                        workspaceId, permission, permissionGroupId)));
     }
 
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String, Object> fieldNameValueMap, String branchName, String branchNamePath, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldNameValueMap, branchName, branchNamePath, permission)));
+    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
+            String defaultId,
+            String defaultIdPath,
+            Map<String, Object> fieldNameValueMap,
+            String branchName,
+            String branchNamePath,
+            AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateFieldByDefaultIdAndBranchName(
+                defaultId, defaultIdPath, fieldNameValueMap, branchName, branchNamePath, permission)));
     }
 
     public Flux<Application> findByIdIn(List<String> ids) {
@@ -111,27 +126,34 @@ public class ApplicationRepositoryCake {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
     }
 
-    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)));
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
+            String defaultApplicationId, String branchName, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.getApplicationByGitBranchAndDefaultApplicationId(
+                defaultApplicationId, branchName, permission)));
     }
 
-    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission)));
+    public Mono<UpdateResult> setAppTheme(
+            String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
+        return Mono.defer(() -> Mono.justOrEmpty(
+                repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission)));
     }
 
     public Flux<Application> findAllUserApps(AclPermission permission) {
         return Flux.defer(() -> Flux.fromIterable(repository.findAllUserApps(permission)));
     }
 
-    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)));
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
+            String defaultApplicationId, String branchName, AclPermission aclPermission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.getApplicationByGitBranchAndDefaultApplicationId(
+                defaultApplicationId, branchName, aclPermission)));
     }
 
     public Mono<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setPages(applicationId, pages)));
     }
 
-    public Flux<Application> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<Application> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -148,15 +170,21 @@ public class ApplicationRepositoryCake {
     }
 
     public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId)));
+        return Mono.defer(() -> Mono.justOrEmpty(
+                repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId)));
     }
 
     public Mono<Long> countByWorkspaceId(String workspaceId) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.countByWorkspaceId(workspaceId)));
     }
 
-    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, List<String> projectionFieldNames, String branchName, AclPermission aclPermission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, projectionFieldNames, branchName, aclPermission)));
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
+            String defaultApplicationId,
+            List<String> projectionFieldNames,
+            String branchName,
+            AclPermission aclPermission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.getApplicationByGitBranchAndDefaultApplicationId(
+                defaultApplicationId, projectionFieldNames, branchName, aclPermission)));
     }
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
@@ -164,7 +192,8 @@ public class ApplicationRepositoryCake {
     }
 
     public Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByIdAndExportWithConfiguration(id, exportWithConfiguration)));
+        return Mono.defer(
+                () -> Mono.justOrEmpty(repository.findByIdAndExportWithConfiguration(id, exportWithConfiguration)));
     }
 
     public Mono<Application> setUserPermissionsInObject(Application obj, Set<String> permissionGroups) {
@@ -179,8 +208,10 @@ public class ApplicationRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.unprotectAllBranches(applicationId, permission)));
     }
 
-    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission)));
+    public Flux<Application> getApplicationByGitDefaultApplicationId(
+            String defaultApplicationId, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(
+                repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission)));
     }
 
     public Mono<Application> findByName(String name, AclPermission permission) {
@@ -191,8 +222,10 @@ public class ApplicationRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<UpdateResult> protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.protectBranchedApplications(applicationId, branchNames, permission)));
+    public Mono<UpdateResult> protectBranchedApplications(
+            String applicationId, List<String> branchNames, AclPermission permission) {
+        return Mono.defer(
+                () -> Mono.justOrEmpty(repository.protectBranchedApplications(applicationId, branchNames, permission)));
     }
 
     public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
@@ -202,5 +235,4 @@ public class ApplicationRepositoryCake {
     public Flux<Application> findByWorkspaceId(String workspaceId) {
         return Flux.defer(() -> Flux.fromIterable(repository.findByWorkspaceId(workspaceId)));
     }
-
 }

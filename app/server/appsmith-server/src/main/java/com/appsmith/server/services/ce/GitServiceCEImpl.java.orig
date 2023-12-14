@@ -96,6 +96,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.CONFLICTED_SUCCESS_MESSAGE;
 import static com.appsmith.external.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
@@ -104,8 +105,12 @@ import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
+<<<<<<< HEAD
+=======
+import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
 import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
+>>>>>>> origin/release
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 /**

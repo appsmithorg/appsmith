@@ -1,20 +1,16 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
-import com.appsmith.external.models.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.*;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.data.mongodb.core.query.*;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
-import com.querydsl.core.types.dsl.StringPath;
-
 
 import java.util.*;
 
@@ -27,9 +23,11 @@ public class WorkspaceRepositoryCake {
     public Mono<Workspace> save(Workspace entity) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
     }
+
     public Flux<Workspace> saveAll(Iterable<Workspace> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
+
     public Mono<Workspace> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
@@ -39,7 +37,8 @@ public class WorkspaceRepositoryCake {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
+    public Flux<Workspace> findByIdsIn(
+            Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.findByIdsIn(workspaceIds, tenantId, aclPermission, sort)));
     }
 
@@ -51,7 +50,8 @@ public class WorkspaceRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
     }
 
-    public Flux<Workspace> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<Workspace> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -110,5 +110,4 @@ public class WorkspaceRepositoryCake {
     public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByIdAndPluginsPluginId(workspaceId, pluginId)));
     }
-
 }
