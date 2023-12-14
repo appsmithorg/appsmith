@@ -7,7 +7,7 @@ import type {
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
@@ -101,7 +101,7 @@ export const createLoadingWidget = (
       canvasWidget?.type !== "MODAL_WIDGET"
         ? WidgetTypes.SKELETON_WIDGET
         : canvasWidget?.type,
-    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
     reactivePaths: {},
     triggerPaths: {},
