@@ -18,6 +18,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { Icon } from "design-system";
 
 interface ExplorerJSCollectionEntityProps {
   step: number;
@@ -86,6 +87,7 @@ export const ExplorerJSCollectionEntity = memo(
       <Entity
         action={navigateToJSCollection}
         active={props.isActive}
+        alwaysShowRightIcon={!!jsAction.isMainJSCollection}
         canEditEntityName={canManageJSAction}
         className="t--jsaction"
         contextMenu={contextMenu}
@@ -93,6 +95,7 @@ export const ExplorerJSCollectionEntity = memo(
         icon={JsFileIconV2(16, 16)}
         key={jsAction.id}
         name={jsAction.name}
+        rightIcon={!!jsAction.isMainJSCollection && <Icon name="pin-3" />}
         searchKeyword={props.searchKeyword}
         step={props.step}
         updateEntityName={getUpdateJSObjectName}
