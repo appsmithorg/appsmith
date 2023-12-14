@@ -103,7 +103,7 @@ describe(
         .last()
         .trigger("mouseup", { force: true });
       agHelper.GetNAssertContains(
-        appSettings.locators._navigationMenuItem,
+        `${appSettings.locators._navigationMenuItem} span`,
         pageName,
         "not.exist",
       );
