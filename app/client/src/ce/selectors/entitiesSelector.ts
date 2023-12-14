@@ -49,6 +49,7 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentWorkflowActions } from "@appsmith/selectors/workflowSelectors";
+import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -89,6 +90,7 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  getAnvilSpaceDistributionStatus,
   // cannot import other selectors, breaks the app
   (state) => {
     const gitMetaData =
@@ -107,6 +109,7 @@ export const getShouldShowWidgetName = createSelector(
     isDragging,
     isPreviewMode,
     isAutoCanvasResizing,
+    isDistributingSpace,
     isProtectedMode,
   ) => {
     return (
@@ -114,6 +117,7 @@ export const getShouldShowWidgetName = createSelector(
       !isDragging &&
       !isPreviewMode &&
       !isAutoCanvasResizing &&
+      !isDistributingSpace &&
       !isProtectedMode
     );
   },

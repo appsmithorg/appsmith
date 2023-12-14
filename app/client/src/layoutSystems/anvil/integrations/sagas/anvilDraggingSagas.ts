@@ -46,6 +46,10 @@ import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "layoutSystems/anvil/utils/widgetAdditionUtils";
+import {
+  updateSectionWithDefaultSpaceDistribution,
+  updateSectionsDistributedSpace,
+} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {
@@ -346,6 +350,7 @@ function* updateAndSaveAnvilLayoutSaga(
   }>,
 ) {
   try {
+    const currentWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { widgets } = action.payload;
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
@@ -364,6 +369,7 @@ function* updateAndSaveAnvilLayoutSaga(
 
     for (const each of sections) {
       const children: string[] | undefined = each.children;
+      const sectionWidget = currentWidgets[each.widgetId];
       /**
        * If a section doesn't have any children,
        * => delete it.
@@ -386,7 +392,14 @@ function* updateAndSaveAnvilLayoutSaga(
             each.type,
           );
         }
-      } else if (each.zoneCount !== each.children?.length) {
+      } else if (each.zoneCount !== each.children?.length && sectionWidget) {
+        // update the section with the new space distribution
+        updatedWidgets = yield call(
+          updateSectionsDistributedSpace,
+          currentWidgets,
+          updatedWidgets,
+          each,
+        );
         /**
          * If section's zone count doesn't match it's child count,
          * => update the zone count.
@@ -394,10 +407,17 @@ function* updateAndSaveAnvilLayoutSaga(
         updatedWidgets = {
           ...updatedWidgets,
           [each.widgetId]: {
-            ...each,
+            ...updatedWidgets[each.widgetId],
             zoneCount: each.children?.length,
           },
         };
+      } else if (!each.spaceDistributed) {
+        // update the section with the default space distribution
+        updatedWidgets = yield call(
+          updateSectionWithDefaultSpaceDistribution,
+          updatedWidgets,
+          each,
+        );
       }
     }
     yield put(updateAndSaveLayout(updatedWidgets));
