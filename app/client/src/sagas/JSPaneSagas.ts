@@ -25,10 +25,10 @@ import {
 import type {
   JSCollectionData,
   JSCollectionDataState,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { JSCollection, JSAction } from "entities/JSCollection";
+import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
@@ -40,6 +40,7 @@ import {
   createDummyJSCollectionActions,
 } from "utils/JSPaneUtils";
 import type {
+  CreateJSCollectionRequest,
   JSCollectionCreateUpdateResponse,
   RefactorAction,
   SetFunctionPropertyPayload,
@@ -96,6 +97,14 @@ import {
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
 
+export interface GenerateDefaultJSObjectProps {
+  name: string;
+  workspaceId: string;
+  body: string;
+  actions: Partial<JSAction>[];
+  variables: Variable[];
+}
+
 const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
 
@@ -105,46 +114,63 @@ function* handleCreateNewJsActionSaga(
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
   const { from, pageId } = action.payload;
-  const pluginId: string = yield select(
-    getPluginIdOfPackageName,
-    PluginPackageName.JS,
-  );
-  if (pageId && pluginId) {
+
+  if (pageId) {
     const jsActions: JSCollectionDataState = yield select(getJSCollections);
     const pageJSActions = jsActions.filter(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
-    const { actions, body } = createDummyJSCollectionActions(
-      pageId,
+    const { actions, body, variables } = createDummyJSCollectionActions(
       workspaceId,
+      {
+        pageId,
+      },
     );
+
+    const defaultJSObject: CreateJSCollectionRequest =
+      yield generateDefaultJSObject({
+        name: newJSCollectionName,
+        workspaceId,
+        actions,
+        body,
+        variables,
+      });
+
     yield put(
       createJSCollectionRequest({
         from: from,
         request: {
-          name: newJSCollectionName,
+          ...defaultJSObject,
           pageId,
-          workspaceId,
-          pluginId,
-          body: body,
-          variables: [
-            {
-              name: "myVar1",
-              value: [],
-            },
-            {
-              name: "myVar2",
-              value: {},
-            },
-          ],
-          actions: actions,
           applicationId,
-          pluginType: PluginType.JS,
         },
       }),
     );
   }
+}
+
+export function* generateDefaultJSObject({
+  actions,
+  body,
+  name,
+  variables,
+  workspaceId,
+}: GenerateDefaultJSObjectProps) {
+  const pluginId: string = yield select(
+    getPluginIdOfPackageName,
+    PluginPackageName.JS,
+  );
+
+  return {
+    name,
+    workspaceId,
+    pluginId,
+    body: body,
+    variables,
+    actions: actions,
+    pluginType: PluginType.JS,
+  };
 }
 
 function* handleJSCollectionCreatedSaga(
