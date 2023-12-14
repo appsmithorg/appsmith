@@ -686,7 +686,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
         return newActionService
                 .validateAndSaveActionToRepository(newAction)
-                .doOnNext(savedAction -> sendAnalyticsMono.thenReturn(savedAction));
+                .flatMap(savedAction -> sendAnalyticsMono.thenReturn(savedAction));
     }
 
     @Override
