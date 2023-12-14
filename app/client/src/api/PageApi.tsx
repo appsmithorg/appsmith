@@ -202,8 +202,70 @@ class PageApi extends Api {
   static async fetchPage(
     pageRequest: FetchPageRequest,
   ): Promise<AxiosPromise<FetchPageResponse>> {
-    const params = { migrateDsl: pageRequest.migrateDSL };
-    return Api.get(PageApi.url + "/" + pageRequest.id, undefined, { params });
+    // pages/657ad510e4a5e56691a2f869?migrateDsl=true
+    // const params = { migrateDsl: pageRequest.migrateDSL };
+
+    const resp = await Api.get(
+      "/v1/pageload/one-api" + "/" + pageRequest.id,
+      undefined,
+    );
+    // eslint-disable-next-line no-console
+    console.log("see ", resp);
+    return {
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: {
+        id: "657ad510e4a5e56691a2f869",
+        name: "Page1",
+        slug: "page1",
+        applicationId: "657ad510e4a5e56691a2f866",
+        layouts: [
+          {
+            id: "657ad510e4a5e56691a2f867",
+            userPermissions: [],
+            dsl: {
+              widgetName: "MainContainer",
+              backgroundColor: "none",
+              rightColumn: 4896,
+              snapColumns: 64,
+              detachFromLayout: true,
+              widgetId: "0",
+              topRow: 0,
+              bottomRow: 380,
+              containerStyle: "none",
+              snapRows: 124,
+              parentRowSpace: 1,
+              type: "CANVAS_WIDGET",
+              canExtend: true,
+              version: 87,
+              minHeight: 1292,
+              dynamicTriggerPathList: [],
+              parentColumnSpace: 1,
+              dynamicBindingPathList: [],
+              leftColumn: 0,
+              children: [],
+            },
+            layoutOnLoadActions: [],
+            layoutOnLoadActionErrors: [],
+            new: false,
+          },
+        ],
+        userPermissions: [
+          "read:pages",
+          "manage:pages",
+          "create:pageActions",
+          "delete:pages",
+        ],
+        lastUpdatedTime: 1702548788,
+        defaultResources: {
+          applicationId: "657ad510e4a5e56691a2f866",
+          pageId: "657ad510e4a5e56691a2f869",
+        },
+      },
+      errorDisplay: "",
+    };
   }
 
   static savePage(
@@ -310,7 +372,64 @@ class PageApi extends Api {
   static async fetchAppAndPages(
     params: any,
   ): Promise<AxiosPromise<FetchApplicationResponse>> {
-    return Api.get(PageApi.url, params);
+    // api/v1/pages?pageId=657ad510e4a5e56691a2f869&mode=EDIT
+    // eslint-disable-next-line no-console
+    console.log("see params", params);
+
+    return {
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: {
+        workspaceId: "657ad510e4a5e56691a2f862",
+        application: {
+          id: "657ad510e4a5e56691a2f866",
+          modifiedBy: "vamsi@appsmith.com",
+          userPermissions: [
+            "manage:applications",
+            "canComment:applications",
+            "export:applications",
+            "read:applications",
+            "create:pages",
+            "publish:applications",
+            "delete:applications",
+            "makePublic:applications",
+          ],
+          name: "My first application",
+          workspaceId: "657ad510e4a5e56691a2f862",
+          isPublic: false,
+          appIsExample: false,
+          unreadCommentThreads: 0,
+          color: "#F1DEFF",
+          slug: "my-first-application",
+          unpublishedCustomJSLibs: [],
+          publishedCustomJSLibs: [],
+          evaluationVersion: 2,
+          applicationVersion: 2,
+          collapseInvisibleWidgets: true,
+          isManualUpdate: true,
+          isAutoUpdate: false,
+          new: false,
+          modifiedAt: "2023-12-14T10:13:08.419Z",
+        },
+        pages: [
+          {
+            id: "657ad510e4a5e56691a2f869",
+            name: "Page1",
+            slug: "page1",
+            isDefault: true,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+        ],
+      },
+      errorDisplay: "",
+    };
   }
 }
 

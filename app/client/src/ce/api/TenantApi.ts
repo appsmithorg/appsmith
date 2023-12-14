@@ -26,7 +26,30 @@ export class TenantApi extends Api {
   static async fetchCurrentTenantConfig(): Promise<
     AxiosPromise<FetchCurrentTenantConfigResponse>
   > {
-    return Api.get(`${TenantApi.tenantsUrl}/current`);
+    // /v1/tenants/current
+    return {
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: {
+        userPermissions: ["manage:tenants"],
+        instanceId: "657ad3ece4a5e56691a2f83a",
+        tenantConfiguration: {
+          isFormLoginEnabled: true,
+          instanceName: "Appsmith",
+          license: {
+            plan: "FREE",
+          },
+          emailVerificationEnabled: false,
+          thirdPartyAuths: null,
+          migrationStatus: "COMPLETED",
+          featuresWithPendingMigration: {},
+        },
+        new: true,
+      },
+      errorDisplay: "",
+    };
   }
 
   static async updateTenantConfig(

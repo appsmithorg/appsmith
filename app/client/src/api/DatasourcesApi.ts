@@ -37,7 +37,14 @@ class DatasourcesApi extends API {
   static async fetchDatasources(
     workspaceId: string,
   ): Promise<AxiosPromise<ApiResponse<Datasource[]>>> {
-    return API.get(DatasourcesApi.url + `?workspaceId=${workspaceId}`);
+    // api/v1/datasources?workspaceId=657ad510e4a5e56691a2f862
+    // eslint-disable-next-line no-console
+    console.log("workspaceId ", workspaceId);
+    return {
+      responseMeta: { status: 200, success: true },
+      data: [],
+      errorDisplay: "",
+    };
   }
 
   static async createDatasource(

@@ -60,7 +60,14 @@ class JSActionAPI extends API {
   static async fetchJSCollections(
     applicationId: string,
   ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
-    return API.get(JSActionAPI.url, { applicationId });
+    // /api/v1/collections/actions?applicationId=657ad510e4a5e56691a2f866
+    // eslint-disable-next-line no-console
+    console.log("see applicationId ", applicationId);
+    return {
+      responseMeta: { status: 200, success: true },
+      data: [],
+      errorDisplay: "",
+    };
   }
 
   static async createJSCollection(

@@ -162,7 +162,15 @@ class ActionAPI extends API {
   static async fetchActions(
     applicationId: string,
   ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
-    return API.get(ActionAPI.url, { applicationId });
+    // /api/v1/actions?applicationId=657ad510e4a5e56691a2f866
+
+    // eslint-disable-next-line no-console
+    console.log("applicationID ", applicationId);
+    return {
+      responseMeta: { status: 200, success: true },
+      data: [],
+      errorDisplay: "",
+    };
   }
 
   static async fetchActionsForViewMode(

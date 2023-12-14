@@ -82,7 +82,32 @@ class WorkspaceApi extends Api {
   static async fetchWorkspace(
     request: FetchWorkspaceRequest,
   ): Promise<AxiosPromise<FetchWorkspaceResponse>> {
-    return Api.get(WorkspaceApi.workspacesURL + "/" + request.workspaceId);
+    // api/v1/workspaces/657ad510e4a5e56691a2f862/members
+    // eslint-disable-next-line no-console
+    console.log("see request ", request);
+    return {
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: [
+        {
+          userId: "657ad50fe4a5e56691a2f860",
+          username: "vamsi@appsmith.com",
+          name: "SuryaVamsi Vemparala",
+          roles: [
+            {
+              id: "657ad510e4a5e56691a2f863",
+              name: "Administrator - SuryaVamsi's apps",
+              description:
+                "Can modify all workspace settings including editing applications, inviting other users to the workspace and exporting applications from the workspace",
+              entityType: "Workspace",
+            },
+          ],
+        },
+      ],
+      errorDisplay: "",
+    };
   }
   static async saveWorkspace(
     request: SaveWorkspaceRequest,
