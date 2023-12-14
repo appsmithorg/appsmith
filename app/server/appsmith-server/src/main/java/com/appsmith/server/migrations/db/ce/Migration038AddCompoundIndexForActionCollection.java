@@ -27,7 +27,7 @@ public class Migration038AddCompoundIndexForActionCollection {
     // limitation.
     private static final String ACTION_COLLECTION_COMPOUND_INDEX = "action_collection_compound_index_dec23";
 
-    public Migration038AddCompountIndexForActionCollection(MongoTemplate mongoTemplate) {
+    public Migration038AddCompoundIndexForActionCollection(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
