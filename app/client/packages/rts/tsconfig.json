@@ -17,10 +17,21 @@
       "@controllers/*": ["./src/controllers/*"],
       "@rules/*": ["./src/middlewares/rules/*"],
       "@utils/*": ["./src/utils/*"],
-      "@scim/*": ["./src/scim/*"]
+      // EE ONLY ENTRIES START
+      "@scim/*": ["./src/scim/*"],
+      "@workflowProxy/*": ["./src/workflowProxy/*"]
+      // EE ONLY ENTRIES END
     }
   },
   "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["jest.config.js", "src/test", "index.js", "build.js"],
+  "exclude": [
+    "jest.config.js",
+    "src/test",
+    "index.js",
+    "build.js",
+    // EE ONLY ENTRIES START
+    "workflows.js"
+    // EE ONLY ENTRIES END
+  ],
   "lib": ["es2015"]
 }

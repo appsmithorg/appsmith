@@ -6,7 +6,12 @@ import log from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
 
+// EE only imports
 import "@scim/lib/plugin-scim";
+import workflowRoutes from "@workflowProxy/routes";
+import { DeployService } from "@workflowProxy/services/DeployService";
+DeployService.createWorker();
+// EE only imports end
 
 // routes
 import ast_routes from "./routes/ast_routes";
@@ -45,6 +50,10 @@ app.use(express.json({ limit: "5mb" }));
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}/dsl`, dsl_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
+
+// ee only routes start
+app.use(`/`, workflowRoutes);
+// ee only routes end
 
 server.headersTimeout = 61000;
 server.keepAliveTimeout = 60000;
