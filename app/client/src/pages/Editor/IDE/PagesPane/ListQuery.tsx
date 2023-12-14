@@ -5,7 +5,10 @@ import { useSelector } from "react-redux";
 import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
-import { getPagePermissions } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import history from "utils/history";
@@ -14,6 +17,8 @@ import {
   selectQueriesForPagespane,
 } from "@appsmith/selectors/entitiesSelector";
 import { ADD_PATH } from "constants/routes";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -26,6 +31,7 @@ const ListQuery = () => {
     isFeatureEnabled,
     pagePermissions,
   );
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const addButtonClickHandler = useCallback(() => {
     history.push(`${location.pathname}${ADD_PATH}`);
@@ -55,19 +61,26 @@ const ListQuery = () => {
                 {key}
               </Text>
             </Flex>
-            {files[key].map((file: any) => {
-              return (
-                <ExplorerActionEntity
-                  id={file.id}
-                  isActive={file.id === activeActionId}
-                  key={file.id}
-                  parentEntityId={pageId}
-                  searchKeyword={""}
-                  step={2}
-                  type={file.type}
-                />
-              );
-            })}
+            <FilesContextProvider
+              canCreateActions={canCreateActions}
+              editorId={applicationId}
+              parentEntityId={pageId}
+              parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+            >
+              {files[key].map((file: any) => {
+                return (
+                  <ExplorerActionEntity
+                    id={file.id}
+                    isActive={file.id === activeActionId}
+                    key={file.id}
+                    parentEntityId={pageId}
+                    searchKeyword={""}
+                    step={2}
+                    type={file.type}
+                  />
+                );
+              })}
+            </FilesContextProvider>
           </Flex>
         );
       })}
