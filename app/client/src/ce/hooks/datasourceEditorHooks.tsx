@@ -55,11 +55,11 @@ export const useHeaderActions = (
   );
 
   if (editorType === EditorNames.APPLICATION) {
-    const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-      isFeatureEnabled,
-      datasource?.userPermissions ?? [],
+    const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+      isEnabled: isFeatureEnabled,
+      dsPermissions: datasource?.userPermissions ?? [],
       pagePermissions,
-    );
+    });
     const canCreatePages = getHasCreatePagePermission(
       isFeatureEnabled,
       userAppPermissions,
