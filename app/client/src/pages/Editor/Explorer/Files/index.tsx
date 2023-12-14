@@ -126,7 +126,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionId],
+    [files, activeActionId, parentEntityId],
   );
 
   const handleClick = useCallback(
