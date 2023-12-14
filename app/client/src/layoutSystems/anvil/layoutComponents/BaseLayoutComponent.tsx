@@ -120,6 +120,7 @@ abstract class BaseLayoutComponent extends PureComponent<
           parentDropTarget,
         )}
         layoutId={layoutId}
+        layoutType={layoutType}
       />
     );
   }
