@@ -157,90 +157,46 @@ describe("List widget V2 page number and page size", () => {
       .should("have.text", "PageSize 2");
   });
 
-  it(
-    "excludeForAirgap",
-    "3. should reset page no if higher than max when switched from server side to client side",
-    () => {
-      cy.addDsl(dslWithServerSide);
-      // Open Datasource editor
-      cy.wait(2000);
-      _.dataSources.CreateMockDB("Users").then(() => {
-        _.dataSources.CreateQueryAfterDSSaved();
-        _.dataSources.ToggleUsePreparedStatement(false);
-      });
-      // writing query to get the schema
-      _.dataSources.EnterQuery(
-        "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-      );
+  it("3. should reset page no if higher than max when switched from server side to client side", () => {
+    cy.addDsl(dslWithServerSide);
+    // Open Datasource editor
+    cy.wait(2000);
+    _.dataSources.CreateDataSource("Postgres");
+    _.dataSources.CreateQueryAfterDSSaved();
 
-      cy.WaitAutoSave();
+    // Click the editing field
+    cy.get(".t--action-name-edit-field").click({ force: true });
 
-      cy.runQuery();
+    // Click the editing field
+    cy.get(queryLocators.queryNameField).type("Query1");
 
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    // switching off Use Prepared Statement toggle
+    cy.get(queryLocators.switch).last().click({ force: true });
 
-      cy.wait(1000);
+    _.dataSources.EnterQuery(
+      "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
+    );
 
-      // Click next page in list widget
-      cy.get(".t--list-widget-next-page")
-        .find("button")
-        .click({ force: true })
-        .wait(1000);
+    cy.WaitAutoSave();
 
-      // Change to client side pagination
-      cy.openPropertyPane("listwidgetv2");
-      cy.togglebarDisable(".t--property-control-serversidepagination input");
+    cy.runQuery();
 
-      cy.wait(2000);
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
-      cy.get(".t--widget-containerwidget").should("have.length", 3);
-    },
-  );
+    cy.wait(1000);
 
-  it(
-    "airgap",
-    "3. should reset page no if higher than max when switched from server side to client side - airgap",
-    () => {
-      cy.addDsl(dslWithServerSide);
-      // Open Datasource editor
-      cy.wait(2000);
-      _.dataSources.CreateDataSource("Postgres");
-      _.dataSources.CreateQueryAfterDSSaved();
+    // Click next page in list widget
+    cy.get(".t--list-widget-next-page")
+      .find("button")
+      .click({ force: true })
+      .wait(1000);
 
-      // Click the editing field
-      cy.get(".t--action-name-edit-field").click({ force: true });
+    // Change to client side pagination
+    cy.openPropertyPane("listwidgetv2");
+    cy.togglebarDisable(".t--property-control-serversidepagination input");
 
-      // Click the editing field
-      cy.get(queryLocators.queryNameField).type("Query1");
+    cy.wait(2000);
 
-      // switching off Use Prepared Statement toggle
-      cy.get(queryLocators.switch).last().click({ force: true });
-
-      _.dataSources.EnterQuery(
-        "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
-      );
-
-      cy.WaitAutoSave();
-
-      cy.runQuery();
-
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-
-      cy.wait(1000);
-
-      // Click next page in list widget
-      cy.get(".t--list-widget-next-page")
-        .find("button")
-        .click({ force: true })
-        .wait(1000);
-
-      // Change to client side pagination
-      cy.openPropertyPane("listwidgetv2");
-      cy.togglebarDisable(".t--property-control-serversidepagination input");
-
-      cy.wait(2000);
-
-      cy.get(".t--widget-containerwidget").should("have.length", 2);
-    },
-  );
+    cy.get(".t--widget-containerwidget").should("have.length", 2);
+  });
 });
