@@ -74,4 +74,6 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
 
     Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection);
+
+    Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection);
 }
