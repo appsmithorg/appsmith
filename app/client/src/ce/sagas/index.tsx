@@ -51,10 +51,9 @@ import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
+import anvilSagas from "layoutSystems/anvil/integrations/sagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
-import LayoutElementPositionsSaga from "layoutSystems/anvil/integrations/sagas/LayoutElementPositionsSaga";
-import anvilDraggingSagas from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
 import ternSagas from "sagas/TernSaga";
 
 export const sagas = [
@@ -110,8 +109,7 @@ export const sagas = [
   snapshotSagas,
   oneClickBindingSaga,
   entityNavigationSaga,
-  LayoutElementPositionsSaga,
   communityTemplateSagas,
-  anvilDraggingSagas,
+  anvilSagas,
   ternSagas,
 ];
