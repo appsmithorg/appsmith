@@ -1,7 +1,6 @@
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { Indices } from "constants/Layers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
@@ -9,6 +8,7 @@ import { debounce } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilCanvasActivationStates } from "./useCanvasActivationStates";
+import { canActivateCanvasForDraggedWidget } from "../utils";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {
@@ -59,10 +59,6 @@ export const useCanvasActivation = ({
     return layoutElementPositions[each];
   });
 
-  // Checking if sections or zones are being dragged
-  const areSectionsDragged = draggedWidgetTypes === "SECTION";
-  const areZonesDragged = draggedWidgetTypes === "ZONE";
-
   /**
    * boolean ref that indicates if the mouse position is outside of main canvas while dragging
    * this is being tracked in order to activate/deactivate canvas.
@@ -100,18 +96,17 @@ export const useCanvasActivation = ({
   const filteredLayoutIds: string[] = activateOverlayWidgetDrop
     ? allLayoutIds.filter((each) => each === mainCanvasLayoutDomId)
     : allLayoutIds;
-
   // All droppable layout IDs
   const allDroppableLayoutIds = filteredLayoutIds
     .filter((each) => {
       const layoutInfo = allLayouts[each];
       const currentPositions = layoutElementPositions[layoutInfo.layoutId];
-      const canActivate = areSectionsDragged
-        ? mainCanvasLayoutId === layoutInfo.layoutId
-        : areZonesDragged
-        ? layoutInfo.layoutType === LayoutComponentTypes.SECTION ||
-          mainCanvasLayoutId === layoutInfo.layoutId
-        : true;
+      const canActivate = canActivateCanvasForDraggedWidget(
+        draggedWidgetTypes,
+        mainCanvasLayoutId,
+        layoutInfo.layoutType,
+        layoutInfo.layoutId,
+      );
       return canActivate && currentPositions && !!layoutInfo.isDropTarget;
     })
     .map((each) => allLayouts[each].layoutId);

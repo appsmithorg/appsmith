@@ -1,11 +1,52 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { LayoutComponentTypes } from "../../utils/anvilTypes";
 import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { AnvilDraggedWidgetTypesEnum } from "../types";
+import {
+  type AnvilDraggedWidgetTypes,
+  AnvilDraggedWidgetTypesEnum,
+} from "../types";
+
+/**
+ * Determines whether a canvas can be activated for a dragged widget based on specific conditions.
+ * @param draggedWidgetTypes - Type of widget being dragged (e.g., SECTION, ZONE).
+ * @param mainCanvasLayoutId - Id of the main canvas layout.
+ * @param layoutType - Type of the current layout (e.g., SECTION, ZONE).
+ * @param layoutId - Id of the current layout.
+ * @returns {boolean} - True if the canvas can be activated, false otherwise.
+ */
+export const canActivateCanvasForDraggedWidget = (
+  draggedWidgetTypes: AnvilDraggedWidgetTypes,
+  mainCanvasLayoutId: string,
+  layoutType: LayoutComponentTypes,
+  layoutId: string,
+) => {
+  // Checking if sections or zones are being dragged
+  const areSectionsDragged =
+    draggedWidgetTypes === AnvilDraggedWidgetTypesEnum.SECTION;
+  const areZonesDragged =
+    draggedWidgetTypes === AnvilDraggedWidgetTypesEnum.ZONE;
+
+  // Checking if the dragged widget is a section and the canvas is the main canvas
+  const isMainCanvas = mainCanvasLayoutId === layoutId;
+
+  // If sections are being dragged, allow activation only for the main canvas
+  if (areSectionsDragged) {
+    return isMainCanvas;
+  }
+
+  // If zones are being dragged, allow activation for sections or the main canvas
+  if (areZonesDragged) {
+    return layoutType === LayoutComponentTypes.SECTION || isMainCanvas;
+  }
+
+  // Allow activation for other widget types
+  return true;
+};
 
 /**
  * Function to determine the types of widgets being dragged based on an array of dragged blocks.
