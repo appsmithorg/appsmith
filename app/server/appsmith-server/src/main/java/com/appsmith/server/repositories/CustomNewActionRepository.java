@@ -40,4 +40,6 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
     Mono<List<BulkWriteResult>> publishActionsForWorkflows(String workflowId, AclPermission aclPermission);
 
     Flux<NewAction> findPublicActionsByModuleInstanceId(String moduleInstanceId, Optional<AclPermission> permission);
+
+    Flux<NewAction> findAllByCollectionIds(List<String> collectionIds, List<String> includeFields, boolean viewMode);
 }

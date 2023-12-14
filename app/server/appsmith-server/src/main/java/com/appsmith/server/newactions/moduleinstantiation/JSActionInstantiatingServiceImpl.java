@@ -40,8 +40,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         final Map<String, List<String>> newCollectionIdToNewActionsMap = new HashMap<>();
         return newActionRepository
-                .findAllByActionCollectionIdWithoutPermissions(
-                        moduleInstantiatingMetaDTO.getSourceCollectionIds(), null)
+                .findAllByCollectionIds(moduleInstantiatingMetaDTO.getSourceCollectionIds(), null, true)
                 .flatMap(sourceAction -> {
                     String newCollectionId = extractNewCollectionId(moduleInstantiatingMetaDTO, sourceAction);
                     NewAction toBeInstantiatedAction = createNewJSActionFromSource(sourceAction);
@@ -172,7 +171,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, NewAction sourceAction) {
         String newCollectionId = moduleInstantiatingMetaDTO
                 .getOldToNewCollectionIdMap()
-                .get(sourceAction.getUnpublishedAction().getCollectionId());
+                .get(sourceAction.getPublishedAction().getCollectionId());
         return newCollectionId;
     }
 

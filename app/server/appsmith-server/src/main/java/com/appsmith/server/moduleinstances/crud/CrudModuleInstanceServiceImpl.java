@@ -1,5 +1,6 @@
 package com.appsmith.server.moduleinstances.crud;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
@@ -52,6 +53,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -437,18 +439,26 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
             Map<String, ActionCollectionDTO> collectionIdToActionCollectionMap = actionCollections.stream()
                     .collect(Collectors.toMap(
                             actionCollection -> actionCollection.getId(), actionCollection -> actionCollection));
+            final Map<String, List<ActionDTO>> collectionIdToActionsMap = new HashMap<>();
 
             return newActionService
                     .findAllJSActionsByCollectionIds(collectionIds, null)
                     .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, viewMode))
                     .map(actionDTO -> {
-                        ActionCollectionDTO actionCollectionDTO =
-                                collectionIdToActionCollectionMap.get(actionDTO.getCollectionId());
-                        actionCollectionDTO.getActions().add(actionDTO);
-
-                        return actionCollectionDTO;
+                        List<ActionDTO> childActionDTOs =
+                                collectionIdToActionsMap.getOrDefault(actionDTO.getCollectionId(), new ArrayList<>());
+                        childActionDTOs.add(actionDTO);
+                        collectionIdToActionsMap.put(actionDTO.getCollectionId(), childActionDTOs);
+                        return actionDTO;
                     })
                     .collectList()
+                    .then(Flux.fromIterable(collectionIdToActionCollectionMap.values())
+                            .map(actionCollectionDTO -> {
+                                List<ActionDTO> jsActions = collectionIdToActionsMap.get(actionCollectionDTO.getId());
+                                actionCollectionDTO.setActions(jsActions);
+                                return actionCollectionDTO;
+                            })
+                            .collectList())
                     .flatMap(actionCollectionDTOs -> {
                         moduleInstanceEntitiesDTO.setJsCollections(actionCollectionDTOs);
                         return Mono.just(moduleInstanceEntitiesDTO);

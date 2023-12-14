@@ -1,5 +1,6 @@
 package com.appsmith.server.actioncollections.moduleentity;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
@@ -18,6 +19,7 @@ import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +44,7 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
     private final ActionCollectionService actionCollectionService;
     private final ActionPermission actionPermission;
     private final NewActionService newActionService;
+    private final LayoutActionService layoutActionService;
 
     @Override
     public Mono<ModuleConsumable> createPublicEntity(
@@ -66,7 +71,19 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
 
                     return actionCollectionService
                             .validateAndSaveCollection(moduleActionCollection)
-                            .map(collectionDTO -> (ModuleConsumable) collectionDTO);
+                            .flatMap(collectionDTO1 -> {
+                                List<ActionDTO> actions = collectionDTO1.getActions();
+
+                                if (actions == null || actions.isEmpty()) {
+                                    return Mono.just((ModuleConsumable) collectionDTO1);
+                                }
+
+                                return Flux.fromIterable(actions)
+                                        .flatMap(action ->
+                                                layoutActionService.updateSingleAction(action.getId(), action))
+                                        .collectList()
+                                        .then(Mono.just((ModuleConsumable) collectionDTO1));
+                            });
                 });
     }
 
@@ -133,17 +150,26 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
                     .collect(Collectors.toMap(
                             actionCollection -> actionCollection.getId(), actionCollection -> actionCollection));
 
+            final Map<String, List<ActionDTO>> collectionIdToActionsMap = new HashMap<>();
+
             return newActionService
                     .findAllJSActionsByCollectionIds(collectionIds, null)
                     .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, false))
                     .map(actionDTO -> {
-                        ActionCollectionDTO actionCollectionDTO =
-                                collectionIdToActionCollectionMap.get(actionDTO.getCollectionId());
-                        actionCollectionDTO.getActions().add(actionDTO);
-
-                        return (ModuleConsumable) actionCollectionDTO;
+                        List<ActionDTO> childActionDTOs =
+                                collectionIdToActionsMap.getOrDefault(actionDTO.getCollectionId(), new ArrayList<>());
+                        childActionDTOs.add(actionDTO);
+                        collectionIdToActionsMap.put(actionDTO.getCollectionId(), childActionDTOs);
+                        return actionDTO;
                     })
-                    .collectList();
+                    .collectList()
+                    .then(Flux.fromIterable(collectionIdToActionCollectionMap.values())
+                            .map(actionCollectionDTO -> {
+                                List<ActionDTO> actions = collectionIdToActionsMap.get(actionCollectionDTO.getId());
+                                actionCollectionDTO.setActions(actions);
+                                return (ModuleConsumable) actionCollectionDTO;
+                            })
+                            .collectList());
         });
     }
 

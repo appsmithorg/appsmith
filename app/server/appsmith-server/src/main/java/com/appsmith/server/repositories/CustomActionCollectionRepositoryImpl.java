@@ -33,7 +33,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     @Override
     public Flux<ActionCollection> findAllByModuleIds(List<String> moduleIds, Optional<AclPermission> permission) {
         Criteria moduleIdCriteria = Criteria.where(
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection.moduleId))
+                        completeFieldName(QActionCollection.actionCollection.unpublishedCollection.moduleId))
                 .in(moduleIds);
         return queryAll(List.of(moduleIdCriteria), permission);
     }
@@ -121,12 +121,14 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         }
         String contextIdPath;
         switch (contextType) {
-            case WORKFLOW -> contextIdPath = fieldName(QActionCollection.actionCollection.workflowId);
-            default -> contextIdPath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                    + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
+            case WORKFLOW -> contextIdPath = completeFieldName(QActionCollection.actionCollection.workflowId);
+            case MODULE -> contextIdPath =
+                    completeFieldName(QActionCollection.actionCollection.unpublishedCollection.moduleId);
+            default -> contextIdPath =
+                    completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
         }
-        String contextTypePath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
+        String contextTypePath =
+                completeFieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
@@ -140,12 +142,12 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         }
         String contextIdPath;
         switch (contextType) {
-            case WORKFLOW -> contextIdPath = fieldName(QActionCollection.actionCollection.workflowId);
-            default -> contextIdPath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
-                    + fieldName(QActionCollection.actionCollection.publishedCollection.pageId);
+            case WORKFLOW -> contextIdPath = completeFieldName(QActionCollection.actionCollection.workflowId);
+            case MODULE -> contextIdPath =
+                    completeFieldName(QActionCollection.actionCollection.publishedCollection.moduleId);
+            default -> contextIdPath = completeFieldName(QActionCollection.actionCollection.publishedCollection.pageId);
         }
-        String contextTypePath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
-                + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
+        String contextTypePath = completeFieldName(QActionCollection.actionCollection.publishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));

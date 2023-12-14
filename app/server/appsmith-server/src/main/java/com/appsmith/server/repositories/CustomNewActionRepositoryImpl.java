@@ -237,20 +237,37 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findAllByCollectionIds(
+            List<String> collectionIds, List<String> includeFields, boolean viewMode) {
+        String collectionIdPath;
+        if (viewMode) {
+            collectionIdPath = completeFieldName(QNewAction.newAction.publishedAction.collectionId);
+        } else {
+            collectionIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.collectionId);
+        }
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria collectionIdCriterion = where(collectionIdPath).in(collectionIds);
+        criteria.add(collectionIdCriterion);
+        return queryAll(criteria, includeFields, null, null);
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        if (contextType == CreatorContextType.PAGE) {
+        if (CreatorContextType.PAGE.equals(contextType)) {
             return super.findAllUnpublishedActionsByContextIdAndContextType(
                     contextId, contextType, permission, includeJs);
         }
         List<Criteria> criteriaList = new ArrayList<>();
 
-        String contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
-        String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
-        Criteria contextIdAndContextTypeCriteria =
-                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        if (CreatorContextType.MODULE.equals(contextType)) {
+            String contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
+            String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
+            Criteria contextIdAndContextTypeCriteria =
+                    where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
 
-        criteriaList.add(contextIdAndContextTypeCriteria);
+            criteriaList.add(contextIdAndContextTypeCriteria);
+        }
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
@@ -269,19 +286,19 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     @Override
     public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        if (contextType == CreatorContextType.PAGE) {
+        if (CreatorContextType.PAGE.equals(contextType)) {
             return super.findAllPublishedActionsByContextIdAndContextType(
                     contextId, contextType, permission, includeJs);
         }
         List<Criteria> criteriaList = new ArrayList<>();
-        String contextIdPath = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.moduleId);
-        String contextTypePath = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.contextType);
-        Criteria contextIdAndContextTypeCriteria =
-                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        if (CreatorContextType.MODULE.equals(contextType)) {
+            String contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
+            String contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
+            Criteria contextIdAndContextTypeCriteria =
+                    where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
 
-        criteriaList.add(contextIdAndContextTypeCriteria);
+            criteriaList.add(contextIdAndContextTypeCriteria);
+        }
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
