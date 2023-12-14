@@ -14,20 +14,18 @@ import type { EntityConfig } from "ce/entities/DataTree/types";
 import type { ModuleInstanceReducerState } from "@appsmith/reducers/entityReducers/moduleInstancesReducer";
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstanceEntitiesReducerState } from "@appsmith/reducers/entityReducers/moduleInstanceEntitiesReducer";
-export enum EE_ENTITY_TYPE {
-  MODULE_INPUT = "MODULE_INPUT",
-  MODULE_INSTANCE = "MODULE_INSTANCE",
-}
 
-export type ENTITY_TYPE = CE_ENTITY_TYPE | EE_ENTITY_TYPE;
-
-export const ENTITY_TYPE_VALUE = {
+export const ENTITY_TYPE = {
   ...CE_ENTITY_TYPE,
-  ...EE_ENTITY_TYPE,
-};
+  MODULE_INSTANCE: "MODULE_INSTANCE",
+  MODULE_INPUT: "MODULE_INPUT",
+} as const;
+
+type ValueOf<T> = T[keyof T];
+export type EntityTypeValue = ValueOf<typeof ENTITY_TYPE>;
 
 export interface ModuleInputsConfig extends EntityConfig {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INPUT;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INPUT;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
@@ -35,11 +33,11 @@ export interface ModuleInputsConfig extends EntityConfig {
 }
 
 export interface ModuleInputsEntity {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INPUT;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INPUT;
   [propName: string]: unknown;
 }
 export interface QueryModuleInstanceEntityConfig extends EntityConfig {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.QUERY;
   actionId: string;
   moduleId: string;
@@ -52,7 +50,7 @@ export interface QueryModuleInstanceEntityConfig extends EntityConfig {
 }
 
 export interface JSModuleInstanceEntityConfig extends EntityConfig {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.JS;
   moduleId: string;
   dynamicBindingPathList: DynamicPath[];
@@ -68,7 +66,7 @@ export interface JSModuleInstanceEntityConfig extends EntityConfig {
 }
 
 export interface QueryModuleInstanceEntity {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.QUERY;
   actionId: string;
   moduleId: string;
@@ -81,7 +79,7 @@ export interface QueryModuleInstanceEntity {
 }
 
 export interface JSModuleInstanceEntity {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.JS;
   actionId: string;
   moduleId: string;

@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { moduleEditorURL } from "@appsmith/RouteBuilder";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 import { entityTypeLinkMap as CE_entityTypeLinkMap } from "ce/components/editorComponents/Debugger/entityTypeLinkMap";
 import {
@@ -15,7 +15,7 @@ import {
 
 export const entityTypeLinkMap = {
   ...CE_entityTypeLinkMap,
-  [ENTITY_TYPE_VALUE.MODULE_INPUT]: ModuleInputsEntityLink,
+  [ENTITY_TYPE.MODULE_INPUT]: ModuleInputsEntityLink,
 };
 
 function ModuleInputsEntityLink(props: EntityLinkProps) {
@@ -28,7 +28,7 @@ function ModuleInputsEntityLink(props: EntityLinkProps) {
         errorType: props.errorType,
         errorSubType: props.errorSubType,
         appsmithErrorCode: props.appsmithErrorCode,
-        entityType: ENTITY_TYPE_VALUE.MODULE_INPUT,
+        entityType: ENTITY_TYPE.MODULE_INPUT,
       });
     }
   }, [moduleId]);

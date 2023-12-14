@@ -1,6 +1,6 @@
 export * from "ce/utils/autocomplete/entityDefGeneratorMap";
 import { entityDefGeneratorMap as CE_entityDefGeneratorMap } from "ce/utils/autocomplete/entityDefGeneratorMap";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { EntityDefGeneratorMap } from "ce/utils/autocomplete/entityDefGeneratorMap";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { Def } from "tern";
@@ -19,7 +19,7 @@ import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export const entityDefGeneratorMap: EntityDefGeneratorMap = {
   ...CE_entityDefGeneratorMap,
-  [ENTITY_TYPE_VALUE.MODULE_INPUT]: (props) => {
+  [ENTITY_TYPE.MODULE_INPUT]: (props) => {
     const { def, entity, entityMap, extraDefsToDefine } = props;
     const filteredEntity = omit(entity, "ENTITY_TYPE", EVALUATION_PATH);
     const inputEntityDef: Def = {};
@@ -33,31 +33,31 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
     def["inputs"] = inputEntityDef;
 
     entityMap.set("inputs", {
-      type: ENTITY_TYPE_VALUE.MODULE_INPUT,
-      subType: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      type: ENTITY_TYPE.MODULE_INPUT,
+      subType: ENTITY_TYPE.MODULE_INPUT,
     });
   },
-  [ENTITY_TYPE_VALUE.ACTION]: (props) => {
+  [ENTITY_TYPE.ACTION]: (props) => {
     const { configTree, entityName } = props;
     const entityConfig = configTree[entityName];
     if (!entityConfig.hasOwnProperty("moduleInstanceId")) {
-      CE_entityDefGeneratorMap[ENTITY_TYPE_VALUE.ACTION](props);
+      CE_entityDefGeneratorMap[ENTITY_TYPE.ACTION](props);
     }
   },
-  [ENTITY_TYPE_VALUE.JSACTION]: (props) => {
+  [ENTITY_TYPE.JSACTION]: (props) => {
     const { configTree, entityName } = props;
     const entityConfig = configTree[entityName];
     if (!entityConfig.hasOwnProperty("moduleInstanceId")) {
-      CE_entityDefGeneratorMap[ENTITY_TYPE_VALUE.JSACTION](props);
+      CE_entityDefGeneratorMap[ENTITY_TYPE.JSACTION](props);
     }
   },
-  [ENTITY_TYPE_VALUE.MODULE_INSTANCE]: (props) => {
+  [ENTITY_TYPE.MODULE_INSTANCE]: (props) => {
     const { def, entity, entityMap, entityName } = props;
     if (isQueryModuleInstance(entity)) {
       const queryEntity = entity as QueryModuleInstanceEntity;
       def[entityName] = ModuleInstanceDefMap[queryEntity.type](props);
       entityMap.set(entityName, {
-        type: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
+        type: ENTITY_TYPE.MODULE_INSTANCE,
         subType: MODULE_TYPE.QUERY,
       });
     }
@@ -65,7 +65,7 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
       const jsEntity = entity as JSModuleInstanceEntity;
       def[entityName] = ModuleInstanceDefMap[jsEntity.type](props);
       entityMap.set(entityName, {
-        type: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
+        type: ENTITY_TYPE.MODULE_INSTANCE,
         subType: MODULE_TYPE.JS,
       });
     }

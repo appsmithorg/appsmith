@@ -3,7 +3,7 @@ import type {
   ModuleInputsEntity,
   DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   isAPathDynamicBindingPath as CE_isAPathDynamicBindingPath,
@@ -18,7 +18,7 @@ export function isModuleInput(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.MODULE_INPUT
+    entity.ENTITY_TYPE === ENTITY_TYPE.MODULE_INPUT
   );
 }
 
@@ -34,7 +34,7 @@ export function isModuleInstance(entity: DataTreeEntity) {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.MODULE_INSTANCE
+    entity.ENTITY_TYPE === ENTITY_TYPE.MODULE_INSTANCE
   );
 }
 
