@@ -50,7 +50,7 @@ jobs:
           cd ./cacherepo
           git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
           cd testcacherepo
-          touch bcdefghtxt
+          tr -dc A-Za-z0-9 </dev/urandom | head -c 13; echo > bcdefghtxt
           git add bcdefghtxt
           git commit -m "test12321321"
           git push
