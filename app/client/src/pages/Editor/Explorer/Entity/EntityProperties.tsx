@@ -220,15 +220,21 @@ export function EntityProperties() {
   if (!entity) return null;
   switch (entityType) {
     case ENTITY_TYPE.JSACTION:
-      return getJSActionBindings(entity, entityProperties, entityType);
+      entityProperties = getJSActionBindings(
+        entity,
+        entityProperties,
+        entityType,
+      );
+      break;
     case ENTITY_TYPE.ACTION:
-      return getActionBindings(
+      entityProperties = getActionBindings(
         entity,
         entityDefinitions,
         entityProperties,
         entityType,
         entityName,
       );
+      break;
     case ENTITY_TYPE.WIDGET:
       const type: Exclude<
         EntityDefinitionsOptions,
@@ -260,7 +266,7 @@ export function EntityProperties() {
       break;
     case ENTITY_TYPE.MODULE_INSTANCE:
       if (moduleInstanceQueryEntity) {
-        return getActionBindings(
+        entityProperties = getActionBindings(
           moduleInstanceQueryEntity,
           entityDefinitions,
           entityProperties,
@@ -268,7 +274,7 @@ export function EntityProperties() {
           entityName,
         );
       } else if (moduleInstanceJSEntity) {
-        return getJSActionBindings(
+        entityProperties = getJSActionBindings(
           moduleInstanceJSEntity,
           entityProperties,
           entityType,
