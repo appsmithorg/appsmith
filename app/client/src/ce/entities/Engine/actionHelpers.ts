@@ -12,6 +12,7 @@ export const getPageDependencyActions = (
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
 ) => {
+  //check
   const initActions = [fetchPlugins(), fetchDatasources(), fetchPageDSLs()];
 
   const successActions = [
