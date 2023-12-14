@@ -194,9 +194,13 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
   return trimmedPrefix + `_${lastIndex + 1}`;
 };
 
-export const createNewApiName = (actions: ActionDataState, pageId: string) => {
+export const createNewApiName = (
+  actions: ActionDataState,
+  entityId: string,
+  key: "pageId" | "workflowId" = "pageId",
+) => {
   const pageApiNames = actions
-    .filter((a) => a.config.pageId === pageId)
+    .filter((a) => a.config[key] === entityId)
     .map((a) => a.config.name);
   return getNextEntityName("Api", pageApiNames);
 };
@@ -221,11 +225,12 @@ export const stopEventPropagation = (e: any) => {
 
 export const createNewQueryName = (
   queries: ActionDataState,
-  pageId: string,
+  entityId: string,
   prefix = "Query",
+  key: "pageId" | "workflowId" = "pageId",
 ) => {
   const pageApiNames = queries
-    .filter((a) => a.config.pageId === pageId)
+    .filter((a) => a.config[key] === entityId)
     .map((a) => a.config.name);
 
   return getNextEntityName(prefix, pageApiNames);

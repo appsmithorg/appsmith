@@ -61,6 +61,7 @@ const ListQuery = () => {
                   id={file.id}
                   isActive={file.id === activeActionId}
                   key={file.id}
+                  parentEntityId={pageId}
                   searchKeyword={""}
                   step={2}
                   type={file.type}
