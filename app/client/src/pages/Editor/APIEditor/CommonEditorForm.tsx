@@ -40,6 +40,7 @@ import {
   API_EDITOR_TAB_TITLES,
   API_PANE_AUTO_GENERATED_HEADER,
   API_PANE_DUPLICATE_HEADER,
+  HTTP_PROTOCOL_INPUT_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
@@ -599,7 +600,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
           disabled={!isChangePermitted}
           name="actionConfiguration.httpVersion"
           options={HTTP_PROTOCOL_VERSIONS}
-          placeholder="Version"
+          placeholder={HTTP_PROTOCOL_INPUT_PLACEHOLDER}
           width={"110px"}
         />
       </HttpVersionWrapper>
