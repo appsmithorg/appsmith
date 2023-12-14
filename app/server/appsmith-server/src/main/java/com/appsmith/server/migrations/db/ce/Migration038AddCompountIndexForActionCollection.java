@@ -16,7 +16,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 
 @Slf4j
 @ChangeUnit(order = "038", id = "add-compound-index-action-collection", author = " ")
-public class Migration038AddCompountIndexForActionCollection {
+public class Migration038AddCompoundIndexForActionCollection {
 
     private final MongoTemplate mongoTemplate;
 
