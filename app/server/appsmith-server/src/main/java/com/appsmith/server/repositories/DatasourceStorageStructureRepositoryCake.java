@@ -35,28 +35,28 @@ public class DatasourceStorageStructureRepositoryCake {
     }
     // End from CrudRepository
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
     public Mono<UpdateResult> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.updateStructure(datasourceId, environmentId, structure)));
     }
 
-    public Mono<DatasourceStorageStructure> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 
     public Mono<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId)));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
     public Mono<DatasourceStorageStructure> archive(DatasourceStorageStructure entity) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
+    public Mono<DatasourceStorageStructure> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
 }

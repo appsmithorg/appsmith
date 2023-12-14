@@ -35,48 +35,32 @@ public class TenantRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<Tenant> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Flux<Tenant> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
-    }
-
     public Mono<Tenant> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
-    public Mono<Tenant> setUserPermissionsInObject(Tenant obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
     }
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
-    public Mono<IdOnly> findIdBySlug(String slug) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findIdBySlug(slug)));
+    public Mono<Tenant> setUserPermissionsInObject(Tenant obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
     }
 
-    public Mono<Tenant> findBySlug(String slug) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findBySlug(slug)));
+    public Mono<Tenant> setUserPermissionsInObject(Tenant obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
 
-    public Mono<Tenant> archive(Tenant entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 
     public Flux<Tenant> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Mono<Tenant> setUserPermissionsInObject(Tenant obj) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
+    public Mono<IdOnly> findIdBySlug(String slug) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findIdBySlug(slug)));
     }
 
     public Mono<Tenant> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
@@ -85,6 +69,22 @@ public class TenantRepositoryCake {
 
     public Flux<Tenant> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
+    }
+
+    public Mono<Tenant> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public Flux<Tenant> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Mono<Tenant> archive(Tenant entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
+    public Mono<Tenant> findBySlug(String slug) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findBySlug(slug)));
     }
 
 }

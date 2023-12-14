@@ -35,6 +35,10 @@ public class GitDeployKeysRepositoryCake {
     }
     // End from CrudRepository
 
+    public Mono<GitDeployKeys> archive(GitDeployKeys entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
@@ -49,10 +53,6 @@ public class GitDeployKeysRepositoryCake {
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<GitDeployKeys> archive(GitDeployKeys entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
 }

@@ -35,56 +35,56 @@ public class UserRepositoryCake {
     }
     // End from CrudRepository
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
-    }
-
-    public Flux<User> findAllByEmails(Set<String> emails) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllByEmails(emails)));
-    }
-
-    public Flux<User> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
-    }
-
-    public Mono<Boolean> isUsersEmpty() {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.isUsersEmpty()));
-    }
-
-    public Mono<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.countByDeletedAtIsNullAndIsSystemGeneratedIsNot(excludeSystemGenerated)));
-    }
-
-    public Mono<User> archive(User entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
-    }
-
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmailAndTenantId(email, tenantId)));
-    }
-
-    public Mono<User> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
-    }
-
-    public Mono<User> setUserPermissionsInObject(User obj) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
-    }
-
-    public Mono<User> findByEmail(String email) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
     }
 
     public Mono<Long> countByDeletedAtNull() {
         return Mono.defer(() -> Mono.justOrEmpty(repository.countByDeletedAtNull()));
     }
 
+    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Mono<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.countByDeletedAtIsNullAndIsSystemGeneratedIsNot(excludeSystemGenerated)));
+    }
+
+    public Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection) {
+        return Flux.defer(() -> Flux.fromIterable(repository.getAllByEmails(emails, aclPermission, limit, skip, sortKey, sortDirection)));
+    }
+
+    public Mono<User> setUserPermissionsInObject(User obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Mono<Boolean> isUsersEmpty() {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.isUsersEmpty()));
+    }
+
+    public Mono<User> findByEmail(String email) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
+    }
+
+    public Flux<User> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
+    }
+
+    public Flux<User> findAllByEmails(Set<String> emails) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllByEmails(emails)));
+    }
+
+    public Mono<User> setUserPermissionsInObject(User obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
+    }
+
     public Mono<User> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    }
+
+    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
@@ -95,24 +95,24 @@ public class UserRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email, aclPermission)));
     }
 
-    public Mono<User> findByEmailIgnoreCase(String email) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmailIgnoreCase(email)));
-    }
-
-    public Mono<User> setUserPermissionsInObject(User obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
-    }
-
-    public Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection) {
-        return Flux.defer(() -> Flux.fromIterable(repository.getAllByEmails(emails, aclPermission, limit, skip, sortKey, sortDirection)));
-    }
-
     public Mono<User> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
-    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    public Mono<User> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
+    }
+
+    public Mono<User> findByEmailIgnoreCase(String email) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmailIgnoreCase(email)));
+    }
+
+    public Mono<User> archive(User entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
 }

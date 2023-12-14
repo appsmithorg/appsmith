@@ -35,6 +35,10 @@ public class PasswordResetTokenRepositoryCake {
     }
     // End from CrudRepository
 
+    public Mono<PasswordResetToken> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
@@ -43,16 +47,12 @@ public class PasswordResetTokenRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<PasswordResetToken> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
     public Mono<PasswordResetToken> findByEmail(String email) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
 }

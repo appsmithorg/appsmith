@@ -35,6 +35,10 @@ public class EmailVerificationTokenRepositoryCake {
     }
     // End from CrudRepository
 
+    public Mono<EmailVerificationToken> archive(EmailVerificationToken entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
@@ -49,10 +53,6 @@ public class EmailVerificationTokenRepositoryCake {
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<EmailVerificationToken> archive(EmailVerificationToken entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
 }
