@@ -1,7 +1,6 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { WidgetDragSource } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
 
@@ -59,14 +58,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<{
       isDragging: boolean;
       newWidgetProps: any;
-      source: WidgetDragSource;
     }>,
   ) => {
     state.isDragging = action.payload.isDragging;
     state.dragDetails = {
       newWidget: action.payload.newWidgetProps,
       draggedOn: MAIN_CONTAINER_WIDGET_ID,
-      dragSource: action.payload.source,
     };
   },
   [ReduxActionTypes.SET_WIDGET_RESIZING]: (
@@ -124,7 +121,6 @@ export interface DragDetails {
   newWidget?: any;
   draggedOn?: string;
   dragOffset?: any;
-  dragSource?: WidgetDragSource;
 }
 
 export interface WidgetDragResizeState {

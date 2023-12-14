@@ -7,7 +7,6 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import history from "utils/history";
 import { queryAddURL } from "@appsmith/RouteBuilder";
 import { createNewJSCollection } from "../../../../actions/jsPaneActions";
-import { WidgetDragSource } from "../../../../layoutSystems/common/canvasArenas/ArenaTypes";
 
 const PaneContainer = styled.div`
   width: 256px;
@@ -88,7 +87,7 @@ const GlobalAdd = () => {
         <Text className="pl-3.5" kind="heading-s">
           Drag & drop widgets
         </Text>
-        <WidgetSidebarWithTags isActive source={WidgetDragSource.GLOBAL_ADD} />
+        <WidgetSidebarWithTags isActive />
       </PaneBody>
     </PaneContainer>
   );

@@ -7,11 +7,9 @@ import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
-import { WidgetDragSource } from "../../layoutSystems/common/canvasArenas/ArenaTypes";
 
 interface CardProps {
   details: WidgetCardProps;
-  source: WidgetDragSource;
 }
 
 export const Wrapper = styled.div`
@@ -72,17 +70,11 @@ function WidgetCard(props: CardProps) {
       widgetName: props.details.displayName,
     });
     setDraggingNewWidget &&
-      setDraggingNewWidget(
-        true,
-        {
-          ...props.details,
-          widgetId: generateReactKey(),
-        },
-        props.source,
-      );
-    if (props.source !== WidgetDragSource.GLOBAL_ADD) {
-      deselectAll();
-    }
+      setDraggingNewWidget(true, {
+        ...props.details,
+        widgetId: generateReactKey(),
+      });
+    deselectAll();
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
