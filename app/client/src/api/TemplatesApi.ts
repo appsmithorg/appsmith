@@ -112,8 +112,7 @@ class TemplatesAPI extends Api {
     body: PublishCommunityTemplateRequest,
   ): Promise<AxiosPromise<PublishCommunityTemplateResponse>> {
     return Api.post(
-      TemplatesAPI.baseUrl +
-        `/app-templates/publish/${applicationId}/${workspaceId}`,
+      TemplatesAPI.baseUrl + `/app-templates/publish/community-template`,
       body,
     );
   }
