@@ -37,7 +37,7 @@ export function* createZoneAndAddWidgets(
    * Extract zone layout.
    */
   const zoneProps: FlattenedWidgetProps = updatedWidgets[widgetId];
-
+  const { widgetId: zoneWidgetId } = zoneProps;
   const preset: LayoutProps[] = zoneProps.layout;
   let zoneLayout: LayoutProps = preset[0];
 
@@ -48,10 +48,10 @@ export function* createZoneAndAddWidgets(
    */
   updatedWidgets = yield updateDraggedWidgets(
     updatedWidgets,
-    zoneProps.widgetId,
+    zoneWidgetId,
     draggedWidgets,
   );
-  zoneProps.children = updatedWidgets[zoneProps.widgetId].children;
+  zoneProps.children = updatedWidgets[zoneWidgetId].children;
 
   /**
    * Split new widgets based on type.
@@ -101,7 +101,7 @@ export function* createZoneAndAddWidgets(
   return {
     canvasWidgets: {
       ...updatedWidgets,
-      [zoneProps.widgetId]: zoneProps,
+      [zoneWidgetId]: zoneProps,
     },
     zone: zoneProps,
   };

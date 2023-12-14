@@ -173,13 +173,14 @@ export function* addNewChildToDSL(
       highlight,
     );
   } else if (!!isSection) {
-    updatedWidgets = yield call(
+    const res: { canvasWidgets: CanvasWidgetsReduxState } = yield call(
       addWidgetsToSection,
       updatedWidgets,
       draggedWidgets,
       highlight,
       updatedWidgets[canvasId],
     );
+    updatedWidgets = res.canvasWidgets;
   } else {
     updatedWidgets = yield call(
       addWidgetToGenericLayout,
@@ -248,7 +249,7 @@ function* addWidgetToGenericLayout(
   },
 ) {
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-  const canvasWidget = allWidgets[highlight.canvasId];
+  const canvasWidget = updatedWidgets[highlight.canvasId];
   const canvasLayout = canvasWidget.layout
     ? canvasWidget.layout
     : generateDefaultLayoutPreset();
@@ -258,7 +259,7 @@ function* addWidgetToGenericLayout(
    */
   updatedWidgets = yield call(
     addNewWidgetToDsl,
-    allWidgets,
+    updatedWidgets,
     getCreateWidgetPayload(
       newWidget.newWidgetId,
       newWidget.type,
@@ -271,11 +272,11 @@ function* addWidgetToGenericLayout(
   return {
     ...updatedWidgets,
     [canvasWidget.widgetId]: {
-      ...canvasWidget,
+      ...updatedWidgets[canvasWidget.widgetId],
       layout: addWidgetsToPreset(canvasLayout, highlight, draggedWidgets),
     },
     [newWidget.newWidgetId]: {
-      ...allWidgets[newWidget.newWidgetId],
+      ...updatedWidgets[newWidget.newWidgetId],
       // This is a temp fix, widget dimensions will be self computed by widgets
       height: newWidget.height,
       width: newWidget.width,
@@ -400,6 +401,7 @@ function* updateAndSaveAnvilLayoutSaga(
         };
       }
     }
+
     yield put(updateAndSaveLayout(updatedWidgets));
   } catch (error) {
     yield put({

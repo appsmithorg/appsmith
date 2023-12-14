@@ -16,8 +16,8 @@ export function* addNewWidgetToDsl(
   allWidgets: CanvasWidgetsReduxState,
   addChildPayload: WidgetAddChild,
 ) {
-  // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
   const { widgetId } = addChildPayload;
+
   const widgets = Object.assign({}, allWidgets);
   // Get the current parent widget whose child will be the new widget.
   const stateParent: FlattenedWidgetProps = allWidgets[widgetId];
@@ -27,7 +27,7 @@ export function* addNewWidgetToDsl(
     stateParent,
     addChildPayload,
     widgets,
-    // sending blueprint for onboarding usecase
+    // sending blueprint for onboarding use case
     addChildPayload.props?.blueprint,
   );
 

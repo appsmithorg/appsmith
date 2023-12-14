@@ -75,26 +75,60 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
   return [zones, nonZones];
 }
 
-function addZoneToSection(
+function* addZoneToSection(
+  allWidgets: CanvasWidgetsReduxState,
   canvasProps: WidgetProps,
   sectionLayout: LayoutProps,
   sectionComp: typeof BaseLayoutComponent,
   highlight: AnvilHighlightInfo,
   zone: WidgetLayoutProps,
 ) {
-  /**
-   * Step 1: Add zone widgetIds to canvas.children.
-   */
-  canvasProps.children = [...canvasProps.children, zone.widgetId];
+  const { widgetId: zoneWidgetId } = zone;
+  const { widgetId: sectionWidgetId } = canvasProps;
+  let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  if (!canvasWidgets[zoneWidgetId]) {
+    /**
+     * Zone does not exist.
+     * => New widget.
+     * => Create it and add to section.
+     */
+    canvasWidgets = yield call(
+      addNewWidgetToDsl,
+      canvasWidgets,
+      getCreateWidgetPayload(zoneWidgetId, ZoneWidget.type, sectionWidgetId),
+    );
+  } else {
+    /**
+     * Add zone widgetIds to canvas.children.
+     */
+    canvasWidgets = {
+      ...canvasWidgets,
+      [sectionWidgetId]: {
+        ...canvasWidgets[sectionWidgetId],
+        children: [
+          ...(canvasWidgets[sectionWidgetId].children ?? []),
+          zoneWidgetId,
+        ],
+      },
+      [zoneWidgetId]: {
+        ...canvasWidgets[zoneWidgetId],
+        parentId: canvasProps.widgetId,
+      },
+    };
+  }
 
   /**
-   * Step 2: Add zone to section layout.
+   * Add zone to section layout.
    */
-  sectionLayout = sectionComp.addChild(sectionLayout, [zone], highlight);
+  const updatedSectionLayout = sectionComp.addChild(
+    sectionLayout,
+    [zone],
+    highlight,
+  );
 
   return {
-    canvas: canvasProps,
-    section: sectionLayout,
+    canvasWidgets,
+    section: updatedSectionLayout,
   };
 }
 
@@ -119,7 +153,6 @@ export function* addWidgetsToSection(
    * Can this be prevent during DnD itself? i.e. Don't show highlights for sections that can't handle so many zones.
    */
   const [zones, nonZones] = splitWidgets(draggedWidgets);
-
   /**
    * Step 2: Add zones to the section layout.
    */
@@ -127,8 +160,13 @@ export function* addWidgetsToSection(
     sectionLayout.layoutType,
   );
 
-  zones.forEach((zone: WidgetLayoutProps) => {
-    const res: { canvas: WidgetProps; section: LayoutProps } = addZoneToSection(
+  for (const zone of zones) {
+    const res: {
+      canvasWidgets: CanvasWidgetsReduxState;
+      section: LayoutProps;
+    } = yield call(
+      addZoneToSection,
+      canvasWidgets,
       sectionProps,
       sectionLayout,
       sectionComp,
@@ -136,17 +174,10 @@ export function* addWidgetsToSection(
       zone,
     );
 
-    sectionProps = res.canvas;
+    sectionProps = res.canvasWidgets[sectionProps.widgetId];
     sectionLayout = res.section;
-    // Update parent of the zone.
-    canvasWidgets = {
-      ...canvasWidgets,
-      [zone.widgetId]: {
-        ...canvasWidgets[zone.widgetId],
-        parentId: sectionProps.widgetId,
-      },
-    };
-  });
+    canvasWidgets = res.canvasWidgets;
+  }
 
   /**
    * Step 3: Create new zone and add to section.
@@ -165,7 +196,6 @@ export function* addWidgetsToSection(
         highlight,
         sectionProps.widgetId,
       );
-
     sectionProps.children = [
       ...(sectionProps?.children || []),
       data.zone.widgetId,
@@ -206,19 +236,19 @@ export function* moveWidgetsToSection(
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
 
   /**
-   * Step 1: Remove moved widgets from previous parents.
+   * Remove moved widgets from previous parents.
    */
   widgets = severTiesFromParents(widgets, movedWidgets);
 
   /**
-   * Step 2: Get the new Section and its Canvas.
+   * Get the new Section and its Canvas.
    */
   const { canvasId } = highlight;
 
   const section: FlattenedWidgetProps = widgets[canvasId];
 
   /**
-   * Step 3: Add moved widgets to the section.
+   * Add moved widgets to the section.
    */
   const { canvasWidgets } = yield call(
     addWidgetsToSection,
