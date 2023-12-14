@@ -11,8 +11,6 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import history from "utils/history";
-import { ADD_PATH } from "constants/routes";
 import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
 import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 
@@ -34,7 +32,6 @@ const ListWidgets = () => {
 
   const addButtonClickHandler = useCallback(() => {
     dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
-    history.push(`${location.pathname}${ADD_PATH}`);
   }, [pageId]);
 
   return (
