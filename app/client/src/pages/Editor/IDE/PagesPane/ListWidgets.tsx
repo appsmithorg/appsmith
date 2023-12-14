@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { Button, Flex } from "design-system";
 import WidgetEntity from "pages/Editor/Explorer/Widgets/WidgetEntity";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   getCurrentPageId,
@@ -13,12 +13,15 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import history from "utils/history";
 import { ADD_PATH } from "constants/routes";
+import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
+import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 
 const ListWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const dispatch = useDispatch();
 
   const canManagePages = getHasManagePagePermission(
     isFeatureEnabled,
@@ -30,6 +33,7 @@ const ListWidgets = () => {
   }, [widgets?.children]);
 
   const addButtonClickHandler = useCallback(() => {
+    dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
     history.push(`${location.pathname}${ADD_PATH}`);
   }, [pageId]);
 
