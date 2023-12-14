@@ -27,13 +27,17 @@ const WidgetName = styled.div`
 
 const MainCanvasSelectedLayer = (props: { children: React.ReactNode }) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const isSelected = selectedWidgets.length === 0;
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
   const isPreviewMode = useSelector(previewModeSelector);
+  const isCanvasSelectedStateEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_canvas_selected_state_enabled,
+  );
+  if (!isCanvasSelectedStateEnabled) {
+    return <div>{props.children}</div>;
+  }
+  const isSelected = selectedWidgets.length === 0;
 
-  const showSelectedState = isSelected && isPagesPaneEnabled && !isPreviewMode;
+  const showSelectedState =
+    isSelected && isCanvasSelectedStateEnabled && !isPreviewMode;
 
   return (
     <SelectedState isSelected={showSelectedState}>
