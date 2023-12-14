@@ -2,53 +2,30 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Header from "./header";
 import styles from "./styles.module.css";
 import Preview from "./Preview";
-import { CUSTOM_WIDGET_BUILDER_EVENTS } from "./contants";
+import {
+  CUSTOM_WIDGET_BUILDER_EVENTS,
+  DEFAULT_CONTEXT_VALUE,
+  LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN,
+  LOCAL_STORAGE_KEYS_SELECTED_LAYOUT,
+} from "./contants";
 import { Spinner } from "design-system";
 import history from "utils/history";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import Editor from "./Editor";
-
-interface CustomWidgetBuilderContextValueType {
-  name: string;
-  isReferenceOpen: boolean;
-  selectedLayout: string;
-  srcDoc: {
-    html: string;
-    js: string;
-    css: string;
-  };
-  model: Record<string, unknown>;
-  events: Record<string, string>;
-  key: number;
-  lastSaved?: number;
-  initialSrcDoc?: CustomWidgetBuilderContextValueType["srcDoc"];
-}
-
-interface CustomWidgetBuilderContextFunctionType {
-  toggleReference: () => void;
-  selectLayout: (layout: string) => void;
-  save: () => void;
-  discard: () => void;
-  update: (editor: string, value: string) => void;
-  updateModel: (model: Record<string, unknown>) => void;
-  bulkUpdate: (srcDoc: CustomWidgetBuilderContextValueType["srcDoc"]) => void;
-}
-
-interface CustomWidgetBuilderContextType
-  extends CustomWidgetBuilderContextValueType,
-    CustomWidgetBuilderContextFunctionType {}
+import type {
+  CustomWidgetBuilderContextFunctionType,
+  CustomWidgetBuilderContextType,
+  CustomWidgetBuilderContextValueType,
+  DebuggerLog,
+  SrcDoc,
+} from "./types";
+import { compileSrcDoc } from "./utility";
 
 export const CustomWidgetBuilderContext = React.createContext<
   Partial<CustomWidgetBuilderContextType>
 >({});
 
 let connectionTimeout: number;
-
-const LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN =
-  "custom-widget-builder-context-state-is-reference-open";
-
-const LOCAL_STORAGE_KEYS_SELECTED_LAYOUT =
-  "custom-widget-builder-context-state-selected-layout";
 
 export default function CustomWidgetBuilder() {
   const [loading, setLoading] = useState(true);
@@ -64,31 +41,50 @@ export default function CustomWidgetBuilder() {
   );
 
   const [contextValue, setContextValue] =
-    useState<CustomWidgetBuilderContextValueType>({
-      name: "",
-      srcDoc: {
-        html: "<div>Hello World</div>",
-        js: "function () {console.log('Hello World');}",
-        css: "div {color: red;}",
-      },
-      model: {},
-      events: {},
-      key: Math.random(),
-      isReferenceOpen,
-      selectedLayout,
-    });
+    useState<CustomWidgetBuilderContextValueType>(DEFAULT_CONTEXT_VALUE);
 
   useEffect(() => {
+    const result = compileSrcDoc(contextValue.uncompiledSrcDoc);
+
+    setContextValue((prev) => {
+      return {
+        ...prev,
+        srcDoc: result.code,
+      };
+    });
+
     if (contextValue.lastSaved) {
       window.parent.postMessage(
         {
           type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC,
-          srcDoc: contextValue.srcDoc,
+          srcDoc: result.code,
+          uncompiledSrcDoc: contextValue.uncompiledSrcDoc,
         },
         "*",
       );
     }
-  }, [contextValue.srcDoc, contextValue.lastSaved]);
+
+    const compileLogs: DebuggerLog[] = [];
+
+    if (result.errors.length) {
+      compileLogs.push({
+        type: "error",
+        args: result.errors,
+      });
+    }
+
+    if (result.warnings.length) {
+      compileLogs.push({
+        type: "warn",
+        args: result.warnings,
+      });
+    }
+
+    setContextValue((prev) => ({
+      ...prev,
+      debuggerLogs: [...prev.debuggerLogs, ...compileLogs],
+    }));
+  }, [contextValue.uncompiledSrcDoc, contextValue.lastSaved]);
 
   const replay = useCallback(() => {
     setContextValue((prev) => {
@@ -107,23 +103,15 @@ export default function CustomWidgetBuilder() {
       selectLayout: (layout) => {
         setSelectedLayout(layout);
       },
-      save: () => {
-        setContextValue((prev) => {
-          return {
-            ...prev,
-            saving: true,
-          };
-        });
-      },
-      discard: () => {
+      close: () => {
         window.parent.focus();
         window.close();
       },
-      bulkUpdate: (srcDoc: CustomWidgetBuilderContextValueType["srcDoc"]) => {
+      bulkUpdate: (uncompiledSrcDoc: SrcDoc) => {
         setContextValue((prev) => {
           return {
             ...prev,
-            srcDoc,
+            uncompiledSrcDoc,
             lastSaved: Date.now(),
           };
         });
@@ -132,8 +120,8 @@ export default function CustomWidgetBuilder() {
         setContextValue((prev) => {
           return {
             ...prev,
-            srcDoc: {
-              ...prev.srcDoc,
+            uncompiledSrcDoc: {
+              ...prev.uncompiledSrcDoc,
               [editor]: value,
             },
             lastSaved: Date.now(),
@@ -151,9 +139,25 @@ export default function CustomWidgetBuilder() {
           };
         });
       },
+      updateDebuggerLogs: (log: DebuggerLog) => {
+        setContextValue((prev) => {
+          return {
+            ...prev,
+            debuggerLogs: [...prev.debuggerLogs, log],
+          };
+        });
+      },
+      clearDegbuggerLogs: () => {
+        setContextValue((prev) => {
+          return {
+            ...prev,
+            debuggerLogs: [],
+          };
+        });
+      },
     }),
     [
-      contextValue.srcDoc,
+      contextValue.uncompiledSrcDoc,
       setIsReferenceOpen,
       isReferenceOpen,
       setSelectedLayout,
@@ -183,9 +187,9 @@ export default function CustomWidgetBuilder() {
               ...prev,
               name: event.data.name,
               srcDoc: event.data.srcDoc,
-              initialSrcDoc: event.data.srcDoc,
+              uncompiledSrcDoc: event.data.uncompiledSrcDoc,
+              initialSrcDoc: event.data.uncompiledSrcDoc,
               model: event.data.model,
-              transientModel: event.data.model,
               events: event.data.events,
             };
           });
@@ -197,19 +201,10 @@ export default function CustomWidgetBuilder() {
               ...prev,
               name: event.data.name,
               model: event.data.model,
-              transientModel: event.data.model,
               events: event.data.events,
             };
           });
           replay();
-          break;
-        case CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC_ACK:
-          setContextValue((prev) => {
-            return {
-              ...prev,
-              saving: false,
-            };
-          });
           break;
       }
     });

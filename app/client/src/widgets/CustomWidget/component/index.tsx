@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import script from "!!raw-loader!./script.js";
+import script from "!!raw-loader!./customWidgetscript.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -27,10 +27,22 @@ const OverlayDiv = styled.div`
   height: 100%;
 `;
 
+const EVENTS = {
+  CUSTOM_WIDGET_READY: "CUSTOM_WIDGET_READY",
+  CUSTOM_WIDGET_READY_ACK: "CUSTOM_WIDGET_READY_ACK",
+  CUSTOM_WIDGET_UPDATE_MODEL: "CUSTOM_WIDGET_UPDATE_MODEL",
+  CUSTOM_WIDGET_TRIGGER_EVENT: "CUSTOM_WIDGET_TRIGGER_EVENT",
+  CUSTOM_WIDGET_MODEL_CHANGE: "CUSTOM_WIDGET_MODEL_CHANGE",
+  CUSTOM_WIDGET_UI_CHANGE: "CUSTOM_WIDGET_UI_CHANGE",
+  CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
+};
+
 function CustomComponent(props: CustomComponentProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
 
   const [loading, setLoading] = React.useState(true);
+
+  const [isIframeReady, setIsIframeReady] = useState(false);
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -39,26 +51,38 @@ function CustomComponent(props: CustomComponentProps) {
         iframe.current?.contentDocument?.defaultView;
 
       if (event.source === iframeWindow) {
+        // Sending acknowledgement for all messages since we're queueing all the postmessage from iframe
+        iframe.current?.contentWindow?.postMessage(
+          {
+            type: EVENTS.CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK,
+            key: event.data.key,
+            success: true,
+          },
+          "*",
+        );
+
         const message = event.data;
 
         switch (message.type) {
-          case "READY":
+          case EVENTS.CUSTOM_WIDGET_READY:
+            setIsIframeReady(true);
             iframe.current?.contentWindow?.postMessage(
               {
-                type: "READY_ACK",
+                type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
-                dimensions: {
+                ui: {
                   width: props.width,
                   height: props.height,
                 },
+                mode: props.renderMode,
               },
               "*",
             );
             break;
-          case "UPDATE":
+          case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
             props.update(message.data);
             break;
-          case "EVENT":
+          case EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT:
             props.execute(message.data.eventName, message.data.contextObj);
             break;
           case "UPDATE_HEIGHT":
@@ -68,7 +92,7 @@ function CustomComponent(props: CustomComponentProps) {
               iframe.current!.style.height = `${height}px`;
             }
             break;
-          case "CUSTOM_WIDGET_CONSOLE":
+          case "CUSTOM_WIDGET_CONSOLE_EVENT":
             props.onConsole &&
               props.onConsole(message.data.type, message.data.args);
             break;
@@ -79,13 +103,13 @@ function CustomComponent(props: CustomComponentProps) {
     window.addEventListener("message", handler, false);
 
     return () => window.removeEventListener("message", handler, false);
-  }, []);
+  }, [props.model, props.width, props.height]);
 
   useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow) {
+    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
       iframe.current.contentWindow.postMessage(
         {
-          type: "MODEL_UPDATE",
+          type: EVENTS.CUSTOM_WIDGET_MODEL_CHANGE,
           model: props.model,
         },
         "*",
@@ -94,11 +118,11 @@ function CustomComponent(props: CustomComponentProps) {
   }, [props.model]);
 
   useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow) {
+    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
       iframe.current.contentWindow.postMessage(
         {
-          type: "UI_UPDATE",
-          dimensions: {
+          type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
+          ui: {
             width: props.width,
             height: props.height,
           },
@@ -111,16 +135,15 @@ function CustomComponent(props: CustomComponentProps) {
   const srcDoc = `
     <html>
       <head>
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
         <style>${css}</style>
       </head>
       <body>
         <script type="text/javascript">${
           props.onConsole ? appsmithConsole : ""
         }</script>
-        <script type="text/javascript">${script}</script>
+        <script type="module">${script}</script>
         ${props.srcDoc.html}
-        <script type="text/babel"  data-presets="react" data-type="module">
+        <script type="module">
           ${props.srcDoc.js}
         </script>
         <style>${props.srcDoc.css}</style>
@@ -167,6 +190,7 @@ export interface CustomComponentProps {
   onLoadingStateChange?: (state: string) => void;
   needsOverlay?: boolean;
   onConsole?: (type: string, message: string) => void;
+  renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
 }
 
 export default CustomComponent;

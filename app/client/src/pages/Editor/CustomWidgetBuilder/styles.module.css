@@ -8,11 +8,6 @@
   margin-left: 10px;
 }
 
-.autosave.autosave {
-  font-size: 12px !important;
-  color: #999 !important;
-}
-
 .headerControls {
   gap: 1rem;
   justify-content: right !important;

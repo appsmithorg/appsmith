@@ -14,7 +14,7 @@ import { CustomWidgetBuilderContext } from ".";
 const theme = getTheme(ThemeMode.LIGHT);
 
 export default function Header() {
-  const { discard } = useContext(CustomWidgetBuilderContext);
+  const { close } = useContext(CustomWidgetBuilderContext);
 
   return (
     <ThemeProvider theme={theme}>
@@ -28,15 +28,9 @@ export default function Header() {
         <HeaderSection
           className={clsx(styles.headerSection, styles.headerControls)}
         >
-          <Text className={styles.autosave}>
-            your changes will get auto saved
-          </Text>
-          <Button kind="tertiary" onClick={discard} size="lg">
+          <Button kind="tertiary" onClick={close} size="lg">
             Close
           </Button>
-          {/* <Button kind="primary" onClick={save} size="lg">
-            Save
-          </Button> */}
         </HeaderSection>
       </HeaderWrapper>
     </ThemeProvider>

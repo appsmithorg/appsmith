@@ -13,7 +13,7 @@ import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 export default function HTMLEditor(props: ContentProps) {
-  const { srcDoc, update } = useContext(CustomWidgetBuilderContext);
+  const { uncompiledSrcDoc, update } = useContext(CustomWidgetBuilderContext);
 
   const { height, showHeader = true } = props;
 
@@ -34,7 +34,7 @@ export default function HTMLEditor(props: ContentProps) {
           height={height - 39}
           hideEvaluatedValue
           input={{
-            value: srcDoc?.html,
+            value: uncompiledSrcDoc?.html,
             onChange: (value) => {
               update?.("html", value);
             },

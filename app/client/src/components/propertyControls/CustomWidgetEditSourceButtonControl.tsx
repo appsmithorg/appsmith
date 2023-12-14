@@ -45,6 +45,8 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
                   type: CUSTOM_WIDGET_BUILDER_EVENTS.READY_ACK,
                   name: this.props.widgetProperties.widgetName,
                   srcDoc: this.props.widgetProperties.srcDoc,
+                  uncompiledSrcDoc:
+                    this.props.widgetProperties.uncompiledSrcDoc,
                   model:
                     this.props.widgetProperties.__evaluation__.evaluatedValues
                       .defaultModel,
@@ -61,6 +63,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
               case CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC:
                 this.props.onBatchUpdateProperties?.({
                   srcDoc: event.data.srcDoc,
+                  uncompiledSrcDoc: event.data.uncompiledSrcDoc,
                 });
 
                 editSourceWindow.postMessage({

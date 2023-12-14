@@ -8,3 +8,29 @@ export const CUSTOM_WIDGET_BUILDER_EVENTS = {
   DISCONNECTED: "DISCONNECTED",
   CLOSE: "CLOSE",
 };
+
+export const LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN =
+  "custom-widget-builder-context-state-is-reference-open";
+
+export const LOCAL_STORAGE_KEYS_SELECTED_LAYOUT =
+  "custom-widget-builder-context-state-selected-layout";
+
+export const DEFAULT_CONTEXT_VALUE = {
+  name: "",
+  srcDoc: {
+    html: "<div>Hello World</div>",
+    js: "function test() {console.log('Hello World');}",
+    css: "div {color: red;}",
+  },
+  uncompiledSrcDoc: {
+    html: "<div>Hello World</div>",
+    js: "function test() {console.log('Hello World');}",
+    css: "div {color: red;}",
+  },
+  model: {},
+  events: {},
+  key: Math.random(),
+  isReferenceOpen: false,
+  selectedLayout: "tabs",
+  debuggerLogs: [],
+};

@@ -6,9 +6,7 @@ import { toast } from "design-system";
 import Debugger from "./Debugger";
 
 export default function Preview() {
-  const [logs, setLogs] = useState<{ type: string; args: any }[]>([]);
-
-  const { key, model, srcDoc, updateModel } = useContext(
+  const { key, model, srcDoc, updateDebuggerLogs, updateModel } = useContext(
     CustomWidgetBuilderContext,
   );
 
@@ -29,9 +27,7 @@ export default function Preview() {
           28,
       });
     }
-  }, [containerRef.current]);
 
-  useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
         setDimensions({
@@ -55,28 +51,41 @@ export default function Preview() {
     <div className={styles.contentLeft} ref={containerRef}>
       <CustomComponent
         execute={(name) => {
-          toast.show(`Event fired: ${name}`, { kind: "success" });
+          const message = `Event fired: ${name}`;
+
+          toast.show(message, { kind: "success" });
+
+          updateDebuggerLogs?.({
+            type: "info",
+            args: [message],
+          });
         }}
         height={dimensions.height}
         key={key}
         model={model || {}}
         onConsole={(type, args) => {
-          setLogs((prev) => [
-            ...prev,
-            {
-              type,
-              args,
-            },
-          ]);
+          updateDebuggerLogs?.({
+            type,
+            args,
+          });
         }}
+        renderMode="BUILDER"
         srcDoc={srcDoc || { html: "", js: "", css: "" }}
         update={(data) => {
           updateModel?.(data);
-          toast.show(`Model updated`, { kind: "success" });
+
+          const message = `Model updated`;
+
+          toast.show(message, { kind: "success" });
+
+          updateDebuggerLogs?.({
+            type: "info",
+            args: [message, data],
+          });
         }}
         width={dimensions.width}
       />
-      <Debugger clear={() => setLogs([])} logs={logs} />
+      <Debugger />
     </div>
   );
 }

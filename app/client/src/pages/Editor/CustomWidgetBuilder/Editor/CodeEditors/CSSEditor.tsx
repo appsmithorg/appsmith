@@ -12,7 +12,7 @@ import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 export default function CSSEditor(props: ContentProps) {
-  const { srcDoc, update } = useContext(CustomWidgetBuilderContext);
+  const { uncompiledSrcDoc, update } = useContext(CustomWidgetBuilderContext);
 
   const { height, showHeader = true } = props;
 
@@ -33,7 +33,7 @@ export default function CSSEditor(props: ContentProps) {
           height={height - 39}
           hideEvaluatedValue
           input={{
-            value: srcDoc?.css,
+            value: uncompiledSrcDoc?.css,
             onChange: (value) => {
               update?.("css", value);
             },

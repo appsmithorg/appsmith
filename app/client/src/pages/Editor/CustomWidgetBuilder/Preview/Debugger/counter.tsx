@@ -11,8 +11,8 @@ export default function Counter(props: {
   const { error, log, onClick, warn } = props;
 
   return (
-    <div className={styles.consoleCounter} onClick={() => onClick()}>
-      <div className={styles.consoleCounterItem}>
+    <div className={styles.debuggerCounter} onClick={() => onClick()}>
+      <div className={styles.debuggerCounterItem}>
         <Icon
           name="close-circle"
           size="sm"
@@ -22,7 +22,7 @@ export default function Counter(props: {
         />
         {error}
       </div>
-      <div className={styles.consoleCounterItem}>
+      <div className={styles.debuggerCounterItem}>
         <Icon
           name="alert-fill"
           size="sm"
@@ -32,7 +32,7 @@ export default function Counter(props: {
         />
         {warn}
       </div>
-      <div className={styles.consoleCounterItem}>
+      <div className={styles.debuggerCounterItem}>
         <Icon name="snippet" size="sm" />
         {log}
       </div>

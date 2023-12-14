@@ -2,10 +2,12 @@
   const postMessage = (method, args) => {
     window.parent.postMessage(
       {
-        type: "CUSTOM_WIDGET_CONSOLE",
+        type: "CUSTOM_WIDGET_CONSOLE_EVENT",
         data: {
           type: method,
-          args,
+          args: args.map((d) => ({
+            message: d,
+          })),
         },
       },
       "*",

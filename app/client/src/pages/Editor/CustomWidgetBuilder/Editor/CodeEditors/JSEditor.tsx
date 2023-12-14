@@ -10,9 +10,12 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constants";
 
 export default function JSEditor(props: ContentProps) {
-  const { srcDoc, update } = useContext(CustomWidgetBuilderContext);
+  const { model, uncompiledSrcDoc, update } = useContext(
+    CustomWidgetBuilderContext,
+  );
 
   const { height, showHeader = true } = props;
 
@@ -25,6 +28,7 @@ export default function JSEditor(props: ContentProps) {
       )}
       <div className={styles.editorBody}>
         <LazyCodeEditor
+          additionalDynamicData={getAppsmithScriptSchema(model || {})}
           border={CodeEditorBorder.NONE}
           borderLess
           className={"js-editor"}
@@ -33,7 +37,7 @@ export default function JSEditor(props: ContentProps) {
           height={height - 39}
           hideEvaluatedValue
           input={{
-            value: srcDoc?.js,
+            value: uncompiledSrcDoc?.js,
             onChange: (value) => {
               update?.("js", value);
             },
