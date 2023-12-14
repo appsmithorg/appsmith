@@ -31,6 +31,8 @@ public enum PermissionViewableName {
     REMOVE_USER("Remove User"),
     @JsonProperty("Associate Role")
     ASSOCIATE_ROLE("Associate Role"),
+    @JsonProperty("View History")
+    VIEW_HISTORY("View History"),
     ;
 
     private String name;

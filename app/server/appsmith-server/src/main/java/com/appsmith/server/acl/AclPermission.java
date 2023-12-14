@@ -122,7 +122,9 @@ public enum AclPermission {
 
     // Was the user assigned a global permission at the workspace level to manage workflows?
     WORKSPACE_MANAGE_WORKFLOWS("manage:workspaceWorkflows", Workspace.class),
+    @Deprecated
     WORKSPACE_READ_WORKFLOWS("read:workspaceWorkflows", Workspace.class),
+    WORKSPACE_READ_HISTORY_WORKFLOW("readHistory:workspaceWorkflows", Workspace.class),
     WORKSPACE_PUBLISH_WORKFLOWS("publish:workspaceWorkflows", Workspace.class),
     WORKSPACE_EXPORT_WORKFLOWS("export:workspaceWorkflows", Workspace.class),
     WORKSPACE_DELETE_WORKFLOWS("delete:workspaceWorkflows", Workspace.class),
@@ -225,6 +227,7 @@ public enum AclPermission {
 
     // Workflow Permissions
     MANAGE_WORKFLOWS("manage:workflows", Workflow.class),
+    @Deprecated
     READ_WORKFLOWS("read:workflows", Workflow.class),
     PUBLISH_WORKFLOWS("publish:workflows", Workflow.class),
     DELETE_WORKFLOWS("delete:workflows", Workflow.class),

@@ -4,12 +4,14 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.solutions.roles.ce_compatible.WorkflowResourcesCECompatibleImpl;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
+import com.appsmith.server.solutions.roles.dtos.ActionCollectionResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.ActionResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.BaseView;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
@@ -61,19 +63,30 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                 dataFromRepositoryForAllTabs.getWorkspaceWorkflowMapMono();
         Mono<Map<String, Collection<NewAction>>> workflowActionMapMono =
                 dataFromRepositoryForAllTabs.getWorkflowActionMapMono();
+        Mono<Map<String, Collection<ActionCollection>>> workflowActionCollectionMapMono =
+                dataFromRepositoryForAllTabs.workflowActionCollectionMapMono;
         Mono<Map<String, Set<IdPermissionDTO>>> hoverPermissionMapForWorkflowResourcesMono =
                 getHoverPermissionMapForWorkflowResources(
-                        workspaceFlux, workspaceWorkflowMapMono, workflowActionMapMono);
+                        workspaceFlux,
+                        workspaceWorkflowMapMono,
+                        workflowActionMapMono,
+                        workflowActionCollectionMapMono);
+        Mono<Map<String, Set<IdPermissionDTO>>> disablePermissionMapForWorkflowResourcesMono =
+                getDisablePermissionMapForWorkflowResources(
+                        workspaceFlux, workflowFlux, workflowActionMapMono, workflowActionCollectionMapMono);
 
-        Mono<Map<String, Set<IdPermissionDTO>>> disableMapForWorkflowResourcesMono =
-                getDisableMapForWorkflowResources(workspaceFlux, workflowFlux, workflowActionMapMono);
-
-        Mono<EntityView> entityViewMono = Mono.zip(workspaceWorkflowMapMono, workflowActionMapMono)
+        Mono<EntityView> entityViewMono = Mono.zip(
+                        workspaceWorkflowMapMono, workflowActionMapMono, workflowActionCollectionMapMono)
                 .flatMap(pair -> {
                     Map<String, Collection<Workflow>> workspaceWorkflowMap = pair.getT1();
                     Map<String, Collection<NewAction>> workflowActionMap = pair.getT2();
+                    Map<String, Collection<ActionCollection>> workflowActionCollectionMap = pair.getT3();
                     return getWorkspaceDTOsForWorkflowResources(
-                                    permissionGroupId, workspaceFlux, workspaceWorkflowMap, workflowActionMap)
+                                    permissionGroupId,
+                                    workspaceFlux,
+                                    workspaceWorkflowMap,
+                                    workflowActionMap,
+                                    workflowActionCollectionMap)
                             .collectList()
                             .map(workspaceDTOs -> {
                                 EntityView entityView = new EntityView();
@@ -83,7 +96,10 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                             });
                 });
 
-        return Mono.zip(entityViewMono, hoverPermissionMapForWorkflowResourcesMono, disableMapForWorkflowResourcesMono)
+        return Mono.zip(
+                        entityViewMono,
+                        hoverPermissionMapForWorkflowResourcesMono,
+                        disablePermissionMapForWorkflowResourcesMono)
                 .map(tuple -> {
                     EntityView entityView = tuple.getT1();
                     Map<String, Set<IdPermissionDTO>> linkedPermissions = tuple.getT2();
@@ -100,7 +116,8 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
     private Mono<Map<String, Set<IdPermissionDTO>>> getHoverPermissionMapForWorkflowResources(
             Flux<Workspace> workspaceFlux,
             Mono<Map<String, Collection<Workflow>>> workspaceWorkflowMapMono,
-            Mono<Map<String, Collection<NewAction>>> workflowActionMapMono) {
+            Mono<Map<String, Collection<NewAction>>> workflowActionMapMono,
+            Mono<Map<String, Collection<ActionCollection>>> workflowActionCollectionMapMono) {
         RoleTab roleTab = WORKFLOWS;
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
@@ -124,10 +141,11 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
 
-        return Mono.zip(workspaceWorkflowMapMono, workflowActionMapMono)
+        return Mono.zip(workspaceWorkflowMapMono, workflowActionMapMono, workflowActionCollectionMapMono)
                 .flatMap(pair -> {
                     Map<String, Collection<Workflow>> workspaceWorkflowMap = pair.getT1();
                     Map<String, Collection<NewAction>> workflowActionMap = pair.getT2();
+                    Map<String, Collection<ActionCollection>> workflowActionCollectionMap = pair.getT3();
                     return workspaceFlux
                             .map(workspace -> {
                                 String workspaceId = workspace.getId();
@@ -176,6 +194,28 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                                                         Action.class);
                                             });
                                         }
+
+                                        Collection<ActionCollection> actionCollections =
+                                                workflowActionCollectionMap.get(workflowId);
+                                        if (!CollectionUtils.isEmpty(actionCollections)) {
+                                            actionCollections.forEach(actionCollection -> {
+                                                String actionCollectionId = actionCollection.getId();
+
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        workflowHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        workflowId,
+                                                        actionCollectionId,
+                                                        Action.class);
+
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        actionHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        actionCollectionId,
+                                                        actionCollectionId,
+                                                        Action.class);
+                                            });
+                                        }
                                     });
                                 }
                                 return workspace;
@@ -188,10 +228,11 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                 });
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapForWorkflowResources(
+    private Mono<Map<String, Set<IdPermissionDTO>>> getDisablePermissionMapForWorkflowResources(
             Flux<Workspace> workspaceFlux,
             Flux<Workflow> workflowFlux,
-            Mono<Map<String, Collection<NewAction>>> workflowActionMapMono) {
+            Mono<Map<String, Collection<NewAction>>> workflowActionMapMono,
+            Mono<Map<String, Collection<ActionCollection>>> workflowActionCollectionMapMono) {
         RoleTab roleTab = WORKFLOWS;
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
@@ -246,7 +287,24 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                 })
                 .then();
 
-        return Mono.when(updateWorkspaceDisableMapMono, updateWorkflowDisableMapMono, updateActionDisableMapMono)
+        Mono<Void> updateActionCollectionDisableMapMono = workflowActionCollectionMapMono
+                .mapNotNull(workflowActionMap -> {
+                    workflowActionMap.forEach((workflowId, actionCollections) -> {
+                        actionCollections.forEach(actionCollection -> {
+                            String actionCollectionId = actionCollection.getId();
+                            generateLateralPermissionDTOsAndUpdateMap(
+                                    actionLateralMap, disableMap, actionCollectionId, actionCollectionId, Action.class);
+                        });
+                    });
+                    return workflowActionMap;
+                })
+                .then();
+
+        return Mono.when(
+                        updateWorkspaceDisableMapMono,
+                        updateWorkflowDisableMapMono,
+                        updateActionDisableMapMono,
+                        updateActionCollectionDisableMapMono)
                 .then(Mono.just(disableMap))
                 .map(disableMap1 -> {
                     disableMap1.values().removeIf(Set::isEmpty);
@@ -258,7 +316,8 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
             String permissionGroupId,
             Flux<Workspace> workspaceFlux,
             Map<String, Collection<Workflow>> workspaceWorkflowMap,
-            Map<String, Collection<NewAction>> workflowActionMap) {
+            Map<String, Collection<NewAction>> workflowActionMap,
+            Map<String, Collection<ActionCollection>> workflowActionCollectionMap) {
         return workspaceFlux
                 .map(workspace -> generateBaseViewDto(
                         workspace, Workspace.class, workspace.getName(), WORKFLOWS, permissionGroupId, policyGenerator))
@@ -268,7 +327,8 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                     Mono<List<WorkflowResourceDTO>> workflowDTOsMono = Mono.just(List.of());
 
                     if (!CollectionUtils.isEmpty(workflows)) {
-                        workflowDTOsMono = getWorkflowDTOs(permissionGroupId, workflows, workflowActionMap)
+                        workflowDTOsMono = getWorkflowDTOs(
+                                        permissionGroupId, workflows, workflowActionMap, workflowActionCollectionMap)
                                 .collectList();
                     }
 
@@ -285,7 +345,8 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
     private Flux<WorkflowResourceDTO> getWorkflowDTOs(
             String permissionGroupId,
             Collection<Workflow> workflows,
-            Map<String, Collection<NewAction>> workflowActionMap) {
+            Map<String, Collection<NewAction>> workflowActionMap,
+            Map<String, Collection<ActionCollection>> workflowActionCollectionMap) {
         return Flux.fromIterable(workflows).map(workflow -> {
             WorkflowResourceDTO workflowDTO = new WorkflowResourceDTO();
             workflowDTO.setId(workflow.getId());
@@ -297,11 +358,19 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
             workflowDTO.setEditable(permissionsTuple.getT2());
             Collection<ActionResourceDTO> actionDTOs =
                     getActionDTOs(permissionGroupId, workflowActionMap.get(workflow.getId()));
+            Collection<ActionCollectionResourceDTO> actionCollectionDTOs = getActionCollectionDTOs(
+                    permissionGroupId, workflow, workflowActionCollectionMap.get(workflow.getId()));
             if (!CollectionUtils.isEmpty(actionDTOs)) {
                 EntityView actionResourceEntityView = new EntityView();
                 actionResourceEntityView.setType(NewAction.class.getSimpleName());
                 actionResourceEntityView.setEntities((List) actionDTOs);
                 workflowDTO.getChildren().add(actionResourceEntityView);
+            }
+            if (!CollectionUtils.isEmpty(actionCollectionDTOs)) {
+                EntityView actionCollectionResourceEntityView = new EntityView();
+                actionCollectionResourceEntityView.setType(ActionCollection.class.getSimpleName());
+                actionCollectionResourceEntityView.setEntities((List) actionCollectionDTOs);
+                workflowDTO.getChildren().add(actionCollectionResourceEntityView);
             }
             return workflowDTO;
         });
@@ -322,6 +391,32 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                     actionDTO.setEnabled(permissionsTuple.getT1());
                     actionDTO.setEditable(permissionsTuple.getT2());
                     return actionDTO;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private Collection<ActionCollectionResourceDTO> getActionCollectionDTOs(
+            String permissionGroupId, Workflow workflow, Collection<ActionCollection> actionCollections) {
+        if (CollectionUtils.isEmpty(actionCollections)) {
+            return null;
+        }
+        return actionCollections.stream()
+                .map(actionCollection -> {
+                    ActionCollectionResourceDTO actionCollectionResourceDTO = new ActionCollectionResourceDTO();
+                    actionCollectionResourceDTO.setId(actionCollection.getId());
+                    actionCollectionResourceDTO.setIsDefault(
+                            workflow.getMainJsObjectId().equalsIgnoreCase(actionCollection.getId()));
+                    actionCollectionResourceDTO.setName(
+                            actionCollection.getUnpublishedCollection().getName());
+                    Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                            WORKFLOWS,
+                            permissionGroupId,
+                            actionCollection.getPolicies(),
+                            Action.class,
+                            policyGenerator);
+                    actionCollectionResourceDTO.setEnabled(permissionsTuple.getT1());
+                    actionCollectionResourceDTO.setEditable(permissionsTuple.getT2());
+                    return actionCollectionResourceDTO;
                 })
                 .collect(Collectors.toList());
     }

@@ -41,6 +41,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -80,8 +81,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
@@ -90,10 +89,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
@@ -132,6 +129,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
     private final RoleConfigurationHelper roleConfigurationHelper;
     private final WorkflowResources workflowResources;
     private final FeatureFlagService featureFlagService;
+    private final WorkflowRepository workflowRepository;
 
     public RoleConfigurationSolutionImpl(
             WorkspaceResources workspaceResources,
@@ -152,7 +150,8 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             EnvironmentRepository environmentRepository,
             RoleConfigurationHelper roleConfigurationHelper,
             WorkflowResources workflowResources,
-            FeatureFlagService featureFlagService) {
+            FeatureFlagService featureFlagService,
+            WorkflowRepository workflowRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -173,6 +172,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         this.roleConfigurationHelper = roleConfigurationHelper;
         this.workflowResources = workflowResources;
         this.featureFlagService = featureFlagService;
+        this.workflowRepository = workflowRepository;
     }
 
     @Override
@@ -597,7 +597,14 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             // If the tab is application resources, and the entity is an Action Collection, then we need  to give all
             // associated actions the same permission as the entity.
             sideEffectOnActionsGivenActionCollectionUpdate(
-                    sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+                    sideEffects,
+                    tab,
+                    id,
+                    added,
+                    removed,
+                    sideEffectsAddedMap,
+                    sideEffectsRemovedMap,
+                    sideEffectsClassMap);
         } else if (tab == RoleTab.DATASOURCES_ENVIRONMENTS && Workspace.class.equals(aClazz)) {
             sideEffectOnEnvironmentsGivenWorkspaceUpdate(
                     sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
@@ -605,44 +612,111 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             sideEffectOnEnvironmentsGivenDatasourceUpdate(
                     sideEffects, id, added, sideEffectsAddedMap, sideEffectsClassMap);
         } else if (tab == WORKFLOWS && Workflow.class.equals(aClazz)) {
-            sideEffectOnWorkflowsBasedOnPermission(
-                    id, sideEffects, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
-        } else if (tab == WORKFLOWS && Workspace.class.equals(aClazz)) {
-            sideEffectOnWorkspaceBasedOnPermission(
+            sideEffectOnWorkflowsGivenEditPermission(
                     id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
-        } else if (tab == WORKFLOWS && (NewAction.class.equals(aClazz) || ActionCollection.class.equals(aClazz))) {
-            sideEffectOnActionsGivenEditOrDeletePermission(id, added, aClazz, sideEffectsAddedMap, sideEffectsClassMap);
+            sideEffectOnReadWorkspaceGivenAnyWorkflowPermission(
+                    id,
+                    sideEffects,
+                    permissions,
+                    workspaceReadGivenAsSideEffect,
+                    sideEffectsAddedMap,
+                    sideEffectsRemovedMap,
+                    sideEffectsClassMap);
+        } else if (tab == WORKFLOWS && Workspace.class.equals(aClazz)) {
+            sideEffectOnPublishWorkspaceWorkflowGivenManageWorkspaceWorkflowPermission(
+                    id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+        } else if (tab == WORKFLOWS && NewAction.class.equals(aClazz)) {
+            sideEffectOnExecutablesGivenEditOrDeleteExecutablePermission(
+                    id, added, removed, aClazz, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+        } else if (tab == WORKFLOWS && ActionCollection.class.equals(aClazz)) {
+            sideEffectOnExecutablesGivenEditOrDeleteExecutablePermission(
+                    id, added, removed, aClazz, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+            sideEffectOnActionsGivenActionCollectionUpdate(
+                    sideEffects,
+                    tab,
+                    id,
+                    added,
+                    removed,
+                    sideEffectsAddedMap,
+                    sideEffectsRemovedMap,
+                    sideEffectsClassMap);
         }
     }
 
     /**
-     * Applies side effects on actions when MANAGE_ACTIONS or DELETE_ACTIONS permission is added.
+     * Applies side effects on workspace read permissions based on any workflow permission.
      *
+     * <p>
+     * <b>Side Effects:</b>
+     * </p>
+     * <ul>
+     *   <li>If any of the permissions are true in this tab for workflow, gives workspace read permission to make
+     *       the workflow visible on the home page. The side effect is added to the provided list of Monos.</li>
+     *   <li>Ensures that the same workspace read permission is not given again if already done.</li>
+     * </ul>
+     *
+     */
+    private void sideEffectOnReadWorkspaceGivenAnyWorkflowPermission(
+            String id,
+            List<Mono<Long>> sideEffects,
+            List<Integer> permissions,
+            Set<String> workspaceReadGivenAsSideEffect,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        // If any of the permissions are true in this tab for workflow, give workspace read so that
+        // the workflow is visible on the home page.
+        boolean anyPermissionTrue = permissions.stream().anyMatch(permission -> permission == 1);
+
+        if (anyPermissionTrue && !workspaceReadGivenAsSideEffect.contains(id)) {
+            sideEffects.add(addReadPermissionToWorkspaceGivenWorkflow(id, sideEffectsAddedMap, sideEffectsClassMap));
+            // Don't give the same workspace read permission again if done already.
+            workspaceReadGivenAsSideEffect.add(id);
+        }
+    }
+
+    private Mono<Long> addReadPermissionToWorkspaceGivenWorkflow(
+            String id,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        return workflowRepository.findById(id).map(workflow -> {
+            String workspaceId = workflow.getWorkspaceId();
+            // If the workspace should be given READ permission, then we need to add the READ permission
+            sideEffectsClassMap.put(workspaceId, Workspace.class);
+            sideEffectsAddedMap.merge(workspaceId, List.of(READ_WORKSPACES), ListUtils::union);
+            return 1L;
+        });
+    }
+
+    /**
+     * Applies side effects on executables when MANAGE_ACTIONS or DELETE_ACTIONS permission is added or removed.
      * <p>
      * <b>Side Effects:</b>
      * </p>
      * <ul>
      *   <li>If {@code MANAGE_ACTIONS} or {@code DELETE_ACTIONS} permission is added, {@code READ_ACTIONS} and
      *       {@code EXECUTE_ACTIONS} permissions are given.</li>
+     *   <li>If both {@code MANAGE_ACTIONS} and {@code DELETE_ACTIONS} permissions are removed,
+     *       {@code READ_ACTIONS} and {@code EXECUTE_ACTIONS} permissions are removed.</li>
      * </ul>
      *
-     * <p>
-     * <b>Notes:</b>
-     * </p>
-     * <ul>
-     *   <li>The side effects are applied to the specified action ID.</li>
-     *   <li>The side effects are associated with the specified class.</li>
-     * </ul>
      */
-    private void sideEffectOnActionsGivenEditOrDeletePermission(
+    private void sideEffectOnExecutablesGivenEditOrDeleteExecutablePermission(
             String id,
             List<AclPermission> added,
+            List<AclPermission> removed,
             Class<?> aClazz,
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
         if (added.contains(MANAGE_ACTIONS) || added.contains(DELETE_ACTIONS)) {
             sideEffectsClassMap.put(id, aClazz);
             sideEffectsAddedMap.merge(id, List.of(READ_ACTIONS, EXECUTE_ACTIONS), ListUtils::union);
+        }
+
+        if (removed.contains(MANAGE_ACTIONS) && removed.contains(DELETE_ACTIONS)) {
+            sideEffectsClassMap.put(id, aClazz);
+            sideEffectsRemovedMap.merge(id, List.of(READ_ACTIONS, EXECUTE_ACTIONS), ListUtils::union);
         }
     }
 
@@ -656,16 +730,8 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
      *   <li>If {@code WORKSPACE_MANAGE_WORKFLOWS} is given or removed, {@code WORKSPACE_PUBLISH_WORKFLOWS} permission is
      *       given or removed, respectively.</li>
      * </ul>
-     *
-     * <p>
-     * <b>Notes:</b>
-     * </p>
-     * <ul>
-     *   <li>The side effects are applied to the specified workspace ID.</li>
-     *   <li>The side effects are associated with the {@code Workspace} class.</li>
-     * </ul>
      */
-    private void sideEffectOnWorkspaceBasedOnPermission(
+    private void sideEffectOnPublishWorkspaceWorkflowGivenManageWorkspaceWorkflowPermission(
             String id,
             List<AclPermission> added,
             List<AclPermission> removed,
@@ -677,7 +743,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         if (added.contains(WORKSPACE_MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workspace.class);
             sideEffectsAddedMap.merge(id, List.of(WORKSPACE_PUBLISH_WORKFLOWS), ListUtils::union);
-        } else if (removed.contains(READ_WORKFLOWS)) {
+        } else if (removed.contains(WORKSPACE_MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workspace.class);
             sideEffectsRemovedMap.merge(id, List.of(WORKSPACE_PUBLISH_WORKFLOWS), ListUtils::union);
         }
@@ -690,93 +756,24 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
     }
 
     /**
-     * Applies side effects on workflows based on added and removed ACL permissions.
+     * Applies side effects on workflows when MANAGE_WORKFLOWS permission is added or removed.
+     *
      * <p>
      * <b>Side Effects:</b>
      * </p>
      * <ul>
-     *   <li>If {@code READ_WORKFLOWS} is given or removed, {@code READ_HISTORY_WORKFLOWS} and {@code EXECUTE_WORKFLOWS}
-     *       permissions are given or removed, respectively. Additionally, {@code EXECUTE_ACTIONS} is given or removed
-     *       on associated actions. If the actions have associated datasources, {@code EXECUTE_DATASOURCES} permission
-     *       is also given or removed accordingly.</li>
-     *   <li>If {@code MANAGE_WORKFLOWS} is given or removed, {@code PUBLISH_WORKFLOWS} permission is given or removed.</li>
+     *   <li>If {@code MANAGE_WORKFLOWS} permission is added, {@code PUBLISH_WORKFLOWS} permission is added.</li>
+     *   <li>If {@code MANAGE_WORKFLOWS} permission is removed, {@code PUBLISH_WORKFLOWS} permission is removed.</li>
      * </ul>
      *
-     * <p>
-     * <b>Notes:</b>
-     * </p>
-     * <ul>
-     *   <li>The side effects are applied to the specified workflow ID.</li>
-     *   <li>The side effects are associated with the {@code Workflow} and {@code NewAction} classes.</li>
-     *   <li>The collected side effect Monos are stored in the provided list.</li>
-     * </ul>
      */
-    private void sideEffectOnWorkflowsBasedOnPermission(
+    private void sideEffectOnWorkflowsGivenEditPermission(
             String id,
-            List<Mono<Long>> sideEffects,
             List<AclPermission> added,
             List<AclPermission> removed,
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
-        List<String> includeActionFields = List.of(
-                fieldName(QNewAction.newAction.id),
-                fieldName(QNewAction.newAction.publishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction));
-        if (added.contains(READ_WORKFLOWS)) {
-            sideEffectsClassMap.put(id, Workflow.class);
-            sideEffectsAddedMap.merge(id, List.of(READ_HISTORY_WORKFLOWS, EXECUTE_WORKFLOWS), ListUtils::union);
-            Mono<Long> sideEffectPermissionOnAction = newActionRepository
-                    .findByWorkflowId(id, Optional.empty(), Optional.of(includeActionFields))
-                    .map(action -> {
-                        sideEffectsClassMap.put(action.getId(), NewAction.class);
-                        sideEffectsAddedMap.merge(action.getId(), List.of(EXECUTE_ACTIONS), ListUtils::union);
-                        if (datasourceIdPresent(action.getUnpublishedAction())) {
-                            String dsId = action.getUnpublishedAction()
-                                    .getDatasource()
-                                    .getId();
-                            sideEffectsClassMap.put(dsId, Datasource.class);
-                            sideEffectsAddedMap.merge(dsId, List.of(EXECUTE_DATASOURCES), ListUtils::union);
-                        }
-                        if (datasourceIdPresent(action.getPublishedAction())) {
-                            String dsId =
-                                    action.getPublishedAction().getDatasource().getId();
-                            sideEffectsClassMap.put(dsId, Datasource.class);
-                            sideEffectsAddedMap.merge(dsId, List.of(EXECUTE_DATASOURCES), ListUtils::union);
-                        }
-                        return 1L;
-                    })
-                    .reduce(0L, Long::sum)
-                    .switchIfEmpty(Mono.just(0L));
-            sideEffects.add(sideEffectPermissionOnAction);
-        } else if (removed.contains(READ_WORKFLOWS)) {
-            sideEffectsClassMap.put(id, Workflow.class);
-            sideEffectsRemovedMap.merge(id, List.of(READ_HISTORY_WORKFLOWS, EXECUTE_WORKFLOWS), ListUtils::union);
-            Mono<Long> sideEffectPermissionOnAction = newActionRepository
-                    .findByWorkflowId(id, Optional.empty(), Optional.of(includeActionFields))
-                    .map(action -> {
-                        sideEffectsClassMap.put(action.getId(), NewAction.class);
-                        sideEffectsRemovedMap.merge(action.getId(), List.of(EXECUTE_ACTIONS), ListUtils::union);
-                        if (datasourceIdPresent(action.getUnpublishedAction())) {
-                            String dsId = action.getUnpublishedAction()
-                                    .getDatasource()
-                                    .getId();
-                            sideEffectsClassMap.put(dsId, Datasource.class);
-                            sideEffectsRemovedMap.merge(dsId, List.of(EXECUTE_DATASOURCES), ListUtils::union);
-                        }
-                        if (datasourceIdPresent(action.getPublishedAction())) {
-                            String dsId =
-                                    action.getPublishedAction().getDatasource().getId();
-                            sideEffectsClassMap.put(dsId, Datasource.class);
-                            sideEffectsRemovedMap.merge(dsId, List.of(EXECUTE_DATASOURCES), ListUtils::union);
-                        }
-                        return 1L;
-                    })
-                    .reduce(0L, Long::sum)
-                    .switchIfEmpty(Mono.just(0L));
-            sideEffects.add(sideEffectPermissionOnAction);
-        }
-
         if (added.contains(MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workflow.class);
             sideEffectsAddedMap.merge(id, List.of(PUBLISH_WORKFLOWS), ListUtils::union);
@@ -867,8 +864,30 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         sideEffects.add(environmentsUpdated);
     }
 
+    /**
+     * Applies side effects on actions when an action collection is updated.
+     * <p>
+     * <b>Side Effects:</b>
+     * </p>
+     * <ul>
+     *   <li>Updates permissions on actions associated with the action collection based on added and removed ACL permissions.</li>
+     *   <li>If the role tab is {@code WORKFLOWS}, additional permissions are added to children actions:</li>
+     *   <ul>
+     *     <li>If {@code MANAGE_ACTIONS} or {@code DELETE_ACTIONS} permission is added, adds {@code READ_ACTIONS}
+     *         and {@code EXECUTE_ACTIONS} permissions.</li>
+     *     <li>If both {@code MANAGE_ACTIONS} and {@code DELETE_ACTIONS} permissions are removed, removes
+     *         {@code READ_ACTIONS} and {@code EXECUTE_ACTIONS} permissions.</li>
+     *   </ul>
+     *   <li>If the role tab is not {@code WORKFLOWS}, permissions are mirrored to children actions:</li>
+     *   <ul>
+     *     <li>If {@code MANAGE_ACTIONS} or {@code DELETE_ACTIONS} permission is added, adds the same permissions to children actions.</li>
+     *     <li>If both {@code MANAGE_ACTIONS} and {@code DELETE_ACTIONS} permissions are removed, removes the same permissions from children actions.</li>
+     *   </ul>
+     * </ul>
+     */
     private void sideEffectOnActionsGivenActionCollectionUpdate(
             List<Mono<Long>> sideEffects,
+            RoleTab roleTab,
             String actionCollectionId,
             List<AclPermission> added,
             List<AclPermission> removed,
@@ -880,11 +899,25 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionId), includedFields)
                 .map(NewAction::getId);
 
+        List<AclPermission> addedForNewActionInActionCollection = new ArrayList<>(added);
+        List<AclPermission> removedForNewActionInActionCollection = new ArrayList<>(removed);
+
+        if (WORKFLOWS.equals(roleTab)) {
+            if (added.contains(MANAGE_ACTIONS) || added.contains(DELETE_ACTIONS)) {
+                addedForNewActionInActionCollection.add(READ_ACTIONS);
+                addedForNewActionInActionCollection.add(EXECUTE_ACTIONS);
+            }
+            if (removed.contains(MANAGE_ACTIONS) && removed.contains(DELETE_ACTIONS)) {
+                removedForNewActionInActionCollection.add(READ_ACTIONS);
+                removedForNewActionInActionCollection.add(EXECUTE_ACTIONS);
+            }
+        }
+
         Mono<Long> actionsUpdated = actionFlux
                 .map(actionId -> {
                     sideEffectsClassMap.put(actionId, NewAction.class);
-                    sideEffectsAddedMap.merge(actionId, added, ListUtils::union);
-                    sideEffectsRemovedMap.merge(actionId, removed, ListUtils::union);
+                    sideEffectsAddedMap.merge(actionId, addedForNewActionInActionCollection, ListUtils::union);
+                    sideEffectsRemovedMap.merge(actionId, removedForNewActionInActionCollection, ListUtils::union);
                     return 1L;
                 })
                 .reduce(0L, Long::sum);

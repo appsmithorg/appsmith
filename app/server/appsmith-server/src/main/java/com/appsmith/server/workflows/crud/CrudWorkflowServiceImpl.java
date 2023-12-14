@@ -252,14 +252,14 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
     public Flux<Workflow> getAllWorkflows(String workspaceId) {
         return repository.findAllByWorkspaceId(
-                workspaceId, Optional.ofNullable(workflowPermission.getReadPermission()));
+                workspaceId, Optional.ofNullable(workflowPermission.getReadHistoryPermission()));
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
     public Mono<Workflow> getWorkflowById(String workflowId) {
         return repository
-                .findById(workflowId, workflowPermission.getReadPermission())
+                .findById(workflowId, workflowPermission.getReadHistoryPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKFLOW_ID, workflowId)));
     }

@@ -59,7 +59,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -156,7 +155,6 @@ public class CrudWorkflowServiceTest {
 
                     Set<String> expectedUserPermissions = Set.of(
                             MANAGE_WORKFLOWS.getValue(),
-                            READ_WORKFLOWS.getValue(),
                             PUBLISH_WORKFLOWS.getValue(),
                             DELETE_WORKFLOWS.getValue(),
                             EXPORT_WORKFLOWS.getValue(),

@@ -34,4 +34,9 @@ public class WorkflowPermissionImpl implements WorkflowPermission {
     public AclPermission getPublishPermission() {
         return AclPermission.PUBLISH_WORKFLOWS;
     }
+
+    @Override
+    public AclPermission getReadHistoryPermission() {
+        return AclPermission.READ_HISTORY_WORKFLOWS;
+    }
 }
