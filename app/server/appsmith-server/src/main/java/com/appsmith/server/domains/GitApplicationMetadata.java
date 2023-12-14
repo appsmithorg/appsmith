@@ -83,7 +83,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
         // by default, the auto commit should be enabled.
         // new AutoCommitConfig will have enabled=true so we're returning a new object when field is null
         if (autoCommitConfig == null) {
-            return new AutoCommitConfig();
+            autoCommitConfig = new AutoCommitConfig();
         }
         return autoCommitConfig;
     }
