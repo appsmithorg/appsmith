@@ -290,6 +290,8 @@ class ModuleServiceTest {
         moduleActionCollectionDTO.setBody("export default { moduleFunc1() { return \"foo\" } }");
         moduleActionCollectionDTO.setWorkspaceId(workspaceId);
 
+        moduleActionCollectionDTO.setActions(List.of(moduleActionDTO));
+
         Plugin installedJsPlugin =
                 pluginRepository.findByPackageName("installed-js-plugin").block();
 
@@ -298,10 +300,12 @@ class ModuleServiceTest {
         moduleDTO.setEntity(moduleActionCollectionDTO);
 
         Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleIdRef = new AtomicReference<>();
 
         StepVerifier.create(moduleMono)
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
+                    moduleIdRef.set(createdModule.getId());
                     assertThat(createdModule.getName()).isEqualTo("MockJSModule");
                     assertThat(createdModule.getSettingsForm()).isNotNull();
                     Set<String> userPermissions = createdModule.getUserPermissions();
@@ -318,6 +322,33 @@ class ModuleServiceTest {
                         return permissionSet.contains(AclPermission.getPermissionByValue(permission, Module.class));
                     });
                     verifyJSModuleSettingsForCreator(createdModule);
+                })
+                .verifyComplete();
+
+        // Verify that action collection and child actions are created along with the module
+        Mono<ModuleEntitiesDTO> moduleEntitiesMono =
+                crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
+        StepVerifier.create(moduleEntitiesMono)
+                .assertNext(moduleEntitiesDTO -> {
+                    assertThat(moduleEntitiesDTO.getJsCollections().size()).isEqualTo(1);
+                    assertThat(moduleEntitiesDTO.getJsCollections().get(0).getActions())
+                            .isNotNull();
+                    assertThat(moduleEntitiesDTO
+                                    .getJsCollections()
+                                    .get(0)
+                                    .getActions()
+                                    .size())
+                            .isEqualTo(1);
+                    ActionCollectionDTO actionCollectionDTO =
+                            moduleEntitiesDTO.getJsCollections().get(0);
+                    ActionDTO jsActionDTO = moduleEntitiesDTO
+                            .getJsCollections()
+                            .get(0)
+                            .getActions()
+                            .get(0);
+                    assertThat(jsActionDTO.getCollectionId()).isNotNull();
+                    assertThat(jsActionDTO.getCollectionId()).isEqualTo(actionCollectionDTO.getId());
+                    assertThat(moduleEntitiesDTO.getActions().size()).isEqualTo(0);
                 })
                 .verifyComplete();
     }

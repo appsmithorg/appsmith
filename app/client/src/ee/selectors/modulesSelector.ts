@@ -24,6 +24,9 @@ export const getModuleById = (
 export const getIsModuleFetchingActions = (state: AppState) =>
   state.ui.editor.isModuleFetchingActions;
 
+export const getIsModuleFetchingEntities = (state: AppState) =>
+  state.ui.editor.isModuleFetchingEntities;
+
 export const getModulePublicAction = (
   state: AppState,
   moduleId: string,

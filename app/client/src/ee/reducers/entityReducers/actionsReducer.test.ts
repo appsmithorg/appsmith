@@ -116,6 +116,57 @@ describe("actionsReducer", () => {
     ).toBe(true);
   });
 
+  it("should handle FETCH_MODULE_ENTITIES_SUCCESS action", () => {
+    const initialState: ActionDataState = [];
+    const actionPayload = DEFAULT_ACTIONS;
+
+    const action = {
+      type: ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS,
+      payload: {
+        actions: actionPayload,
+        jsCollections: [{ id: "js-collection" }],
+      },
+    };
+
+    const state = actionsReducer(initialState, action);
+
+    expect(state.length).toBe(actionPayload.length);
+
+    // Check if the state contains the expected data
+    actionPayload.forEach((action, index) => {
+      const stateAction = state[index];
+      expect(stateAction.data).toBe(undefined);
+      expect(stateAction.isLoading).toBe(false);
+      expect(stateAction.config).toBe(action);
+    });
+
+    // Check if the state retains any additional items not replaced
+    const additionalAction = {
+      id: "6525302c4b7c8d700a10264a",
+      moduleId: "652519c44b7c8d700a102640",
+      actionConfiguration: {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+      },
+      executeOnLoad: false,
+      isValid: true,
+      eventData: {},
+      selfReferencingDataPaths: [],
+    };
+
+    const updatedState: ActionDataState = actionsReducer(state, {
+      type: ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS,
+      payload: { actions: [additionalAction], jsCollection: { id: "test-id" } },
+    });
+
+    expect(updatedState.length).toBe(1);
+
+    // Check if the additional action is present in the state
+    expect(
+      updatedState.some((action) => action.config.id === additionalAction.id),
+    ).toBe(true);
+  });
+
   it("only update the name of public action with SAVE_MODULE_NAME_SUCCESS", () => {
     const initialState: ActionDataState = computeInitialState(DEFAULT_ACTIONS);
     const payload = {

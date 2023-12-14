@@ -10,7 +10,7 @@ import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
   JSCollectionData,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { ActionResponse } from "api/ActionAPI";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { assign, set, unset } from "lodash";

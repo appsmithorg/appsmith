@@ -16,6 +16,9 @@ export const handlers = {
   ) => {
     state.entityCollapsibleFields[entitySections.Queries] = true;
   },
+  [ReduxActionTypes.CREATE_JS_MODULE_SUCCESS]: (state: EditorContextState) => {
+    state.entityCollapsibleFields[entitySections.JSModules] = true;
+  },
 };
 
 /**

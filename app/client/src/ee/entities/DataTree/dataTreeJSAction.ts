@@ -1,5 +1,5 @@
 export * from "ce/entities/DataTree/dataTreeJSAction";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { JSActionEntity, JSActionEntityConfig } from "./types";
 import { generateDataTreeJSAction as CE_generateDataTreeJSAction } from "ce/entities/DataTree/dataTreeJSAction";
 

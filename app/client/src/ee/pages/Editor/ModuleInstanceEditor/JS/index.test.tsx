@@ -16,7 +16,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { klona } from "klona";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 const DEFAULT_MODULE = {
   id: "test-module",

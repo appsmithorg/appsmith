@@ -1,6 +1,6 @@
 import { ModuleInstanceCreatorType } from "@appsmith/constants/ModuleInstanceConstants";
 import { generateJSModuleInstance } from "./dataTreeModuleInstance";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 describe("generateModuleInstance", () => {
@@ -220,7 +220,7 @@ describe("generateModuleInstance", () => {
       },
       actionId: "656593725c83d116cf51885b",
       ENTITY_TYPE: "MODULE_INSTANCE",
-      type: "JS",
+      type: MODULE_TYPE.JS,
       moduleId: "653f85768d54d6754761e7b4",
       moduleInstanceId: "6540bbde843ed81a8e63f9b3",
       inputs: {
@@ -232,7 +232,7 @@ describe("generateModuleInstance", () => {
     const expectedConfigEntity = {
       actionId: "656593725c83d116cf51885b",
       ENTITY_TYPE: "MODULE_INSTANCE",
-      type: "JS",
+      type: MODULE_TYPE.JS,
       moduleId: "653f85768d54d6754761e7b4",
       moduleInstanceId: "6540bbde843ed81a8e63f9b3",
       name: "JSModule1",

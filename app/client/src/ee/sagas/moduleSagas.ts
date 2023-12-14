@@ -9,6 +9,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import type { ApiResponse } from "api/ApiResponses";
 import type {
+  CreateJSModulePayload,
   CreateQueryModulePayload,
   DeleteModulePayload,
   FetchModuleActionsPayload,
@@ -37,13 +38,17 @@ import {
   MODULE_TYPE,
   type Module,
   MODULE_PREFIX,
+  MODULE_ENTITY_TYPE,
 } from "@appsmith/constants/ModuleConstants";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import { createNewModuleName } from "@appsmith/utils/Packages/moduleHelpers";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
+import { createDummyJSCollectionActions } from "utils/JSPaneUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { generateDefaultJSObject } from "sagas/JSPaneSagas";
+import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   try {
@@ -175,6 +180,30 @@ export function* fetchModuleActionsSaga(
   }
 }
 
+export function* fetchModuleEntitiesSaga(
+  action: ReduxAction<FetchModuleActionsPayload>,
+) {
+  try {
+    const response: ApiResponse<FetchModuleActionsResponse> = yield call(
+      ModuleApi.getModuleEntities,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_MODULE_ENTITIES_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 /**
  * Creates an action with specific datasource created by a user
  * @param action
@@ -211,7 +240,7 @@ export function* createQueryModuleSaga(
       type: MODULE_TYPE.QUERY,
       inputsForm: [generateDefaultInputSection()],
       entity: {
-        type: ENTITY_TYPE_VALUE.ACTION,
+        type: MODULE_ENTITY_TYPE.ACTION,
         ...restAction,
       },
     };
@@ -238,6 +267,63 @@ export function* createQueryModuleSaga(
   }
 }
 
+export function* createJSModuleSaga(
+  action: ReduxAction<CreateJSModulePayload>,
+) {
+  try {
+    const { packageId } = action.payload;
+    const allModules: ModulesReducerState = yield select(getAllModules);
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const { actions, body, variables } = createDummyJSCollectionActions(
+      workspaceId,
+      {
+        packageId,
+      },
+    );
+    const newModuleName = createNewModuleName(allModules, MODULE_PREFIX.JS);
+
+    const defaultJSObject: CreateJSCollectionRequest =
+      yield generateDefaultJSObject({
+        name: newModuleName,
+        workspaceId,
+        actions,
+        body,
+        variables,
+      });
+
+    const payload: CreateModulePayload = {
+      packageId,
+      name: newModuleName,
+      type: MODULE_TYPE.JS,
+      inputsForm: [generateDefaultInputSection()],
+      entity: {
+        type: MODULE_ENTITY_TYPE.JS_OBJECT,
+        ...defaultJSObject,
+      },
+    };
+
+    const response: ApiResponse<Module> = yield call(
+      ModuleApi.createModule,
+      payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CREATE_JS_MODULE_SUCCESS,
+        payload: response.data,
+      });
+
+      history.push(moduleEditorURL({ moduleId: response.data.id }));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_JS_MODULE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* setupModuleSaga(action: ReduxAction<SetupModulePayload>) {
   try {
     const { moduleId } = action.payload;
@@ -247,12 +333,17 @@ export function* setupModuleSaga(action: ReduxAction<SetupModulePayload>) {
       type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
     });
 
+    yield call(fetchModuleEntitiesSaga, {
+      payload: { moduleId: moduleId },
+      type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
+    });
+
     yield put({
       type: ReduxActionTypes.SET_CURRENT_MODULE,
       payload: { id: moduleId },
     });
 
-    // To start eval for new module
+    // To start eval for module
     yield put({
       type: ReduxActionTypes.FETCH_ALL_MODULE_ENTITY_COMPLETION,
     });
@@ -276,6 +367,11 @@ export default function* modulesSaga() {
       ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
       createQueryModuleSaga,
     ),
+    takeLatest(
+      ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
+      fetchModuleEntitiesSaga,
+    ),
+    takeLatest(ReduxActionTypes.CREATE_JS_MODULE_INIT, createJSModuleSaga),
     takeLatest(
       ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT,
       updateModuleInputsSaga,

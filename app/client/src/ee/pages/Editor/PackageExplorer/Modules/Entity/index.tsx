@@ -9,11 +9,11 @@ import { StyledEntity as Entity } from "pages/Editor/Explorer/Common/components"
 import history, { NavigationMethod } from "utils/history";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import QueryModuleContextMenu from "./ContextMenu";
+import ModuleEntityContextMenu from "./ModuleEntityContextMenu";
 import { moduleEditorURL } from "@appsmith/RouteBuilder";
 import { Icon } from "design-system";
 
-const QueryModuleEntity = ({
+const ModuleEntity = ({
   currentModuleId,
   module,
   packageId,
@@ -29,7 +29,7 @@ const QueryModuleEntity = ({
   const canDeleteModule = hasDeleteModulePermission(modulePermissions);
   const contextMenu = useMemo(
     () => (
-      <QueryModuleContextMenu
+      <ModuleEntityContextMenu
         canDeleteModule={canDeleteModule}
         canManageModule={canManageModule}
         className={EntityClassNames.CONTEXT_MENU}
@@ -53,7 +53,7 @@ const QueryModuleEntity = ({
       action={switchModule}
       active={isCurrentModule}
       canEditEntityName={canManageModule}
-      className={`query-module ${isCurrentModule && "activeModule"}`}
+      className={`module ${isCurrentModule && "activeModule"}`}
       contextMenu={contextMenu}
       entityId={module.id}
       icon={icon}
@@ -73,4 +73,4 @@ const QueryModuleEntity = ({
   );
 };
 
-export default QueryModuleEntity;
+export default ModuleEntity;

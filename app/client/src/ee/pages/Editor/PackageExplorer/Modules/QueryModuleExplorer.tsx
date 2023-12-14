@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ADD_QUERY_BUTTON,
   ADD_QUERY_MODULE_TOOLTIP,
@@ -11,19 +11,11 @@ import {
   getCurrentPackage,
   getCurrentPackageId,
 } from "@appsmith/selectors/packageSelectors";
-import {
-  ENTITY_HEIGHT,
-  RelativeContainer,
-} from "pages/Editor/Explorer/Common/components";
-import { EntityExplorerResizeHandler } from "pages/Editor/Explorer/Common/EntityExplorerResizeHandler";
 import { useDispatch, useSelector } from "react-redux";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
-import {
-  getExplorerStatus,
-  saveExplorerStatus,
-} from "@appsmith/pages/Editor/Explorer/helpers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import {
   getAllModules,
   getCurrentModuleId,
@@ -39,7 +31,7 @@ import {
   selectAllQueryModules,
 } from "@appsmith/utils/Packages/moduleHelpers";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
-import QueryModuleEntity from "./QueryModules/Entity";
+import ModuleEntity from "./Entity";
 import { useFilteredFileOperations } from "./hooks/getFilteredFileOps";
 import {
   type ActionOperation,
@@ -47,25 +39,14 @@ import {
 } from "components/editorComponents/GlobalSearch/utils";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import type { EventLocation } from "ce/utils/analyticsUtilTypes";
-import styled from "styled-components";
 
-const MIN_MODULES_HEIGHT = 156;
+interface QueryModuleExplorerProps {
+  onUpdateOpenState: (moduleType: MODULE_TYPE, isOpen: boolean) => void;
+}
 
-export const StyledEntity = styled(Entity)<{ entitySize?: number }>`
-  &.query-modules > div:not(.t--entity-item) > div > div {
-      max-height: 40vh;
-      min-height: ${({ entitySize }) =>
-        entitySize && entitySize > MIN_MODULES_HEIGHT
-          ? MIN_MODULES_HEIGHT
-          : entitySize}px;
-      height: ${({ entitySize }) =>
-        entitySize && entitySize > 128 ? 128 : entitySize}px;
-      overflow-y: auto;
-    }
-  }
-`;
-
-const QueryModuleExplorer = () => {
+const QueryModuleExplorer = ({
+  onUpdateOpenState,
+}: QueryModuleExplorerProps) => {
   const packageId = useSelector(getCurrentPackageId) || "";
   const allModules: ModulesReducerState = useSelector(getAllModules);
   const modules: Module[] = convertModulesToArray(allModules);
@@ -73,22 +54,9 @@ const QueryModuleExplorer = () => {
   const currentModuleId = useSelector(getCurrentModuleId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
-  const isModulesOpen = getExplorerStatus(packageId, "packages");
-  const moduleResizeRef = useRef<HTMLDivElement>(null);
-  const storedHeightKey = "modulesContainerHeight_" + packageId;
-  const storedHeight = localStorage.getItem(storedHeightKey);
   const [query, setQuery] = useState("");
 
   const fileOperations = useFilteredFileOperations(query);
-
-  useEffect(() => {
-    if (
-      (isModulesOpen === null ? true : isModulesOpen) &&
-      moduleResizeRef.current
-    ) {
-      moduleResizeRef.current.style.height = storedHeight + "px";
-    }
-  }, [moduleResizeRef]);
 
   const [isMenuOpen, openMenu] = useState(false);
 
@@ -101,12 +69,9 @@ const QueryModuleExplorer = () => {
     dispatch(setExplorerPinnedAction(!pinned));
   }, [pinned, dispatch, setExplorerPinnedAction]);
 
-  const onModuleToggle = useCallback(
-    (isOpen: boolean) => {
-      saveExplorerStatus(packageId, "packages", isOpen);
-    },
-    [packageId],
-  );
+  const onModuleToggle = useCallback((isOpen: boolean) => {
+    onUpdateOpenState(MODULE_TYPE.QUERY, isOpen);
+  }, []);
 
   const onCreate = useCallback(() => {
     openMenu(true);
@@ -119,7 +84,7 @@ const QueryModuleExplorer = () => {
   const canCreateModules = hasCreateModulePermission(userPackagePermissions);
 
   const moduleElements = queryModules.map((module) => (
-    <QueryModuleEntity
+    <ModuleEntity
       currentModuleId={currentModuleId}
       key={module.id}
       module={module}
@@ -148,73 +113,54 @@ const QueryModuleExplorer = () => {
   );
 
   return (
-    <RelativeContainer
-      className="border-b pb-1"
-      data-testid="t--query-module-explorer"
+    <Entity
+      addButtonHelptext={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
+      alwaysShowRightIcon
+      className="pb-0 group query-modules"
+      customAddButton={
+        <ExplorerSubMenu
+          canCreate={canCreateModules}
+          className={`${EntityClassNames.ADD_BUTTON} group files`}
+          fileOperations={fileOperations}
+          handleClick={handleClick}
+          onMenuClose={onMenuClose}
+          openMenu={isMenuOpen}
+          query={query}
+          setQuery={setQuery}
+          tooltipText={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
+        />
+      }
+      entityId={createMessage(QUERY_MODULES_TITLE)}
+      icon={""}
+      isDefaultExpanded
+      name={createMessage(QUERY_MODULES_TITLE)}
+      onClickPreRightIcon={onPin}
+      onToggle={onModuleToggle}
+      searchKeyword={""}
+      showAddButton={canCreateModules}
+      step={0}
     >
-      <StyledEntity
-        addButtonHelptext={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
-        alwaysShowRightIcon
-        className="pb-0 group query-modules"
-        collapseRef={moduleResizeRef}
-        customAddButton={
-          <ExplorerSubMenu
-            canCreate={canCreateModules}
-            className={`${EntityClassNames.ADD_BUTTON} group files`}
-            fileOperations={fileOperations}
-            handleClick={handleClick}
-            onMenuClose={onMenuClose}
-            openMenu={isMenuOpen}
-            query={query}
-            setQuery={setQuery}
-            tooltipText={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
-          />
-        }
-        entityId={createMessage(QUERY_MODULES_TITLE)}
-        entitySize={
-          queryModules.length > 0
-            ? ENTITY_HEIGHT * queryModules.length + ENTITY_HEIGHT
-            : 156
-        }
-        icon={""}
-        isDefaultExpanded={
-          isModulesOpen === null || isModulesOpen === undefined
-            ? true
-            : isModulesOpen
-        }
-        name={createMessage(QUERY_MODULES_TITLE)}
-        onClickPreRightIcon={onPin}
-        onToggle={onModuleToggle}
-        searchKeyword={""}
-        showAddButton={canCreateModules}
-        step={0}
-      >
-        {moduleElements.length ? (
-          moduleElements
-        ) : (
-          <EmptyComponent
-            mainText={createMessage(EMPTY_QUERY_MODULES_MSG)}
-            {...(canCreateModules && {
-              addBtnText: createMessage(NEW_QUERY_BUTTON),
-              addFunction: onCreate,
-            })}
-          />
-        )}
-        {moduleElements.length > 0 && canCreateModules && (
-          <AddEntity
-            action={onCreate}
-            entityId={packageId + "_queries_js_add_new_datasource"}
-            icon={<Icon name="plus" />}
-            name={createMessage(ADD_QUERY_BUTTON)}
-            step={1}
-          />
-        )}
-      </StyledEntity>
-      <EntityExplorerResizeHandler
-        resizeRef={moduleResizeRef}
-        storedHeightKey={storedHeightKey}
-      />
-    </RelativeContainer>
+      {moduleElements.length ? (
+        moduleElements
+      ) : (
+        <EmptyComponent
+          mainText={createMessage(EMPTY_QUERY_MODULES_MSG)}
+          {...(canCreateModules && {
+            addBtnText: createMessage(NEW_QUERY_BUTTON),
+            addFunction: onCreate,
+          })}
+        />
+      )}
+      {moduleElements.length > 0 && canCreateModules && (
+        <AddEntity
+          action={onCreate}
+          entityId={packageId + "_queries_js_add_new_datasource"}
+          icon={<Icon name="plus" />}
+          name={createMessage(ADD_QUERY_BUTTON)}
+          step={1}
+        />
+      )}
+    </Entity>
   );
 };
 
