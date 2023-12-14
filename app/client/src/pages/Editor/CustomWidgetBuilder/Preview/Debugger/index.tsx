@@ -29,7 +29,7 @@ export default function Debugger() {
           warn={debuggerLogs?.filter((d) => d.type === "warn").length || 0}
         />
         <Icon
-          name="cancel"
+          name="forbid-line"
           onClick={() => clearDegbuggerLogs?.()}
           size="md"
           style={{ cursor: "pointer" }}

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -83,7 +83,6 @@ interface Props {
   hideInstaller: () => void;
 }
 
-@HotkeysTarget
 class GlobalHotKeys extends React.Component<Props> {
   public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
     const multipleWidgetsSelected =

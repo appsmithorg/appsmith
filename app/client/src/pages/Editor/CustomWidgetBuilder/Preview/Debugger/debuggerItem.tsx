@@ -43,6 +43,8 @@ const getIcon = (type: DebuggerLog["type"]) => {
       );
     case "log":
       return <Icon name="snippet" size="md" />;
+    case "info":
+      return <Icon name="info" size="md" />;
     default:
       return <Icon name="snippet" size="md" />;
   }
