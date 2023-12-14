@@ -58,6 +58,7 @@ class PluginsApi extends Api {
   static async fetchPlugins(
     workspaceId: string,
   ): Promise<AxiosPromise<ApiResponse<Plugin[]>>> {
+    // see here
     return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
