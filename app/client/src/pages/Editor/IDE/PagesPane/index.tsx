@@ -113,17 +113,14 @@ const _pagesPane = () => {
           options={[
             {
               label: createMessage(PAGES_PANE_TEXTS.queries_tab),
-              startIcon: "queries-line",
               value: TabsType.QUERIES,
             },
             {
               label: createMessage(PAGES_PANE_TEXTS.js_tab),
-              startIcon: "braces-line",
               value: TabsType.JS,
             },
             {
               label: createMessage(PAGES_PANE_TEXTS.ui_tab),
-              startIcon: "dashboard-line",
               value: TabsType.UI,
             },
           ]}
