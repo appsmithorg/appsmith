@@ -95,7 +95,12 @@ export const createLoadingWidget = (
   ) as WidgetProps;
   return {
     ...widgetStaticProps,
-    type: WidgetTypes.SKELETON_WIDGET,
+    type:
+      // We don't need to set skeleton type for modals
+      // since modals are not displayed when the app is loaded
+      canvasWidget?.type !== "MODAL_WIDGET"
+        ? WidgetTypes.SKELETON_WIDGET
+        : canvasWidget?.type,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
     reactivePaths: {},
