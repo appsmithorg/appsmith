@@ -102,11 +102,10 @@ describe(
         .GetElement(appSettings.locators._scrollArrows)
         .last()
         .trigger("mouseup", { force: true });
-      agHelper.GetNAssertContains(
-        `${appSettings.locators._navigationMenuItem} span`,
-        pageName,
-        "not.exist",
-      );
+      agHelper
+        .GetElement(appSettings.locators._navigationMenuItem)
+        .contains(pageName)
+        .should("not.be.visible");
 
       // Scroll to the left again and page 1 should be visible
       agHelper
