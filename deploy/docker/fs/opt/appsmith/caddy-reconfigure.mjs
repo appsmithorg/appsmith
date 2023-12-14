@@ -3,17 +3,19 @@ import {dirname} from "path"
 import {spawnSync} from "child_process"
 import {X509Certificate} from "crypto"
 
-const APPSMITH_CUSTOM_DOMAIN = process.env.APPSMITH_CUSTOM_DOMAIN ?? null
+// The custom domain is expected to only have the domain. So if it has protocol or trailing slash, we remove it.
+const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, "")
+
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
 let certLocation = null
-if (APPSMITH_CUSTOM_DOMAIN != null) {
+if (CUSTOM_DOMAIN !== "") {
   try {
     fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
     certLocation = "/appsmith-stacks/ssl"
   } catch (_) {
     // no custom certs, see if old certbot certs are there.
-    const letsEncryptCertLocation = "/etc/letsencrypt/live/" + APPSMITH_CUSTOM_DOMAIN
+    const letsEncryptCertLocation = "/etc/letsencrypt/live/" + CUSTOM_DOMAIN
     const fullChainPath = letsEncryptCertLocation + `/fullchain.pem`
     try {
       fs.accessSync(fullChainPath, fs.constants.R_OK)
@@ -28,13 +30,10 @@ if (APPSMITH_CUSTOM_DOMAIN != null) {
 
 }
 
-const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
+const explicitTlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
 
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
-
-// The custom domain is expected to only have the domain. So if it has protocol or trailing slash, we remove it.
-const bind = (APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, "")
 
 const parts = []
 
@@ -127,11 +126,24 @@ parts.push(`
 }
 `)
 
-if (bind !== "") {
-  parts.push(`${bind} {
-    import all-config
-    ${tlsConfig}
-  }`)
+if (CUSTOM_DOMAIN !== "") {
+  if (explicitTlsConfig !== "") {
+    parts.push(`
+    https://${CUSTOM_DOMAIN} {
+      import all-config
+      ${explicitTlsConfig}
+    }
+    http://${CUSTOM_DOMAIN} {
+      redir https://${CUSTOM_DOMAIN}{uri}
+    }
+    `)
+  } else {
+    parts.push(`
+    ${CUSTOM_DOMAIN} {
+      import all-config
+    }
+    `)
+  }
 }
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
