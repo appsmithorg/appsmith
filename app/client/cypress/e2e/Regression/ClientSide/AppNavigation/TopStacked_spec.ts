@@ -24,7 +24,6 @@ describe(
       assertHelper
         .WaitForNetworkCall("importNewApplication")
         .then((response: any) => {
-          agHelper.Sleep();
           const { isPartialImport } = response.body.data;
           if (isPartialImport) {
             homePage.AssertNCloseImport();
@@ -37,6 +36,7 @@ describe(
     it("1. In an app with 15 pages, the navbar should be scrollable", () => {
       const pageName = "Page9 - with long long name";
       deployMode.DeployApp();
+      agHelper.WaitUntilEleAppear(appSettings.locators._scrollArrows);
       agHelper.AssertElementLength(appSettings.locators._scrollArrows, 2);
       agHelper.AssertElementVisibility(
         appSettings.locators._scrollArrows,
@@ -97,7 +97,6 @@ describe(
         .GetElement(appSettings.locators._scrollArrows)
         .last()
         .trigger("mousedown");
-      agHelper.Sleep(1500);
       agHelper
         .GetElement(appSettings.locators._scrollArrows)
         .last()
@@ -112,7 +111,6 @@ describe(
         .GetElement(appSettings.locators._scrollArrows)
         .first()
         .trigger("mousedown", { force: true });
-      agHelper.Sleep(1500);
       agHelper
         .GetElement(appSettings.locators._scrollArrows)
         .first()
@@ -159,7 +157,7 @@ describe(
       agHelper.GetNClick(
         `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
       );
-      agHelper.Sleep(1000);
+      agHelper.WaitUntilEleAppear(appSettings.locators._modal);
       agHelper.AssertElementVisibility(appSettings.locators._modal);
       agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
       // User profile dropdown
