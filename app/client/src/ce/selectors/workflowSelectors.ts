@@ -1,5 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
 import type { WorkflowMetadata } from "@appsmith/constants/WorkflowConstants";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 const DEFAULT_WORKFLOW_LIST: WorkflowMetadata[] = [];
 
@@ -18,3 +19,6 @@ export const getIsCurrentEditorWorkflowType = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   state: AppState,
 ) => false;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getCurrentWorkflowActions = (state: AppState): ActionData[] => [];

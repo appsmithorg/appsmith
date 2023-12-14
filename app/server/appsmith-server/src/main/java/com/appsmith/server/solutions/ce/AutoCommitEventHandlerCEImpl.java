@@ -186,7 +186,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
             analyticsProps.put("orgId", autoCommitEvent.getWorkspaceId());
             analyticsProps.put("isSystemGenerated", true);
             analyticsProps.put("isAutoCommit", true);
-            analyticsProps.put("version", projectProperties.getVersion());
+            analyticsProps.put("repoUrl", autoCommitEvent.getRepoUrl());
 
             return analyticsService
                     .sendEvent(
