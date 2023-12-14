@@ -89,8 +89,7 @@ public class ApplicationTemplateControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("publish/community-template")
-    public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(
-            @RequestBody CommunityTemplateDTO resource) {
+    public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(@RequestBody CommunityTemplateDTO resource) {
         return applicationTemplateService
                 .publishAsCommunityTemplate(resource)
                 .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
@@ -98,8 +97,7 @@ public class ApplicationTemplateControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("publish/use-case")
-    public Mono<ResponseDTO<Application>> publishAppsmithTemplate(
-            @RequestBody CommunityTemplateDTO resource) {
+    public Mono<ResponseDTO<Application>> publishAppsmithTemplate(@RequestBody CommunityTemplateDTO resource) {
         return applicationTemplateService
                 .publishAppsmithTemplate(resource)
                 .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
