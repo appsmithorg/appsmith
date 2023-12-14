@@ -48,8 +48,8 @@ jobs:
           
         run: |
           cd ./cacherepo
-          git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
-          cd testcacherepo
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          cd cibuildcache
           touch bcdefghtxt
           git add bcdefghtxt
           git commit -m "test12321321"
