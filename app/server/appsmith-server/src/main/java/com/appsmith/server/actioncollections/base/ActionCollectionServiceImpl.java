@@ -4,13 +4,13 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -34,7 +35,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 @Service
 @Slf4j
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
-    private final NewActionRepository newActionRepository;
+    private final NewActionService newActionService;
     private final ActionPermission actionPermission;
 
     public ActionCollectionServiceImpl(
@@ -49,7 +50,6 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            NewActionRepository newActionRepository,
             ActionPermission actionPermission) {
         super(
                 scheduler,
@@ -64,7 +64,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 responseUtils,
                 applicationPermission,
                 actionPermission);
-        this.newActionRepository = newActionRepository;
+        this.newActionService = newActionService;
         this.actionPermission = actionPermission;
     }
 
@@ -79,15 +79,12 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                             .getDefaultToBranchedActionIdsMap()
                             .values());
 
-                    Mono<Boolean> archiveAllActionsMono = Mono.just(Boolean.TRUE);
-                    if (!CollectionUtils.isEmpty(actionIds)) {
-                        archiveAllActionsMono = newActionRepository
-                                .archiveAllById(actionIds)
-                                .onErrorResume(throwable -> {
-                                    log.error(throwable.getMessage());
-                                    return Mono.just(Boolean.TRUE);
-                                });
-                    }
+                    Mono<Boolean> archiveAllActionsMono = newActionService
+                            .archiveAllByIdsWithoutPermission(actionIds)
+                            .onErrorResume(throwable -> {
+                                log.error(throwable.getMessage());
+                                return Mono.just(Boolean.TRUE);
+                            });
                     return archiveAllActionsMono.then(repository.archive(actionCollection));
                 })
                 .collectList();
@@ -131,19 +128,39 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                                 .values());
                     }
 
-                    Mono<Boolean> archiveAllActionsMono = Mono.just(Boolean.TRUE);
-                    if (!CollectionUtils.isEmpty(actionIds)) {
-                        archiveAllActionsMono = newActionRepository
-                                .archiveAllById(actionIds)
-                                .onErrorResume(throwable -> {
-                                    log.error(throwable.getMessage());
-                                    return Mono.just(Boolean.TRUE);
-                                });
-                    }
+                    Mono<Boolean> archiveAllActionsMono = newActionService
+                            .archiveAllByIdsWithoutPermission(actionIds)
+                            .onErrorResume(throwable -> {
+                                log.error(throwable.getMessage());
+                                return Mono.just(Boolean.TRUE);
+                            });
 
                     return archiveAllActionsMono.then(repository.archive(actionCollection));
                 })
                 .collectList();
+    }
+
+    @Override
+    protected Flux<ActionCollection> getActionCollectionsFromRepoByViewMode(
+            MultiValueMap<String, String> params, Boolean viewMode) {
+        if (params.getFirst(FieldName.WORKFLOW_ID) != null) {
+            String workflowId = params.getFirst(FieldName.WORKFLOW_ID);
+            return getActionsCollectionsForWorkflowId(workflowId, viewMode);
+        }
+        return super.getActionCollectionsFromRepoByViewMode(params, viewMode);
+    }
+
+    private Flux<ActionCollection> getActionsCollectionsForWorkflowId(String workflowId, Boolean viewMode) {
+        Flux<ActionCollection> workflowActionsFromRepository;
+
+        if (viewMode) {
+            workflowActionsFromRepository = repository.findAllPublishedActionCollectionsByContextIdAndContextType(
+                    workflowId, CreatorContextType.WORKFLOW, actionPermission.getEditPermission());
+        } else {
+            workflowActionsFromRepository = repository.findAllUnpublishedActionCollectionsByContextIdAndContextType(
+                    workflowId, CreatorContextType.WORKFLOW, actionPermission.getEditPermission());
+        }
+        return workflowActionsFromRepository;
     }
 
     @Override

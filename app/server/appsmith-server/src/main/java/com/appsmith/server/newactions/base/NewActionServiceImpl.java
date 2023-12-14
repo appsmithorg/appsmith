@@ -40,6 +40,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.validations.EntityValidationService;
 import com.appsmith.server.workflows.helpers.WorkflowUtils;
+import com.appsmith.server.workflows.permission.WorkflowPermission;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
@@ -52,10 +53,14 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +80,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final NewPageService newPageService;
     private final WorkflowRepository workflowRepository;
     private final EntityValidationService entityValidationService;
+    private final WorkflowPermission workflowPermission;
 
     public NewActionServiceImpl(
             Scheduler scheduler,
@@ -102,7 +108,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry,
             PermissionGroupRepository permissionGroupRepository,
-            WorkflowRepository workflowRepository) {
+            WorkflowRepository workflowRepository,
+            WorkflowPermission workflowPermission) {
         super(
                 scheduler,
                 validator,
@@ -135,6 +142,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.newPageService = newPageService;
         this.workflowRepository = workflowRepository;
         this.entityValidationService = entityValidationService;
+        this.workflowPermission = workflowPermission;
     }
 
     /**
@@ -445,6 +453,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Mono<Boolean> archiveAllByIdsWithoutPermission(Collection<String> actionIds) {
+        if (CollectionUtils.isEmpty(actionIds)) {
+            return Mono.just(Boolean.TRUE);
+        }
+        return repository.archiveAllById(actionIds);
+    }
+
+    @Override
     public Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,
             CreatorContextType contextType,
@@ -491,5 +507,37 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             }
         }
         return actionViewDTO;
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActions(
+            MultiValueMap<String, String> params, String branchName, Boolean includeJsActions) {
+        MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
+
+        Mono<Workflow> workflowMono = StringUtils.isEmpty(params.getFirst(FieldName.WORKFLOW_ID))
+                ? Mono.just(new Workflow())
+                : workflowRepository
+                        .findById(params.getFirst(FieldName.WORKFLOW_ID), workflowPermission.getReadPermission())
+                        .switchIfEmpty(Mono.just(new Workflow()));
+
+        return workflowMono.flatMapMany(workflow -> {
+            String workflowId = workflow.getId();
+            if (!CollectionUtils.isEmpty(updatedParams.get(FieldName.WORKFLOW_ID))
+                    && StringUtils.isNotBlank(workflowId)) {
+                updatedParams.set(FieldName.WORKFLOW_ID, workflowId);
+            }
+            return super.getUnpublishedActions(updatedParams, branchName, includeJsActions);
+        });
+    }
+
+    @Override
+    protected Flux<NewAction> getUnpublishedActionsFromRepo(
+            MultiValueMap<String, String> params, Boolean includeJsActions) {
+        if (params.getFirst(FieldName.WORKFLOW_ID) != null) {
+            String workflowId = params.getFirst(FieldName.WORKFLOW_ID);
+            return repository.findAllUnpublishedActionsByContextIdAndContextType(
+                    workflowId, CreatorContextType.WORKFLOW, actionPermission.getEditPermission(), includeJsActions);
+        }
+        return super.getUnpublishedActionsFromRepo(params, includeJsActions);
     }
 }

@@ -259,15 +259,18 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                     contextId, contextType, permission, includeJs);
         }
         List<Criteria> criteriaList = new ArrayList<>();
-
-        if (CreatorContextType.MODULE.equals(contextType)) {
-            String contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
-            String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
-            Criteria contextIdAndContextTypeCriteria =
-                    where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-
-            criteriaList.add(contextIdAndContextTypeCriteria);
+        String contextIdPath;
+        switch (contextType) {
+            case WORKFLOW -> contextIdPath = fieldName(QNewAction.newAction.workflowId);
+            case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
+            default -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
         }
+
+        String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
@@ -291,14 +294,18 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                     contextId, contextType, permission, includeJs);
         }
         List<Criteria> criteriaList = new ArrayList<>();
-        if (CreatorContextType.MODULE.equals(contextType)) {
-            String contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
-            String contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
-            Criteria contextIdAndContextTypeCriteria =
-                    where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-
-            criteriaList.add(contextIdAndContextTypeCriteria);
+        String contextIdPath;
+        switch (contextType) {
+            case WORKFLOW -> contextIdPath = fieldName(QNewAction.newAction.workflowId);
+            case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
+            default -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
         }
+
+        String contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
