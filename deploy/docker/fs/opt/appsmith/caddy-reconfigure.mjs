@@ -13,7 +13,7 @@ if (CUSTOM_DOMAIN !== "") {
   try {
     fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
     certLocation = "/appsmith-stacks/ssl"
-  } catch (_) {
+  } catch {
     // no custom certs, see if old certbot certs are there.
     const letsEncryptCertLocation = "/etc/letsencrypt/live/" + CUSTOM_DOMAIN
     const fullChainPath = letsEncryptCertLocation + `/fullchain.pem`
@@ -23,7 +23,7 @@ if (CUSTOM_DOMAIN !== "") {
       if (!isCertExpired(fullChainPath)) {
         certLocation = letsEncryptCertLocation
       }
-    } catch (_) {
+    } catch {
       // no certs there either, ignore.
     }
   }
@@ -118,26 +118,33 @@ parts.push(`
     respond "{err.status_code} {err.status_text}" {err.status_code}
   }
 }
+`)
 
-# We bind to http on 80, so that if the cert provisioning fails, we can still serve on http.
-# But this still means that if cert provisioning is successful, http will be redirected to https.
+// We bind to http on 80, so that localhost requests don't get redirected to https, and if the cert provisioning fails,
+// Caddy can still serve on http.
+// But this still means that if cert provisioning is successful, http will be redirected to https.
+parts.push(`
 :80 {
   import all-config
 }
 `)
 
 if (CUSTOM_DOMAIN !== "") {
+  // If no custom domain, no extra routing needed.
   if (explicitTlsConfig !== "") {
+    // With explicit TLS certs and configuration, we have to handle the http-to-https redirect ourselves.
     parts.push(`
     https://${CUSTOM_DOMAIN} {
       import all-config
       ${explicitTlsConfig}
     }
     http://${CUSTOM_DOMAIN} {
-      redir https://${CUSTOM_DOMAIN}{uri}
+      redir https://{host}{uri}
     }
     `)
   } else {
+    // Without explicit TLS certs, we want Caddy to handle the http-to-https redirect.
+    // Why? Because here, Caddy can _not_ do that redirect if the cert provisioning fails.
     parts.push(`
     ${CUSTOM_DOMAIN} {
       import all-config
@@ -147,7 +154,7 @@ if (CUSTOM_DOMAIN !== "") {
 }
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
-fs.writeFileSync(CaddyfilePath, parts.join("\n"))
+fs.writeFileSync(CaddyfilePath, parts.map(part => part.trim()).join("\n\n"))
 spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
 
