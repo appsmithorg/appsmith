@@ -32,7 +32,7 @@ public class Migration038AddCompountIndexForActionCollection {
     }
 
     /**
-     * mandatory to declare, but we don't have a use-case for this yet.
+     * Not a critical migration, so we can skip the rollback.
      */
     @RollbackExecution
     public void rollbackExecution() {}
