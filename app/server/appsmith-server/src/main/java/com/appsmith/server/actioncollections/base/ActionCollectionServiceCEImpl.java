@@ -728,13 +728,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         Mono<NewAction> sendAnalyticsMono =
                 analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
 
-        return Mono.just(newAction).flatMap(newAction1 -> {
-            Mono<ActionDTO> savedActionMono = newActionService
-                    .validateAndSaveActionToRepository(newAction)
-                    .cache();
-
-            return savedActionMono.then(sendAnalyticsMono).then(savedActionMono);
-        });
+        return newActionService
+                .validateAndSaveActionToRepository(newAction)
+                .flatMap(savedAction -> sendAnalyticsMono.thenReturn(savedAction));
     }
 
     @Override
