@@ -25,7 +25,7 @@ import type {
   ActionData,
   ActionDataState,
 } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getCurrentActions,

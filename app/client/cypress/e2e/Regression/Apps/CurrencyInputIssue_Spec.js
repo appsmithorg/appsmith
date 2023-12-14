@@ -14,12 +14,12 @@ describe("Currency Input Issue", function () {
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       homePage.ImportApp("CurrencyInputIssueExport.json");
       cy.wait("@importNewApplication").then((interception) => {
-          const { isPartialImport } = interception.response.body.data;
+        const { isPartialImport } = interception.response.body.data;
         if (isPartialImport) {
           cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
             force: true,
           });
-          } else {
+        } else {
           homePage.AssertImportToast();
         }
       });

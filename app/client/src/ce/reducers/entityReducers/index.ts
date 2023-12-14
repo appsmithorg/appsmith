@@ -4,7 +4,7 @@ import canvasWidgetsReducer from "reducers/entityReducers/canvasWidgetsReducer";
 import canvasWidgetsStructureReducer from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import metaWidgetsReducer from "reducers/entityReducers/metaWidgetsReducer";
 import datasourceReducer from "reducers/entityReducers/datasourceReducer";
-import jsActionsReducer from "reducers/entityReducers/jsActionsReducer";
+import jsActionsReducer from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import jsExecutionsReducer from "reducers/entityReducers/jsExecutionsReducer";
 import metaReducer from "reducers/entityReducers/metaReducer";
 import pageListReducer from "reducers/entityReducers/pageListReducer";
