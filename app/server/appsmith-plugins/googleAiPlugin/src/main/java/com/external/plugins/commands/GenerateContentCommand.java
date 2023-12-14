@@ -78,6 +78,11 @@ public class GenerateContentCommand implements GoogleAICommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
         GoogleAIRequestDTO googleAIRequestDTO = new GoogleAIRequestDTO();
         List<Map<String, String>> messages = getMessages((Map<String, Object>) formData.get(MESSAGES));
+        if (messages == null || messages.isEmpty()) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
+        }
         // as of today, we are going to support only text input to text output, so we will condense user messages in
         // a single content parts of request body
         List<GoogleAIRequestDTO.Part> userQueryParts = new ArrayList<>();
