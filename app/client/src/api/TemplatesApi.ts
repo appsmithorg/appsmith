@@ -107,8 +107,6 @@ class TemplatesAPI extends Api {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/filters`);
   }
   static async publishCommunityTemplate(
-    applicationId: string,
-    workspaceId: string,
     body: PublishCommunityTemplateRequest,
   ): Promise<AxiosPromise<PublishCommunityTemplateResponse>> {
     return Api.post(
