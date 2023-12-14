@@ -21,6 +21,7 @@ import {
   DATASOURCE_LIST_BLANK_TITLE,
 } from "@appsmith/constants/messages";
 import PaneHeader from "./PaneHeader";
+import { useEditorType } from "@appsmith/hooks";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -52,6 +53,7 @@ const DatasourceIcon = styled.img`
 `;
 
 const DataSidePane = () => {
+  const editorType = useEditorType(history.location.pathname);
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
   >("");
@@ -109,7 +111,7 @@ const DataSidePane = () => {
                 onClick: () => goToDatasource(data.id),
                 description: `${
                   actionCount[data.id] || "No"
-                } queries in this app`,
+                } queries in this ${editorType}`,
                 descriptionType: "block",
                 isSelected: currentSelectedDatasource === data.id,
                 startIcon: (
