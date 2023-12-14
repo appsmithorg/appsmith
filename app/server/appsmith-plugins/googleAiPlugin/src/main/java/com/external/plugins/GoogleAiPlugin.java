@@ -179,9 +179,9 @@ public class GoogleAiPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         errorResult.setIsExecutionSuccess(false);
-                        log.debug(
+                        log.error(
                                 "An error has occurred while trying to run the Google AI API query command with error {}",
-                                error.getStackTrace());
+                                error.getMessage());
                         if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
