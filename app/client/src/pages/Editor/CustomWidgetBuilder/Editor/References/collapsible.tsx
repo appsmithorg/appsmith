@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import styles from "./styles.module.css";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 
 interface Props {
   label: string;
   defaultOpen?: boolean;
+  helpMessage?: string;
   children: React.ReactNode;
 }
 
@@ -19,7 +20,14 @@ export default function Collapsible(props: Props) {
           setOpen(!open);
         }}
       >
-        <div className={styles.collapsibleTitle}>{props.label}</div>
+        <div className={styles.collapsibleTitle}>
+          {props.label}
+          {props.helpMessage && (
+            <Tooltip content={props.helpMessage}>
+              <Icon name="help" />
+            </Tooltip>
+          )}
+        </div>
         <div className={styles.collapsibleIcon}>
           <Icon
             name={open ? "arrow-down-s-line" : "arrow-up-s-line"}

@@ -8,10 +8,16 @@ import Events from "./events";
 export default function References() {
   return (
     <div className={styles.references}>
-      <Collapsible label="Live Model">
+      <Collapsible
+        helpMessage="Use `appsmith.model` to access your model in javascript"
+        label="Live Model"
+      >
         <LiveModel />
       </Collapsible>
-      <Collapsible label="Events">
+      <Collapsible
+        helpMessage="Use `appsmith.triggerEvent('<EVENT_NAME>')` to trigger events"
+        label="Events"
+      >
         <Events />
       </Collapsible>
       <Collapsible label="Help">

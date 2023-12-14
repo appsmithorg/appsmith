@@ -28,6 +28,9 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
 }
 
 .collapsibleIcon {
