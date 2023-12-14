@@ -20,6 +20,21 @@ import type {
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
+import styles from "./styles.module.css";
+import clsx from "clsx";
+import styled from "styled-components";
+import { generateReactKey } from "utils/generators";
+
+const StyledFlex = styled(Flex)<{ $key: string }>`
+  color: ${(props) => `#${props.$key}`};
+  ${(props) =>
+    props.direction === "row"
+      ? `&:has(.anvil-widget-wrapper [data-field-label-wrapper])
+    .anvil-widget-wrapper:not(:has([data-field-label-wrapper])) {
+    margin-top: calc(var(--inner-spacing-2) + var(--sizing-3));`
+      : ``}
+  }
+`;
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -154,15 +169,17 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     return `layout-${layoutId} layout-index-${layoutIndex}`;
   }, [layoutId, layoutIndex]);
 
+  const moduleclass = flexProps.direction === "row" ? styles.anvillayout : "";
   return (
-    <Flex
+    <StyledFlex
       {...flexProps}
-      className={className}
+      $key={generateReactKey()}
+      className={clsx(className, moduleclass)}
       id={getAnvilLayoutDOMId(canvasId, layoutId)}
       ref={ref}
       style={styleProps}
     >
       {children}
-    </Flex>
+    </StyledFlex>
   );
 });

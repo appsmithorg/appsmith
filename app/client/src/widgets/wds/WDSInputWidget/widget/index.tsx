@@ -326,14 +326,14 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     const { inputType, rawText } = this.props;
 
     const value = rawText ?? "";
-    const { errorMessage, validationStatus } = validateInput(this.props);
+    const { validationStatus } = validateInput(this.props);
 
     return (
       <InputComponent
         autoComplete={this.props.shouldAllowAutofill}
         autoFocus={this.props.autoFocus}
         defaultValue={this.props.defaultText}
-        errorMessage={errorMessage}
+        errorMessage="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={inputType}

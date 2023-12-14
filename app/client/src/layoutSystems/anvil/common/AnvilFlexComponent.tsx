@@ -111,7 +111,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
         props.widgetType,
       )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
         props.layoutId
-      } row-index-${props.rowIndex}`,
+      } row-index-${props.rowIndex} anvil-widget-wrapper`,
     [
       props.parentId,
       props.widgetId,
@@ -133,6 +133,8 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       height: "auto",
       padding: WIDGET_PADDING + "px",
       width: "auto",
+      minHeight: { base: "var(--sizing-12)" },
+      alignItems: "center",
     };
     if (props?.widgetSize) {
       // adding min max limits only if they are available, as WDS Flex doesn't handle undefined values.
@@ -142,9 +144,9 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       if (validateResponsiveProp(props.widgetSize?.maxWidth)) {
         data.maxWidth = props.widgetSize.maxWidth;
       }
-      if (validateResponsiveProp(props.widgetSize?.minHeight)) {
-        data.minHeight = props.widgetSize.minHeight;
-      }
+      // if (validateResponsiveProp(props.widgetSize?.minHeight)) {
+      //   data.minHeight = props.widgetSize.minHeight;
+      // }
       if (validateResponsiveProp(props.widgetSize?.minWidth)) {
         // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
         data.minWidth = getResponsiveMinWidth(

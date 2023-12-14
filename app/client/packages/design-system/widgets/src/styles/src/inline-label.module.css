@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   gap: var(--inner-spacing-1);
-  min-height: var(--sizing-4);
+  min-height: var(--sizing-8);
   position: relative;
   cursor: pointer;
 

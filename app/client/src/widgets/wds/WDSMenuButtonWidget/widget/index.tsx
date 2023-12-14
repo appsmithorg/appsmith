@@ -54,7 +54,7 @@ class WDSMenuButtonWidget extends BaseWidget<
         maxHeight: {},
         maxWidth: { base: "360px" },
         minHeight: { base: "40px" },
-        minWidth: { base: "120px" },
+        minWidth: { base: "fit-content" },
       },
     };
   }
