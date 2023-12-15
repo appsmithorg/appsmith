@@ -156,10 +156,11 @@ jobs:
           )
           List of commits tried to pull:
           $(
-            echo "${{ steps.merge.outputs.commits_list }}" | awk -F ' \|,\|\r' 'NR==FNR{a[$1]=$2; next} $2 in a{$2=a[$2]} {print "["$1"](https://github.com/appsmithorg/appsmith/commit/"$1")", "<@"$2">"}' $GITHUB_WORKSPACE/.github/slack_ids.csv -
+            echo "${{ steps.merge.outputs.commits_list }}" | awk -F ',| |\r' 'NR==FNR{a[$1]=$2; next} $2 in a{$2=a[$2]} {print "["$1"](https://github.com/appsmithorg/appsmith/commit/"$1")", "<@"$2">"}' $GITHUB_WORKSPACE/.github/slack_ids.csv -
           )
           "
 
+          echo $GITHUB_WORKSPACE/.github/slack_ids.csv
           echo "$details" >> "$GITHUB_STEP_SUMMARY"
 
           # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
