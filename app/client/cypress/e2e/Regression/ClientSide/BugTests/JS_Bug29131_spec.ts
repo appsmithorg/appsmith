@@ -13,7 +13,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Verifies JS object rename bug", () => {
+describe("Verifies JS object rename bug", { tags: ["@tag.JS"] }, () => {
   it("Verify that a JS Object name is up for taking after it is deleted", () => {
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,

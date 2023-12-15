@@ -26,7 +26,7 @@ const locators = {
   AdminSettingsColorInputShades: ".t--color-input-shades",
 };
 
-describe("Branding", () => {
+describe("Branding", { tags: ["@tag.Settings"] }, () => {
   it("1. Super user can access branding page", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

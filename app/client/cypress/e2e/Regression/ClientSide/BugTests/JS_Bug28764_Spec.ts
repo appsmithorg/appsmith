@@ -7,7 +7,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS Function Execution", function () {
+describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
   it("Retains lint errors after navigation", function () {
     // JS Object 1
     jsEditor.CreateJSObject(
