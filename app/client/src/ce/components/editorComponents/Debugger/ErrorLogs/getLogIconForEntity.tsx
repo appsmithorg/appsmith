@@ -9,23 +9,23 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export const getIconForEntity: Record<
   string,
   (props: LogItemProps, pluginGroups: Record<string, Plugin>) => any
 > = {
-  [ENTITY_TYPE_VALUE.WIDGET]: (props) => {
+  [ENTITY_TYPE.WIDGET]: (props) => {
     if (props.source?.pluginType) {
       return (
         <WidgetIcon height={16} type={props.source.pluginType} width={16} />
       );
     }
   },
-  [ENTITY_TYPE_VALUE.JSACTION]: () => {
+  [ENTITY_TYPE.JSACTION]: () => {
     return JsFileIconV2(16, 16, true, true);
   },
-  [ENTITY_TYPE_VALUE.ACTION]: (props, pluginGroups) => {
+  [ENTITY_TYPE.ACTION]: (props, pluginGroups) => {
     const { iconId, source } = props;
     if (source?.pluginType === PluginType.API && source.httpMethod) {
       // If the source is an API action.
