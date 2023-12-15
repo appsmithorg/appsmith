@@ -1,14 +1,8 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/ClientSide/AuditLogs/Audit_logs_spec.js
-cypress/e2e/Regression/ClientSide/Autocomplete/*
-cypress/e2e/Regression/ClientSide/Widgets/Chart/Chart_Widget_Loading_spec.js
-cypress/e2e/Regression/ClientSide/Branding/Branding_spec.js
-cypress/e2e/Regression/ClientSide/Debugger/Widget_property_navigation_spec.ts
-cypress/e2e/Regression/ClientSide/SetProperty/SetOptions_Spec.ts
 
 
 # For running all specs - uncomment below:
-#cypress/e2e/**/**/*
+cypress/e2e/**/**/*
 
 #ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.
