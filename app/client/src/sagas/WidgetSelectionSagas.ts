@@ -25,6 +25,7 @@ import {
   selectWidgetInitAction,
   setEntityExplorerAncestry,
   setSelectedWidgetAncestry,
+  setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
@@ -66,6 +67,7 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { areArraysEqual } from "utils/AppsmithUtils";
 import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
@@ -190,6 +192,11 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
           selectionSiblingWidgets.includes(each),
         );
       }
+    }
+
+    if (areArraysEqual([...newSelection], [...selectedWidgets])) {
+      yield put(setSelectedWidgets(newSelection));
+      return;
     }
 
     yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
