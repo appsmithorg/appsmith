@@ -48,6 +48,17 @@ export interface NavigationData {
 }
 export type EntityNavigationData = Record<string, NavigationData>;
 
+export const getModulesData = createSelector(
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInstances, moduleInstanceEntities) => {
+    return {
+      moduleInstances,
+      moduleInstanceEntities,
+    };
+  },
+);
+
 export const getEntitiesForNavigation = createSelector(
   getCurrentActions,
   getPlugins,
@@ -56,8 +67,7 @@ export const getEntitiesForNavigation = createSelector(
   getCurrentPageId,
   getDataTree,
   getDatasources,
-  getModuleInstances,
-  getModuleInstanceEntities,
+  getModulesData,
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,
@@ -67,8 +77,7 @@ export const getEntitiesForNavigation = createSelector(
     pageId,
     dataTree: DataTree,
     datasources: Datasource[],
-    moduleInstances,
-    moduleInstanceEntities,
+    modulesData,
     entityName: string | undefined,
   ) => {
     // data tree retriggers this
@@ -137,10 +146,10 @@ export const getEntitiesForNavigation = createSelector(
       });
     });
     let moduleInstanceNavigationData: EntityNavigationData = {};
-    if (!!moduleInstances) {
+    if (!!modulesData.moduleInstances) {
       moduleInstanceNavigationData = getModuleInstanceNavigationData(
-        moduleInstances,
-        moduleInstanceEntities,
+        modulesData.moduleInstances,
+        modulesData.moduleInstanceEntities,
       );
     }
 
