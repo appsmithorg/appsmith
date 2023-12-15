@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 public class NewActionExportableServiceImpl extends NewActionExportableServiceCEImpl
         implements ExportableService<NewAction> {
 
+    private final String className = "NewActionExportableServiceImpl";
+
     public NewActionExportableServiceImpl(NewActionService newActionService, ActionPermission actionPermission) {
         super(newActionService, actionPermission);
     }
