@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.roles;
 import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
@@ -31,6 +32,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -106,7 +108,6 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_WORKFLOW;
@@ -115,7 +116,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCE
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_HISTORY_WORKFLOW;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
@@ -216,6 +217,9 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     DatasourceRepository datasourceRepository;
+
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
 
     User api_user = null;
 
@@ -3054,65 +3058,67 @@ public class WorkspaceResourcesTest {
         String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
         String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
         String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete";
-        String createdWorkspaceView = createdWorkspace1.getId() + "_View";
+        String createdWorkspaceViewHistory = createdWorkspace1.getId() + "_View History";
 
         String createdWorkflowCreate = createdWorkflow.getId() + "_Create";
         String createdWorkflowEdit = createdWorkflow.getId() + "_Edit";
         String createdWorkflowDelete = createdWorkflow.getId() + "_Delete";
-        String createdWorkflowView = createdWorkflow.getId() + "_View";
+        String createdWorkflowViewHistory = createdWorkflow.getId() + "_View History";
 
         assertThat(workflowRoleTabDTOHoverMap)
                 .containsKeys(
                         createdWorkspaceCreate,
                         createdWorkspaceEdit,
                         createdWorkspaceDelete,
-                        createdWorkspaceView,
+                        createdWorkspaceViewHistory,
                         createdWorkflowCreate,
                         createdWorkflowEdit,
                         createdWorkflowDelete);
-        assertThat(workflowRoleTabDTOHoverMap).doesNotContainKeys(createdWorkflowView);
+        assertThat(workflowRoleTabDTOHoverMap).doesNotContainKeys(createdWorkflowViewHistory);
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceCreate)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceCreate))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EDIT),
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE),
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
+                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY),
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.CREATE)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceEdit)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceEdit))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
+                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY),
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceDelete)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceDelete))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
+                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY),
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.DELETE)));
 
-        assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceView)).isNotEmpty();
-        assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceView))
+        assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceViewHistory)).isNotEmpty();
+        assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceViewHistory))
                 .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW)));
+                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowCreate)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowCreate))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.DELETE),
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW)));
+                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowEdit)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowEdit))
-                .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW)));
+                .containsExactlyInAnyOrderElementsOf(Set.of(
+                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY),
+                        new IdPermissionDTO(createdWorkflow.getMainJsObjectId(), PermissionViewableName.EDIT)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowDelete)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowDelete))
-                .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW)));
+                .containsExactlyInAnyOrderElementsOf(Set.of(
+                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY),
+                        new IdPermissionDTO(createdWorkflow.getMainJsObjectId(), PermissionViewableName.DELETE)));
     }
 
     @Test
@@ -3146,12 +3152,12 @@ public class WorkspaceResourcesTest {
         String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
         String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
         String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete";
-        String createdWorkspaceView = createdWorkspace1.getId() + "_View";
+        String createdWorkspaceViewHistory = createdWorkspace1.getId() + "_View History";
 
         String createdWorkflowCreate = createdWorkflow.getId() + "_Create";
         String createdWorkflowEdit = createdWorkflow.getId() + "_Edit";
         String createdWorkflowDelete = createdWorkflow.getId() + "_Delete";
-        String createdWorkflowView = createdWorkflow.getId() + "_View";
+        String createdWorkflowViewHistory = createdWorkflow.getId() + "_View History";
 
         assertThat(workflowRoleTabDTODisableHelperMap)
                 .containsKeys(
@@ -3161,7 +3167,8 @@ public class WorkspaceResourcesTest {
                         createdWorkflowCreate,
                         createdWorkflowEdit,
                         createdWorkflowDelete);
-        assertThat(workflowRoleTabDTODisableHelperMap).doesNotContainKeys(createdWorkspaceView, createdWorkflowView);
+        assertThat(workflowRoleTabDTODisableHelperMap)
+                .doesNotContainKeys(createdWorkspaceViewHistory, createdWorkflowViewHistory);
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceCreate))
                 .isNotEmpty();
@@ -3169,18 +3176,18 @@ public class WorkspaceResourcesTest {
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EDIT),
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE),
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW)));
+                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY)));
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceEdit)).isNotEmpty();
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceEdit))
                 .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW)));
+                        Set.of(new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY)));
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceDelete))
                 .isNotEmpty();
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceDelete))
                 .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW)));
+                        Set.of(new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY)));
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowCreate))
                 .isNotEmpty();
@@ -3188,18 +3195,18 @@ public class WorkspaceResourcesTest {
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.DELETE),
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW)));
+                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowEdit)).isNotEmpty();
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowEdit))
                 .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW)));
+                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowDelete))
                 .isNotEmpty();
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowDelete))
                 .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW)));
+                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
     }
 
     @Test
@@ -3239,7 +3246,8 @@ public class WorkspaceResourcesTest {
 
         ActionDTO action = new ActionDTO();
         action.setWorkflowId(createdWorkflow.getId());
-        action.setName("validAction");
+        action.setName("Action - " + testName);
+        action.setContextType(CreatorContextType.WORKFLOW);
         action.setPageId(createdApplication.getPages().get(0).getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
@@ -3248,6 +3256,23 @@ public class WorkspaceResourcesTest {
 
         ActionDTO createdAction =
                 crudWorkflowEntityService.createWorkflowAction(action, null).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("ActionCollection - " + testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("Action in ActionCollection - " + testName);
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
+                .createWorkflowActionCollection(actionCollectionDTO, null)
+                .block();
 
         PermissionGroup sampleRole = new PermissionGroup();
         sampleRole.setName("Role - " + testName);
@@ -3270,12 +3295,19 @@ public class WorkspaceResourcesTest {
         UpdateRoleEntityDTO createdActionUpdateRoleEntityDTO = new UpdateRoleEntityDTO(
                 NewAction.class.getSimpleName(), createdAction.getId(), List.of(-1, 1, 1, -1), createdAction.getName());
 
+        UpdateRoleEntityDTO createdActionCollectionUpdateRoleEntityDTO = new UpdateRoleEntityDTO(
+                ActionCollection.class.getSimpleName(),
+                createdActionCollection.getId(),
+                List.of(-1, 1, 1, -1),
+                createdActionCollection.getName());
+
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
         updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(
                 createdWorkspace1UpdateRoleEntityDTO,
                 createdWorkflowUpdateRoleEntityDTO,
-                createdActionUpdateRoleEntityDTO));
+                createdActionUpdateRoleEntityDTO,
+                createdActionCollectionUpdateRoleEntityDTO));
 
         RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
                 .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
@@ -3330,7 +3362,7 @@ public class WorkspaceResourcesTest {
             if (WORKSPACE_MANAGE_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
-            if (WORKSPACE_READ_WORKFLOWS.getValue().equals(policy.getPermission())) {
+            if (WORKSPACE_READ_HISTORY_WORKFLOW.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (WORKSPACE_DELETE_WORKFLOWS.getValue().equals(policy.getPermission())) {
@@ -3347,9 +3379,6 @@ public class WorkspaceResourcesTest {
             if (MANAGE_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
-            if (READ_WORKFLOWS.getValue().equals(policy.getPermission())) {
-                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
-            }
             if (PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
@@ -3357,7 +3386,7 @@ public class WorkspaceResourcesTest {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
-                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
             }
             if (WORKFLOW_CREATE_ACTIONS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
@@ -3380,7 +3409,7 @@ public class WorkspaceResourcesTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
             }
             if (EXECUTE_DATASOURCES.getValue().equals(policy.getPermission())) {
-                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
             }
             if (CREATE_DATASOURCE_ACTIONS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
@@ -3402,6 +3431,789 @@ public class WorkspaceResourcesTest {
             if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
+        });
+
+        ActionCollection updatedActionCollection = actionCollectionRepository
+                .findById(createdActionCollection.getId())
+                .block();
+        updatedActionCollection.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+
+        assertThat(createdActionCollection.getActions()).hasSize(1);
+        NewAction updatedActionInActionCollection = newActionRepository
+                .findById(createdActionCollection.getActions().get(0).getId())
+                .block();
+        updatedActionInActionCollection.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfiguration_workflowResourcesTab_anyWorkflowPermissionShouldGiveReadWorkspace() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName = "testSaveRoleConfiguration_workflowResourcesTab_anyWorkflowPermissionShouldGiveReadWorkspace";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdWorkflowUpdateRoleEntityDTOWithReadPermission = new UpdateRoleEntityDTO(
+                Workflow.class.getSimpleName(),
+                createdWorkflow.getId(),
+                List.of(0, 0, 0, 1),
+                createdWorkflow.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdWorkflowUpdateRoleEntityDTOWithReadPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        Workspace updatedWorkspace1 =
+                workspaceRepository.findById(createdWorkspace1.getId()).block();
+        updatedWorkspace1.getPolicies().forEach(policy -> {
+            if (READ_WORKSPACES.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+        });
+
+        Workflow updatedWorkflow =
+                workflowRepository.findById(createdWorkflow.getId()).block();
+        updatedWorkflow.getPolicies().forEach(policy -> {
+            if (READ_HISTORY_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishWorkflow() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishWorkflow";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdWorkflowUpdateRoleEntityDTOWithEditPermission = new UpdateRoleEntityDTO(
+                Workflow.class.getSimpleName(),
+                createdWorkflow.getId(),
+                List.of(0, 1, 0, 0),
+                createdWorkflow.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdWorkflowUpdateRoleEntityDTOWithEditPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        Workflow updatedWorkflow =
+                workflowRepository.findById(createdWorkflow.getId()).block();
+        updatedWorkflow.getPolicies().forEach(policy -> {
+            if (MANAGE_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testSaveRoleConfiguration_workflowResourcesTab_editWorkflowWorkspacePermissionShouldGivePublishWorkflowWorkspace() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishWorkflow";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdWorkspaceUpdateRoleEntityDTOWithEditPermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace1.getId(),
+                List.of(0, 1, 0, 0),
+                createdWorkspace1.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdWorkspaceUpdateRoleEntityDTOWithEditPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        Workspace updatedWorkspace1 =
+                workspaceRepository.findById(createdWorkspace1.getId()).block();
+        updatedWorkspace1.getPolicies().forEach(policy -> {
+            if (WORKSPACE_MANAGE_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (WORKSPACE_PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfiguration_workflowResourcesTab_editActionShouldGiveReadAndExecuteActionPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_editActionShouldGiveReadAndExecuteActionPermission";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
+                .block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
+        datasource.setDatasourceStorages(storages);
+        Datasource createdDatasource1 = datasourceService.create(datasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setWorkflowId(createdWorkflow.getId());
+        action.setName("Action - " + testName);
+        action.setContextType(CreatorContextType.WORKFLOW);
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(createdDatasource1);
+
+        ActionDTO createdAction =
+                crudWorkflowEntityService.createWorkflowAction(action, null).block();
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdActionUpdateRoleEntityDTOWithEditPermission = new UpdateRoleEntityDTO(
+                NewAction.class.getSimpleName(), createdAction.getId(), List.of(-1, 1, 0, -1), createdAction.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdActionUpdateRoleEntityDTOWithEditPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        NewAction updatedAction =
+                newActionRepository.findById(createdAction.getId()).block();
+        updatedAction.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfiguration_workflowResourcesTab_deleteActionShouldGiveReadAndExecuteActionPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_deleteActionShouldGiveReadAndExecuteActionPermission";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
+                .block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
+        datasource.setDatasourceStorages(storages);
+        Datasource createdDatasource1 = datasourceService.create(datasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setWorkflowId(createdWorkflow.getId());
+        action.setName("Action - " + testName);
+        action.setContextType(CreatorContextType.WORKFLOW);
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(createdDatasource1);
+
+        ActionDTO createdAction =
+                crudWorkflowEntityService.createWorkflowAction(action, null).block();
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdActionUpdateRoleEntityDTOWithDeletePermission = new UpdateRoleEntityDTO(
+                NewAction.class.getSimpleName(), createdAction.getId(), List.of(-1, 0, 1, -1), createdAction.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdActionUpdateRoleEntityDTOWithDeletePermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        NewAction updatedAction =
+                newActionRepository.findById(createdAction.getId()).block();
+        updatedAction.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testSaveRoleConfiguration_workflowResourcesTab_noEditAndDeleteActionShouldTakeAwayGiveReadAndExecuteActionPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_noEditAndDeleteActionShouldTakeAwayGiveReadAndExecuteActionPermission";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
+                .block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
+        datasource.setDatasourceStorages(storages);
+        Datasource createdDatasource1 = datasourceService.create(datasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setWorkflowId(createdWorkflow.getId());
+        action.setName("Action - " + testName);
+        action.setContextType(CreatorContextType.WORKFLOW);
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(createdDatasource1);
+
+        ActionDTO createdAction =
+                crudWorkflowEntityService.createWorkflowAction(action, null).block();
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdActionUpdateRoleEntityDTOWithDeletePermission = new UpdateRoleEntityDTO(
+                NewAction.class.getSimpleName(), createdAction.getId(), List.of(-1, 0, 1, -1), createdAction.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdActionUpdateRoleEntityDTOWithDeletePermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        UpdateRoleEntityDTO createdActionUpdateRoleEntityDTOWithNoPermission = new UpdateRoleEntityDTO(
+                NewAction.class.getSimpleName(), createdAction.getId(), List.of(-1, 0, 0, -1), createdAction.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO1 = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO1.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO1.setEntitiesChanged(Set.of(createdActionUpdateRoleEntityDTOWithNoPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO1 = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO1)
+                .block();
+
+        NewAction updatedAction =
+                newActionRepository.findById(createdAction.getId()).block();
+        updatedAction.getPolicies().forEach(policy -> {
+            assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testSaveRoleConfiguration_workflowResourcesTab_editActionCollectionShouldGiveReadAndExecuteActionPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_editActionCollectionShouldGiveReadAndExecuteActionPermission";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
+                .block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
+        datasource.setDatasourceStorages(storages);
+        Datasource createdDatasource1 = datasourceService.create(datasource).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("ActionCollection - " + testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(createdDatasource1.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("Action in ActionCollection - " + testName);
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
+                .createWorkflowActionCollection(actionCollectionDTO, null)
+                .block();
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdActionCollectionUpdateRoleEntityDTOWithEditPermission = new UpdateRoleEntityDTO(
+                ActionCollection.class.getSimpleName(),
+                createdActionCollection.getId(),
+                List.of(-1, 1, 0, -1),
+                createdActionCollection.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdActionCollectionUpdateRoleEntityDTOWithEditPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        ActionCollection updatedActionCollection = actionCollectionRepository
+                .findById(createdActionCollection.getId())
+                .block();
+        updatedActionCollection.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+
+        assertThat(createdActionCollection.getActions()).hasSize(1);
+        NewAction actionInsideActionCollection = newActionRepository
+                .findById(createdActionCollection.getActions().get(0).getId())
+                .block();
+        actionInsideActionCollection.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testSaveRoleConfiguration_workflowResourcesTab_deleteActionCollectionShouldGiveReadAndExecuteActionPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_deleteActionShouldGiveReadAndExecuteActionPermission";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
+                .block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
+        datasource.setDatasourceStorages(storages);
+        Datasource createdDatasource1 = datasourceService.create(datasource).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("ActionCollection - " + testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(createdDatasource1.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("Action in ActionCollection - " + testName);
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
+                .createWorkflowActionCollection(actionCollectionDTO, null)
+                .block();
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdActionCollectionUpdateRoleEntityDTOWithEditPermission = new UpdateRoleEntityDTO(
+                ActionCollection.class.getSimpleName(),
+                createdActionCollection.getId(),
+                List.of(-1, 0, 1, -1),
+                createdActionCollection.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdActionCollectionUpdateRoleEntityDTOWithEditPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        ActionCollection updatedActionCollection = actionCollectionRepository
+                .findById(createdActionCollection.getId())
+                .block();
+        updatedActionCollection.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+
+        assertThat(createdActionCollection.getActions()).hasSize(1);
+        NewAction actionInsideActionCollection = newActionRepository
+                .findById(createdActionCollection.getActions().get(0).getId())
+                .block();
+        actionInsideActionCollection.getPolicies().forEach(policy -> {
+            if (MANAGE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+            }
+            if (READ_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (DELETE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testSaveRoleConfiguration_workflowResourcesTab_noEditAndDeleteActionCollectionShouldTakeAwayGiveReadAndExecuteActionPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        String testName =
+                "testSaveRoleConfiguration_workflowResourcesTab_noEditAndDeleteActionCollectionShouldTakeAwayGiveReadAndExecuteActionPermission";
+        Workspace workspace = new Workspace();
+        workspace.setName("Workspace - " + testName);
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+        assert createdWorkspace1 != null;
+
+        Workflow workflow = new Workflow();
+        workflow.setName("Workflow - " + testName);
+        workflow.setWorkspaceId(createdWorkspace1.getId());
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflow, createdWorkspace1.getId())
+                .block();
+        assert createdWorkflow != null;
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
+                .block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
+        datasource.setDatasourceStorages(storages);
+        Datasource createdDatasource1 = datasourceService.create(datasource).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("ActionCollection - " + testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(createdDatasource1.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("Action in ActionCollection - " + testName);
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
+                .createWorkflowActionCollection(actionCollectionDTO, null)
+                .block();
+
+        PermissionGroup sampleRole = new PermissionGroup();
+        sampleRole.setName("Role - " + testName);
+        RoleViewDTO sampleRoleViewDTO =
+                permissionGroupService.createCustomPermissionGroup(sampleRole).block();
+        assert sampleRoleViewDTO != null;
+
+        UpdateRoleEntityDTO createdActionCollectionUpdateRoleEntityDTOWithDeletePermission = new UpdateRoleEntityDTO(
+                ActionCollection.class.getSimpleName(),
+                createdActionCollection.getId(),
+                List.of(-1, 0, 1, -1),
+                createdActionCollection.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(createdActionCollectionUpdateRoleEntityDTOWithDeletePermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO)
+                .block();
+
+        UpdateRoleEntityDTO createdActionCollectionUpdateRoleEntityDTOWithNoPermission = new UpdateRoleEntityDTO(
+                ActionCollection.class.getSimpleName(),
+                createdActionCollection.getId(),
+                List.of(-1, 0, 0, -1),
+                createdActionCollection.getName());
+
+        UpdateRoleConfigDTO updateRoleConfigDTO1 = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO1.setTabName(WORKFLOWS.getName());
+        updateRoleConfigDTO1.setEntitiesChanged(Set.of(createdActionCollectionUpdateRoleEntityDTOWithNoPermission));
+
+        RoleViewDTO updatedSampleRoleViewDTO1 = roleConfigurationSolution
+                .updateRoles(sampleRoleViewDTO.getId(), updateRoleConfigDTO1)
+                .block();
+
+        ActionCollection updatedActionCollection = actionCollectionRepository
+                .findById(createdActionCollection.getId())
+                .block();
+        updatedActionCollection.getPolicies().forEach(policy -> {
+            assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+        });
+
+        assertThat(createdActionCollection.getActions()).hasSize(1);
+        NewAction actionInsideActionCollection = newActionRepository
+                .findById(createdActionCollection.getActions().get(0).getId())
+                .block();
+        actionInsideActionCollection.getPolicies().forEach(policy -> {
+            assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
         });
     }
 }

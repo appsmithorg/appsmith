@@ -3,14 +3,14 @@ import { generateDataTreeJSAction } from "@appsmith/entities/DataTree/dataTreeJS
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
 import {
-  ENTITY_TYPE_VALUE,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "@appsmith/entities/DataTree/types";
 import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 import type {
   DataTreeSeed,
   AppsmithEntity,
-  ENTITY_TYPE,
+  EntityTypeValue,
 } from "@appsmith/entities/DataTree/types";
 import type {
   unEvalAndConfigTree,
@@ -110,8 +110,7 @@ export class DataTreeFactory {
       store: appData.store,
       theme,
     } as AppsmithEntity;
-    (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE =
-      ENTITY_TYPE_VALUE.APPSMITH;
+    (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
 
     const startMetaWidgets = performance.now();
 
@@ -141,5 +140,5 @@ export class DataTreeFactory {
   }
 }
 
-export { ENTITY_TYPE_VALUE, EvaluationSubstitutionType };
-export type { ENTITY_TYPE };
+export { ENTITY_TYPE, EvaluationSubstitutionType };
+export type { EntityTypeValue };

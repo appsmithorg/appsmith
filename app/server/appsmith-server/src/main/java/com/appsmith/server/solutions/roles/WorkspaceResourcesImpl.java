@@ -1180,7 +1180,24 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                     return actionRepository
                             .findByWorkflowIds(workflowIds, Optional.empty(), Optional.of(workflowActionsIncludeFields))
                             .collectMultimap(NewAction::getWorkflowId, Function.identity());
-                });
+                })
+                .cache();
+
+        Mono<Map<String, Collection<ActionCollection>>> workflowActionCollectionMapMono = workflowFlux
+                .collectList()
+                .flatMap(workflows -> {
+                    List<String> workflowActionsIncludeFields = new ArrayList<>(includeFields);
+                    workflowActionsIncludeFields.add(fieldName(QActionCollection.actionCollection.workflowId));
+                    workflowActionsIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection));
+                    workflowActionsIncludeFields.add(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection));
+                    List<String> workflowIds =
+                            workflows.stream().map(Workflow::getId).toList();
+                    return actionCollectionRepository
+                            .findByWorkflowIds(workflowIds, Optional.empty(), Optional.of(workflowActionsIncludeFields))
+                            .collectMultimap(ActionCollection::getWorkflowId, Function.identity());
+                })
+                .cache();
 
         CommonAppsmithObjectData commonAppsmithObjectData = new CommonAppsmithObjectData(
                 workspaceFlux,
@@ -1198,7 +1215,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 workspaceDatasourcesMapMono,
                 workspaceEnvironmentMapMono,
                 workspaceWorkflowMapMono,
-                workflowActionMapMono);
+                workflowActionMapMono,
+                workflowActionCollectionMapMono);
 
         return commonAppsmithObjectData;
     }

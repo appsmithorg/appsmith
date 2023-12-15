@@ -27,7 +27,9 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.EnterJSContext("onClick", "{{Api1.run()}}");
       deployMode.DeployApp();
-      agHelper.Sleep(2000);
+      agHelper.AssertElementVisibility(
+        locators._widgetInDeployed(draggableWidgets.BUTTON),
+      );
       agHelper.ClickButton("Submit");
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ValidateToastMessage("failed to execute", 0, 1);
@@ -37,7 +39,9 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.EnterJSContext("onClick", "{{Api1.run(() => {}, () => {})}}");
       deployMode.DeployApp();
-      agHelper.Sleep(2000);
+      agHelper.AssertElementVisibility(
+        locators._widgetInDeployed(draggableWidgets.BUTTON),
+      );
       agHelper.ClickButton("Submit");
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.AssertElementAbsence(locators._toastMsg);

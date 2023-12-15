@@ -195,34 +195,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Criteria workflowIdCriteria =
                 where(fieldName(QNewAction.newAction.workflowId)).is(workflowId);
 
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(aclPermission));
-
-        return permissionGroupsMono
-                .flatMap(permissionGroups -> Mono.fromCallable(() -> {
-                            AggregationOperation matchAggregationWithPermission;
-                            if (aclPermission == null) {
-                                matchAggregationWithPermission =
-                                        Aggregation.match(new Criteria().andOperator(notDeleted()));
-                            } else {
-                                matchAggregationWithPermission = Aggregation.match(new Criteria()
-                                        .andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
-                            }
-                            AggregationOperation matchAggregation = Aggregation.match(workflowIdCriteria);
-                            AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
-                            AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                    .addField(fieldName(QNewAction.newAction.publishedAction))
-                                    .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
-                                    .build();
-                            Aggregation combinedAggregation = Aggregation.newAggregation(
-                                    matchAggregation,
-                                    matchAggregationWithPermission,
-                                    wholeProjection,
-                                    addFieldsOperation);
-                            return mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
-                        })
-                        .subscribeOn(Schedulers.boundedElastic()))
-                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
+        return copyUnpublishedActionToPublishedActionForActions(aclPermission, workflowIdCriteria);
     }
 
     @Override
@@ -254,20 +227,22 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        if (CreatorContextType.PAGE.equals(contextType)) {
+        if (null == contextType || contextType == CreatorContextType.PAGE) {
             return super.findAllUnpublishedActionsByContextIdAndContextType(
                     contextId, contextType, permission, includeJs);
         }
         List<Criteria> criteriaList = new ArrayList<>();
-
-        if (CreatorContextType.MODULE.equals(contextType)) {
-            String contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
-            String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
-            Criteria contextIdAndContextTypeCriteria =
-                    where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-
-            criteriaList.add(contextIdAndContextTypeCriteria);
+        String contextIdPath;
+        switch (contextType) {
+            case WORKFLOW -> contextIdPath = fieldName(QNewAction.newAction.workflowId);
+            case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
+            default -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
         }
+        String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
@@ -286,19 +261,22 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     @Override
     public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        if (CreatorContextType.PAGE.equals(contextType)) {
+        if (null == contextType || contextType == CreatorContextType.PAGE) {
             return super.findAllPublishedActionsByContextIdAndContextType(
                     contextId, contextType, permission, includeJs);
         }
         List<Criteria> criteriaList = new ArrayList<>();
-        if (CreatorContextType.MODULE.equals(contextType)) {
-            String contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
-            String contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
-            Criteria contextIdAndContextTypeCriteria =
-                    where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-
-            criteriaList.add(contextIdAndContextTypeCriteria);
+        String contextIdPath;
+        switch (contextType) {
+            case WORKFLOW -> contextIdPath = fieldName(QNewAction.newAction.workflowId);
+            case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
+            default -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
         }
+        String contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
@@ -386,5 +364,64 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         criteria.add(getNonModuleInstanceActionCriterion());
 
         return queryAll(criteria, aclPermission, sort);
+    }
+
+    @Override
+    public Mono<UpdateResult> archiveDeletedUnpublishedActionsForCollection(
+            String actionCollectionId, AclPermission aclPermission) {
+        Criteria collectionIdCriteria = where(completeFieldName(QNewAction.newAction.unpublishedAction.collectionId))
+                .is(actionCollectionId);
+        String unpublishedDeletedAtFieldName = String.format(
+                "%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
+        Criteria deletedFromUnpublishedCriteria =
+                where(unpublishedDeletedAtFieldName).ne(null);
+
+        Update update = new Update();
+        update.set(FieldName.DELETED, true);
+        update.set(FieldName.DELETED_AT, Instant.now());
+        return updateByCriteria(List.of(collectionIdCriteria, deletedFromUnpublishedCriteria), update, aclPermission);
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> publishActionsForCollection(
+            String actionCollectionId, AclPermission aclPermission) {
+        Criteria collectionIdCriteria = where(completeFieldName(QNewAction.newAction.unpublishedAction.collectionId))
+                .is(actionCollectionId);
+
+        return copyUnpublishedActionToPublishedActionForActions(aclPermission, collectionIdCriteria);
+    }
+
+    private Mono<List<BulkWriteResult>> copyUnpublishedActionToPublishedActionForActions(
+            AclPermission aclPermission, Criteria collectionIdCriteria) {
+        Mono<Set<String>> permissionGroupsMono =
+                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(aclPermission));
+
+        return permissionGroupsMono
+                .flatMap(permissionGroups -> Mono.fromCallable(() -> {
+                            AggregationOperation matchAggregationWithPermission;
+                            if (aclPermission == null) {
+                                matchAggregationWithPermission =
+                                        Aggregation.match(new Criteria().andOperator(notDeleted()));
+                            } else {
+                                matchAggregationWithPermission = Aggregation.match(new Criteria()
+                                        .andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
+                            }
+                            AggregationOperation matchAggregation = Aggregation.match(collectionIdCriteria);
+                            AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
+                            AggregationOperation addFieldsOperation = Aggregation.addFields()
+                                    .addField(fieldName(QNewAction.newAction.publishedAction))
+                                    .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
+                                    .build();
+                            Aggregation combinedAggregation = Aggregation.newAggregation(
+                                    matchAggregation,
+                                    matchAggregationWithPermission,
+                                    wholeProjection,
+                                    addFieldsOperation);
+                            return mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
+                        })
+                        .subscribeOn(Schedulers.boundedElastic()))
+                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
     }
 }

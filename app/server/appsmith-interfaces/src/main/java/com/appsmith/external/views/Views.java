@@ -7,7 +7,7 @@ public interface Views {
     /**
      * Used with JsonView annotation to denote that a field should be visible only to the server.
      */
-    interface Internal extends Public, ExportUnpublished, ExportPublished {}
+    interface Internal extends Public, Metadata, ExportUnpublished, ExportPublished {}
 
     /**
      * Used with JsonView annotation to denote that a field should be visible to the client.
@@ -18,6 +18,8 @@ public interface Views {
      * Used with JsonView annotation to denote that a field should be exported when exporting the Domain/DTOs.
      */
     interface Export {}
+
+    interface Metadata extends Public {}
 
     interface Import extends Export {}
 

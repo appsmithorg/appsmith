@@ -33,7 +33,8 @@ COPY ./app/client/packages/rts/dist rts/
 
 ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
-RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
+RUN cd ./rts && npm install --only=prod && cd - \
+  && cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \
   && chmod +x *.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.

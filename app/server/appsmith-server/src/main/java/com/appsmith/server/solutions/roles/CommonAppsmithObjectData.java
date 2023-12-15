@@ -42,4 +42,5 @@ public class CommonAppsmithObjectData {
     Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono;
     Mono<Map<String, Collection<Workflow>>> workspaceWorkflowMapMono;
     Mono<Map<String, Collection<NewAction>>> workflowActionMapMono;
+    Mono<Map<String, Collection<ActionCollection>>> workflowActionCollectionMapMono;
 }

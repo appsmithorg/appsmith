@@ -5,4 +5,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ActionCollectionResourceDTO extends BaseView {}
+public class ActionCollectionResourceDTO extends BaseView {
+    private Boolean isDefault = null;
+}

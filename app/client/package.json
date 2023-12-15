@@ -13,7 +13,8 @@
   "cracoConfig": "craco.dev.config.js",
   "workspaces": [
     "packages/**",
-    "!packages/**/build"
+    "!packages/**/build",
+    "!packages/**/dist"
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",

@@ -41,5 +41,10 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
 
     Flux<NewAction> findPublicActionsByModuleInstanceId(String moduleInstanceId, Optional<AclPermission> permission);
 
+    Mono<UpdateResult> archiveDeletedUnpublishedActionsForCollection(
+            String actionCollectionId, AclPermission aclPermission);
+
+    Mono<List<BulkWriteResult>> publishActionsForCollection(String actionCollectionId, AclPermission aclPermission);
+
     Flux<NewAction> findAllByCollectionIds(List<String> collectionIds, List<String> includeFields, boolean viewMode);
 }

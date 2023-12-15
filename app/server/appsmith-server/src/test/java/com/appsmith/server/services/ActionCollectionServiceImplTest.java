@@ -153,8 +153,8 @@ public class ActionCollectionServiceImplTest {
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                newActionRepository,
-                actionPermission);
+                actionPermission,
+                newActionRepository);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,

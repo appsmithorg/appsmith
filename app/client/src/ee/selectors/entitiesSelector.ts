@@ -6,6 +6,7 @@ import {
   getActions,
   getJSCollections,
   selectFilesForExplorer as CE_selectFilesForExplorer,
+  getCurrentJSCollections,
 } from "ce/selectors/entitiesSelector";
 import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@appsmith/utils/Packages/moduleHelpers";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Action } from "entities/Action";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -165,7 +167,8 @@ export const getQueryModuleInstances = createSelector(
       (instance) => {
         if (instance.type === MODULE_TYPE.QUERY) {
           const getPublicAction = moduleInstanceEntities.actions.find(
-            (entity) => entity.config.moduleInstanceId === instance.id,
+            (entity: ActionData) =>
+              entity.config.moduleInstanceId === instance.id,
           );
           return {
             config: instance,
@@ -195,3 +198,11 @@ export const getJSCollectionFromAllEntities = (
   );
   return jsaction && jsaction.config;
 };
+
+export const getAllJSCollections = createSelector(
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (currentContextJSCollections, moduleInstanceJSCollections) => {
+    return [...moduleInstanceJSCollections, ...currentContextJSCollections];
+  },
+);

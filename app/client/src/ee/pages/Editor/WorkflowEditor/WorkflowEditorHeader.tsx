@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "design-system-old";
-import { Tooltip } from "design-system";
+import { Button, Tooltip } from "design-system";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import {
@@ -14,17 +14,19 @@ import {
   HeaderWrapper,
 } from "pages/Editor/commons/EditorHeaderComponents";
 import { LockEntityExplorer } from "pages/Editor/commons/LockEntityExplorer";
-import { Omnibar } from "pages/Editor/commons/Omnibar";
-import { HelperBarInHeader } from "pages/Editor/HelpBarInHeader";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import EditorName from "pages/Editor/EditorName";
 import { GetNavigationMenuData } from "./WorkflowEditorName/NavigationMenuData";
 import {
   getCurrentWorkflow,
   getIsSavingWorkflowName,
+  getIsWorkflowPublishing,
   getisErrorSavingWorkflowName,
 } from "@appsmith/selectors/workflowSelectors";
-import { updateWorkflowName } from "@appsmith/actions/workflowActions";
+import {
+  publishWorkflow,
+  updateWorkflowName,
+} from "@appsmith/actions/workflowActions";
 import type { Workflow } from "@appsmith/constants/WorkflowConstants";
 import { useDispatch } from "react-redux";
 
@@ -37,12 +39,19 @@ export function WorkflowEditorHeader() {
   const workflowList: any = [];
   const currentWorkflow = useSelector(getCurrentWorkflow);
   const workflowId = currentWorkflow?.id;
+  const isPublishing = useSelector(getIsWorkflowPublishing);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
   const updateWorkflow = (val: string, workflow: Workflow | null) => {
     if (val !== workflow?.name) {
       dispatch(updateWorkflowName(val, workflow?.id || ""));
+    }
+  };
+
+  const onPublishWorkflow = () => {
+    if (workflowId) {
+      dispatch(publishWorkflow({ workflowId }));
     }
   };
 
@@ -93,11 +102,22 @@ export function WorkflowEditorHeader() {
           />
         </HeaderSection>
 
-        <HelperBarInHeader isPreview={false} />
-
         <HeaderSection />
 
-        <Omnibar />
+        <HeaderSection className="gap-x-1">
+          <div className="flex items-center">
+            <Button
+              data-testid="t--workflow-publish-btn"
+              isLoading={isPublishing}
+              kind="tertiary"
+              onClick={onPublishWorkflow}
+              size="md"
+              startIcon={"rocket"}
+            >
+              Publish
+            </Button>
+          </div>
+        </HeaderSection>
       </HeaderWrapper>
     </ThemeProvider>
   );

@@ -1,6 +1,6 @@
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import {
-  ENTITY_TYPE_VALUE,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
@@ -10,12 +10,12 @@ describe("dataTreeTypeDefCreator for module input", () => {
     const evalEntity = {
       username: "Appsmith",
       email: "123@appsmith.com",
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INPUT,
     };
 
     const entityConfig = {
       name: "inputs",
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      ENTITY_TYPE: ENTITY_TYPE.MODULE_INPUT,
       bindingPaths: {
         username: EvaluationSubstitutionType.TEMPLATE,
         email: EvaluationSubstitutionType.TEMPLATE,
@@ -42,8 +42,8 @@ describe("dataTreeTypeDefCreator for module input", () => {
     expect(def).toHaveProperty("inputs.email");
     expect(def.inputs).toEqual({ username: "string", email: "string" });
     expect(entityInfo.get("inputs")).toStrictEqual({
-      type: ENTITY_TYPE_VALUE.MODULE_INPUT,
-      subType: ENTITY_TYPE_VALUE.MODULE_INPUT,
+      type: ENTITY_TYPE.MODULE_INPUT,
+      subType: ENTITY_TYPE.MODULE_INPUT,
     });
   });
 });
