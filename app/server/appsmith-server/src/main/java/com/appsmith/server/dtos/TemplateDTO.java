@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CommunityTemplateDTO extends BaseDomain {
+public class TemplateDTO extends BaseDomain {
     String applicationId;
     String workspaceId;
     String branchName;
