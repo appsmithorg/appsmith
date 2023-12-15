@@ -132,11 +132,11 @@ export class staticSplit {
     try {
       const dbRes = await client.query(
         `SELECT name FROM public."specs" 
-      WHERE "matrixId" IN 
+      WHERE "matrixId" = 
       (SELECT id FROM public."matrix" 
        WHERE "attemptId" = (
          SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
-       ) AND matrixId = $3
+       ) AND "matrixId" = $3
       ) AND status IN ('fail', 'queued', 'in-progress')`,
         [workflowId, attempt_number, runnerId],
       );
