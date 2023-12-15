@@ -32,18 +32,15 @@ describe(
       agHelper.GetNClick(jsEditor._lineinJsEditor(5));
       agHelper.TypeText(locators._codeMirrorTextArea, "this.");
       agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
-      agHelper.Sleep(2000);
       agHelper.GetNClickByContains(locators._hints, "my variable 1", 0, false);
       agHelper.GetNAssertElementText(
         jsEditor._lineinJsEditor(5),
         'this["my variable 1"]',
         "contain.text",
       );
-      agHelper.Sleep(2000);
       agHelper.GetNClick(jsEditor._lineinJsEditor(6));
       agHelper.TypeText(locators._codeMirrorTextArea, 'this["');
       agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
-      agHelper.Sleep(2000);
       agHelper.GetNClickByContains(locators._hints, "my variable 1", 0, false);
       agHelper.GetNAssertElementText(
         jsEditor._lineinJsEditor(5),
