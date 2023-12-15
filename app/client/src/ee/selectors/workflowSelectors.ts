@@ -79,3 +79,6 @@ export const getCurrentWorkflowActions = createSelector(
     return actions.filter((a) => a.config.workflowId === workflowId);
   },
 );
+
+export const getIsWorkflowPublishing = (state: AppState) =>
+  state.ui.editor.isWorkflowPublishing;

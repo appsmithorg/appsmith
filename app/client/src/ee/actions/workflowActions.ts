@@ -25,6 +25,10 @@ export interface FetchWorkflowActionsPayload {
   workflowId: string;
 }
 
+export interface PublishWorkflowPayload {
+  workflowId: string;
+}
+
 export const fetchAllWorkflows = () => {
   return {
     type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_INIT,
@@ -125,5 +129,12 @@ export const saveWorkflowActionName = (
       name,
       workflowId,
     },
+  };
+};
+
+export const publishWorkflow = (payload: PublishWorkflowPayload) => {
+  return {
+    type: ReduxActionTypes.PUBLISH_WORKFLOW_INIT,
+    payload,
   };
 };
