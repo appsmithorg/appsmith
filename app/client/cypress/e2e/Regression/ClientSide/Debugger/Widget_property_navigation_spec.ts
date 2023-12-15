@@ -65,7 +65,6 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
     _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Second Menu Item");
-    _.agHelper.Sleep();
     _.propPane.AssertIfPropertyIsVisible("disabled");
     _.debuggerHelper.CloseBottomBar();
     EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
@@ -150,7 +149,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
 
     _.agHelper.AssertElementEnabledDisabled(OneClickBindingLocator.connectData);
-    _.agHelper.Sleep(3000); //for tables to populate for CI runs
+    _.table.WaitUntilTableLoad(0, 0, "v2");
     _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
     _.agHelper.GetNClick(
       OneClickBindingLocator.tableOrSpreadsheetDropdownOption("movies"),
