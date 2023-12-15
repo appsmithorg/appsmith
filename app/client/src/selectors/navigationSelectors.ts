@@ -7,6 +7,8 @@ import {
   getCurrentActions,
   getDatasources,
   getJSCollections,
+  getModuleInstanceEntities,
+  getModuleInstances,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
@@ -25,6 +27,7 @@ import type { AppState } from "@appsmith/reducers";
 import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
+import { getModuleInstanceNavigationData } from "@appsmith/utils/moduleInstanceNavigationData";
 
 export interface NavigationData {
   name: string;
@@ -53,6 +56,8 @@ export const getEntitiesForNavigation = createSelector(
   getCurrentPageId,
   getDataTree,
   getDatasources,
+  getModuleInstances,
+  getModuleInstanceEntities,
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,
@@ -62,6 +67,8 @@ export const getEntitiesForNavigation = createSelector(
     pageId,
     dataTree: DataTree,
     datasources: Datasource[],
+    moduleInstances,
+    moduleInstanceEntities,
     entityName: string | undefined,
   ) => {
     // data tree retriggers this
@@ -129,6 +136,14 @@ export const getEntitiesForNavigation = createSelector(
         widgetType: widget.type,
       });
     });
+    let moduleInstanceNavigationData: EntityNavigationData = {};
+    if (!!moduleInstances) {
+      moduleInstanceNavigationData = getModuleInstanceNavigationData(
+        moduleInstances,
+        moduleInstanceEntities,
+      );
+    }
+
     if (
       entityName &&
       isJSAction(dataTree[entityName]) &&
@@ -139,7 +154,10 @@ export const getEntitiesForNavigation = createSelector(
         this: navigationData[entityName],
       };
     }
-    return navigationData;
+    return {
+      ...navigationData,
+      ...moduleInstanceNavigationData,
+    };
   },
 );
 export const getPathNavigationUrl = createSelector(
