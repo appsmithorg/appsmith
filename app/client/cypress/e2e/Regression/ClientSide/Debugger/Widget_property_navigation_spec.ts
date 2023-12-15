@@ -65,7 +65,6 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
     _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Second Menu Item");
-    _.agHelper.Sleep();
     _.propPane.AssertIfPropertyIsVisible("disabled");
     _.debuggerHelper.CloseBottomBar();
     EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
@@ -148,9 +147,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
-
+    _.agHelper.AssertContains("Select collection");
     _.agHelper.AssertElementEnabledDisabled(OneClickBindingLocator.connectData);
-    _.agHelper.Sleep(3000); //for tables to populate for CI runs
     _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
     _.agHelper.GetNClick(
       OneClickBindingLocator.tableOrSpreadsheetDropdownOption("movies"),
@@ -163,7 +161,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
       ),
     );
     _.agHelper.GetNClick(OneClickBindingLocator.connectData);
-
+    _.table.WaitUntilTableLoad(0, 0, "v2");
     _.propPane.OpenTableColumnSettings("imdb_id");
     _.propPane.TypeTextIntoField("Regex", "{{test}}");
     _.debuggerHelper.AssertErrorCount(1);

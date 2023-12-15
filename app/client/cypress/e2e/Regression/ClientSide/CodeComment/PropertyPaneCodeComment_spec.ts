@@ -1,8 +1,4 @@
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";

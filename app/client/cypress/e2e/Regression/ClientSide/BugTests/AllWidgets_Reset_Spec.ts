@@ -412,50 +412,57 @@ function filePickerWidgetAndReset() {
 }
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
-  describe(`${testConfig.widgetName} widget test for validating reset assertWidgetReset`, () => {
-    beforeEach(() => {
-      _.agHelper.RestoreLocalStorageCache();
-    });
+  describe(
+    `${testConfig.widgetName} widget test for validating reset assertWidgetReset`,
+    { tags: ["@tag.Widget"] },
+    () => {
+      beforeEach(() => {
+        _.agHelper.RestoreLocalStorageCache();
+      });
 
-    afterEach(() => {
-      _.agHelper.SaveLocalStorageCache();
-    });
+      afterEach(() => {
+        _.agHelper.SaveLocalStorageCache();
+      });
 
-    it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
-      _.agHelper.AddDsl("defaultMetaDsl");
-      _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 100);
+      it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
+        _.agHelper.AddDsl("defaultMetaDsl");
+        _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 100);
 
-      if (testConfig.setupWidget) {
-        testConfig.setupWidget();
-      }
-    });
+        if (testConfig.setupWidget) {
+          testConfig.setupWidget();
+        }
+      });
 
-    it("2. Bind Button on click  and Text widget content", () => {
-      // Set onClick assertWidgetReset, storing value
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      _.propPane.EnterJSContext(
-        "onClick",
-        `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("Reset Success!"))}}`,
-      );
-      // Bind to stored value above
-      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
-      _.propPane.UpdatePropertyFieldValue("Text", testConfig.textBindingValue);
-    });
+      it("2. Bind Button on click  and Text widget content", () => {
+        // Set onClick assertWidgetReset, storing value
+        EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+        _.propPane.EnterJSContext(
+          "onClick",
+          `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("Reset Success!"))}}`,
+        );
+        // Bind to stored value above
+        EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+        _.propPane.UpdatePropertyFieldValue(
+          "Text",
+          testConfig.textBindingValue,
+        );
+      });
 
-    it(`3. Publish the app and check the reset of ${testConfig.widgetName}`, () => {
-      // Set onClick assertWidgetReset, storing value
-      _.deployMode.DeployApp(_.locators._widgetInDeployed(widgetSelector));
-      testConfig.assertWidgetReset();
-      _.agHelper.ValidateToastMessage("Reset Success!");
-    });
+      it(`3. Publish the app and check the reset of ${testConfig.widgetName}`, () => {
+        // Set onClick assertWidgetReset, storing value
+        _.deployMode.DeployApp(_.locators._widgetInDeployed(widgetSelector));
+        testConfig.assertWidgetReset();
+        _.agHelper.ValidateToastMessage("Reset Success!");
+      });
 
-    it(`4. Delete ${testConfig.widgetName} widget from canvas`, () => {
-      _.deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName(
-        `${testConfig.widgetPrefixName}`,
-        EntityType.Widget,
-      );
-      _.agHelper.PressDelete();
-    });
-  });
+      it(`4. Delete ${testConfig.widgetName} widget from canvas`, () => {
+        _.deployMode.NavigateBacktoEditor();
+        EditorNavigation.SelectEntityByName(
+          `${testConfig.widgetPrefixName}`,
+          EntityType.Widget,
+        );
+        _.agHelper.PressDelete();
+      });
+    },
+  );
 });
