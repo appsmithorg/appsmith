@@ -313,8 +313,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
-    private CommunityTemplateUploadDTO createCommunityTemplateUploadDTO(
-            String sourceApplicationId, ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
+    private TemplateUploadDTO createCommunityTemplateUploadDTO(
+            String sourceApplicationId, ApplicationJson appJson, TemplateDTO templateDetails) {
         ApplicationTemplate applicationTemplate = new ApplicationTemplate();
         applicationTemplate.setTitle(templateDetails.getTitle());
         applicationTemplate.setExcerpt(templateDetails.getHeadline());
@@ -322,7 +322,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         applicationTemplate.setUseCases(templateDetails.getUseCases());
         applicationTemplate.setAuthorEmail(templateDetails.getAuthorEmail());
 
-        CommunityTemplateUploadDTO communityTemplate = new CommunityTemplateUploadDTO();
+        TemplateUploadDTO communityTemplate = new TemplateUploadDTO();
         communityTemplate.setAppJson(appJson);
         communityTemplate.setApplicationTemplate(applicationTemplate);
         communityTemplate.getApplicationTemplate().setAppUrl(templateDetails.getAppUrl());
@@ -330,12 +330,12 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         return communityTemplate;
     }
 
-    private Mono<ApplicationTemplate> uploadCommunityTemplateToCS(CommunityTemplateUploadDTO communityTemplate) {
+    private Mono<ApplicationTemplate> uploadCommunityTemplateToCS(TemplateUploadDTO communityTemplate) {
         String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload-community-template";
         return uploadTemplate(communityTemplate, url);
     }
 
-    @NotNull private Mono<ApplicationTemplate> uploadTemplate(CommunityTemplateUploadDTO communityTemplate, String url) {
+    @NotNull private Mono<ApplicationTemplate> uploadTemplate(TemplateUploadDTO communityTemplate, String url) {
         String authHeader = "Authorization";
         String payload;
         try {
@@ -376,7 +376,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
+    public Mono<Application> publishAsCommunityTemplate(TemplateDTO resource) {
         return exportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
                 .flatMap(appJson -> uploadCommunityTemplateToCS(
@@ -404,37 +404,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 });
     }
 
-    private Mono<ApplicationTemplate> uploadAppsmithTemplateToCS(CommunityTemplateUploadDTO communityTemplate) {
+    private Mono<ApplicationTemplate> uploadAppsmithTemplateToCS(TemplateUploadDTO communityTemplate) {
         String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload";
         return uploadTemplate(communityTemplate, url);
     }
 
     @Override
-    public Mono<Application> publishAppsmithTemplate(CommunityTemplateDTO resource) {
+    public Mono<Boolean> publishAppsmithTemplate(TemplateDTO resource) {
         return exportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
                 .flatMap(appJson -> uploadAppsmithTemplateToCS(
                         createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
-                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
-                .flatMap(application -> {
-                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
-                    applicationAccessDTO.setPublicAccess(true);
-                    return applicationService
-                            .changeViewAccess(application.getId(), resource.getBranchName(), applicationAccessDTO)
-                            .zipWith(sessionUserService.getCurrentUser());
-                })
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    User user = tuple.getT2();
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID, application.getId(),
-                            FieldName.WORKSPACE_ID, application.getWorkspaceId());
-                    return analyticsService
-                            .sendEvent(
-                                    AnalyticsEvents.APPSMITH_TEMPLATE_PUBLISHED.getEventName(),
-                                    user.getUsername(),
-                                    data)
-                            .thenReturn(application);
-                });
+                .thenReturn(Boolean.TRUE);
     }
 }

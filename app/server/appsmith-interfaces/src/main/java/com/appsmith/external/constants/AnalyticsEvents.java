@@ -90,9 +90,7 @@ public enum AnalyticsEvents {
 
     PARTIAL_EXPORT,
 
-    COMMUNITY_TEMPLATE_PUBLISHED,
-
-    APPSMITH_TEMPLATE_PUBLISHED;
+    COMMUNITY_TEMPLATE_PUBLISHED;
 
     private final String eventName;
 
