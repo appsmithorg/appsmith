@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   API_EDITOR_TABS,
   HTTP_METHOD_OPTIONS,
-  HTTP_PROTOCOL_VERSIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import styled from "styled-components";
@@ -15,7 +14,7 @@ import type {
   SuggestedWidget,
 } from "api/ActionAPI";
 import type { Action, PaginationType } from "entities/Action";
-import { isGraphqlPlugin, isRESTAPIPlugin } from "entities/Action";
+import { isGraphqlPlugin } from "entities/Action";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
@@ -40,7 +39,6 @@ import {
   API_EDITOR_TAB_TITLES,
   API_PANE_AUTO_GENERATED_HEADER,
   API_PANE_DUPLICATE_HEADER,
-  HTTP_PROTOCOL_INPUT_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
@@ -118,10 +116,6 @@ const HelpSection = styled.div`
 const DatasourceWrapper = styled.div`
   margin-left: 8px;
   width: 100%;
-`;
-
-const HttpVersionWrapper = styled.div`
-  margin-right: 8px;
 `;
 
 const SecondaryWrapper = styled.div`
@@ -585,27 +579,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const showDebugger = useSelector(showDebuggerFlag);
 
   const isGraphql = isGraphqlPlugin(plugin);
-  const isRESTApi = isRESTAPIPlugin(plugin);
 
   const theme = EditorTheme.LIGHT;
-
-  const renderHttpVersion = () => {
-    return (
-      <HttpVersionWrapper>
-        {/* eslint-disable-next-line */}
-        {/* @ts-ignore*/}
-        <RequestDropdownField
-          className={`t--apiFormHttpVersion ${replayHighlightClass}`}
-          data-location-id={btoa("actionConfiguration.httpVersion")}
-          disabled={!isChangePermitted}
-          name="actionConfiguration.httpVersion"
-          options={HTTP_PROTOCOL_VERSIONS}
-          placeholder={HTTP_PROTOCOL_INPUT_PLACEHOLDER}
-          width={"110px"}
-        />
-      </HttpVersionWrapper>
-    );
-  };
 
   return (
     <MainContainer>
@@ -637,7 +612,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
           </FormRow>
           <FormRow className="api-info-row">
             {/* Http Version dropdown only added for REST API & GraphQL plugins */}
-            {isRESTApi || isGraphql ? renderHttpVersion() : null}
             <div>
               {/* eslint-disable-next-line */}
               {/* @ts-ignore*/}

@@ -21,7 +21,7 @@ export const HTTP_PROTOCOL = {
     value: "H2",
   },
   H2C: {
-    label: "HTTP/2 (H2C)",
+    label: "H2C",
     value: "H2C",
   },
 };
