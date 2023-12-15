@@ -66,7 +66,7 @@ jobs:
           repo_name: yatinappsmith/testcacherepo.git
           token: ${{ secrets.CACHETOKEN }}
           filename: asdasqweqw12321321.txt
-          cachename: testcache_15Dec2023_1302
+          cache_name: testcache_15Dec2023_1302
           actiontype: STORE
         
           
