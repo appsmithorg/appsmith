@@ -4,6 +4,7 @@ import type { ListItemProps } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import keyBy from "lodash/keyBy";
 import { useLocation } from "react-router";
+import styled from "styled-components";
 
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { FocusEntity } from "navigation/FocusEntity";
@@ -18,6 +19,10 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+
+const StyledList = styled(List)`
+  padding: 0px;
+`;
 
 const AddQuery = () => {
   const dispatch = useDispatch();
@@ -93,11 +98,7 @@ const AddQuery = () => {
         px="spaces-4"
         py="spaces-2"
       >
-        <Text
-          className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-          color="var(--ads-v2-color-fg)"
-          kind="heading-xs"
-        >
+        <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
           Create new query/API
         </Text>
         <Button
@@ -108,17 +109,23 @@ const AddQuery = () => {
           startIcon={"close-line"}
         />
       </Flex>
-      <Flex flexDirection="column" gap="spaces-3" padding="spaces-4">
+      <Flex
+        flexDirection="column"
+        gap="spaces-3"
+        overflow="scroll"
+        px="spaces-3"
+        py="spaces-4"
+      >
         <Flex flexDirection="column" gap="spaces-2">
           {/* From source */}
           <Text
-            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+            className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
             From existing datasource
           </Text>
-          <List
+          <StyledList
             className="t--from-source-list"
             items={getListItems(fromExistingSources)}
           />
@@ -126,13 +133,13 @@ const AddQuery = () => {
         <Flex flexDirection="column" gap="spaces-2">
           {/* From source */}
           <Text
-            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+            className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
             New Blank API
           </Text>
-          <List
+          <StyledList
             className="t--new-blank-api"
             items={getListItems(fromNewBlankAPI)}
           />

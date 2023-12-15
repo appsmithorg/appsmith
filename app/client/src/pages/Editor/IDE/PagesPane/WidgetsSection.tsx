@@ -17,7 +17,8 @@ import { AddWidgets } from "./AddWidgets";
 
 const WidgetsContainer = styled(Flex)`
   & .t--entity-item {
-    grid-template-columns: 4px auto 1fr auto auto auto auto auto;
+    /* grid-template-columns: 4px auto 1fr auto auto auto auto auto; */
+    height: 32px;
 
     & .t--entity-name {
       padding-left: var(--ads-v2-spaces-3);
