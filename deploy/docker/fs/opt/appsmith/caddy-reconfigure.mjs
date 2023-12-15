@@ -143,7 +143,7 @@ if (CUSTOM_DOMAIN !== "") {
 }
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
-fs.writeFileSync(CaddyfilePath, parts.map(part => part.trim()).join("\n\n"))
+fs.writeFileSync(CaddyfilePath, parts.join("\n"))
 spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
 
