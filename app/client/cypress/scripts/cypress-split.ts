@@ -2,6 +2,7 @@
 import util from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
+import { Console } from "console";
 
 export class cypressSplit {
   util = new util();
@@ -36,6 +37,7 @@ export class cypressSplit {
     specs: string[],
     attemptId: number,
   ) {
+    console.log("in getSpecsWithTime --- staticAllocation====> ", staticAllocation)
     const client = await this.dbClient.connect();
     const defaultDuration = 180000;
     const specsMap = new Map();
@@ -43,6 +45,8 @@ export class cypressSplit {
       const queryRes = await client.query(
         'SELECT * FROM public."spec_avg_duration" ORDER BY duration DESC',
       );
+
+      console.log("in getSpecsWithTime --- guery result from spec_avg_duration====> ", queryRes)
 
       queryRes.rows.forEach((obj) => {
         specsMap.set(obj.name, obj);
@@ -52,6 +56,8 @@ export class cypressSplit {
         const match = specsMap.get(spec);
         return match ? match : { name: spec, duration: defaultDuration };
       });
+
+      console.log("in getSpecsWithTime --- allSpecsWithDuration====> ", allSpecsWithDuration)
 
       if (!staticAllocation) {
         const activeRunners = await this.util.getActiveRunners();
@@ -81,6 +87,7 @@ export class cypressSplit {
     ignorePattern: string | string[],
     attemptId: number,
   ): Promise<string[]> {
+    console.log("in getSpecsToRun --- staticAllocation====> ", staticAllocation)
     try {
       const specFilePaths = await this.getSpecFilePaths(
         specPattern,
@@ -282,7 +289,9 @@ export class cypressSplit {
     let locked = false;
     let counter = 1;
     try {
+      console.log("in addLockGetTheSpecs ---staticAllocation ====> ", staticAllocation)
       if (!staticAllocation) {
+        console.log("in addLockGetTheSpecs ---in dynamic allocation block ====> ", staticAllocation)
         while (counter <= 120 && !locked) {
           const result = await client.query(
             `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
@@ -304,6 +313,8 @@ export class cypressSplit {
               ignorePattern,
               attemptId,
             );
+            console.log("in addLockGetTheSpecs ---in dynamic allocation block-- specs ====> ", specs)
+
             return specs;
           } else {
             await this.sleep(5000);
@@ -311,12 +322,14 @@ export class cypressSplit {
           }
         }
       } else {
+        console.log("in addLockGetTheSpecs ---in static allocation block ====> ", staticAllocation)
         specs = await this.getSpecsToRun(
           staticAllocation,
           specPattern,
           ignorePattern,
           attemptId,
         );
+        console.log("in addLockGetTheSpecs ---in static allocation block--specs ====> ", specs)
         return specs;
       }
     } catch (err) {
@@ -397,6 +410,8 @@ export class cypressSplit {
       }
 
       const attempt = await this.createAttempt();
+      console.log("ATTEMPT =====>", attempt);
+      console.log("staticAllocation =====>", staticAllocation);
       const specs =
         (await this.addLockGetTheSpecs(
           staticAllocation,
