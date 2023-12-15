@@ -1421,3 +1421,6 @@ export const getAllJSCollections = createSelector(
     return [...moduleInstanceJSCollections, ...currentContextJSCollections];
   },
 );
+
+export const getSelectedTableName = (state: AppState) =>
+  state.ui.datasourcePane.selectedTableName;

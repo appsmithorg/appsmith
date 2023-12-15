@@ -496,6 +496,15 @@ export const softRefreshDatasourceStructure = () => ({
   type: ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
 });
 
+export const setDatasourcePreviewSelectedTableName = (
+  selectedTableName: string,
+) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
+    payload: selectedTableName,
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,

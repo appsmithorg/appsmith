@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { DatasourceStructureContainer as DatasourceStructureList } from "./DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
@@ -49,13 +49,20 @@ import {
 } from "./SchemaViewModeCSS";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
+import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
 
 interface Props {
   datasource: Datasource;
   setDatasourceViewModeFlag: (viewMode: boolean) => void;
 }
 
-const DatasourceViewModeSchema = (props: Props) => {
+interface DatasourceViewModeFunctions {
+  setDatasourcePreviewSelectedTableName: (name: string) => void;
+}
+
+type DatasourceViewModeProps = Props & DatasourceViewModeFunctions;
+
+const DatasourceViewModeSchema = (props: DatasourceViewModeProps) => {
   const dispatch = useDispatch();
 
   const datasourceStructure = useSelector((state) =>
@@ -181,6 +188,9 @@ const DatasourceViewModeSchema = (props: Props) => {
       pluginId: props.datasource.pluginId,
     });
     setTableName(table);
+
+    // This sets table name in redux state to be used to create appropriate query
+    props.setDatasourcePreviewSelectedTableName(table);
   };
 
   const generatePageAction = () => {
@@ -290,4 +300,9 @@ const DatasourceViewModeSchema = (props: Props) => {
   );
 };
 
-export default DatasourceViewModeSchema;
+const mapDispatchToProps = (dispatch: any): DatasourceViewModeFunctions => ({
+  setDatasourcePreviewSelectedTableName: (tableName) =>
+    dispatch(setDatasourcePreviewSelectedTableName(tableName)),
+});
+
+export default connect(mapDispatchToProps)(DatasourceViewModeSchema);

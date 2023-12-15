@@ -14,6 +14,7 @@ const initialState: DatasourcePaneReduxState = {
   collapsibleState: {},
   defaultKeyValueArrayConfig: [],
   responseTabHeight: ActionExecutionResizerHeight,
+  selectedTableName: "",
 };
 
 export interface DatasourcePaneReduxState {
@@ -30,6 +31,10 @@ export interface DatasourcePaneReduxState {
   collapsibleState: Record<string, boolean>;
   defaultKeyValueArrayConfig: Array<string>;
   responseTabHeight: number;
+
+  // This is the table selected on datasource preview,
+  // this needs to be used when new query is created
+  selectedTableName: string;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -157,6 +162,15 @@ const datasourcePaneReducer = createReducer(initialState, {
     return {
       ...state,
       defaultKeyValueArrayConfig: [],
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      selectedTableName: action.payload,
     };
   },
 });

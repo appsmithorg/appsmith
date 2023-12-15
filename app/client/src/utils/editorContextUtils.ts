@@ -230,6 +230,7 @@ export function getSQLPluginsMockTableName(pluginId: string) {
 
 export function getDefaultTemplateActionConfig(
   plugin: Plugin,
+  dsPreviewTable: string,
   dsStructure?: DatasourceStructure,
   isMock?: boolean,
 ) {
@@ -259,10 +260,11 @@ export function getDefaultTemplateActionConfig(
       }
     } else {
       if (SQL_DATASOURCES.includes(plugin?.name)) {
-        defaultTableName =
-          !!dsStructure.tables && dsStructure.tables.length > 0
-            ? dsStructure.tables[0].name
-            : "";
+        defaultTableName = !!dsPreviewTable
+          ? dsPreviewTable
+          : !!dsStructure.tables && dsStructure.tables.length > 0
+          ? dsStructure.tables[0].name
+          : "";
       }
     }
 
