@@ -38,7 +38,12 @@ const ListQuery = () => {
   }, [pageId]);
 
   return (
-    <Flex flexDirection="column" padding="spaces-4">
+    <Flex
+      flexDirection="column"
+      gap="spaces-3"
+      overflow="hidden"
+      padding="spaces-3"
+    >
       {canCreateActions && (
         <Button
           kind={"secondary"}
@@ -49,41 +54,42 @@ const ListQuery = () => {
           New query/API
         </Button>
       )}
-
-      {Object.keys(files).map((key) => {
-        return (
-          <Flex flexDirection={"column"} key={key}>
-            <Flex px="spaces-3">
-              <Text
-                className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-                kind="heading-xs"
+      <Flex flex="1" flexDirection={"column"} gap="spaces-3" overflow="scroll">
+        {Object.keys(files).map((key) => {
+          return (
+            <Flex flexDirection={"column"} gap="spaces-2" key={key}>
+              <Flex px="spaces-3" py="spaces-1">
+                <Text
+                  className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+                  kind="body-s"
+                >
+                  {key}
+                </Text>
+              </Flex>
+              <FilesContextProvider
+                canCreateActions={canCreateActions}
+                editorId={applicationId}
+                parentEntityId={pageId}
+                parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
               >
-                {key}
-              </Text>
+                {files[key].map((file: any) => {
+                  return (
+                    <ExplorerActionEntity
+                      id={file.id}
+                      isActive={file.id === activeActionId}
+                      key={file.id}
+                      parentEntityId={pageId}
+                      searchKeyword={""}
+                      step={1}
+                      type={file.type}
+                    />
+                  );
+                })}
+              </FilesContextProvider>
             </Flex>
-            <FilesContextProvider
-              canCreateActions={canCreateActions}
-              editorId={applicationId}
-              parentEntityId={pageId}
-              parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
-            >
-              {files[key].map((file: any) => {
-                return (
-                  <ExplorerActionEntity
-                    id={file.id}
-                    isActive={file.id === activeActionId}
-                    key={file.id}
-                    parentEntityId={pageId}
-                    searchKeyword={""}
-                    step={2}
-                    type={file.type}
-                  />
-                );
-              })}
-            </FilesContextProvider>
-          </Flex>
-        );
-      })}
+          );
+        })}
+      </Flex>
 
       {Object.keys(files).length === 0 && (
         <Flex px="spaces-3">

@@ -18,7 +18,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
-    grid-template-columns: 4px auto 1fr auto auto auto auto auto;
+    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
 
     & .t--entity-name {
       padding-left: var(--ads-v2-spaces-3);
@@ -48,11 +48,11 @@ const JSSection = () => {
 
   return (
     <JSContainer
-      className="ide-pages-pane__content-queries"
+      className="ide-pages-pane__content-js"
       flexDirection="column"
-      gap="spaces-3"
+      gap="spaces-2"
       overflow="scroll"
-      padding="spaces-4"
+      padding="spaces-3"
     >
       {canCreateActions && (
         <Button
