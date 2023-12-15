@@ -15,11 +15,13 @@ injectGlobal(globalFontStack());
 export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, className, style, theme } = props;
   const [width, setWidth] = useDebounce<number | null>(null, 100);
+  const [isMeasuring, setIsMeasuring] = useDebounce(true);
   const providerRef = useRef(null);
 
-  useResizeObserver(providerRef as RefObject<HTMLElement>, (entry) =>
-    setWidth(entry.contentRect.width),
-  );
+  useResizeObserver(providerRef as RefObject<HTMLElement>, (entry) => {
+    setWidth(entry.contentRect.width);
+    setIsMeasuring(false);
+  });
 
   const {
     colorClassName,
@@ -46,7 +48,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
         ref={providerRef}
         style={style}
       >
-        {children}
+        {isMeasuring ? null : children}
       </div>
     </ThemeContext.Provider>
   );

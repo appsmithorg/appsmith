@@ -1,0 +1,124 @@
+import {
+  Flex,
+  ActionGroup,
+  COLORS,
+  BUTTON_VARIANTS,
+  Item,
+} from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
+import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
+import FileCopyLineIcon from "remixicon-react/FileCopyLineIcon";
+import DeleteBinLineIcon from "remixicon-react/DeleteBinLineIcon";
+
+<Meta title="Design-system/Widgets/Action Group" component={ActionGroup} />
+
+# ActionGroup Group
+
+A `ActionGroup` is a group of `ActionGroupItem` that are visually connected together.
+The `ActionGroupItem` accepts the same props as the `Button` except `variant` and `color`.
+More information about `Button` props you can find [here](?path=/docs/design-system-widgets-button--docs).
+
+export const Template = (args) => {
+  return (
+    <ActionGroup {...args} onAction={console.log}>
+      <Item key="option-1" icon={EmotionHappyLineIcon}>
+        Option 1
+      </Item>
+      <Item key="option-2">Option 2</Item>
+      <Item key="option-3">Option 3</Item>
+      <Item key="option-4">Option 4</Item>
+    </ActionGroup>
+  );
+};
+
+<Canvas>
+  <Story name="Action Group">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Action Group" of={ActionGroup} />
+
+## Orientation
+
+The `ActionGroup` can be oriented horizontally or vertically. By default it is oriented horizontally.
+
+<Story name="Orientation">
+  <ActionGroup orientation="vertical">
+    <Item key="option-1">Option 1</Item>
+    <Item key="option-2">Option 2</Item>
+    <Item key="option-3">Option 3</Item>
+    <Item key="option-4">Option 4</Item>
+  </ActionGroup>
+</Story>
+
+## Density
+
+The `ActionGroup` can be `compact` or `regular`. By default it is regular.
+
+<Story name="Density">
+  <ActionGroup density="compact">
+    <Item key="option-1">Option 1</Item>
+    <Item key="option-2">Option 2</Item>
+    <Item key="option-3">Option 3</Item>
+    <Item key="option-4">Option 4</Item>
+  </ActionGroup>
+</Story>
+
+## Semantic
+
+`Button` component has 3 visual style variants and 5 semantic color options
+
+<Story name="Semantic">
+  <Flex direction="column" gap="spacing-4" alignItems="center">
+    {Object.values(BUTTON_VARIANTS).map((variant) =>
+      Object.values(COLORS).map((color) => (
+        <ActionGroup
+          variant={variant}
+          color={color}
+          key={`${variant}-${color}`}
+        >
+          <Item>
+            {variant} {color}
+          </Item>
+          <Item>
+            {variant} {color}
+          </Item>
+          <Item>
+            {variant} {color}
+          </Item>
+        </ActionGroup>
+      )),
+    )}
+  </Flex>
+</Story>
+
+## OverflowMode
+
+The `ActionGroup` can be `collapse`. By default it is not collapsed. When collpaised, the `ActionGroup` will show items based on the width available. The rest of the items will be shown under a dropdown menu.
+
+<Story name="OverflowMode">
+  <div style={{ maxWidth: 150 }}>
+    <ActionGroup overflowMode="collapse" variant="outlined">
+      <Item key="option-1">Option 1</Item>
+      <Item key="option-2">Option 2</Item>
+      <Item key="option-3" icon={FileCopyLineIcon}>
+        Option 3
+      </Item>
+      <Item key="option-4" icon={DeleteBinLineIcon} iconPosition="end">
+        Option 4
+      </Item>
+    </ActionGroup>
+  </div>
+</Story>
+
+## Disabled Keys
+
+The `ActionGroup` can have disabled keys. The disabled keys will be disabled in the `ActionGroup` and will not trigger the `onAction` callback.
+
+<Story name="Disabled Keys">
+  <ActionGroup disabledKeys={["option-2", "option-4"]}>
+    <Item key="option-1">Option 1</Item>
+    <Item key="option-2">Option 2</Item>
+    <Item key="option-3">Option 3</Item>
+    <Item key="option-4">Option 4</Item>
+  </ActionGroup>
+</Story>
