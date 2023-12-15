@@ -304,7 +304,8 @@ public class FileUtilsImpl implements FileInterface {
                         Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))
                                 ? updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString)
                                 : Boolean.FALSE;
-                        String fileNameWithExtension = uidString.replaceAll("/", "_") + CommonConstants.JSON_EXTENSION;
+
+                        String fileNameWithExtension = urlToFileName(uidString) + CommonConstants.JSON_EXTENSION;
                         Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
                         if (isResourceUpdated) {
                             saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
@@ -1107,5 +1108,14 @@ public class FileUtilsImpl implements FileInterface {
             log.error("Error reading index.lock file: {}", ex.getMessage());
             return Mono.just(0L);
         }
+    }
+
+    /**
+     * This method converts an URL string to a valid file name. The file name should not contain any character
+     * that's not allowed in any operating systems.
+     * @return
+     */
+    public static String urlToFileName(String urlString) {
+        return Integer.toHexString(urlString.hashCode());
     }
 }
