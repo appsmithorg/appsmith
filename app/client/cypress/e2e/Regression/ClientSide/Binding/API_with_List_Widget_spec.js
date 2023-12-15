@@ -63,7 +63,7 @@ describe(
           timeout: 20000,
           interval: 1000,
         },
-      ).then(() => cy.wait(500));
+      );
 
       cy.get(".t--widget-textwidget span").should("have.length", 8);
       cy.get(".t--widget-textwidget span")
@@ -104,7 +104,7 @@ describe(
           timeout: 20000,
           interval: 1000,
         },
-      ).then(() => cy.wait(500));
+      );
       cy.get(".t--widget-textwidget span").should("have.length", 6);
       cy.get(".t--widget-textwidget span")
         .first()
