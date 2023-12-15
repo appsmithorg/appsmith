@@ -41,19 +41,33 @@ jobs:
       #- name: Setup upterm session
       #  uses: lhotari/action-upterm@v1
 
+      #- name: Addfile
+      #  if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+      #  env:
+      #    cachetoken: ${{ secrets.CACHETOKEN }}
+      #    
+      #  run: |
+      #    cd ./cacherepo
+      #    git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
+      #    cd testcacherepo
+      #    export var1=`tr -dc A-Za-z0-9 </dev/urandom | head -c 13`
+      #    touch $var1
+      #    git add  $var1
+      #    git commit -m "test12321321"
+      #    git push
+
       - name: Addfile
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          
         run: |
-          cd ./cacherepo
-          git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
-          cd testcacherepo
-          export var1=`tr -dc A-Za-z0-9 </dev/urandom | head -c 13`
-          touch $var1
-          git add  $var1
-          git commit -m "test12321321"
-          git push
+          touch asdasqweqw12321321.txt
+
+      - name: Test cache
+        uses: yatinappsmith/customcacheaction@main
+        with:
+          repo_name: yatinappsmith/testcacherepo.git
+          token: ${{ secrets.CACHETOKEN }}
+          filename: asdasqweqw12321321.txt
+          cachename: testcache_15Dec2023_1302
+          actiontype: STORE
+        
           
       
