@@ -3,8 +3,9 @@ import {dirname} from "path"
 import {spawnSync} from "child_process"
 import {X509Certificate} from "crypto"
 
-// The custom domain is expected to only have the domain. So if it has protocol or trailing slash, we remove it.
-const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, "")
+// The custom domain is expected to only have the domain. So if it has a protocol, we ignore the whole value.
+// This was the effective behaviour before Caddy.
+const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
