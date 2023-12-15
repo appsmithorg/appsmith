@@ -99,6 +99,7 @@ function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
           <Text>{`{{ inputs.input1 }}`}</Text>
         </InstructionsWrapper>
         <Form
+          dataTreePathPrefix="inputs"
           defaultValues={defaultValues || generateDefaultInputForm()}
           onUpdateForm={onUpdateInputsForm}
           useEvalValues={useEvalValues}

@@ -1,5 +1,8 @@
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  type AnyReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 
 export interface SaveModuleNamePayload {
@@ -78,4 +81,18 @@ export const setCurrentModule = (id?: string) => ({
 export const updateModuleInputs = (payload: UpdateModuleInputsPayload) => ({
   type: ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT,
   payload: payload,
+});
+
+/**
+ * After all entities are fetched, we trigger evaluation using this redux action, here we supply postEvalActions
+ * to trigger action after evaluation has been completed like executeOnPageLoadAction
+ *
+ * @param {Array<AnyReduxAction>} postEvalActions
+ */
+export const fetchAllModuleEntityCompletion = (
+  postEvalActions: Array<AnyReduxAction>,
+) => ({
+  type: ReduxActionTypes.FETCH_ALL_MODULE_ENTITY_COMPLETION,
+  postEvalActions,
+  payload: undefined,
 });

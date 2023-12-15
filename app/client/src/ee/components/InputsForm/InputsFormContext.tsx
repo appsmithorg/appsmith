@@ -2,6 +2,7 @@ import React, { createContext, useMemo } from "react";
 
 interface InputsFormContextProps {
   useWatchEvalPath?: (name: string) => any;
+  dataTreePathPrefix?: string;
 }
 
 type InputsFormContextProviderProps =
@@ -11,9 +12,10 @@ export const InputsFormContext = createContext<InputsFormContextProps>({});
 
 export function InputsFormContextProvider({
   children,
+  dataTreePathPrefix,
   useWatchEvalPath,
 }: InputsFormContextProviderProps) {
-  const value = useMemo(
+  const memoizedValue = useMemo(
     () => ({
       useWatchEvalPath,
     }),
@@ -21,7 +23,12 @@ export function InputsFormContextProvider({
   );
 
   return (
-    <InputsFormContext.Provider value={value}>
+    <InputsFormContext.Provider
+      value={{
+        dataTreePathPrefix,
+        useWatchEvalPath: memoizedValue.useWatchEvalPath,
+      }}
+    >
       {children}
     </InputsFormContext.Provider>
   );
