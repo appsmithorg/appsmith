@@ -296,7 +296,23 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     }`);
     jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true, false); //for on page load execution, since sync function is updated to async
     deployMode.DeployApp();
-    agHelper.Sleep(2000); //for call to finish for CI runs
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+        " " +
+        locators._input,
+    );
+    // cy.waitUntil(() =>
+    //   agHelper
+    //     .GetText(
+    //       locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+    //         " " +
+    //         locators._input,
+    //       "val",
+    //     )
+    //     .then(($inputText) => {
+    //       expect($inputText).not.to.be.empty;
+    //     }),
+    // );
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -333,6 +349,18 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "{{Select3.options}}");
     deployMode.DeployApp();
+    cy.waitUntil(() =>
+      agHelper
+        .GetText(
+          locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+            " " +
+            locators._input,
+          "val",
+        )
+        .then(($inputText) => {
+          expect($inputText).not.to.be.empty;
+        }),
+    );
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -373,7 +401,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
         expect(val).to.contain("monday");
       });
     agHelper.ClickButton("Submit");
-    agHelper.Sleep(); //settimeout timer!
+    agHelper.Sleep(); //settimeout timer, hence sleep needed here!
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +

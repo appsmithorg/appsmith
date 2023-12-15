@@ -5,6 +5,8 @@ cypress/e2e/Regression/ClientSide/Autocomplete/*
 cypress/e2e/Regression/ClientSide/Widgets/Chart/Chart_Widget_Loading_spec.js
 cypress/e2e/Regression/ClientSide/Branding/Branding_spec.js
 cypress/e2e/Regression/ClientSide/Debugger/Widget_property_navigation_spec.ts
+cypress/e2e/Regression/ClientSide/SetProperty/SetOptions_Spec.ts
+
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
