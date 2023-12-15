@@ -30,7 +30,7 @@ if (CUSTOM_DOMAIN !== "") {
 
 }
 
-const explicitTlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
+const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
 
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
@@ -116,14 +116,11 @@ parts.push(`
 
   handle_errors {
     respond "{err.status_code} {err.status_text}" {err.status_code}
+    header -Server
   }
 }
-`)
 
-// We bind to http on 80, so that localhost requests don't get redirected to https, and if the cert provisioning fails,
-// Caddy can still serve on http.
-// But this still means that if cert provisioning is successful, http will be redirected to https.
-parts.push(`
+# We bind to http on 80, so that localhost requests don't get redirected to https.
 :80 {
   import all-config
 }
@@ -131,26 +128,18 @@ parts.push(`
 
 if (CUSTOM_DOMAIN !== "") {
   // If no custom domain, no extra routing needed.
-  if (explicitTlsConfig !== "") {
-    // With explicit TLS certs and configuration, we have to handle the http-to-https redirect ourselves.
-    parts.push(`
-    https://${CUSTOM_DOMAIN} {
-      import all-config
-      ${explicitTlsConfig}
-    }
-    http://${CUSTOM_DOMAIN} {
-      redir https://{host}{uri}
-    }
-    `)
-  } else {
-    // Without explicit TLS certs, we want Caddy to handle the http-to-https redirect.
-    // Why? Because here, Caddy can _not_ do that redirect if the cert provisioning fails.
-    parts.push(`
-    ${CUSTOM_DOMAIN} {
-      import all-config
-    }
-    `)
+  // We have to own the http-to-https redirect, since we need to remove the `Server` header from the response.
+  parts.push(`
+  https://${CUSTOM_DOMAIN} {
+    import all-config
+    ${tlsConfig}
   }
+  http://${CUSTOM_DOMAIN} {
+    redir https://{host}{uri}
+    header -Server
+    header Connection close
+  }
+  `)
 }
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
