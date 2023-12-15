@@ -37,6 +37,9 @@ export default class util {
       cypressSkipFlaky: this.getEnvValue("CYPRESS_SKIP_FLAKY", {
         required: false,
       }),
+      staticAllocation: this.getEnvValue("CYPRESS_STATIC_ALLOCATION",{
+        required: false,
+      }),
     };
   }
 
