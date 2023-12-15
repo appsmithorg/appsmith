@@ -1,4 +1,4 @@
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type {
   ActionEntity,
   WidgetEntity,
@@ -24,13 +24,13 @@ export const getEntityPeekData: Record<
     configTree: ConfigTree;
   }) => unknown
 > = {
-  [ENTITY_TYPE_VALUE.ACTION]: ({ dataTree, objectName }) => {
+  [ENTITY_TYPE.ACTION]: ({ dataTree, objectName }) => {
     return getActionChildrenPeekData(objectName, dataTree)?.peekData;
   },
-  [ENTITY_TYPE_VALUE.APPSMITH]: ({ dataTree }) => {
+  [ENTITY_TYPE.APPSMITH]: ({ dataTree }) => {
     return getAppsmithPeekData(dataTree).peekData;
   },
-  [ENTITY_TYPE_VALUE.JSACTION]: ({ dataTree, dataTreeEntity, jsActions }) => {
+  [ENTITY_TYPE.JSACTION]: ({ dataTree, dataTreeEntity, jsActions }) => {
     const entity = dataTreeEntity as ActionEntity;
     const jsAction = jsActions.find(
       (jsAction) => jsAction.config.id === entity.actionId,
@@ -39,7 +39,7 @@ export const getEntityPeekData: Record<
       ? getJsActionPeekData(jsAction, dataTree)?.peekData
       : entity;
   },
-  [ENTITY_TYPE_VALUE.WIDGET]: ({
+  [ENTITY_TYPE.WIDGET]: ({
     configTree,
     dataTree,
     dataTreeEntity,
