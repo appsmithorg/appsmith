@@ -6,7 +6,7 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
-  ENTITY_TYPE_VALUE,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
@@ -245,7 +245,7 @@ const BASE_WIDGET = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   meta: {},
 } as unknown as WidgetEntity;
 
@@ -253,7 +253,7 @@ const BASE_WIDGET_CONFIG = {
   logBlackList: {},
   widgetId: "randomID",
   type: "SKELETON_WIDGET",
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
 } as unknown as WidgetEntityConfig;
 
 export const BASE_ACTION: ActionEntity = {
@@ -267,7 +267,7 @@ export const BASE_ACTION: ActionEntity = {
   run: {},
   data: {},
   responseMeta: { isExecutionSuccess: false },
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE.ACTION,
 };
 export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   actionId: "randomId",
@@ -276,7 +276,7 @@ export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   name: "randomActionName",
   dynamicBindingPathList: [],
   pluginType: PluginType.API,
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE.ACTION,
   bindingPaths: {},
   reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
