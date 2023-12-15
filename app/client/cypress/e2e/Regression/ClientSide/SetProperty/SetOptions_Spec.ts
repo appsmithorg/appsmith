@@ -390,16 +390,18 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
       });
     agHelper.ClickButton("Submit");
     agHelper.Sleep(); //settimeout timer, hence sleep needed here!
-    agHelper
-      .GetText(
-        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-          " " +
-          locators._input,
-        "val",
-      )
-      .then((val) => {
-        expect(val).to.include("local label").and.to.include("local value");
-      });
+    cy.waitUntil(() =>
+      agHelper
+        .GetText(
+          locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+            " " +
+            locators._input,
+          "val",
+        )
+        .then((val) => {
+          expect(val).to.include("local label").and.to.include("local value");
+        }),
+    );
     deployMode.NavigateBacktoEditor();
   });
 });
