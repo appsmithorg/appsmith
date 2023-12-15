@@ -10,8 +10,7 @@ export class staticSplit {
     const specsMap = new Map();
     try {
       const queryRes = await client.query(
-        'SELECT * FROM public."spec_avg_duration" WHERE name IN $1 ORDER BY duration DESC',
-        [specs],
+        'SELECT * FROM public."spec_avg_duration" ORDER BY duration DESC',
       );
 
       queryRes.rows.forEach((obj) => {
