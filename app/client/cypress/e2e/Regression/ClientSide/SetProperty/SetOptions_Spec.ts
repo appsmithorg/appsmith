@@ -301,18 +301,6 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
         " " +
         locators._input,
     );
-    // cy.waitUntil(() =>
-    //   agHelper
-    //     .GetText(
-    //       locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-    //         " " +
-    //         locators._input,
-    //       "val",
-    //     )
-    //     .then(($inputText) => {
-    //       expect($inputText).not.to.be.empty;
-    //     }),
-    // );
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
