@@ -33,7 +33,7 @@ describe(
       agHelper.TypeText(locators._codeMirrorTextArea, "this.");
       agHelper.WaitUntilEleAppear(locators._hints);
       agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
-      agHelper.Sleep();//is needed for hint to stay on screen & then click, tried other checks, still failing locally & in CI
+      agHelper.Sleep(); //is needed for hint to stay on screen & then click, tried other checks, but without wait its failing locally & in CI
       agHelper.GetNClickByContains(locators._hints, "my variable 1", 0);
       agHelper.GetNAssertElementText(
         jsEditor._lineinJsEditor(5),
@@ -44,7 +44,7 @@ describe(
       agHelper.TypeText(locators._codeMirrorTextArea, 'this["');
       agHelper.WaitUntilEleAppear(locators._hints);
       agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
-      agHelper.Sleep();//is needed for hint to stay on screen & then click, tried other checks, still failing locally & in CI
+      agHelper.Sleep(); //is needed for hint to stay on screen & then click, tried other checks, but without wait its failing locally & in CI
       agHelper.GetNClickByContains(locators._hints, "my variable 1", 0, false);
       agHelper.GetNAssertElementText(
         jsEditor._lineinJsEditor(5),
