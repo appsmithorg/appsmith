@@ -611,7 +611,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">
-            {/* Http Version dropdown only added for REST API & GraphQL plugins */}
             <div>
               {/* eslint-disable-next-line */}
               {/* @ts-ignore*/}
