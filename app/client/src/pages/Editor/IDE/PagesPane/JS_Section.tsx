@@ -19,6 +19,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 const JSContainer = styled(Flex)`
   & .t--entity-item {
     grid-template-columns: 0 auto 1fr auto auto auto auto auto;
+    height: 32px;
 
     & .t--entity-name {
       padding-left: var(--ads-v2-spaces-3);
@@ -50,7 +51,7 @@ const JSSection = () => {
     <JSContainer
       className="ide-pages-pane__content-js"
       flexDirection="column"
-      gap="spaces-2"
+      gap="spaces-3"
       overflow="scroll"
       padding="spaces-3"
     >
@@ -64,21 +65,23 @@ const JSSection = () => {
           New JS object
         </Button>
       )}
-      {JSObjects &&
-        JSObjects.map((JSobject) => {
-          return (
-            <Flex flexDirection={"column"} key={JSobject.id}>
-              <ExplorerJSCollectionEntity
-                id={JSobject.id}
-                isActive={JSobject.id === activeActionId}
-                key={JSobject.id}
-                searchKeyword={""}
-                step={2}
-                type={JSobject.type as PluginType}
-              />
-            </Flex>
-          );
-        })}
+      <Flex flexDirection="column" gap="spaces-2">
+        {JSObjects &&
+          JSObjects.map((JSobject) => {
+            return (
+              <Flex flexDirection={"column"} key={JSobject.id}>
+                <ExplorerJSCollectionEntity
+                  id={JSobject.id}
+                  isActive={JSobject.id === activeActionId}
+                  key={JSobject.id}
+                  searchKeyword={""}
+                  step={2}
+                  type={JSobject.type as PluginType}
+                />
+              </Flex>
+            );
+          })}
+      </Flex>
 
       {!JSObjects ||
         (JSObjects.length === 0 && (
