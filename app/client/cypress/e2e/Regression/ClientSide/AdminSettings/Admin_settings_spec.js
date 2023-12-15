@@ -30,7 +30,6 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   });
 
   it("2. Should test that settings page is not accessible to normal users", () => {
-    cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
     cy.visit("/settings/general", { timeout: 60000 });
@@ -41,7 +40,6 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
 
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    //cy.wait(3000);
     cy.visit("/settings", { timeout: 60000 });
     cy.url().should("contain", "/settings/general");
     cy.wait("@getEnvVariables");
@@ -76,12 +74,8 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     { tags: ["@tag.airgap"] },
     () => {
       cy.visit("/applications", { timeout: 60000 });
-      if (!Cypress.env("AIRGAPPED")) {
-        cy.wait(3000);
-        cy.wait("@getReleaseItems");
-      } else {
-        cy.wait(2000);
-      }
+      if (!Cypress.env("AIRGAPPED")) cy.wait("@getReleaseItems");
+
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");
       cy.get(adminsSettings.generalTab).click();
@@ -148,8 +142,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;
+          .click();
         cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
       });
     },
@@ -169,8 +162,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;;
+          .click();
         cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
       });
     },
@@ -250,8 +242,6 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       );
     });
     cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.wait(3000);
     cy.get(adminsSettings.restartNotice).should("not.exist");
-    cy.wait(3000);
   });
 });
