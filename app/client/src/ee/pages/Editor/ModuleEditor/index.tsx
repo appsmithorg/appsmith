@@ -19,8 +19,8 @@ import {
   MODULE_API_EDITOR_PATH,
   MODULE_JS_COLLECTION_EDITOR_PATH,
   MODULE_QUERY_EDITOR_PATH,
-  SAAS_EDITOR_API_ID_PATH,
 } from "@appsmith/constants/routes/packageRoutes";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 
 interface RouteProps {
   moduleId: string;
