@@ -364,12 +364,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         AppsmithError.CLOUD_SERVICES_ERROR, "while publishing template" + error.getMessage())));
     }
 
-    private Mono<Application> updateApplicationFlags(String applicationId, String branchId) {
+    private Mono<Application> updateApplicationFlags(
+            String applicationId, String branchId, boolean isCommunityTemplate) {
         return applicationService
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     application.setForkingEnabled(true);
-                    application.setIsCommunityTemplate(true);
+                    application.setIsCommunityTemplate(isCommunityTemplate);
 
                     return applicationService.update(applicationId, application, branchId);
                 });
@@ -406,7 +407,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return uploadAppsmithTemplateToCS(communityTemplate);
                     }
                 })
-                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+                .then(updateApplicationFlags(
+                        resource.getApplicationId(), resource.getBranchName(), isCommunityTemplate))
                 .flatMap(application -> {
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
                     applicationAccessDTO.setPublicAccess(true);
