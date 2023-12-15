@@ -151,6 +151,7 @@ export const getEntitiesForNavigation = createSelector(
     ) {
       return {
         ...navigationData,
+        ...moduleInstanceNavigationData,
         this: navigationData[entityName],
       };
     }
