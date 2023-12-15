@@ -6,6 +6,7 @@ import {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import WidgetRow from "../WidgetRow";
 import { SectionRow } from "./SectionRow";
+import type { FlexLayoutProps } from "../FlexLayout";
 
 class Section extends WidgetRow {
   constructor(props: LayoutComponentProps) {
@@ -22,8 +23,20 @@ class Section extends WidgetRow {
     return ["ZONE_WIDGET"];
   }
 
+  getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
+    return {
+      ...super.getFlexLayoutProps(),
+      alignSelf: "stretch",
+      direction: "row",
+    };
+  }
+
   render(): JSX.Element {
-    return <SectionRow {...this.props}>{this.renderContent()}</SectionRow>;
+    return (
+      <SectionRow {...this.getFlexLayoutProps()}>
+        {this.renderContent()}
+      </SectionRow>
+    );
   }
 }
 

@@ -1,22 +1,21 @@
 import { RenderModes } from "constants/WidgetConstants";
-import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
-import WidgetRow from "../WidgetRow";
+import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
 
-export const SectionRow = (props: LayoutComponentProps) => {
+export const SectionRow = (props: FlexLayoutProps) => {
   const isPreviewMode = useSelector(previewModeSelector);
   return (
-    <WidgetRow
+    <FlexLayout
       {...props}
-      layoutStyle={{
-        ...(props.layoutStyle || {}),
-        wrap:
-          !isPreviewMode && props.renderMode === RenderModes.CANVAS
-            ? "nowrap"
-            : "wrap",
-      }}
-    />
+      wrap={
+        !isPreviewMode && props.renderMode === RenderModes.CANVAS
+          ? "nowrap"
+          : "wrap"
+      }
+    >
+      {props.children}
+    </FlexLayout>
   );
 };
