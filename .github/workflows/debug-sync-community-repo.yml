@@ -156,7 +156,7 @@ jobs:
           )
           List of commits tried to pull:
           $(
-            echo "${{ steps.merge.outputs.commits_list }}" | sed 's,(.\+) ,    [\1](https://github.com/appsmithorg/appsmith/commit/\1) @Nidhi,'
+            echo "${{ steps.merge.outputs.commits_list }}" | sed 's,\(.\+\) ,    [\1](https://github.com/appsmithorg/appsmith/commit/\1) @Nidhi,'
           )
           "
 
