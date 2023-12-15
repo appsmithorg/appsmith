@@ -128,13 +128,6 @@ jobs:
             exit 1
           fi
 
-      - name: Upload Slack ID refs
-        id: slack-refs
-        with:
-          path: .github/
-        run: |
-          cat 
-
       - name: Notify failure on workflow run and on Slack
         if: failure()
         with:
