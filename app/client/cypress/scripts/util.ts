@@ -4,6 +4,8 @@ import { Upload } from "@aws-sdk/lib-storage";
 import fs from "fs";
 import { Octokit } from "@octokit/rest";
 import fetch from "node-fetch";
+import globby from "globby";
+import minimatch from "minimatch";
 
 export interface DataItem {
   name: string;
@@ -37,7 +39,7 @@ export default class util {
       cypressSkipFlaky: this.getEnvValue("CYPRESS_SKIP_FLAKY", {
         required: false,
       }),
-      staticAllocation: this.getEnvValue("CYPRESS_STATIC_ALLOCATION",{
+      staticAllocation: this.getEnvValue("CYPRESS_STATIC_ALLOCATION", {
         required: false,
       }),
     };
@@ -70,6 +72,30 @@ export default class util {
       groups[shortestGroupIndex].push(item);
     });
     return groups;
+  }
+
+  // This function will get all the spec paths using the pattern
+  public async getSpecFilePaths(
+    specPattern: any,
+    ignoreTestFiles: any,
+  ): Promise<string[]> {
+    const files = globby.sync(specPattern, {
+      ignore: ignoreTestFiles,
+    });
+
+    // ignore the files that doesn't match
+    const ignorePatterns = [...(ignoreTestFiles || [])];
+
+    // a function which returns true if the file does NOT match
+    const doesNotMatchAllIgnoredPatterns = (file: string) => {
+      // using {dot: true} here so that folders with a '.' in them are matched
+      const MINIMATCH_OPTIONS = { dot: true, matchBase: true };
+      return ignorePatterns.every((pattern) => {
+        return !minimatch(file, pattern, MINIMATCH_OPTIONS);
+      });
+    };
+    const filtered = files.filter(doesNotMatchAllIgnoredPatterns);
+    return filtered;
   }
 
   public getEnvValue(varName: string, { required = true }): string {

@@ -1,43 +1,10 @@
-/* eslint-disable no-console */
 import util from "./util";
-import globby from "globby";
-import minimatch from "minimatch";
-import { Console } from "console";
 
-export class cypressSplit {
+export class dynamicSplit {
   util = new util();
   dbClient = this.util.configureDbClient();
 
-  // This function will get all the spec paths using the pattern
-  private async getSpecFilePaths(
-    specPattern: any,
-    ignoreTestFiles: any,
-  ): Promise<string[]> {
-    const files = globby.sync(specPattern, {
-      ignore: ignoreTestFiles,
-    });
-
-    // ignore the files that doesn't match
-    const ignorePatterns = [...(ignoreTestFiles || [])];
-
-    // a function which returns true if the file does NOT match
-    const doesNotMatchAllIgnoredPatterns = (file: string) => {
-      // using {dot: true} here so that folders with a '.' in them are matched
-      const MINIMATCH_OPTIONS = { dot: true, matchBase: true };
-      return ignorePatterns.every((pattern) => {
-        return !minimatch(file, pattern, MINIMATCH_OPTIONS);
-      });
-    };
-    const filtered = files.filter(doesNotMatchAllIgnoredPatterns);
-    return filtered;
-  }
-
-  private async getSpecsWithTime(
-    staticAllocation: boolean = false,
-    specs: string[],
-    attemptId: number,
-  ) {
-    console.log("in getSpecsWithTime --- staticAllocation====> ", staticAllocation)
+  private async getSpecsWithTime(specs: string[], attemptId: number) {
     const client = await this.dbClient.connect();
     const defaultDuration = 180000;
     const specsMap = new Map();
@@ -45,8 +12,6 @@ export class cypressSplit {
       const queryRes = await client.query(
         'SELECT * FROM public."spec_avg_duration" ORDER BY duration DESC',
       );
-
-      console.log("in getSpecsWithTime --- guery result from spec_avg_duration====> ", queryRes)
 
       queryRes.rows.forEach((obj) => {
         specsMap.set(obj.name, obj);
@@ -56,23 +21,12 @@ export class cypressSplit {
         const match = specsMap.get(spec);
         return match ? match : { name: spec, duration: defaultDuration };
       });
-
-      console.log("in getSpecsWithTime --- allSpecsWithDuration====> ", allSpecsWithDuration)
-
-      if (!staticAllocation) {
-        const activeRunners = await this.util.getActiveRunners();
-        const activeRunnersFromDb =
-          await this.getActiveRunnersFromDb(attemptId);
-        return await this.util.divideSpecsIntoBalancedGroups(
-          allSpecsWithDuration,
-          Number(activeRunners) - Number(activeRunnersFromDb),
-        );
-      } else {
-        return await this.util.divideSpecsIntoBalancedGroups(
-          allSpecsWithDuration,
-          Number(this.util.getVars().totalRunners),
-        );
-      }
+      const activeRunners = await this.util.getActiveRunners();
+      const activeRunnersFromDb = await this.getActiveRunnersFromDb(attemptId);
+      return await this.util.divideSpecsIntoBalancedGroups(
+        allSpecsWithDuration,
+        Number(activeRunners) - Number(activeRunnersFromDb),
+      );
     } catch (err) {
       console.log(err);
     } finally {
@@ -82,31 +36,21 @@ export class cypressSplit {
 
   // This function will finally get the specs as a comma separated string to pass the specs to the command
   private async getSpecsToRun(
-    staticAllocation: boolean = false,
     specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
     ignorePattern: string | string[],
     attemptId: number,
   ): Promise<string[]> {
-    console.log("in getSpecsToRun --- staticAllocation====> ", staticAllocation)
     try {
-      const specFilePaths = await this.getSpecFilePaths(
+      const specFilePaths = await this.util.getSpecFilePaths(
         specPattern,
         ignorePattern,
       );
 
-      const specsToRun = await this.getSpecsWithTime(
-        staticAllocation,
-        specFilePaths,
-        attemptId,
-      );
+      const specsToRun = await this.getSpecsWithTime(specFilePaths, attemptId);
       console.log("SPECS TO RUN ----------> :", specsToRun);
       return specsToRun === undefined || specsToRun.length === 0
         ? []
-        : staticAllocation
-        ? specsToRun[0].map((spec) => spec.name)
-        : specsToRun[Number(this.util.getVars().thisRunner)].map(
-            (spec) => spec.name,
-          );
+        : specsToRun[0].map((spec) => spec.name);
     } catch (err) {
       console.error(err);
       process.exit(1);
@@ -235,33 +179,6 @@ export class cypressSplit {
     }
   }
 
-  private async getFailedSpecsFromPreviousRunForARunner(
-    matrix_number: number,
-    workflowId = Number(this.util.getVars().runId),
-    attempt_number = Number(this.util.getVars().attempt_number) - 1,
-  ) {
-    const client = await this.dbClient.connect();
-    try {
-      const dbRes = await client.query(
-        `SELECT name FROM public."specs" 
-      WHERE "matrixId" IN 
-      (SELECT id FROM public."matrix" 
-       WHERE "attemptId" = (
-         SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2 
-       ) AND "matrixId" = $3
-      ) AND status IN ('fail', 'queued', 'in-progress')`,
-        [workflowId, attempt_number, matrix_number],
-      );
-      const specs: string[] =
-        dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
-      return specs;
-    } catch (err) {
-      console.log(err);
-    } finally {
-      client.release();
-    }
-  }
-
   private async addSpecsToMatrix(matrixId: number, specs: string[]) {
     const client = await this.dbClient.connect();
     try {
@@ -279,7 +196,6 @@ export class cypressSplit {
   }
 
   private async addLockGetTheSpecs(
-    staticAllocation: boolean = false,
     attemptId: number,
     specPattern: string | string[],
     ignorePattern: string | string[],
@@ -289,48 +205,31 @@ export class cypressSplit {
     let locked = false;
     let counter = 1;
     try {
-      console.log("in addLockGetTheSpecs ---staticAllocation ====> ", staticAllocation)
-      if (!staticAllocation) {
-        console.log("in addLockGetTheSpecs ---in dynamic allocation block ====> ", staticAllocation)
-        while (counter <= 120 && !locked) {
-          const result = await client.query(
-            `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
-            [attemptId],
-          );
-          if (result.rows.length === 1) {
-            locked = true;
-            let runningSpecs: string[] =
-              (await this.getAlreadyRunningSpecs()) ?? [];
-            if (typeof ignorePattern === "string") {
-              runningSpecs.push(ignorePattern);
-              ignorePattern = runningSpecs;
-            } else {
-              ignorePattern = runningSpecs.concat(ignorePattern);
-            }
-            specs = await this.getSpecsToRun(
-              staticAllocation,
-              specPattern,
-              ignorePattern,
-              attemptId,
-            );
-            console.log("in addLockGetTheSpecs ---in dynamic allocation block-- specs ====> ", specs)
-
-            return specs;
-          } else {
-            await this.sleep(5000);
-            counter++;
-          }
-        }
-      } else {
-        console.log("in addLockGetTheSpecs ---in static allocation block ====> ", staticAllocation)
-        specs = await this.getSpecsToRun(
-          staticAllocation,
-          specPattern,
-          ignorePattern,
-          attemptId,
+      while (counter <= 120 && !locked) {
+        const result = await client.query(
+          `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
+          [attemptId],
         );
-        console.log("in addLockGetTheSpecs ---in static allocation block--specs ====> ", specs)
-        return specs;
+        if (result.rows.length === 1) {
+          locked = true;
+          let runningSpecs: string[] =
+            (await this.getAlreadyRunningSpecs()) ?? [];
+          if (typeof ignorePattern === "string") {
+            runningSpecs.push(ignorePattern);
+            ignorePattern = runningSpecs;
+          } else {
+            ignorePattern = runningSpecs.concat(ignorePattern);
+          }
+          specs = await this.getSpecsToRun(
+            specPattern,
+            ignorePattern,
+            attemptId,
+          );
+          return specs;
+        } else {
+          await this.sleep(5000);
+          counter++;
+        }
       }
     } catch (err) {
       console.log(err);
@@ -349,12 +248,10 @@ export class cypressSplit {
         const matrixRes = await this.createMatrix(attemptId);
         await this.addSpecsToMatrix(matrixRes, specs);
       }
-      if (!(this.util.getVars().staticAllocation == "true")) {
-        await client.query(
-          `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
-          [attemptId],
-        );
-      }
+      await client.query(
+        `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
+        [attemptId],
+      );
     } catch (err) {
       console.log(err);
     } finally {
@@ -382,26 +279,18 @@ export class cypressSplit {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  public async splitSpecs(
-    on: Cypress.PluginEvents,
-    config: Cypress.PluginConfigOptions,
-  ) {
+  public async splitSpecs(config: Cypress.PluginConfigOptions) {
     try {
       let specPattern = config.specPattern;
       let ignorePattern: string | string[] = config.excludeSpecPattern;
-      const runner = this.util.getVars().thisRunner;
-      const staticAllocation: boolean =
-        this.util.getVars().staticAllocation == "true";
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
       if (cypressSpecs != "")
         specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
       if (this.util.getVars().cypressRerun === "true") {
-        const specs = staticAllocation
-          ? await this.getFailedSpecsFromPreviousRunForARunner(Number(runner))
-          : await this.getFailedSpecsFromPreviousRun();
-        specPattern = specs ?? defaultSpec;
+        specPattern =
+          (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
       }
 
       if (this.util.getVars().cypressSkipFlaky === "true") {
@@ -410,21 +299,16 @@ export class cypressSplit {
       }
 
       const attempt = await this.createAttempt();
-      console.log("ATTEMPT =====>", attempt);
-      console.log("staticAllocation =====>", staticAllocation);
       const specs =
-        (await this.addLockGetTheSpecs(
-          staticAllocation,
-          attempt,
-          specPattern,
-          ignorePattern,
-        )) ?? [];
+        (await this.addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ??
+        [];
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
       } else {
         config.specPattern = defaultSpec;
       }
       await this.updateTheSpecsAndReleaseLock(attempt, specs);
+
       return config;
     } catch (err) {
       console.log(err);
