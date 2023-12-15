@@ -147,7 +147,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
-    _.agHelper.AssertContains("Sample collection");
+    _.agHelper.AssertContains("Select collection");
     _.agHelper.AssertElementEnabledDisabled(OneClickBindingLocator.connectData);
     _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
     _.agHelper.GetNClick(
