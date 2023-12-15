@@ -29,7 +29,6 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   getAllDatasourceCollapsibleState,
-  getDefaultWidgetSelection,
   getDsViewModeValues,
   getSelectedWidgets,
 } from "selectors/ui";
@@ -227,6 +226,20 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setPropertyPaneWidthAction,
       defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.SelectedWidgets,
+      selector: getSelectedWidgets,
+      setter: (widgetIds: string[]) =>
+        selectWidgetInitAction(
+          widgetIds.length
+            ? SelectionRequestType.Multiple
+            : SelectionRequestType.Empty,
+          widgetIds,
+          NavigationMethod.ContextSwitching,
+        ),
+      defaultValue: [],
+    },
   ],
   [FocusEntity.DATASOURCE_LIST]: [
     {
@@ -354,20 +367,5 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: getFirstJSObjectId,
     },
   ],
-  [FocusEntity.WIDGET_LIST]: [
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.SelectedWidgets,
-      selector: getSelectedWidgets,
-      setter: (widgetIds: string[]) =>
-        selectWidgetInitAction(
-          widgetIds.length
-            ? SelectionRequestType.Multiple
-            : SelectionRequestType.Empty,
-          widgetIds,
-          NavigationMethod.ContextSwitching,
-        ),
-      defaultValue: getDefaultWidgetSelection,
-    },
-  ],
+  [FocusEntity.WIDGET_LIST]: [],
 };
