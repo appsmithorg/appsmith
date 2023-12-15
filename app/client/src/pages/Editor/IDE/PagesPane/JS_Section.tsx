@@ -52,7 +52,7 @@ const JSSection = () => {
       className="ide-pages-pane__content-js"
       flexDirection="column"
       gap="spaces-3"
-      overflow="scroll"
+      overflow="hidden"
       padding="spaces-3"
     >
       {canCreateActions && (
@@ -65,7 +65,7 @@ const JSSection = () => {
           New JS object
         </Button>
       )}
-      <Flex flexDirection="column" gap="spaces-2">
+      <Flex flex="1" flexDirection="column" gap="spaces-2" overflow="scroll">
         {JSObjects &&
           JSObjects.map((JSobject) => {
             return (

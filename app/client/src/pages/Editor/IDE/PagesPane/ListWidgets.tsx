@@ -35,7 +35,12 @@ const ListWidgets = () => {
   }, [pageId]);
 
   return (
-    <Flex flexDirection="column" gap="spaces-3" padding="spaces-3">
+    <Flex
+      flexDirection="column"
+      gap="spaces-3"
+      overflow="hidden"
+      padding="spaces-3"
+    >
       {canManagePages && (
         <Button
           kind={"secondary"}
@@ -47,7 +52,7 @@ const ListWidgets = () => {
         </Button>
       )}
 
-      <Flex flexDirection={"column"} gap="spaces-2">
+      <Flex flex="1" flexDirection={"column"} gap="spaces-2" overflow="scroll">
         {widgets?.children?.map((child) => (
           <WidgetEntity
             childWidgets={child.children}
