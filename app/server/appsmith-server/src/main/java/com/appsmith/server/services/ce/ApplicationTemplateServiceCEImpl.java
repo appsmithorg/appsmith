@@ -313,7 +313,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
-    private TemplateUploadDTO createCommunityTemplateUploadDTO(
+    private TemplateUploadDTO createTemplateUploadDTO(
             String sourceApplicationId, ApplicationJson appJson, TemplateDTO templateDetails) {
         ApplicationTemplate applicationTemplate = new ApplicationTemplate();
         applicationTemplate.setTitle(templateDetails.getTitle());
@@ -377,18 +377,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<Application> publishAsCommunityTemplate(TemplateDTO resource) {
-        return exportApplicationService
-                .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
-                .flatMap(appJson -> uploadCommunityTemplateToCS(
-                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
-                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
-                .flatMap(application -> {
-                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
-                    applicationAccessDTO.setPublicAccess(true);
-                    return applicationService
-                            .changeViewAccess(application.getId(), resource.getBranchName(), applicationAccessDTO)
-                            .zipWith(sessionUserService.getCurrentUser());
-                })
+        return exportAppAndUpload(resource, true)
+                .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     User user = tuple.getT2();
@@ -404,17 +394,34 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 });
     }
 
+    @NotNull private Mono<Application> exportAppAndUpload(TemplateDTO resource, boolean isCommunityTemplate) {
+        return exportApplicationService
+                .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
+                .flatMap(appJson -> {
+                    TemplateUploadDTO communityTemplate =
+                            createTemplateUploadDTO(resource.getApplicationId(), appJson, resource);
+                    if (isCommunityTemplate) {
+                        return uploadCommunityTemplateToCS(communityTemplate);
+                    } else {
+                        return uploadAppsmithTemplateToCS(communityTemplate);
+                    }
+                })
+                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+                .flatMap(application -> {
+                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+                    applicationAccessDTO.setPublicAccess(true);
+                    return applicationService.changeViewAccess(
+                            application.getId(), resource.getBranchName(), applicationAccessDTO);
+                });
+    }
+
     private Mono<ApplicationTemplate> uploadAppsmithTemplateToCS(TemplateUploadDTO communityTemplate) {
-        String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload";
+        String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload/use-case";
         return uploadTemplate(communityTemplate, url);
     }
 
     @Override
     public Mono<Boolean> publishAppsmithTemplate(TemplateDTO resource) {
-        return exportApplicationService
-                .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
-                .flatMap(appJson -> uploadAppsmithTemplateToCS(
-                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
-                .thenReturn(Boolean.TRUE);
+        return exportAppAndUpload(resource, false).thenReturn(Boolean.TRUE);
     }
 }
