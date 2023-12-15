@@ -67,9 +67,10 @@ jobs:
           output-var common_parent_sha "$last_common_ancestor"
 
           commits_to_pull_from_ce="$(git log --format=%H "$last_common_ancestor"...community/release)"
+          commit_info_to_pull_from_ce="$(git log --format='%H %ae' "$last_common_ancestor"...community/release)"
           echo "List of commits to pull from CE:"
-          echo "$commits_to_pull_from_ce" | sed 's/^/    /'
-          output-var commits_list "$commits_to_pull_from_ce"
+          echo "$commit_info_to_pull_from_ce" | sed 's/^/    /'
+          output-var commits_list "$commit_info_to_pull_from_ce"
 
           merge_head="$(git rev-parse community/release)"
           echo "CE release is at '$merge_head' (this should match with the first item in the above list)"
@@ -158,13 +159,13 @@ jobs:
           )
           List of commits tried to pull:
           $(
-            echo "${{ steps.merge.outputs.commits_list }}" | sed 's,.\+,    [\0](https://github.com/appsmithorg/appsmith/commit/\0),'
+            echo "${{ steps.merge.outputs.commits_list }}" | awk -F ',| |\r' 'NR==FNR{a[$1]=$2; next} $2 in a{$2=a[$2]} {print "["$1"](https://github.com/appsmithorg/appsmith/commit/"$1")", "<@"$2">"}' $GITHUB_WORKSPACE/.github/slack_ids.csv -
           )
           "
 
           echo "$details" >> "$GITHUB_STEP_SUMMARY"
 
-          # This unweildy horror of a sed command, converts standard Markdown links to Slack's unweildy link syntax.
+          # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
           slack_message="$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
 
           # This is the ChannelId of the tech channel.
