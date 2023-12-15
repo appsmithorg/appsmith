@@ -9,7 +9,8 @@ import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
 import { klona } from "klona";
 
-const initialState: JSCollectionDataState = [];
+export const initialState: JSCollectionDataState = [];
+
 export interface JSCollectionData {
   isLoading: boolean;
   config: JSCollection;
@@ -43,7 +44,7 @@ export interface JSExecutionError {
 export type BatchedJSExecutionData = Record<string, JSExecutionData[]>;
 export type BatchedJSExecutionErrors = Record<string, JSExecutionError[]>;
 
-const jsActionsReducer = createReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<JSCollection[]>,
@@ -462,10 +463,11 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return jsCollection;
     }),
-
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
-});
+};
+
+const jsActionsReducer = createReducer(initialState, handlers);
 
 export default jsActionsReducer;
