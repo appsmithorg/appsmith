@@ -147,9 +147,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
-
+    _.agHelper.AssertContains("Sample collection");
     _.agHelper.AssertElementEnabledDisabled(OneClickBindingLocator.connectData);
-    _.table.WaitUntilTableLoad(0, 0, "v2");
     _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
     _.agHelper.GetNClick(
       OneClickBindingLocator.tableOrSpreadsheetDropdownOption("movies"),
@@ -162,7 +161,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
       ),
     );
     _.agHelper.GetNClick(OneClickBindingLocator.connectData);
-
+    _.table.WaitUntilTableLoad(0, 0, "v2");
     _.propPane.OpenTableColumnSettings("imdb_id");
     _.propPane.TypeTextIntoField("Regex", "{{test}}");
     _.debuggerHelper.AssertErrorCount(1);
