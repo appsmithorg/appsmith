@@ -343,6 +343,7 @@ jobs:
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           CYPRESS_SPECS: ${{ env.specs_to_run }}
           CYPRESS_RERUN: ${{steps.run_result.outputs.rerun}}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}

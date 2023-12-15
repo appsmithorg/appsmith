@@ -370,6 +370,7 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
