@@ -3,6 +3,7 @@
 cypress/e2e/Regression/ClientSide/AuditLogs/Audit_logs_spec.js
 cypress/e2e/Regression/ClientSide/Autocomplete/*
 cypress/e2e/Regression/ClientSide/Widgets/Chart/Chart_Widget_Loading_spec.js
+cypress/e2e/Regression/ClientSide/Branding/Branding_spec.js
 
 
 # For running all specs - uncomment below:
