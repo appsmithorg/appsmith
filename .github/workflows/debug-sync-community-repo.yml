@@ -130,8 +130,6 @@ jobs:
 
       - name: Notify failure on workflow run and on Slack
         if: failure()
-        with:
-          path: .github/
         run: |
           set -o errexit
           set -o nounset
@@ -158,7 +156,7 @@ jobs:
           )
           List of commits tried to pull:
           $(
-            echo "${{ steps.merge.outputs.commits_list }}" | awk -F ' \|,\|\r' 'NR==FNR{a[$1]=$2; next} $2 in a{$2=a[$2]} {print "["$1"](https://github.com/appsmithorg/appsmith/commit/"$1")", "<@"$2">"}' slack_ids.csv -
+            echo "${{ steps.merge.outputs.commits_list }}" | awk -F ' \|,\|\r' 'NR==FNR{a[$1]=$2; next} $2 in a{$2=a[$2]} {print "["$1"](https://github.com/appsmithorg/appsmith/commit/"$1")", "<@"$2">"}' $GITHUB_WORKSPACE/.github/slack_ids.csv -
           )
           "
 
