@@ -8,7 +8,7 @@ import type {
   WidgetEntityConfig,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE_VALUE } from "./dataTreeFactory";
+import { ENTITY_TYPE } from "./dataTreeFactory";
 import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
@@ -295,7 +295,7 @@ const generateDataTreeWidgetWithoutMeta = (
 
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     },
     _.omit(widget, widgetPathsToOmit),
     unInitializedDefaultProps,
@@ -329,7 +329,7 @@ const generateDataTreeWidgetWithoutMeta = (
       triggerPaths,
       validationPaths,
       dependencyMap,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       privateWidgets: {
         ...widget.privateWidgets,
       },
