@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.constants.GoogleAIConstants.COMPONENT;
-import static com.external.plugins.constants.GoogleAIConstants.COMPONENT_DATA;
 import static com.external.plugins.constants.GoogleAIConstants.CONTENT;
 import static com.external.plugins.constants.GoogleAIConstants.DATA;
 import static com.external.plugins.constants.GoogleAIConstants.GENERATE_CONTENT_MODEL;
@@ -136,15 +134,15 @@ public class GenerateContentCommand implements GoogleAICommand {
         }
     }
 
+    /**
+     * When JS is enabled in form component, value is stored in data key only. Difference is if viewType is json,
+     * it's stored as JSON string otherwise it's Java serialized object
+     */
     private List<Map<String, String>> getMessages(Map<String, Object> messages) {
         Type listType = new TypeToken<List<Map<String, String>>>() {}.getType();
-        if (messages.containsKey(VIEW_TYPE)) {
-            if (JSON.equals(messages.get(VIEW_TYPE))) {
-                // data is present in data key as String
-                return gson.fromJson((String) messages.get(DATA), listType);
-            } else if (COMPONENT.equals(messages.get(VIEW_TYPE))) {
-                return (List<Map<String, String>>) messages.get(COMPONENT_DATA);
-            }
+        if (messages.containsKey(VIEW_TYPE) && JSON.equals(messages.get(VIEW_TYPE))) {
+            // data is present in data key as String
+            return gson.fromJson((String) messages.get(DATA), listType);
         }
         // return object stored in data key
         return (List<Map<String, String>>) messages.get(DATA);
