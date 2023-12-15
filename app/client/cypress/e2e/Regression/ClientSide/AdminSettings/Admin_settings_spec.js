@@ -48,6 +48,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   });
 
   it(
+    "excludeForAirgap",
     "4. Should test that settings page tab redirects",
     { tags: ["@tag.excludeForAirgap"] },
     () => {
@@ -70,6 +71,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   );
 
   it(
+    "airgap",
     "4. Should test that settings page tab redirects and developer settings doesn't exist - airgap",
     { tags: ["@tag.airgap"] },
     () => {
@@ -97,6 +99,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   );
 
   it(
+    "excludeForAirgap",
     "5. Should test that authentication page redirects",
     { tags: ["@tag.excludeForAirgap"] },
     () => {
@@ -117,6 +120,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   );
 
   it(
+    "airgap",
     "5. Should test that authentication page redirects and google and github auth doesn't exist - airgap",
     { tags: ["@tag.airgap"] },
     () => {
@@ -131,6 +135,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   );
 
   it(
+    "excludeForAirgap",
     "6. Should test that configure link redirects to google signup setup doc",
     { tags: ["@tag.excludeForAirgap"] },
     () => {
@@ -151,6 +156,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   );
 
   it(
+    "excludeForAirgap",
     "7. Should test that configure link redirects to github signup setup doc",
     { tags: ["@tag.excludeForAirgap"] },
     () => {

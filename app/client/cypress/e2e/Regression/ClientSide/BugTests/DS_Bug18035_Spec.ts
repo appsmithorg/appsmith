@@ -8,8 +8,9 @@ const dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe(
+  "excludeForAirgap",
   "Bug 18035: Updates save button text on datasource discard popup",
-  { tags: ["@tag.excludeForAirgap", "@tag.Datasource"] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Create gsheet datasource, click on back button, discard popup should contain save and authorize", function () {
       dataSources.NavigateToDSCreateNew();

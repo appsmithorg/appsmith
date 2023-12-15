@@ -11,8 +11,8 @@ describe(
     });
 
     it(
+      "excludeForAirgap",
       "1. Verify if the schema table accordions is collapsed in case of search",
-      { tags: ["@tag.excludeForAirgap"] },
       () => {
         agHelper.TypeText(
           dataSources._datasourceStructureSearchInput,
