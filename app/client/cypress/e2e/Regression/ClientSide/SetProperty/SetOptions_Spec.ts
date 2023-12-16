@@ -339,18 +339,13 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "{{Select3.options}}");
     deployMode.DeployApp();
-    cy.waitUntil(() =>
-      agHelper
-        .GetText(
-          locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-            " " +
-            locators._input,
-          "val",
-        )
-        .then(($inputText) => {
-          expect($inputText).not.to.be.empty;
-        }),
-    );
+    agHelper
+      .GetElement(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+      )
+      .waitUntil(($ele) => cy.wrap($ele).should("include.text", "monday"));
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
