@@ -345,7 +345,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
           " " +
           locators._input,
       )
-      .waitUntil(($ele) => cy.wrap($ele).should("include.text", "monday"));
+      .waitUntil(($ele) => cy.wrap($ele).should("include.value", "monday"));
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
