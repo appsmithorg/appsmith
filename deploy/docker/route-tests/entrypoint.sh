@@ -27,10 +27,10 @@ run-hurl() {
     "$@"
 }
 
-#if [[ "${OPEN_SHELL-}" == 1 ]]; then
+if [[ "${OPEN_SHELL-}" == 1 ]]; then
   # Open shell for debugging after this script is done.
   trap bash EXIT
-#fi
+fi
 
 echo
 echo "caddy version: $(caddy --version)"
