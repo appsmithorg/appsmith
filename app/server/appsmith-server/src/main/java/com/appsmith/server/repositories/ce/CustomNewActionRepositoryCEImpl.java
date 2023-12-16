@@ -412,8 +412,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
 
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + "pageId")
                 .in(pageIds);
 
         return queryAll(List.of(pageIdCriteria), permission);
@@ -421,8 +420,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + "pageId")
                 .in(pageIds);
 
         return queryAll(List.of(pageIdCriteria), permission);
@@ -612,10 +610,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
-        String unpublishedDeletedAtFieldName = String.format(
-                "%s.%s",
-                fieldName(QNewAction.newAction.unpublishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
+        String unpublishedDeletedAtFieldName =
+                String.format("%s.%s", fieldName(QNewAction.newAction.unpublishedAction), "deletedAt");
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
 

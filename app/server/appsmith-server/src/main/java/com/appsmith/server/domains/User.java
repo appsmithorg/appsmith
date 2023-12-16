@@ -40,10 +40,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private String hashedEmail;
 
-    // TODO: This is deprecated in favour of groups
-    @JsonView(Views.Public.class)
-    private Set<Role> roles;
-
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonView(Views.Public.class)
     private String password;
