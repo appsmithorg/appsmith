@@ -296,18 +296,13 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     }`);
     jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true, false); //for on page load execution, since sync function is updated to async
     deployMode.DeployApp();
-    cy.waitUntil(() =>
-      agHelper
-        .GetText(
-          locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-            " " +
-            locators._input,
-          "val",
-        )
-        .then(($inputText) => {
-          expect($inputText).not.to.be.empty;
-        }),
-    );
+    agHelper
+      .GetElement(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+      )
+      .waitUntil(($ele) => cy.wrap($ele).should("not.have.value", "[]"));
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
