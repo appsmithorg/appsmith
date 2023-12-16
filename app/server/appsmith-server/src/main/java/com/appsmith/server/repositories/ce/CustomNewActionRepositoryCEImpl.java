@@ -363,7 +363,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                     .is(null);
             criteria.add(deletedCriterion);
         }*/
-
     }
 
     @Override
