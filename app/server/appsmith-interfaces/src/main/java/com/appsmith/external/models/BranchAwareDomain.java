@@ -21,7 +21,6 @@ public abstract class BranchAwareDomain extends BaseDomain {
     DefaultResources defaultResources;
 
     @Override
-    @Deprecated
     public void sanitiseToExportDBObject() {
         this.setDefaultResources(null);
         super.sanitiseToExportDBObject();

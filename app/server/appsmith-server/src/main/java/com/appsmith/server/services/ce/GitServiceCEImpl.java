@@ -523,7 +523,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         String errorMessage = "Unable to find git author configuration for logged-in user. You can set "
                                 + "up a git profile from the user profile section.";
                         return addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                        AnalyticsEvents.GIT_COMMIT,
                                         childApplication,
                                         AppsmithError.INVALID_GIT_CONFIGURATION.getErrorType(),
                                         AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(errorMessage),
@@ -547,7 +547,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
                                 }
                                 return addAnalyticsForGitOperation(
-                                                AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                                AnalyticsEvents.GIT_COMMIT,
                                                 childApplication,
                                                 error.getClass().getName(),
                                                 error.getMessage(),
@@ -605,7 +605,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return Mono.just(application);
                             })
                             .then(addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                    AnalyticsEvents.GIT_COMMIT,
                                     childApplication,
                                     "",
                                     "",
@@ -733,7 +733,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return Mono.just(application);
                                 }
                                 return addAnalyticsForGitOperation(
-                                                AnalyticsEvents.GIT_PRIVATE_REPO_LIMIT_EXCEEDED.getEventName(),
+                                                AnalyticsEvents.GIT_PRIVATE_REPO_LIMIT_EXCEEDED,
                                                 application,
                                                 AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
                                                 AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
@@ -760,7 +760,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return fileUtils
                                             .deleteLocalRepo(repoSuffix)
                                             .then(addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_CONNECT.getEventName(),
+                                                    AnalyticsEvents.GIT_CONNECT,
                                                     application,
                                                     error.getClass().getName(),
                                                     error.getMessage(),
@@ -813,7 +813,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     boolean isRepoPrivate = objects.getT2();
                                     if (!isEmpty) {
                                         return addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_CONNECT.getEventName(),
+                                                        AnalyticsEvents.GIT_CONNECT,
                                                         application,
                                                         AppsmithError.INVALID_GIT_REPO.getErrorType(),
                                                         AppsmithError.INVALID_GIT_REPO.getMessage(),
@@ -930,8 +930,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                             .flatMap(isDeleted -> {
                                                                 if (error instanceof TransportException) {
                                                                     return addAnalyticsForGitOperation(
-                                                                                    AnalyticsEvents.GIT_CONNECT
-                                                                                            .getEventName(),
+                                                                                    AnalyticsEvents.GIT_CONNECT,
                                                                                     application,
                                                                                     error.getClass()
                                                                                             .getName(),
@@ -951,7 +950,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                             }));
                                 })
                                 .then(addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_CONNECT.getEventName(),
+                                        AnalyticsEvents.GIT_CONNECT,
                                         application,
                                         application.getGitApplicationMetadata().getIsRepoPrivate()))
                                 .map(responseUtils::updateApplicationWithDefaultResources);
@@ -1037,7 +1036,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             gitData.getBranchName())
                                     .zipWith(Mono.just(application)))
                             .onErrorResume(error -> addAnalyticsForGitOperation(
-                                            AnalyticsEvents.GIT_PUSH.getEventName(),
+                                            AnalyticsEvents.GIT_PUSH,
                                             application,
                                             error.getClass().getName(),
                                             error.getMessage(),
@@ -1073,7 +1072,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String pushStatus = tuple.getT1();
                     Application application = tuple.getT2();
                     return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_PUSH.getEventName(),
+                                    AnalyticsEvents.GIT_PUSH,
                                     application,
                                     application.getGitApplicationMetadata().getIsRepoPrivate())
                             .thenReturn(pushStatus);
@@ -1097,7 +1096,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         if (pushResult.contains("REJECTED_NONFASTFORWARD")) {
 
             return addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_PUSH.getEventName(),
+                            AnalyticsEvents.GIT_PUSH,
                             application,
                             AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
                             AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
@@ -1226,8 +1225,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         })
                                         .collectList()
                                         .flatMapMany(actionCollectionService::saveAll))
-                                .then(addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_DISCONNECT.getEventName(), application, false))
+                                .then(addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCONNECT, application, false))
                                 .map(responseUtils::updateApplicationWithDefaultResources));
 
         return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));*/
@@ -1365,7 +1363,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> releaseFileLock(
                                 application.getGitApplicationMetadata().getDefaultApplicationId())
                         .then(addAnalyticsForGitOperation(
-                                AnalyticsEvents.GIT_CREATE_BRANCH.getEventName(),
+                                AnalyticsEvents.GIT_CREATE_BRANCH,
                                 application,
                                 application.getGitApplicationMetadata().getIsRepoPrivate())))
                 .map(responseUtils::updateApplicationWithDefaultResources);
@@ -1424,7 +1422,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 branchName, defaultApplicationId, applicationPermission.getReadPermission());
                     })
                     .flatMap(application -> addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_CHECKOUT_BRANCH.getEventName(),
+                            AnalyticsEvents.GIT_CHECKOUT_BRANCH,
                             application,
                             application.getGitApplicationMetadata().getIsRepoPrivate()))
                     .map(responseUtils::updateApplicationWithDefaultResources);
@@ -1540,7 +1538,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .importApplicationInWorkspaceFromGit(
                                     application.getWorkspaceId(), applicationJson, application.getId(), branchName)
                             .flatMap(application1 -> addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH.getEventName(),
+                                    AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH,
                                     application1,
                                     Boolean.TRUE.equals(application1
                                             .getGitApplicationMetadata()
@@ -1760,7 +1758,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(gitBranchDTOList -> Boolean.FALSE.equals(pruneBranches)
                         ? Mono.just(gitBranchDTOList)
                         : addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_PRUNE.getEventName(),
+                                        AnalyticsEvents.GIT_PRUNE,
                                         rootApp,
                                         rootApp.getGitApplicationMetadata().getIsRepoPrivate())
                                 .thenReturn(gitBranchDTOList));
@@ -2126,7 +2124,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     gitExecutor.mergeBranch(repoSuffix, sourceBranch, destinationBranch),
                                     Mono.just(defaultApplication))
                             .onErrorResume(error -> addAnalyticsForGitOperation(
-                                            AnalyticsEvents.GIT_MERGE.getEventName(),
+                                            AnalyticsEvents.GIT_MERGE,
                                             defaultApplication,
                                             error.getClass().getName(),
                                             error.getMessage(),
@@ -2193,7 +2191,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Application application = tuple.getT2();
                     // Send analytics event
                     return releaseFileLock(defaultApplicationId).flatMap(status -> addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_MERGE.getEventName(),
+                                    AnalyticsEvents.GIT_MERGE,
                                     application,
                                     application.getGitApplicationMetadata().getIsRepoPrivate())
                             .thenReturn(mergeStatusDTO));
@@ -2236,7 +2234,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
                                     return addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                    AnalyticsEvents.GIT_MERGE_CHECK,
                                                     application,
                                                     AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.name(),
                                                     AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage(
@@ -2252,7 +2250,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     sourceBranch))));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
                                     return addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                    AnalyticsEvents.GIT_MERGE_CHECK,
                                                     application,
                                                     AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.name(),
                                                     AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage(
@@ -2269,7 +2267,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .map(destBranchStatus -> {
                                             if (!Integer.valueOf(0).equals(destBranchStatus.getBehindCount())) {
                                                 return addAnalyticsForGitOperation(
-                                                                AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                                AnalyticsEvents.GIT_MERGE_CHECK,
                                                                 application,
                                                                 AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES.name(),
                                                                 AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES
@@ -2287,7 +2285,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                                 destinationBranch))));
                                             } else if (!CollectionUtils.isNullOrEmpty(destBranchStatus.getModified())) {
                                                 return addAnalyticsForGitOperation(
-                                                                AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                                AnalyticsEvents.GIT_MERGE_CHECK,
                                                                 application,
                                                                 AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.name(),
                                                                 AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage(
@@ -2316,7 +2314,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     .isMergeBranch(repoSuffix, sourceBranch, destinationBranch)
                                     .flatMap(mergeStatusDTO -> releaseFileLock(defaultApplicationId)
                                             .flatMap(mergeStatus -> addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                    AnalyticsEvents.GIT_MERGE_CHECK,
                                                     application,
                                                     null,
                                                     null,
@@ -2344,7 +2342,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 return mergeStatus;
                                             })
                                             .flatMap(mergeStatusDTO -> addAnalyticsForGitOperation(
-                                                            AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                            AnalyticsEvents.GIT_MERGE_CHECK,
                                                             application,
                                                             error.getClass().getName(),
                                                             error.getMessage(),
@@ -2473,7 +2471,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return Mono.just(gitAuth).zipWith(applicationMono);
                                 }
                                 return addAnalyticsForGitOperation(
-                                                AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                                AnalyticsEvents.GIT_IMPORT,
                                                 newApplication,
                                                 AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
                                                 AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
@@ -2498,7 +2496,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 log.error("Error while cloning the remote repo, {}", error.getMessage());
                                 return addAnalyticsForGitOperation(
-                                                AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                                AnalyticsEvents.GIT_IMPORT,
                                                 application,
                                                 error.getClass().getName(),
                                                 error.getMessage(),
@@ -2623,7 +2621,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                    AnalyticsEvents.GIT_IMPORT,
                                     application,
                                     application.getGitApplicationMetadata().getIsRepoPrivate())
                             .thenReturn(applicationImportDTO);
@@ -2680,7 +2678,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 + gitApplicationMetadata.getRemoteUrl() + " ",
                                         error);
                                 return addAnalyticsForGitOperation(
-                                                AnalyticsEvents.GIT_TEST_CONNECTION.getEventName(),
+                                                AnalyticsEvents.GIT_TEST_CONNECTION,
                                                 application,
                                                 error.getClass().getName(),
                                                 error.getMessage(),
@@ -2708,7 +2706,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(objects -> {
                     Application application = objects.getT2();
                     return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_TEST_CONNECTION.getEventName(),
+                                    AnalyticsEvents.GIT_TEST_CONNECTION,
                                     application,
                                     application.getGitApplicationMetadata().getIsRepoPrivate())
                             .thenReturn(objects.getT1());
@@ -2777,7 +2775,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .onErrorResume(throwable -> {
                                             log.warn("Unable to find branch with name ", throwable);
                                             return addAnalyticsForGitOperation(
-                                                            AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(),
+                                                            AnalyticsEvents.GIT_DELETE_BRANCH,
                                                             application,
                                                             throwable.getClass().getName(),
                                                             throwable.getMessage(),
@@ -2787,7 +2785,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .flatMap(application -> addAnalyticsForGitOperation(
-                        AnalyticsEvents.GIT_DELETE_BRANCH.getEventName(),
+                        AnalyticsEvents.GIT_DELETE_BRANCH,
                         application,
                         application.getGitApplicationMetadata().getIsRepoPrivate()))
                 .map(responseUtils::updateApplicationWithDefaultResources);
@@ -2852,8 +2850,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(application -> publishAndOrGetApplication(application.getId(), true));
                 })
                 .flatMap(application -> releaseFileLock(defaultApplicationId)
-                        .then(this.addAnalyticsForGitOperation(
-                                AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
+                        .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES, application, null)))
                 .map(responseUtils::updateApplicationWithDefaultResources);
 
         return Mono.create(
@@ -3052,7 +3049,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     branchedApplication.getId(),
                                     branchName)
                             .flatMap(application -> addAnalyticsForGitOperation(
-                                            AnalyticsEvents.GIT_PULL.getEventName(),
+                                            AnalyticsEvents.GIT_PULL,
                                             application,
                                             application
                                                     .getGitApplicationMetadata()
@@ -3082,28 +3079,32 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<Application> addAnalyticsForGitOperation(
-            String eventName, Application application, Boolean isRepoPrivate) {
+            AnalyticsEvents eventName, Application application, Boolean isRepoPrivate) {
         return addAnalyticsForGitOperation(eventName, application, "", "", isRepoPrivate, false);
     }
 
     private Mono<Application> addAnalyticsForGitOperation(
-            String eventName, Application application, String errorType, String errorMessage, Boolean isRepoPrivate) {
+            AnalyticsEvents eventName,
+            Application application,
+            String errorType,
+            String errorMessage,
+            Boolean isRepoPrivate) {
         return addAnalyticsForGitOperation(eventName, application, errorType, errorMessage, isRepoPrivate, false);
     }
 
     private Mono<Application> addAnalyticsForGitOperation(
-            String eventName,
+            AnalyticsEvents event,
             Application application,
             String errorType,
             String errorMessage,
             Boolean isRepoPrivate,
             Boolean isSystemGenerated) {
         return addAnalyticsForGitOperation(
-                eventName, application, errorType, errorMessage, isRepoPrivate, isSystemGenerated, null);
+                event, application, errorType, errorMessage, isRepoPrivate, isSystemGenerated, null);
     }
 
     private Mono<Application> addAnalyticsForGitOperation(
-            String eventName,
+            AnalyticsEvents event,
             Application application,
             String errorType,
             String errorMessage,
@@ -3118,6 +3119,9 @@ public class GitServiceCEImpl implements GitServiceCE {
             analyticsProps.put(FieldName.BRANCH_NAME, gitData.getBranchName());
             analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
             analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+            if (event == AnalyticsEvents.GIT_COMMIT) {
+                analyticsProps.put("isAutoCommit", false);
+            }
         }
         // Do not include the error data points in the map for success states
         if (!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
@@ -3143,7 +3147,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, application);
         analyticsProps.put(FieldName.EVENT_DATA, eventData);
         return sessionUserService.getCurrentUser().flatMap(user -> analyticsService
-                .sendEvent(eventName, user.getUsername(), analyticsProps)
+                .sendEvent(event.getEventName(), user.getUsername(), analyticsProps)
                 .thenReturn(application));
     }
 
@@ -3229,14 +3233,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .thenReturn(application))
                 .map(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    if (gitApplicationMetadata.getAutoCommitConfig() == null) {
-                        gitApplicationMetadata.setAutoCommitConfig(new AutoCommitConfig());
+                    if (!application.getId().equals(gitApplicationMetadata.getDefaultApplicationId())) {
+                        log.error(
+                                "failed tp toggle auto commit. reason: {} is not the root application id",
+                                defaultApplicationId);
+                        throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "default application id");
                     }
-                    if (gitApplicationMetadata.getAutoCommitConfig().getEnabled()) {
-                        gitApplicationMetadata.getAutoCommitConfig().setEnabled(Boolean.FALSE);
+
+                    AutoCommitConfig autoCommitConfig = gitApplicationMetadata.getAutoCommitConfig();
+                    if (autoCommitConfig.getEnabled()) {
+                        autoCommitConfig.setEnabled(Boolean.FALSE);
                     } else {
-                        gitApplicationMetadata.getAutoCommitConfig().setEnabled(Boolean.TRUE);
+                        autoCommitConfig.setEnabled(Boolean.TRUE);
                     }
+                    // need to call the setter because getter returns a default config if attribute is null
+                    application.getGitApplicationMetadata().setAutoCommitConfig(autoCommitConfig);
                     return application;
                 })
                 .flatMap(application -> applicationService

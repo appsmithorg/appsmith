@@ -29,7 +29,6 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
       "GETExecute a queryApi1.run",
     );
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
-    agHelper.Sleep(200);
     propPane.AssertSelectValue("Api1.run");
   });
 

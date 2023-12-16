@@ -371,9 +371,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     /**
      * Tells whether to hash userId or not for events
      *
-     * @param String  event
-     * @param String  userId
-     * @param Boolean  hashUserId
+     * @param event String
+     * @param userId String
+     * @param hashUserId Boolean
+     * @param isCloudHosting Boolean
      * @return Boolean
      */
     public static Boolean shouldHashUserId(String event, String userId, boolean hashUserId, boolean isCloudHosting) {
