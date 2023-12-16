@@ -1,6 +1,6 @@
 import type { Hints } from "codemirror";
 import CodeMirror from "codemirror";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -18,16 +18,17 @@ import {
 import { isAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 
 export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
+  const codeMirrorTernService = getCodeMirrorTernService();
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
     [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
-      checkIfCursorInsideBinding(cm) && CodemirrorTernService.complete(cm),
+      checkIfCursorInsideBinding(cm) && codeMirrorTernService.complete(cm),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
-      CodemirrorTernService.showType(cm);
+      codeMirrorTernService.showType(cm);
     },
     [KeyboardShortcuts.CodeEditor.OpenDocsLink]: (cm: CodeMirror.Editor) => {
-      CodemirrorTernService.showDocs(cm);
+      codeMirrorTernService.showDocs(cm);
     },
   });
   return {
@@ -37,12 +38,12 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       additionalData,
     ): boolean => {
       if (additionalData && additionalData.blockCompletions) {
-        CodemirrorTernService.setEntityInformation(editor, {
+        codeMirrorTernService.setEntityInformation(editor, {
           ...entityInformation,
           blockCompletions: additionalData.blockCompletions,
         });
       } else {
-        CodemirrorTernService.setEntityInformation(editor, entityInformation);
+        codeMirrorTernService.setEntityInformation(editor, entityInformation);
       }
 
       const entityType = entityInformation?.entityType;
@@ -59,7 +60,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       }
 
       if (shouldShow) {
-        CodemirrorTernService.complete(editor);
+        codeMirrorTernService.complete(editor);
 
         return true;
       }
