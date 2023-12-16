@@ -20,10 +20,8 @@ GET https://custom-domain.com/random/path
 HTTP 200
 [Asserts]
 header "Server" not exists
-#certificate "Issuer" == "CN = Caddy Local Authority - ECC Intermediate"
 
 GET https://custom-domain.com/static/x
 HTTP 404
 [Asserts]
 header "Server" not exists
-#certificate "Issuer" == "CN = Caddy Local Authority - ECC Intermediate"
