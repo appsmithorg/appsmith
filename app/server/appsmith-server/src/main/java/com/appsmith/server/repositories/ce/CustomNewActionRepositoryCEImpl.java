@@ -345,10 +345,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        return queryAll(criteria, aclPermission);
+        return queryAll(criteria, aclPermission);*/
     }
 
     protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, Boolean viewMode) {
+        return Collections.emptyList(); /*
         List<Criteria> criteria = new ArrayList<>();
 
 
@@ -361,7 +362,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                             + "deletedAt")
                     .is(null);
             criteria.add(deletedCriterion);
-        }
+        }*/
 
     }
 
