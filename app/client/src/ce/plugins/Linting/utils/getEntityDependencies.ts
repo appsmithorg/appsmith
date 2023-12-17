@@ -3,7 +3,7 @@ import {
   convertPathToString,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DependencyMap as TDependencyMap } from "utils/DynamicBindingUtils";
 import { getPropertyPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -23,11 +23,10 @@ export const getDependencies: Record<
   string,
   (entity: IEntity) => TDependencyMap
 > = {
-  [ENTITY_TYPE_VALUE.ACTION]: (entity) =>
+  [ENTITY_TYPE.ACTION]: (entity) =>
     getActionDependencies(entity as ActionEntity),
-  [ENTITY_TYPE_VALUE.JSACTION]: (entity) =>
-    getJSDependencies(entity as JSEntity),
-  [ENTITY_TYPE_VALUE.WIDGET]: (entity) =>
+  [ENTITY_TYPE.JSACTION]: (entity) => getJSDependencies(entity as JSEntity),
+  [ENTITY_TYPE.WIDGET]: (entity) =>
     getWidgetDependencies(entity as WidgetEntity),
 };
 
@@ -35,11 +34,11 @@ export const getPathDependencies: Record<
   string,
   (entity: IEntity, fullPropertyPath: string) => TDependencyMap
 > = {
-  [ENTITY_TYPE_VALUE.ACTION]: (entity, fullPropertyPath) =>
+  [ENTITY_TYPE.ACTION]: (entity, fullPropertyPath) =>
     getActionPropertyPathDependencies(entity as ActionEntity, fullPropertyPath),
-  [ENTITY_TYPE_VALUE.JSACTION]: (entity, fullPropertyPath) =>
+  [ENTITY_TYPE.JSACTION]: (entity, fullPropertyPath) =>
     getJSPropertyPathDependencies(entity as JSEntity, fullPropertyPath),
-  [ENTITY_TYPE_VALUE.WIDGET]: (entity, fullPropertyPath) =>
+  [ENTITY_TYPE.WIDGET]: (entity, fullPropertyPath) =>
     getWidgetPropertyPathDependencies(entity as WidgetEntity, fullPropertyPath),
 };
 
