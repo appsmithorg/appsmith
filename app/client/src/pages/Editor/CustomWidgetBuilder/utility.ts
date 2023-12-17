@@ -1,4 +1,4 @@
-// import { transform } from "@babel/standalone";
+import { transform } from "@babel/standalone";
 import type { DebuggerLogItem, SrcDoc } from "./types";
 
 interface CompiledResult {
@@ -15,17 +15,17 @@ export const compileSrcDoc = (srcDoc: SrcDoc): CompiledResult => {
   };
 
   try {
-    // const result = transform(srcDoc.js, {
-    //   sourceType: "module",
-    //   presets: ["react"],
-    //   targets: {
-    //     esmodules: true,
-    //   },
-    // });
+    const result = transform(srcDoc.js, {
+      sourceType: "module",
+      presets: ["react"],
+      targets: {
+        esmodules: true,
+      },
+    });
 
     compiledResult.code = {
       ...compiledResult.code,
-      // js: result?.code || "",
+      js: result?.code || "",
     };
   } catch (e) {
     compiledResult.errors.push(getBabelError(e as BabelError));

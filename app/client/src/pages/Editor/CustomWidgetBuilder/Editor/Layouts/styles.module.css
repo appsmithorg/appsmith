@@ -4,4 +4,5 @@
 
 .editorLayoutPartialWidth {
   flex-basis: calc(100% - 288px);
+  max-width: calc(100% - 288px);
 }

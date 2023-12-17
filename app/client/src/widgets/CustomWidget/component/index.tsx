@@ -144,7 +144,7 @@ function CustomComponent(props: CustomComponentProps) {
         }</script>
         <script type="module">${script}</script>
         ${props.srcDoc.html}
-        <script type="text/babel" data-presets="react" data-type="module">
+        <script type="module">
           ${props.srcDoc.js}
         </script>
         <style>${props.srcDoc.css}</style>

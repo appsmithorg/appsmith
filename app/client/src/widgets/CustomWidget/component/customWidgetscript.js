@@ -7,10 +7,28 @@ export const EVENTS = {
   CUSTOM_WIDGET_MODEL_CHANGE: "CUSTOM_WIDGET_MODEL_CHANGE",
   CUSTOM_WIDGET_UI_CHANGE: "CUSTOM_WIDGET_UI_CHANGE",
   CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
+  CUSTOM_WIDGET_CONSOLE_EVENT: "CUSTOM_WIDGET_CONSOLE_EVENT",
 };
 
 // Function to create a communication channel to the parent
 export const createChannelToParent = () => {
+  const throwError = (e) => {
+    window.parent.postMessage(
+      {
+        type: "CUSTOM_WIDGET_CONSOLE_EVENT",
+        data: {
+          type: "error",
+          args: [
+            {
+              message: e.toString(),
+            },
+          ],
+        },
+      },
+      "*",
+    );
+  };
+
   const onMessageMap = new Map();
   // Function to register an event handler for a message type
   function onMessage(type, fn) {
@@ -40,7 +58,11 @@ export const createChannelToParent = () => {
   const postMessageQueue = [];
   // Flag to indicate if the flush is scheduled
   let isFlushScheduled = false;
-  // Function to schedule microtask to flush postMessageQueue
+
+  /*
+   * Function to schedule microtask to flush postMessageQueue
+   * to ensure the order of message processed on the parent
+   */
   const scheduleMicrotaskToflushPostMessageQueue = () => {
     if (!isFlushScheduled) {
       isFlushScheduled = true;
@@ -59,6 +81,7 @@ export const createChannelToParent = () => {
                   }
                 },
               );
+
               // Send the message to the parent
               window.parent.postMessage(
                 Object.assign(Object.assign({}, message), { key }),
@@ -71,13 +94,23 @@ export const createChannelToParent = () => {
       });
     }
   };
+
   return {
     postMessage: (type, data) => {
-      postMessageQueue.push({
-        type,
-        data,
-      });
-      scheduleMicrotaskToflushPostMessageQueue();
+      try {
+        // Check if the the passed object is postMessageable. if not fail
+        // and exit
+        structuredClone?.(data);
+
+        postMessageQueue.push({
+          type,
+          data,
+        });
+
+        scheduleMicrotaskToflushPostMessageQueue();
+      } catch (e) {
+        throw e;
+      }
     },
     onMessage,
   };

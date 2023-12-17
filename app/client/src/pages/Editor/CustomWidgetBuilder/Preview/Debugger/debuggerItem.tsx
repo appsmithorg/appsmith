@@ -2,7 +2,7 @@ import React from "react";
 import { Icon } from "design-system";
 import styles from "./styles.module.css";
 import HelpDropdown from "./helpDropdown";
-import type { DebuggerLog } from "../../types";
+import { DebuggerLogType, type DebuggerLog } from "../../types";
 import ObjectView from "./objectView";
 import styled from "styled-components";
 
@@ -21,7 +21,7 @@ const StyledSpan = styled.span<{ type: string }>`
 
 const getIcon = (type: DebuggerLog["type"]) => {
   switch (type) {
-    case "error":
+    case DebuggerLogType.ERROR:
       return (
         <Icon
           name="close-circle"
@@ -31,7 +31,7 @@ const getIcon = (type: DebuggerLog["type"]) => {
           }}
         />
       );
-    case "warn":
+    case DebuggerLogType.WARN:
       return (
         <Icon
           name="alert-fill"
@@ -41,9 +41,9 @@ const getIcon = (type: DebuggerLog["type"]) => {
           }}
         />
       );
-    case "log":
+    case DebuggerLogType.LOG:
       return <Icon name="snippet" size="md" />;
-    case "info":
+    case DebuggerLogType.INFO:
       return <Icon name="info" size="md" />;
     default:
       return <Icon name="snippet" size="md" />;
@@ -70,9 +70,9 @@ const getContent = (type: string, args: DebuggerLog["args"]) => {
 
 const getBackgroundColor = (type: DebuggerLog["type"]) => {
   switch (type) {
-    case "error":
+    case DebuggerLogType.ERROR:
       return "var(--ads-v2-color-red-50)";
-    case "warn":
+    case DebuggerLogType.WARN:
       return "var(--ads-v2-color-yellow-100)";
     default:
       return "#fff";
@@ -91,7 +91,7 @@ export default function DebuggerItem(props: DebuggerLog) {
     >
       <div className={styles.debuggerItemIcon}>{getIcon(props.type)}</div>
       <div className={styles.debuggerItemMessage}>{getContent(type, args)}</div>
-      {type === "error" && (
+      {type === DebuggerLogType.ERROR && (
         <div className={styles.debuggerItemHelp}>
           <HelpDropdown args={args} type={type} />
         </div>

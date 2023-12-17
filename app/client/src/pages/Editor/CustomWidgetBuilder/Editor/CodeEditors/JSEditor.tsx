@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import type { ContentProps } from "./types";
 import styles from "./styles.module.css";
 import {
@@ -11,13 +11,43 @@ import {
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constants";
+import { DebuggerLogType } from "../../types";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 
 export default function JSEditor(props: ContentProps) {
-  const { model, uncompiledSrcDoc, update } = useContext(
+  const { debuggerLogs, model, uncompiledSrcDoc, update } = useContext(
     CustomWidgetBuilderContext,
   );
 
   const { height, showHeader = true } = props;
+
+  // const errors = useMemo(() => {
+  //   return debuggerLogs
+  //     ?.filter(d => d.type === DebuggerLogType.ERROR)
+  //     .map((d) => d.args)
+  //     .flat()
+  //     .map((d) => ({
+  //       errorType: PropertyEvaluationErrorType.LINT,
+  //       raw: uncompiledSrcDoc?.js,
+  //       severity: Severity.ERROR,
+  //       errorMessage: {
+  //         name: "LintingError",
+  //         message: d.message,
+  //       },
+  //       errorSegment:uncompiledSrcDoc?.js,
+  //       originalBinding: uncompiledSrcDoc?.js,
+  //       variables: [],
+  //       code: "",
+  //       line: d.line,
+  //       ch: d.column,
+  //     }));
+  // }, [debuggerLogs]);
+
+  useEffect(() => {
+    CodemirrorTernService.removeDef("forge");
+  }, []);
 
   return (
     <div className={styles.editor}>
@@ -36,6 +66,7 @@ export default function JSEditor(props: ContentProps) {
           folding
           height={height - 39}
           hideEvaluatedValue
+          ignoreSlashCommand
           input={{
             value: uncompiledSrcDoc?.js,
             onChange: (value) => {

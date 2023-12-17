@@ -4,8 +4,15 @@ export interface DebuggerLogItem {
   column?: number;
 }
 
+export const DebuggerLogType = {
+  LOG: "log",
+  INFO: "info",
+  WARN: "warn",
+  ERROR: "error"
+};
+
 export interface DebuggerLog {
-  type: string;
+  type: keyof typeof DebuggerLogType;
   args: Array<DebuggerLogItem>;
 }
 

@@ -24,7 +24,7 @@ export default function Collapsible(props: Props) {
           {props.label}
           {props.helpMessage && (
             <Tooltip content={props.helpMessage}>
-              <Icon name="help" />
+              <Icon name="question" size="md" />
             </Tooltip>
           )}
         </div>

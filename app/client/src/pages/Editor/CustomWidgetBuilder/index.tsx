@@ -12,12 +12,13 @@ import { Spinner } from "design-system";
 import history from "utils/history";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import Editor from "./Editor";
-import type {
-  CustomWidgetBuilderContextFunctionType,
-  CustomWidgetBuilderContextType,
-  CustomWidgetBuilderContextValueType,
-  DebuggerLog,
-  SrcDoc,
+import {
+  DebuggerLogType,
+  type CustomWidgetBuilderContextFunctionType,
+  type CustomWidgetBuilderContextType,
+  type CustomWidgetBuilderContextValueType,
+  type DebuggerLog,
+  type SrcDoc,
 } from "./types";
 import { compileSrcDoc } from "./utility";
 
@@ -68,14 +69,14 @@ export default function CustomWidgetBuilder() {
 
     if (result.errors.length) {
       compileLogs.push({
-        type: "error",
+        type: DebuggerLogType.ERROR,
         args: result.errors,
       });
     }
 
     if (result.warnings.length) {
       compileLogs.push({
-        type: "warn",
+        type:  DebuggerLogType.WARN,
         args: result.warnings,
       });
     }

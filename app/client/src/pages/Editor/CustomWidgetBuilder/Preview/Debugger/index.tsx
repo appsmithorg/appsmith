@@ -1,10 +1,11 @@
 import React, { useContext } from "react";
-import { Tabs, TabsList, Tab, TabPanel, Icon } from "design-system";
+import { Tabs, TabsList, Tab, TabPanel, Icon, Tooltip } from "design-system";
 import DebuggerItem from "./debuggerItem";
 import styles from "./styles.module.css";
 import Counter from "./counter";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import { CustomWidgetBuilderContext } from "../..";
+import { DebuggerLogType } from "../../types";
 
 const LOCAL_STORAGE_KEYS_IS_DEBUGGER_OPEN =
   "custom-widget-builder-context-state-is-debugger-open";
@@ -23,23 +24,36 @@ export default function Debugger() {
     <div className={styles.wrapper}>
       <div className={styles.debuggerActions}>
         <Counter
-          error={debuggerLogs?.filter((d) => d.type === "error").length || 0}
-          log={debuggerLogs?.filter((d) => d.type === "log").length || 0}
+          error={
+            debuggerLogs?.filter((d) => d.type === DebuggerLogType.ERROR)
+              .length || 0
+          }
+          log={
+            debuggerLogs?.filter((d) => d.type === DebuggerLogType.LOG)
+              .length || 0
+          }
           onClick={() => setOpen(!open)}
-          warn={debuggerLogs?.filter((d) => d.type === "warn").length || 0}
+          warn={
+            debuggerLogs?.filter((d) => d.type === DebuggerLogType.WARN)
+              .length || 0
+          }
         />
-        <Icon
-          name="forbid-line"
-          onClick={() => clearDegbuggerLogs?.()}
-          size="md"
-          style={{ cursor: "pointer" }}
-        />
-        <Icon
-          name={open ? "arrow-down-s-line" : "arrow-up-s-line"}
-          onClick={() => setOpen(!open)}
-          size="lg"
-          style={{ cursor: "pointer" }}
-        />
+        <Tooltip content="clear console">
+          <Icon
+            name="forbid-line"
+            onClick={() => clearDegbuggerLogs?.()}
+            size="md"
+            style={{ cursor: "pointer" }}
+          />
+        </Tooltip>
+        <Tooltip content="close console">
+          <Icon
+            name={open ? "arrow-down-s-line" : "arrow-up-s-line"}
+            onClick={() => setOpen(!open)}
+            size="lg"
+            style={{ cursor: "pointer" }}
+          />
+        </Tooltip>
       </div>
       <Tabs value={"Debugger"}>
         <TabsList className={styles.debuggerTab} onClick={() => setOpen(!open)}>

@@ -78,7 +78,7 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
 import {
   getEvalErrorPath,
   getEvalValuePath,
@@ -241,6 +241,9 @@ export type EditorProps = EditorStyleProps &
     isRawView?: boolean;
     isJSObject?: boolean;
     jsObjectName?: string;
+    ignoreSlashCommand?: boolean;
+    ignoreBinding?: boolean;
+
     // Custom gutter
     customGutter?: CodeEditorGutter;
     positionCursorInsideBinding?: boolean;
@@ -642,13 +645,17 @@ class CodeEditor extends Component<Props, State> {
           this.props.entitiesForNavigation,
         );
       }
-      if (prevProps.lintErrors !== this.props.lintErrors) {
+      if (prevProps.lintErrors !== this.props.lintErrors || prevProps.customError !== this.props.customError) {
         this.lintCode(this.editor);
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
         sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
       }
     });
+
+    if (prevProps.height !== this.props.height) {
+      this.editor.setSize("100%", this.props.height);
+    }
   }
 
   setEditorInput = (value: string) => {
@@ -1371,12 +1378,12 @@ class CodeEditor extends Component<Props, State> {
     if (isCtrlOrCmdPressed) {
       // If cmd or ctrl is pressed only show autocomplete for space key
       showAutocomplete = key === " ";
-    } else if (key === "/") {
+    } else if (key === "/" && !this.props.ignoreSlashCommand) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
       /* Check if the character before cursor is completable to show autocomplete which backspacing */
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
-    } else if (key === "{") {
+    } else if (key === "{" && !this.props.ignoreBinding) {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
       showAutocomplete = prevChar === "{";
     } else if (key === "'" || key === '"') {
@@ -1400,6 +1407,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   lintCode(editor: CodeMirror.Editor) {
+    debugger;
     const {
       additionalDynamicData: contextData,
       dataTreePath,

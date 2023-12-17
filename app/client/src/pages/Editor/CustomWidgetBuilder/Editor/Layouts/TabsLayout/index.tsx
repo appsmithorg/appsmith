@@ -35,6 +35,20 @@ export default function TabLayout(props: Props) {
 
       setLoading(false);
     }
+
+    const handler = () => {
+      if (containerRef.current) {
+        setHeight(
+          window.innerHeight - containerRef.current.getBoundingClientRect().top,
+        );
+      }
+    };
+
+    window.addEventListener("resize", handler);
+
+    return () => {
+      window.removeEventListener("resize", handler);
+    };
   }, []);
 
   return (

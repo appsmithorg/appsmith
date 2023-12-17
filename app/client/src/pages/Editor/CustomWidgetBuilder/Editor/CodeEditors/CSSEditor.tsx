@@ -32,6 +32,8 @@ export default function CSSEditor(props: ContentProps) {
           folding
           height={height - 39}
           hideEvaluatedValue
+          ignoreBinding 
+          ignoreSlashCommand
           input={{
             value: uncompiledSrcDoc?.css,
             onChange: (value) => {

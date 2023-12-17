@@ -76,7 +76,7 @@ import WidgetBuilder from "pages/WidgetBuilder";
 import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import CustomWidgetBuilder from "pages/Editor/CustomWidgetBuilder";
+import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -131,12 +131,12 @@ export function Routes() {
       <SentryRoute component={EditorLoader} path={BUILDER_PATH_DEPRECATED} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_DEPRECATED} />
       <SentryRoute
-        component={CustomWidgetBuilder}
+        component={CustomWidgetBuilderLoader}
         exact
         path={CUSTOM_WIDGETS_EDITOR_ID_PATH}
       />
       <SentryRoute
-        component={CustomWidgetBuilder}
+        component={CustomWidgetBuilderLoader}
         exact
         path={CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM}
       />

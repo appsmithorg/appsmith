@@ -50,14 +50,12 @@ export default function Preview() {
   return (
     <div className={styles.contentLeft} ref={containerRef}>
       <CustomComponent
-        execute={(name) => {
-          const message = `Event fired: ${name}`;
-
-          toast.show(message, { kind: "success" });
+        execute={(name, contextObjec) => {
+          toast.show(`Event fired: ${name}`, { kind: "success" });
 
           updateDebuggerLogs?.({
             type: "info",
-            args: [message],
+            args: [{message: `Event fired: '${name}'`}, {message: contextObjec}],
           });
         }}
         height={dimensions.height}
@@ -80,7 +78,7 @@ export default function Preview() {
 
           updateDebuggerLogs?.({
             type: "info",
-            args: [message, data],
+            args: [{message}, {message: data}],
           });
         }}
         width={dimensions.width}

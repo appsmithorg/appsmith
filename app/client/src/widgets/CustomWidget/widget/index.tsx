@@ -22,9 +22,9 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static getConfig() {
     return {
       name: "Custom",
-      hideCard: !super.getFeatureFlag(
-        FEATURE_FLAG.release_custom_widgets_enabled,
-      ),
+      // hideCard: !super.getFeatureFlag(
+      //   FEATURE_FLAG.release_custom_widgets_enabled,
+      // ),
       iconSVG: IconSVG,
       needsMeta: false,
       isCanvas: false,
