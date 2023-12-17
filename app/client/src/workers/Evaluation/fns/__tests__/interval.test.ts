@@ -4,7 +4,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { overrideWebAPIs } from "../overrides";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
@@ -26,7 +26,7 @@ const dataTree: DataTree = {
     run: {},
     clear: {},
     responseMeta: { isExecutionSuccess: false },
-    ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
+    ENTITY_TYPE: ENTITY_TYPE.ACTION,
     dependencyMap: {},
     logBlackList: {},
   } as ActionEntity,

@@ -5,7 +5,7 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import {
   type WidgetEntityConfig,
-  ENTITY_TYPE_VALUE,
+  ENTITY_TYPE,
 } from "@appsmith/entities/DataTree/types";
 import type { PluginType } from "entities/Action";
 
@@ -17,7 +17,7 @@ export const getEntityPayloadInfo: Record<
     pluginType?: PluginType | string;
   }
 > = {
-  [ENTITY_TYPE_VALUE.WIDGET]: (entityConfig) => {
+  [ENTITY_TYPE.WIDGET]: (entityConfig) => {
     const config = entityConfig as WidgetEntityConfig;
     return {
       iconId: config.widgetId,
@@ -25,7 +25,7 @@ export const getEntityPayloadInfo: Record<
       pluginType: config.type,
     };
   },
-  [ENTITY_TYPE_VALUE.JSACTION]: (entityConfig) => {
+  [ENTITY_TYPE.JSACTION]: (entityConfig) => {
     const config = entityConfig as JSActionEntityConfig;
     return {
       iconId: config.actionId,
@@ -33,7 +33,7 @@ export const getEntityPayloadInfo: Record<
       pluginType: config.pluginType,
     };
   },
-  [ENTITY_TYPE_VALUE.ACTION]: (entityConfig) => {
+  [ENTITY_TYPE.ACTION]: (entityConfig) => {
     const config = entityConfig as ActionEntityConfig;
     return {
       iconId: config.pluginId,

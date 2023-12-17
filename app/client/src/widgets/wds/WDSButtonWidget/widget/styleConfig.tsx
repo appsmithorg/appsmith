@@ -2,6 +2,7 @@ import { capitalize } from "lodash";
 import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import type { ButtonWidgetProps } from "./types";
 
 export const propertyPaneStyleConfig = [
   {
@@ -65,12 +66,29 @@ export const propertyPaneStyleConfig = [
         validation: {
           type: ValidationTypes.TEXT,
         },
+        updateHook: (
+          props: ButtonWidgetProps,
+          propertyPath: string,
+          propertyValue: string,
+        ) => {
+          const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
+          if (!props.iconAlign) {
+            propertiesToUpdate.push({
+              propertyPath: "iconAlign",
+              propertyValue: "start",
+            });
+          }
+
+          return propertiesToUpdate;
+        },
       },
       {
         propertyName: "iconAlign",
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
+        defaultValue: "start",
         fullWidth: false,
         options: [
           {

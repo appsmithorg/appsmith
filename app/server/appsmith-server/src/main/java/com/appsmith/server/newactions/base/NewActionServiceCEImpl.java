@@ -2,6 +2,7 @@ package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -19,6 +20,7 @@ import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Action;
@@ -38,13 +40,14 @@ import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.MarketplaceService;
@@ -91,7 +94,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_UNPUBLISHED_ACTION;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_VIEW_MODE_ACTION;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static java.lang.Boolean.FALSE;
@@ -123,6 +126,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ResponseUtils responseUtils;
 
     private final PermissionGroupService permissionGroupService;
+    private final NewActionHelper newActionHelper;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
@@ -150,6 +154,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
+            NewActionHelper newActionHelper,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
@@ -168,6 +173,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationService = applicationService;
         this.policySolution = policySolution;
         this.permissionGroupService = permissionGroupService;
+        this.newActionHelper = newActionHelper;
         this.entityValidationService = entityValidationService;
         this.observationRegistry = observationRegistry;
         this.responseUtils = responseUtils;
@@ -257,6 +263,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setPolicies(documentPolicies);
     }
 
+    /**
+     * Whenever we save an action into the repository using this method, we expect that the action has all its required fields populated,
+     * and that this is not a partial update. As a result, all validations can be performed, and values can be reset if they do not fit
+     * our validations.
+     * @param newAction
+     * @return
+     */
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
 
@@ -284,9 +297,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        this.validateCreatorId(action);
+        newActionHelper.validateCreatorId(action);
 
-        if (!isValidActionName(action)) {
+        if (!this.isValidActionName(action)) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
         }
@@ -298,7 +311,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         if (action.getPluginType() == PluginType.JS
                 && action.getActionConfiguration() != null
-                && Boolean.FALSE.equals(action.getActionConfiguration().getIsValid())) {
+                && FALSE.equals(action.getActionConfiguration().getIsValid())) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_JS_ACTION.getMessage());
         }
@@ -309,7 +322,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             validator.validate(actionConfig).stream().forEach(x -> invalids.add(x.getMessage()));
         }
 
-        if (action.getDatasource() == null || action.getDatasource().getIsAutoGenerated()) {
+        /**
+         * If the Datasource is null, create one and set the autoGenerated flag to true. This is required because spring-data
+         * cannot add the createdAt and updatedAt properties for null embedded objects. At this juncture, we couldn't find
+         * a way to disable the auditing for nested objects.
+         *
+         */
+        if (action.getDatasource() == null) {
+            action.autoGenerateDatasource();
+        }
+
+        if (action.getDatasource().getIsAutoGenerated()) {
             if (action.getPluginType() != PluginType.JS) {
                 // This action isn't of type JS functions which requires that the pluginType be set by the client.
                 // Hence, datasource is very much required for such an action.
@@ -385,7 +408,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return newAction;
                 })
                 .flatMap(this::sanitizeAction)
-                .map(this::extractAndSetJsonPathKeys)
+                .flatMap(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -411,7 +434,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.just(savedAction);
                 })
                 .flatMap(repository::setUserPermissionsInObject)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -476,23 +498,33 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return
      */
     @Override
-    public NewAction extractAndSetJsonPathKeys(NewAction newAction) {
+    public Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
-        Set<String> actionKeys = extractKeysFromAction(action).stream()
-                .map(token -> token.getValue())
-                .collect(Collectors.toSet());
-        Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource()).stream()
-                .map(token -> token.getValue())
-                .collect(Collectors.toSet());
-        Set<String> keys = new HashSet<>() {
-            {
-                addAll(actionKeys);
-                addAll(datasourceKeys);
-            }
-        };
-        action.setJsonPathKeys(keys);
 
-        return newAction;
+        // The execute action payload consists of the parameter map which has the required key-value pair being
+        // consumed on backend in binding process. These parameter maps are filled via
+        // action's JsonPathKeys attribute which holds the reference to client side objects e.g. : "input1.Text", e.t.c,
+        // JsonPath keys are modified when the action is updated.
+        return datasourceService
+                .extractKeysFromDatasource(action.getDatasource())
+                .map(datasourceBindings -> {
+                    Set<String> actionKeys = extractKeysFromAction(action).stream()
+                            .map(token -> token.getValue())
+                            .collect(Collectors.toSet());
+
+                    Set<String> datasourceKeys = datasourceBindings.stream()
+                            .map(token -> token.getValue())
+                            .collect(Collectors.toSet());
+                    Set<String> keys = new HashSet<>() {
+                        {
+                            addAll(actionKeys);
+                            addAll(datasourceKeys);
+                        }
+                    };
+
+                    action.setJsonPathKeys(keys);
+                    return newAction;
+                });
     }
 
     private Mono<ActionDTO> setTransientFieldsInUnpublishedAction(NewAction newAction) {
@@ -547,13 +579,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action) {
 
         return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
-                .zipWith(Mono.defer(() -> {
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId());
+                .zipWhen(zippedActions -> {
+                    ActionDTO updatedActionDTO = zippedActions.getT1();
+                    if (updatedActionDTO.getDatasource() != null
+                            && updatedActionDTO.getDatasource().getId() != null) {
+                        return datasourceService.findById(
+                                updatedActionDTO.getDatasource().getId());
                     } else {
-                        return Mono.justOrEmpty(action.getDatasource());
+                        return Mono.justOrEmpty(updatedActionDTO.getDatasource());
                     }
-                }))
+                })
                 .flatMap(zippedData -> {
                     final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
                     final Datasource datasource = zippedData.getT2();
@@ -607,11 +642,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
-                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
+                    copyNestedNonNullProperties(action, unpublishedAction);
                     return dbAction;
                 })
-                .flatMap(this::extractAndSetNativeQueryFromFormData)
-                .cache();
+                .flatMap(newAction -> this.extractAndSetNativeQueryFromFormData(newAction));
 
         return updatedActionMono.flatMap(savedNewAction ->
                 this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)));
@@ -778,11 +812,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                .map(action -> generateActionViewDTO(action, action.getPublishedAction()));
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
     }
 
     @Override
-    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode) {
         ActionViewDTO actionViewDTO = new ActionViewDTO();
         actionViewDTO.setId(action.getDefaultResources().getActionId());
         actionViewDTO.setName(actionDTO.getValidName());
@@ -961,6 +995,21 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions) {
+        return getUnpublishedActionsFromRepo(params, includeJsActions)
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
+                .flatMap(this::setTransientFieldsInUnpublishedAction)
+                // this generates four different tags, (ApplicationId, FieldId) *(True, False)
+                .tag(
+                        "includeJsAction",
+                        (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID : FieldName.APPLICATION_ID)
+                                + includeJsActions.toString())
+                .name(GET_ACTION_REPOSITORY_CALL)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
+    protected Flux<NewAction> getUnpublishedActionsFromRepo(
+            MultiValueMap<String, String> params, Boolean includeJsActions) {
         String name = null;
         List<String> pageIds = new ArrayList<>();
 
@@ -1001,17 +1050,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             }
         }
 
-        return actionsFromRepository
-                .collectList()
-                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
-                .flatMap(this::setTransientFieldsInUnpublishedAction)
-                // this generates four different tags, (ApplicationId, FieldId) *(True, False)
-                .tag(
-                        "includeJsAction",
-                        (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID : FieldName.APPLICATION_ID)
-                                + includeJsActions.toString())
-                .name(GET_ACTION_REPOSITORY_CALL)
-                .tap(Micrometer.observation(observationRegistry));
+        return actionsFromRepository;
     }
 
     @Override
@@ -1716,9 +1755,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findByListOfPageIds(
-            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
-        return repository.findByListOfPageIds(unpublishedPages, optionalPermission);
+    public Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return repository.findByPageIds(unpublishedPages, optionalPermission);
     }
 
     @Override
@@ -1734,5 +1772,60 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
         return repository.findAllUnpublishedActionsByContextIdAndContextType(
                 contextId, contextType, permission, includeJs);
+    }
+
+    @Override
+    public NewAction generateActionDomain(ActionDTO action) {
+        if (action.getId() != null) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
+        }
+
+        if (action.getName() == null || action.getName().isBlank()) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME);
+        }
+
+        if (action.getDefaultResources() == null) {
+            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(action, null);
+        }
+
+        NewAction newAction = new NewAction();
+        newAction.setPublishedAction(new ActionDTO());
+        newAction.getPublishedAction().setDatasource(new Datasource());
+
+        return newAction;
+    }
+
+    @Override
+    public void updateDefaultResourcesInAction(NewAction newAction) {
+
+        ActionDTO action = newAction.getUnpublishedAction();
+
+        final DefaultResources immutableDefaultResources = action.getDefaultResources();
+        // Only store defaultPageId and defaultCollectionId for actionDTO level resource
+        DefaultResources defaultActionResource = new DefaultResources();
+        AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaultActionResource);
+
+        defaultActionResource.setApplicationId(null);
+        defaultActionResource.setActionId(null);
+        defaultActionResource.setBranchName(null);
+        if (!StringUtils.hasLength(defaultActionResource.getPageId())) {
+            defaultActionResource.setPageId(action.getPageId());
+        }
+        if (!StringUtils.hasLength(defaultActionResource.getCollectionId())) {
+            defaultActionResource.setCollectionId(action.getCollectionId());
+        }
+        action.setDefaultResources(defaultActionResource);
+
+        // Only store defaultApplicationId and defaultActionId for NewAction level resource
+        DefaultResources defaults = new DefaultResources();
+        AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
+        defaults.setPageId(null);
+        defaults.setCollectionId(null);
+        if (!StringUtils.hasLength(defaults.getApplicationId())) {
+            defaults.setApplicationId(newAction.getApplicationId());
+        }
+        newAction.setDefaultResources(defaults);
+
+        newAction.setUnpublishedAction(action);
     }
 }

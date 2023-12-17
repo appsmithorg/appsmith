@@ -2,7 +2,6 @@ import "cypress-wait-until";
 import { v4 as uuidv4 } from "uuid";
 import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
-import { ReusableHelper } from "../Objects/ReusableHelper";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
 
@@ -35,7 +34,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
   inputFieldName: "",
 };
 
-export class AggregateHelper extends ReusableHelper {
+export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
@@ -214,7 +213,10 @@ export class AggregateHelper extends ReusableHelper {
 
   public CheckForPageSaveError() {
     // Wait for "saving" status to disappear
-    this.GetElement(this.locator._statusSaving, 30000).should("not.exist");
+    this.AssertElementAbsence(
+      this.locator._statusSaving,
+      Cypress.config("defaultCommandTimeout"),
+    );
     // Check for page save error
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
@@ -269,20 +271,28 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
-  public GetElement(selector: ElementType, timeout = 20000) {
+  public GetElement(
+    selector: ElementType,
+    exists: "exist" | "not.exist" | "noVerify" = "exist",
+    timeout = Cypress.config("defaultCommandTimeout"),
+  ) {
     let locator;
     if (typeof selector == "string") {
       //cy.log(selector, "selector");
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, {
-              timeout: timeout,
+              timeout,
             })
           : cy.get(selector, {
-              timeout: timeout,
+              timeout,
             });
     } else locator = cy.wrap(selector);
-    return locator;
+    return exists === "noVerify"
+      ? locator // Return the locator without verification if exists is "noVerify"
+      : exists === "exist"
+      ? locator.should("have.length.at.least", 1)
+      : locator.should("have.length", 0);
   }
 
   public GetNAssertElementText(
@@ -317,7 +327,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     if (index != 0) {
-      this.GetElement(this.locator._toastMsg)
+      this.GetElement(this.locator._toastMsg, "noVerify")
         .should("have.length.at.least", length)
         .eq(index)
         .should("contain.text", text);
@@ -463,12 +473,9 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public WaitUntilEleDisappear(selector: string) {
-    const locator = selector.includes("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
+    cy.waitUntil(() => this.GetElement(selector, "not.exist"), {
       errorMsg: "Element did not disappear even after 10 seconds",
-      timeout: 20000,
+      timeout: Cypress.config().pageLoadTimeout,
       interval: 1000,
     });
   }
@@ -489,10 +496,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    const locator = selector.includes("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.waitUntil(
+    this.GetElement(selector).waitUntil(
       ($ele) =>
         cy
           .wrap($ele)
@@ -502,8 +506,8 @@ export class AggregateHelper extends ReusableHelper {
           .should("be.gte", 1),
       {
         errorMsg: "Element did not appear even after 10 seconds",
-        timeout: 10000,
-        interval: 1000,
+        timeout: Cypress.config().pageLoadTimeout,
+        interval: 2000,
       },
     );
 
@@ -1246,6 +1250,7 @@ export class AggregateHelper extends ReusableHelper {
             setTimeout(() => {
               input.setValue(value);
               setTimeout(() => {
+                input.execCommand("goLineStart");
                 // Move cursor to the end of the line
                 input.execCommand("goLineEnd");
               }, 1000);
@@ -1452,7 +1457,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
-    return this.GetElement(selector, timeout).should("not.exist");
+    return this.GetElement(selector, "not.exist", timeout).should("not.exist");
   }
 
   public GetText(
@@ -1490,9 +1495,9 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = 20000,
+    timeout = Cypress.config("defaultCommandTimeout"),
   ) {
-    return this.GetElement(selector, timeout)
+    return this.GetElement(selector, "exist", timeout)
       .eq(index)
       .scrollIntoView()
       .should(visibility == true ? "be.visible" : "not.be.visible");
@@ -1509,12 +1514,23 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public AssertElementExist(selector: ElementType, index = 0, timeout = 20000) {
-    return this.GetElement(selector, timeout).eq(index).should("exist");
+  public AssertElementExist(
+    selector: ElementType,
+    index = 0,
+    timeout = Cypress.config("defaultCommandTimeout"),
+  ) {
+    return this.GetElement(selector, "exist", timeout)
+      .eq(index)
+      .should("exist");
   }
 
-  public ScrollIntoView(selector: ElementType, index = 0, timeout = 20000) {
-    return this.GetElement(selector, timeout)
+  public ScrollIntoView(
+    selector: ElementType,
+    index = 0,
+    timeout = Cypress.config("defaultCommandTimeout"),
+  ) {
+    return this.GetElement(selector, "exist", timeout)
+      .should("have.length.at.least", 1)
       .eq(index)
       .then(($element) => {
         if (
@@ -1535,8 +1551,14 @@ export class AggregateHelper extends ReusableHelper {
     index: number | null = null,
   ) {
     if (index)
-      return this.GetElement(selector).eq(index).should("have.length", length);
-    else return this.GetElement(selector).should("have.length", length);
+      return this.GetElement(selector, "noVerify")
+        .eq(index)
+        .should("have.length", length);
+    else
+      return this.GetElement(selector, "noVerify").should(
+        "have.length",
+        length,
+      );
   }
 
   public FocusElement(selector: ElementType) {
@@ -1548,10 +1570,11 @@ export class AggregateHelper extends ReusableHelper {
     exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
+    let timeout = Cypress.config().pageLoadTimeout;
     if (selector) {
-      return cy.contains(selector, text).should(exists);
+      return cy.contains(selector, text, { timeout }).should(exists);
     }
-    return cy.contains(text).should(exists);
+    return cy.contains(text, { timeout }).should(exists);
   }
 
   public GetNAssertContains(
@@ -1559,7 +1582,7 @@ export class AggregateHelper extends ReusableHelper {
     text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
   ) {
-    return this.GetElement(selector).contains(text).should(exists);
+    return this.GetElement(selector, "noVerify").contains(text).should(exists);
   }
 
   public AssertURL(url: string) {

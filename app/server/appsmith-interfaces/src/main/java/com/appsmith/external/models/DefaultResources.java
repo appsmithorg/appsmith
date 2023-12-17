@@ -8,13 +8,30 @@ import lombok.Data;
  */
 @Data
 public class DefaultResources {
+    /**
+     * When present, actionId will hold the default action id
+     */
     String actionId;
 
+    /**
+     * When present, applicationId will hold the default application id
+     */
     String applicationId;
 
+    /**
+     * When present, pageId will hold the default page id
+     */
     String pageId;
 
+    /**
+     * When present, collectionId will hold the default collection id
+     */
     String collectionId;
 
+    /**
+     * When present, branchName will hold the current branch name.
+     * For example, if we've a page in both main and develop branch, then default resources of those two pages will
+     * have same applicationId, pageId but branchName will contain the corresponding branch name.
+     */
     String branchName;
 }

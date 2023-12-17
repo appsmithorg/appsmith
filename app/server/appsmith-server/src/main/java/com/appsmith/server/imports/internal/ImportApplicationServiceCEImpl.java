@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -31,7 +32,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -554,9 +554,9 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 .then(importedApplicationMono)
                 .flatMap(application -> {
                     return newActionImportableService
-                            .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO)
+                            .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO, false)
                             .then(newPageImportableService.updateImportedEntities(
-                                    application, importingMetaDTO, mappedImportableResourcesDTO))
+                                    application, importingMetaDTO, mappedImportableResourcesDTO, false))
                             .thenReturn(application);
                 })
                 .flatMap(application -> {
@@ -663,7 +663,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                false);
 
         // Directly updates required theme information in DB
         Mono<Void> importedThemesMono = themeImportableService.importEntities(
@@ -671,7 +672,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                false);
 
         // Updates pageNametoIdMap and pageNameMap in importable resources.
         // Also directly updates required information in DB
@@ -680,7 +682,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                false);
 
         // Requires pluginMap to be present in importable resources.
         // Updates datasourceNameToIdMap in importable resources.
@@ -690,7 +693,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson));
+                applicationJson,
+                false));
 
         return List.of(importedDatasourcesMono, importedPagesMono, importedThemesMono);
     }
@@ -711,7 +715,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                false);
 
         // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable
         // resources.
@@ -722,10 +727,11 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                false);
 
-        Mono<Void> combinedActionExportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
-        return List.of(combinedActionExportablesMono);
+        Mono<Void> combinedActionImportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
+        return List.of(combinedActionImportablesMono);
     }
 
     private Mono<Void> applicationSpecificImportedEntities(
@@ -734,7 +740,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         // Persists relevant information and updates mapped resources
         Mono<Void> installedJsLibsMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, false);
         return installedJsLibsMono;
     }
 

@@ -1,9 +1,11 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
+import net.minidev.json.JSONObject;
 import org.eclipse.jgit.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClientRequest;
@@ -14,6 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GitUtils {
+
+    public static final Duration RETRY_DELAY = Duration.ofSeconds(1);
+    public static final Integer MAX_RETRIES = 20;
 
     /**
      * Sample repo urls :
@@ -101,5 +106,47 @@ public class GitUtils {
         return StringUtils.isEmptyOrNull(gitApplicationMetadata.getDefaultBranchName())
                 ? gitApplicationMetadata.getBranchName()
                 : gitApplicationMetadata.getDefaultBranchName();
+    }
+
+    /**
+     * This method checks if the application is connected to git and is the default branched.
+     *
+     * @param application   application to be checked
+     * @return              true if the application is default branched, false otherwise
+     */
+    public static boolean isDefaultBranchedApplication(Application application) {
+        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+        return isApplicationConnectedToGit(application)
+                && !StringUtils.isEmptyOrNull(metadata.getBranchName())
+                && metadata.getBranchName().equals(metadata.getDefaultBranchName());
+    }
+
+    /**
+     * This method checks if the application is connected to Git or not.
+     * @param application   application to be checked
+     * @return              true if the application is connected to Git, false otherwise
+     */
+    public static boolean isApplicationConnectedToGit(Application application) {
+        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+        return metadata != null
+                && !StringUtils.isEmptyOrNull(metadata.getDefaultApplicationId())
+                && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());
+    }
+
+    public static boolean isMigrationRequired(JSONObject layoutDsl, Integer latestDslVersion) {
+        boolean isMigrationRequired = true;
+        String versionKey = "version";
+        if (layoutDsl.containsKey(versionKey)) {
+            int currentDslVersion = layoutDsl.getAsNumber(versionKey).intValue();
+            if (currentDslVersion >= latestDslVersion) {
+                isMigrationRequired = false;
+            }
+        }
+        return isMigrationRequired;
+    }
+
+    public static boolean isAutoCommitEnabled(GitApplicationMetadata gitApplicationMetadata) {
+        return gitApplicationMetadata.getAutoCommitConfig() == null
+                || gitApplicationMetadata.getAutoCommitConfig().getEnabled();
     }
 }
