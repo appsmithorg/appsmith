@@ -47,7 +47,7 @@
         <source.disabled>true</source.disabled>
         <spotless.version>2.36.0</spotless.version>
         <spring-boot.version>3.2.0</spring-boot.version>
-        <testcontainers.version>1.17.3</testcontainers.version>
+        <testcontainers.version>1.19.3</testcontainers.version>
     </properties>
 
     <build>
@@ -77,7 +77,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.2.3</version>
                 <configuration>
                     <printSummary>true</printSummary>
                     <!-- Allow JUnit to access the test classes -->
@@ -85,19 +85,6 @@
                         --add-opens java.base/java.time=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED</argLine>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-commons</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
