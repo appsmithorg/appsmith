@@ -29,9 +29,9 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -565,7 +565,7 @@ public class UserServiceTest {
         List<NameValuePair> nameValuePairs = new ArrayList<>(2);
         nameValuePairs.add(new BasicNameValuePair("email", emailAddress));
         nameValuePairs.add(new BasicNameValuePair("token", token));
-        String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+        String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
         return encryptionService.encryptString(urlParams);
     }
 
