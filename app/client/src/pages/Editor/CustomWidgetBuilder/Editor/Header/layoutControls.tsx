@@ -2,6 +2,13 @@ import { SegmentedControl } from "design-system";
 import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
 import styles from "./styles.module.css";
+import styled from "styled-components";
+
+const StyledSegmentedControl = styled(SegmentedControl)`
+  & .ads-v2-icon {
+    transform: rotate(90deg);
+  }
+`;
 
 export default function LayoutControls() {
   const context = useContext(CustomWidgetBuilderContext);
@@ -12,7 +19,7 @@ export default function LayoutControls() {
 
   return (
     <div className={styles.layoutControl}>
-      <SegmentedControl
+      <StyledSegmentedControl
         onChange={onChange}
         options={[
           {

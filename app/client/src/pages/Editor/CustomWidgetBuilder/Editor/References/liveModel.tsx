@@ -15,10 +15,10 @@ export default function ModelVariables() {
       overflow: "auto",
       marginTop: "10px",
     },
-    collapsed: 2,
+    collapsed: 1,
     shouldCollapse: (field: any) => {
       const index = field.name * 1;
-      return index >= 2;
+      return index >= 1;
     },
     indentWidth: 1,
   };

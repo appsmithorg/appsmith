@@ -1,4 +1,4 @@
-import { transform } from "@babel/standalone";
+import { transform } from "@babel/standalone/";
 import type { DebuggerLogItem, SrcDoc } from "./types";
 
 interface CompiledResult {

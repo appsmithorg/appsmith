@@ -12,23 +12,6 @@ export const EVENTS = {
 
 // Function to create a communication channel to the parent
 export const createChannelToParent = () => {
-  const throwError = (e) => {
-    window.parent.postMessage(
-      {
-        type: "CUSTOM_WIDGET_CONSOLE_EVENT",
-        data: {
-          type: "error",
-          args: [
-            {
-              message: e.toString(),
-            },
-          ],
-        },
-      },
-      "*",
-    );
-  };
-
   const onMessageMap = new Map();
   // Function to register an event handler for a message type
   function onMessage(type, fn) {
@@ -100,8 +83,6 @@ export const createChannelToParent = () => {
       try {
         // Check if the the passed object is postMessageable. if not fail
         // and exit
-        structuredClone?.(data);
-
         postMessageQueue.push({
           type,
           data,
@@ -142,13 +123,14 @@ let isReadyCalled = false;
 // });
 // Callback for when the READY_ACK message is received
 channel.onMessage(EVENTS.CUSTOM_WIDGET_READY_ACK, (event) => {
-  // Subscribe to model and UI changes
-  window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
-  window.appsmith.onUiChange(generateAppsmithCssVariables("ui"));
   window.appsmith.model = event.model;
   window.appsmith.ui = event.ui;
   window.appsmith.mode = event.mode;
   // heightObserver.observe(window.document.body);
+
+  // Subscribe to model and UI changes
+  window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
+  window.appsmith.onUiChange(generateAppsmithCssVariables("ui"));
 
   // Set the widget as ready
   isReady = true;
@@ -250,6 +232,7 @@ const generateAppsmithCssVariables = (provider) => (source) => {
     cssTokens.id = `appsmith-${provider}-css-tokens`;
     window.document.head.appendChild(cssTokens);
   }
+
   const cssTokensContent = Object.keys(source).reduce((acc, key) => {
     if (typeof source[key] === "string" || typeof source[key] === "number") {
       return `

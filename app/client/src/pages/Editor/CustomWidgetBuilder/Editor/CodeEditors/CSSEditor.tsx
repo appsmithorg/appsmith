@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import type { ContentProps } from "./types";
-import styles from "./styles.module.css";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -10,45 +9,85 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { Icon, Tooltip, Spinner } from "design-system";
+import styles from "./styles.module.css";
 
-export default function CSSEditor(props: ContentProps) {
-  const { uncompiledSrcDoc, update } = useContext(CustomWidgetBuilderContext);
+export function TitleControls() {
+  const { isReferenceOpen, model } = useContext(CustomWidgetBuilderContext);
 
-  const { height, showHeader = true } = props;
+  const variableList = useMemo(() => {
+    return model
+      ? Object.entries(model)
+          .filter(([, value]) => {
+            return ["string", "number"].includes(typeof value);
+          })
+          .map(([key]) => {
+            return `--appsmith-model-${key}`;
+          })
+          .concat(["--appsmith-ui-width", "--appsmith-ui-height"])
+      : [];
+  }, [model]);
 
   return (
-    <div className={styles.editor}>
-      {showHeader && (
-        <div className={styles.editorHeader}>
-          <div className={styles.editorHeaderTitle}>CSS</div>
+    <Tooltip
+      content={
+        <>
+          <div>You can use following css variables</div>
+          <div>&nbsp;</div>
+          <ol>
+            {variableList.map((value, index) => (
+              <li key={index}>{value}</li>
+            ))}
+          </ol>
+        </>
+      }
+      placement={isReferenceOpen ? "bottom" : "left"}
+    >
+      <Icon name="question" size="md" />
+    </Tooltip>
+  );
+}
+
+export default function CSSEditor(props: ContentProps) {
+  const [loading, setLoading] = useState(true);
+
+  const { uncompiledSrcDoc, update } = useContext(CustomWidgetBuilderContext);
+
+  const { height } = props;
+
+  return (
+    <div className={styles.wrapper}>
+      <LazyCodeEditor
+        border={CodeEditorBorder.NONE}
+        borderLess
+        className={"js-editor"}
+        focusElementName="custom-widget-css-editor"
+        folding
+        height={height}
+        hideEvaluatedValue
+        ignoreAutoComplete
+        ignoreBinding
+        ignoreSlashCommand
+        input={{
+          value: uncompiledSrcDoc?.css,
+          onChange: (value) => {
+            update?.("css", value);
+          },
+        }}
+        mode={EditorModes.CSS}
+        onLoad={() => setLoading(false)}
+        placeholder="/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/"
+        showLightningMenu={false}
+        showLineNumbers
+        size={EditorSize.EXTENDED}
+        tabBehaviour={TabBehaviour.INDENT}
+        theme={EditorTheme.LIGHT}
+      />
+      {loading && (
+        <div className={styles.loader} style={{ height }}>
+          <Spinner size="lg" />
         </div>
       )}
-      <div className={styles.editorBody}>
-        <LazyCodeEditor
-          border={CodeEditorBorder.NONE}
-          borderLess
-          className={"js-editor"}
-          focusElementName="custom-widget-css-editor"
-          folding
-          height={height - 39}
-          hideEvaluatedValue
-          ignoreBinding 
-          ignoreSlashCommand
-          input={{
-            value: uncompiledSrcDoc?.css,
-            onChange: (value) => {
-              update?.("css", value);
-            },
-          }}
-          mode={EditorModes.CSS}
-          placeholder="/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/"
-          showLightningMenu={false}
-          showLineNumbers
-          size={EditorSize.EXTENDED}
-          tabBehaviour={TabBehaviour.INDENT}
-          theme={EditorTheme.LIGHT}
-        />
-      </div>
     </div>
   );
 }

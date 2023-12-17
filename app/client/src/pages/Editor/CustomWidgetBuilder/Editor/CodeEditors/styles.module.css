@@ -1,18 +1,15 @@
-.editor {
+.wrapper {
+  position: relative;
 }
 
-.editorHeader {
-  border-bottom: 1px solid var(--ads-v2-color-gray-300);
-  height: 39px;
+.loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #fff;
+  width: 100%;
+  height: 100%;
   display: flex;
+  justify-content: center;
   align-items: center;
-  padding: 0 10px;
-  border-top: 1px solid var(--ads-v2-color-gray-300);
-}
-
-.editorHeaderTitle {
-}
-
-.editorBody {
-
 }

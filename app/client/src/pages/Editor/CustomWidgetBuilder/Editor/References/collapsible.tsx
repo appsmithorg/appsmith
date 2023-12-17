@@ -5,7 +5,7 @@ import { Icon, Tooltip } from "design-system";
 interface Props {
   label: string;
   defaultOpen?: boolean;
-  helpMessage?: string;
+  helpMessage?: React.ReactNode;
   children: React.ReactNode;
 }
 

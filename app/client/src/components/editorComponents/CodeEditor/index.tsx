@@ -78,7 +78,7 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
   getEvalErrorPath,
   getEvalValuePath,
@@ -243,6 +243,7 @@ export type EditorProps = EditorStyleProps &
     jsObjectName?: string;
     ignoreSlashCommand?: boolean;
     ignoreBinding?: boolean;
+    ignoreAutoComplete?: boolean;
 
     // Custom gutter
     customGutter?: CodeEditorGutter;
@@ -645,7 +646,7 @@ class CodeEditor extends Component<Props, State> {
           this.props.entitiesForNavigation,
         );
       }
-      if (prevProps.lintErrors !== this.props.lintErrors || prevProps.customError !== this.props.customError) {
+      if (prevProps.lintErrors !== this.props.lintErrors) {
         this.lintCode(this.editor);
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
@@ -1347,7 +1348,7 @@ class CodeEditor extends Component<Props, State> {
     const key = event.key;
     // Since selection from AutoComplete list is also done using the Enter keydown event
     // we need to return from here so that autocomplete selection works fine
-    if (key === "Enter") return;
+    if (key === "Enter" || this.props.ignoreAutoComplete) return;
 
     // Check if the user is trying to comment out the line, in that case we should not show autocomplete
     const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
@@ -1407,7 +1408,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   lintCode(editor: CodeMirror.Editor) {
-    debugger;
     const {
       additionalDynamicData: contextData,
       dataTreePath,

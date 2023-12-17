@@ -4,7 +4,7 @@ import Layout from "./Layouts";
 import Header from "./Header";
 import { CustomWidgetBuilderContext } from "..";
 import HTMLEditor from "./CodeEditors/HTMLEditor";
-import CSSEditor from "./CodeEditors/CSSEditor";
+import CSSEditor, { TitleControls } from "./CodeEditors/CSSEditor";
 import JSEditor from "./CodeEditors/JSEditor";
 import type { ContentProps } from "./CodeEditors/types";
 import References from "./References";
@@ -26,6 +26,7 @@ export default function Editor() {
             },
             {
               title: "CSS",
+              titleControls: <TitleControls />,
               children: (props: ContentProps) => <CSSEditor {...props} />,
             },
             {

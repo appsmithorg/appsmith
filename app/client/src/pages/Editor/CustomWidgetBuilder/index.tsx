@@ -76,7 +76,7 @@ export default function CustomWidgetBuilder() {
 
     if (result.warnings.length) {
       compileLogs.push({
-        type:  DebuggerLogType.WARN,
+        type: DebuggerLogType.WARN,
         args: result.warnings,
       });
     }
@@ -226,6 +226,7 @@ export default function CustomWidgetBuilder() {
       );
     });
 
+    // if connection cannot be made, redirect to editor
     connectionTimeout = setTimeout(() => {
       history.replace(window.location.pathname.replace("/builder", ""));
     }, 2000);

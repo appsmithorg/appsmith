@@ -2,7 +2,7 @@ import React from "react";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import { CUSTOM_WIDGET_BUILDER_EVENTS } from "pages/Editor/CustomWidgetBuilder/contants";
 
 interface ButtonControlState {
@@ -24,7 +24,6 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       this.state.sourceEditor
     ) {
       this.state.sourceEditor.focus();
-      window.removeEventListener("beforeunload", this.beforeWindowUnload);
     } else {
       const editSourceWindow = window.open(builderUrl, "_blank");
 
@@ -35,10 +34,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         });
 
         editSourceWindow?.addEventListener("message", (event: any) => {
-          if (
-            event.origin === window.location.origin &&
-            event.source === editSourceWindow
-          ) {
+          if (event.source === editSourceWindow) {
             switch (event.data.type) {
               case CUSTOM_WIDGET_BUILDER_EVENTS.READY:
                 editSourceWindow.postMessage({
@@ -80,8 +76,6 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
             }
           }
         });
-
-        window.addEventListener("beforeunload", this.beforeWindowUnload);
       }
     }
   };
@@ -95,6 +89,10 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       this.state.sourceEditor.close();
     }
   };
+
+  componentDidMount(): void {
+    window.addEventListener("beforeunload", this.beforeWindowUnload);
+  }
 
   componentWillUnmount(): void {
     this.beforeWindowUnload();
@@ -140,7 +138,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   render() {
     return (
       <Button
-        kind="secondary"
+        kind="primary"
         onClick={this.onCTAClick}
         size="md"
         style={{
@@ -148,6 +146,8 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         }}
       >
         {this.state.isSourceEditorOpen ? "Go to source editor" : "Edit Source"}
+        &nbsp;
+        <Icon name="share-box-line" size="sm" />
       </Button>
     );
   }

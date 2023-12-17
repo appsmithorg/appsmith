@@ -8,11 +8,11 @@ export const DebuggerLogType = {
   LOG: "log",
   INFO: "info",
   WARN: "warn",
-  ERROR: "error"
+  ERROR: "error",
 };
 
 export interface DebuggerLog {
-  type: keyof typeof DebuggerLogType;
+  type: string;
   args: Array<DebuggerLogItem>;
 }
 

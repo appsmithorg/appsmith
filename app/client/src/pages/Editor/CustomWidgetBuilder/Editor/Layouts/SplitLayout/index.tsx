@@ -5,6 +5,7 @@ import type { ContentProps } from "../../CodeEditors/types";
 interface Props {
   rows: Array<{
     title: string;
+    titleControls?: React.ReactNode;
     children: (props: ContentProps) => React.ReactNode;
   }>;
 }
@@ -44,8 +45,12 @@ export default function SplitLayout(props: Props) {
       {!loading &&
         rows.map((row) => (
           <div key={row.title}>
+            <div className={styles.editorHeader}>
+              <div>{row.title}</div>
+              {row.titleControls}
+            </div>
             {row.children({
-              height: height / 3,
+              height: height / 3 - 39,
               width: "100%",
             })}
           </div>

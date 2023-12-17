@@ -55,7 +55,10 @@ export default function Preview() {
 
           updateDebuggerLogs?.({
             type: "info",
-            args: [{message: `Event fired: '${name}'`}, {message: contextObjec}],
+            args: [
+              { message: `Event fired: '${name}'` },
+              { message: contextObjec },
+            ],
           });
         }}
         height={dimensions.height}
@@ -78,7 +81,7 @@ export default function Preview() {
 
           updateDebuggerLogs?.({
             type: "info",
-            args: [{message}, {message: data}],
+            args: [{ message }, { message: data }],
           });
         }}
         width={dimensions.width}

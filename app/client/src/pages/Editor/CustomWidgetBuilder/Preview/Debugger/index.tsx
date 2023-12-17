@@ -46,7 +46,7 @@ export default function Debugger() {
             style={{ cursor: "pointer" }}
           />
         </Tooltip>
-        <Tooltip content="close console">
+        <Tooltip content={open ? "close console" : "open console"}>
           <Icon
             name={open ? "arrow-down-s-line" : "arrow-up-s-line"}
             onClick={() => setOpen(!open)}

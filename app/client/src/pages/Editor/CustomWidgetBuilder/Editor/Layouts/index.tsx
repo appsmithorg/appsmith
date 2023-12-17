@@ -8,6 +8,7 @@ import type { ContentProps } from "../CodeEditors/types";
 interface Props {
   content: Array<{
     title: string;
+    titleControls?: React.ReactNode;
     children: (props: ContentProps) => React.ReactNode;
   }>;
 }

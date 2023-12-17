@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import type { ContentProps } from "./types";
 import styles from "./styles.module.css";
 import {
@@ -11,17 +11,20 @@ import {
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constants";
-import { DebuggerLogType } from "../../types";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { Severity } from "entities/AppsmithConsole";
+// import { DebuggerLogType } from "../../types";
+// import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+// import { Severity } from "entities/AppsmithConsole";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { Spinner } from "design-system";
 
 export default function JSEditor(props: ContentProps) {
-  const { debuggerLogs, model, uncompiledSrcDoc, update } = useContext(
+  const [loading, setLoading] = useState(true);
+
+  const { model, uncompiledSrcDoc, update } = useContext(
     CustomWidgetBuilderContext,
   );
 
-  const { height, showHeader = true } = props;
+  const { height } = props;
 
   // const errors = useMemo(() => {
   //   return debuggerLogs
@@ -46,42 +49,43 @@ export default function JSEditor(props: ContentProps) {
   // }, [debuggerLogs]);
 
   useEffect(() => {
-    CodemirrorTernService.removeDef("forge");
+    ["LIB/node-forge", "LIB/moment", "base64-js", "LIB/lodash"].forEach((d) => {
+      CodemirrorTernService.removeDef(d);
+    });
   }, []);
 
   return (
-    <div className={styles.editor}>
-      {showHeader && (
-        <div className={styles.editorHeader}>
-          <div className={styles.editorHeaderTitle}>JS</div>
+    <div className={styles.wrapper}>
+      <LazyCodeEditor
+        additionalDynamicData={getAppsmithScriptSchema(model || {})}
+        border={CodeEditorBorder.NONE}
+        borderLess
+        className={"js-editor"}
+        focusElementName="custom-widget-js-editor"
+        folding
+        height={height}
+        hideEvaluatedValue
+        ignoreSlashCommand
+        input={{
+          value: uncompiledSrcDoc?.js,
+          onChange: (value) => {
+            update?.("js", value);
+          },
+        }}
+        mode={EditorModes.JAVASCRIPT}
+        onLoad={() => setLoading(false)}
+        placeholder="// no need to write window onLoad, it is handled by the widget"
+        showLightningMenu={false}
+        showLineNumbers
+        size={EditorSize.EXTENDED}
+        tabBehaviour={TabBehaviour.INDENT}
+        theme={EditorTheme.LIGHT}
+      />
+      {loading && (
+        <div className={styles.loader} style={{ height }}>
+          <Spinner size="lg" />
         </div>
       )}
-      <div className={styles.editorBody}>
-        <LazyCodeEditor
-          additionalDynamicData={getAppsmithScriptSchema(model || {})}
-          border={CodeEditorBorder.NONE}
-          borderLess
-          className={"js-editor"}
-          focusElementName="custom-widget-js-editor"
-          folding
-          height={height - 39}
-          hideEvaluatedValue
-          ignoreSlashCommand
-          input={{
-            value: uncompiledSrcDoc?.js,
-            onChange: (value) => {
-              update?.("js", value);
-            },
-          }}
-          mode={EditorModes.JAVASCRIPT}
-          placeholder="// no need to write window onLoad, it is handled by the widget"
-          showLightningMenu={false}
-          showLineNumbers
-          size={EditorSize.EXTENDED}
-          tabBehaviour={TabBehaviour.INDENT}
-          theme={EditorTheme.LIGHT}
-        />
-      </div>
     </div>
   );
 }

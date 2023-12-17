@@ -7,6 +7,7 @@ import useLocalStorageState from "utils/hooks/useLocalStorageState";
 interface Props {
   tabs: Array<{
     title: string;
+    titleControls?: React.ReactNode;
     children: (props: ContentProps) => React.ReactNode;
   }>;
 }
@@ -30,7 +31,9 @@ export default function TabLayout(props: Props) {
   useEffect(() => {
     if (containerRef.current) {
       setHeight(
-        window.innerHeight - containerRef.current.getBoundingClientRect().top,
+        window.innerHeight -
+          containerRef.current.getBoundingClientRect().top -
+          39,
       );
 
       setLoading(false);
@@ -39,7 +42,9 @@ export default function TabLayout(props: Props) {
     const handler = () => {
       if (containerRef.current) {
         setHeight(
-          window.innerHeight - containerRef.current.getBoundingClientRect().top,
+          window.innerHeight -
+            containerRef.current.getBoundingClientRect().top -
+            39,
         );
       }
     };
@@ -50,6 +55,8 @@ export default function TabLayout(props: Props) {
       window.removeEventListener("resize", handler);
     };
   }, []);
+
+  const selectedTabObject = tabs.find((d) => d.title === selectedTab);
 
   return (
     <div className={styles.wrapper} ref={containerRef}>
@@ -81,13 +88,15 @@ export default function TabLayout(props: Props) {
             >
               {tab.children({
                 height: height,
-                showHeader: false,
                 width: "100%",
               })}
             </TabPanel>
           ))}
         </Tabs>
       )}
+      <div className={styles.controls}>
+        {selectedTabObject && <div>{selectedTabObject.titleControls}</div>}
+      </div>
     </div>
   );
 }
