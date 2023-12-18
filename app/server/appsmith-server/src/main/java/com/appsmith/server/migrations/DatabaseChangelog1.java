@@ -27,7 +27,6 @@ import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -460,15 +459,7 @@ public class DatabaseChangelog1 {
     }
 
     @ChangeSet(order = "010", id = "add-delete-datasource-perm-existing-groups", author = "")
-    public void addDeleteDatasourcePermToExistingGroups(MongoTemplate mongoTemplate) {
-        for (Group group : mongoTemplate.findAll(Group.class)) {
-            if (CollectionUtils.isEmpty(group.getPermissions())) {
-                group.setPermissions(new HashSet<>());
-            }
-            group.getPermissions().add("delete:datasources");
-            mongoTemplate.save(group);
-        }
-    }
+    public void addDeleteDatasourcePermToExistingGroups(MongoTemplate mongoTemplate) {}
 
     @ChangeSet(order = "011", id = "install-default-plugins-to-all-organizations", author = "")
     public void installDefaultPluginsToAllOrganizations(MongoTemplate mongoTemplate) {
