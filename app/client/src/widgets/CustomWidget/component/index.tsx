@@ -123,8 +123,8 @@ function CustomComponent(props: CustomComponentProps) {
         {
           type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
           ui: {
-            width: props.width,
-            height: props.height,
+            width: props.width - 8,
+            height: props.height - 8,
           },
         },
         "*",

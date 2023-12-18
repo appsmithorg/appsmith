@@ -20,18 +20,18 @@ export default function Preview() {
   useEffect(() => {
     if (containerRef.current) {
       setDimensions({
-        width: containerRef.current?.clientWidth,
+        width: containerRef.current?.clientWidth + 8,
         height:
           window.innerHeight -
           containerRef.current.getBoundingClientRect().top -
-          28,
+          30,
       });
     }
 
     const handleResize = () => {
       if (containerRef.current) {
         setDimensions({
-          width: containerRef.current?.clientWidth,
+          width: containerRef.current?.clientWidth + 8,
           height:
             window.innerHeight -
             containerRef.current.getBoundingClientRect().top -

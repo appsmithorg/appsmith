@@ -3,18 +3,10 @@ export default {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
 <div id="root"></div>
 `,
-    css: `#root {
-	display: flex;
+    css: `.app {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
-	align-items: center;
-}
-
-.app {
-	justify-content: center;
-  margin: 20px;
-	padding: 5px;
 }
 
 .tip-container {
@@ -49,10 +41,6 @@ import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
 import { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.11.1/+esm'
 import Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm'
 
-const style = {
-	maxWidth: "400px",
-}
-
 function App() {
 	const [currentIndex, setCurrentIndex] = React.useState(0);
 
@@ -66,7 +54,7 @@ function App() {
 	};
 
 	return (
-		<Card className="app" style={style}>
+		<Card className="app">
 			<div className="tip-container">
 				<div className="tip-header">
 					<h2>Custom Widget</h2>
@@ -90,18 +78,10 @@ appsmith.onReady(() => {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
 <div id="root"></div>
 `,
-    css: `#root {
-	display: flex;
+    css: `.app {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
-	align-items: center;
-}
-
-.app {
-	justify-content: center;
-  margin: 20px;
-	padding: 5px;
 }
 
 .tip-container {
@@ -135,9 +115,7 @@ appsmith.onReady(() => {
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm';
 import { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.11.1/+esm';
 import Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm';
-const style = {
-  maxWidth: "400px"
-};
+
 function App() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const handleNext = () => {
@@ -149,7 +127,6 @@ function App() {
   };
   return /*#__PURE__*/React.createElement(Card, {
     className: "app",
-    style: style
   }, /*#__PURE__*/React.createElement("div", {
     className: "tip-container"
   }, /*#__PURE__*/React.createElement("div", {
