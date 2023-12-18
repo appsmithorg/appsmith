@@ -30,6 +30,7 @@ import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/util
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { ExplorerModuleInstanceEntity } from "@appsmith/pages/Editor/Explorer/ModuleInstanceEntity";
 import { FilesContext } from "./FilesContextProvider";
+import { selectFilesForExplorer as default_selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -45,7 +46,7 @@ function Files() {
     editorId,
     parentEntityId,
     parentEntityType,
-    selectFilesForExplorer,
+    selectFilesForExplorer = default_selectFilesForExplorer,
     showModules = true,
   } = context;
 

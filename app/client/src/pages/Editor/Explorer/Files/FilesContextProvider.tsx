@@ -16,7 +16,7 @@ interface FilesContextContextProps {
   parentEntityId: string; // page, workflow or module
   parentEntityType: ActionParentEntityTypeInterface;
   showModules?: boolean;
-  selectFilesForExplorer: (state: any) => any;
+  selectFilesForExplorer?: (state: any) => any;
 }
 
 type FilesContextProviderProps =
