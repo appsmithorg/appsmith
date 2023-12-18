@@ -34,5 +34,7 @@ module.exports = {
     "@tag.ImportExport",
     "@tag.AutoHeight",
     "@tag.Fork",
+    "@tag.Perf",
+    "@tag.PropertyPane",
   ],
 };
