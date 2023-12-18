@@ -675,7 +675,7 @@ describe("rowHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layout: [],
-      }).layout;
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 100,
@@ -714,7 +714,7 @@ describe("rowHighlights tests", () => {
         layoutStyle: {
           justifyContent: "center",
         },
-      }).layout;
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 100,
@@ -757,7 +757,7 @@ describe("rowHighlights tests", () => {
         layoutStyle: {
           justifyContent: "end",
         },
-      }).layout;
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 100,
@@ -802,7 +802,7 @@ describe("rowHighlights tests", () => {
        */
       const layoutOne: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: false,
-      }).layout;
+      }).layout as LayoutComponentProps;
       const button1: string = (layoutOne.layout[0] as WidgetLayoutProps)
         .widgetId;
       const input1: string = (layoutOne.layout[1] as WidgetLayoutProps)
@@ -816,7 +816,7 @@ describe("rowHighlights tests", () => {
        */
       const layoutTwo: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: false,
-      }).layout;
+      }).layout as LayoutComponentProps;
       const button2: string = (layoutTwo.layout[0] as WidgetLayoutProps)
         .widgetId;
       const input2: string = (layoutTwo.layout[1] as WidgetLayoutProps)
@@ -834,7 +834,7 @@ describe("rowHighlights tests", () => {
           layout: [layoutOne, layoutTwo],
         },
         false,
-      ).layout;
+      ).layout as LayoutComponentProps;
       /**
        * Create a map of widget positions.
        */
@@ -928,7 +928,7 @@ describe("rowHighlights tests", () => {
        */
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
-      }).layout;
+      }).layout as LayoutComponentProps;
       const button1: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       /**

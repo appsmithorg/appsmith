@@ -23,11 +23,15 @@ describe("Layouts - deletionUtils tests", () => {
   });
   describe("deleteWidgetFromLayout", () => {
     it("should return layoutProps as is, if widgetId is falsy", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
-      expect(deleteWidgetFromLayout(layout, "")).toEqual(layout);
+      const layout: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
+      expect(deleteWidgetFromLayout(layout, "", ButtonWidget.type)).toEqual(
+        layout,
+      );
     });
     it("should remove widget from the layout", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
+      const layout: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
 
       const originalLength: number = layout.layout.length;
       const widgetId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
@@ -44,7 +48,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return undefined if layout is temporary and empty after deletion", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isPermanent: false,
-      }).layout;
+      }).layout as LayoutComponentProps;
       // layout has two widgets
       const originalLength: number = layout.layout.length;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
@@ -69,7 +73,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return empty layout on deleting last widget, if the layout is permanent", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isPermanent: true,
-      }).layout;
+      }).layout as LayoutComponentProps;
       // layout has two widgets
       const originalLength: number = layout.layout.length;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
@@ -95,7 +99,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return undefined if AlignedRow is temporary and empty after deletion", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock({
         isPermanent: false,
-      }).layout;
+      }).layout as LayoutComponentProps;
       // start alignment has two widgets
       const originalStartLength: number = (
         layout.layout as WidgetLayoutProps[]
@@ -126,7 +130,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return empty AlignedRow on deleting last widget, if the layout is permanent", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock({
         isPermanent: true,
-      }).layout;
+      }).layout as LayoutComponentProps;
       // start alignment has two widgets
       const originalStartLength: number = (
         layout.layout as WidgetLayoutProps[]
@@ -159,7 +163,8 @@ describe("Layouts - deletionUtils tests", () => {
       expect(res.layout.length).toEqual(0);
     });
     it("should return the layout as is if widgetId is not present in the layout", () => {
-      const layout: LayoutComponentProps = generateAlignedRowMock().layout;
+      const layout: LayoutComponentProps = generateAlignedRowMock()
+        .layout as LayoutComponentProps;
       const res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         "randomWidgetId",
@@ -182,9 +187,9 @@ describe("Layouts - deletionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock(
         {},
         false,
-      ).layout;
-      const layout2: LayoutComponentProps =
-        generateLayoutComponentMock().layout;
+      ).layout as LayoutComponentProps;
+      const layout2: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       const res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
         ((layout.layout[0] as LayoutProps).layout[0] as WidgetLayoutProps)
@@ -211,11 +216,11 @@ describe("Layouts - deletionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock(
         {},
         false,
-      ).layout;
+      ).layout as LayoutComponentProps;
       // layout2 has two child widgets
       const layout2: LayoutComponentProps = generateLayoutComponentMock({
         isPermanent: false,
-      }).layout;
+      }).layout as LayoutComponentProps;
       // delete the first widget
       let res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
