@@ -41,17 +41,21 @@ export const FilesContextProvider = ({
   selectFilesForExplorer,
   showModules,
 }: FilesContextProviderProps) => {
-  const menuItems = [
-    ActionEntityContextMenuItemsEnum.EDIT_NAME,
-    ActionEntityContextMenuItemsEnum.DELETE,
-  ];
-  if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-    menuItems.push(
-      ActionEntityContextMenuItemsEnum.SHOW_BINDING,
-      ActionEntityContextMenuItemsEnum.COPY,
-      ActionEntityContextMenuItemsEnum.MOVE,
-    );
-  }
+  const menuItems = useMemo(() => {
+    const items = [
+      ActionEntityContextMenuItemsEnum.EDIT_NAME,
+      ActionEntityContextMenuItemsEnum.DELETE,
+    ];
+    if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
+      items.push(
+        ActionEntityContextMenuItemsEnum.SHOW_BINDING,
+        ActionEntityContextMenuItemsEnum.COPY,
+        ActionEntityContextMenuItemsEnum.MOVE,
+      );
+    }
+    return items;
+  }, [parentEntityType]);
+
   const value = useMemo(() => {
     return {
       canCreateActions,
@@ -67,7 +71,6 @@ export const FilesContextProvider = ({
     parentEntityId,
     parentEntityType,
     showModules,
-    menuItems,
     selectFilesForExplorer,
     editorId,
   ]);
