@@ -475,7 +475,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.commitButton).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.merge(mainBranch);
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    agHelper.GetNClick(gitSyncLocators.closeGitSyncModal);
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
     agHelper.AssertAutoSave();

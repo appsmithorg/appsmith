@@ -329,7 +329,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
   assertHelper.AssertNetworkStatus("mergeBranch", 200);
-  cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
+  agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
 Cypress.Commands.add(
