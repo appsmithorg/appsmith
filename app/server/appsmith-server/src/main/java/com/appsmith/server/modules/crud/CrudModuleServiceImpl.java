@@ -25,7 +25,7 @@ import com.appsmith.server.helpers.ObjectUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.helpers.ModuleUtils;
-import com.appsmith.server.modules.moduleentity.ModuleEntityService;
+import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.packages.permissions.PackagePermission;
@@ -69,8 +69,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final ModuleInstancePermissionChecker moduleInstancePermissionChecker;
     private final TransactionalOperator transactionalOperator;
     private final ObjectMapper objectMapper;
-    private final ModuleEntityService<NewAction> newActionModuleEntityService;
-    private final ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
+    private final ModulePublicEntityService<NewAction> newActionModulePublicEntityService;
+    private final ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService;
 
     public CrudModuleServiceImpl(
             ModuleRepository repository,
@@ -84,8 +84,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             ModuleInstancePermissionChecker moduleInstancePermissionChecker,
             TransactionalOperator transactionalOperator,
             ObjectMapper objectMapper,
-            ModuleEntityService<NewAction> newActionModuleEntityService,
-            ModuleEntityService<ActionCollection> actionCollectionModuleEntityService) {
+            ModulePublicEntityService<NewAction> newActionModulePublicEntityService,
+            ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService) {
         super(repository);
         this.repository = repository;
         this.modulePermission = modulePermission;
@@ -98,8 +98,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         this.moduleInstancePermissionChecker = moduleInstancePermissionChecker;
         this.transactionalOperator = transactionalOperator;
         this.objectMapper = objectMapper;
-        this.newActionModuleEntityService = newActionModuleEntityService;
-        this.actionCollectionModuleEntityService = actionCollectionModuleEntityService;
+        this.newActionModulePublicEntityService = newActionModulePublicEntityService;
+        this.actionCollectionModulePublicEntityService = actionCollectionModulePublicEntityService;
     }
 
     @Override
@@ -120,11 +120,11 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     private Mono<ModuleDTO> setModuleSettingsForCreator(ModuleDTO moduleDTO) {
 
-        ModuleEntityService<?> moduleEntityService = getModuleEntityService(moduleDTO);
+        ModulePublicEntityService<?> modulePublicEntityService = getModulePublicEntityService(moduleDTO);
 
         return Mono.zip(
                         getSettingsFormForModuleInstance(),
-                        moduleEntityService.getPublicEntitySettingsForm(moduleDTO.getId()))
+                        modulePublicEntityService.getPublicEntitySettingsForm(moduleDTO.getId()))
                 .flatMap(tuple2 -> {
                     Object moduleInstanceSettings = tuple2.getT1();
                     Object pluginSettings = tuple2.getT2();
@@ -265,10 +265,10 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                     // we can set the name to be same as the module name
                     publicEntity.setName(savedModule.getUnpublishedModule().getName());
 
-                    ModuleEntityService<?> moduleEntityService =
-                            getModuleEntityService(savedModule.getUnpublishedModule());
+                    ModulePublicEntityService<?> modulePublicEntityService =
+                            getModulePublicEntityService(savedModule.getUnpublishedModule());
 
-                    return moduleEntityService
+                    return modulePublicEntityService
                             .createPublicEntity(workspaceId, module, publicEntity)
                             .then(this.setTransientFieldsFromModuleToModuleDTO(
                                     savedModule, savedModule.getUnpublishedModule()))
@@ -276,12 +276,12 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 });
     }
 
-    private ModuleEntityService<?> getModuleEntityService(ModuleDTO moduleDTO) {
+    private ModulePublicEntityService<?> getModulePublicEntityService(ModuleDTO moduleDTO) {
         if (QUERY_MODULE.equals(moduleDTO.getType()) || moduleDTO.getEntity() instanceof ModuleActionDTO) {
-            return newActionModuleEntityService;
+            return newActionModulePublicEntityService;
         } else if (JS_MODULE.equals(moduleDTO.getType())
                 || moduleDTO.getEntity() instanceof ModuleActionCollectionDTO) {
-            return actionCollectionModuleEntityService;
+            return actionCollectionModulePublicEntityService;
         }
         throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
     }

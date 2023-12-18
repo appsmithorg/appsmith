@@ -22,6 +22,7 @@ import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -59,6 +60,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
     private final WorkspacePermission workspacePermission;
     private final CrudWorkflowEntityService crudWorkflowEntityService;
     private final ActionCollectionService actionCollectionService;
+    private final LayoutCollectionService layoutCollectionService;
 
     public CrudWorkflowServiceImpl(
             Scheduler scheduler,
@@ -76,7 +78,8 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
             WorkflowPermission workflowPermission,
             WorkspacePermission workspacePermission,
             CrudWorkflowEntityService crudWorkflowEntityService,
-            ActionCollectionService actionCollectionService) {
+            ActionCollectionService actionCollectionService,
+            LayoutCollectionService layoutCollectionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.crudWorkflowEntityService = crudWorkflowEntityService;
         this.newActionService = newActionService;
@@ -88,6 +91,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
         this.workflowPermission = workflowPermission;
         this.workspacePermission = workspacePermission;
         this.actionCollectionService = actionCollectionService;
+        this.layoutCollectionService = layoutCollectionService;
     }
 
     @Override
@@ -123,8 +127,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
         Mono<ActionCollectionDTO> mainActionCollectionDTOMono = createdWorkflowMono
                 .flatMap(workflowHelper::generateMainActionCollectionDTO)
-                .flatMap(mainActionCollection ->
-                        crudWorkflowEntityService.createWorkflowActionCollection(mainActionCollection, null));
+                .flatMap(mainActionCollection -> layoutCollectionService.createCollection(mainActionCollection, null));
 
         return Mono.zip(createdWorkflowMono, mainActionCollectionDTOMono).flatMap(pair -> {
             Workflow workflow = pair.getT1();

@@ -48,7 +48,6 @@ import com.appsmith.server.dtos.AuditLogExportDTO;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.ConfigRepository;
@@ -91,6 +90,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_SHORTNAME;
+import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static org.apache.commons.lang.WordUtils.capitalize;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -721,7 +721,7 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         }
         auditLog.setResource(auditLogResource);
 
-        if (ModuleUtils.isModuleContext(newAction.getUnpublishedAction())
+        if (isModuleContext(newAction.getUnpublishedAction().getContextType())
                 || WorkflowUtils.isWorkflowContext(newAction.getUnpublishedAction())) {
             return Mono.empty();
         }

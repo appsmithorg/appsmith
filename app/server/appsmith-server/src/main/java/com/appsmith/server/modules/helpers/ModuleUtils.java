@@ -1,24 +1,13 @@
 package com.appsmith.server.modules.helpers;
 
-import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.springframework.util.StringUtils;
 
 import java.util.Iterator;
-
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 public class ModuleUtils {
     public static final String MODULE_ENTITY_NAME_SEPARATOR_PREFIX = "_$";
     public static final String MODULE_ENTITY_NAME_SEPARATOR_SUFFIX = "$_";
-
-    public static boolean isModuleContext(ActionDTO action) {
-        return action.getContextType() == CreatorContextType.MODULE;
-    }
 
     public static void getSettingsForModuleCreator(JsonNode pluginSettingsNode, JsonNode moduleInstanceSettingsNode) {
         Iterator<JsonNode> pluginSettingsIterator = pluginSettingsNode.iterator();
@@ -47,29 +36,6 @@ public class ModuleUtils {
             }
         }
         return false;
-    }
-
-    public static Boolean isModuleAction(ActionDTO actionDTO) {
-
-        if (actionDTO == null) {
-            return FALSE;
-        } else if (!StringUtils.hasLength(actionDTO.getModuleId())
-                || !CreatorContextType.MODULE.equals(actionDTO.getContextType())) {
-            return FALSE;
-        }
-
-        return TRUE;
-    }
-
-    public static Boolean isModuleActionCollection(ActionCollectionDTO actionCollectionDTO) {
-        if (actionCollectionDTO == null) {
-            return FALSE;
-        } else if (!StringUtils.hasLength(actionCollectionDTO.getModuleId())
-                || !CreatorContextType.MODULE.equals(actionCollectionDTO.getContextType())) {
-            return FALSE;
-        }
-
-        return TRUE;
     }
 
     public static String getValidName(String rootName, String currentFQN) {

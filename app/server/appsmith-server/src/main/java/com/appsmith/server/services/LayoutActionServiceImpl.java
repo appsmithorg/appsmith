@@ -2,16 +2,17 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
+import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import static com.appsmith.server.modules.helpers.ModuleUtils.isModuleAction;
+import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
 import static com.appsmith.server.workflows.helpers.WorkflowUtils.isWorkflowContext;
 
 @Service
@@ -36,6 +37,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
     private final DatasourcePermission datasourcePermission;
     private final ModuleEntityService<NewAction> newActionModuleEntityService;
     private final CrudWorkflowEntityService crudWorkflowEntityService;
+    private final ModulePermissionChecker modulePermissionChecker;
 
     public LayoutActionServiceImpl(
             AnalyticsService analyticsService,
@@ -50,7 +52,8 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             ActionPermission actionPermission,
             DatasourcePermission datasourcePermission,
             ModuleEntityService<NewAction> newActionModuleEntityService,
-            CrudWorkflowEntityService crudWorkflowEntityService) {
+            CrudWorkflowEntityService crudWorkflowEntityService,
+            ModulePermissionChecker modulePermissionChecker) {
 
         super(
                 analyticsService,
@@ -68,6 +71,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
         this.datasourcePermission = datasourcePermission;
         this.newActionModuleEntityService = newActionModuleEntityService;
         this.crudWorkflowEntityService = crudWorkflowEntityService;
+        this.modulePermissionChecker = modulePermissionChecker;
     }
 
     @Override
@@ -92,18 +96,14 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
 
     @Override
     public Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName) {
-
-        if (isModuleAction(action)) {
-            return newActionModuleEntityService
-                    .createPrivateEntity((ModuleConsumable) action, branchName)
-                    .map(createdEntity -> (ActionDTO) createdEntity);
+        CreatorContextType contextType = getDefaultContextIfNull(action.getContextType());
+        switch (contextType) {
+            case WORKFLOW:
+            case MODULE:
+                return this.createSingleAction(action, Boolean.FALSE);
+            default:
+                return super.createSingleActionWithBranch(action, branchName);
         }
-
-        if (isWorkflowContext(action)) {
-            return crudWorkflowEntityService.createWorkflowAction(action, branchName);
-        }
-
-        return super.createSingleActionWithBranch(action, branchName);
     }
 
     @Override
@@ -112,5 +112,18 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             return crudWorkflowEntityService.updateWorkflowAction(newAction.getId(), action);
         }
         return super.updateActionBasedOnContextType(newAction, action);
+    }
+
+    @Override
+    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(ActionDTO action, boolean isJsAction) {
+        CreatorContextType contextType = getDefaultContextIfNull(action.getContextType());
+        switch (contextType) {
+            case WORKFLOW:
+                return crudWorkflowEntityService.createWorkflowAction(action, null);
+            case MODULE:
+                return newActionModuleEntityService.createPrivateEntity(action);
+            default:
+                return super.validateAndGenerateActionDomainBasedOnContext(action, isJsAction);
+        }
     }
 }

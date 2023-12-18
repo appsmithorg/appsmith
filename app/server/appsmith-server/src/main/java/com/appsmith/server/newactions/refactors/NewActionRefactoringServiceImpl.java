@@ -3,6 +3,7 @@ package com.appsmith.server.newactions.refactors;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
@@ -17,6 +18,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.regex.Pattern;
+
+import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 
 @Service
 public class NewActionRefactoringServiceImpl extends NewActionRefactoringServiceCEImpl
@@ -64,5 +67,17 @@ public class NewActionRefactoringServiceImpl extends NewActionRefactoringService
                     this.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
                     return refactorEntityNameDTO;
                 });
+    }
+
+    @Override
+    protected Flux<ActionDTO> getExistingEntities(String contextId, CreatorContextType contextType, String layoutId) {
+        if (isModuleContext(contextType)) {
+            return newActionService
+                    .findAllActionsByContextIdAndContextTypeAndViewMode(
+                            contextId, contextType, AclPermission.MANAGE_ACTIONS, false, false)
+                    .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+        } else {
+            return super.getExistingEntities(contextId, contextType, layoutId);
+        }
     }
 }

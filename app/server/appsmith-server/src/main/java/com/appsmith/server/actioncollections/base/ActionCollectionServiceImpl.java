@@ -19,6 +19,7 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
@@ -195,5 +197,16 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         Mono<List<BulkWriteResult>> publishActions =
                 newActionRepository.publishActionsForCollection(actionCollectionId, aclPermission);
         return archiveDeletedUnpublishedActions.then(publishActions);
+    }
+
+    @Override
+    protected void setGitSyncIdInActionCollection(ActionCollection collection) {
+        if (isModuleContext(collection.getUnpublishedCollection().getContextType())) {
+            if (collection.getGitSyncId() == null) {
+                collection.setGitSyncId(collection.getUnpublishedCollection().getModuleId() + "_" + new ObjectId());
+            }
+        } else {
+            super.setGitSyncIdInActionCollection(collection);
+        }
     }
 }

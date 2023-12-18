@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -68,6 +67,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
@@ -219,7 +219,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
             if (actionDTO.getPluginType() == PluginType.JS
                     || StringUtils.isEmpty(actionDTO.getDatasource().getId())
-                    || ModuleUtils.isModuleContext(actionDTO)) {
+                    || isModuleContext(actionDTO.getContextType())) {
                 return Mono.just(actionDTO);
             }
 
@@ -364,7 +364,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     @Override
     protected void setGitSyncIdInNewAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
-        if (ModuleUtils.isModuleContext(action)) {
+        if (isModuleContext(action.getContextType())) {
             if (newAction.getGitSyncId() == null) {
                 newAction.setGitSyncId(action.getModuleId() + "_" + new ObjectId());
             }
@@ -539,5 +539,13 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                     workflowId, CreatorContextType.WORKFLOW, actionPermission.getEditPermission(), includeJsActions);
         }
         return super.getUnpublishedActionsFromRepo(params, includeJsActions);
+    }
+
+    @Override
+    public void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
+        super.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+        if (isModuleContext(action.getContextType())) {
+            newAction.setIsPublic(action.getIsPublic());
+        }
     }
 }

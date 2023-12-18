@@ -26,6 +26,8 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +102,12 @@ public class CrudWorkflowServiceTest {
 
     @Autowired
     private ActionCollectionRepository actionCollectionRepository;
+
+    @Autowired
+    private LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    private LayoutActionService layoutActionService;
 
     Workspace workspace;
     String defaultEnvironmentId;
@@ -367,14 +375,16 @@ public class CrudWorkflowServiceTest {
         actionDTO.setWorkspaceId(workspace.getId());
         actionDTO.setContextType(CreatorContextType.WORKFLOW);
 
-        ActionDTO workflowActionDTO =
-                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setWorkflowId(workflow.getId());
         actionCollectionDTO.setWorkspaceId(workflow.getWorkspaceId());
         actionCollectionDTO.setPluginId(installed_plugin.getId());
+        actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
@@ -385,8 +395,8 @@ public class CrudWorkflowServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setBody("export default { x: 1 }");
 
-        ActionCollectionDTO workflowActionCollection = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO workflowActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         Workflow deleteWorkflow =

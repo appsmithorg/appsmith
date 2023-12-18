@@ -1,6 +1,8 @@
 package com.appsmith.server.workflows.crud;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -28,7 +30,7 @@ public class CrudWorkflowEntityServiceCECompatibleImpl extends BaseWorkflowServi
     }
 
     @Override
-    public Mono<ActionDTO> createWorkflowAction(ActionDTO actionDTO, String branchName) {
+    public Mono<NewAction> createWorkflowAction(ActionDTO actionDTO, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
@@ -38,7 +40,7 @@ public class CrudWorkflowEntityServiceCECompatibleImpl extends BaseWorkflowServi
     }
 
     @Override
-    public Mono<ActionCollectionDTO> createWorkflowActionCollection(
+    public Mono<ActionCollection> createWorkflowActionCollection(
             ActionCollectionDTO actionCollectionDTO, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }

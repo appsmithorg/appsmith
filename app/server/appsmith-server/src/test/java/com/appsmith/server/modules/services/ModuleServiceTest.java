@@ -727,7 +727,7 @@ class ModuleServiceTest {
     void testCreatePrivateModuleAction() {
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("testCreatePrivateModuleAction");
-        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setType(ModuleType.JS_MODULE);
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
@@ -769,7 +769,7 @@ class ModuleServiceTest {
 
         ModuleDTO moduleDTO = new ModuleDTO();
         moduleDTO.setName("testCreatePrivateModuleActionCollection");
-        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setType(ModuleType.JS_MODULE);
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();

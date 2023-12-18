@@ -24,6 +24,7 @@ import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
+import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -131,10 +132,13 @@ public class ActionCollectionServiceImplTest {
     private PolicyGenerator policyGenerator;
 
     @MockBean
+    private CrudWorkflowEntityService crudWorkflowEntityService;
+
+    @MockBean
     private ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
 
     @MockBean
-    private CrudWorkflowEntityService crudWorkflowEntityService;
+    private ModulePermissionChecker modulePermissionChecker;
 
     @BeforeEach
     public void setUp() {
@@ -168,8 +172,9 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionRepository,
                 pagePermission,
                 actionPermission,
+                crudWorkflowEntityService,
                 actionCollectionModuleEntityService,
-                crudWorkflowEntityService);
+                modulePermissionChecker);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(
