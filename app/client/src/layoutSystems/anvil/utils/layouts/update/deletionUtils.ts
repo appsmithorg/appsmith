@@ -7,11 +7,14 @@ import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseL
 export function deleteWidgetFromPreset(
   preset: LayoutProps[],
   widgetId: string,
+  widgetType: string,
 ): LayoutProps[] {
   if (!preset || !preset.length || !widgetId) return preset;
 
   const updatedPreset: LayoutProps[] = preset.map((each: LayoutProps) => {
-    return deleteWidgetFromLayout(each, widgetId) || ({} as LayoutProps);
+    return (
+      deleteWidgetFromLayout(each, widgetId, widgetType) || ({} as LayoutProps)
+    );
   });
 
   return updatedPreset.filter((each: LayoutProps) => !!each.layout);
@@ -30,6 +33,7 @@ export function deleteWidgetFromPreset(
 export function deleteWidgetFromLayout(
   layoutProps: LayoutProps,
   widgetId: string,
+  widgetType: string,
 ): LayoutProps | undefined {
   if (!widgetId) return layoutProps;
 
@@ -44,6 +48,7 @@ export function deleteWidgetFromLayout(
     return Comp.removeChild(layoutProps, {
       widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetType,
     });
   }
 
@@ -52,7 +57,8 @@ export function deleteWidgetFromLayout(
     layout: (layoutProps.layout as LayoutProps[])
       .map(
         (each: LayoutProps) =>
-          deleteWidgetFromLayout(each, widgetId) || ({} as LayoutProps),
+          deleteWidgetFromLayout(each, widgetId, widgetType) ||
+          ({} as LayoutProps),
       )
       .filter((each: LayoutProps) => Object.keys(each).length),
   };
@@ -79,7 +85,11 @@ export function updateAnvilParentPostWidgetDeletion(
     ...allWidgets,
     [parentId]: {
       ...allWidgets[parentId],
-      layout: deleteWidgetFromPreset(allWidgets[parentId].layout, widgetId),
+      layout: deleteWidgetFromPreset(
+        allWidgets[parentId].layout,
+        widgetId,
+        allWidgets[widgetId].type,
+      ),
     },
   };
 }
