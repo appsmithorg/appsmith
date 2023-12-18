@@ -3,7 +3,8 @@ import type { AxiosPromise } from "axios";
 import type { JSCollection } from "entities/JSCollection";
 import type { ApiResponse } from "../../api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
-import type { PluginType } from "entities/Action";
+import type { ActionContextType, PluginType } from "entities/Action";
+import type { FetchActionsPayload } from "api/ActionAPI";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;
@@ -32,6 +33,8 @@ export interface CreateJSCollectionRequest {
   actions: Array<Partial<JSAction>>;
   applicationId: string;
   pluginType: PluginType;
+  workflowId?: string;
+  contextType?: ActionContextType;
 }
 
 export interface SetFunctionPropertyPayload {
@@ -58,9 +61,9 @@ class JSActionAPI extends API {
   static url = "v1/collections/actions";
 
   static async fetchJSCollections(
-    applicationId: string,
+    payload: FetchActionsPayload,
   ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
-    return API.get(JSActionAPI.url, { applicationId });
+    return API.get(JSActionAPI.url, payload);
   }
 
   static async createJSCollection(

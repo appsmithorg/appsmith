@@ -68,10 +68,9 @@ import { getWidgets } from "../../sagas/selectors";
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
   try {
     const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollections(applicationId);
+      yield JSActionAPI.fetchJSCollections(action.payload);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data || [],
