@@ -1,9 +1,9 @@
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import { createNewJSCollection } from "actions/jsPaneActions";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 import {
   createWorkflowAPIAction,
+  createWorkflowJSCollection,
   createWorkflowQueryAction,
 } from "@appsmith/actions/workflowActions";
 import {
@@ -47,8 +47,7 @@ export const createNewJSCollectionBasedOnParentEntity = (
 ) => {
   switch (parentEntityType) {
     case ACTION_PARENT_ENTITY_TYPE.WORKFLOW:
-      // TODO (Workflows): Add workflow js collection action
-      return createNewJSCollection(entityId, from);
+      return createWorkflowJSCollection(entityId, from);
     default:
       return CE_createNewJSCollectionBasedOnParentEntity(entityId, from);
   }

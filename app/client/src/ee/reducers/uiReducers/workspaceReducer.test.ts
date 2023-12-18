@@ -29,6 +29,8 @@ const workflow1: Workflow = {
   userPermissions: [],
   new: false,
   slug: "",
+  mainJsObjectId: "",
+  tokenGenerated: false,
 };
 
 const workflow2: Workflow = {

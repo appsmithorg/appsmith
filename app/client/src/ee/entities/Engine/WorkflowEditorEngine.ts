@@ -20,9 +20,12 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { fetchWorkflowSaga } from "@appsmith/sagas/workflowsSagas";
 import { fetchAllPageEntityCompletion } from "actions/pageActions";
 import type { FetchWorkflowResponse } from "@appsmith/api/WorkflowApi";
-import { fetchWorkflowActions } from "@appsmith/actions/workflowActions";
-// TODO (Workflows): parked till jsobject pageid dissociation is done
-// import { fetchJSCollections } from "actions/jsActionActions";
+import {
+  fetchWorkflowActions,
+  fetchWorkflowJSCollections,
+} from "@appsmith/actions/workflowActions";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
+import history from "utils/history";
 
 export default class WorkflowEditorEngine {
   *loadWorkflow(workflowId: string) {
@@ -43,6 +46,16 @@ export default class WorkflowEditorEngine {
         workflowId,
       },
     });
+
+    // Load the main js object id on workflow load
+    try {
+      const { mainJsObjectId } = response.data;
+      history.replace(
+        jsCollectionIdURL({ workflowId, collectionId: mainJsObjectId }),
+      );
+    } catch (e) {
+      return;
+    }
   }
 
   public *setupEngine() {
@@ -53,20 +66,17 @@ export default class WorkflowEditorEngine {
   *loadPageThemesAndActions(workflowId: string) {
     const initActionsCalls = [
       fetchWorkflowActions({ workflowId }, []),
-      // TODO (Workflows): parked till jsobject pageid dissociation is done
-      // fetchJSCollections({ applicationId: workflowId }),
+      fetchWorkflowJSCollections({ workflowId }),
     ];
 
     const successActionEffects = [
       ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-      // TODO (Workflows): parked till jsobject pageid dissociation is done
-      // ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
     ];
 
     const failureActionEffects = [
       ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-      // TODO (Workflows): parked till jsobject pageid dissociation is done
-      // ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
     ];
 
     const allActionCalls: boolean = yield call(

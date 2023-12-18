@@ -22,7 +22,6 @@ export const currentPackageEditorURL = (): string =>
 export const workflowEditorURL = ({ workflowId }: URLBuilderParams): string =>
   urlBuilder.build({ workflowId });
 
-// URL builder for js collection in workflows editor (NOT IMPLEMENTED YET, requires pageID dissociation from js collection)
 export const jsCollectionIdURL = (
   props: URLBuilderParams & {
     collectionId: string;

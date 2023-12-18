@@ -9,6 +9,7 @@ import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsR
 import {
   getActions,
   getDatasource,
+  getJSCollections,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -22,7 +23,11 @@ import type { Datasource } from "entities/Datasource";
 import { select, put, takeLatest, call, all } from "redux-saga/effects";
 import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
 import { validateResponse } from "sagas/ErrorSagas";
-import { createNewQueryName, createNewApiName } from "utils/AppsmithUtils";
+import {
+  createNewQueryName,
+  createNewApiName,
+  createNewJSFunctionName,
+} from "utils/AppsmithUtils";
 import type { Plugin } from "api/PluginApi";
 import { createActionRequest } from "actions/pluginActionActions";
 import ActionAPI from "api/ActionAPI";
@@ -31,6 +36,18 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import type { FetchWorkflowActionsPayload } from "@appsmith/actions/workflowActions";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
+import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
+import type { JSCollection } from "entities/JSCollection";
+import type {
+  JSCollectionData,
+  JSCollectionDataState,
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import { createJSCollectionRequest } from "actions/jsActionActions";
+import { generateDefaultJSObject } from "sagas/JSPaneSagas";
+import { createDummyJSCollectionActions } from "utils/JSPaneUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getMainJsObjectIdOfCurrentWorkflow } from "@appsmith/selectors/workflowSelectors";
 
 export function* createWorkflowQueryActionSaga(
   action: ReduxAction<{
@@ -147,6 +164,83 @@ export function* fetchWorkflowActionsSaga(
   }
 }
 
+export function* fetchWorkflowJSCollectionsSaga(
+  action: EvaluationReduxAction<FetchWorkflowActionsPayload>,
+) {
+  const { workflowId } = action.payload;
+  try {
+    const response: ApiResponse<JSCollection[]> =
+      yield JSActionAPI.fetchJSCollections({ workflowId });
+
+    const mainJsObjectIdOfCurrentWorkflow: string = yield select(
+      getMainJsObjectIdOfCurrentWorkflow,
+      workflowId,
+    );
+
+    let updatedResponse: JSCollection[] = [];
+    if (response.data.length > 0) {
+      updatedResponse = response.data.map((jsCollection) => {
+        if (jsCollection.id === mainJsObjectIdOfCurrentWorkflow) {
+          return {
+            ...jsCollection,
+            isMainJSCollection: true,
+          };
+        }
+        return jsCollection;
+      });
+    }
+    yield put({
+      type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+      payload: updatedResponse || [],
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+function* createWorkflowJSActionSaga(
+  action: ReduxAction<{ workflowId: string; from: EventLocation }>,
+) {
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const { from, workflowId } = action.payload;
+
+  if (workflowId) {
+    const jsActions: JSCollectionDataState = yield select(getJSCollections);
+    const workflowJsActions = jsActions.filter(
+      (a: JSCollectionData) => a.config.workflowId === workflowId,
+    );
+    const newJSCollectionName = createNewJSFunctionName(
+      workflowJsActions,
+      workflowId,
+    );
+    const { actions, body, variables } =
+      createDummyJSCollectionActions(workspaceId);
+
+    const defaultJSObject: CreateJSCollectionRequest =
+      yield generateDefaultJSObject({
+        name: newJSCollectionName,
+        workspaceId,
+        actions,
+        body,
+        variables,
+      });
+
+    yield put(
+      createJSCollectionRequest({
+        from: from,
+        request: {
+          ...defaultJSObject,
+          workflowId,
+          contextType: ActionContextType.WORKFLOW,
+        },
+      }),
+    );
+  }
+}
+
 export default function* workflowsActionSagas() {
   yield all([
     takeLatest(
@@ -158,8 +252,16 @@ export default function* workflowsActionSagas() {
       createWorkflowApiActionSaga,
     ),
     takeLatest(
+      ReduxActionTypes.CREATE_WORKFLOW_JS_ACTION,
+      createWorkflowJSActionSaga,
+    ),
+    takeLatest(
       ReduxActionTypes.FETCH_WORKFLOW_ACTIONS_INIT,
       fetchWorkflowActionsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_WORKFLOW_JS_ACTIONS_INIT,
+      fetchWorkflowJSCollectionsSaga,
     ),
   ]);
 }
