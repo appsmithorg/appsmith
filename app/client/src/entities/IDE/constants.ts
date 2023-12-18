@@ -5,10 +5,10 @@ export enum EditorState {
   LIBRARIES = "LIBRARIES",
 }
 
-export enum SidebarTopButtonTitles {
-  DATA = "Data",
-  EDITOR = "Editor",
-}
+export const SidebarTopButtonTitles = {
+  DATA: "Data",
+  EDITOR: "Editor",
+};
 
 export const SidebarBottomButtonTitles = {
   SETTINGS: "Settings",
