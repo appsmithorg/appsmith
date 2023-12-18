@@ -2,7 +2,7 @@ import locators from "../../../../locators/AdminsSettings";
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
-describe("License expired", function () {
+describe("License expired", { tags: ["@tag.LicenseAndBilling"] }, function () {
   it("1. should show ADMIN license expiry page for airgap", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

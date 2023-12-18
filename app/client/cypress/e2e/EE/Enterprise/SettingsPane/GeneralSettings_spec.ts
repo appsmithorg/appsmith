@@ -2,7 +2,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import settings from "../../../../locators/EnterpriseAdminSettingsLocators.json";
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
-describe("General Settings", () => {
+describe("General Settings", { tags: ["@tag.Settings"] }, () => {
   it("1. Superuser on free plan should see Programatic Access Control Option which is disabled", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

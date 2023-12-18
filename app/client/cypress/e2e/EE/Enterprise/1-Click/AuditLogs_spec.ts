@@ -5,7 +5,7 @@ import {
 } from "../../../../support/Objects/FeatureFlags";
 import { agHelper, license } from "../../../../support/ee/ObjectsCore_EE";
 
-describe("Audit Logs- 1 Click", () => {
+describe("Audit Logs- 1 Click", { tags: ["@tag.Auditlogs"] }, () => {
   beforeEach(() => {
     featureFlagInterceptForLicenseFlags();
   });
