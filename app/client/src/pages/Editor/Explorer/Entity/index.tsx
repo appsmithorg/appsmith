@@ -279,11 +279,11 @@ export const Entity = forwardRef(
 
     useEffect(() => {
       if (isEntityOpen !== undefined) open(isOpen);
-    }, [props.name, props.children]);
+    }, [props.name]);
 
     useEffect(() => {
       if (!!props.forceExpand) open(true);
-    }, [props.forceExpand, props.children]);
+    }, [props.forceExpand]);
 
     /* eslint-enable react-hooks/exhaustive-deps */
     const toggleChildren = (e: any) => {

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
 
@@ -59,6 +60,7 @@ export const BetaLabel = styled.div`
 
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
+  const { deselectAll } = useWidgetSelection();
 
   const onDragStart = (e: any) => {
     e.preventDefault();
@@ -72,6 +74,7 @@ function WidgetCard(props: CardProps) {
         ...props.details,
         widgetId: generateReactKey(),
       });
+    deselectAll();
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
