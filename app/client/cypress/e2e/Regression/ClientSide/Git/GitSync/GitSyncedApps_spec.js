@@ -468,6 +468,7 @@ describe("Git sync apps", function () {
     gitSync.CreateGitBranch(tempBranch1, true);
     // delete page from page settings
     EditorNavigation.SelectEntityByName("Child_Page Copy", EntityType.Page);
+    cy.wait("@getPage");
     cy.Deletepage("Child_Page Copy");
     cy.get(homePageLocators.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
