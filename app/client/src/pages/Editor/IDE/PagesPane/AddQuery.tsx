@@ -19,9 +19,10 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
 const StyledList = styled(List)`
-  padding: 0px;
+  padding: 0;
 `;
 
 const AddQuery = () => {
@@ -77,7 +78,10 @@ const AddQuery = () => {
         ));
       return {
         startIcon: icon,
-        title: fileOperation.dsName || fileOperation.title,
+        title:
+          fileOperation.entityExplorerTitle ||
+          fileOperation.dsName ||
+          fileOperation.title,
         description: "",
         descriptionType: "inline",
         onClick: addFromSource.bind(null, fileOperation),
@@ -99,7 +103,7 @@ const AddQuery = () => {
         py="spaces-2"
       >
         <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
-          Create new query/API
+          {createMessage(PAGES_PANE_TEXTS.query_create_tab_title)}
         </Text>
         <Button
           isIconButton
@@ -123,7 +127,7 @@ const AddQuery = () => {
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
-            From existing datasource
+            {createMessage(PAGES_PANE_TEXTS.queries_create_from_existing)}
           </Text>
           <StyledList
             className="t--from-source-list"
@@ -137,7 +141,7 @@ const AddQuery = () => {
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
-            New Blank API
+            {createMessage(PAGES_PANE_TEXTS.queries_create_new)}
           </Text>
           <StyledList
             className="t--new-blank-api"

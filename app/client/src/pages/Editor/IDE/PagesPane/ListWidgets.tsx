@@ -13,6 +13,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
 import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
 const ListWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -48,7 +49,7 @@ const ListWidgets = () => {
           size={"sm"}
           startIcon={"add-line"}
         >
-          New Widget
+          {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
         </Button>
       )}
 

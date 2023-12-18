@@ -6,6 +6,7 @@ import history from "utils/history";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
 import { widgetListURL } from "@appsmith/RouteBuilder";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
 const AddWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -29,7 +30,7 @@ const AddWidgets = () => {
           color="var(--ads-v2-color-fg)"
           kind="heading-xs"
         >
-          Drag & drop a widget
+          {createMessage(PAGES_PANE_TEXTS.widgets_create_tab_title)}
         </Text>
         <Button
           isIconButton
