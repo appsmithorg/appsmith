@@ -1,35 +1,8 @@
-/* eslint-disable no-console */
 import util from "./util";
-import globby from "globby";
-import minimatch from "minimatch";
 
-export class cypressSplit {
+export class staticSplit {
   util = new util();
   dbClient = this.util.configureDbClient();
-
-  // This function will get all the spec paths using the pattern
-  private async getSpecFilePaths(
-    specPattern: any,
-    ignoreTestFiles: any,
-  ): Promise<string[]> {
-    const files = globby.sync(specPattern, {
-      ignore: ignoreTestFiles,
-    });
-
-    // ignore the files that doesn't match
-    const ignorePatterns = [...(ignoreTestFiles || [])];
-
-    // a function which returns true if the file does NOT match
-    const doesNotMatchAllIgnoredPatterns = (file: string) => {
-      // using {dot: true} here so that folders with a '.' in them are matched
-      const MINIMATCH_OPTIONS = { dot: true, matchBase: true };
-      return ignorePatterns.every((pattern) => {
-        return !minimatch(file, pattern, MINIMATCH_OPTIONS);
-      });
-    };
-    const filtered = files.filter(doesNotMatchAllIgnoredPatterns);
-    return filtered;
-  }
 
   private async getSpecsWithTime(specs: string[], attemptId: number) {
     const client = await this.dbClient.connect();
@@ -48,11 +21,10 @@ export class cypressSplit {
         const match = specsMap.get(spec);
         return match ? match : { name: spec, duration: defaultDuration };
       });
-      const activeRunners = await this.util.getActiveRunners();
-      const activeRunnersFromDb = await this.getActiveRunnersFromDb(attemptId);
+
       return await this.util.divideSpecsIntoBalancedGroups(
         allSpecsWithDuration,
-        Number(activeRunners) - Number(activeRunnersFromDb),
+        Number(this.util.getVars().totalRunners),
       );
     } catch (err) {
       console.log(err);
@@ -68,57 +40,27 @@ export class cypressSplit {
     attemptId: number,
   ): Promise<string[]> {
     try {
-      const specFilePaths = await this.getSpecFilePaths(
+      const specFilePaths = await this.util.getSpecFilePaths(
         specPattern,
         ignorePattern,
       );
 
-      const specsToRun = await this.getSpecsWithTime(specFilePaths, attemptId);
-      console.log("SPECS TO RUN ----------> :", specsToRun);
-      return specsToRun === undefined || specsToRun.length === 0
-        ? []
-        : specsToRun[0].map((spec) => spec.name);
+      if (this.util.getVars().cypressRerun === "true") {
+        return specFilePaths;
+      } else {
+        const specsToRun = await this.getSpecsWithTime(
+          specFilePaths,
+          attemptId,
+        );
+        return specsToRun === undefined || specsToRun.length === 0
+          ? []
+          : specsToRun[Number(this.util.getVars().thisRunner)].map(
+              (spec) => spec.name,
+            );
+      }
     } catch (err) {
       console.error(err);
       process.exit(1);
-    }
-  }
-
-  private async getActiveRunnersFromDb(attemptId: number) {
-    const client = await this.dbClient.connect();
-    try {
-      const matrixRes = await client.query(
-        `SELECT * FROM public."matrix" WHERE "attemptId" = $1`,
-        [attemptId],
-      );
-      return matrixRes.rowCount;
-    } catch (err) {
-      console.log(err);
-    } finally {
-      client.release();
-    }
-  }
-
-  private async getAlreadyRunningSpecs() {
-    const client = await this.dbClient.connect();
-    try {
-      const dbRes = await client.query(
-        `SELECT name FROM public."specs" 
-      WHERE "matrixId" IN 
-      (SELECT id FROM public."matrix" 
-       WHERE "attemptId" = (
-         SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
-       )
-      )`,
-        [this.util.getVars().runId, this.util.getVars().attempt_number],
-      );
-      const specs: string[] =
-        dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
-      return specs;
-    } catch (err) {
-      console.log(err);
-    } finally {
-      client.release();
     }
   }
 
@@ -181,6 +123,7 @@ export class cypressSplit {
   }
 
   private async getFailedSpecsFromPreviousRun(
+    runnerId = Number(this.util.getVars().thisRunner),
     workflowId = Number(this.util.getVars().runId),
     attempt_number = Number(this.util.getVars().attempt_number) - 1,
   ) {
@@ -188,13 +131,13 @@ export class cypressSplit {
     try {
       const dbRes = await client.query(
         `SELECT name FROM public."specs" 
-      WHERE "matrixId" IN 
+      WHERE "matrixId" = 
       (SELECT id FROM public."matrix" 
        WHERE "attemptId" = (
          SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
-       )
+       ) AND "matrixId" = $3
       ) AND status IN ('fail', 'queued', 'in-progress')`,
-        [workflowId, attempt_number],
+        [workflowId, attempt_number, runnerId],
       );
       const specs: string[] =
         dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
@@ -222,63 +165,13 @@ export class cypressSplit {
     }
   }
 
-  private async addLockGetTheSpecs(
-    attemptId: number,
-    specPattern: string | string[],
-    ignorePattern: string | string[],
-  ) {
-    const client = await this.dbClient.connect();
-    let specs: string[] = [];
-    let locked = false;
-    let counter = 1;
-    try {
-      while (counter <= 120 && !locked) {
-        const result = await client.query(
-          `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
-          [attemptId],
-        );
-        if (result.rows.length === 1) {
-          locked = true;
-          let runningSpecs: string[] =
-            (await this.getAlreadyRunningSpecs()) ?? [];
-          if (typeof ignorePattern === "string") {
-            runningSpecs.push(ignorePattern);
-            ignorePattern = runningSpecs;
-          } else {
-            ignorePattern = runningSpecs.concat(ignorePattern);
-          }
-          specs = await this.getSpecsToRun(
-            specPattern,
-            ignorePattern,
-            attemptId,
-          );
-          return specs;
-        } else {
-          await this.sleep(5000);
-          counter++;
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      client.release();
-    }
-  }
-
-  private async updateTheSpecsAndReleaseLock(
-    attemptId: number,
-    specs: string[],
-  ) {
+  private async updateTheSpecsForMatrix(attemptId: number, specs: string[]) {
     const client = await this.dbClient.connect();
     try {
       if (specs.length > 0) {
         const matrixRes = await this.createMatrix(attemptId);
         await this.addSpecsToMatrix(matrixRes, specs);
       }
-      await client.query(
-        `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
-        [attemptId],
-      );
     } catch (err) {
       console.log(err);
     } finally {
@@ -302,22 +195,17 @@ export class cypressSplit {
     }
   }
 
-  private async sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  public async splitSpecs(
-    on: Cypress.PluginEvents,
-    config: Cypress.PluginConfigOptions,
-  ) {
+  public async splitSpecs(config: Cypress.PluginConfigOptions) {
     try {
       let specPattern = config.specPattern;
       let ignorePattern: string | string[] = config.excludeSpecPattern;
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
-      if (cypressSpecs != "")
+      if (cypressSpecs != "") {
         specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
+      }
+
       if (this.util.getVars().cypressRerun === "true") {
         specPattern =
           (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
@@ -330,14 +218,14 @@ export class cypressSplit {
 
       const attempt = await this.createAttempt();
       const specs =
-        (await this.addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ??
-        [];
+        (await this.getSpecsToRun(specPattern, ignorePattern, attempt)) ?? [];
+      console.log("SPECS TO RUN ----------> :", specs);
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
       } else {
         config.specPattern = defaultSpec;
       }
-      await this.updateTheSpecsAndReleaseLock(attempt, specs);
+      await this.updateTheSpecsForMatrix(attempt, specs);
 
       return config;
     } catch (err) {
