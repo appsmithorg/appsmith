@@ -214,59 +214,66 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
-  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
-  const backgroundForBody = isWDSV2Enabled
-    ? "var(--color-bg)"
-    : selectedTheme.properties.colors.backgroundColor;
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
-  return (
-    <WDSThemeProvider theme={theme}>
-      <ThemeProvider theme={lightTheme}>
-        <EditorContextProvider renderMode="PAGE">
-          {!isWDSV2Enabled && (
-            <WidgetGlobaStyles
-              fontFamily={selectedTheme.properties.fontFamily.appFont}
-              primaryColor={selectedTheme.properties.colors.primaryColor}
-            />
-          )}
-          <HtmlTitle
-            description={pageDescription}
-            name={currentApplicationDetails?.name}
+  const renderChildren = () => {
+    return (
+      <EditorContextProvider renderMode="PAGE">
+        {!isWDSEnabled && (
+          <WidgetGlobaStyles
+            fontFamily={selectedTheme.properties.fontFamily.appFont}
+            primaryColor={selectedTheme.properties.colors.primaryColor}
           />
-          <AppViewerBodyContainer backgroundColor={backgroundForBody}>
-            <AppViewerBody
-              className={CANVAS_SELECTOR}
-              hasPages={pages.length > 1}
-              headerHeight={headerHeight}
-              ref={focusRef}
-              showBottomBar={!!showBottomBar}
-              showGuidedTourMessage={showGuidedTourMessage}
-            >
-              {isInitialized && <AppViewerPageContainer />}
-            </AppViewerBody>
-            {showBottomBar && <BottomBar viewMode />}
-            <div
-              className={`fixed hidden right-8 z-3 md:flex ${
-                showBottomBar ? "bottom-12" : "bottom-4"
-              }`}
-            >
-              {!hideWatermark && (
-                <a
-                  className="hover:no-underline"
-                  href="https://appsmith.com"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <BrandingBadge />
-                </a>
-              )}
-              <KBViewerFloatingButton />
-            </div>
-          </AppViewerBodyContainer>
-        </EditorContextProvider>
-      </ThemeProvider>
-    </WDSThemeProvider>
-  );
+        )}
+        <HtmlTitle
+          description={pageDescription}
+          name={currentApplicationDetails?.name}
+        />
+        <AppViewerBodyContainer
+          backgroundColor={
+            isWDSEnabled ? "" : selectedTheme.properties.colors.backgroundColor
+          }
+        >
+          <AppViewerBody
+            className={CANVAS_SELECTOR}
+            hasPages={pages.length > 1}
+            headerHeight={headerHeight}
+            ref={focusRef}
+            showBottomBar={!!showBottomBar}
+            showGuidedTourMessage={showGuidedTourMessage}
+          >
+            {isInitialized && <AppViewerPageContainer />}
+          </AppViewerBody>
+          {showBottomBar && <BottomBar viewMode />}
+          <div
+            className={`fixed hidden right-8 z-3 md:flex ${
+              showBottomBar ? "bottom-12" : "bottom-4"
+            }`}
+          >
+            {!hideWatermark && (
+              <a
+                className="hover:no-underline"
+                href="https://appsmith.com"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <BrandingBadge />
+              </a>
+            )}
+            <KBViewerFloatingButton />
+          </div>
+        </AppViewerBodyContainer>
+      </EditorContextProvider>
+    );
+  };
+
+  if (isWDSEnabled) {
+    return (
+      <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
+    );
+  }
+
+  return <ThemeProvider theme={lightTheme}>{renderChildren()}</ThemeProvider>;
 }
 
 export default withRouter(Sentry.withProfiler(AppViewer));
