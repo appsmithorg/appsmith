@@ -35,7 +35,7 @@ interface EntityContextMenuProps {
   className?: string;
   canManage: boolean;
   canDelete: boolean;
-  isMainJSCollection: boolean;
+  showMenuItems: boolean;
 }
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
@@ -164,7 +164,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
       },
   ].filter(Boolean);
 
-  return !props.isMainJSCollection && optionsTree.length > 0 ? (
+  return !props.showMenuItems && optionsTree.length > 0 ? (
     <ContextMenu
       className={props.className}
       optionTree={optionsTree as TreeDropdownOption[]}
