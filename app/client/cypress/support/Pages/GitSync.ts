@@ -355,9 +355,9 @@ export class GitSync {
     toUseNewGuid = false,
     assertCreateBranch = true,
   ) {
-    if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementVisibility(this._bottomBarPull);
-    this.agHelper.AssertElementVisibility(this._bottomBarCommit);
+    if (toUseNewGuid) this.agHelper.GenerateUUID();
+    this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
     this.agHelper.AssertElementVisibility(this._branchSearchInput); //branch pop up to open
     cy.get("@guid").then((uid) => {
