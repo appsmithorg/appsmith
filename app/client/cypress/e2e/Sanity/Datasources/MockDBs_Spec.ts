@@ -14,7 +14,7 @@ import {
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
 
-describe(, { tags: ["@tag.Datasource", "@tag.Sanity"] }
+describe(
   "excludeForAirgap",
   "Validate Mock Query Active Ds querying & count",
   () => {
