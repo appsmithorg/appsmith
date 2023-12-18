@@ -46,8 +46,8 @@ import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type { Plugin } from "api/PluginApi";
+import { getCurrentWorkflowActions } from "@appsmith/selectors/workflowSelectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -967,26 +967,30 @@ export const getDatasourceLoading = (state: AppState) => {
 export const selectFilesForExplorer = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
+  getCurrentWorkflowActions,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, datasourceIdToNameMap) => {
-    const files = [...actions, ...jsActions].reduce((acc, file) => {
-      let group = "";
-      if (file.config.pluginType === PluginType.JS) {
-        group = "JS Objects";
-      } else if (file.config.pluginType === PluginType.API) {
-        group = isEmbeddedRestDatasource(file.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-      } else {
-        group = datasourceIdToNameMap[file.config.datasource.id];
-      }
-      acc = acc.concat({
-        type: file.config.pluginType,
-        entity: file,
-        group,
-      });
-      return acc;
-    }, [] as Array<ExplorerFileEntity>);
+  (actions, jsActions, workflowEntities, datasourceIdToNameMap) => {
+    const files = [...actions, ...jsActions, ...workflowEntities].reduce(
+      (acc, file) => {
+        let group = "";
+        if (file.config.pluginType === PluginType.JS) {
+          group = "JS Objects";
+        } else if (file.config.pluginType === PluginType.API) {
+          group = isEmbeddedRestDatasource(file.config.datasource)
+            ? "APIs"
+            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+        } else {
+          group = datasourceIdToNameMap[file.config.datasource.id];
+        }
+        acc = acc.concat({
+          type: file.config.pluginType,
+          entity: file,
+          group,
+        });
+        return acc;
+      },
+      [] as Array<ExplorerFileEntity>,
+    );
 
     const filesSortedByGroupName = sortBy(files, [
       (file) => file.group?.toLowerCase(),
@@ -1005,7 +1009,10 @@ export const selectFilesForExplorer = createSelector(
         }
         acc.files = acc.files.concat({
           ...file,
-          entity: { id: file.entity.config.id, name: file.entity.config.name },
+          entity: {
+            id: file.entity.config.id,
+            name: file.entity.config.name,
+          },
         });
         return acc;
       },
@@ -1334,15 +1341,12 @@ export function getInputsForModule(): Module["inputsForm"] {
 export const getModuleInstances = (
   /* eslint-disable @typescript-eslint/no-unused-vars */
   state: AppState,
-): Record<string, ModuleInstance> => {
-  return {};
+) => {
+  return null;
 };
 
 export const getModuleInstanceEntities = () => {
-  return {
-    actions: [],
-    jsCollections: [],
-  };
+  return null;
 };
 
 interface PagePaneData {

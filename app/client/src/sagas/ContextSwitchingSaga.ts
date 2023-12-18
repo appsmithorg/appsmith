@@ -260,7 +260,7 @@ function* getEntitiesForSet(
     state?.invokedBy === NavigationMethod.AppSidebar
   ) {
     const currentAppId: string = yield select(getCurrentApplicationId);
-    const key = `${currentEntityInfo.appState}.${currentAppId}#${branch}`;
+    const key = `${currentEntityInfo.appState}.${currentAppId}.${currentEntityInfo.pageId}#${branch}`;
     entities.push({
       key,
       entityInfo: {
