@@ -46,14 +46,12 @@ export class staticSplit {
       );
 
       if (this.util.getVars().cypressRerun === "true") {
-        console.log("SPECS TO RUN ----------> :", specFilePaths);
         return specFilePaths;
       } else {
         const specsToRun = await this.getSpecsWithTime(
           specFilePaths,
           attemptId,
         );
-        console.log("SPECS TO RUN ----------> :", specsToRun);
         return specsToRun === undefined || specsToRun.length === 0
           ? []
           : specsToRun[Number(this.util.getVars().thisRunner)].map(
@@ -143,7 +141,6 @@ export class staticSplit {
       );
       const specs: string[] =
         dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
-      console.log("getFailedSpecsFromPreviousRun ---------- > ", specs)
       return specs;
     } catch (err) {
       console.log(err);
@@ -222,6 +219,7 @@ export class staticSplit {
       const attempt = await this.createAttempt();
       const specs =
         (await this.getSpecsToRun(specPattern, ignorePattern, attempt)) ?? [];
+      console.log("SPECS TO RUN ----------> :", specs);
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
       } else {
