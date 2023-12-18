@@ -81,7 +81,7 @@ class EditorNavigation {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.selectItem(name, { multiple: true, force: true });
-    _.AssertHelper.AssertNetworkStatus("@getPage"); //for selection to settle
+    _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   SelectEntityByName(
