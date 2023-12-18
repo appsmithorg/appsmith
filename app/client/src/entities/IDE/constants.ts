@@ -5,6 +5,16 @@ export enum EditorState {
   LIBRARIES = "LIBRARIES",
 }
 
+export enum SidebarTopButtonTitles {
+  DATA = "Data",
+  EDITOR = "Editor",
+}
+
+export const SidebarBottomButtonTitles = {
+  SETTINGS: "Settings",
+  LIBRARIES: "Libraries",
+};
+
 export interface SidebarButton {
   state: EditorState;
   icon: string;
@@ -16,13 +26,13 @@ export const TopButtons: SidebarButton[] = [
   {
     state: EditorState.EDITOR,
     icon: "file-copy-2-line",
-    title: "Editor",
+    title: SidebarTopButtonTitles.EDITOR,
     urlSuffix: "",
   },
   {
     state: EditorState.DATA,
     icon: "database-2-line",
-    title: "Data",
+    title: SidebarTopButtonTitles.DATA,
     urlSuffix: "datasource",
   },
 ];
@@ -31,13 +41,13 @@ export const BottomButtons: SidebarButton[] = [
   {
     state: EditorState.LIBRARIES,
     icon: "box-3-line",
-    title: "Libraries",
+    title: SidebarBottomButtonTitles.LIBRARIES,
     urlSuffix: "libraries",
   },
   {
     state: EditorState.SETTINGS,
     icon: "settings-2-line",
-    title: "Settings",
+    title: SidebarBottomButtonTitles.SETTINGS,
     urlSuffix: "settings",
   },
 ];
