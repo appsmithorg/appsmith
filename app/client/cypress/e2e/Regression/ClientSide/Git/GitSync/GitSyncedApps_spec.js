@@ -478,6 +478,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
+    agHelper.AssertAutoSave();
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.assertAbsence("Child_Page Copy");
     // create another branch and verify deleted page doesn't exist on it
