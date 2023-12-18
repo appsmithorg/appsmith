@@ -15,10 +15,12 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { createNewJSCollection } from "actions/jsPaneActions";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
-    grid-template-columns: 4px auto 1fr auto auto auto auto auto;
+    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
+    height: 32px;
 
     & .t--entity-name {
       padding-left: var(--ads-v2-spaces-3);
@@ -48,11 +50,11 @@ const JSSection = () => {
 
   return (
     <JSContainer
-      className="ide-pages-pane__content-queries"
+      className="ide-pages-pane__content-js"
       flexDirection="column"
       gap="spaces-3"
-      overflow="scroll"
-      padding="spaces-4"
+      overflow="hidden"
+      padding="spaces-3"
     >
       {canCreateActions && (
         <Button
@@ -61,24 +63,26 @@ const JSSection = () => {
           size={"sm"}
           startIcon={"add-line"}
         >
-          New JS object
+          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
         </Button>
       )}
-      {JSObjects &&
-        JSObjects.map((JSobject) => {
-          return (
-            <Flex flexDirection={"column"} key={JSobject.id}>
-              <ExplorerJSCollectionEntity
-                id={JSobject.id}
-                isActive={JSobject.id === activeActionId}
-                key={JSobject.id}
-                searchKeyword={""}
-                step={2}
-                type={JSobject.type as PluginType}
-              />
-            </Flex>
-          );
-        })}
+      <Flex flex="1" flexDirection="column" gap="spaces-2" overflow="scroll">
+        {JSObjects &&
+          JSObjects.map((JSobject) => {
+            return (
+              <Flex flexDirection={"column"} key={JSobject.id}>
+                <ExplorerJSCollectionEntity
+                  id={JSobject.id}
+                  isActive={JSobject.id === activeActionId}
+                  key={JSobject.id}
+                  searchKeyword={""}
+                  step={2}
+                  type={JSobject.type as PluginType}
+                />
+              </Flex>
+            );
+          })}
+      </Flex>
 
       {!JSObjects ||
         (JSObjects.length === 0 && (
