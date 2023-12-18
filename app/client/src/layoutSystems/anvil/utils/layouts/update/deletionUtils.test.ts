@@ -25,9 +25,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return layoutProps as is, if widgetId is falsy", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock()
         .layout as LayoutComponentProps;
-      expect(deleteWidgetFromLayout(layout, "", ButtonWidget.type)).toEqual(
-        layout,
-      );
+      expect(deleteWidgetFromLayout(layout, "")).toEqual(layout);
     });
     it("should remove widget from the layout", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock()
