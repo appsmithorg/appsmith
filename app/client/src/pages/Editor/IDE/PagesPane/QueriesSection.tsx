@@ -10,7 +10,8 @@ import { ListQuery } from "./ListQuery";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
-    grid-template-columns: 4px auto 1fr auto auto auto auto auto;
+    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
+    height: 32px;
 
     & .t--entity-name {
       padding-left: var(--ads-v2-spaces-3);
@@ -25,11 +26,14 @@ const QueriesSection = () => {
     <QueriesContainer
       className="ide-pages-pane__content-queries"
       flexDirection="column"
-      gap="spaces-3"
-      overflow="scroll"
+      overflow="hidden"
     >
       <Switch>
-        <SentryRoute component={AddQuery} exact path={`${path}${ADD_PATH}`} />
+        <SentryRoute
+          component={AddQuery}
+          exact
+          path={[`${path}${ADD_PATH}`, `${path}/:queryId/add`]}
+        />
         <SentryRoute component={ListQuery} />
       </Switch>
     </QueriesContainer>
