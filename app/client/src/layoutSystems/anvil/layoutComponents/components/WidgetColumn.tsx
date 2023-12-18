@@ -7,7 +7,6 @@ import type { FlexLayoutProps } from "./FlexLayout";
 import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/columnHighlights";
 
 class WidgetColumn extends BaseLayoutComponent {
-
   static type: LayoutComponentTypes = LayoutComponentTypes.WIDGET_COLUMN;
 
   static deriveHighlights: DeriveHighlightsFn = deriveColumnHighlights;
