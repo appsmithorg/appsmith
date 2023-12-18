@@ -24,9 +24,8 @@ export function useActionGroup<T>(
   const { orientation, overflowMode = "collapse" } = props;
   const focusManager = createFocusManager(ref);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onKeyDown = (e: any) => {
-    if (!Boolean(e.currentTarget.contains(e.target))) {
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (!Boolean((e.currentTarget as Node).contains(e.target as Node))) {
       return;
     }
 
