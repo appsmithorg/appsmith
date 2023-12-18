@@ -1,7 +1,6 @@
 import BaseLayoutComponent from "../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
-  type LayoutComponentProps,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { FlexLayoutProps } from "./FlexLayout";
@@ -9,10 +8,6 @@ import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/hi
 import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/renderUtils";
 
 class AlignedWidgetRow extends BaseLayoutComponent {
-  constructor(props: LayoutComponentProps) {
-    super(props);
-  }
-
   static type: LayoutComponentTypes = LayoutComponentTypes.ALIGNED_WIDGET_ROW;
 
   static deriveHighlights: DeriveHighlightsFn = deriveAlignedRowHighlights;
