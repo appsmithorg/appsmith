@@ -5,7 +5,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe.skip("Validate Elasticsearch DS", () => {
+describe.skip("Validate Elasticsearch DS", { tags: ["@tag.Datasource"] }, () => {
   let dsName: any,
     books: any,
     containerName = "elasticsearch";
