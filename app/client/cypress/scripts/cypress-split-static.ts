@@ -46,6 +46,7 @@ export class staticSplit {
       );
 
       if (this.util.getVars().cypressRerun === "true") {
+        console.log("SPECS TO RUN ----------> :", specFilePaths);
         return specFilePaths;
       } else {
         const specsToRun = await this.getSpecsWithTime(
@@ -142,6 +143,7 @@ export class staticSplit {
       );
       const specs: string[] =
         dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
+      console.log("getFailedSpecsFromPreviousRun ---------- > ", specs)
       return specs;
     } catch (err) {
       console.log(err);
@@ -194,10 +196,6 @@ export class staticSplit {
     } finally {
       client.release();
     }
-  }
-
-  private async sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   public async splitSpecs(config: Cypress.PluginConfigOptions) {
