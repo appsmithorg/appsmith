@@ -56,5 +56,7 @@ module.exports = {
     "@tag.Fork",
     "@tag.Perf",
     "@tag.PropertyPane",
+    "@tag.Workspace",
+    "@tag.Sanity",
   ],
 };
