@@ -86,7 +86,12 @@ const _ActionGroup = <T extends object>(
               />
               <MenuList>
                 {menuChildren.map((item) => (
-                  <Item data-color={item.props.color} key={item.key}>
+                  <Item
+                    data-color={item.props.color}
+                    icon={item.props.icon}
+                    iconPosition={item.props.iconPosition}
+                    key={item.key}
+                  >
                     {item.rendered}
                   </Item>
                 ))}

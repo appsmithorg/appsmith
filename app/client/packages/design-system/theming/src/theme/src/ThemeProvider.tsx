@@ -46,7 +46,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
         ref={providerRef}
         style={style}
       >
-        {Boolean(width) && children}
+        {children}
       </div>
     </ThemeContext.Provider>
   );
