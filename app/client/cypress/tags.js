@@ -42,6 +42,8 @@ module.exports = {
     "@tag.ImportExport",
     "@tag.AutoHeight",
     "@tag.Fork",
+    "@tag.Perf",
+    "@tag.PropertyPane",
     "@tag.Workspace",
     "@tag.Sanity",
   ],

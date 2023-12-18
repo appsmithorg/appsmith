@@ -27,28 +27,32 @@ import emptyDSL from "../../../../fixtures/emptyDSL.json";
 // started failing for you, it’s likely you import()ed some new chunks that the edit or the view mode uses.
 // To fix the test, see preloading instructions in public/index.html.
 
-describe("html should include preload metadata for all code-split javascript", function () {
-  before(() => {
-    cy.addDsl(emptyDSL);
-  });
+describe(
+  "html should include preload metadata for all code-split javascript",
+  { tags: ["@tag.IDE"] },
+  function () {
+    before(() => {
+      cy.addDsl(emptyDSL);
+    });
 
-  it("1. In edit mode", function () {
-    testPreloadMetadata("edit-mode");
-  });
+    it("1. In edit mode", function () {
+      testPreloadMetadata("edit-mode");
+    });
 
-  // Note: this must be a separate test from the previous one,
-  // as we’re relying on Cypress resetting intercepts between tests.
-  it("2. In view mode", function () {
-    reloadAndTogglePreloading(true);
+    // Note: this must be a separate test from the previous one,
+    // as we’re relying on Cypress resetting intercepts between tests.
+    it("2. In view mode", function () {
+      reloadAndTogglePreloading(true);
 
-    // Ensure the app editor is fully loaded
-    cy.get("#sidebar").should("be.visible");
+      // Ensure the app editor is fully loaded
+      cy.get("#sidebar").should("be.visible");
 
-    _.deployMode.DeployApp();
+      _.deployMode.DeployApp();
 
-    testPreloadMetadata("view-mode");
-  });
-});
+      testPreloadMetadata("view-mode");
+    });
+  },
+);
 
 function testPreloadMetadata(viewOrEditMode) {
   // Disable network caching in Chromium, per https://docs.cypress.io/api/commands/intercept#cyintercept-and-request-caching

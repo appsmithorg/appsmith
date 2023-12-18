@@ -7,7 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("In-app embed settings", () => {
+describe("In-app embed settings", { tags: ["@tag.Settings"] }, () => {
   function ValidateSyncWithInviteModal(showNavigationBar: "On" | "Off") {
     embedSettings.OpenEmbedSettings();
     embedSettings.ToggleShowNavigationBar(showNavigationBar);
