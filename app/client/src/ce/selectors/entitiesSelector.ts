@@ -46,7 +46,6 @@ import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentWorkflowActions } from "@appsmith/selectors/workflowSelectors";
 
@@ -1342,15 +1341,12 @@ export function getInputsForModule(): Module["inputsForm"] {
 export const getModuleInstances = (
   /* eslint-disable @typescript-eslint/no-unused-vars */
   state: AppState,
-): Record<string, ModuleInstance> => {
-  return {};
+) => {
+  return null;
 };
 
 export const getModuleInstanceEntities = () => {
-  return {
-    actions: [],
-    jsCollections: [],
-  };
+  return null;
 };
 
 interface PagePaneData {
