@@ -14,7 +14,7 @@ import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import {
   NAVIGATION_SETTINGS,
   SIDEBAR_WIDTH,
-  defaultThemeSetting,
+  defaultThemeSettings,
 } from "constants/AppConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
@@ -334,7 +334,7 @@ export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
 
 export const getAppThemeSettings = (state: AppState) => {
   return (
-    state.ui.applications.currentApplication?.applicationDetail?.themeSetting ||
-    defaultThemeSetting
+    state.ui.applications.currentApplication?.applicationDetail
+      ?.themeSettings || defaultThemeSettings
   );
 };

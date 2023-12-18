@@ -70,7 +70,7 @@ function WDSThemePropertyPane() {
       };
 
       payload.applicationDetail = {
-        themeSetting: theme,
+        themeSettings: theme,
       };
 
       dispatch(updateApplication(applicationId, payload));
