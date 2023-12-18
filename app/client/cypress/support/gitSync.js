@@ -150,8 +150,10 @@ Cypress.Commands.add("latestDeployPreview", () => {
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
+  agHelper.AssertElementVisibility(gitSyncLocators.branchButton);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  cy.wait(3000);
+  assertHelper.AssertDocumentReady();
+  agHelper.AssertElementExist(gitSyncLocators.branchSearchInput);
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   // increasing timeout to reduce flakyness
   cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
@@ -161,6 +163,8 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
+  agHelper.AssertElementExist(gitSyncLocators.branchSearchInput);
+
   agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
