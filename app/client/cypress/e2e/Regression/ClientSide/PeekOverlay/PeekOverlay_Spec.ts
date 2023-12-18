@@ -13,7 +13,7 @@ import {
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Peek overlay", () => {
+describe("Peek overlay", { tags: ["@tag.JS"] }, () => {
   it("1. Main test", () => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);

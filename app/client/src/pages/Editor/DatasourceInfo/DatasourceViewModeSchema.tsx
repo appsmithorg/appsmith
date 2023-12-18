@@ -47,6 +47,8 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
 
 interface Props {
   datasource: Datasource;
@@ -73,16 +75,19 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const editorType = useEditorType(history.location.pathname);
+
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();

@@ -48,6 +48,8 @@ import Entity from "../Explorer/Entity";
 import DatasourceField from "./DatasourceField";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
 
 interface Props {
   datasourceId: string;
@@ -343,16 +345,19 @@ function GoogleSheetSchema(props: Props) {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const editorType = useEditorType(history.location.pathname);
+
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const refreshSpreadSheetButton = (option: DropdownOption) => (
     <Button

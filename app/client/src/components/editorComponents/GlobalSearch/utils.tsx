@@ -8,7 +8,7 @@ import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
@@ -91,19 +91,20 @@ export interface SnippetBody {
   shortTitle?: string;
 }
 
-export type FilterEntity = WidgetType | ENTITY_TYPE;
+export type FilterEntity = WidgetType | EntityTypeValue;
 
-export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
-  ACTION: "All Queries",
-  WIDGET: "All Widgets",
-  JSACTION: "JS Objects",
-};
+export const filterEntityTypeLabels: Partial<Record<EntityTypeValue, string>> =
+  {
+    ACTION: "All Queries",
+    WIDGET: "All Widgets",
+    JSACTION: "JS Objects",
+  };
 
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
   return (
     WidgetFactory.widgetConfigMap.get(label as WidgetType)?.widgetName ||
     getPluginByPackageName(state, label)?.name ||
-    filterEntityTypeLabels[label as ENTITY_TYPE] ||
+    filterEntityTypeLabels[label as EntityTypeValue] ||
     label
   );
 };
@@ -267,11 +268,13 @@ export interface ActionOperation {
   pluginId?: string;
   focusEntityType?: FocusEntity;
   dsName?: string;
+  entityExplorerTitle?: string;
 }
 
 export const actionOperations: ActionOperation[] = [
   {
     title: "New blank API",
+    entityExplorerTitle: "REST API",
     desc: "Create a new API",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (
@@ -289,6 +292,7 @@ export const actionOperations: ActionOperation[] = [
   },
   {
     title: "New blank GraphQL API",
+    entityExplorerTitle: "GraphQL API",
     desc: "Create a new API",
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
@@ -307,6 +311,7 @@ export const actionOperations: ActionOperation[] = [
   },
   {
     title: "New JS Object",
+    entityExplorerTitle: "Import from cURL",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),

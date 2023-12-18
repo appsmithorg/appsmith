@@ -116,8 +116,10 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         return Mono.zip(instanceIdMono, defaultTenantMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
                     String tenantId = objects.getT2().getId();
-                    return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
-                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3()));
+                    String appsmithVersion = releaseNotesService.getRunningVersion();
+                    FeatureFlagIdentityTraits featureFlagIdentityTraits = new FeatureFlagIdentityTraits(
+                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
+                    return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
                 .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
     }

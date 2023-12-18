@@ -172,6 +172,7 @@ import {
   getJSActionPathNameToDisplay,
   getPluginActionNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1023,13 +1024,15 @@ export function* runActionSaga(
 }
 
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
-  const collectionId = pageAction.collectionId;
+  const collectionId: string = pageAction.collectionId || "";
   const pageId: string | undefined = yield select(getCurrentPageId);
 
   if (!collectionId) return;
 
-  const collection: ReturnType<typeof getJSCollectionFromAllEntities> =
-    yield select(getJSCollectionFromAllEntities, collectionId);
+  const collection: JSCollection = yield select(
+    getJSCollectionFromAllEntities,
+    collectionId,
+  );
 
   if (!collection) {
     Sentry.captureException(
@@ -1048,7 +1051,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   }
 
   const jsAction = collection.actions.find(
-    (action) => action.id === pageAction.id,
+    (action: JSAction) => action.id === pageAction.id,
   );
   if (!!jsAction) {
     if (jsAction.confirmBeforeExecute) {

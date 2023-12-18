@@ -3,7 +3,7 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type {
   ActionEntity,
   ActionEntityConfig,
@@ -20,7 +20,7 @@ import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import { getDependencyFromEntityPath } from "workers/common/DependencyMap/utils/getEntityDependencies";
 
 export const getDependencies = {
-  [ENTITY_TYPE_VALUE.ACTION]: (
+  [ENTITY_TYPE.ACTION]: (
     entity: DataTreeEntityObject,
     entityConfig: DataTreeEntityConfig,
     allKeys: Record<string, true>,
@@ -31,7 +31,7 @@ export const getDependencies = {
       allKeys,
     );
   },
-  [ENTITY_TYPE_VALUE.JSACTION]: (
+  [ENTITY_TYPE.JSACTION]: (
     entity: DataTreeEntityObject,
     entityConfig: DataTreeEntityConfig,
     allKeys: Record<string, true>,
@@ -42,7 +42,7 @@ export const getDependencies = {
       allKeys,
     );
   },
-  [ENTITY_TYPE_VALUE.WIDGET]: (
+  [ENTITY_TYPE.WIDGET]: (
     entity: DataTreeEntityObject,
     entityConfig: DataTreeEntityConfig,
   ) => {
@@ -166,7 +166,7 @@ export function getActionDependencies(
 }
 
 export const getPathDependencies = {
-  [ENTITY_TYPE_VALUE.ACTION]: (
+  [ENTITY_TYPE.ACTION]: (
     entity: DataTreeEntity,
     entityConfig: DataTreeEntityConfig,
     fullPropertyPath: string,
@@ -179,7 +179,7 @@ export const getPathDependencies = {
       allKeys,
     );
   },
-  [ENTITY_TYPE_VALUE.JSACTION]: (
+  [ENTITY_TYPE.JSACTION]: (
     entity: DataTreeEntity,
     entityConfig: DataTreeEntityConfig,
     fullPropertyPath: string,
@@ -192,7 +192,7 @@ export const getPathDependencies = {
       allKeys,
     );
   },
-  [ENTITY_TYPE_VALUE.WIDGET]: (
+  [ENTITY_TYPE.WIDGET]: (
     entity: DataTreeEntity,
     entityConfig: DataTreeEntityConfig,
     fullPropertyPath: string,
