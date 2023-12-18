@@ -30,6 +30,7 @@ import {
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
 import { WidgetsSection } from "./WidgetsSection";
+import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
 enum TabsType {
   QUERIES = "queries",
@@ -101,6 +102,7 @@ const _pagesPane = () => {
     >
       <Pages />
       {/* divider is inside the Pages component */}
+      <EntityProperties />
       <Flex
         alignItems="center"
         backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
