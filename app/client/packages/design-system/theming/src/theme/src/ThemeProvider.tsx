@@ -17,9 +17,9 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
   const [width, setWidth] = useDebounce<number | null>(null, 100);
   const providerRef = useRef(null);
 
-  useResizeObserver(providerRef as RefObject<HTMLElement>, (entry) => {
-    setWidth(entry.contentRect.width);
-  });
+  useResizeObserver(providerRef as RefObject<HTMLElement>, (entry) =>
+    setWidth(entry.contentRect.width),
+  );
 
   const {
     colorClassName,
