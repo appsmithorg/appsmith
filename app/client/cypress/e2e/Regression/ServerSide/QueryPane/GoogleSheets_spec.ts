@@ -9,7 +9,7 @@ import {
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe(
+describe(, { tags: ["@tag.Datasource"] }
   "excludeForAirgap",
   "Google Sheets datasource row objects placeholder",
   function () {

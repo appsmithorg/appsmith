@@ -28,7 +28,7 @@ let onPageLoadAndConfirmExecuteFunctionsLength: number,
   functionsLength: number,
   jsObj: string;
 
-describe("JS Function Execution", function () {
+describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
   const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
     {
       name: "getId",

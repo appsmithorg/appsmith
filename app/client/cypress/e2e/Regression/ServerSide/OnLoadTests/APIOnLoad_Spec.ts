@@ -11,63 +11,67 @@ import EditorNavigation, {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JSObjects OnLoad Actions tests", function () {
-  before(() => {
-    agHelper.AddDsl("tableWidgetDsl");
-  });
+describe(
+  "JSObjects OnLoad Actions tests",
+  { tags: ["@tag.PropertyPane"] },
+  function () {
+    before(() => {
+      agHelper.AddDsl("tableWidgetDsl");
+    });
 
-  it("1. Api mapping on page load", function () {
-    cy.fixture("testdata").then(function (dataSet: any) {
-      apiPage.CreateAndFillApi(
-        dataSet.baseUrl + dataSet.methods,
-        "PageLoadApi",
+    it("1. Api mapping on page load", function () {
+      cy.fixture("testdata").then(function (dataSet: any) {
+        apiPage.CreateAndFillApi(
+          dataSet.baseUrl + dataSet.methods,
+          "PageLoadApi",
+        );
+      });
+      agHelper.PressEscape();
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+      propPane.UpdatePropertyFieldValue(
+        "Table data",
+        `{{PageLoadApi.data.data}}`,
       );
-    });
-    agHelper.PressEscape();
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    propPane.UpdatePropertyFieldValue(
-      "Table data",
-      `{{PageLoadApi.data.data}}`,
-    );
-    agHelper.ValidateToastMessage(
-      "[PageLoadApi] will be executed automatically on page load",
-    );
-    agHelper.RefreshPage();
-    assertHelper.AssertNetworkStatus("@postExecute");
-  });
-
-  it("2. Shows when API failed to load on page load.", function () {
-    cy.fixture("testdata").then(function (dataSet: any) {
-      apiPage.CreateAndFillApi(
-        "https://abc.com/" + dataSet.methods,
-        "PageLoadApi2",
+      agHelper.ValidateToastMessage(
+        "[PageLoadApi] will be executed automatically on page load",
       );
+      agHelper.RefreshPage();
+      assertHelper.AssertNetworkStatus("@postExecute");
     });
-    apiPage.ToggleOnPageLoadRun(true);
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    propPane.UpdatePropertyFieldValue(
-      "Table data",
-      `{{PageLoadApi2.data.data}}`,
-    );
-    agHelper.RefreshPage();
-    agHelper.ValidateToastMessage(`The action "PageLoadApi2" has failed.`);
-  });
 
-  after(() => {
-    PageLeftPane.expandCollapseItem("Queries/JS");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "PageLoadApi",
-      action: "Delete",
-      entityType: entityItems.Api,
+    it("2. Shows when API failed to load on page load.", function () {
+      cy.fixture("testdata").then(function (dataSet: any) {
+        apiPage.CreateAndFillApi(
+          "https://abc.com/" + dataSet.methods,
+          "PageLoadApi2",
+        );
+      });
+      apiPage.ToggleOnPageLoadRun(true);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+      propPane.UpdatePropertyFieldValue(
+        "Table data",
+        `{{PageLoadApi2.data.data}}`,
+      );
+      agHelper.RefreshPage();
+      agHelper.ValidateToastMessage(`The action "PageLoadApi2" has failed.`);
     });
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "PageLoadApi2",
-      action: "Delete",
-      entityType: entityItems.Api,
+
+    after(() => {
+      PageLeftPane.expandCollapseItem("Queries/JS");
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "PageLoadApi",
+        action: "Delete",
+        entityType: entityItems.Api,
+      });
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "PageLoadApi2",
+        action: "Delete",
+        entityType: entityItems.Api,
+      });
     });
-  });
-});
+  },
+);
