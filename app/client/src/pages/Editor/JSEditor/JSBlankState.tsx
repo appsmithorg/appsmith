@@ -53,7 +53,7 @@ const JSBlankState = () => {
           size={"md"}
           startIcon={"add-line"}
         >
-          {createMessage(PAGES_PANE_TEXTS.js_blank_button)}
+          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
         </Button>
       )}
     </Flex>
