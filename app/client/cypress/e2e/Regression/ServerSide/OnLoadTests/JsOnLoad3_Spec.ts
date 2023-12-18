@@ -21,7 +21,7 @@ let dsName: any, jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

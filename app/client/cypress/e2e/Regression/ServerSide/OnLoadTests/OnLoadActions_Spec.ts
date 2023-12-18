@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Layout OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

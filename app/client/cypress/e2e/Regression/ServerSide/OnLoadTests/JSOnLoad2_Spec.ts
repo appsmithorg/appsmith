@@ -15,7 +15,7 @@ let datasourceName: any, jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS"] },
   function () {
     before(() => {
       homePage.CreateNewWorkspace("JSOnLoadTest", true);
