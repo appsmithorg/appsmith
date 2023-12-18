@@ -33,7 +33,9 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
     cy.url().should("include", "a=b").and("include", "test=123");
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-    agHelper.Sleep();
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+    );
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(
       locators._emptyPageTxt,
