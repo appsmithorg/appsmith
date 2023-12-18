@@ -135,7 +135,6 @@ function CustomComponent(props: CustomComponentProps) {
   const srcDoc = `
     <html>
       <head>
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
         <style>${css}</style>
       </head>
       <body>

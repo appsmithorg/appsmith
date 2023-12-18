@@ -47,7 +47,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.441.0",
     "@aws-sdk/lib-storage": "^3.441.0",
-    "@babel/parser": "^7.23.6",
     "@babel/standalone": "^7.23.6",
     "@blueprintjs/core": "^3.43.0",
     "@blueprintjs/datetime": "^3.23.6",

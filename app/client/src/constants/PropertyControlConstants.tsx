@@ -11,7 +11,6 @@ import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type React from "react";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
