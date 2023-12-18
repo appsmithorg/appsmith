@@ -6,10 +6,6 @@ import type {
   Workspace,
 } from "@appsmith/constants/workspaceConstants";
 
-export interface FetchWorkspaceRolesResponse extends ApiResponse {
-  data: WorkspaceRole[];
-}
-
 export interface FetchWorkspacesResponse extends ApiResponse {
   data: Workspace[];
 }

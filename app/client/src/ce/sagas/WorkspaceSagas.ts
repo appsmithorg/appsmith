@@ -13,7 +13,6 @@ import {
   getResponseErrorMessage,
 } from "sagas/ErrorSagas";
 import type {
-  FetchWorkspaceRolesResponse,
   SaveWorkspaceRequest,
   FetchWorkspaceRequest,
   FetchWorkspaceResponse,
