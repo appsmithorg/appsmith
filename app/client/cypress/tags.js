@@ -32,5 +32,7 @@ module.exports = {
     "@tag.Theme",
     "@tag.Settings",
     "@tag.ImportExport",
+    "@tag.AutoHeight",
+    "@tag.Fork",
   ],
 };
