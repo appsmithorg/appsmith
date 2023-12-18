@@ -243,3 +243,12 @@ export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
 export const getIsGetProtectedBranchesLoading = (state: AppState) => {
   return state.ui.gitSync.protectedBranchesLoading;
 };
+
+export const getIsAutocommitEnabled = (state: AppState) =>
+  state.ui.gitSync.isAutocommitEnabled;
+
+export const getIsAutocommitModalOpen = (state: AppState) =>
+  state.ui.gitSync.isAutocommitModalOpen;
+
+export const getIsAutocommitInProgress = (state: AppState) =>
+  state.ui.gitSync.isAutocommitInProgress;

@@ -5,7 +5,7 @@ import EditorNavigation, {
 const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("xml2json text", function () {
+describe("xml2json text", { tags: ["@tag.Binding"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("xmlParser.json");

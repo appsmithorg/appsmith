@@ -140,6 +140,11 @@ export interface StoredDatasource {
   datasourceConfiguration?: { url?: string };
 }
 
+export enum ActionContextType {
+  PAGE = "PAGE",
+  WORKFLOW = "WORKFLOW",
+}
+
 export interface BaseAction {
   id: string;
   name: string;
@@ -161,6 +166,8 @@ export interface BaseAction {
   isPublic?: boolean;
   moduleId?: string;
   moduleInstanceId?: string;
+  workflowId?: string;
+  contextType?: ActionContextType;
 }
 
 interface BaseApiAction extends BaseAction {

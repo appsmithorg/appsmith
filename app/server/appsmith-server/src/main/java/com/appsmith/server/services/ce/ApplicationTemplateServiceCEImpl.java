@@ -2,10 +2,12 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -13,7 +15,7 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -24,6 +26,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -54,8 +57,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
-
     private final ObjectMapper objectMapper;
+    private final SessionUserService sessionUserService;
 
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
@@ -67,7 +70,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            SessionUserService sessionUserService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importApplicationService = importApplicationService;
@@ -78,6 +82,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.objectMapper = objectMapper;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -308,8 +313,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
-    private CommunityTemplateUploadDTO createCommunityTemplateUploadDTO(
-            String sourceApplicationId, ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
+    private TemplateUploadDTO createTemplateUploadDTO(
+            String sourceApplicationId, ApplicationJson appJson, TemplateDTO templateDetails) {
         ApplicationTemplate applicationTemplate = new ApplicationTemplate();
         applicationTemplate.setTitle(templateDetails.getTitle());
         applicationTemplate.setExcerpt(templateDetails.getHeadline());
@@ -317,7 +322,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         applicationTemplate.setUseCases(templateDetails.getUseCases());
         applicationTemplate.setAuthorEmail(templateDetails.getAuthorEmail());
 
-        CommunityTemplateUploadDTO communityTemplate = new CommunityTemplateUploadDTO();
+        TemplateUploadDTO communityTemplate = new TemplateUploadDTO();
         communityTemplate.setAppJson(appJson);
         communityTemplate.setApplicationTemplate(applicationTemplate);
         communityTemplate.getApplicationTemplate().setAppUrl(templateDetails.getAppUrl());
@@ -325,13 +330,18 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         return communityTemplate;
     }
 
-    private Mono<ApplicationTemplate> uploadCommunityTemplateToCS(CommunityTemplateUploadDTO communityTemplate) {
+    private Mono<ApplicationTemplate> uploadCommunityTemplateToCS(TemplateUploadDTO communityTemplate) {
         String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload-community-template";
+        return uploadTemplate(communityTemplate, url);
+    }
+
+    @NotNull private Mono<ApplicationTemplate> uploadTemplate(TemplateUploadDTO communityTemplate, String url) {
         String authHeader = "Authorization";
         String payload;
         try {
             // Please don't use the default ObjectMapper.
-            // The default mapper is registered with views.public.class and removes few attributes due to this
+            // The default mapper is registered with views.public.class and removes few
+            // attributes due to this
             // The templates flow has different requirement hence not using the same
             ObjectMapper ow = new ObjectMapper();
             ow.registerModule(new JavaTimeModule());
@@ -354,29 +364,66 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         AppsmithError.CLOUD_SERVICES_ERROR, "while publishing template" + error.getMessage())));
     }
 
-    private Mono<Application> updateApplicationFlags(String applicationId, String branchId) {
+    private Mono<Application> updateApplicationFlags(
+            String applicationId, String branchId, boolean isCommunityTemplate) {
         return applicationService
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     application.setForkingEnabled(true);
-                    application.setIsCommunityTemplate(true);
+                    application.setIsCommunityTemplate(isCommunityTemplate);
 
                     return applicationService.update(applicationId, application, branchId);
                 });
     }
 
     @Override
-    public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
+    public Mono<Application> publishAsCommunityTemplate(TemplateDTO resource) {
+        return exportAppAndUpload(resource, true)
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    User user = tuple.getT2();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, application.getWorkspaceId());
+                    return analyticsService
+                            .sendEvent(
+                                    AnalyticsEvents.COMMUNITY_TEMPLATE_PUBLISHED.getEventName(),
+                                    user.getUsername(),
+                                    data)
+                            .thenReturn(application);
+                });
+    }
+
+    @NotNull private Mono<Application> exportAppAndUpload(TemplateDTO resource, boolean isCommunityTemplate) {
         return exportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
-                .flatMap(appJson -> uploadCommunityTemplateToCS(
-                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
-                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+                .flatMap(appJson -> {
+                    TemplateUploadDTO communityTemplate =
+                            createTemplateUploadDTO(resource.getApplicationId(), appJson, resource);
+                    if (isCommunityTemplate) {
+                        return uploadCommunityTemplateToCS(communityTemplate);
+                    } else {
+                        return uploadAppsmithTemplateToCS(communityTemplate);
+                    }
+                })
+                .then(updateApplicationFlags(
+                        resource.getApplicationId(), resource.getBranchName(), isCommunityTemplate))
                 .flatMap(application -> {
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
                     applicationAccessDTO.setPublicAccess(true);
                     return applicationService.changeViewAccess(
                             application.getId(), resource.getBranchName(), applicationAccessDTO);
                 });
+    }
+
+    private Mono<ApplicationTemplate> uploadAppsmithTemplateToCS(TemplateUploadDTO communityTemplate) {
+        String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload/use-case";
+        return uploadTemplate(communityTemplate, url);
+    }
+
+    @Override
+    public Mono<Boolean> publishAppsmithTemplate(TemplateDTO resource) {
+        return exportAppAndUpload(resource, false).thenReturn(Boolean.TRUE);
     }
 }

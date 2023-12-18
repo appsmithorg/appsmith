@@ -1,12 +1,15 @@
 name: Test, build and push Docker Image
 
 on:
+  # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC) on weekdays
+  schedule:
+    - cron: "30 00 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
   # trigger for pushes to release and master
   push:
-    branches: [release, master]
+    branches: [release]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -20,6 +23,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      skip-tests: true
 
   client-build:
     name: client-build
@@ -55,8 +59,25 @@ jobs:
     with:
       pr: 0
 
+  server-unit-tests:
+    name: server-unit-tests
+    needs: [build-docker-image]
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: false
+
+  client-unit-tests:
+    name: client-unit-tests
+    needs: [build-docker-image]
+    uses: ./.github/workflows/client-unit-tests.yml
+    secrets: inherit
+    with:
+      pr: 0
+
   ci-test-result:
-    needs: [ci-test]
+    needs: [ci-test, client-unit-tests, server-unit-tests]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
@@ -188,7 +209,7 @@ jobs:
     steps:
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the react build artifact
         uses: actions/download-artifact@v3
@@ -263,7 +284,7 @@ jobs:
     steps:
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the react build artifact
         uses: actions/download-artifact@v3

@@ -11,7 +11,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("UI to Code", () => {
+describe("UI to Code", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     apiPage.CreateApi();
@@ -301,12 +301,12 @@ describe("UI to Code", () => {
     agHelper.GetNClick(propPane._actionCardByTitle("Show alert"));
 
     // add a success callback
-    agHelper.GetNClick(propPane._actionAddCallback("success")).wait(500);
-    agHelper.GetNClick(locators._dropDownValue("Store value")).wait(500);
+    agHelper.GetNClick(propPane._actionAddCallback("success"));
+    agHelper.GetNClick(locators._dropDownValue("Store value"));
 
     // add an error callback
-    agHelper.GetNClick(propPane._actionAddCallback("failure")).wait(500);
-    agHelper.GetNClick(locators._dropDownValue("Navigate to")).wait(500);
+    agHelper.GetNClick(propPane._actionAddCallback("failure"));
+    agHelper.GetNClick(locators._dropDownValue("Navigate to"));
 
     propPane.ValidateJSFieldValue(
       "onClick",
@@ -399,7 +399,7 @@ describe("UI to Code", () => {
 
     // Click on the callback button
     agHelper.GetNClick(propPane._actionAddCallback("success"));
-    agHelper.GetNClick(locators._dropDownValue("Store value")).wait(500);
+    agHelper.GetNClick(locators._dropDownValue("Store value"));
 
     propPane.ValidateJSFieldValue(
       "onClick",

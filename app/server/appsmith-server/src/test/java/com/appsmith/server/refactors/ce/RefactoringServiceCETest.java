@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -34,7 +35,6 @@ import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
@@ -790,8 +790,9 @@ class RefactoringServiceCETest {
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO1 =
-                layoutCollectionService.createCollection(actionCollectionDTO1).block();
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
+                .createCollection(actionCollectionDTO1, null)
+                .block();
 
         RefactorEntityNameDTO refactorNameDTO = new RefactorEntityNameDTO();
         refactorNameDTO.setEntityType(EntityType.WIDGET);
@@ -853,7 +854,7 @@ class RefactoringServiceCETest {
         originalActionCollectionDTO.setActions(List.of(action1));
 
         final ActionCollectionDTO dto = layoutCollectionService
-                .createCollection(originalActionCollectionDTO)
+                .createCollection(originalActionCollectionDTO, null)
                 .block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();

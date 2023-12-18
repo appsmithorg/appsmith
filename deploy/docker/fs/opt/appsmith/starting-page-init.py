@@ -8,7 +8,6 @@ import urllib.error
 import urllib.request
 
 
-LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
 LOADING_PAGE_EDITOR = os.getenv("WWW_PATH") + '/loading.html'
 BACKEND_HEALTH_ENDPOINT = "http://localhost:8080/api/v1/health"
 LOG_FILE = r'/appsmith-stacks/logs/backend/starting_page_init.log'
@@ -56,15 +55,11 @@ def remove_loading_page():
         logging.info(subprocess.getoutput("rm -fv " + LOADING_PAGE_EDITOR))
 
 
-def add_loading_page():
-    shutil.copyfile(LOADING_TEMPLATE_PAGE, LOADING_PAGE_EDITOR)
-
 @atexit.register
 def failsafe():
     remove_loading_page()
 
 def main():
-    add_loading_page()
     check_health_endpoint(BACKEND_HEALTH_ENDPOINT)
     remove_loading_page()
 
