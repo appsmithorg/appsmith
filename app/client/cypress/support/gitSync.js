@@ -150,27 +150,37 @@ Cypress.Commands.add("latestDeployPreview", () => {
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
-  agHelper.AssertElementVisibility(gitSyncLocators.branchButton);
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  assertHelper.AssertDocumentReady();
-  agHelper.AssertElementExist(gitSyncLocators.branchSearchInput);
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
+  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   // increasing timeout to reduce flakyness
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("not.exist");
+  assertHelper.AssertDocumentReady();
+  cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
+    "be.visible",
+  );
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  agHelper.AssertElementExist(gitSync._bottomBarPull);
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  agHelper.AssertElementExist(gitSyncLocators.branchSearchInput);
-
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
   agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("exist");
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("not.exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("not.exist");
   }
   assertHelper.AssertDocumentReady();
   cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
