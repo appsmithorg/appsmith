@@ -47,7 +47,10 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
-import { getCurrentWorkflowActions } from "@appsmith/selectors/workflowSelectors";
+import {
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
+} from "@appsmith/selectors/workflowSelectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -968,31 +971,41 @@ export const selectFilesForExplorer = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
   getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, workflowEntities, datasourceIdToNameMap) => {
-    const files = [...actions, ...jsActions, ...workflowEntities].reduce(
-      (acc, file) => {
-        let group = "";
-        if (file.config.pluginType === PluginType.JS) {
-          group = "JS Objects";
-        } else if (file.config.pluginType === PluginType.API) {
-          group = isEmbeddedRestDatasource(file.config.datasource)
-            ? "APIs"
-            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-        } else {
-          group = datasourceIdToNameMap[file.config.datasource.id];
-        }
-        acc = acc.concat({
-          type: file.config.pluginType,
-          entity: file,
-          group,
-        });
-        return acc;
-      },
-      [] as Array<ExplorerFileEntity>,
-    );
+  (
+    actions,
+    jsActions,
+    workflowActions,
+    workflowJsActions,
+    datasourceIdToNameMap,
+  ) => {
+    const files = [
+      ...actions,
+      ...jsActions,
+      ...workflowActions,
+      ...workflowJsActions,
+    ].reduce((acc, file) => {
+      let group = "";
+      if (file.config.pluginType === PluginType.JS) {
+        group = "JS Objects";
+      } else if (file.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(file.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[file.config.datasource.id];
+      }
+      acc = acc.concat({
+        type: file.config.pluginType,
+        entity: file,
+        group,
+      });
+      return acc;
+    }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
+      (file) => file.entity.config?.isMainJSCollection,
       (file) => file.group?.toLowerCase(),
       (file) => file.entity.config?.name?.toLowerCase(),
     ]);
@@ -1012,6 +1025,7 @@ export const selectFilesForExplorer = createSelector(
           entity: {
             id: file.entity.config.id,
             name: file.entity.config.name,
+            isMainJSCollection: file.entity?.config?.isMainJSCollection,
           },
         });
         return acc;
