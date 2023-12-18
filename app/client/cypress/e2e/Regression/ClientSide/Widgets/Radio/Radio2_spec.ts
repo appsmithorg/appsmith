@@ -14,7 +14,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("Radio Widget test cases", function () {
+describe("Radio Widget test cases", { tags: ["@tag.Widget", "@tag.Radio"] }, function () {
   it("1. Validate radio widget bindings", () => {
     //JS Object
     jsEditor.CreateJSObject(
