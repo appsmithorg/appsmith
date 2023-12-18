@@ -145,19 +145,19 @@ describe(
         locators._widgetInDeployed(draggableWidgets.TABLE_V1),
       );
       const data = GSHEET_DATA.filter((item) => item.rowIndex === "0")[0];
-      table.ReadTableRowColumnData(0, 0, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
         expect(cellData).to.eq(data.uniq_id);
       });
-      table.ReadTableRowColumnData(0, 1, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
         expect(cellData).to.eq(data.japanese_name);
       });
-      table.ReadTableRowColumnData(0, 2, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 2, "v2").then((cellData) => {
         expect(cellData).to.eq(data.currencies);
       });
-      table.ReadTableRowColumnData(0, 3, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
         expect(cellData).to.eq(data.specialChars);
       });
-      table.ReadTableRowColumnData(0, 4, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 4, "v2").then((cellData) => {
         expect(cellData).to.eq(data.product_name);
       });
 
@@ -207,19 +207,19 @@ describe(
         locators._widgetInDeployed(draggableWidgets.TABLE_V1),
       );
       const data = GSHEET_DATA.filter((item) => item.rowIndex === "1")[0];
-      table.ReadTableRowColumnData(1, 0, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 0, "v2").then((cellData) => {
         expect(cellData).to.eq(data.uniq_id);
       });
-      table.ReadTableRowColumnData(1, 1, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 1, "v2").then((cellData) => {
         expect(cellData).to.eq(data.japanese_name);
       });
-      table.ReadTableRowColumnData(1, 2, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 2, "v2").then((cellData) => {
         expect(cellData).to.eq(data.currencies);
       });
-      table.ReadTableRowColumnData(1, 3, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 3, "v2").then((cellData) => {
         expect(cellData).to.eq(data.specialChars);
       });
-      table.ReadTableRowColumnData(1, 5, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 5, "v2").then((cellData) => {
         expect(cellData).to.eq(data.manufacturer);
       });
 

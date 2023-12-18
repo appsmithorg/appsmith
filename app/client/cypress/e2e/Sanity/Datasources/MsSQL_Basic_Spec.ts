@@ -364,13 +364,13 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 

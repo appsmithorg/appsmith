@@ -12,7 +12,6 @@ export const WIDGET = {
   BUTTON_GROUP: "buttongroupwidget",
   TREESELECT: "singleselecttreewidget",
   TAB: "tabswidget",
-  TABLE_V1: "tablewidget",
   TABLE: "tablewidgetv2",
   SWITCHGROUP: "switchgroupwidget",
   SWITCH: "switchwidget",

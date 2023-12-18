@@ -185,14 +185,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(4, 3, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 3, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("");
     });
-    table.ReadTableRowColumnData(7, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
 
-    table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 0, "v2", 200).then(($cellData) => {
       expect($cellData).not.eq("2132"); //Deleted record Store_ID
     });
 
@@ -332,7 +332,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Delete to reflect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
-    table.ReadTableRowColumnData(0, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 200).then(($cellData) => {
       expect($cellData).not.eq("2105"); //Deleted record Store_ID
     });
   });
@@ -391,13 +391,13 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
@@ -416,7 +416,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   function generateStoresSecretInfo(rowIndex: number) {
     let secretInfo = "";
     table
-      .ReadTableRowColumnData(rowIndex, 3, "v1", 200)
+      .ReadTableRowColumnData(rowIndex, 3, "v2", 200)
       .then(($cellData: any) => {
         let points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
         let secretCode: string[] = (points as string).split(",");
@@ -445,7 +445,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //validating update happened fine!
     table
-      .ReadTableRowColumnData(rowIndex, colIndex, "v1", 200)
+      .ReadTableRowColumnData(rowIndex, colIndex, "v2", 200)
       .then(($cellData) => {
         expect($cellData).to.eq(expectedTableData);
       });
