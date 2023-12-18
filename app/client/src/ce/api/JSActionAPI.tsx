@@ -1,10 +1,11 @@
 import API from "api/Api";
 import type { AxiosPromise } from "axios";
 import type { JSCollection } from "entities/JSCollection";
-import type { ApiResponse } from "../../api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
-import type { ActionContextType, PluginType } from "entities/Action";
+import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
+import type { ActionContextType } from "@appsmith/entities/DataTree/types";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;
