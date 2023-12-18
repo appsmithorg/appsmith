@@ -139,6 +139,11 @@ export interface StoredDatasource {
   datasourceConfiguration?: { url?: string };
 }
 
+export enum ActionContextType {
+  PAGE = "PAGE",
+  WORKFLOW = "WORKFLOW",
+}
+
 export interface BaseAction {
   id: string;
   name: string;
@@ -160,6 +165,12 @@ export interface BaseAction {
   isPublic?: boolean;
   moduleId?: string;
   moduleInstanceId?: string;
+  workflowId?: string;
+  contextType?: ActionContextType;
+  // This is used to identify the main js collection of a workflow
+  // added here to avoid ts error in entitiesSelector file, in practice
+  // will always be undefined for non js actions
+  isMainJSCollection?: boolean;
 }
 
 interface BaseApiAction extends BaseAction {

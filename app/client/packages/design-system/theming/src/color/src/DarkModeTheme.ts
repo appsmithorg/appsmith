@@ -592,7 +592,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgElevation1() {
     const color = this.bg.clone();
 
-    color.oklch.l += 0.05;
+    color.oklch.l += 0.07;
 
     return color;
   }
@@ -600,7 +600,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgElevation2() {
     const color = this.bgElevation1.clone();
 
-    color.oklch.l += 0.05;
+    color.oklch.l += 0.04;
 
     return color;
   }
@@ -608,7 +608,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgElevation3() {
     const color = this.bgElevation2.clone();
 
-    color.oklch.l += 0.05;
+    color.oklch.l += 0.02;
 
     return color;
   }

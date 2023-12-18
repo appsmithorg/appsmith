@@ -25,7 +25,7 @@ import type {
   ActionData,
   ActionDataState,
 } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getCurrentActions,
@@ -110,7 +110,7 @@ export function getFieldFromValue(
   const entity = dataTree && dataTree[entityProps.entityName];
 
   if (entity && "ENTITY_TYPE" in entity) {
-    if (isAction(entity)) {
+    if (isAction(entity as DataTreeEntity)) {
       // get fields for API action
       return getActionEntityFields(
         fields,

@@ -2266,7 +2266,7 @@ export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
   "Choose an option that fits your approach, and let's shape your app together.";
 export const START_FROM_TEMPLATE_TITLE = () => "Start with template";
 export const START_FROM_TEMPLATE_SUBTITLE = () =>
-  "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
+  "Begin with an app for a specific scenario. We'll guide you through tailoring your app.";
 export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
 export const START_FROM_SCRATCH_SUBTITLE = () =>
   "Create an app from the ground up. Design every detail of your app on a blank canvas.";
@@ -2286,8 +2286,13 @@ export const PAGES_PANE_TEXTS = {
   ui_tab: () => "UI",
   query_blank_state: () => "Write your first query or API to access data",
   js_blank_state: () => "Use JS to transform your data or write business logic",
-  query_blank_button: () => "New Query/API",
-  js_blank_button: () => "New JS Object",
+  query_add_button: () => "New query / API",
+  js_add_button: () => "New JS Object",
+  widget_add_button: () => "New Widget",
+  query_create_tab_title: () => "Create new query / API",
+  widgets_create_tab_title: () => "Drag & drop a widget",
+  queries_create_from_existing: () => "From existing datasource",
+  queries_create_new: () => "New API",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
