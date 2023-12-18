@@ -21,7 +21,7 @@ const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 
-describe("Git sync Bug #10773", function () {
+describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
   let repoName;
 
   beforeEach(() => {

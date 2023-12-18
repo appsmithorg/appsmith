@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let guid: any;
 let repoName: any;
 
-describe("Git Branch Protection", function () {
+describe("Git Branch Protection", { tags: ["@tag.Git"] }, function () {
   it("Issue 28056 - 2 : Check if protection is enabled when feature flag is enabled", function () {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
