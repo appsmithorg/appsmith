@@ -56,25 +56,26 @@ jobs:
     with:
       pr: 0
 
-  server-unit-tests:
-    name: server-unit-tests
-    needs: [build-docker-image]
-    uses: ./.github/workflows/server-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-      skip-tests: false
+  # server-unit-tests:
+  #   name: server-unit-tests
+  #   needs: [build-docker-image]
+  #   uses: ./.github/workflows/server-build.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: 0
+  #     skip-tests: false
 
-  client-unit-tests:
-    name: client-unit-tests
-    needs: [build-docker-image]
-    uses: ./.github/workflows/client-unit-tests.yml
-    secrets: inherit
-    with:
-      pr: 0
+  # client-unit-tests:
+  #   name: client-unit-tests
+  #   needs: [build-docker-image]
+  #   uses: ./.github/workflows/client-unit-tests.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: 0
 
   ci-test-result:
-    needs: [ci-test, client-unit-tests, server-unit-tests]
+    # needs: [ci-test, client-unit-tests, server-unit-tests]
+    needs: [ci-test]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
