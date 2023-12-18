@@ -9,7 +9,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Page Load tests", () => {
+describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
