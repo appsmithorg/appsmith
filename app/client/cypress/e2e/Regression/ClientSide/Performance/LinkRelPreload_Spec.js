@@ -29,7 +29,7 @@ import emptyDSL from "../../../../fixtures/emptyDSL.json";
 
 describe(
   "html should include preload metadata for all code-split javascript",
-  { tags: ["@tag.Perf"] },
+  { tags: ["@tag.IDE"] },
   function () {
     before(() => {
       cy.addDsl(emptyDSL);
