@@ -32,7 +32,8 @@ export const GLOBAL_FUNCTIONS = {
 export const ModuleInstanceDefMap = {
   [MODULE_TYPE.QUERY]: (props: Record<string, any>) => {
     const { entity } = props;
-    const dataDef = generateTypeDef(entity.data);
+    const data = !!entity && entity.data;
+    const dataDef = generateTypeDef(data);
     let dataCustomDef: Def = {
       "!doc":
         "A read-only property that contains the response body from the last successful execution of this query.",
