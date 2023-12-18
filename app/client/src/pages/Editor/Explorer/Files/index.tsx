@@ -17,7 +17,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -41,8 +40,14 @@ const StyledText = styled(Text)`
 function Files() {
   // Import the context
   const context = useContext(FilesContext);
-  const { canCreateActions, editorId, parentEntityId, parentEntityType } =
-    context;
+  const {
+    canCreateActions,
+    editorId,
+    parentEntityId,
+    parentEntityType,
+    selectFilesForExplorer,
+    showModules = true,
+  } = context;
 
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
@@ -51,7 +56,11 @@ function Files() {
   const [isMenuOpen, openMenu] = useState(false);
   const [query, setQuery] = useState("");
 
-  const fileOperations = useFilteredFileOperations({ query, canCreateActions });
+  const fileOperations = useFilteredFileOperations({
+    query,
+    canCreateActions,
+    showModules,
+  });
 
   const onCreate = useCallback(() => {
     openMenu(true);

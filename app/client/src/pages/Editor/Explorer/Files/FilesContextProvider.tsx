@@ -15,6 +15,8 @@ interface FilesContextContextProps {
   editorId: string; // applicationId, workflowId or packageId
   parentEntityId: string; // page, workflow or module
   parentEntityType: ActionParentEntityTypeInterface;
+  showModules?: boolean;
+  selectFilesForExplorer: (state: any) => any;
 }
 
 type FilesContextProviderProps =
@@ -36,6 +38,8 @@ export const FilesContextProvider = ({
   editorId,
   parentEntityId,
   parentEntityType,
+  selectFilesForExplorer,
+  showModules,
 }: FilesContextProviderProps) => {
   const menuItems = [
     ActionEntityContextMenuItemsEnum.EDIT_NAME,
@@ -55,8 +59,18 @@ export const FilesContextProvider = ({
       parentEntityId,
       parentEntityType,
       menuItems,
+      selectFilesForExplorer,
+      showModules,
     };
-  }, [canCreateActions, parentEntityId, parentEntityType]);
+  }, [
+    canCreateActions,
+    parentEntityId,
+    parentEntityType,
+    showModules,
+    menuItems,
+    selectFilesForExplorer,
+    editorId,
+  ]);
 
   return (
     <FilesContext.Provider value={value}>{children}</FilesContext.Provider>

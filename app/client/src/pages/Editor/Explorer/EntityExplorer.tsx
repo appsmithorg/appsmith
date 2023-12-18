@@ -42,6 +42,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -166,6 +167,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
         editorId={applicationId}
         parentEntityId={pageId}
         parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+        selectFilesForExplorer={selectFilesForExplorer}
       >
         <Files />
       </FilesContextProvider>
