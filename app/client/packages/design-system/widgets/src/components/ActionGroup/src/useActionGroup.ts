@@ -24,8 +24,8 @@ export function useActionGroup<T>(
   const { orientation, overflowMode = "collapse" } = props;
   const focusManager = createFocusManager(ref);
 
-  const onKeyDown = (e: KeyboardEvent) => {
-    if (!Boolean((e.currentTarget as Node).contains(e.target as Node))) {
+  const onKeyDown = (e: React.KeyboardEvent<FocusableElement>) => {
+    if (!Boolean(e.currentTarget.contains(e.target as Node))) {
       return;
     }
 
