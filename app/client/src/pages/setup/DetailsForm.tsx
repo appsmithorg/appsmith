@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Field } from "redux-form";
-import { DropdownWrapper, FormBodyWrapper, withDropdown } from "./common";
+import { FormBodyWrapper } from "./common";
 import {
   createMessage,
   WELCOME_FORM_EMAIL_ID,
@@ -9,23 +9,21 @@ import {
   WELCOME_FORM_LAST_NAME,
   WELCOME_FORM_CREATE_PASSWORD,
   WELCOME_FORM_VERIFY_PASSWORD,
-  WELCOME_FORM_ROLE_DROPDOWN,
-  WELCOME_FORM_ROLE,
-  WELCOME_FORM_USE_CASE,
-  WELCOME_FORM_CUSTOM_USE_CASE,
-  WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
-  WELCOME_FORM_USE_CASE_PLACEHOLDER,
   CONTINUE,
   ONBOARDING_STATUS_GET_STARTED,
+  PRODUCT_UPDATES,
+  WELCOME_FORM_NON_SUPER_USER_USE_CASE,
+  WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { FormErrors, InjectedFormProps } from "redux-form";
-import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup } from "design-system-old";
 import { Button, Checkbox } from "design-system";
-import { roleOptions, useCaseOptions } from "./constants";
+import { proficiencyOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
+import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
+import { Space } from "./NonSuperUserProfilingQuestions";
 
 export interface DetailsFormValues {
   firstName?: string;
@@ -33,10 +31,8 @@ export interface DetailsFormValues {
   email?: string;
   password?: string;
   verifyPassword?: string;
-  role?: string;
+  proficiency?: string;
   useCase?: string;
-  custom_useCase?: string;
-  role_name?: string;
 }
 
 export type SetupFormProps = DetailsFormValues & {
@@ -73,6 +69,12 @@ const StyledFormGroup = styled(FormGroup)`
   && > .bp3-label {
     color: var(--ads-v2-color-fg);
   }
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  gap: ${(props) => props.theme.spaces[4]}px;
 `;
 
 export default function DetailsForm(
@@ -153,59 +155,28 @@ export default function DetailsForm(
 
         {!props.isFirstPage && (
           <div>
-            <DropdownWrapper
-              className="t--welcome-form-role-dropdown"
-              label={createMessage(WELCOME_FORM_ROLE_DROPDOWN)}
-            >
-              <Field
-                asyncControl
-                component={withDropdown(roleOptions)}
-                data-testid="role"
-                name="role"
-                placeholder={createMessage(
-                  WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
-                )}
-                size="md"
-                type="text"
-              />
-            </DropdownWrapper>
-            {props.role == "other" && (
-              <StyledFormGroup className="t--welcome-form-role-input">
-                <FormTextField
-                  label={createMessage(WELCOME_FORM_ROLE)}
-                  name="role_name"
-                  placeholder=""
-                  type="text"
-                />
-              </StyledFormGroup>
-            )}
-            <DropdownWrapper
-              className="t--welcome-form-role-usecase"
-              label={createMessage(WELCOME_FORM_USE_CASE)}
-            >
-              <Field
-                asyncControl
-                component={withDropdown(useCaseOptions)}
-                data-testid="useCase"
-                name="useCase"
-                placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
-                type="text"
-              />
-            </DropdownWrapper>
-            {props.useCase == "other" && (
-              <StyledFormGroup className="t--welcome-form-use-case-input">
-                <FormTextField
-                  label={createMessage(WELCOME_FORM_CUSTOM_USE_CASE)}
-                  name="custom_useCase"
-                  placeholder=""
-                  type="text"
-                />
-              </StyledFormGroup>
-            )}
-
+            <Field
+              component={RadioButtonGroup}
+              label={createMessage(
+                WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
+              )}
+              name="proficiency"
+              options={proficiencyOptions}
+              showSubtitle
+              testid="t--user-proficiency"
+            />
+            <Space />
+            <Field
+              component={RadioButtonGroup}
+              label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
+              name="useCase"
+              options={useCaseOptions}
+              testid="t--user-use-case"
+            />
+            <Space />
             {!isAirgapped() && (
               <Checkbox defaultSelected name="signupForNewsletter" value="true">
-                I want security and product updates.
+                {createMessage(PRODUCT_UPDATES)}
               </Checkbox>
             )}
           </div>

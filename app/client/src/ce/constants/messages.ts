@@ -1295,6 +1295,7 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 export const WELCOME_HEADER = () => "Almost there";
 export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
+export const PRODUCT_UPDATES = () => "I want security and product updates.";
 
 // API Editor
 export const API_EDITOR_TAB_TITLES = {
@@ -1315,14 +1316,6 @@ export const WELCOME_FORM_LAST_NAME = () => "Last name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Enter password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify password";
-export const WELCOME_FORM_ROLE_DROPDOWN = () =>
-  "Tell us about your primary skillset";
-export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>
-  "- Select a skillset -";
-export const WELCOME_FORM_ROLE = () => "Skillset";
-export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
-export const WELCOME_FORM_USE_CASE = () => "Tell us about your use case";
-export const WELCOME_FORM_USE_CASE_PLACEHOLDER = () => "- Select a use case -";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
 export const WELCOME_FORM_DATA_COLLECTION_BODY = () =>
@@ -1488,14 +1481,10 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "How would you rate your development proficiency?";
 
-export const WELCOME_FORM_ROLE_ERROR_MESSAGE = () => "Please enter a role";
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
 export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
   "Please select an use case";
-
-export const WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE = () =>
-  "Please enter a use case";
 
 export const WELCOME_FORM_EMAIL_ERROR_MESSAGE = () =>
   "Enter a valid email address.";
