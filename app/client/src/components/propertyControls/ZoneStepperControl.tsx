@@ -15,46 +15,49 @@ import {
   MIN_ZONE_COUNT,
 } from "layoutSystems/anvil/utils/constants";
 
-const ZoneNumInput = ({
-  max,
-  min,
-  ref,
-  steps,
-  widgetId,
-  zoneCount,
-}: {
-  widgetId: string;
-  max: number;
-  min: number;
-  ref: React.RefObject<HTMLInputElement>;
-  steps: number;
-  zoneCount: any;
-}) => {
-  const dispatch = useDispatch();
+const ZoneNumInput = React.forwardRef(
+  (
+    {
+      max,
+      min,
+      steps,
+      widgetId,
+      zoneCount,
+    }: {
+      widgetId: string;
+      max: number;
+      min: number;
+      steps: number;
+      zoneCount: any;
+    },
+    ref: React.Ref<HTMLInputElement>,
+  ) => {
+    const dispatch = useDispatch();
 
-  // Handling onChange event for the NumberInput
-  const handleInputChange = (value: string | undefined) => {
-    const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
-    if (v === zoneCount) {
-      return;
-    }
+    // Handling onChange event for the NumberInput
+    const handleInputChange = (value: string | undefined) => {
+      const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
+      if (v === zoneCount) {
+        return;
+      }
 
-    // Dispatching an action to update the zone count
-    dispatch(updateZoneCountAction(widgetId, v));
-  };
+      // Dispatching an action to update the zone count
+      dispatch(updateZoneCountAction(widgetId, v));
+    };
 
-  return (
-    <NumberInput
-      disableTextInput
-      max={max}
-      min={min}
-      onChange={handleInputChange}
-      ref={ref}
-      scale={steps}
-      value={zoneCount}
-    />
-  );
-};
+    return (
+      <NumberInput
+        disableTextInput
+        max={max}
+        min={min}
+        onChange={handleInputChange}
+        ref={ref}
+        scale={steps}
+        value={zoneCount}
+      />
+    );
+  },
+);
 
 class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
   componentRef = React.createRef<HTMLInputElement>();
