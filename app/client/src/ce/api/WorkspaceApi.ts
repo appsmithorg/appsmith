@@ -67,13 +67,7 @@ export interface CreateWorkspaceRequest {
 }
 
 class WorkspaceApi extends Api {
-  static rolesURL = "v1/groups";
   static workspacesURL = "v1/workspaces";
-  static async fetchRoles(): Promise<
-    AxiosPromise<FetchWorkspaceRolesResponse>
-  > {
-    return Api.get(WorkspaceApi.rolesURL);
-  }
   static async fetchWorkspaces(): Promise<
     AxiosPromise<FetchWorkspacesResponse>
   > {
