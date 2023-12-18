@@ -122,25 +122,27 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
+        setGitSyncIdInActionCollection(collection);
+        return repository.save(collection);
+    }
+
+    protected void setGitSyncIdInActionCollection(ActionCollection collection) {
         if (collection.getGitSyncId() == null) {
             collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
         }
-        return repository.save(collection);
     }
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
         collections.forEach(collection -> {
-            if (collection.getGitSyncId() == null) {
-                collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-            }
+            setGitSyncIdInActionCollection(collection);
         });
         return repository.saveAll(collections);
     }
 
     @Override
     public Mono<ActionCollection> findByIdAndBranchName(String id, String branchName) {
-        // TODO sanitise resonse for default IDs
+        // TODO sanitise response for default IDs
         return this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getReadPermission());
     }
 
@@ -578,9 +580,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> create(ActionCollection collection) {
-        if (collection.getGitSyncId() == null) {
-            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-        }
+        setGitSyncIdInActionCollection(collection);
         return super.create(collection);
     }
 
