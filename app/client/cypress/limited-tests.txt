@@ -1,5 +1,16 @@
 # To run only limited tests - give the spec names in below format:
 cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/SetProperty/WidgetPropertySetters1_spec.ts
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_To_App_spec.js
+cypress/e2e/Regression/Apps/MongoDBShoppingCart_spec.ts
+cypress/e2e/Regression/ClientSide/ActionExecution/ActionSelector_JsToNonJSMode_4_spec.ts
+cypress/e2e/Regression/ClientSide/Git/GitImport/GitImport_spec.js
+cypress/e2e/Regression/Enterprise/AdminSettings/Admin_settings_spec.js
+cypress/e2e/Regression/ClientSide/Binding/Invalid_binding_spec.js
+cypress/e2e/Regression/ClientSide/BugTests/Bug29566_Spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/Multiselect/MultiSelect3_spec.js
+cypress/e2e/Regression/ClientSide/IDE/Canvas_Context_Bug_Fixes.js
+cypress/e2e/Regression/ClientSide/Widgets/Radio/RadioGroup_Int_Value_spec.js
 
 
 # For running all specs - uncomment below:
