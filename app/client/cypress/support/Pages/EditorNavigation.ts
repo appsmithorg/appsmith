@@ -82,7 +82,7 @@ class EditorNavigation {
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AssertHelper.AssertNetworkStatus("@getPage"); //for selection to settle
-    }
+  }
 
   SelectEntityByName(
     name: string,
