@@ -13,7 +13,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("Number Slider spec", () => {
+describe("Number Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("numbersliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);
