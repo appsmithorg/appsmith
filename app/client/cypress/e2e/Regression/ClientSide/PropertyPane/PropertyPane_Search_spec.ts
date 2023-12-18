@@ -7,7 +7,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Property Pane Search", function () {
+describe("Property Pane Search", { tags: ["@tag.PropertyPane"] }, function () {
   before(() => {
     agHelper.AddDsl("swtchTableV2Dsl");
   });
