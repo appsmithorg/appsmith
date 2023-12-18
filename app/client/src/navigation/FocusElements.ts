@@ -363,4 +363,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: getFirstJSObjectId,
     },
   ],
+  [FocusEntity.WIDGET_LIST]: [],
+  [FocusEntity.QUERY_ADD]: [],
 };
