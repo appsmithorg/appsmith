@@ -169,7 +169,7 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
     cy.get(".ads-v2-spinner", { timeout: 45000 }).should("exist");
     cy.get(".ads-v2-spinner", { timeout: 45000 }).should("not.exist");
   }
-
+  assertHelper.AssertDocumentReady();
   cy.wait(2000);
 });
 
