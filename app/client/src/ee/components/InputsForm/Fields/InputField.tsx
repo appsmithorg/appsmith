@@ -16,13 +16,16 @@ function InputField({ evaluatedValueLookupPath, name }: InputFieldProps) {
     name,
   });
   const { getValues } = useFormContext();
-  const { useWatchEvalPath } = useContext(InputsFormContext);
+  const { dataTreePathPrefix, useWatchEvalPath } =
+    useContext(InputsFormContext);
   const evalKey = getValues(evaluatedValueLookupPath);
 
   const evaluatedValue = useWatchEvalPath?.(evalKey);
+  const dataTreePath = `${dataTreePathPrefix}.${evalKey}`;
 
   return (
     <InputText
+      dataTreePath={dataTreePath}
       enableAI={false}
       evaluatedValue={evaluatedValue}
       label=""

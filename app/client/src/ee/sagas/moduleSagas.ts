@@ -8,14 +8,15 @@ import {
 import { validateResponse } from "sagas/ErrorSagas";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import type { ApiResponse } from "api/ApiResponses";
-import type {
-  CreateJSModulePayload,
-  CreateQueryModulePayload,
-  DeleteModulePayload,
-  FetchModuleActionsPayload,
-  SaveModuleNamePayload,
-  SetupModulePayload,
-  UpdateModuleInputsPayload,
+import {
+  fetchAllModuleEntityCompletion,
+  type CreateJSModulePayload,
+  type CreateQueryModulePayload,
+  type DeleteModulePayload,
+  type FetchModuleActionsPayload,
+  type SaveModuleNamePayload,
+  type SetupModulePayload,
+  type UpdateModuleInputsPayload,
 } from "@appsmith/actions/moduleActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type {
@@ -45,10 +46,13 @@ import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import { createNewModuleName } from "@appsmith/utils/Packages/moduleHelpers";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
+import { executePageLoadActions } from "actions/pluginActionActions";
 import { createDummyJSCollectionActions } from "utils/JSPaneUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { generateDefaultJSObject } from "sagas/JSPaneSagas";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
+import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { deleteErrorLog } from "actions/debuggerActions";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   try {
@@ -343,10 +347,19 @@ export function* setupModuleSaga(action: ReduxAction<SetupModulePayload>) {
       payload: { id: moduleId },
     });
 
-    // To start eval for module
-    yield put({
-      type: ReduxActionTypes.FETCH_ALL_MODULE_ENTITY_COMPLETION,
-    });
+    // To start eval for new module
+    yield put(fetchAllModuleEntityCompletion([executePageLoadActions()]));
+
+    // clear all existing debugger errors
+    const debuggerErrors: ReturnType<typeof getDebuggerErrors> =
+      yield select(getDebuggerErrors);
+    const existingErrors = Object.values(debuggerErrors).filter(
+      (payload) => !!payload.id,
+    );
+    const errorsToDelete = existingErrors.map(
+      (payload) => payload.id,
+    ) as string[];
+    yield put(deleteErrorLog(errorsToDelete));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SETUP_MODULE_ERROR,

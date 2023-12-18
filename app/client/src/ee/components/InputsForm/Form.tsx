@@ -12,6 +12,7 @@ interface EvalValues {
 }
 
 export type FormProps<TValues> = PropsWithChildren<{
+  dataTreePathPrefix?: string;
   defaultValues: TValues;
   onUpdateForm: (values: TValues) => void;
   useEvalValues?: () => EvalValues;
@@ -19,6 +20,7 @@ export type FormProps<TValues> = PropsWithChildren<{
 
 function Form<TValues extends FieldValues>({
   children,
+  dataTreePathPrefix,
   defaultValues,
   onUpdateForm,
   useEvalValues,
@@ -46,7 +48,10 @@ function Form<TValues extends FieldValues>({
   }, []);
 
   return (
-    <InputsFormContextProvider useWatchEvalPath={useWatchEvalPath}>
+    <InputsFormContextProvider
+      dataTreePathPrefix={dataTreePathPrefix}
+      useWatchEvalPath={useWatchEvalPath}
+    >
       <FormProvider {...methods}>{children}</FormProvider>
     </InputsFormContextProvider>
   );

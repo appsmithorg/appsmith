@@ -21,6 +21,7 @@ module.exports = {
     "@tag.Table",
     "@tag.Image",
     "@tag.Tab",
+    "@tag.GSheet",
     "@tag.JSONForm",
     "@tag.Binding",
     "@tag.IDE",
@@ -29,6 +30,9 @@ module.exports = {
     "@tag.GenerateCRUD",
     "@tag.MobileResponsive",
     "@tag.Theme",
-    "@tag.Random",
+    "@tag.Settings",
+    "@tag.ImportExport",
+    "@tag.AutoHeight",
+    "@tag.Fork",
   ],
 };

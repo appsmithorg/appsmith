@@ -13,7 +13,7 @@ import { matchPath } from "react-router";
 
 export const EditorNames = {
   ...CE_EditorNames,
-  PACKAGE: "packageEditor",
+  PACKAGE: "package",
 };
 
 export const editorType: EditorType = {
