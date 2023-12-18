@@ -19,10 +19,14 @@ export const StyledInfo = styled.span`
   margin-left: 1px;
 `;
 
-const FieldWrapper = styled.div`
-  position: relative;
-  min-width: 380px;
-  max-width: 545px;
+const FieldWrapper = styled.div<{
+  isFixed: boolean;
+  width: string;
+}>`
+  position: ${(props) => (props?.isFixed ? "fixed" : "relative")};
+  min-width: ${(props) => (!props?.isFixed ? "380px" : "")};
+  max-width: ${(props) => (!props?.isFixed ? "545px" : "")};
+  width: ${(props) => (props?.isFixed && props?.width ? props.width : "")};
 `;
 
 const SecretDisplayIndicator = styled.input`
@@ -135,7 +139,12 @@ class InputTextControl extends BaseControl<InputControlProps> {
     } = this.props;
 
     return (
-      <FieldWrapper data-testid={configProperty} style={customStyles || {}}>
+      <FieldWrapper
+        data-testid={configProperty}
+        isFixed={this.props.isFixed || false}
+        style={customStyles || {}}
+        width={this.props.width || ""}
+      >
         {this.state.secretDisplayVisible && (
           <SecretDisplayIndicator
             onClick={this.onClickSecretDisplayIndicator}
@@ -193,6 +202,8 @@ export interface InputControlProps extends ControlProps {
   disabled?: boolean;
   validator?: (value: string) => { isValid: boolean; message: string };
   isSecretExistsData?: boolean;
+  isFixed?: boolean;
+  width?: string;
 }
 
 const mapStateToProps = (state: AppState, props: InputControlProps) => {
