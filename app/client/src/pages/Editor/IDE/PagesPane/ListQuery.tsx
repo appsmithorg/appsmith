@@ -19,6 +19,7 @@ import {
 import { ADD_PATH } from "constants/routes";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -51,7 +52,7 @@ const ListQuery = () => {
           size={"sm"}
           startIcon={"add-line"}
         >
-          New query/API
+          {createMessage(PAGES_PANE_TEXTS.query_add_button)}
         </Button>
       )}
       <Flex flex="1" flexDirection={"column"} gap="spaces-3" overflow="scroll">

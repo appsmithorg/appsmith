@@ -15,6 +15,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { createNewJSCollection } from "actions/jsPaneActions";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -62,7 +63,7 @@ const JSSection = () => {
           size={"sm"}
           startIcon={"add-line"}
         >
-          New JS object
+          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
         </Button>
       )}
       <Flex flex="1" flexDirection="column" gap="spaces-2" overflow="scroll">
