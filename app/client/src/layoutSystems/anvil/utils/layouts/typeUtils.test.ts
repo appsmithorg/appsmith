@@ -5,14 +5,15 @@ import type { LayoutComponentProps } from "../anvilTypes";
 describe("Layouts - typeUtils tests", () => {
   describe("doesLayoutRenderWidgets", () => {
     it("should return true if layout renders widgets", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
+      const layout: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       expect(doesLayoutRenderWidgets(layout)).toBeTruthy();
     });
     it("should return false if layout renders widgets", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock(
         {},
         false,
-      ).layout;
+      ).layout as LayoutComponentProps;
       expect(doesLayoutRenderWidgets(layout)).toBeFalsy();
     });
   });
