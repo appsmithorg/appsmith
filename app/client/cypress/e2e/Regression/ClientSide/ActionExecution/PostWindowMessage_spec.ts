@@ -46,8 +46,9 @@ describe("Post window message", { tags: ["@tag.JS"] }, () => {
     propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
     deployMode.DeployApp(locators._buttonByText("Submit"));
+    agHelper.WaitUntilEleAppear(locators._buttonByText("Submit"));
+    agHelper.WaitUntilEleAppear("#iframe-Iframe1");
     agHelper.AssertElementVisibility("#iframe-Iframe1");
-    agHelper.Sleep(5000); //allowing time for elements to load fully before clicking - for CI flaky
     cy.get("#iframe-Iframe1").then((element) => {
       element.contents().find("body").find("#iframe-button").click();
     });

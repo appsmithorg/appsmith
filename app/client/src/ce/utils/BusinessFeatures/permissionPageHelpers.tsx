@@ -40,6 +40,7 @@ import { hasExecuteActionPermission as hasExecuteActionPermission_EE } from "@ap
 
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_CE } from "ce/utils/permissionHelpers";
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_EE } from "@appsmith/utils/permissionHelpers";
+import { EditorNames } from "@appsmith/hooks";
 
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,
@@ -153,13 +154,19 @@ export const getHasAuditLogsReadPermission = (
   else return hasAuditLogsReadPermission_CE(permissions);
 };
 
-export const hasCreateDSActionPermissionInApp = (
-  isEnabled: boolean,
-  dsPermissions?: string[],
-  pagePermissions?: string[],
-) => {
-  return (
-    getHasCreateDatasourceActionPermission(isEnabled, dsPermissions) &&
-    getHasCreateActionPermission(isEnabled, pagePermissions)
-  );
+export const hasCreateDSActionPermissionInApp = ({
+  dsPermissions,
+  editorType,
+  isEnabled,
+  pagePermissions,
+}: {
+  dsPermissions?: string[];
+  editorType?: string;
+  isEnabled: boolean;
+  pagePermissions?: string[];
+}) => {
+  return !editorType || editorType === EditorNames.APPLICATION
+    ? getHasCreateDatasourceActionPermission(isEnabled, dsPermissions) &&
+        getHasCreateActionPermission(isEnabled, pagePermissions)
+    : getHasCreateDatasourceActionPermission(isEnabled, dsPermissions);
 };
