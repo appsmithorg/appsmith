@@ -1,5 +1,6 @@
 .references {
   flex-basis: 288px;
+  width: 288px;
   border-left: var(--ads-v2-color-gray-300) 1px solid;
   overflow: auto;
   height: calc(100vh - 90px);
@@ -24,6 +25,7 @@
 
 .collapsibleTitle {
   flex-basis: calc(100% - 24px);
+  width: calc(100% - 24px);
   font-weight: 500;
   font-size: 14px;
   font-weight: 500;
@@ -35,6 +37,7 @@
 
 .collapsibleIcon {
   flex-basis: 24px;
+  width: 24px;
   cursor: pointer;
 }
 

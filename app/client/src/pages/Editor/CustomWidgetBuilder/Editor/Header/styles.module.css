@@ -41,6 +41,7 @@
 .layoutControl {
   flex-grow: 0;
   flex-basis: 100px;
+  width: 100px;
 }
 
 .templateMenu {

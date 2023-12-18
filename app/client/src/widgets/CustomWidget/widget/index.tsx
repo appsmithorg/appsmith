@@ -28,7 +28,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         FEATURE_FLAG.release_custom_widgets_enabled,
       ),
       iconSVG: IconSVG,
-      needsMeta: false,
+      needsMeta: true,
       isCanvas: false,
       tags: [WIDGET_TAGS.DISPLAY],
       searchTags: ["external"],

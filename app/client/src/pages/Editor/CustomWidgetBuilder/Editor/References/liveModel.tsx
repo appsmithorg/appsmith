@@ -14,6 +14,7 @@ export default function ModelVariables() {
       width: "100%",
       overflow: "auto",
       marginTop: "10px",
+      "word-break": "break-word",
     },
     collapsed: 1,
     shouldCollapse: (field: any) => {

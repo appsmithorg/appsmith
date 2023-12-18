@@ -71,8 +71,8 @@ function CustomComponent(props: CustomComponentProps) {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
                 ui: {
-                  width: props.width,
-                  height: props.height,
+                  width: props.width - 8,
+                  height: props.height - 8,
                 },
                 mode: props.renderMode,
               },

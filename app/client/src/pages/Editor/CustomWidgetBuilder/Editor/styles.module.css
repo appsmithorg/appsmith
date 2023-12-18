@@ -1,6 +1,6 @@
 .contentRight {
   display: flex;
-  flex-basis: 50%;
+  width: 50%;
   flex-direction: column;
   border-width: 1px;
   border-top: none;

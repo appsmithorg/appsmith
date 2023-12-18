@@ -44,7 +44,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
                   uncompiledSrcDoc:
                     this.props.widgetProperties.uncompiledSrcDoc,
                   model:
-                    this.props.widgetProperties.__evaluation__.evaluatedValues
+                    this.props.widgetProperties.__evaluation__?.evaluatedValues
                       .defaultModel,
                   events: this.props.widgetProperties.events.reduce(
                     (prev: Record<string, string>, curr: string) => {
@@ -111,15 +111,21 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
     );
 
     if (
-      hasEventChanged ||
-      prevProps.widgetProperties.__evaluation__.evaluatedValues.defaultModel !==
-        this.props.widgetProperties.__evaluation__.evaluatedValues.defaultModel
+      this.state.isSourceEditorOpen &&
+      (prevProps.widgetProperties.widgetName !==
+        this.props.widgetProperties.widgetName ||
+        hasEventChanged ||
+        prevProps.widgetProperties.__evaluation__?.evaluatedValues
+          .defaultModel !==
+          this.props.widgetProperties.__evaluation__?.evaluatedValues
+            .defaultModel)
     ) {
       this.state.sourceEditor?.postMessage(
         {
           type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERENCES,
+          name: this.props.widgetProperties.widgetName,
           model:
-            this.props.widgetProperties.__evaluation__.evaluatedValues
+            this.props.widgetProperties.__evaluation__?.evaluatedValues
               .defaultModel,
           events: this.props.widgetProperties.events.reduce(
             (prev: Record<string, string>, curr: string) => {

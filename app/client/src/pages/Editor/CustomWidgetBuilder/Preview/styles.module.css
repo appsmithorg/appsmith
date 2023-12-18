@@ -1,5 +1,6 @@
 .contentLeft {
   flex-basis: 50%;
+  width: 50%;
   border: none;
   position: relative;
 }
