@@ -172,9 +172,7 @@ jobs:
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-        
-          
+          reponame: ${{ github.event.repository.name }}       
         run: |
           pwd
           tar -czvf server.jar dist/
