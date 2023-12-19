@@ -62,7 +62,7 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
         Mono<List<Workspace>> workspacesMono = Mono.just(new ArrayList<>());
         if (shouldSearchEntity(Workspace.class, entities)) {
             workspacesMono = workspaceService
-                    .filterByFields(
+                    .filterByEntityFields(
                             List.of(FieldName.NAME),
                             searchString,
                             pageable,
@@ -74,7 +74,7 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
         Mono<List<Application>> applicationsMono = Mono.just(new ArrayList<>());
         if (shouldSearchEntity(Application.class, entities)) {
             applicationsMono = applicationService
-                    .filterByFields(
+                    .filterByEntityFields(
                             List.of(FieldName.NAME),
                             searchString,
                             pageable,

@@ -46,13 +46,12 @@ public class Migration037AddCompoundIndexForNameAndDeletedAt {
             dropIndexIfExists(mongoTemplate, Application.class, NAME_DELETED_COMPOUND_INDEX);
             ensureIndexes(mongoTemplate, Application.class, namedDeletedAtIndex);
         } catch (UncategorizedMongoDbException mongockException) {
-            log.debug(
+            log.error(
                     "An error occurred while creating the index : {}, skipping the addition of index because of {}.",
                     NAME_DELETED_COMPOUND_INDEX,
                     mongockException.getMessage());
         } catch (Exception exception) {
-            log.debug("An error occurred while creating the index : {}", NAME_DELETED_COMPOUND_INDEX);
-            exception.printStackTrace();
+            log.error("An error occurred while creating the index : {}", NAME_DELETED_COMPOUND_INDEX, exception);
         }
     }
 }
