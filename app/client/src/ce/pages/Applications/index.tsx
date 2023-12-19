@@ -121,6 +121,7 @@ import {
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
 import WorkflowCardList from "./WorkflowCardList";
+import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -815,6 +816,7 @@ export function ApplicationsSection(props: any) {
       {workspacesListComponent}
       <>
         <GitSyncModal isImport />
+        <DisableAutocommitModal />
         <DisconnectGitModal />
       </>
       <ReconnectDatasourceModal />

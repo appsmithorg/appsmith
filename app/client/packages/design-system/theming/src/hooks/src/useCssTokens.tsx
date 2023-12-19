@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { cssRule, getTypographyClassName } from "../../utils";
 
 import type { Theme } from "../../theme";
-import type { FontFamily, Typography } from "../../token";
+import type { FontFamily, ThemeToken, Typography } from "../../token";
 
 const fontFamilyCss = (fontFamily?: FontFamily) => {
   const fontFamilyCss =
     fontFamily && fontFamily !== "System Default"
       ? `${fontFamily}, sans-serif`
-      : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu'";
+      : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu', sans-serif";
 
   return `font-family: ${fontFamilyCss}; --font-family: ${fontFamilyCss}`;
 };
@@ -42,18 +42,36 @@ const getTypographyCss = (typography: Typography) => {
   `;
 };
 
+const getColorCss = (color: ThemeToken["color"]) => {
+  return css`
+    background: var(--color-bg);
+    color: var(--color-fg);
+    ${cssRule({ color })};
+  `;
+};
+
 interface UseCssTokensProps extends Theme {
   width: number | null;
 }
 
 export function useCssTokens(props: UseCssTokensProps) {
-  const { colorMode, fontFamily, typography, width, ...restTokens } = props;
+  const { color, colorMode, fontFamily, typography, width, ...restTokens } =
+    props;
 
-  const [typographyClassname, setTypographyClassName] = useState<string>();
-  const [widthClassName, setWidthClassName] = useState<string>();
-  const [fontFamilyClassName, setFontFamilyClassName] = useState<string>();
+  const [colorClassName, setColorClassName] = useState<string>();
   const [colorModeClassName, setColorModeClassName] = useState<string>();
+  const [fontFamilyClassName, setFontFamilyClassName] = useState<string>();
+  const [typographyClassName, setTypographyClassName] = useState<string>();
+  const [widthClassName, setWidthClassName] = useState<string>();
   const [providerClassName, setProviderClassName] = useState<string>();
+
+  useEffect(() => {
+    if (color != null) {
+      setColorClassName(css`
+        ${getColorCss(color)}
+      `);
+    }
+  }, [color]);
 
   useEffect(() => {
     if (typography != null) {
@@ -94,10 +112,11 @@ export function useCssTokens(props: UseCssTokensProps) {
   }, [colorMode]);
 
   return {
-    typographyClassname,
-    widthClassName,
-    fontFamilyClassName,
+    colorClassName,
     colorModeClassName,
+    fontFamilyClassName,
+    typographyClassName,
+    widthClassName,
     providerClassName,
   };
 }

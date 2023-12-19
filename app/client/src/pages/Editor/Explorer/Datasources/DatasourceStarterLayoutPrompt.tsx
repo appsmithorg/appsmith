@@ -120,7 +120,7 @@ const PromptImage = importSvg(
 );
 
 const StyledPopoverContent = styled(PopoverContent)`
-  margin-left: 23px;
+  margin-left: 43px;
   width: 282px;
   padding-vertical: 12px;
   border-radius: 4px;
@@ -133,7 +133,7 @@ const StyledPopoverContent = styled(PopoverContent)`
 const Ellipse = styled.div`
   position: absolute;
   top: 0px;
-  left: -15px;
+  left: 5px;
   width: 36px;
   height: 36px;
   background: rgba(225, 86, 21, 0.2);

@@ -48,7 +48,7 @@ import type {
 } from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -68,10 +68,9 @@ import { getWidgets } from "../../sagas/selectors";
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
   try {
     const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollections(applicationId);
+      yield JSActionAPI.fetchJSCollections(action.payload);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data || [],

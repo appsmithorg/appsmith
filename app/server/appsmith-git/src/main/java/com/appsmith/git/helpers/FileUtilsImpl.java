@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -247,8 +248,9 @@ public class FileUtilsImpl implements FileInterface {
                         Map<String, String> validWidgetToParentMap = new HashMap<>();
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                        Boolean isResourceUpdated =
-                                updatedResources.get(PAGE_LIST).contains(pageName);
+                        Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(PAGE_LIST))
+                                ? updatedResources.get(PAGE_LIST).contains(pageName)
+                                : Boolean.FALSE;
                         if (Boolean.TRUE.equals(isResourceUpdated)) {
                             // Save page metadata
                             saveResource(
@@ -299,8 +301,9 @@ public class FileUtilsImpl implements FileInterface {
                     Set<String> validJsLibs = new HashSet<>();
                     jsLibEntries.forEach(jsLibEntry -> {
                         String uidString = jsLibEntry.getKey();
-                        Boolean isResourceUpdated =
-                                updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
+                        Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))
+                                ? updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString)
+                                : Boolean.FALSE;
                         String fileNameWithExtension = uidString.replaceAll("/", "_") + CommonConstants.JSON_EXTENSION;
                         Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
                         if (isResourceUpdated) {
@@ -328,8 +331,9 @@ public class FileUtilsImpl implements FileInterface {
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             // For actions, we are referring to validNames to maintain unique file names as just name
                             // field don't guarantee unique constraint for actions within JSObject
-                            Boolean isResourceUpdated =
-                                    updatedResources.get(ACTION_LIST).contains(resource.getKey());
+                            Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(ACTION_LIST))
+                                    ? updatedResources.get(ACTION_LIST).contains(resource.getKey())
+                                    : Boolean.FALSE;
                             final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -382,7 +386,11 @@ public class FileUtilsImpl implements FileInterface {
                             }
                             validActionCollectionsMap.get(pageName).add(actionCollectionName);
                             Boolean isResourceUpdated =
-                                    updatedResources.get(ACTION_COLLECTION_LIST).contains(resource.getKey());
+                                    !CollectionUtils.isEmpty(updatedResources.get(ACTION_COLLECTION_LIST))
+                                            ? updatedResources
+                                                    .get(ACTION_COLLECTION_LIST)
+                                                    .contains(resource.getKey())
+                                            : Boolean.FALSE;
                             if (Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveActionCollection(
                                         resource.getValue(),
@@ -703,7 +711,7 @@ public class FileUtilsImpl implements FileInterface {
      * @param gson
      * @return resource stored in the JSON file
      */
-    private Object readFile(Path filePath, Gson gson) {
+    public static Object readFile(Path filePath, Gson gson) {
 
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
@@ -938,7 +946,7 @@ public class FileUtilsImpl implements FileInterface {
         return fileFormatVersion.getAsInt();
     }
 
-    private boolean isFileFormatCompatible(int savedFileFormat) {
+    public static boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
     }
 

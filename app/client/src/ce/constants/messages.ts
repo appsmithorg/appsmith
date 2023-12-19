@@ -1037,7 +1037,7 @@ export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
   "Kindly create a new repository and provide its remote SSH URL here. We require an empty repository to continue.";
 export const READ_DOCS = () => "Read Docs";
 export const COPY_SSH_URL_MESSAGE = () =>
-  "In your repo, copy the Remote SSH URL & paste it in the input field below.";
+  "To generate the SSH Key, in your repo, copy the Remote SSH URL & paste it in the input field below.";
 export const REMOTE_URL_INPUT_LABEL = () => "Remote SSH URL";
 export const HOW_TO_COPY_REMOTE_URL = () =>
   "How to copy & paste SSH remote URL";
@@ -1061,6 +1061,15 @@ export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
   "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
+export const AUTOCOMMIT = () => "Auto - commit";
+export const AUTOCOMMIT_MESSAGE = () =>
+  "Enable/disable auto migrations from Appsmith.";
+export const AUTOCOMMIT_ENABLE = () => "Enable auto - commit";
+export const AUTOCOMMIT_DISABLE = () => "Disable auto - commit";
+export const AUTOCOMMIT_CONFIRM_DISABLE_MESSAGE = () =>
+  "Disabling auto-commit may result in uncommitted system changes after an Appsmith instance upgrade, requiring manual handling and potential discrepancies in Git versioning.";
+export const AUTOCOMMIT_IN_PROGRESS_MESSAGE = () =>
+  "Auto-committing Appsmith upgrade changes...";
 export const NEED_EMPTY_REPO_MESSAGE = () =>
   "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
 export const GIT_IMPORT_WAITING = () =>
@@ -2268,7 +2277,7 @@ export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
   "Choose an option that fits your approach, and let's shape your app together.";
 export const START_FROM_TEMPLATE_TITLE = () => "Start with template";
 export const START_FROM_TEMPLATE_SUBTITLE = () =>
-  "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
+  "Begin with an app for a specific scenario. We'll guide you through tailoring your app.";
 export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
 export const START_FROM_SCRATCH_SUBTITLE = () =>
   "Create an app from the ground up. Design every detail of your app on a blank canvas.";
@@ -2288,8 +2297,13 @@ export const PAGES_PANE_TEXTS = {
   ui_tab: () => "UI",
   query_blank_state: () => "Write your first query or API to access data",
   js_blank_state: () => "Use JS to transform your data or write business logic",
-  query_blank_button: () => "New Query/API",
-  js_blank_button: () => "New JS Object",
+  query_add_button: () => "New query / API",
+  js_add_button: () => "New JS Object",
+  widget_add_button: () => "New Widget",
+  query_create_tab_title: () => "Create new query / API",
+  widgets_create_tab_title: () => "Drag & drop a widget",
+  queries_create_from_existing: () => "From existing datasource",
+  queries_create_new: () => "New API",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2312,3 +2326,4 @@ export const PARTIAL_IMPORT_EXPORT = {
 };
 
 export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
+export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;

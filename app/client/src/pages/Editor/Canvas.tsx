@@ -68,20 +68,12 @@ const Canvas = (props: CanvasProps) => {
   /**
    * background for canvas
    */
-  let backgroundForCanvas;
+  let backgroundForCanvas: string;
 
   if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
-    if (isWDSEnabled) {
-      backgroundForCanvas = "var(--color-bg)";
-    } else {
-      backgroundForCanvas = "initial";
-    }
+    backgroundForCanvas = "initial";
   } else {
-    if (isWDSEnabled) {
-      backgroundForCanvas = "var(--color-bg)";
-    } else {
-      backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
-    }
+    backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
   }
 
   const focusRef = useWidgetFocus();
@@ -90,31 +82,40 @@ const Canvas = (props: CanvasProps) => {
     ? `mx-0`
     : `mx-auto`;
   const paddingBottomClass = props.enableMainCanvasResizer ? "" : "pb-52";
-  try {
+
+  const renderChildren = () => {
     return (
-      <WDSThemeProvider theme={theme}>
-        <Wrapper
-          $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
-          background={backgroundForCanvas}
-          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
-            canvasWidth,
-          )}`}
-          data-testid={"t--canvas-artboard"}
-          id={CANVAS_ART_BOARD}
-          ref={isWDSEnabled ? undefined : focusRef}
-          width={canvasWidth}
-        >
-          {props.widgetsStructure.widgetId &&
-            renderAppsmithCanvas({
-              ...props.widgetsStructure,
-              classList:
-                layoutSystemType === LayoutSystemTypes.ANVIL
-                  ? ["main-anvil-canvas"]
-                  : [],
-            } as WidgetProps)}
-        </Wrapper>
-      </WDSThemeProvider>
+      <Wrapper
+        $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
+        background={isWDSEnabled ? "" : backgroundForCanvas}
+        className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+          canvasWidth,
+        )}`}
+        data-testid={"t--canvas-artboard"}
+        id={CANVAS_ART_BOARD}
+        ref={isWDSEnabled ? undefined : focusRef}
+        width={canvasWidth}
+      >
+        {props.widgetsStructure.widgetId &&
+          renderAppsmithCanvas({
+            ...props.widgetsStructure,
+            classList:
+              layoutSystemType === LayoutSystemTypes.ANVIL
+                ? ["main-anvil-canvas"]
+                : [],
+          } as WidgetProps)}
+      </Wrapper>
     );
+  };
+
+  try {
+    if (isWDSEnabled) {
+      return (
+        <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
+      );
+    }
+
+    return renderChildren();
   } catch (error) {
     log.error("Error rendering DSL", error);
     Sentry.captureException(error);

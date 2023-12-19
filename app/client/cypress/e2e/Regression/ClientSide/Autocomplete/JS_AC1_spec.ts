@@ -27,7 +27,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests", () => {
+describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
   it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.BUTTON_GROUP,
@@ -55,7 +55,6 @@ describe("Autocomplete tests", () => {
     // 1. Button group widget autocomplete verification
     agHelper.TypeText(locators._codeMirrorTextArea, "ButtonGroup1.");
     agHelper.GetNAssertElementText(locators._hints, "isVisible");
-    agHelper.Sleep();
     agHelper.GetNClickByContains(locators._hints, "isVisible");
 
     // 2. Document view widget autocomplete verification
@@ -65,7 +64,6 @@ describe("Autocomplete tests", () => {
 
     agHelper.TypeText(locators._codeMirrorTextArea, "DocumentViewer1.");
     agHelper.GetNAssertElementText(locators._hints, "docUrl");
-    agHelper.Sleep();
     agHelper.GetNClickByContains(locators._hints, "docUrl");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
@@ -186,7 +184,6 @@ describe("Autocomplete tests", () => {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
-    agHelper.Sleep(2000);
     apiPage.RunAPI();
     // Using same js object
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
@@ -195,10 +192,8 @@ describe("Autocomplete tests", () => {
     //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "Api1.d");
     agHelper.GetNAssertElementText(locators._hints, "data");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "ata[0].e");
     agHelper.GetNAssertElementText(locators._hints, "email");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "mail");
     EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
@@ -228,7 +223,6 @@ describe("Autocomplete tests", () => {
 
     // component re-render cause DOM element of cy.get to lost
     // added wait to finish re-render before cy.get
-    //agHelper.Sleep();
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, codeToType);
     agHelper.GetNClick(jsEditor._lineinJsEditor(7));
@@ -236,16 +230,13 @@ describe("Autocomplete tests", () => {
       locators._codeMirrorTextArea,
       "const callBack = (user) => user",
     );
-    agHelper.Sleep(500);
     agHelper.TypeText(locators._codeMirrorTextArea, ".l");
     agHelper.GetNAssertElementText(locators._hints, "label");
     agHelper.TypeText(locators._codeMirrorTextArea, "abel;");
     agHelper.TypeText(locators._codeMirrorTextArea, "data.");
     agHelper.GetNAssertElementText(locators._hints, "userCollection");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "userCollection[0].");
     agHelper.GetNAssertElementText(locators._hints, "users");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "users[0].");
     agHelper.GetNAssertElementText(locators._hints, "label");
     agHelper.GetNAssertElementText(locators._hints, "value", "have.text", 1);
@@ -305,8 +296,6 @@ describe("Autocomplete tests", () => {
           .type(".");
 
         agHelper.GetNAssertElementText(locators._hints, "geolocation");
-
-        cy.get(".t--close-editor").click();
       });
   });
 

@@ -140,7 +140,6 @@ export class HomePage {
     let oldName = "";
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
-    this.agHelper.Sleep(2000);
     cy.get("@createWorkspace").then((interception: any) => {
       localStorage.setItem("workspaceId", interception.response.body.data.id);
       localStorage.setItem(

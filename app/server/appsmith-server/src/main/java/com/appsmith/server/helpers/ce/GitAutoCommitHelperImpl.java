@@ -110,6 +110,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                     return Boolean.TRUE;
                                 });
                     })
+                    .defaultIfEmpty(Boolean.FALSE)
                     // we cannot throw exception from this flow because doing so will fail the main operation
                     .onErrorResume(throwable -> {
                         log.error(

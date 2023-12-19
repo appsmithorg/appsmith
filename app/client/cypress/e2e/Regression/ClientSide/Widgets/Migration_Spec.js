@@ -3,7 +3,7 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 import homePage from "../../../../locators/HomePage";
 
-describe("Migration Validate", function () {
+describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {
     // import application
     cy.get(homePage.homeIcon).click();
