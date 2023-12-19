@@ -118,7 +118,12 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
-
+          
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.8.2
+  
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'
