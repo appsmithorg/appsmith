@@ -176,6 +176,7 @@ jobs:
         
           
         run: |
+          ls -l app/server/
           tar -czvf server.jar app/server/dist/
           mkdir cacherepo
           cd ./cacherepo
