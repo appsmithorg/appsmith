@@ -79,6 +79,8 @@ jobs:
         run: |
           mkdir cacherepo
           cd ./cacherepo
+          git config --global user.email yatin@appsmith.com"
+          git config --global user.name "yatinappsmith"
           git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
           cd testcacherepo/
           if [ "$reponame" = "appsmith" ]; then export repodir="ce"; fi
