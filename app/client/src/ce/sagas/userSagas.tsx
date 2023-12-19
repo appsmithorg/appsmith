@@ -541,6 +541,8 @@ export function* fetchFeatureFlags() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      response.data.release_anvil_enabled = true;
+      response.data.ab_wds_enabled = true;
       yield put(
         fetchFeatureFlagsSuccess({
           ...DEFAULT_FEATURE_FLAG_VALUE,
