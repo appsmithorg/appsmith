@@ -105,18 +105,21 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const codeFromProperty = getCodeFromMoustache(value?.trim() || "");
     const evaluationVersion = selectEvaluationVersion(state);
     const moduleInstances = getModuleInstances(state);
+    const queryModuleInstances = [] as ModuleInstanceDataState;
 
-    const queryModuleInstances = !!moduleInstances
-      ? (Object.values(moduleInstances).map((moduleInstance) => {
-          const instance = moduleInstance as ModuleInstance;
-          if (instance.type === MODULE_TYPE.QUERY) {
-            return {
-              config: instance,
-              data: undefined,
-            };
-          }
-        }) as unknown as ModuleInstanceDataState)
-      : [];
+    if (!!moduleInstances) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const [key, value] of Object.entries(moduleInstances)) {
+        const instance = value as ModuleInstance;
+        if (instance.type === MODULE_TYPE.QUERY) {
+          queryModuleInstances.push({
+            config: instance,
+            data: undefined,
+            isLoading: false,
+          });
+        }
+      }
+    }
 
     const actionsArray: string[] = [];
     const jsActionsArray: string[] = [];
