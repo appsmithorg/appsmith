@@ -36,6 +36,7 @@ export interface CreateJSCollectionRequest {
   pluginType: PluginType;
   workflowId?: string;
   contextType?: ActionContextType;
+  moduleId?: string;
 }
 
 export interface SetFunctionPropertyPayload {

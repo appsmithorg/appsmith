@@ -96,7 +96,7 @@ export function* createWorkflowQueryActionSaga(
  * Creates an API with datasource as DEFAULT_REST_DATASOURCE (No user created datasource)
  * @param action
  */
-function* createWorkflowApiActionSaga(
+export function* createWorkflowApiActionSaga(
   action: ReduxAction<{
     workflowId: string;
     from: EventLocation;
@@ -210,7 +210,7 @@ export function* fetchWorkflowJSCollectionsSaga(
   }
 }
 
-function* createWorkflowJSActionSaga(
+export function* createWorkflowJSActionSaga(
   action: ReduxAction<{ workflowId: string; from: EventLocation }>,
 ) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);

@@ -8,12 +8,12 @@ import {
 import { validateResponse } from "sagas/ErrorSagas";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import type { ApiResponse } from "api/ApiResponses";
+import type { FetchModuleActionsPayload } from "@appsmith/actions/moduleActions";
 import {
   fetchAllModuleEntityCompletion,
   type CreateJSModulePayload,
   type CreateQueryModulePayload,
   type DeleteModulePayload,
-  type FetchModuleActionsPayload,
   type SaveModuleNamePayload,
   type SetupModulePayload,
   type UpdateModuleInputsPayload,
@@ -155,30 +155,6 @@ export function* updateModuleInputsSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_MODULE_INPUTS_ERROR,
-      payload: { error },
-    });
-  }
-}
-
-export function* fetchModuleActionsSaga(
-  action: ReduxAction<FetchModuleActionsPayload>,
-) {
-  try {
-    const response: ApiResponse<FetchModuleActionsResponse> = yield call(
-      ModuleApi.fetchActions,
-      action.payload,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
-        payload: response.data,
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_MODULE_ACTIONS_ERROR,
       payload: { error },
     });
   }
@@ -332,11 +308,6 @@ export function* setupModuleSaga(action: ReduxAction<SetupModulePayload>) {
   try {
     const { moduleId } = action.payload;
 
-    yield call(fetchModuleActionsSaga, {
-      payload: { moduleId: moduleId },
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
-    });
-
     yield call(fetchModuleEntitiesSaga, {
       payload: { moduleId: moduleId },
       type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
@@ -372,10 +343,6 @@ export default function* modulesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.DELETE_QUERY_MODULE_INIT, deleteModuleSaga),
     takeLatest(ReduxActionTypes.SAVE_MODULE_NAME_INIT, saveModuleNameSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
-      fetchModuleActionsSaga,
-    ),
     takeLatest(
       ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
       createQueryModuleSaga,

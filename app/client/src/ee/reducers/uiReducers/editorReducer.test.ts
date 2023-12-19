@@ -43,45 +43,6 @@ describe("Your Reducer", () => {
     expect(state.currentPackageId).toBe(packageId);
   });
 
-  it("should handle FETCH_MODULE_ACTIONS_INIT", () => {
-    const action = {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
-      payload: undefined,
-    };
-
-    const state = reducer(initialState, action);
-
-    expect(state.isModuleFetchingActions).toBe(true);
-  });
-
-  it("should handle FETCH_MODULE_ACTIONS_SUCCESS", () => {
-    const action = {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
-      payload: undefined,
-    };
-
-    const state = reducer(
-      { ...initialState, isModuleFetchingActions: true },
-      action,
-    );
-
-    expect(state.isModuleFetchingActions).toBe(false);
-  });
-
-  it("should handle FETCH_MODULE_ACTIONS_ERROR", () => {
-    const action = {
-      type: ReduxActionErrorTypes.FETCH_MODULE_ACTIONS_ERROR,
-      payload: undefined,
-    };
-
-    const state = reducer(
-      { ...initialState, isModuleFetchingActions: true },
-      action,
-    );
-
-    expect(state.isModuleFetchingActions).toBe(false);
-  });
-
   it("should handle FETCH_MODULE_ENTITIES_INIT", () => {
     const action = {
       type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,

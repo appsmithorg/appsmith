@@ -1,6 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Action } from "entities/Action";
+import { createSelector } from "reselect";
 
 const DEFAULT_INPUT_EVAL_VALUES = {};
 
@@ -8,6 +9,12 @@ export const getAllModules = (state: AppState) => state.entities.modules;
 
 export const getCurrentModuleId = (state: AppState) =>
   state.ui.editor.currentModuleId || "";
+
+export const getCurrentModule = createSelector(
+  getAllModules,
+  getCurrentModuleId,
+  (modules, moduleId) => modules[moduleId],
+);
 
 export const getModulePermissions = (state: AppState) => {
   const moduleId = getCurrentModuleId(state);
@@ -20,9 +27,6 @@ export const getModuleById = (
   state: AppState,
   moduleId: string,
 ): Module | undefined => state.entities.modules[moduleId];
-
-export const getIsModuleFetchingActions = (state: AppState) =>
-  state.ui.editor.isModuleFetchingActions;
 
 export const getIsModuleFetchingEntities = (state: AppState) =>
   state.ui.editor.isModuleFetchingEntities;
