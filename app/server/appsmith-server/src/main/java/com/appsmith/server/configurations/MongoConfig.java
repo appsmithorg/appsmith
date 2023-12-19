@@ -68,7 +68,7 @@ public class MongoConfig {
     final Set<String> FORBIDDEN_IDS = Set.of(
             // List generated during PR developmeng with the following command:
             // git diff release HEAD | awk -F\" '/^-[[:space:]]+@ChangeSet/ {print "\"" $4 "\","}'
-            "update-plugin-package-name-index",
+            // Any deleted migration in the future, should go into this list.
             "remove-org-name-index",
             "application-deleted-at",
             "hide-rapidapi-plugin",
