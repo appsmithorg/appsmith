@@ -76,16 +76,16 @@ export function setSelectedSegment(tab?: EditorEntityTab) {
   if (tab) {
     switch (tab) {
       case EditorEntityTab.JS:
-        history.replace(jsCollectionListURL({}));
+        history.replace(jsCollectionListURL({ persistExistingParams: true }));
         break;
       case EditorEntityTab.QUERIES:
-        history.replace(queryListURL({}));
+        history.replace(queryListURL({ persistExistingParams: true }));
         break;
       case EditorEntityTab.UI:
-        history.replace(widgetListURL({}));
+        history.replace(widgetListURL({ persistExistingParams: true }));
         break;
       default:
-        history.replace(builderURL({}));
+        history.replace(builderURL({ persistExistingParams: true }));
     }
   }
 }
