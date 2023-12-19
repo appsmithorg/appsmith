@@ -1,38 +1,30 @@
 import React, { useEffect, useRef } from "react";
-import type { FieldValues, UseFormReturn } from "react-hook-form";
+import type { FieldValues } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 import type { PropsWithChildren } from "react";
 import { InputsFormContextProvider } from "./InputsFormContext";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona";
 
-interface EvalValues {
-  useWatchEvalAndSetForm: (methods: UseFormReturn<any, any>) => void;
-  useWatchEvalPath: (name: string) => any;
-}
-
 export type FormProps<TValues> = PropsWithChildren<{
   dataTreePathPrefix?: string;
   defaultValues: TValues;
   onUpdateForm: (values: TValues) => void;
-  useEvalValues?: () => EvalValues;
+  evaluatedValues?: Record<string, unknown>;
 }>;
 
 function Form<TValues extends FieldValues>({
   children,
   dataTreePathPrefix,
   defaultValues,
+  evaluatedValues,
   onUpdateForm,
-  useEvalValues,
 }: FormProps<TValues>) {
   const currentValues = useRef<TValues>(defaultValues);
   const methods = useForm<TValues>({
     defaultValues: defaultValues as any,
   });
   const { watch } = methods;
-  const { useWatchEvalAndSetForm, useWatchEvalPath } = useEvalValues?.() || {};
-
-  useWatchEvalAndSetForm?.(methods);
 
   useEffect(() => {
     const subscription = watch((values) => {
@@ -50,7 +42,7 @@ function Form<TValues extends FieldValues>({
   return (
     <InputsFormContextProvider
       dataTreePathPrefix={dataTreePathPrefix}
-      useWatchEvalPath={useWatchEvalPath}
+      evaluatedValues={evaluatedValues}
     >
       <FormProvider {...methods}>{children}</FormProvider>
     </InputsFormContextProvider>

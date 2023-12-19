@@ -6,6 +6,7 @@ import "@testing-library/jest-dom";
 
 import InputGroupField from "./InputGroupField";
 import { lightTheme } from "selectors/themeSelectors";
+import { InputsFormContextProvider } from "../InputsFormContext";
 
 const mockHiddenField = jest.fn();
 jest.mock("./HiddenField", () => (props: any) => {
@@ -34,8 +35,16 @@ jest.mock("./InputField", () => (props: any) => {
   return <div data-testid="field" />;
 });
 
-function Wrapper({ children }: { children: React.ReactNode }) {
-  const formMethods = useForm();
+function Wrapper({
+  children,
+  defaultValues,
+}: {
+  children: React.ReactNode;
+  defaultValues?: any;
+}) {
+  const formMethods = useForm({
+    defaultValues,
+  });
 
   return (
     <ThemeProvider theme={lightTheme}>
@@ -52,7 +61,9 @@ describe("InputGroupField", () => {
   it("renders the component and adds a new input group with indexed names", () => {
     render(
       <Wrapper>
-        <InputGroupField name="testInputGroups" />
+        <InputsFormContextProvider dataTreePathPrefix="inputs">
+          <InputGroupField name="testInputGroups" />
+        </InputsFormContextProvider>
       </Wrapper>,
     );
 
@@ -73,12 +84,65 @@ describe("InputGroupField", () => {
     expect(mockHiddenField).toHaveBeenCalledWith({
       name: "testInputGroups.0.controlType",
     });
-    expect(mockLabelField).toHaveBeenCalledWith({
-      name: "testInputGroups.0.label",
-      onDeleteClick: deleteFn,
-    });
+    expect(mockLabelField).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "testInputGroups.0.label",
+        onDeleteClick: deleteFn,
+      }),
+    );
     expect(mockInputField).toHaveBeenNthCalledWith(1, {
-      evaluatedValueLookupPath: "testInputGroups.0.label",
+      evaluatedValue: undefined,
+      dataTreePath: "inputs.input1",
+      name: "testInputGroups.0.defaultValue",
+    });
+  });
+
+  it("identifies evaluated values correctly", () => {
+    const evaluatedValues = {
+      token: 10,
+    };
+
+    const defaultValues = {
+      testInputGroups: [
+        {
+          id: "test-id",
+          propertyName: "inputs.token",
+          label: "token",
+          controlType: "INPUT_TEXT",
+        },
+      ],
+    };
+
+    render(
+      <Wrapper defaultValues={defaultValues}>
+        <InputsFormContextProvider
+          dataTreePathPrefix="inputs"
+          evaluatedValues={evaluatedValues}
+        >
+          <InputGroupField name="testInputGroups" />
+        </InputsFormContextProvider>
+      </Wrapper>,
+    );
+
+    expect(mockHiddenField).toBeCalledTimes(3);
+    expect(mockHiddenField).toHaveBeenCalledWith({
+      name: "testInputGroups.0.id",
+    });
+    expect(mockHiddenField).toHaveBeenCalledWith({
+      name: "testInputGroups.0.propertyName",
+    });
+    expect(mockHiddenField).toHaveBeenCalledWith({
+      name: "testInputGroups.0.controlType",
+    });
+    expect(mockLabelField).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "testInputGroups.0.label",
+        onDeleteClick: deleteFn,
+      }),
+    );
+    expect(mockInputField).toHaveBeenNthCalledWith(1, {
+      evaluatedValue: evaluatedValues.token,
+      dataTreePath: "inputs.token",
       name: "testInputGroups.0.defaultValue",
     });
   });

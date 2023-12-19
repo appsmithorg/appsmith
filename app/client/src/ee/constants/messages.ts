@@ -415,6 +415,7 @@ export const PACKAGE_NAME_CANT_BE_EMPTY = () => "Package name can't be empty";
 export const ERROR_DELETING_PACKAGE = () => "Error while deleting Package";
 export const INVALID_INPUT_NAME = () =>
   "Input names can only contain alphanumeric and should start with an alphabet";
+export const UNIQUE_INPUT_NAME = () => "Input name should be unique.";
 export const MODULE_INSTANCE_EMPTY_INPUT = () =>
   "No inputs parameters defined for this query.";
 export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>

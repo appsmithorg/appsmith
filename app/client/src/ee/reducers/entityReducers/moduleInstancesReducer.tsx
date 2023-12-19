@@ -69,6 +69,10 @@ export const handlers = {
 
     return draftState;
   },
+
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
+  },
 };
 
 const moduleInstanceReducer = createImmerReducer(initialState, handlers);

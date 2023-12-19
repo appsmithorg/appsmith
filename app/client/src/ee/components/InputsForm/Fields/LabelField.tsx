@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { useController } from "react-hook-form";
 
@@ -6,14 +6,17 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Button } from "design-system";
-import {
-  INVALID_INPUT_NAME,
-  createMessage,
-} from "@appsmith/constants/messages";
+
+export interface ValidateProps {
+  value: string;
+  id: string;
+}
 
 export interface LabelFieldProps {
   name: string;
   onDeleteClick: () => void;
+  validate?: (props: ValidateProps) => { error?: string };
+  id: string;
 }
 
 const DELETE_BUTTON_WIDTH = 34;
@@ -29,7 +32,7 @@ const StyledWrapper = styled.div`
     width: calc(100% - ${DELETE_BUTTON_WIDTH}px) !important;
   }
 
-  & > div > div {
+  & > div > div > div {
     width: 100%;
   }
 `;
@@ -38,42 +41,45 @@ const StyledEditableText = styled(EditableText)`
   width: 100% !important;
 `;
 
-function isValidObjectKey(str: string): boolean {
-  // Regular expression to check if the string is a valid object key
-  const validKeyRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+function FieldLabel({ id, name, onDeleteClick, validate }: LabelFieldProps) {
+  const [editIconHidden, setEditIconHidden] = useState(true);
 
-  // Test the string against the regular expression
-  return validKeyRegex.test(str);
-}
-
-function FieldLabel({ name, onDeleteClick }: LabelFieldProps) {
   const {
     field: { onBlur, onChange, value },
   } = useController({
     name,
   });
 
-  const isInvalid = useCallback((value: string) => {
-    const isValueInvalid = !isValidObjectKey(value);
+  const isInvalid = useCallback(
+    (value: string) => {
+      const { error } = validate?.({ value, id }) || {};
 
-    if (isValueInvalid) {
-      return createMessage(INVALID_INPUT_NAME);
-    } else {
-      return false;
-    }
-  }, []);
+      if (error) {
+        return error;
+      } else {
+        return false;
+      }
+    },
+    [validate, id],
+  );
+
+  const hideEditIcon = () => setEditIconHidden(true);
+  const showEditIcon = () => setEditIconHidden(false);
 
   return (
     <StyledWrapper>
-      <StyledEditableText
-        defaultValue={value}
-        editInteractionKind={EditInteractionKind.SINGLE}
-        isInvalid={isInvalid}
-        onBlur={onBlur}
-        onTextChanged={onChange}
-        placeholder=""
-        type="text"
-      />
+      <div onMouseEnter={showEditIcon} onMouseLeave={hideEditIcon}>
+        <StyledEditableText
+          defaultValue={value}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          hideEditIcon={editIconHidden}
+          isInvalid={isInvalid}
+          onBlur={onBlur}
+          onTextChanged={onChange}
+          placeholder=""
+          type="text"
+        />
+      </div>
       <Button
         data-testid="t--delete-input-btn"
         kind="tertiary"

@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { Text } from "design-system";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { debounce } from "lodash";
 
 import Form from "@appsmith/components/InputsForm/Form";
@@ -15,13 +15,15 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona";
+import { getModuleInstanceEvalValues } from "@appsmith/selectors/moduleInstanceSelectors";
 
 interface InputsFormProps {
   inputsForm: Module["inputsForm"];
   defaultValues: {
     inputs?: ModuleInstance["inputs"];
   };
-  moduleInstanceId?: string;
+  moduleInstanceId: string;
+  moduleInstanceName: string;
 }
 
 const Wrapper = styled.div`
@@ -42,10 +44,14 @@ function InputsForm({
   defaultValues,
   inputsForm,
   moduleInstanceId,
+  moduleInstanceName,
 }: InputsFormProps) {
   const valuesRef = useRef<InputsFormProps["defaultValues"]>(defaultValues);
   const dispatch = useDispatch();
   const formSection = inputsForm[0].children;
+  const inputsEvaluatedValues = useSelector((state) =>
+    getModuleInstanceEvalValues(state, moduleInstanceName),
+  );
 
   const onUpdateInputsForm = useMemo(() => {
     const onUpdate = (values: InputsFormProps["defaultValues"]) => {
@@ -81,7 +87,8 @@ function InputsForm({
               <div key={id}>
                 <Text>{label}</Text>
                 <InputField
-                  evaluatedValueLookupPath={propertyName}
+                  dataTreePath={`${moduleInstanceName}.inputs.${label}`}
+                  evaluatedValue={inputsEvaluatedValues[label]}
                   name={propertyName}
                 />
               </div>

@@ -104,6 +104,7 @@ function QueryModuleInstanceEditor({
             defaultValues={{ inputs: moduleInstance.inputs }}
             inputsForm={module.inputsForm}
             moduleInstanceId={moduleInstanceId}
+            moduleInstanceName={moduleInstance.name}
           />
         </StyledInputsFormWrapper>
         <StyledDivider />
