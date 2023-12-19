@@ -491,7 +491,6 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.assertAbsence("Child_Page Copy");
     // create another branch and verify deleted page doesn't exist on it
-    cy.wait(2000)//adding to check chrome crash
     gitSync.CreateGitBranch(tempBranch0, true);
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.assertAbsence("Child_Page Copy");
