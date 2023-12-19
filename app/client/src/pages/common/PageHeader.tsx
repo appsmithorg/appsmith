@@ -75,6 +75,8 @@ import { debounce } from "lodash";
 import bootIntercom from "utils/bootIntercom";
 import { IntercomConsent } from "pages/Editor/HelpButton";
 import { viewerURL } from "@appsmith/RouteBuilder";
+import { getApplicationIcon } from "utils/AppsmithUtils";
+import { AppIcon, Size, type AppIconName } from "design-system-old";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const StyledPageHeader = styled(StyledHeader)<{
@@ -162,6 +164,18 @@ const MobileSearchInput = styled(SearchInput)`
   input {
     border: none !important;
     padding: 0 0 0 4px !important;
+  }
+`;
+
+const CircleAppIcon = styled(AppIcon)`
+  display: flex;
+  align-items: center;
+  svg {
+    width: 16px;
+    height: 16px;
+    path {
+      fill: var(--ads-v2-color-fg);
+    }
   }
 `;
 
@@ -549,11 +563,16 @@ export function PageHeader(props: PageHeaderProps) {
                               navigateToApplication(application.id)
                             }
                           >
-                            <Icon
-                              className="!mr-2"
+                            <CircleAppIcon
+                              className="!mr-1"
                               color="var(--ads-v2-color-fg)"
-                              name="group-2-line"
-                              size="md"
+                              name={
+                                application?.icon ||
+                                (getApplicationIcon(
+                                  application.id,
+                                ) as AppIconName)
+                              }
+                              size={Size.xxs}
                             />
                             <Text className="truncate" kind="body-m">
                               {application.name}
