@@ -37,7 +37,7 @@ import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSOBJECT;
 @RequiredArgsConstructor
 public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactoringServiceCE<ActionCollection> {
 
-    private final ActionCollectionService actionCollectionService;
+    protected final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
     private final AstService astService;

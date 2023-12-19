@@ -58,7 +58,6 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "JSObject2");
-    agHelper.Sleep(500);
     agHelper.TypeText(locators._codeMirrorTextArea, ".");
 
     agHelper.GetNAssertElementText(

@@ -15,6 +15,8 @@ interface FilesContextContextProps {
   editorId: string; // applicationId, workflowId or packageId
   parentEntityId: string; // page, workflow or module
   parentEntityType: ActionParentEntityTypeInterface;
+  showModules?: boolean;
+  selectFilesForExplorer?: (state: any) => any;
 }
 
 type FilesContextProviderProps =
@@ -36,18 +38,24 @@ export const FilesContextProvider = ({
   editorId,
   parentEntityId,
   parentEntityType,
+  selectFilesForExplorer,
+  showModules,
 }: FilesContextProviderProps) => {
-  const menuItems = [
-    ActionEntityContextMenuItemsEnum.EDIT_NAME,
-    ActionEntityContextMenuItemsEnum.DELETE,
-  ];
-  if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-    menuItems.push(
-      ActionEntityContextMenuItemsEnum.SHOW_BINDING,
-      ActionEntityContextMenuItemsEnum.COPY,
-      ActionEntityContextMenuItemsEnum.MOVE,
-    );
-  }
+  const menuItems = useMemo(() => {
+    const items = [
+      ActionEntityContextMenuItemsEnum.EDIT_NAME,
+      ActionEntityContextMenuItemsEnum.DELETE,
+    ];
+    if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
+      items.push(
+        ActionEntityContextMenuItemsEnum.SHOW_BINDING,
+        ActionEntityContextMenuItemsEnum.COPY,
+        ActionEntityContextMenuItemsEnum.MOVE,
+      );
+    }
+    return items;
+  }, [parentEntityType]);
+
   const value = useMemo(() => {
     return {
       canCreateActions,
@@ -55,8 +63,17 @@ export const FilesContextProvider = ({
       parentEntityId,
       parentEntityType,
       menuItems,
+      selectFilesForExplorer,
+      showModules,
     };
-  }, [canCreateActions, parentEntityId, parentEntityType]);
+  }, [
+    canCreateActions,
+    parentEntityId,
+    parentEntityType,
+    showModules,
+    selectFilesForExplorer,
+    editorId,
+  ]);
 
   return (
     <FilesContext.Provider value={value}>{children}</FilesContext.Provider>
