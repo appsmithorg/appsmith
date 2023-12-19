@@ -12,7 +12,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("JSEditor Indendation - Visual tests", () => {
+describe("JSEditor Indendation - Visual tests", { tags: ["@tag.JS"] }, () => {
   it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
     const appName = localStorage.getItem("appName");
     const workspaceName = localStorage.getItem("workspaceName");

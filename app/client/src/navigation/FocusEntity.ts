@@ -38,6 +38,8 @@ export enum FocusEntity {
   APP_STATE = "APP_STATE",
   LIBRARY = "LIBRARY",
   SETTINGS = "SETTINGS",
+  WIDGET_LIST = "WIDGET_LIST",
+  QUERY_ADD = "QUERY_ADD",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
@@ -100,6 +102,9 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       BUILDER_PATH + WIDGETS_EDITOR_ID_PATH,
       BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH,
       BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH,
+      BUILDER_PATH + WIDGETS_EDITOR_ID_PATH + ADD_PATH,
+      BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH + ADD_PATH,
+      BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH + ADD_PATH,
       BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
       BUILDER_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
       BUILDER_PATH + "/:entity",
@@ -169,6 +174,14 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     };
   }
   if (match.params.queryId) {
+    if (match.params.queryId == "add") {
+      return {
+        entity: FocusEntity.QUERY_ADD,
+        id: "",
+        pageId: match.params.pageId,
+        appState: EditorState.EDITOR,
+      };
+    }
     return {
       entity: FocusEntity.QUERY,
       id: match.params.queryId,
@@ -188,6 +201,14 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     return {
       entity: FocusEntity.PROPERTY_PANE,
       id: match.params.widgetIds,
+      pageId: match.params.pageId,
+      appState: EditorState.EDITOR,
+    };
+  }
+  if (match.params.entity === "widgets") {
+    return {
+      entity: FocusEntity.WIDGET_LIST,
+      id: "",
       pageId: match.params.pageId,
       appState: EditorState.EDITOR,
     };

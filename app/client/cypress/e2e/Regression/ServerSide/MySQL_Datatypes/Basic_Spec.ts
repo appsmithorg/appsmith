@@ -19,7 +19,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 
-describe("MySQL Datatype tests", function () {
+describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
     featureFlagIntercept(
       {
