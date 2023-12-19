@@ -71,11 +71,15 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       - name: Put release build in cache
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
           reponame: ${{ github.event.repository.name }}
+          
           
         run: |
           mkdir cacherepo
