@@ -130,7 +130,7 @@ public class DatabaseChangelog2 {
 
     private final UpdateSuperUserMigrationHelper updateSuperUserMigrationHelper = new UpdateSuperUserMigrationHelper();
 
-    @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "") // preserve
+    @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "")
     public void fixPluginTitleCasing(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
@@ -622,7 +622,7 @@ public class DatabaseChangelog2 {
      * This migration introduces indexes on newAction, actionCollection, newPage to improve the query performance for
      * queries like getResourceByDefaultAppIdAndGitSyncId which excludes the deleted entries.
      */
-    @ChangeSet(order = "007", id = "update-git-indexes", author = "") // preserve?
+    @ChangeSet(order = "007", id = "update-git-indexes", author = "")
     public void addIndexesForGit(MongoTemplate mongoTemplate) {
         doAddIndexesForGit(mongoTemplate);
     }
@@ -663,7 +663,7 @@ public class DatabaseChangelog2 {
      *
      * @param mongoTemplate MongoTemplate instance
      */
-    @ChangeSet(order = "008", id = "update-organization-slugs", author = "") // preserve
+    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
     public void updateOrganizationSlugs(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Organization.class, "slug");
     }
@@ -673,12 +673,12 @@ public class DatabaseChangelog2 {
      * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
      * the `Action.datasource` field.
      */
-    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "") // preserve
+    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, Workspace.class, makeIndex("createdAt"));
     }
 
-    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "") // preserve
+    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "")
     public void updateSequenceNamesFromOrganizationToWorkspace(MongoTemplate mongoTemplate) {
         for (Sequence sequence : mongoTemplate.findAll(Sequence.class)) {
             String oldName = sequence.getName();
@@ -691,7 +691,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "012", id = "add-default-tenant", author = "") // preserve
+    @ChangeSet(order = "012", id = "add-default-tenant", author = "")
     public void addDefaultTenant(MongoTemplate mongoTemplate) {
 
         Query tenantQuery = new Query();
@@ -711,7 +711,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.save(defaultTenant);
     }
 
-    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "") // preserve?
+    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
     public void addTenantToUsersAndFlushRedis(
             MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
 
@@ -731,7 +731,7 @@ public class DatabaseChangelog2 {
         flushdb.subscribe();
     }
 
-    @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "") // preserve
+    @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
     public void migrateOrganizationIdToWorkspaceIdInDomainObjects(
             MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         // Theme
@@ -782,7 +782,7 @@ public class DatabaseChangelog2 {
         flushdb.subscribe();
     }
 
-    @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "") // preserve
+    @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
     public void organizationToWorkspaceIndexesRecreate(MongoTemplate mongoTemplate) {
         // If this migration is re-run
         dropIndexIfExists(mongoTemplate, Application.class, "workspace_app_deleted_gitApplicationMetadata");
@@ -810,7 +810,7 @@ public class DatabaseChangelog2 {
                         .named("workspace_datasource_deleted_compound_index"));
     }
 
-    @ChangeSet(order = "017", id = "migrate-permission-in-user", author = "") // preserve
+    @ChangeSet(order = "017", id = "migrate-permission-in-user", author = "")
     public void migratePermissionsInUser(MongoTemplate mongoTemplate) {
         mongoTemplate.updateMulti(
                 new Query().addCriteria(where("policies.permission").is("manage:userOrganization")),
@@ -1127,7 +1127,7 @@ public class DatabaseChangelog2 {
         return newWhereClause;
     }
 
-    @ChangeSet(order = "021", id = "flush-spring-redis-keys-2a", author = "") // preserve
+    @ChangeSet(order = "021", id = "flush-spring-redis-keys-2a", author = "")
     public void clearRedisCache2(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         DatabaseChangelog1.doClearRedisKeys(reactiveRedisOperations);
     }
@@ -1153,7 +1153,7 @@ public class DatabaseChangelog2 {
         return applications.stream().map(getThemeIdMethod).collect(Collectors.toList());
     }
 
-    @ChangeSet(order = "022", id = "fix-deleted-themes-when-git-branch-deleted", author = "") // preserve?
+    @ChangeSet(order = "022", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
     public void fixDeletedThemesWhenGitBranchDeleted(MongoTemplate mongoTemplate) {
         Query getSystemThemesQuery =
                 new Query(Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(TRUE));
@@ -1223,7 +1223,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "023", id = "add-anonymousUser", author = "") // preserve
+    @ChangeSet(order = "023", id = "add-anonymousUser", author = "")
     public void addAnonymousUser(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
@@ -1435,7 +1435,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "029", id = "add-instance-config-object", author = "") // preserve
+    @ChangeSet(order = "029", id = "add-instance-config-object", author = "")
     public void addInstanceConfigurationPlaceHolder(MongoTemplate mongoTemplate) {
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(
@@ -1506,7 +1506,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.save(savedPermissionGroup);
     }
 
-    @ChangeSet(order = "030", id = "add-anonymous-user-permission-group", author = "") // preserve
+    @ChangeSet(order = "030", id = "add-anonymous-user-permission-group", author = "")
     public void addAnonymousUserPermissionGroup(MongoTemplate mongoTemplate) {
         Query anonymousUserPermissionConfig = new Query();
         anonymousUserPermissionConfig.addCriteria(
@@ -1546,7 +1546,7 @@ public class DatabaseChangelog2 {
         return;
     }
 
-    @ChangeSet(order = "031", id = "create-system-themes-v3", author = "", runAlways = true) // preserve
+    @ChangeSet(order = "031", id = "create-system-themes-v3", author = "", runAlways = true)
     public void createSystemThemes3(MongoTemplate mongoTemplate) throws IOException {
         Index systemThemeIndex = new Index()
                 .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
@@ -1652,7 +1652,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.save(publicPermissionGroup);
     }
 
-    @ChangeSet(order = "32", id = "create-indices-on-permissions-for-performance", author = "") // preserve?
+    @ChangeSet(order = "32", id = "create-indices-on-permissions-for-performance", author = "")
     public void addPermissionGroupIndex(MongoTemplate mongoTemplate) {
         doAddPermissionGroupIndex(mongoTemplate);
     }
@@ -1679,7 +1679,7 @@ public class DatabaseChangelog2 {
      * @param mongoTemplate
      * @param cacheableRepositoryHelper
      */
-    @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true) // preserve
+    @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(
             MongoTemplate mongoTemplate,
             CacheableRepositoryHelper cacheableRepositoryHelper,
@@ -1736,7 +1736,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
     }
 
-    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "") // preserve?
+    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
     public void updateBadThemeState(
             MongoTemplate mongoTemplate,
             @NonLockGuarded PolicyGenerator policyGenerator,
@@ -1797,7 +1797,7 @@ public class DatabaseChangelog2 {
         });
     }
 
-    @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "") // preserve
+    @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
     public void migratePublicAppsSinglePg(
             MongoTemplate mongoTemplate,
             @NonLockGuarded PolicySolution policySolution,
@@ -1838,7 +1838,7 @@ public class DatabaseChangelog2 {
         evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongoTemplate, cacheableRepositoryHelper);
     }
 
-    @ChangeSet(order = "036", id = "add-graphql-plugin", author = "") // preserve
+    @ChangeSet(order = "036", id = "add-graphql-plugin", author = "")
     public void addGraphQLPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Authenticated GraphQL API");
@@ -1866,7 +1866,7 @@ public class DatabaseChangelog2 {
         softDeleteInPluginCollection(plugin, mongoTemplate);
     }
 
-    @ChangeSet(order = "035", id = "add-tenant-admin-permissions-instance-admin", author = "") // preserve
+    @ChangeSet(order = "035", id = "add-tenant-admin-permissions-instance-admin", author = "")
     public void addTenantAdminPermissionsToInstanceAdmin(
             MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
@@ -1913,7 +1913,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.save(updatedTenant);
     }
 
-    @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "") // preserve
+    @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
     public void modifyReadPermissionGroupToReadPermissionGroupMembers(
             MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
 
@@ -1922,7 +1922,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
-    @ChangeSet(order = "040", id = "delete-permissions-in-permissionGroups", author = "") // preserve
+    @ChangeSet(order = "040", id = "delete-permissions-in-permissionGroups", author = "")
     public void deletePermissionsInPermissionGroups(MongoTemplate mongoTemplate) {
         Query query = new Query();
         Update update = new Update().set("permissions", List.of());
@@ -2003,7 +2003,7 @@ public class DatabaseChangelog2 {
                 });
     }
 
-    @ChangeSet(order = "037", id = "indices-recommended-by-mongodb-cloud", author = "") // preserve
+    @ChangeSet(order = "037", id = "indices-recommended-by-mongodb-cloud", author = "")
     public void addIndicesRecommendedByMongoCloud(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, NewPage.class, "deleted");
         ensureIndexes(mongoTemplate, NewPage.class, makeIndex("deleted"));
@@ -2016,7 +2016,7 @@ public class DatabaseChangelog2 {
                 mongoTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
 
-    @ChangeSet(order = "038", id = "add-unique-index-for-uidstring", author = "") // preserve
+    @ChangeSet(order = "038", id = "add-unique-index-for-uidstring", author = "")
     public void addUniqueIndexOnUidString(MongoTemplate mongoTemplate) {
         Index uidStringUniqueness = makeIndex("uidString").unique().named("customjslibs_uidstring_index");
         ensureIndexes(mongoTemplate, CustomJSLib.class, uidStringUniqueness);

@@ -297,7 +297,7 @@ public class DatabaseChangelog1 {
         ensureIndexes(mongoTemplate, Sequence.class, makeIndex(FieldName.NAME).unique());
     }
 
-    @ChangeSet(order = "014", id = "set-initial-sequence-for-datasource", author = "") // preserve
+    @ChangeSet(order = "014", id = "set-initial-sequence-for-datasource", author = "")
     public void setInitialSequenceForDatasource(MongoTemplate mongoTemplate) {
         final Long maxUntitledDatasourceNumber = mongoTemplate
                 .find(
@@ -314,7 +314,7 @@ public class DatabaseChangelog1 {
                 Sequence.class);
     }
 
-    @ChangeSet(order = "015", id = "set-plugin-image-and-docs-link", author = "") // preserve
+    @ChangeSet(order = "015", id = "set-plugin-image-and-docs-link", author = "")
     public void setPluginImageAndDocsLink(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
@@ -338,7 +338,7 @@ public class DatabaseChangelog1 {
         }
     }
 
-    @ChangeSet(order = "018", id = "install-mysql-plugins", author = "") // preserve
+    @ChangeSet(order = "018", id = "install-mysql-plugins", author = "")
     public void mysqlPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("Mysql");
@@ -357,7 +357,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "019", id = "update-database-documentation-links", author = "") // preserve
+    @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
     public void updateDatabaseDocumentationLinks(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
@@ -374,12 +374,12 @@ public class DatabaseChangelog1 {
         }
     }
 
-    @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "") // preserve
+    @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "")
     public void generateUniqueIdForInstance(MongoTemplate mongoTemplate) {
         mongoTemplate.insert(new Config(new JSONObject(Map.of("value", new ObjectId().toHexString())), "instance-id"));
     }
 
-    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "") // preserve
+    @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
     public void fixTokenExpiration(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
@@ -391,7 +391,7 @@ public class DatabaseChangelog1 {
                 makeIndex(FieldName.EMAIL).unique());
     }
 
-    @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "") // preserve
+    @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "")
     public void addElasticSearchPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("ElasticSearch");
@@ -411,7 +411,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "") // preserve
+    @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "")
     public void addDynamoPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("DynamoDB");
@@ -431,7 +431,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "029", id = "use-png-logos", author = "") // preserve
+    @ChangeSet(order = "029", id = "use-png-logos", author = "")
     public void usePngLogos(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
@@ -441,7 +441,7 @@ public class DatabaseChangelog1 {
                 Plugin.class);
     }
 
-    @ChangeSet(order = "030", id = "add-redis-plugin", author = "") // preserve
+    @ChangeSet(order = "030", id = "add-redis-plugin", author = "")
     public void addRedisPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("Redis");
@@ -461,7 +461,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "031", id = "add-msSql-plugin", author = "") // preserve
+    @ChangeSet(order = "031", id = "add-msSql-plugin", author = "")
     public void addMsSqlPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("MsSQL");
@@ -481,7 +481,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "") // preserve
+    @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
     public void addNewPageIndexAfterDroppingNewPage(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
@@ -492,7 +492,7 @@ public class DatabaseChangelog1 {
         ensureIndexes(mongoTemplate, NewPage.class, createdAtIndex);
     }
 
-    @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "") // preserve
+    @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "")
     public void addNewActionIndexAfterDroppingNewAction(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
@@ -516,7 +516,7 @@ public class DatabaseChangelog1 {
                 makeIndex("applicationId", "deleted").named("applicationId_deleted_compound_index"));
     }
 
-    @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "") // preserve
+    @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
     public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
 
         ensureIndexes(mongoTemplate, NewAction.class, makeIndex("applicationId").named("applicationId"));
@@ -524,7 +524,7 @@ public class DatabaseChangelog1 {
         ensureIndexes(mongoTemplate, NewAction.class, makeIndex("deleted").named("deleted"));
     }
 
-    @ChangeSet(order = "043", id = "add-firestore-plugin", author = "") // preserve
+    @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
     public void addFirestorePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Firestore");
@@ -544,7 +544,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "048", id = "add-redshift-plugin", author = "") // preserve
+    @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
     public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Redshift");
@@ -564,12 +564,12 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "049", id = "clear-userdata-collection", author = "") // preserve?
+    @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
     public void clearUserDataCollection(MongoTemplate mongoTemplate) {
         mongoTemplate.dropCollection(UserData.class);
     }
 
-    @ChangeSet(order = "050", id = "update-database-documentation-links-v1-2-1", author = "") // preserve
+    @ChangeSet(order = "050", id = "update-database-documentation-links-v1-2-1", author = "")
     public void updateDatabaseDocumentationLinks_v1_2_1(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             switch (plugin.getPackageName()) {
@@ -609,7 +609,7 @@ public class DatabaseChangelog1 {
         }
     }
 
-    @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "") // preserve
+    @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
     public void addAmazonS3Plugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Amazon S3");
@@ -629,7 +629,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "") // preserve
+    @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
     public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             switch (plugin.getPackageName()) {
@@ -721,7 +721,7 @@ public class DatabaseChangelog1 {
         return pathsToRemove;
     }
 
-    @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "") // preserve
+    @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
     public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
         Plugin s3Plugin = mongoTemplate
                 .find(query(where("name").is("Amazon S3")), Plugin.class)
@@ -730,7 +730,7 @@ public class DatabaseChangelog1 {
         mongoTemplate.save(s3Plugin);
     }
 
-    @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "") // preserve
+    @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "")
     public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Google Sheets");
@@ -751,7 +751,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "063", id = "mark-instance-unregistered", author = "") // preserve
+    @ChangeSet(order = "063", id = "mark-instance-unregistered", author = "")
     public void markInstanceAsUnregistered(MongoTemplate mongoTemplate) {
         mongoTemplate.insert(new Config(new JSONObject(Map.of("value", false)), Appsmith.APPSMITH_REGISTERED));
     }
@@ -768,7 +768,7 @@ public class DatabaseChangelog1 {
         return templates;
     }
 
-    @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "") // preserve
+    @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
     public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Snowflake");
@@ -790,7 +790,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "077", id = "add-arangodb-plugin", author = "") // preserve
+    @ChangeSet(order = "077", id = "add-arangodb-plugin", author = "")
     public void addArangoDBPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("ArangoDB");
@@ -811,7 +811,7 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "078", id = "set-svg-logo-to-plugins", author = "") // preserve
+    @ChangeSet(order = "078", id = "set-svg-logo-to-plugins", author = "")
     public void setSvgLogoToPluginIcons(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
@@ -846,7 +846,7 @@ public class DatabaseChangelog1 {
         }
     }
 
-    @ChangeSet(order = "080", id = "create-plugin-reference-for-genarate-CRUD-page", author = "") // preserve
+    @ChangeSet(order = "080", id = "create-plugin-reference-for-genarate-CRUD-page", author = "")
     public void createPluginReferenceForGenerateCRUDPage(MongoTemplate mongoTemplate) {
 
         final String templatePageNameForSQLDatasource = "SQL";
@@ -895,7 +895,7 @@ public class DatabaseChangelog1 {
         return documentPtr;
     }
 
-    @ChangeSet(order = "082", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "") // preserve
+    @ChangeSet(order = "082", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "")
     public void createPluginReferenceForS3AndGSheetGenerateCRUDPage(MongoTemplate mongoTemplate) {
 
         Set<String> validPackageNames = Set.of("amazons3-plugin", "google-sheets-plugin");
@@ -909,7 +909,7 @@ public class DatabaseChangelog1 {
         }
     }
 
-    @ChangeSet(order = "084", id = "add-js-plugin", author = "") // preserve
+    @ChangeSet(order = "084", id = "add-js-plugin", author = "")
     public void addJSPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("JS Functions");
@@ -936,7 +936,7 @@ public class DatabaseChangelog1 {
         }
     }
 
-    @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "") // preserve
+    @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
     public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
 
@@ -1092,7 +1092,7 @@ public class DatabaseChangelog1 {
         return new HashMap<>();
     }
 
-    @ChangeSet(order = "094", id = "migrate-s3-to-uqi", author = "") // preserve
+    @ChangeSet(order = "094", id = "migrate-s3-to-uqi", author = "")
     public void migrateS3PluginToUqi(MongoTemplate mongoTemplate) {
         // First update the UI component for the s3 plugin to UQI
         Plugin s3Plugin = mongoTemplate.findOne(query(where("packageName").is("amazons3-plugin")), Plugin.class);
@@ -1285,7 +1285,7 @@ public class DatabaseChangelog1 {
         return new DslUpdateDto(dsl, updated);
     }
 
-    @ChangeSet(order = "099", id = "add-smtp-plugin", author = "") // preserve
+    @ChangeSet(order = "099", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SMTP");
@@ -1379,7 +1379,7 @@ public class DatabaseChangelog1 {
      * This migration introduces indexes on newAction, actionCollection, newPage and application collection to take
      * branchName param into consideration for optimising the find query for git connected applications
      */
-    @ChangeSet(order = "110", id = "update-index-for-git", author = "") // preserve
+    @ChangeSet(order = "110", id = "update-index-for-git", author = "")
     public void updateGitIndexes(MongoTemplate mongoTemplate) {
 
         // We can't set unique indexes for following as these requires the _id of the resource to be filled in for
@@ -1410,7 +1410,7 @@ public class DatabaseChangelog1 {
                         .named("defaultApplicationId_branchName_deleted"));
     }
 
-    @ChangeSet(order = "113", id = "use-assets-cdn-for-plugin-icons", author = "") // preserve
+    @ChangeSet(order = "113", id = "use-assets-cdn-for-plugin-icons", author = "")
     public void useAssetsCDNForPluginIcons(MongoTemplate mongoTemplate) {
         final Query query = query(new Criteria());
         query.fields().include(fieldName(QPlugin.plugin.iconLocation));
@@ -1430,7 +1430,7 @@ public class DatabaseChangelog1 {
     /**
      * This migration introduces indexes on newAction, actionCollection and userData to improve the query performance
      */
-    @ChangeSet(order = "114", id = "update-index-for-newAction-actionCollection-userData", author = "") // preserve
+    @ChangeSet(order = "114", id = "update-index-for-newAction-actionCollection-userData", author = "")
     public void updateNewActionActionCollectionAndUserDataIndexes(MongoTemplate mongoTemplate) {
 
         ensureIndexes(
@@ -1444,7 +1444,7 @@ public class DatabaseChangelog1 {
                 makeIndex(fieldName(QUserData.userData.userId)).unique().named("userId"));
     }
 
-    @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "") // preserve
+    @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "")
     public void markMSSQLCrudUnavailable(MongoTemplate mongoTemplate) {
         Plugin plugin = mongoTemplate.findOne(query(where("packageName").is("mssql-plugin")), Plugin.class);
         assert plugin != null;
