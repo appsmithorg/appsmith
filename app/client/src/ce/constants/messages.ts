@@ -270,7 +270,7 @@ export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no apps in this workspace.`;
+  `There are no applications in this workspace.`;
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
