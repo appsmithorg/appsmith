@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import adminSettings from "../../../../locators/AdminsSettings";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
-describe("Embed settings options", function () {
+describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
   const getIframeBody = () => {
     // get the iframe > document > body
     // and retry until the body element is not empty

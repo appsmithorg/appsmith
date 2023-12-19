@@ -25,7 +25,10 @@ import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
-import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
+import type {
+  ModuleInstance,
+  ModuleInstanceDataState,
+} from "@appsmith/constants/ModuleInstanceConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
@@ -103,16 +106,17 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const evaluationVersion = selectEvaluationVersion(state);
     const moduleInstances = getModuleInstances(state);
 
-    const queryModuleInstances = Object.values(moduleInstances).map(
-      (instance) => {
-        if (instance.type === MODULE_TYPE.QUERY) {
-          return {
-            config: instance,
-            data: undefined,
-          };
-        }
-      },
-    ) as unknown as ModuleInstanceDataState;
+    const queryModuleInstances = !!moduleInstances
+      ? (Object.values(moduleInstances).map((moduleInstance) => {
+          const instance = moduleInstance as ModuleInstance;
+          if (instance.type === MODULE_TYPE.QUERY) {
+            return {
+              config: instance,
+              data: undefined,
+            };
+          }
+        }) as unknown as ModuleInstanceDataState)
+      : [];
 
     const actionsArray: string[] = [];
     const jsActionsArray: string[] = [];

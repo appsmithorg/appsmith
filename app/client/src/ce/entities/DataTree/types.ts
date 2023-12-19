@@ -22,6 +22,14 @@ import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
+export enum CreateNewActionKey {
+  PAGE = "pageId",
+}
+
+export enum ActionContextType {
+  PAGE = "PAGE",
+}
+
 export const ENTITY_TYPE = {
   ACTION: "ACTION",
   WIDGET: "WIDGET",
@@ -198,7 +206,7 @@ export interface DataTreeSeed {
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
   moduleInputs: Module["inputsForm"];
-  moduleInstances: Record<string, ModuleInstance>;
+  moduleInstances: Record<string, ModuleInstance> | null;
   moduleInstanceEntities: any;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
