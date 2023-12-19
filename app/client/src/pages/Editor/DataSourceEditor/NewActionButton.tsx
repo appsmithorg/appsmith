@@ -101,7 +101,6 @@ function NewActionButton(props: NewActionButtonProps) {
     },
     [pages, createQueryAction, disabled, isLoading],
   );
-
   return (
     <Menu onOpenChange={handleOnInteraction} open={isPageSelectionOpen}>
       <MenuTrigger disabled={disabled}>
@@ -123,7 +122,7 @@ function NewActionButton(props: NewActionButtonProps) {
       <MenuContent
         align={"end"}
         data-testId={"t--page-selection"}
-        height={"350px"}
+        height={pages.length <= 8 ? "fit-content" : "350px"}
         side={"bottom"}
       >
         <Text className="pl-2" kind="heading-xs">{`Create a ${
