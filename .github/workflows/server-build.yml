@@ -192,5 +192,9 @@ jobs:
           git commit -m "Update Latest Server.jar"
           git push
 
+      - name: Setup upterm session
+        if: always()
+        uses: lhotari/action-upterm@v1
+
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
