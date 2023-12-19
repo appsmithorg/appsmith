@@ -2822,7 +2822,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createBranch_BranchHasCustomNavigationSettings_SrcBranchRemainsUnchanged()
+    public void createBranch_BranchHasCustomApplicationSettings_SrcBranchRemainsUnchanged()
             throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2856,6 +2856,15 @@ public class GitServiceCETest {
                     appNavigationSetting.setOrientation("top");
                     branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+
+                    Application.ThemeSettings themeSettings = new Application.ThemeSettings();
+                    themeSettings.setSizing(1);
+                    themeSettings.setDensity(1);
+                    themeSettings.setBorderRadius("#000000");
+                    themeSettings.setAccentColor("#FFFFFF");
+                    themeSettings.setFontFamily("#000000");
+                    themeSettings.setColorMode(Application.ThemeSettings.Type.LIGHT);
+                    branchedApplication.getUnpublishedApplicationDetail().setThemeSettings(themeSettings);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication -> applicationService.update(
@@ -2875,6 +2884,14 @@ public class GitServiceCETest {
                                     .getOrientation())
                             .isEqualTo("top");
                     assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
+                    Application.ThemeSettings themes =
+                            branchedApp.getApplicationDetail().getThemeSettings();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSettings.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
                 })
                 .verifyComplete();
     }

@@ -2404,9 +2404,9 @@ public class ImportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void discardChange_addNavigationSettingAfterImport_addedNavigationSettingRemoved() {
-        Mono<ApplicationJson> applicationJsonMono =
-                createAppJson("test_assets/ImportExportServiceTest/valid-application-without-navigation-setting.json");
+    public void discardChange_addNavigationAndThemeSettingAfterImport_addedNavigationSettingRemoved() {
+        Mono<ApplicationJson> applicationJsonMono = createAppJson(
+                "test_assets/ImportExportServiceTest/valid-application-without-navigation-theme-setting.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
@@ -2419,6 +2419,16 @@ public class ImportApplicationServiceTests {
                     Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
                     navigationSetting.setOrientation("top");
                     applicationDetail.setNavigationSetting(navigationSetting);
+
+                    Application.ThemeSettings themeSettings = new Application.ThemeSettings();
+                    themeSettings.setSizing(1);
+                    themeSettings.setDensity(1);
+                    themeSettings.setBorderRadius("#000000");
+                    themeSettings.setAccentColor("#FFFFFF");
+                    themeSettings.setFontFamily("#000000");
+                    themeSettings.setColorMode(Application.ThemeSettings.Type.LIGHT);
+                    applicationDetail.setThemeSettings(themeSettings);
+
                     application.setUnpublishedApplicationDetail(applicationDetail);
                     application.setPublishedApplicationDetail(applicationDetail);
                     return applicationService.save(application);
@@ -2449,6 +2459,15 @@ public class ImportApplicationServiceTests {
                                     .getNavigationSetting()
                                     .getOrientation())
                             .isEqualTo("top");
+
+                    Application.ThemeSettings themes =
+                            initialApplication.getApplicationDetail().getThemeSettings();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSettings.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
                 })
                 .verifyComplete();
         // Import the same application again

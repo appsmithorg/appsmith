@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -437,14 +436,24 @@ public class Application extends BaseDomain {
         private String borderRadius;
 
         @JsonView(Views.Public.class)
-        @Value("1")
-        private int sizing;
+        private int sizing = 1;
 
         @JsonView(Views.Public.class)
-        @Value("1")
-        private int density;
+        private int density = 1;
 
         @JsonView(Views.Public.class)
         private String fontFamily;
+
+        @JsonView(Views.Public.class)
+        Type colorMode;
+
+        public ThemeSettings(Type colorMode) {
+            this.colorMode = colorMode;
+        }
+
+        public enum Type {
+            LIGHT,
+            DARK
+        }
     }
 }
