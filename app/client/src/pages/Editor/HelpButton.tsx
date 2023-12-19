@@ -114,6 +114,12 @@ export function IntercomConsent({
     );
     dispatch(updateIntercomConsent());
     showIntercomConsent(false);
+    AnalyticsUtil.logEvent("SUPPORT_REQUEST_INITIATED", {
+      email: "",
+      userId: "",
+      appsmithVersion: "",
+      instanceId,
+    });
     window.Intercom("show");
   };
   return (
