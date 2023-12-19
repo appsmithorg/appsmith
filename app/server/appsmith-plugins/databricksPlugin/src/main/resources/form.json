@@ -1,0 +1,26 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "DB Username",
+          "configProperty": "datasourceConfiguration.authentication.username",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholderText": "",
+          "initialValue": ""
+        },
+        {
+          "label": "DB Password",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "initialValue": "",
+          "encrypted": true
+        }
+      ]
+    }
+  ]
+}
