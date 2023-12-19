@@ -23,7 +23,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL, widgetListURL } from "@appsmith/RouteBuilder";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -72,9 +72,12 @@ function Pages() {
 
   const switchPage = useCallback(
     (page: Page) => {
-      const navigateToUrl = builderURL({
-        pageId: page.pageId,
-      });
+      const navigateToUrl =
+        currentPageId === page.pageId
+          ? widgetListURL({})
+          : builderURL({
+              pageId: page.pageId,
+            });
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
         name: page.pageName,
         fromUrl: location.pathname,
