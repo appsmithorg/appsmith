@@ -179,8 +179,8 @@ class AnalyticsUtil {
     }
   }
 
-  static identifyUser(userData: User) {
-    const { segment, sentry, smartLook } = getAppsmithConfigs();
+  static identifyUser(userData: User, sendAdditionalData?: boolean) {
+    const { appVersion, segment, sentry, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
@@ -205,6 +205,14 @@ class AnalyticsUtil {
         const userProperties = {
           userId: AnalyticsUtil.cachedAnonymoustId,
           source: "ce",
+          ...(sendAdditionalData
+            ? {
+                id: AnalyticsUtil.cachedAnonymoustId,
+                email: userData.email,
+                appsmithVersion: `Appsmith ${appVersion.edition} ${appVersion.id}`,
+                instanceId: AnalyticsUtil.instanceId,
+              }
+            : {}),
         };
         log.debug(
           "Identify Anonymous User " + AnalyticsUtil.cachedAnonymoustId,
