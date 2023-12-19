@@ -178,7 +178,7 @@ jobs:
         run: |
           pwd
           ls -l app/server/
-          tar -czvf server.jar app/server/dist/
+          tar -czvf server.jar dist/
           mkdir cacherepo
           cd ./cacherepo
           git config --global user.email "yatin@appsmith.com"
