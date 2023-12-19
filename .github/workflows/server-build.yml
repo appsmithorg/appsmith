@@ -71,31 +71,9 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
 
-      - name: Put release build in cache
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          
-          
-        run: |
-          mkdir cacherepo
-          cd ./cacherepo
-          git config --global user.email "yatin@appsmith.com"
-          git config --global user.name "yatinappsmith"
-          git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
-          cd testcacherepo/
-          if [ "$reponame" = "appsmith" ]; then export repodir="ce"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="ee"; fi
-          cd $repodir/release/server
-          export var1=`tr -dc A-Za-z0-9 </dev/urandom | head -c 13`
-          touch $var1
-          git add  $var1
-          git commit -m "test12321321"
-          git push
+
+
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -187,11 +165,15 @@ jobs:
           name: server-build
           path: app/server/dist/
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       - name: Put release build in cache
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
           reponame: ${{ github.event.repository.name }}
+        
           
         run: |
           tar -czvf server.jar app/server/dist/
