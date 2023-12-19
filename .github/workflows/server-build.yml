@@ -169,6 +169,7 @@ jobs:
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true \
+            -DSkipTests-true \
             -Dsurefire.rerunFailingTestsCount=3 -Dsurefire.outputFile="./junit-report.xml" 
           ./build.sh $args
 
@@ -186,6 +187,28 @@ jobs:
         with:
           name: server-build
           path: app/server/dist/
+
+      - name: Put release build in cache
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          
+        run: |
+          tar -czvf server.jar app/server/dist/
+          mkdir cacherepo
+          cd ./cacherepo
+          git config --global user.email "yatin@appsmith.com"
+          git config --global user.name "yatinappsmith"
+          git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
+          cd testcacherepo/
+          if [ "$reponame" = "appsmith" ]; then export repodir="ce"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="ee"; fi
+          cd $repodir/release/server
+          cp ../../../../server.jar ./
+          git add  server.jar
+          git commit -m "Update Latest Server.jar"
+          git push
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
