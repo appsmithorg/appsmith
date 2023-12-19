@@ -15,6 +15,18 @@ import type { ModuleInstanceReducerState } from "@appsmith/reducers/entityReduce
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstanceEntitiesReducerState } from "@appsmith/reducers/entityReducers/moduleInstanceEntitiesReducer";
 
+export enum CreateNewActionKey {
+  PAGE = "pageId",
+  WORKFLOW = "workflowId",
+  MODULE = "moduleId",
+}
+
+export enum ActionContextType {
+  PAGE = "PAGE",
+  WORKFLOW = "WORKFLOW",
+  MODULE = "MODULE",
+}
+
 export const ENTITY_TYPE = {
   ...CE_ENTITY_TYPE,
   MODULE_INSTANCE: "MODULE_INSTANCE",

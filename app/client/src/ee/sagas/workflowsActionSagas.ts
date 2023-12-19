@@ -14,11 +14,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type { Action, ApiAction } from "entities/Action";
-import {
-  ActionContextType,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { select, put, takeLatest, call, all } from "redux-saga/effects";
 import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
@@ -36,6 +32,10 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import type { FetchWorkflowActionsPayload } from "@appsmith/actions/workflowActions";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
+import {
+  ActionContextType,
+  CreateNewActionKey,
+} from "@appsmith/entities/DataTree/types";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import type { JSCollection } from "entities/JSCollection";
@@ -62,8 +62,17 @@ export function* createWorkflowQueryActionSaga(
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
   const newActionName =
     plugin?.type === PluginType.DB
-      ? createNewQueryName(actions, workflowId || "", undefined, "workflowId")
-      : createNewApiName(actions, workflowId || "", "workflowId");
+      ? createNewQueryName(
+          actions,
+          workflowId || "",
+          undefined,
+          CreateNewActionKey.WORKFLOW,
+        )
+      : createNewApiName(
+          actions,
+          workflowId || "",
+          CreateNewActionKey.WORKFLOW,
+        );
 
   const createActionPayload: Partial<Action> = yield call(
     createDefaultActionPayloadWithPluginDefaults,
@@ -105,7 +114,7 @@ function* createWorkflowApiActionSaga(
     const newActionName = createNewApiName(
       actions,
       workflowId || "",
-      "workflowId",
+      CreateNewActionKey.WORKFLOW,
     );
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
