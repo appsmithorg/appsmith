@@ -5,19 +5,13 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
-import {
-  ACTION_PARENT_ENTITY_TYPE as CE_ACTION_PARENT_ENTITY_TYPE,
-  getPageDependencyActions as CE_getPageDependencyActions,
-} from "ce/entities/Engine/actionHelpers";
+import { getPageDependencyActions as CE_getPageDependencyActions } from "ce/entities/Engine/actionHelpers";
 
-enum EE_ACTION_PARENT_ENTITY_TYPE {
+export enum ACTION_PARENT_ENTITY_TYPE {
+  PAGE = "PAGE",
   WORKFLOW = "WORKFLOW",
+  PACKAGE = "PACKAGE",
 }
-
-export const ACTION_PARENT_ENTITY_TYPE = {
-  ...CE_ACTION_PARENT_ENTITY_TYPE,
-  ...EE_ACTION_PARENT_ENTITY_TYPE,
-};
 
 export type ActionParentEntityTypeInterface =
   (typeof ACTION_PARENT_ENTITY_TYPE)[keyof typeof ACTION_PARENT_ENTITY_TYPE];

@@ -2,7 +2,7 @@ import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlag
 import rbac from "../../../../../locators/RBAClocators.json";
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
-describe("RBAC Admin Settings", () => {
+describe("RBAC Admin Settings", { tags: ["@tag.AccessControl"] }, () => {
   it("1. Superuser on free plan should see Upgrade Page", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

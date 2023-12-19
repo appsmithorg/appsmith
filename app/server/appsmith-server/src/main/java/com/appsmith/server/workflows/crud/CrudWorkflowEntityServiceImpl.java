@@ -30,7 +30,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
@@ -104,15 +103,15 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
      */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<ActionDTO> createWorkflowAction(ActionDTO actionDTO, String branchName) {
+    public Mono<NewAction> createWorkflowAction(ActionDTO actionDTO, String branchName) {
         // branchName handling is left as a TODO for future git implementation for git connected for workflows
 
         Mono<Workflow> workflowMono = validateAndGetWorkflowWithPermission(
                 actionDTO.getWorkflowId(), workflowPermission.getActionCreationPermission());
 
-        Mono<ActionDTO> createActionMono = workflowMono.flatMap(workflow -> {
+        Mono<NewAction> createActionMono = workflowMono.flatMap(workflow -> {
             NewAction workflowAction = generateWorkflowAction(workflow, actionDTO);
-            return newActionService.validateAndSaveActionToRepository(workflowAction);
+            return Mono.just(workflowAction);
         });
 
         if (actionDTO.getDatasource() == null
@@ -156,7 +155,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<ActionCollectionDTO> createWorkflowActionCollection(
+    public Mono<ActionCollection> createWorkflowActionCollection(
             ActionCollectionDTO actionCollectionDTO, String branchName) {
         // branchName handling is left as a TODO for future git implementation for git connected for workflows
 
@@ -164,13 +163,8 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
                 actionCollectionDTO.getWorkflowId(), workflowPermission.getActionCreationPermission());
 
         return workflowMono.flatMap(workflow -> {
-            ActionCollection workflowAction = generateWorkflowActionCollection(workflow, actionCollectionDTO);
-            return actionCollectionService
-                    .validateAndSaveCollection(workflowAction)
-                    .flatMap(actionCollectionDTO1 -> Flux.fromIterable(actionCollectionDTO1.getActions())
-                            .flatMap(
-                                    actionDTO -> newActionService.updateUnpublishedAction(actionDTO.getId(), actionDTO))
-                            .then(Mono.just(actionCollectionDTO1)));
+            ActionCollection workflowActionCollection = generateWorkflowActionCollection(workflow, actionCollectionDTO);
+            return Mono.just(workflowActionCollection);
         });
     }
 

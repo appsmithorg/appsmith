@@ -1,6 +1,6 @@
 import { jsEditor } from "../../../../support/Objects/ObjectsCore";
 
-describe("List no functions on empty collection", () => {
+describe("List no functions on empty collection", { tags: ["@tag.JS"] }, () => {
   it("1. Bug 9585: should not show functions when whole code is deleted", () => {
     jsEditor.CreateJSObject(
       `export default {

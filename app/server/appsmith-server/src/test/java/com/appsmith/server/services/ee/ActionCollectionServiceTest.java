@@ -415,8 +415,8 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setContextType(WORKFLOW);
-        return crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        return layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
     }
 

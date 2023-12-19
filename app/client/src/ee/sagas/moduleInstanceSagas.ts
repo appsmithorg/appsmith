@@ -395,27 +395,15 @@ export function* refactorModuleInstanceName({
     if (currentPageId === pageId) {
       // @ts-expect-error: refactorResponse is of type unknown
       yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
-      yield call(fetchModuleInstancesSaga, {
-        type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,
-        payload: {
-          contextId: pageId,
-          contextType: ModuleInstanceCreatorType.PAGE,
-          viewMode: false,
-        },
-      });
-      yield put({
-        type: ReduxActionTypes.REFACTOR_MODULE_INSTANCE_COMPLETION,
-      });
-    } else {
-      yield call(setupModuleInstanceSaga, {
-        type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
-        payload: {
-          contextId: pageId,
-          contextType: ModuleInstanceCreatorType.PAGE,
-          viewMode: false,
-        },
-      });
     }
+    yield call(setupModuleInstanceSaga, {
+      type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
+      payload: {
+        contextId: pageId,
+        contextType: ModuleInstanceCreatorType.PAGE,
+        viewMode: false,
+      },
+    });
   }
 }
 

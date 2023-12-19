@@ -6,6 +6,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { EntityExplorerWrapper } from "pages/Editor/Explorer/Common/EntityExplorerWrapper";
+import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
+import { getCurrentModule } from "@appsmith/selectors/modulesSelector";
+import Files from "pages/Editor/Explorer/Files";
+import { selectFilesForPackageExplorer } from "@appsmith/selectors/entitiesSelector";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
@@ -15,6 +22,8 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const packageId = useSelector(getCurrentPackageId) || "";
+  const module = useSelector(getCurrentModule);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -22,7 +31,18 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
 
   return (
     <EntityExplorerWrapper explorerRef={explorerRef} isActive={isActive}>
-      <div />
+      {module && module.type === MODULE_TYPE.JS && (
+        <FilesContextProvider
+          canCreateActions
+          editorId={packageId}
+          parentEntityId={module.id}
+          parentEntityType={ACTION_PARENT_ENTITY_TYPE.PACKAGE}
+          selectFilesForExplorer={selectFilesForPackageExplorer}
+          showModules={false}
+        >
+          <Files />
+        </FilesContextProvider>
+      )}
     </EntityExplorerWrapper>
   );
 }

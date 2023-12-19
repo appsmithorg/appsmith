@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("In-app embed settings", () => {
+describe("In-app embed settings", { tags: ["@tag.Settings"] }, () => {
   before(() => {
     featureFlagIntercept({
       release_embed_hide_share_settings_enabled: true,

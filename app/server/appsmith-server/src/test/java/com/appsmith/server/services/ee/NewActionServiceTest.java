@@ -379,8 +379,8 @@ public class NewActionServiceTest {
         workflowActionDTO.setActionConfiguration(actionConfiguration);
         workflowActionDTO.setDatasource(datasource);
         workflowActionDTO.setPluginId(pluginId);
-        return crudWorkflowEntityService
-                .createWorkflowAction(workflowActionDTO, null)
+        return layoutActionService
+                .createSingleActionWithBranch(workflowActionDTO, null)
                 .block();
     }
 

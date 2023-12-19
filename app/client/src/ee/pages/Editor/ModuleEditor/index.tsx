@@ -4,7 +4,6 @@ import type { RouteComponentProps } from "react-router";
 
 import { setCurrentModule, setupModule } from "@appsmith/actions/moduleActions";
 import {
-  getIsModuleFetchingActions,
   getIsModuleFetchingEntities,
   getModuleById,
 } from "@appsmith/selectors/modulesSelector";
@@ -31,7 +30,6 @@ export type ModuleEditorProps = RouteComponentProps<RouteProps>;
 function ModuleEditor({ match }: ModuleEditorProps) {
   const { moduleId } = match.params;
   const dispatch = useDispatch();
-  const isModuleFetchingActions = useSelector(getIsModuleFetchingActions);
   const isModuleFetchingEntities = useSelector(getIsModuleFetchingEntities);
   const module = useSelector((state) => getModuleById(state, moduleId));
 
@@ -50,7 +48,7 @@ function ModuleEditor({ match }: ModuleEditorProps) {
 
   if (!module) return null;
 
-  if (isModuleFetchingActions || isModuleFetchingEntities) {
+  if (isModuleFetchingEntities) {
     return <Loader />;
   }
 

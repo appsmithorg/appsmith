@@ -1,7 +1,7 @@
 const RBAC = require("../../../../../locators/RBAClocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import { rbacHelper, agHelper } from "../../../../../support/ee/ObjectsCore_EE";
-describe("users tab Tests", function () {
+describe("users tab Tests", { tags: ["@tag.AccessControl"] }, function () {
   const GroupName = "Invite User Group" + `${Math.floor(Math.random() * 1000)}`;
   const RoleName = "Invite User Role" + `${Math.floor(Math.random() * 1000)}`;
   beforeEach(() => {

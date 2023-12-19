@@ -11,23 +11,6 @@ import type { FetchModuleEntitiesResponse } from "@appsmith/api/ModuleApi";
 
 const handlers = {
   ...CE_handlers,
-  [ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS]: (
-    draftMetaState: ActionDataState,
-    action: ReduxAction<Action[]>,
-  ) => {
-    if (action.payload.length > 0) {
-      const result: ActionDataState = [];
-
-      action.payload.forEach((actionPayload: Action) => {
-        result.push({
-          isLoading: false,
-          config: actionPayload,
-        });
-      });
-
-      return result;
-    }
-  },
   [ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS]: (
     draftMetaState: ActionDataState,
     action: ReduxAction<FetchModuleEntitiesResponse>,

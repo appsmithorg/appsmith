@@ -23,6 +23,8 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +90,12 @@ class CrudWorkflowEntityServiceTest {
 
     @Autowired
     private ActionCollectionRepository actionCollectionRepository;
+
+    @Autowired
+    private LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    private LayoutActionService layoutActionService;
 
     Workspace workspace;
     String defaultEnvironmentId;
@@ -157,8 +165,9 @@ class CrudWorkflowEntityServiceTest {
         actionDTO.setWorkspaceId(workspace.getId());
         actionDTO.setContextType(WORKFLOW);
 
-        ActionDTO workflowActionDTO =
-                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
 
         assertThat(workflowActionDTO.getWorkflowId()).isEqualTo(workflow.getId());
         assertThat(workflowActionDTO.getWorkspaceId()).isEqualTo(workspace.getId());
@@ -193,10 +202,10 @@ class CrudWorkflowEntityServiceTest {
     void testInvalid_createWorkflowAction_noName() {
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setWorkflowId(workflow.getId());
-        AppsmithException validParameterNameException =
-                assertThrows(AppsmithException.class, () -> crudWorkflowEntityService
-                        .createWorkflowAction(actionDTO, null)
-                        .block());
+        actionDTO.setContextType(WORKFLOW);
+        AppsmithException validParameterNameException = assertThrows(AppsmithException.class, () -> layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block());
         assertThat(validParameterNameException.getMessage())
                 .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME));
     }
@@ -206,9 +215,11 @@ class CrudWorkflowEntityServiceTest {
     void testInvalid_createWorkflowAction_noActionConfiguration() {
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setWorkflowId(workflow.getId());
+        actionDTO.setContextType(WORKFLOW);
         actionDTO.setName("testInvalid_createWorkflowAction_noActionConfiguration");
-        ActionDTO createdActionDTO =
-                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
+        ActionDTO createdActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
         assert createdActionDTO != null;
         assertThat(createdActionDTO.getIsValid()).isFalse();
         assertThat(createdActionDTO.getInvalids()).isNotEmpty();
@@ -221,9 +232,11 @@ class CrudWorkflowEntityServiceTest {
     void testInvalid_createWorkflowAction_noDatasource() {
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setWorkflowId(workflow.getId());
+        actionDTO.setContextType(WORKFLOW);
         actionDTO.setName("testInvalid_createWorkflowAction_noActionConfiguration");
-        ActionDTO createdActionDTO =
-                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
+        ActionDTO createdActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
         assert createdActionDTO != null;
         assertThat(createdActionDTO.getIsValid()).isFalse();
         assertThat(createdActionDTO.getInvalids()).isNotEmpty();
@@ -244,8 +257,9 @@ class CrudWorkflowEntityServiceTest {
         actionDTO.setWorkspaceId(workspace.getId());
         actionDTO.setContextType(WORKFLOW);
 
-        ActionDTO workflowActionDTO =
-                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
 
         ActionDTO updateNameForActionDTO = new ActionDTO();
         updateNameForActionDTO.setName(testName + "_updated");
@@ -272,8 +286,8 @@ class CrudWorkflowEntityServiceTest {
         actionCollectionDTO.setWorkspaceId(workspace.getId());
         actionCollectionDTO.setContextType(WORKFLOW);
 
-        ActionCollectionDTO workflowActionCollectionDTO = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO workflowActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         assertThat(workflowActionCollectionDTO.getWorkflowId()).isEqualTo(workflow.getId());
@@ -309,8 +323,8 @@ class CrudWorkflowEntityServiceTest {
         action1.getActionConfiguration().setBody("testValid_createWorkflowActionCollection_withAction");
         actionCollectionDTO.setActions(List.of(action1));
 
-        ActionCollectionDTO workflowActionCollectionDTO = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO workflowActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         assertThat(workflowActionCollectionDTO.getWorkflowId()).isEqualTo(workflow.getId());

@@ -40,11 +40,11 @@ const DEFAULT_ROUTE_MATCH_PARAMS = {
   },
 };
 
-const setIsModuleFetchingActions = (value: boolean) => {
+const setIsModuleFetchingEntities = (value: boolean) => {
   const modulesSelectorFactory = modulesSelector as jest.Mocked<
     typeof modulesSelector
   >;
-  modulesSelectorFactory.getIsModuleFetchingActions.mockImplementation(
+  modulesSelectorFactory.getIsModuleFetchingEntities.mockImplementation(
     () => value,
   );
 };
@@ -80,7 +80,7 @@ describe("ModuleEditor Component", () => {
     } as ModuleEditorProps;
 
     mockGetModuleById();
-    setIsModuleFetchingActions(true);
+    setIsModuleFetchingEntities(true);
     const mockedFetchAction = mockSetupModule();
 
     const { container } = render(
@@ -106,7 +106,7 @@ describe("ModuleEditor Component", () => {
     } as ModuleEditorProps;
 
     mockGetModuleById();
-    setIsModuleFetchingActions(true);
+    setIsModuleFetchingEntities(true);
     const mockedFetchAction = mockSetupModule();
 
     const { rerender } = render(
@@ -143,7 +143,7 @@ describe("ModuleEditor Component", () => {
     } as ModuleEditorProps;
 
     mockGetModuleById();
-    setIsModuleFetchingActions(true);
+    setIsModuleFetchingEntities(true);
     const mockedFetchAction = mockSetupModule();
 
     const { rerender } = render(
@@ -174,7 +174,7 @@ describe("ModuleEditor Component", () => {
     } as ModuleEditorProps;
 
     mockGetModuleById({ setDefault: false });
-    setIsModuleFetchingActions(false);
+    setIsModuleFetchingEntities(false);
     mockSetupModule();
 
     const { container } = render(

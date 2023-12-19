@@ -50,7 +50,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
                     unpublishedAction.setCollectionId(newCollectionId);
 
                     setFullyQualifiedName(moduleInstantiatingMetaDTO, unpublishedAction);
-                    setContextTypeAndContextId(moduleInstantiatingMetaDTO, unpublishedAction);
+                    setContextTypeAndContextId(moduleInstantiatingMetaDTO, toBeInstantiatedAction);
 
                     resetIsPublicAttributeForComposedModuleInstances(toBeInstantiatedAction);
 
@@ -135,10 +135,11 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
     }
 
     private void setContextTypeAndContextId(
-            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionDTO unpublishedAction) {
+            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, NewAction toBeInstantiatedAction) {
+        ActionDTO unpublishedAction = toBeInstantiatedAction.getUnpublishedAction();
         unpublishedAction.setContextType(moduleInstantiatingMetaDTO.getContextType());
         if (CreatorContextType.PAGE.equals(moduleInstantiatingMetaDTO.getContextType())) {
-            unpublishedAction.setApplicationId(
+            toBeInstantiatedAction.setApplicationId(
                     moduleInstantiatingMetaDTO.getPage().getApplicationId());
             unpublishedAction.setPageId(moduleInstantiatingMetaDTO.getContextId());
             unpublishedAction.setModuleId(null);

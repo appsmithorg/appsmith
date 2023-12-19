@@ -68,54 +68,6 @@ describe("actionsReducer", () => {
     expect(state).toEqual(initialState);
   });
 
-  it("should handle FETCH_MODULE_ACTIONS_SUCCESS action", () => {
-    const initialState: ActionDataState = [];
-    const actionPayload = DEFAULT_ACTIONS;
-
-    const action = {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
-      payload: actionPayload,
-    };
-
-    const state = actionsReducer(initialState, action);
-
-    expect(state.length).toBe(actionPayload.length);
-
-    // Check if the state contains the expected data
-    actionPayload.forEach((action, index) => {
-      const stateAction = state[index];
-      expect(stateAction.data).toBe(undefined);
-      expect(stateAction.isLoading).toBe(false);
-      expect(stateAction.config).toBe(action);
-    });
-
-    // Check if the state retains any additional items not replaced
-    const additionalAction = {
-      id: "6525302c4b7c8d700a10264a",
-      moduleId: "652519c44b7c8d700a102640",
-      actionConfiguration: {
-        timeoutInMillisecond: 10000,
-        paginationType: "NONE",
-      },
-      executeOnLoad: false,
-      isValid: true,
-      eventData: {},
-      selfReferencingDataPaths: [],
-    };
-
-    const updatedState: ActionDataState = actionsReducer(state, {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
-      payload: [additionalAction],
-    });
-
-    expect(updatedState.length).toBe(1);
-
-    // Check if the additional action is present in the state
-    expect(
-      updatedState.some((action) => action.config.id === additionalAction.id),
-    ).toBe(true);
-  });
-
   it("should handle FETCH_MODULE_ENTITIES_SUCCESS action", () => {
     const initialState: ActionDataState = [];
     const actionPayload = DEFAULT_ACTIONS;

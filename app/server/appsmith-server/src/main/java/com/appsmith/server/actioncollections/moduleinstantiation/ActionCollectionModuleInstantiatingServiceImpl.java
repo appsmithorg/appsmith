@@ -111,7 +111,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
         ActionCollectionDTO unpublishedActionCollectionDTO =
                 toBeInstantiatedActionCollection.getUnpublishedCollection();
 
-        setContextTypeAndContextId(unpublishedActionCollectionDTO, moduleInstantiatingMetaDTO);
+        setContextTypeAndContextId(toBeInstantiatedActionCollection, moduleInstantiatingMetaDTO);
 
         resetIsPublicAttributeForComposedModuleInstances(toBeInstantiatedActionCollection);
 
@@ -202,11 +202,13 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
     }
 
     private void setContextTypeAndContextId(
-            ActionCollectionDTO unpublishedActionCollectionDTO, ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+            ActionCollection toBeInstantiatedActionCollection, ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+        ActionCollectionDTO unpublishedActionCollectionDTO =
+                toBeInstantiatedActionCollection.getUnpublishedCollection();
         unpublishedActionCollectionDTO.setContextType(moduleInstantiatingMetaDTO.getContextType());
         // Set the `contextId` value to the respective field base on the `contextType`
         if (CreatorContextType.PAGE.equals(moduleInstantiatingMetaDTO.getContextType())) {
-            unpublishedActionCollectionDTO.setApplicationId(
+            toBeInstantiatedActionCollection.setApplicationId(
                     moduleInstantiatingMetaDTO.getPage().getApplicationId());
             unpublishedActionCollectionDTO.setPageId(moduleInstantiatingMetaDTO.getContextId());
             unpublishedActionCollectionDTO.setModuleId(null);

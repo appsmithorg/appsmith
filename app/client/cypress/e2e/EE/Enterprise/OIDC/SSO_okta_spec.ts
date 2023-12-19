@@ -11,7 +11,7 @@ import {
   homePage,
 } from "../../../../support/ee/ObjectsCore_EE";
 
-describe("SSO test", () => {
+describe("SSO test", { tags: ["@tag.Authentication"] }, () => {
   it("1. Go to admin settings and enable OIDC", function () {
     homePage.NavigateToHome();
     agHelper.GetNClick(rbacloc.adminSettingsEntryLink);

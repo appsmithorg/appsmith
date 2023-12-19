@@ -1,7 +1,7 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _objects from "../../../../support/Objects/ObjectsCore";
 
-describe("Window message listener", () => {
+describe("Window message listener", { tags: ["@tag.JS"] }, () => {
   // window.cloudHosting = false
   it("Exist in self-hosted instance", () => {
     _objects.jsEditor.CreateJSObject(

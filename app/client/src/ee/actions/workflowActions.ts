@@ -1,6 +1,7 @@
 import type {
   AnyReduxAction,
   EvaluationReduxAction,
+  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -106,6 +107,14 @@ export const createWorkflowAPIAction = (
   };
 };
 
+export const createWorkflowJSCollection = (
+  workflowId: string,
+  from: EventLocation,
+): ReduxAction<{ workflowId: string; from: EventLocation }> => ({
+  type: ReduxActionTypes.CREATE_WORKFLOW_JS_ACTION,
+  payload: { workflowId: workflowId, from: from },
+});
+
 export const fetchWorkflowActions = (
   { workflowId }: { workflowId: string },
   postEvalActions: Array<AnyReduxAction>,
@@ -114,6 +123,17 @@ export const fetchWorkflowActions = (
     type: ReduxActionTypes.FETCH_WORKFLOW_ACTIONS_INIT,
     payload: { workflowId },
     postEvalActions,
+  };
+};
+
+export const fetchWorkflowJSCollections = ({
+  workflowId,
+}: {
+  workflowId: string;
+}): EvaluationReduxAction<unknown> => {
+  return {
+    type: ReduxActionTypes.FETCH_WORKFLOW_JS_ACTIONS_INIT,
+    payload: { workflowId },
   };
 };
 

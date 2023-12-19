@@ -3255,7 +3255,7 @@ public class WorkspaceResourcesTest {
         action.setDatasource(createdDatasource1);
 
         ActionDTO createdAction =
-                crudWorkflowEntityService.createWorkflowAction(action, null).block();
+                layoutActionService.createSingleActionWithBranch(action, null).block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("ActionCollection - " + testName);
@@ -3270,8 +3270,8 @@ public class WorkspaceResourcesTest {
         action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
         actionCollectionDTO.setActions(List.of(action1));
 
-        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO createdActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         PermissionGroup sampleRole = new PermissionGroup();
@@ -3683,7 +3683,7 @@ public class WorkspaceResourcesTest {
         action.setDatasource(createdDatasource1);
 
         ActionDTO createdAction =
-                crudWorkflowEntityService.createWorkflowAction(action, null).block();
+                layoutActionService.createSingleActionWithBranch(action, null).block();
 
         PermissionGroup sampleRole = new PermissionGroup();
         sampleRole.setName("Role - " + testName);
@@ -3767,7 +3767,7 @@ public class WorkspaceResourcesTest {
         action.setDatasource(createdDatasource1);
 
         ActionDTO createdAction =
-                crudWorkflowEntityService.createWorkflowAction(action, null).block();
+                layoutActionService.createSingleActionWithBranch(action, null).block();
 
         PermissionGroup sampleRole = new PermissionGroup();
         sampleRole.setName("Role - " + testName);
@@ -3852,7 +3852,7 @@ public class WorkspaceResourcesTest {
         action.setDatasource(createdDatasource1);
 
         ActionDTO createdAction =
-                crudWorkflowEntityService.createWorkflowAction(action, null).block();
+                layoutActionService.createSingleActionWithBranch(action, null).block();
 
         PermissionGroup sampleRole = new PermissionGroup();
         sampleRole.setName("Role - " + testName);
@@ -3939,8 +3939,8 @@ public class WorkspaceResourcesTest {
         action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
         actionCollectionDTO.setActions(List.of(action1));
 
-        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO createdActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         PermissionGroup sampleRole = new PermissionGroup();
@@ -4051,8 +4051,8 @@ public class WorkspaceResourcesTest {
         action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
         actionCollectionDTO.setActions(List.of(action1));
 
-        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO createdActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         PermissionGroup sampleRole = new PermissionGroup();
@@ -4163,8 +4163,8 @@ public class WorkspaceResourcesTest {
         action1.getActionConfiguration().setBody("testSaveRoleConfiguration_workflowResourcesTab");
         actionCollectionDTO.setActions(List.of(action1));
 
-        ActionCollectionDTO createdActionCollection = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO createdActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         PermissionGroup sampleRole = new PermissionGroup();

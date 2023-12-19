@@ -33,6 +33,8 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
@@ -136,6 +138,12 @@ class InteractWorkflowServiceTest {
 
     @Autowired
     private ActionCollectionRepository actionCollectionRepository;
+
+    @Autowired
+    private LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    private LayoutActionService layoutActionService;
 
     private Workspace workspace;
     private Workflow workflow;
@@ -278,8 +286,9 @@ class InteractWorkflowServiceTest {
         actionDTO.setWorkspaceId(workspace.getId());
         actionDTO.setContextType(WORKFLOW);
 
-        ActionDTO workflowActionDTO =
-                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName(name);
@@ -294,8 +303,8 @@ class InteractWorkflowServiceTest {
         action1.getActionConfiguration().setBody("testPublishWorkflows");
         actionCollectionDTO.setActions(List.of(action1));
 
-        ActionCollectionDTO workflowActionCollectionDTO = crudWorkflowEntityService
-                .createWorkflowActionCollection(actionCollectionDTO, null)
+        ActionCollectionDTO workflowActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         NewAction beforePublishingWorkflowAction =

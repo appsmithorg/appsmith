@@ -1,5 +1,6 @@
 package com.appsmith.server.modules.crud.entity;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.annotations.FeatureFlagged;
@@ -119,9 +120,9 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleEntitiesDTO> getAllEntities(String contextId, CreatorContextType contextType, String branchName) {
 
-        Mono<List<ModuleConsumable>> actionsMono =
+        Mono<List<Reusable>> actionsMono =
                 newActionModuleEntityService.getAllEntitiesForPackageEditor(contextId, contextType);
-        Mono<List<ModuleConsumable>> actionCollectionsMono =
+        Mono<List<Reusable>> actionCollectionsMono =
                 actionCollectionModuleEntityService.getAllEntitiesForPackageEditor(contextId, contextType);
 
         return Mono.zip(actionsMono, actionCollectionsMono).flatMap(tuple2 -> {

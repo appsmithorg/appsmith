@@ -67,6 +67,8 @@ const defaultWorkflow: Workflow = {
   userPermissions: [],
   new: false,
   slug: "",
+  mainJsObjectId: "",
+  tokenGenerated: false,
 };
 
 const DEFAULT_WORKFLOWS_LIST = [

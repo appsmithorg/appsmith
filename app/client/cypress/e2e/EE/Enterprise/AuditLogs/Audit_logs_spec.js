@@ -15,7 +15,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let funcName = "";
 
-describe("Audit logs", () => {
+describe("Audit logs", { tags: ["@tag.Auditlogs"] }, () => {
   before(() => {
     cy.visit("/applications");
     cy.createWorkspace();

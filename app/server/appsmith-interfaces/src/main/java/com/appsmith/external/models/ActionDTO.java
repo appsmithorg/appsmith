@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.ce.ActionCE_DTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.util.PatternUtils;
@@ -18,7 +19,7 @@ import java.util.regex.Matcher;
 @NoArgsConstructor
 @ToString
 @QueryEmbeddable
-public class ActionDTO extends ActionCE_DTO {
+public class ActionDTO extends ActionCE_DTO implements Reusable {
     @JsonView(Views.Public.class)
     String moduleId;
 
