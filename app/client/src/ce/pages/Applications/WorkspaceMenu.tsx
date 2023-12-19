@@ -142,7 +142,7 @@ function WorkspaceMenu({
                 path: `/workspace/${workspace.id}/settings/members`,
               })
             }
-            startIcon="member"
+            startIcon="group-line"
           >
             Members
           </MenuItem>

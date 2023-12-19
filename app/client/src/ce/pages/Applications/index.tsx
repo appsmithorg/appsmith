@@ -299,6 +299,12 @@ export const WorkpsacesNavigator = styled.div`
   overflow: auto;
   margin-bottom: 4px;
   ${thinScrollbar};
+  .selected-workspace {
+    border-radius: 4px !important;
+    &:hover {
+      background-color: var(--ads-v2-color-bg-muted);
+    }
+  }
 `;
 
 export const textIconStyles = (props: { color: string; hover: string }) => {
@@ -330,6 +336,7 @@ export function WorkspaceMenuItem({
   if (!workspace.id) return null;
   return (
     <ListItem
+      className={selected ? "selected-workspace" : ""}
       containerClassName={isFetchingWorkspaces ? BlueprintClasses.SKELETON : ""}
       ellipsize={
         isFetchingWorkspaces ? 100 : 22

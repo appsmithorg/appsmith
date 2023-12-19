@@ -6,7 +6,7 @@ export class AdminSettings {
   public homePage = ObjectsRegistry.HomePage;
   public assertHelper = ObjectsRegistry.AssertHelper;
 
-  public _adminSettingsBtn = '[data-testid="t--admin-settings-menu-option"]';
+  public _adminSettingsBtn = ".admin-settings-menu-option";
   private _settingsList = ".t--settings-category-list";
   public _usersTab = ".t--settings-category-users";
   public _roles = (user: string) =>

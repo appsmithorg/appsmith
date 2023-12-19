@@ -521,7 +521,7 @@ describe("Git sync apps", function () {
 
   it("10. Import app from git and verify page order should not change", () => {
     cy.get(homePageLocators.homeIcon).click();
-    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.createNew).first().click();
     cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
     cy.get(".t--import-json-card").next().click();
     // import application from git

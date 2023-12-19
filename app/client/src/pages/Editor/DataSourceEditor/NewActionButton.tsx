@@ -99,7 +99,7 @@ function NewActionButton(props: NewActionButtonProps) {
       }
       setIsPageSelectionOpen(true);
     },
-    [pages, createQueryAction],
+    [pages, createQueryAction, disabled, isLoading],
   );
 
   return (

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import type { RefObject } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useRouteMatch } from "react-router-dom";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -169,6 +170,29 @@ interface PageHeaderProps {
   hideShadow?: boolean;
   showSeparator?: boolean;
   hideEditProfileLink?: boolean;
+}
+
+function useOutsideClick<T extends HTMLElement>(
+  ref: RefObject<T>,
+  inputRef: RefObject<T>,
+  callback: () => void,
+) {
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        ref.current &&
+        !ref.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        callback();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [ref, inputRef, callback]);
 }
 
 const HomepageHeaderAction = ({
@@ -388,15 +412,23 @@ export function PageHeader(props: PageHeaderProps) {
 
   function MainSearchBar() {
     const [searchInput, setSearchInput] = useState("");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const searchListContainerRef = useRef(null);
+    const searchInputRef = useRef(null);
     const workspacesList = useSelector(getSearchedWorkspaces);
     const applicationsList = useSelector(getSearchedApplications);
+    useOutsideClick(searchListContainerRef, searchInputRef, () => {
+      setIsDropdownOpen(false);
+    });
     const canShowSearchDropdown = !!(
-      workspacesList?.length || applicationsList?.length
+      (workspacesList?.length || applicationsList?.length) &&
+      searchInput
     );
 
     function handleSearchInput(text: string) {
       setSearchInput(text);
       handleSearchDebounced(text);
+      setIsDropdownOpen(true);
     }
 
     function navigateToApplication(applicationId: string) {
@@ -410,6 +442,7 @@ export function PageHeader(props: PageHeaderProps) {
       const viewURL = viewerURL({
         pageId: defaultPageId,
       });
+      setIsDropdownOpen(false);
       window.location.href = `${viewURL}`;
     }
 
@@ -470,22 +503,25 @@ export function PageHeader(props: PageHeaderProps) {
                 data-testid="t--application-search-input"
                 isDisabled={isFetchingApplications}
                 onChange={handleSearchInput}
+                onClick={() => setIsDropdownOpen(true)}
                 placeholder={""}
+                ref={searchInputRef}
                 value={searchInput}
               />
-              {canShowSearchDropdown && (
-                <SearchListContainer>
+              {canShowSearchDropdown && isDropdownOpen && (
+                <SearchListContainer ref={searchListContainerRef}>
                   {!!workspacesList?.length && (
-                    <>
-                      <Text className="!mb-2" kind="body-s">
+                    <div className="mb-2">
+                      <Text className="!mb-2 !block" kind="body-s">
                         Workspaces
                       </Text>
                       {workspacesList.map((workspace: Workspace) => (
                         <SearchListItem
                           key={workspace.id}
-                          onClick={() =>
-                            (window.location.href = `${window.location.pathname}#${workspace?.id}`)
-                          }
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            window.location.href = `${window.location.pathname}#${workspace?.id}`;
+                          }}
                         >
                           <Icon
                             className="!mr-2"
@@ -498,7 +534,7 @@ export function PageHeader(props: PageHeaderProps) {
                           </Text>
                         </SearchListItem>
                       ))}
-                    </>
+                    </div>
                   )}
                   {!!applicationsList?.length && (
                     <>

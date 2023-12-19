@@ -14,7 +14,7 @@ describe("Import, Export and Fork application and validate data binding", functi
   it("1. Import application from json and validate data on pageload", function () {
     // import application
     homePage.NavigateToHome();
-    cy.get(homePageLocatores.optionsIcon).first().click();
+    cy.get(homePageLocatores.createNew).first().click();
     cy.get(homePageLocatores.workspaceImportAppOption).click({ force: true });
     cy.get(homePageLocatores.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePageLocatores.uploadLogo).selectFile(
