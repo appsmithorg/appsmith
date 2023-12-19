@@ -177,7 +177,6 @@ jobs:
           
         run: |
           pwd
-          ls -l app/server/
           tar -czvf server.jar dist/
           mkdir cacherepo
           cd ./cacherepo
