@@ -477,6 +477,9 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.merge(mainBranch);
     agHelper.GetNClick(gitSyncLocators.closeGitSyncModal);
+  });
+
+  it("10. After merge back to master, verify page is deleted on master", () => {
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
     assertHelper.AssertDocumentReady();
@@ -493,7 +496,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     PageLeftPane.assertAbsence("Child_Page Copy");
   });
 
-  it("10. Import app from git and verify page order should not change", () => {
+  it("11. Import app from git and verify page order should not change", () => {
     cy.get(homePageLocators.homeIcon).click();
     cy.get(homePageLocators.optionsIcon).first().click();
     cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
