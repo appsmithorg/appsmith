@@ -333,8 +333,9 @@ export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
 };
 
 export const getAppThemeSettings = (state: AppState) => {
-  return (
-    state.ui.applications.currentApplication?.applicationDetail
-      ?.themeSettings || defaultThemeSettings
-  );
+  return {
+    ...defaultThemeSettings,
+    ...state.ui.applications.currentApplication?.applicationDetail
+      ?.themeSettings,
+  };
 };

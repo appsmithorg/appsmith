@@ -461,10 +461,10 @@ export function* updateApplicationSaga(
         }
 
         // TODO: refactor this once backend is ready
-        if (request.applicationDetail?.themeSetting) {
+        if (request.applicationDetail?.themeSettings) {
           yield put(
             updateApplicationThemeSettingAction(
-              request.applicationDetail?.themeSetting,
+              request.applicationDetail?.themeSettings,
             ),
           );
         }
