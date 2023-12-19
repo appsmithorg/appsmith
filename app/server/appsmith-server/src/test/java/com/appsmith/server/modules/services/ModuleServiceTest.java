@@ -23,7 +23,6 @@ import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
-import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.crud.CrudModuleService;
@@ -421,7 +420,7 @@ class ModuleServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<List<ModuleConsumable>> moduleActionsMono = crudModuleEntityService.getModuleActions(moduleRef.get());
+        Mono<List<ActionDTO>> moduleActionsMono = crudModuleEntityService.getModuleActions(moduleRef.get());
 
         StepVerifier.create(moduleActionsMono)
                 .assertNext(moduleConsumables -> {
@@ -537,7 +536,7 @@ class ModuleServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<List<ModuleConsumable>> moduleActionsMono = crudModuleEntityService.getModuleActions(moduleIdRef.get());
+        Mono<List<ActionDTO>> moduleActionsMono = crudModuleEntityService.getModuleActions(moduleIdRef.get());
 
         StepVerifier.create(moduleActionsMono)
                 .assertNext(moduleConsumables -> {

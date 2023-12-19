@@ -14,7 +14,6 @@ import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -25,7 +24,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
@@ -65,7 +63,7 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
      */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<ModuleActionDTO> updateModuleAction(ModuleActionDTO moduleActionDTO, String moduleId, String actionId) {
+    public Mono<ActionDTO> updateModuleAction(ModuleActionDTO moduleActionDTO, String moduleId, String actionId) {
         Mono<Module> moduleMono = moduleRepository
                 .findById(moduleId, modulePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
@@ -94,13 +92,13 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
 
             return newActionService
                     .updateUnpublishedActionWithoutAnalytics(dbAction.getId(), moduleActionDTO, Optional.empty())
-                    .flatMap(moduleActionTuple -> Mono.just((ModuleActionDTO) moduleActionTuple.getT1()));
+                    .flatMap(moduleActionTuple -> Mono.just(moduleActionTuple.getT1()));
         });
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<List<ModuleConsumable>> getModuleActions(String moduleId) {
+    public Mono<List<ActionDTO>> getModuleActions(String moduleId) {
         Mono<Module> moduleMono = moduleRepository
                 .findById(moduleId, modulePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
@@ -110,10 +108,7 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
                 .findAllActionsByContextIdAndContextTypeAndViewMode(
                         module.getId(), CreatorContextType.MODULE, actionPermission.getEditPermission(), false, false)
                 .flatMap(moduleAction -> newActionService.generateActionByViewMode(moduleAction, false))
-                .collectList()
-                .map(actionList -> actionList.stream()
-                        .map(actionDTO -> (ModuleConsumable) actionDTO)
-                        .collect(Collectors.toList())));
+                .collectList());
     }
 
     @Override
