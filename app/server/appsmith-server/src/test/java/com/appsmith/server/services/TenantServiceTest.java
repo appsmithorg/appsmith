@@ -870,8 +870,9 @@ public class TenantServiceTest {
         license.setActive(true);
 
         tenant.getTenantConfiguration().setLicense(license);
+        // Mock CS response
         Mockito.when(licenseAPIManager.downgradeTenantToFreePlan(any()))
-                .thenReturn(Mono.just(true).delaySubscription(Duration.ofMillis(100)));
+                .thenReturn(Mono.just(true).delaySubscription(Duration.ofMillis(200)));
 
         // Add the dummy license
         StepVerifier.create(tenantService.save(tenant))
@@ -886,10 +887,10 @@ public class TenantServiceTest {
         freeLicense.setPlan(LicensePlan.FREE);
 
         // Create the scenario where the client cancels the subscription midway
-        tenantService.removeLicenseKey().timeout(Duration.ofMillis(10)).subscribe();
+        tenantService.removeLicenseKey().timeout(Duration.ofMillis(50)).subscribe();
 
         // Wait for license removal to complete
-        Mono<Tenant> resultMono = Mono.just(tenant).flatMap(originalApp -> {
+        Mono<Tenant> resultMono = Mono.just(tenant).flatMap(ignored -> {
             try {
                 // Before fetching the updated tenant, sleep for 2 seconds to ensure that the license removal is
                 // completed
