@@ -81,6 +81,10 @@ export class LightModeTheme implements ColorModeTheme {
       bgElevation2: this.bgElevation2.to("sRGB").toString(),
       bgElevation3: this.bgElevation3.to("sRGB").toString(),
 
+      shadowElevation1: this.shadowElevation1.to("sRGB").toString(),
+      shadowElevation2: this.shadowElevation2.to("sRGB").toString(),
+      shadowElevation3: this.shadowElevation3.to("sRGB").toString(),
+
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.to("sRGB").toString(),
@@ -647,6 +651,34 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgElevation2.clone();
 
     color.oklch.l += 0.01;
+
+    return color;
+  }
+
+  /*
+   * Shadow colors
+   */
+
+  private get shadowElevation1() {
+    const color = this.seedColor.clone();
+
+    color.oklch.l = 0.2;
+
+    return color;
+  }
+
+  private get shadowElevation2() {
+    const color = this.shadowElevation1.clone();
+
+    color.oklch.l += 0.05;
+
+    return color;
+  }
+
+  private get shadowElevation3() {
+    const color = this.shadowElevation2.clone();
+
+    color.oklch.l += 0.05;
 
     return color;
   }
