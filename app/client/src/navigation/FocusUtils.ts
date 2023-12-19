@@ -1,18 +1,20 @@
 import type { FocusEntityInfo } from "./FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
 import {
-  builderURL,
   datasourcesEditorURL,
   jsCollectionListURL,
   queryListURL,
+  widgetListURL,
 } from "@appsmith/RouteBuilder";
 
 export const getEntityParentUrl = (
   entityInfo: FocusEntityInfo,
   parentEntity: FocusEntity,
 ): string => {
-  if (parentEntity === FocusEntity.CANVAS) {
-    const canvasUrl = builderURL({ pageId: entityInfo.pageId ?? "" });
+  if (parentEntity === FocusEntity.WIDGET_LIST) {
+    const canvasUrl = widgetListURL({
+      pageId: entityInfo.pageId,
+    });
     return canvasUrl.split("?")[0];
   }
   if (parentEntity === FocusEntity.DATASOURCE_LIST) {
@@ -33,12 +35,6 @@ export const isPageChange = (prevPath: string, currentPath: string) => {
     return false;
   }
   return prevFocusEntityInfo.pageId !== currFocusEntityInfo.pageId;
-};
-
-export const isAppStateChange = (prevPath: string, currentPath: string) => {
-  const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
-  const currFocusEntityInfo = identifyEntityFromPath(currentPath);
-  return prevFocusEntityInfo.appState !== currFocusEntityInfo.appState;
 };
 
 /**

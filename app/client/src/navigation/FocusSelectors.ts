@@ -19,6 +19,7 @@ import {
   SAAS_EDITOR_API_ID_PATH,
 } from "../pages/Editor/SaaSEditor/constants";
 import { PluginType } from "../entities/Action";
+import { EditorEntityTab } from "../entities/IDE/constants";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const match = matchPath<{ datasourceId?: string }>(path, [
@@ -106,4 +107,27 @@ export const getSelectedJSObjectId = (path: string): string | undefined => {
   ]);
   if (!match) return undefined;
   return match.params.collectionId;
+};
+
+export const getSelectedSegment = (path: string): string | undefined => {
+  const match = matchPath<{ entity: string }>(path, {
+    path: [
+      BUILDER_PATH_DEPRECATED + "/:entity",
+      BUILDER_PATH + "/:entity",
+      BUILDER_CUSTOM_PATH + "/:entity",
+    ],
+    exact: false,
+  });
+  if (!match) return undefined;
+  if (match.params.entity === "jsObjects") {
+    return EditorEntityTab.JS;
+  }
+  if (
+    match.params.entity === "queries" ||
+    match.params.entity === "api" ||
+    match.params.entity === "saas"
+  ) {
+    return EditorEntityTab.QUERIES;
+  }
+  return EditorEntityTab.UI;
 };

@@ -1,14 +1,19 @@
 import history from "utils/history";
 import {
   apiEditorIdURL,
+  builderURL,
   curlImportPageURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
+  jsCollectionListURL,
   queryEditorIdURL,
+  queryListURL,
   saasEditorApiIdURL,
+  widgetListURL,
 } from "@appsmith/RouteBuilder";
 import { PluginType } from "../entities/Action";
 import type { QueryListState } from "./FocusSelectors";
+import { EditorEntityTab } from "entities/IDE/constants";
 
 export function setSelectedDatasource(id: string | undefined) {
   if (id) {
@@ -17,20 +22,6 @@ export function setSelectedDatasource(id: string | undefined) {
         datasourceId: id,
       }),
     );
-  }
-}
-
-export function setPageUrl(path: string | undefined) {
-  if (path) {
-    const params = history.location.search;
-    history.replace(`${path}${params}`);
-  }
-}
-
-export function setAppUrl(path: string | undefined) {
-  if (path) {
-    const params = history.location.search;
-    history.replace(`${path}${params}`);
   }
 }
 
@@ -78,5 +69,23 @@ export function setSelectedJSObject(id: string | undefined) {
         collectionId: id,
       }),
     );
+  }
+}
+
+export function setSelectedSegment(tab?: EditorEntityTab) {
+  if (tab) {
+    switch (tab) {
+      case EditorEntityTab.JS:
+        history.replace(jsCollectionListURL({}));
+        break;
+      case EditorEntityTab.QUERIES:
+        history.replace(queryListURL({}));
+        break;
+      case EditorEntityTab.UI:
+        history.replace(widgetListURL({}));
+        break;
+      default:
+        history.replace(builderURL({}));
+    }
   }
 }

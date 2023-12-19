@@ -5,6 +5,12 @@ export enum EditorState {
   LIBRARIES = "LIBRARIES",
 }
 
+export enum EditorEntityTab {
+  QUERIES = "queries",
+  JS = "js",
+  UI = "ui",
+}
+
 export interface SidebarButton {
   state: EditorState;
   icon: string;
