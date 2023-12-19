@@ -3,8 +3,8 @@ name: Test, build and push Docker Image
 on:
   # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC) on weekdays
   schedule:
-    - cron: "30 00 * * 1-5"
-  # This line enables manual triggering of this workflow.
+      - cron: "45 07 * * 1-5"
+    # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
   # trigger for pushes to release and master
@@ -81,7 +81,7 @@ jobs:
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      github.event_name == 'schedule' ||
+      github.event_name == 'schedule' ||  
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
