@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
@@ -7,7 +8,6 @@ import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -73,7 +73,7 @@ public class ModuleController {
     @JsonView(Views.Public.class)
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{moduleId}/{actionId}")
-    public Mono<ResponseDTO<ModuleActionDTO>> updateModuleAction(
+    public Mono<ResponseDTO<ActionDTO>> updateModuleAction(
             @PathVariable String moduleId,
             @PathVariable String actionId,
             @RequestBody @Valid ModuleActionDTO moduleActionDTO) {
@@ -95,7 +95,7 @@ public class ModuleController {
     @JsonView(Views.Public.class)
     @GetMapping("/{moduleId}/actions")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<List<ModuleConsumable>>> getModuleActions(@PathVariable String moduleId) {
+    public Mono<ResponseDTO<List<ActionDTO>>> getModuleActions(@PathVariable String moduleId) {
         return crudModuleEntityService
                 .getModuleActions(moduleId)
                 .map(moduleActions -> new ResponseDTO<>(HttpStatus.OK.value(), moduleActions, null));
