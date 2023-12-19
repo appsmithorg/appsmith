@@ -478,7 +478,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.merge(mainBranch);
     agHelper.GetNClick(gitSyncLocators.closeGitSyncModal);
     // verify Child_Page is not on master
-    //cy.switchGitBranch(mainBranch);
+    cy.switchGitBranch(mainBranch);
     assertHelper.AssertDocumentReady();
     table.WaitUntilTableLoad();
     cy.readTabledataPublish("0", "1").then((cellData) => {
