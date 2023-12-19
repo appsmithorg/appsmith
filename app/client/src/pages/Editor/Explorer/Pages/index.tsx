@@ -89,7 +89,7 @@ function Pages() {
         invokedBy: NavigationMethod.EntityExplorer,
       });
     },
-    [location.pathname],
+    [location.pathname, currentPageId],
   );
 
   const [isMenuOpen, openMenu] = useState(false);
