@@ -183,11 +183,13 @@ jobs:
           git config --global user.email "yatin@appsmith.com"
           git config --global user.name "yatinappsmith"
           git clone https://$cachetoken@github.com/yatinappsmith/testcacherepo.git
+          git lfs install
           cd testcacherepo/
           if [ "$reponame" = "appsmith" ]; then export repodir="ce"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="ee"; fi
           cd $repodir/release/server
           cp ../../../../../server.jar ./
+          git lfs track "server.jar"
           git add  server.jar
           git commit -m "Update Latest Server.jar"
           git push
