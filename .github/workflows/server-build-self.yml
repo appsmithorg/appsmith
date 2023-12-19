@@ -2,6 +2,7 @@
 name: Appsmith Server Self Hosted Workflow
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       pr:
