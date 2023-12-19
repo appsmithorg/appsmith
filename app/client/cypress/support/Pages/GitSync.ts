@@ -360,7 +360,7 @@ export class GitSync {
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     cy.waitUntil(
       () => {
-        this.agHelper.GetNClick(this._branchButton);
+        this.agHelper.GetElement(this._branchButton, "noVerify").click();
         if (this.agHelper.IsElementVisible(this._branchSearchInput)) {
           // If visible, return true to stop waiting
           return true;
