@@ -41,8 +41,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
-    private final NewActionService newActionService;
-    private final RefactoringService refactoringService;
+    protected final NewActionService newActionService;
+    protected final RefactoringService refactoringService;
     private final CollectionService collectionService;
     private final UpdateLayoutService updateLayoutService;
     private final ResponseUtils responseUtils;
@@ -366,49 +366,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
 
-        if (!StringUtils.hasLength(action.getPageId())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
-        }
-
-        NewAction newAction = newActionService.generateActionDomain(action);
-
-        // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
-        // Else fetch the page with create action permission to ensure that the user has the right to create an action
-        AclPermission aclPermission =
-                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
-
-        Mono<NewPage> pageMono = newPageService
-                .findById(action.getPageId(), aclPermission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
-                .cache();
-
-        return pageMono.flatMap(page -> {
-                    Layout layout = page.getUnpublishedPage().getLayouts().get(0);
-                    String name = action.getValidName();
-                    CreatorContextType contextType =
-                            action.getContextType() == null ? CreatorContextType.PAGE : action.getContextType();
-                    return refactoringService.isNameAllowed(page.getId(), contextType, layout.getId(), name);
-                })
-                .flatMap(nameAllowed -> {
-                    // If the name is allowed, return pageMono for further processing
-                    if (Boolean.TRUE.equals(nameAllowed)) {
-                        return pageMono;
-                    }
-                    String name = action.getValidName();
-                    // Throw an error since the new action's name matches an existing action or widget name.
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, name, FieldName.NAME));
-                })
-                .flatMap(page -> {
-                    // Inherit the action policies from the page.
-                    newActionService.generateAndSetActionPolicies(page, newAction);
-
-                    newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
-
-                    // Set the application id in the main domain
-                    newAction.setApplicationId(page.getApplicationId());
-
+        return validateAndGenerateActionDomainBasedOnContext(action, isJsAction)
+                .flatMap(newAction -> {
                     // If the datasource is embedded, check for workspaceId and set it in action
                     if (action.getDatasource() != null && action.getDatasource().getId() == null) {
                         Datasource datasource = action.getDatasource();
@@ -456,6 +415,52 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return analyticsService
                             .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
                             .thenReturn(zippedActions.getT1());
+                });
+    }
+
+    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(ActionDTO action, boolean isJsAction) {
+        if (!StringUtils.hasLength(action.getPageId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+        // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
+        // Else fetch the page with create action permission to ensure that the user has the right to create an action
+        AclPermission aclPermission =
+                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
+
+        Mono<NewPage> pageMono = newPageService
+                .findById(action.getPageId(), aclPermission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
+                .cache();
+
+        final NewAction newAction = newActionService.generateActionDomain(action);
+
+        return pageMono.flatMap(page -> {
+                    Layout layout = page.getUnpublishedPage().getLayouts().get(0);
+                    String name = action.getValidName();
+                    CreatorContextType contextType =
+                            action.getContextType() == null ? CreatorContextType.PAGE : action.getContextType();
+                    return refactoringService.isNameAllowed(page.getId(), contextType, layout.getId(), name);
+                })
+                .flatMap(nameAllowed -> {
+                    // If the name is allowed, return pageMono for further processing
+                    if (Boolean.TRUE.equals(nameAllowed)) {
+                        return pageMono;
+                    }
+                    String name = action.getValidName();
+                    // Throw an error since the new action's name matches an existing action or widget name.
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, name, FieldName.NAME));
+                })
+                .flatMap(page -> {
+                    // Inherit the action policies from the page.
+                    newActionService.generateAndSetActionPolicies(page, newAction);
+
+                    newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+
+                    // Set the application id in the main domain
+                    newAction.setApplicationId(page.getApplicationId());
+                    return Mono.just(newAction);
                 });
     }
 }

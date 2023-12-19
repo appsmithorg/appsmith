@@ -8,8 +8,6 @@ const StyledThemeProvider = styled(ThemeProvider)`
   min-width: 100%;
   min-height: 100%;
   padding: 36px;
-  background: var(--color-bg);
-  color: var(--color-fg);
   flex-direction: column;
   align-items: center;
 `;

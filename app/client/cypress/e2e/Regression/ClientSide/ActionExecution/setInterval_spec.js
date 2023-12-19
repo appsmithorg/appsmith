@@ -1,8 +1,9 @@
 import {
   agHelper,
-  entityExplorer,
   propPane,
   deployMode,
+  assertHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import data from "../../../../fixtures/TestDataSet1.json";
 import EditorNavigation, {
@@ -34,18 +35,11 @@ describe(
 
       //Works in the published version"
       deployMode.DeployApp();
-      cy.wait(3000);
-      cy.get("span:contains('Submit')").closest("div").click();
-      cy.wait("@postExecute")
-        .its("response.body.responseMeta.status")
-        .should("eq", 200);
-      cy.wait(3000);
+      agHelper.WaitUntilEleAppear(locators._buttonByText("Submit"));
 
-      cy.wait("@postExecute").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      agHelper.ClickButton("Submit");
+      assertHelper.AssertNetworkStatus("postExecute");
+      assertHelper.AssertNetworkStatus("postExecute");
       deployMode.NavigateBacktoEditor();
     });
 

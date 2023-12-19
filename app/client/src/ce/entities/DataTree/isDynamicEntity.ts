@@ -5,8 +5,8 @@ import type {
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
 import {
-  type ENTITY_TYPE,
-  ENTITY_TYPE_VALUE,
+  type EntityTypeValue,
+  ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
@@ -17,9 +17,9 @@ export function isDynamicEntity(
 ): entity is DynamicEntityType {
   return (
     [
-      ENTITY_TYPE_VALUE.JSACTION,
-      ENTITY_TYPE_VALUE.WIDGET,
-      ENTITY_TYPE_VALUE.ACTION,
-    ] as Array<ENTITY_TYPE>
+      ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE.ACTION,
+    ] as Array<EntityTypeValue>
   ).includes(entity.ENTITY_TYPE);
 }

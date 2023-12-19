@@ -11,9 +11,9 @@
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
-  padding-inline: var(--inner-spacing-2);
+  padding-inline: var(--inner-spacing-3);
   padding-block: var(--inner-spacing-2);
-  min-inline-size: var(--sizing-8);
+  min-inline-size: var(--sizing-12);
   border-radius: var(--border-radius-1);
 
   @each $color in colors {

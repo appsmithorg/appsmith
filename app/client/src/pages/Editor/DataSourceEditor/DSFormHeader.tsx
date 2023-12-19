@@ -1,3 +1,4 @@
+/* DO NOT INTRODUCE PAGE AND APPLICATION DEPENDENCIES IN THIS COMPONENT */
 import React, { useState } from "react";
 import FormTitle from "./FormTitle";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";

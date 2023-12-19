@@ -84,10 +84,8 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     // This field will be deprecated once we move to the new git sync implementation.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Internal.class)
-    @Deprecated
     String gitSyncId;
 
-    @Deprecated
     public void sanitiseToExportDBObject() {
         this.setCreatedAt(null);
         this.setUpdatedAt(null);

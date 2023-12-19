@@ -9,7 +9,7 @@ import {
 
 let userName: string;
 
-describe("Tests setTimeout API", function () {
+describe("Tests setTimeout API", { tags: ["@tag.JS"] }, function () {
   it("1. Executes showAlert after 3 seconds and uses default value", () => {
     jsEditor.CreateJSObject(
       `export default {
