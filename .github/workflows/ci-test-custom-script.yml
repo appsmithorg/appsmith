@@ -21,7 +21,8 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' 
     defaults:
       run:
         shell: bash
