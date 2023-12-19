@@ -409,9 +409,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if (
-        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
-      ) {
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
         this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
         this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
         this.agHelper.GetNClick(

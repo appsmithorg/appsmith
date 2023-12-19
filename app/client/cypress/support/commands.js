@@ -1315,12 +1315,11 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.continueButton).should("not.be.disabled");
   cy.get(welcomePage.continueButton).click();
 
-
   cy.get(welcomePage.proficiencyGroupButton).eq(0).click();
   cy.get(welcomePage.submitButton).should("be.disabled");
   cy.get(welcomePage.useCaseGroupButton).eq(0).click();
   cy.get(welcomePage.submitButton).should("not.be.disabled");
-  
+
   cy.get(welcomePage.submitButton).click();
   //in case of airgapped both anonymous data and newsletter are disabled
   if (Cypress.env("AIRGAPPED")) {
