@@ -5,6 +5,7 @@ import {
   assertHelper,
   dataSources,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   homePage,
@@ -885,7 +886,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     agHelper.ClickButton("Got it");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad();
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);

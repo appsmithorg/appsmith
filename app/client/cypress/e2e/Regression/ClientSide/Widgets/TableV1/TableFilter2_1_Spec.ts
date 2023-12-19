@@ -144,7 +144,7 @@ describe("Verify various Table_Filter combinations", function () {
     _.table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Michael Lawson");
     });
-    _.table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Lindsay Ferguson");
     });
 
@@ -163,10 +163,10 @@ describe("Verify various Table_Filter combinations", function () {
     _.table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Tobias Funke");
     });
-    _.table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Byron Fields");
     });
-    _.table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Ryan Holmes");
     });
 
@@ -177,13 +177,13 @@ describe("Verify various Table_Filter combinations", function () {
     _.table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Michael Lawson");
     });
-    _.table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Lindsay Ferguson");
     });
-    _.table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Byron Fields");
     });
-    _.table.ReadTableRowColumnData(3, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(3, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Ryan Holmes");
     });
 
@@ -194,7 +194,7 @@ describe("Verify various Table_Filter combinations", function () {
     _.table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Byron Fields");
     });
-    _.table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Ryan Holmes");
     });
 
@@ -212,10 +212,10 @@ describe("Verify various Table_Filter combinations", function () {
     _.table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Lindsay Ferguson");
     });
-    _.table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Byron Fields");
     });
-    _.table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Ryan Holmes");
     });
     _.table.RemoveFilterNVerify("2381224", true, false);

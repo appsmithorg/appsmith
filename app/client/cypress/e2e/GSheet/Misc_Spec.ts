@@ -141,9 +141,7 @@ describe(
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
       //deploy the app and verify the table data
-      deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
-      );
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       const data = GSHEET_DATA.filter((item) => item.rowIndex === "0")[0];
       table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
         expect(cellData).to.eq(data.uniq_id);
@@ -203,9 +201,7 @@ describe(
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
       //deploy the app and verify the table data
-      deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
-      );
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       const data = GSHEET_DATA.filter((item) => item.rowIndex === "1")[0];
       table.ReadTableRowColumnData(1, 0, "v2").then((cellData) => {
         expect(cellData).to.eq(data.uniq_id);

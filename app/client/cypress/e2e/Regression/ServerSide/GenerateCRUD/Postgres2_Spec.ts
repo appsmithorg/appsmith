@@ -3,6 +3,7 @@ import {
   assertHelper,
   dataSources,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   locators,
@@ -92,7 +93,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);

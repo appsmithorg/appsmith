@@ -119,19 +119,19 @@ describe("Character Datatype tests", function () {
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(" "); //white space for padding length!
     });
-    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
-    table.ReadTableRowColumnData(0, 5, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 5, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.eq(0);
     });
-    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.eq(0);
     });
   });
@@ -153,19 +153,19 @@ describe("Character Datatype tests", function () {
     );
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("a");
     });
-    table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Ocea"); //asserting only 4 chars are inserted due to column dt constraint
     });
-    table.ReadTableRowColumnData(1, 5, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 5, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
     });
-    table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
     });
   });
@@ -187,19 +187,19 @@ describe("Character Datatype tests", function () {
     );
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("<");
     });
-    table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Plan");
     });
-    table.ReadTableRowColumnData(2, 5, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 5, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0);
     });
-    table.ReadTableRowColumnData(2, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 6, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0);
     });
   });
@@ -218,19 +218,19 @@ describe("Character Datatype tests", function () {
     agHelper.ClearInputText("Unlimited", false);
     agHelper.ClickButton("Update");
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
-    table.ReadTableRowColumnData(2, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(">");
     });
-    table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Flig");
     });
-    table.ReadTableRowColumnData(2, 5, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 5, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0);
     });
-    table.ReadTableRowColumnData(2, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 6, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.eq(0);
     });
   });
@@ -241,10 +241,10 @@ describe("Character Datatype tests", function () {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
   });
@@ -266,20 +266,20 @@ describe("Character Datatype tests", function () {
     );
     agHelper.ClickButton("Update");
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       //since record updated is moving to last row in table - BUg 14347!
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(" "); //Not updating one column
     });
-    table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Tram");
     });
-    table.ReadTableRowColumnData(1, 5, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 5, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0);
     });
-    table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0);
     });
   });
@@ -300,19 +300,19 @@ describe("Character Datatype tests", function () {
     );
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("e");
     });
-    table.ReadTableRowColumnData(2, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(""); //asserting empty field inserted
     });
-    table.ReadTableRowColumnData(2, 5, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 5, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
     });
-    table.ReadTableRowColumnData(2, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 6, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
     });
   });
@@ -321,10 +321,10 @@ describe("Character Datatype tests", function () {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 3rd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4");
     });
   });
@@ -341,19 +341,19 @@ describe("Character Datatype tests", function () {
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("5"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(" ");
     });
-    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
-    table.ReadTableRowColumnData(0, 5, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 5, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.eq(0);
     });
-    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
       expect(Number($cellData)).to.eq(0);
     });
   });

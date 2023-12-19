@@ -76,7 +76,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       .then(($date) => expect($date).to.eq("Date: Invalid date"));
 
     table.SelectTableRow(2); //Asserting here table is available for selection
-    table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("213");
     });
     agHelper
@@ -87,7 +87,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       .then(($date) => expect($date).to.not.eq("Date: Invalid date"));
 
     table.SelectTableRow(4); //Asserting here table is available for selection
-    table.ReadTableRowColumnData(4, 0, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("713");
     });
     agHelper
@@ -97,10 +97,10 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       .GetText(locators._textWidgetInDeployed)
       .then(($date) => expect($date).to.eq("Date: Invalid date"));
 
-    table.NavigateToNextPage(false, "v2");
+    table.NavigateToNextPage(false, "v1");
     table.WaitUntilTableLoad();
     table.SelectTableRow(1); //Asserting here table is available for selection
-    table.ReadTableRowColumnData(1, 0, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("286");
     });
     agHelper

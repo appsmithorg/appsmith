@@ -282,7 +282,7 @@ export class Table {
   public ReadTableRowColumnData(
     rowNum: number,
     colNum: number,
-    tableVersion: "v1" | "v2" = "v2",
+    tableVersion: "v1" | "v2" = "v1",
     timeout = 1000,
   ) {
     //timeout can be sent higher values incase of larger tables

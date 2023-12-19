@@ -212,7 +212,7 @@ function GenerateCRUDNValidateDeployPage(
   agHelper.ClickButton("Got it");
   assertHelper.AssertNetworkStatus("@updateLayout", 200);
   appSettings.OpenPaneAndChangeTheme("Pacific");
-  deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+  deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
   //Validating loaded table
   agHelper.AssertElementExist(dataSources._selectedRow);

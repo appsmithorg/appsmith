@@ -166,21 +166,21 @@ describe("DateTime Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($ts) => {
-      table.ReadTableRowColumnData(0, 2, "v2", 200).then(($tstz) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($ts) => {
+      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($tstz) => {
         expect($ts).to.not.eq($tstz); //ts & tstz not equal since tstz is time zone applied
       });
     });
-    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("1989-01-19"); //date format!
     });
-    table.ReadTableRowColumnData(0, 4, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("16:05:00"); //time format
     });
-    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("6 years 5 mons 4 days 3 hours 2 mins 1.0 secs"); //Interval format!
     });
     table.ReadTableRowColumnData(0, 7).then(($cellData) => {
@@ -204,24 +204,24 @@ describe("DateTime Datatype tests", function () {
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
 
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($ts) => {
-      table.ReadTableRowColumnData(1, 2, "v2", 200).then(($tstz) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($ts) => {
+      table.ReadTableRowColumnData(1, 2, "v1", 200).then(($tstz) => {
         expect($ts).to.not.eq($tstz); //ts & tstz not equal since tstz is time zone applied
       });
     });
-    table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("2045-12-29");
     });
-    table.ReadTableRowColumnData(1, 4, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("04:05:00");
     });
-    table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("0 years 0 mons 3 days 4 hours 5 mins 6.0 secs");
     });
-    table.ReadTableRowColumnData(1, 7, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 7, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("29.12.2045");
     });
     agHelper
@@ -242,24 +242,24 @@ describe("DateTime Datatype tests", function () {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is same
     });
-    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($ts) => {
-      table.ReadTableRowColumnData(1, 2, "v2", 200).then(($tstz) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($ts) => {
+      table.ReadTableRowColumnData(1, 2, "v1", 200).then(($tstz) => {
         expect($ts).to.not.eq($tstz);
       });
     });
-    table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("2014-03-17");
     });
-    table.ReadTableRowColumnData(1, 4, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("04:05:06.789");
     });
-    table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("1 years 3 mons 2 days 6 hours 4 mins 5.0 secs");
     });
-    table.ReadTableRowColumnData(1, 7, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 7, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("17.03.2014");
     });
     agHelper
@@ -290,24 +290,24 @@ describe("DateTime Datatype tests", function () {
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
 
-    table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($ts) => {
-      table.ReadTableRowColumnData(1, 2, "v2", 200).then(($tstz) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($ts) => {
+      table.ReadTableRowColumnData(1, 2, "v1", 200).then(($tstz) => {
         expect($ts).to.not.eq($tstz); //ts & tstz not equal since tstz is time zone applied
       });
     });
-    table.ReadTableRowColumnData(1, 3, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("1999-01-08");
     });
-    table.ReadTableRowColumnData(1, 4, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("18:14:16");
     });
-    table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("1 years 2 mons 0 days 0 hours 0 mins 0.0 secs");
     });
-    table.ReadTableRowColumnData(1, 7, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 7, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("08.01.1999");
     });
     agHelper

@@ -100,7 +100,7 @@ describe("Binary Datatype tests", function () {
   //   table.ReadTableRowColumnData(0, 0).then(($cellData) => {
   //     expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
   //   });
-  //   table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
+  //   table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
   //     expect($cellData).to.eq("Bridge.jpg");
   //   });
   //   table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
@@ -128,7 +128,7 @@ describe("Binary Datatype tests", function () {
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Georgia.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(1, 2).then(($oldimage) => {
@@ -156,7 +156,7 @@ describe("Binary Datatype tests", function () {
     table.ReadTableRowColumnData(2, 0).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Maine.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
@@ -182,10 +182,10 @@ describe("Binary Datatype tests", function () {
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(14000); //some more time for rows to rearrange!
-    table.ReadTableRowColumnData(2, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("NewJersey.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
@@ -208,7 +208,7 @@ describe("Binary Datatype tests", function () {
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("2");
     });
 
@@ -234,10 +234,10 @@ describe("Binary Datatype tests", function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //for all rows with images to be populated
-    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Massachusetts.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {

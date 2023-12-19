@@ -70,10 +70,10 @@ describe("Verify various Table_Filter combinations", function () {
     _.table.ReadTableRowColumnData(0, 4).then(($cellData) => {
       expect($cellData).to.eq("Chicken Sandwich");
     });
-    _.table.ReadTableRowColumnData(1, 4, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(1, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Beef steak");
     });
-    _.table.ReadTableRowColumnData(2, 4, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(2, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Chicken Sandwich");
     });
 

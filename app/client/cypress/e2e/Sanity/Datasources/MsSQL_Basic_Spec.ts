@@ -359,7 +359,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad();
 
     //Validating loaded table

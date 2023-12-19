@@ -270,7 +270,7 @@ describe("JS Function Execution", function () {
     // Deploy App and test that table loads properly
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
-    table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
