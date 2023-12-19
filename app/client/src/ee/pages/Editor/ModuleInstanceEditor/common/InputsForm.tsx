@@ -1,4 +1,10 @@
-import React, { useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,8 +19,6 @@ import {
 import { updateModuleInstance } from "@appsmith/actions/moduleInstanceActions";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
-import equal from "fast-deep-equal/es6";
-import { klona } from "klona";
 import { getModuleInstanceEvalValues } from "@appsmith/selectors/moduleInstanceSelectors";
 
 interface InputsFormProps {
@@ -46,41 +50,55 @@ function InputsForm({
   moduleInstanceId,
   moduleInstanceName,
 }: InputsFormProps) {
-  const valuesRef = useRef<InputsFormProps["defaultValues"]>(defaultValues);
+  const currentModuleInstanceIdRef = useRef(moduleInstanceId);
   const dispatch = useDispatch();
   const formSection = inputsForm[0].children;
   const inputsEvaluatedValues = useSelector((state) =>
     getModuleInstanceEvalValues(state, moduleInstanceName),
   );
+  const [triggerReset, setTriggerReset] = useState(false);
 
   const onUpdateInputsForm = useMemo(() => {
     const onUpdate = (values: InputsFormProps["defaultValues"]) => {
       if (!moduleInstanceId) return;
 
-      if (!equal(valuesRef.current, values)) {
-        valuesRef.current = klona(values);
-
-        dispatch(
-          updateModuleInstance({
-            id: moduleInstanceId,
-            moduleInstance: {
-              inputs: values.inputs,
-            },
-          }),
-        );
-      }
+      dispatch(
+        updateModuleInstance({
+          id: moduleInstanceId,
+          moduleInstance: {
+            inputs: values.inputs,
+          },
+        }),
+      );
     };
 
     return debounce(onUpdate, DEBOUNCE_TIMEOUT);
   }, [updateModuleInstance, moduleInstanceId, dispatch]);
 
+  useEffect(() => {
+    if (moduleInstanceId !== currentModuleInstanceIdRef.current) {
+      setTriggerReset(true);
+      currentModuleInstanceIdRef.current = moduleInstanceId;
+    }
+  }, [currentModuleInstanceIdRef.current, defaultValues]);
+
+  const onResetComplete = useCallback(() => {
+    setTriggerReset(false);
+  }, [setTriggerReset]);
+
   if (!formSection.length) {
     return <Text>{createMessage(MODULE_INSTANCE_EMPTY_INPUT)}</Text>;
   }
+
   return (
     <Wrapper>
       <Text kind="heading-s">Inputs</Text>
-      <Form defaultValues={defaultValues} onUpdateForm={onUpdateInputsForm}>
+      <Form
+        defaultValues={defaultValues}
+        onResetComplete={onResetComplete}
+        onUpdateForm={onUpdateInputsForm}
+        triggerReset={triggerReset}
+      >
         <InputFieldWrapper>
           {formSection.map(({ id, label, propertyName }) => {
             return (

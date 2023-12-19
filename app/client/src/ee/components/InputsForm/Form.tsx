@@ -11,6 +11,8 @@ export type FormProps<TValues> = PropsWithChildren<{
   defaultValues: TValues;
   onUpdateForm: (values: TValues) => void;
   evaluatedValues?: Record<string, unknown>;
+  triggerReset?: boolean;
+  onResetComplete?: () => void;
 }>;
 
 function Form<TValues extends FieldValues>({
@@ -18,13 +20,15 @@ function Form<TValues extends FieldValues>({
   dataTreePathPrefix,
   defaultValues,
   evaluatedValues,
+  onResetComplete,
   onUpdateForm,
+  triggerReset,
 }: FormProps<TValues>) {
   const currentValues = useRef<TValues>(defaultValues);
   const methods = useForm<TValues>({
     defaultValues: defaultValues as any,
   });
-  const { watch } = methods;
+  const { reset, watch } = methods;
 
   useEffect(() => {
     const subscription = watch((values) => {
@@ -37,7 +41,15 @@ function Form<TValues extends FieldValues>({
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [onUpdateForm, currentValues.current]);
+
+  useEffect(() => {
+    if (triggerReset) {
+      currentValues.current = klona(defaultValues);
+      reset(defaultValues as any);
+      onResetComplete?.();
+    }
+  }, [triggerReset, onResetComplete, reset, defaultValues]);
 
   return (
     <InputsFormContextProvider
