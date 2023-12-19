@@ -40,7 +40,6 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
-import { sha256 } from "js-sha256";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -107,7 +106,7 @@ export function IntercomConsent({
   const dispatch = useDispatch();
 
   const sendUserDataToIntercom = () => {
-    const { email, username } = user || {};
+    const { email } = user || {};
     updateIntercomProperties(instanceId, user);
     dispatch(
       updateUserDetails({
@@ -121,12 +120,6 @@ export function IntercomConsent({
       AnalyticsUtil.identifyUser(user, true);
       AnalyticsUtil.logEvent("SUPPORT_REQUEST_INITIATED", {
         email,
-        userId: sha256(username || ""),
-        appsmithVersion: `Appsmith ${!cloudHosting ? appVersion.edition : ""} ${
-          appVersion.id
-        }`,
-        instanceId,
-        id: sha256(username || ""),
       });
     }
 
