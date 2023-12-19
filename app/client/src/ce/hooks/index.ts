@@ -5,7 +5,7 @@ import {
 import { matchPath } from "react-router";
 
 export const EditorNames = {
-  APPLICATION: "appEditor",
+  APPLICATION: "app",
 };
 
 export interface EditorType {

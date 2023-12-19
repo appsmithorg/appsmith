@@ -283,7 +283,9 @@ export function* createActionSaga(
   }
 }
 
-function* fetchActionDatasourceStructure(action: ActionCreateUpdateResponse) {
+export function* fetchActionDatasourceStructure(
+  action: ActionCreateUpdateResponse,
+) {
   if (action.datasource?.id) {
     const doesDatasourceStructureAlreadyExist: DatasourceStructure =
       yield select(getDatasourceStructureById, action.datasource.id);
@@ -305,8 +307,9 @@ export function* fetchActionsSaga(
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> =
-      yield ActionAPI.fetchActions(applicationId);
+    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions({
+      applicationId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

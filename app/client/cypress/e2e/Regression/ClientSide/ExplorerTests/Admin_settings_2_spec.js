@@ -21,7 +21,7 @@ const routes = {
   VERSION: "/settings/version",
 };
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   it("1. should test that configure link redirects to google maps setup doc", () => {
     cy.visit(routes.DEVELOPER_SETTINGS, { timeout: 60000 });
     cy.get(adminsSettings.readMoreLink).within(() => {

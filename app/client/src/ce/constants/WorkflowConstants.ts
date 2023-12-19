@@ -12,6 +12,8 @@ export interface Workflow {
   userPermissions: string[];
   new: boolean;
   slug: string; // Slug of the workflow (Not in use currently).
+  mainJsObjectId: string; // ID of the main JS object.
+  tokenGenerated: boolean;
 }
 
 export type WorkflowMetadata = Workflow;

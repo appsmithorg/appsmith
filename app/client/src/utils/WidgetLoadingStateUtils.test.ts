@@ -4,7 +4,7 @@ import type {
   ActionEntity,
   JSActionEntity,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,
   getEntityDependantPaths,
@@ -15,7 +15,7 @@ import WidgetFactory from "../WidgetProvider/factory";
 const JS_object_tree: JSActionEntity = {
   pluginType: PluginType.JS,
   name: "",
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION,
   body: "",
   meta: {},
   dynamicBindingPathList: [],
@@ -28,7 +28,7 @@ const JS_object_tree: JSActionEntity = {
 
 // @ts-expect-error: meta property not provided
 const Select_tree: WidgetEntity = {
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   widgetId: "",
   type: "",
   widgetName: "",
@@ -50,7 +50,7 @@ const Query_tree: ActionEntity = {
   config: {},
   run: {},
   clear: {},
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE.ACTION,
   datasourceUrl: "",
   responseMeta: {
     isExecutionSuccess: true,
@@ -64,7 +64,7 @@ const Api_tree: ActionEntity = {
   config: {},
   run: {},
   clear: {},
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE.ACTION,
   datasourceUrl: "",
   responseMeta: {
     isExecutionSuccess: true,
@@ -73,7 +73,7 @@ const Api_tree: ActionEntity = {
 };
 
 const Table_tree: WidgetEntity = {
-  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   widgetId: "",
   type: "TABLE_WIDGET",
   widgetName: "",

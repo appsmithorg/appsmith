@@ -38,7 +38,7 @@ const QueriesBlankState = () => {
       </Text>
       {canCreateActions && (
         <Button size={"md"} startIcon={"add-line"}>
-          {createMessage(PAGES_PANE_TEXTS.query_blank_button)}
+          {createMessage(PAGES_PANE_TEXTS.query_add_button)}
         </Button>
       )}
     </Flex>

@@ -30,7 +30,7 @@ export interface ActionGroupConfig {
   icon: JSX.Element;
   key: string;
   getURL: (
-    pageId: string,
+    parentEntityId: string,
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
@@ -54,14 +54,14 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      pageId: string,
+      parentEntityId: string,
       id: string,
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
         return saasEditorApiIdURL({
-          pageId,
+          parentEntityId,
           pluginPackageName: plugin.packageName,
           apiId: id,
         });
@@ -71,11 +71,11 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         pluginType === PluginType.AI
       ) {
         return queryEditorIdURL({
-          pageId,
+          parentEntityId,
           queryId: id,
         });
       } else {
-        return apiEditorIdURL({ pageId, apiId: id });
+        return apiEditorIdURL({ parentEntityId, apiId: id });
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {

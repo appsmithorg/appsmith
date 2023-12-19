@@ -78,8 +78,6 @@ function* publishCommunityTemplateSaga(
 
     const response: PublishCommunityTemplateResponse = yield call(
       TemplatesAPI.publishCommunityTemplate,
-      applicationId,
-      workspaceId,
       requestObj,
     );
     const isValid: boolean = yield validateResponse(response);

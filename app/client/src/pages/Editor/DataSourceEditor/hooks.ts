@@ -23,6 +23,8 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { get } from "lodash";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
 
 interface FetchPreviewData {
   datasourceId: string;
@@ -146,15 +148,18 @@ export const useShowPageGenerationOnHeader = (
     getGenerateCRUDEnabledPluginMap,
   );
 
+  const editorType = useEditorType(history.location.pathname);
+
   const canCreatePages = getHasCreatePagePermission(
     isGACEnabled,
     userAppPermissions,
   );
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isGACEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isGACEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const canGeneratePage = canCreateDatasourceActions && canCreatePages;
 

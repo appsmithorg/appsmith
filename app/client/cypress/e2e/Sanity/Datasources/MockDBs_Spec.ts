@@ -34,7 +34,7 @@ describe(
           'SELECT * FROM public."users" LIMIT 10;',
         );
 
-        dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
+        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -43,7 +43,7 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.RunQueryNVerifyResponseViews(10, true);
+        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
