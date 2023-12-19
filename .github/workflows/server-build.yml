@@ -83,7 +83,7 @@ jobs:
           cd testcacherepo/
           if [ "$reponame" = "appsmith" ]; then export repodir="ce"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="ee"; fi
-          cd $repodir/server
+          cd $repodir/release/server
           export var1=`tr -dc A-Za-z0-9 </dev/urandom | head -c 13`
           touch $var1
           git add  $var1
