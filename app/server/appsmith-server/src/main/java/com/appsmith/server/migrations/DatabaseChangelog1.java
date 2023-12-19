@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
@@ -37,7 +36,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
@@ -56,7 +54,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -67,8 +64,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -77,21 +72,6 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @Slf4j
 @ChangeLog(order = "001")
 public class DatabaseChangelog1 {
-
-    public static ObjectMapper objectMapper = new ObjectMapper();
-    private static final String AGGREGATE_LIMIT = "aggregate.limit";
-    private static final Object DEFAULT_BATCH_SIZE = "101";
-    public static final String FIRESTORE_PLUGIN_NAME = "firestore-plugin";
-    public static final String CONDITION_KEY = "condition";
-    public static final String CHILDREN_KEY = "children";
-    public static final String OPERATOR_KEY = "operator";
-    public static final String VALUE_KEY = "value";
-    public static final String PATH_KEY = "path";
-    public static final String AND = "AND";
-    public static final String KEY = "key";
-    public static final String START_AFTER = "startAfter";
-    public static final String END_BEFORE = "endBefore";
-    public static final String SMART_SUBSTITUTION = "smartSubstitution";
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -164,24 +144,6 @@ public class DatabaseChangelog1 {
             return false;
         }
         return true;
-    }
-
-    private ActionDTO copyActionToDTO(Action action) {
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setName(action.getName());
-        actionDTO.setDatasource(action.getDatasource());
-        actionDTO.setPageId(action.getPageId());
-        actionDTO.setActionConfiguration(action.getActionConfiguration());
-        actionDTO.setExecuteOnLoad(action.getExecuteOnLoad());
-        actionDTO.setDynamicBindingPathList(action.getDynamicBindingPathList());
-        actionDTO.setIsValid(action.getIsValid());
-        actionDTO.setInvalids(action.getInvalids());
-        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-        actionDTO.setCacheResponse(action.getCacheResponse());
-        actionDTO.setUserSetOnLoad(action.getUserSetOnLoad());
-        actionDTO.setConfirmBeforeExecute(action.getConfirmBeforeExecute());
-
-        return actionDTO;
     }
 
     public static void installPluginToAllWorkspaces(MongoTemplate mongoTemplate, String pluginId) {
@@ -756,18 +718,6 @@ public class DatabaseChangelog1 {
         mongoTemplate.insert(new Config(new JSONObject(Map.of("value", false)), Appsmith.APPSMITH_REGISTERED));
     }
 
-    private List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
-        List<Property> templates = new ArrayList<>();
-        for (int i = 0; i < 22; i++) {
-            Property template = new Property();
-            if (configuration.containsKey(i)) {
-                template.setValue(configuration.get(i));
-            }
-            templates.add(template);
-        }
-        return templates;
-    }
-
     @ChangeSet(order = "072", id = "add-snowflake-plugin", author = "")
     public void addSnowflakePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
@@ -869,32 +819,6 @@ public class DatabaseChangelog1 {
         }
     }
 
-    public static Document getDocumentFromPath(Document document, String path) {
-        String[] pathKeys = path.split("\\.");
-        Document documentPtr = document;
-
-        /**
-         * - Traverse document one key at a time.
-         * - Forced to traverse document one key at a time for the lack of a better API that allows traversal for
-         * chained keys or key list.
-         */
-        for (int i = 0; i < pathKeys.length; i++) {
-            if (documentPtr.containsKey(pathKeys[i])) {
-                try {
-                    documentPtr = documentPtr.get(pathKeys[i], Document.class);
-                } catch (ClassCastException e) {
-                    log.debug("Failed to cast document for path: " + path);
-                    e.printStackTrace();
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        }
-
-        return documentPtr;
-    }
-
     @ChangeSet(order = "082", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "")
     public void createPluginReferenceForS3AndGSheetGenerateCRUDPage(MongoTemplate mongoTemplate) {
 
@@ -929,13 +853,6 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    private void updateFormData(int index, Object value, Map formData, Map<Integer, String> migrationMap) {
-        if (migrationMap.containsKey(index)) {
-            String path = migrationMap.get(index);
-            setValueSafelyInFormData(formData, path, value);
-        }
-    }
-
     @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
     public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
@@ -946,150 +863,6 @@ public class DatabaseChangelog1 {
                 makeIndex("pluginName", "packageName", "version")
                         .unique()
                         .named("plugin_name_package_name_version_index"));
-    }
-
-    public static final Map<Integer, List<String>> s3MigrationMap = Map.ofEntries(
-            Map.entry(0, List.of("command")),
-            Map.entry(1, List.of("bucket")),
-            Map.entry(2, List.of("list.signedUrl")),
-            Map.entry(3, List.of("list.expiry")),
-            Map.entry(4, List.of("list.prefix")),
-            Map.entry(5, List.of("read.usingBase64Encoding")),
-            Map.entry(6, List.of("create.dataType", "read.dataType")),
-            Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
-            Map.entry(8, List.of("list.unSignedUrl")));
-
-    /**
-     * This class is meant to hold any method that is required to transform data before migrating the data to UQI
-     * schema. Usage of a class makes the data transformation process modular e.g. someone could create
-     * another class extending this class and override the `transformData` method.
-     */
-    public class UQIMigrationDataTransformer {
-
-        /**
-         * This method holds the steps to transform data before it is migrated to UQI schema.
-         * Each transformation is uniquely identified by the combination of plugin name and the transformation name.
-         *
-         * @param pluginName         - name of the plugin for which the transformation is intended
-         * @param transformationName - name of the transformation relative to the plugin
-         * @param value              - value that needs to be transformed
-         * @return - transformed value
-         */
-        public Object transformData(String pluginName, String transformationName, Object value) {
-
-            if (value == null) {
-                return value;
-            }
-
-            switch (pluginName) {
-                    /* Data transformations for Firestore plugin are defined in this case. */
-                case FIRESTORE_PLUGIN_NAME:
-                    /**
-                     * This case takes care of transforming Firestore's where clause data to UQI's where
-                     * clause schema.
-                     */
-                    if ("where-clause-migration".equals(transformationName)) {
-                        /* This map will hold the transformed data as per UQI's where clause schema */
-                        HashMap<String, Object> uqiWhereMap = new HashMap<>();
-                        uqiWhereMap.put(CONDITION_KEY, AND);
-                        uqiWhereMap.put(CHILDREN_KEY, new ArrayList<>());
-
-                        List<Map<String, Object>> oldListOfConditions;
-                        try {
-                            oldListOfConditions = (List<Map<String, Object>>) value;
-                        } catch (ClassCastException e) {
-                            log.debug("value: " + value);
-                            oldListOfConditions = new ArrayList<>();
-                        }
-
-                        oldListOfConditions.stream().forEachOrdered(oldCondition -> {
-                            /* Map old values to keys in the new UQI format. */
-                            Map<String, Object> uqiCondition = new HashMap<>();
-                            uqiCondition.put(CONDITION_KEY, oldCondition.get(OPERATOR_KEY));
-                            uqiCondition.put(KEY, oldCondition.get(PATH_KEY));
-                            uqiCondition.put(VALUE_KEY, oldCondition.get(VALUE_KEY));
-
-                            /* Add condition to the UQI where clause. */
-                            ((List) uqiWhereMap.get(CHILDREN_KEY)).add(uqiCondition);
-                        });
-
-                        return uqiWhereMap;
-                    }
-
-                    /**
-                     * Throw error since no handler could be found for the pluginName and transformationName
-                     * combination.
-                     */
-                    String transformationKeyNotFoundErrorMessage =
-                            "Data transformer failed to find any " + "matching case for plugin: "
-                                    + pluginName + " and key: " + transformationName + ". Please "
-                                    + "contact Appsmith customer support to resolve this.";
-                    assert false : transformationKeyNotFoundErrorMessage;
-
-                    break;
-                default:
-                    /* Throw error since no handler could be found for the plugin matching pluginName */
-                    String noPluginHandlerFoundErrorMessage = "Data transformer failed to find any matching case for "
-                            + "plugin: " + pluginName + ". Please contact Appsmith customer support to resolve this.";
-                    assert false : noPluginHandlerFoundErrorMessage;
-            }
-
-            /* Execution flow is never expected to reach here. */
-            String badExecutionFlowErrorMessage = "Execution flow is never supposed to reach here. Please contact "
-                    + "Appsmith customer support to resolve this.";
-            assert false : badExecutionFlowErrorMessage;
-
-            return value;
-        }
-    }
-
-    private void updateFormDataMultipleOptions(
-            int index,
-            Object value,
-            Map formData,
-            Map<Integer, List<String>> migrationMap,
-            Map<Integer, String> uqiDataTransformationMap,
-            UQIMigrationDataTransformer dataTransformer,
-            String pluginName) {
-        if (migrationMap.containsKey(index)) {
-            if (dataTransformer != null && uqiDataTransformationMap.containsKey(index)) {
-                String transformationKey = uqiDataTransformationMap.get(index);
-                value = dataTransformer.transformData(pluginName, transformationKey, value);
-            }
-            List<String> paths = migrationMap.get(index);
-            for (String path : paths) {
-                setValueSafelyInFormData(formData, path, value);
-            }
-        }
-    }
-
-    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(
-            List<Property> pluginSpecifiedTemplates,
-            Map<Integer, List<String>> migrationMap,
-            Map<Integer, String> uqiDataTransformationMap,
-            UQIMigrationDataTransformer dataTransformer,
-            String pluginName) {
-
-        if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
-            Map<String, Object> formData = new HashMap<>();
-            for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
-                Property template = pluginSpecifiedTemplates.get(i);
-                if (template != null) {
-                    updateFormDataMultipleOptions(
-                            i,
-                            template.getValue(),
-                            formData,
-                            migrationMap,
-                            uqiDataTransformationMap,
-                            dataTransformer,
-                            pluginName);
-                }
-            }
-
-            return formData;
-        }
-
-        return new HashMap<>();
     }
 
     @ChangeSet(order = "094", id = "migrate-s3-to-uqi", author = "")
@@ -1109,7 +882,17 @@ public class DatabaseChangelog1 {
      * @param objectMapper
      * @param action
      * @param migrationMap           : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
-     *                               reference, please check out the `s3MigrationMap` defined above.
+     *                               reference, here's an example:
+     *        Map.ofEntries(
+     *             Map.entry(0, List.of("command")),
+     *             Map.entry(1, List.of("bucket")),
+     *             Map.entry(2, List.of("list.signedUrl")),
+     *             Map.entry(3, List.of("list.expiry")),
+     *             Map.entry(4, List.of("list.prefix")),
+     *             Map.entry(5, List.of("read.usingBase64Encoding")),
+     *             Map.entry(6, List.of("create.dataType", "read.dataType")),
+     *             Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
+     *             Map.entry(8, List.of("list.unSignedUrl")));
      * @return : updated dynamicBindingPathList - ported to UQI model.
      */
     static List<Property> getUpdatedDynamicBindingPathList(
@@ -1174,117 +957,6 @@ public class DatabaseChangelog1 {
         return newDynamicBindingPathList;
     }
 
-    private DslUpdateDto updateListWidgetTriggerPaths(DslUpdateDto dslUpdateDto) {
-        JSONObject dsl = dslUpdateDto.getDsl();
-        Boolean updated = dslUpdateDto.getUpdated();
-
-        if (dsl == null) {
-            // This isn't a valid widget configuration. No need to traverse this.
-            return dslUpdateDto;
-        }
-
-        String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
-        if ("LIST_WIDGET".equals(widgetType)) {
-            // Only List Widget would go through the following processing
-
-            // Start by picking all fields where we expect to find dynamic triggers for this particular widget
-            List<Object> dynamicTriggerPaths = (ArrayList<Object>) dsl.get(DYNAMIC_TRIGGER_PATH_LIST);
-
-            Set<String> newTriggerPaths = new HashSet<>();
-
-            if (dynamicTriggerPaths != null) {
-                // Each of these might have nested structures, so we iterate through them to find the leaf node for each
-                for (Object x : dynamicTriggerPaths) {
-                    Boolean validPath = true;
-                    final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
-                    String[] fields = fieldPath.split("[].\\[]");
-                    // For nested fields, the parent dsl to search in would shift by one level every iteration
-                    Object parent = dsl;
-                    Iterator<String> fieldsIterator = Arrays.stream(fields)
-                            .filter(fieldToken -> !fieldToken.isBlank())
-                            .iterator();
-                    boolean isLeafNode = false;
-                    // This loop will end at either a leaf node, or the last identified JSON field (by throwing an
-                    // exception)
-                    // Valid forms of the fieldPath for this search could be:
-                    // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
-                    while (fieldsIterator.hasNext()) {
-                        String nextKey = fieldsIterator.next();
-                        if (parent instanceof JSONObject) {
-                            parent = ((JSONObject) parent).get(nextKey);
-                        } else if (parent instanceof Map) {
-                            parent = ((Map<String, ?>) parent).get(nextKey);
-                        } else if (parent instanceof List) {
-                            if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                                try {
-                                    parent = ((List) parent).get(Integer.parseInt(nextKey));
-                                } catch (IndexOutOfBoundsException e) {
-                                    // The index being referred does not exist. Hence the path would not exist.
-                                    validPath = false;
-                                }
-                            } else {
-                                validPath = false;
-                            }
-                        }
-                        // After updating the parent, check for the types
-                        if (parent == null) {
-                            validPath = false;
-                        } else if (parent instanceof String) {
-                            // If we get String value, then this is a leaf node
-                            isLeafNode = true;
-                        }
-
-                        // Only extract mustache keys from leaf nodes
-                        if (isLeafNode && validPath) {
-
-                            // We found the path.
-                            if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
-                                // No bindings found.
-                                break;
-                            }
-
-                            newTriggerPaths.add(fieldPath);
-                        }
-                    }
-                }
-
-                // Check if the newly computed trigger paths are different from the existing ones and if true, set it in
-                // the dsl
-                if (dynamicTriggerPaths.size() != newTriggerPaths.size()
-                        || !newTriggerPaths.containsAll(dynamicTriggerPaths)) {
-                    updated = Boolean.TRUE;
-                    List<Object> finalTriggerPaths = new ArrayList<>();
-                    for (String triggerPath : newTriggerPaths) {
-                        Map<String, String> entry = new HashMap<>();
-                        entry.put("key", triggerPath);
-                        finalTriggerPaths.add(entry);
-                    }
-                    dsl.put(DYNAMIC_TRIGGER_PATH_LIST, finalTriggerPaths);
-                }
-            }
-        }
-
-        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
-        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
-        ArrayList<Object> newChildren = new ArrayList<>();
-        if (children != null) {
-            for (int i = 0; i < children.size(); i++) {
-                Map data = (Map) children.get(i);
-                JSONObject object = new JSONObject();
-                // If the children tag exists and there are entries within it
-                if (!CollectionUtils.isEmpty(data)) {
-                    object.putAll(data);
-                    DslUpdateDto childUpdated = updateListWidgetTriggerPaths(new DslUpdateDto(object, updated));
-                    updated = childUpdated.getUpdated();
-                    newChildren.add(childUpdated.getDsl());
-                }
-            }
-            dsl.put(FieldName.CHILDREN, newChildren);
-        }
-
-        return new DslUpdateDto(dsl, updated);
-    }
-
     @ChangeSet(order = "099", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
@@ -1323,30 +995,6 @@ public class DatabaseChangelog1 {
 
         flushdb.blockLast();
     }
-
-    /* Map values from pluginSpecifiedTemplates to formData (UQI) */
-    public static final Map<Integer, List<String>> firestoreMigrationMap = Map.ofEntries(
-            Map.entry(0, List.of("command")),
-            Map.entry(1, List.of("orderBy")),
-            Map.entry(2, List.of("limitDocuments")),
-            Map.entry(3, List.of("where")),
-            Map.entry(4, List.of("")), // index 4 is not used in pluginSpecifiedTemplates
-            Map.entry(5, List.of("")), // index 5 is not used in pluginSpecifiedTemplates
-            Map.entry(6, List.of("startAfter")),
-            Map.entry(7, List.of("endBefore")),
-            Map.entry(8, List.of("timestampValuePath")),
-            Map.entry(9, List.of("deleteKeyPath")));
-
-    /**
-     * This map indicates which fields in pluginSpecifiedTemplates require a transformation before their data can be
-     * migrated to the UQI schema.
-     * The key contains the index of the data that needs transformation and the value indicates the which kind of
-     * transformation is required. e.g. (3, "where-clause-migration") indicates that the value against index 3 in
-     * pluginSpecifiedTemplates needs to be migrated by the rules identified by the string "where-clause-migration".
-     * The rules are defined in the class UQIMigrationDataTransformer.
-     */
-    public static final Map<Integer, String> firestoreUQIDataTransformationMap =
-            Map.ofEntries(Map.entry(3, "where-clause-migration"));
 
     @ChangeSet(order = "103", id = "migrate-firestore-to-uqi", author = "")
     public void migrateFirestorePluginToUqi(MongoTemplate mongoTemplate) {
