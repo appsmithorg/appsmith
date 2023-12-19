@@ -116,15 +116,20 @@ export function IntercomConsent({
     );
     dispatch(updateIntercomConsent());
     showIntercomConsent(false);
-    AnalyticsUtil.logEvent("SUPPORT_REQUEST_INITIATED", {
-      email,
-      userId: sha256(username || ""),
-      appsmithVersion: `Appsmith ${!cloudHosting ? appVersion.edition : ""} ${
-        appVersion.id
-      }`,
-      instanceId,
-      id: sha256(username || ""),
-    });
+
+    if (user?.enableTelemetry) {
+      AnalyticsUtil.identifyUser(user, true);
+      AnalyticsUtil.logEvent("SUPPORT_REQUEST_INITIATED", {
+        email,
+        userId: sha256(username || ""),
+        appsmithVersion: `Appsmith ${!cloudHosting ? appVersion.edition : ""} ${
+          appVersion.id
+        }`,
+        instanceId,
+        id: sha256(username || ""),
+      });
+    }
+
     window.Intercom("show");
   };
   return (
