@@ -49,16 +49,13 @@ echo -n 'index.html body' > "$WWW_PATH/index.html"
 mkcert -install
 
 # Start echo server
-(
-  export XDG_DATA_HOME="$TMP/echo-data"
-  export XDG_CONFIG_HOME="$TMP/echo-conf"
-  mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
-  caddy start --config echo.caddyfile --adapter caddyfile >> "$TMP/echo-caddy.log" 2>&1
-)
+XDG_DATA_HOME="$TMP/echo-data" \
+  XDG_CONFIG_HOME="$TMP/echo-conf" \
+  caddy start --config echo.caddyfile --adapter caddyfile \
+  >> "$TMP/echo-caddy.log" 2>&1
 
 # Start Caddy for use with our config to test
-echo localhost > "$TMP/Caddyfile"
-caddy start --config "$TMP/Caddyfile" >> "$TMP/caddy.log" 2>&1
+caddy start >> "$TMP/caddy.log" 2>&1
 
 sleep 1
 
@@ -120,3 +117,11 @@ export APPSMITH_ALLOWED_FRAME_ANCESTORS=""
 node /caddy-reconfigure.mjs
 reload-caddy
 run-hurl common/*.hurl
+
+
+new-spec "Spec 7: Frame ancestors value with extra CSP directives"
+export APPSMITH_ALLOWED_FRAME_ANCESTORS="something.com; script-src something more not allowed"
+node /caddy-reconfigure.mjs
+reload-caddy
+run-hurl --variable frame_ancestors="something.com" \
+  common/*.hurl
