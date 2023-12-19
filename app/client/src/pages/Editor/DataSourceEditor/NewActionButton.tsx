@@ -123,6 +123,7 @@ function NewActionButton(props: NewActionButtonProps) {
       <MenuContent
         align={"end"}
         data-testId={"t--page-selection"}
+        height={"350px"}
         side={"bottom"}
       >
         <Text className="pl-2" kind="heading-xs">{`Create a ${
