@@ -187,14 +187,14 @@ jobs:
           if [ "$reponame" = "appsmith" ]; then export repodir="ce"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="ee"; fi
           cd $repodir/release/server
-          cp ../../../../server.jar ./
+          cp ../../../../../server.jar ./
           git add  server.jar
           git commit -m "Update Latest Server.jar"
           git push
 
-      - name: Setup upterm session
-        if: always()
-        uses: lhotari/action-upterm@v1
+      #- name: Setup upterm session
+      #  if: always()
+      #  uses: lhotari/action-upterm@v1
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
