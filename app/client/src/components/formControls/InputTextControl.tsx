@@ -20,13 +20,12 @@ export const StyledInfo = styled.span`
 `;
 
 const FieldWrapper = styled.div<{
-  isFixed: boolean;
   width: string;
 }>`
-  position: ${(props) => (props?.isFixed ? "fixed" : "relative")};
-  min-width: ${(props) => (!props?.isFixed ? "380px" : "")};
-  max-width: ${(props) => (!props?.isFixed ? "545px" : "")};
-  width: ${(props) => (props?.isFixed && props?.width ? props.width : "")};
+  position: relative;
+  min-width: ${(props) => (props?.width ? props.width : "380px")};
+  max-width: 545px;
+  width: ${(props) => (props?.width ? props.width : "")};
 `;
 
 const SecretDisplayIndicator = styled.input`
@@ -129,7 +128,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
       dataType,
       disabled,
       encrypted,
-      isFixed,
       isValid,
       label,
       placeholderText,
@@ -143,7 +141,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
     return (
       <FieldWrapper
         data-testid={configProperty}
-        isFixed={!!isFixed}
         style={customStyles || {}}
         width={width || ""}
       >
@@ -204,7 +201,6 @@ export interface InputControlProps extends ControlProps {
   disabled?: boolean;
   validator?: (value: string) => { isValid: boolean; message: string };
   isSecretExistsData?: boolean;
-  isFixed?: boolean;
   width?: string;
 }
 
