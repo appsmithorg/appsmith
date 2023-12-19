@@ -14,7 +14,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 
 export const defaultConfig: WidgetDefaultProps = {
-  backgroundColor: "ghostwhite",
+  elevatedBackground: false,
   children: [],
   columns: 0,
   detachFromLayout: false,

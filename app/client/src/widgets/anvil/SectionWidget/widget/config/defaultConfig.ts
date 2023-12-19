@@ -12,8 +12,7 @@ import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sect
 import { ButtonBoxShadowTypes } from "components/constants";
 
 export const defaultConfig: WidgetDefaultProps = {
-  backgroundColor: "lightslategrey",
-  borderRadius: "0.375rem",
+  elevatedBackground: true, //kborderRadius: "0.375rem",
   boxShadow: ButtonBoxShadowTypes.NONE,
   children: [],
   columns: 0,

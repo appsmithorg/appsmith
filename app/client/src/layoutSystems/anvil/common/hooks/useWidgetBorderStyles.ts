@@ -30,13 +30,13 @@ export function useWidgetBorderStyles(widgetId: string) {
     borderColor = "#F86A2B";
   }
 
+  let outlinecolor = "transparent";
+  if (!isDragging && (isFocused || isSelected)) outlinecolor = Colors.GREY_1;
+
   return {
-    border: `1px solid ${
-      isDragging || isCanvasResizing ? "transparent" : borderColor
-    }`,
-    outline: `1px solid ${
-      !isDragging && (isFocused || isSelected) ? Colors.GREY_1 : "transparent"
-    }`,
+    border: `1px solid ${borderColor}`,
+
+    outline: `1px solid ${outlinecolor}`,
     borderRadius: "4px 0px 4px 4px",
     boxShadow: `0px 0px 0px 1px ${
       isDragging || isCanvasResizing ? "transparent" : borderColor

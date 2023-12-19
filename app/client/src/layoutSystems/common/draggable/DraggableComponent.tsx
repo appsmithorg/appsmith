@@ -26,6 +26,7 @@ const DraggableWrapper = styled.div`
   height: 100%;
   user-select: none;
   cursor: grab;
+  bordern: none;
 `;
 
 export interface DraggableComponentProps {

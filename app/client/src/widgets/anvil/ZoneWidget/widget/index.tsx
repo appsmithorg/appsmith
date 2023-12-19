@@ -20,8 +20,7 @@ import type {
 import { renderLayouts } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import ContainerComponent from "widgets/ContainerWidget/component";
+import ContainerComponent from "widgets/anvil/Container";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = "ZONE_WIDGET";
@@ -75,63 +74,17 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
         sectionName: "Color",
         children: [
           {
-            helpText: "Use a html color name, HEX, RGB or RGBA value",
-            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "backgroundColor",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
+            propertyName: "elevatedBackground",
+            label: "Background",
+            controlType: "SWITCH",
+            fullWidth: true,
+            helpText: "Sets the semantic elevated background of the zone",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Use a html color name, HEX, RGB or RGBA value",
-            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "borderColor",
-            label: "Border color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Border and shadow",
-        children: [
-          {
-            helpText: "Enter value for border width",
-            propertyName: "borderWidth",
-            label: "Border width",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
-          },
-          {
-            propertyName: "borderRadius",
-            label: "Border radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
           },
         ],
       },
@@ -175,7 +128,12 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
       map[child.widgetId] = child;
     });
     return (
-      <ContainerComponent {...this.props} noScroll>
+      <ContainerComponent
+        {...this.props}
+        elevatedBackground={this.props.elevatedBackground}
+        elevation="2"
+        noScroll
+      >
         {renderLayouts(
           this.props.layout,
           map,
