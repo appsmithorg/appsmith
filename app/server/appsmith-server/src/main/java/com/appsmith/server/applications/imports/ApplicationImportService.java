@@ -1,6 +1,3 @@
 package com.appsmith.server.applications.imports;
 
-import com.appsmith.server.domains.NewApplication;
-import com.appsmith.server.imports.internal.ContextBasedImportService;
-
-public interface ApplicationImportService extends ContextBasedImportService<NewApplication> {}
+public interface ApplicationImportService extends ApplicationImportServiceCE {}
