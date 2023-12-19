@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.imports.importable.ImportServiceCE;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -26,9 +27,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     public static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
     private final ApplicationImportService applicationImportService;
+    private final PermissionGroupRepository permissionGroupRepository;
 
-    public ImportServiceCEImpl(ApplicationImportService applicationImportService) {
+    public ImportServiceCEImpl(
+            ApplicationImportService applicationImportService, PermissionGroupRepository permissionGroupRepository) {
         this.applicationImportService = applicationImportService;
+        this.permissionGroupRepository = permissionGroupRepository;
     }
 
     @Override
@@ -96,7 +100,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     @Override
     public Mono<ImportableContext> importContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson contextJson) {
-        return null;
+
+        // workspace id must be present and valid
+        if (StringUtils.isEmpty(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
+            return getContextBasedImportService(contextJson)
+                    .importContextInWorkspaceFromJson(workspaceId, contextJson, userPermissionGroups);
+        });
     }
 
     @Override
