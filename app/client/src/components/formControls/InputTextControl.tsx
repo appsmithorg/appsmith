@@ -129,6 +129,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       dataType,
       disabled,
       encrypted,
+      isFixed,
       isValid,
       label,
       placeholderText,
@@ -136,14 +137,15 @@ class InputTextControl extends BaseControl<InputControlProps> {
       subtitle,
       validationMessage,
       validator,
+      width,
     } = this.props;
 
     return (
       <FieldWrapper
         data-testid={configProperty}
-        isFixed={this.props.isFixed || false}
+        isFixed={!!isFixed}
         style={customStyles || {}}
-        width={this.props.width || ""}
+        width={width || ""}
       >
         {this.state.secretDisplayVisible && (
           <SecretDisplayIndicator

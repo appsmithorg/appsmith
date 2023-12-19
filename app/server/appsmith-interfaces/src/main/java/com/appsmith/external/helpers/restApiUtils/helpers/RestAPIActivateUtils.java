@@ -301,6 +301,9 @@ public class RestAPIActivateUtils {
     }
 
     protected HttpClient getHttpClient(DatasourceConfiguration datasourceConfiguration, HttpProtocol httpProtocol) {
+        if (httpProtocol == null) {
+            httpProtocol = HttpProtocol.HTTP11;
+        }
         // Initializing webClient to be used for http call
         final ConnectionProvider provider = ConnectionProvider.builder("rest-api-provider")
                 .maxIdleTime(Duration.ofSeconds(600))
