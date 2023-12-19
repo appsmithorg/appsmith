@@ -87,7 +87,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                                 branchName,
                                                 isFeatureEnabled,
                                                 isAutoCommitDisabledForBranch);
-                                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                                        return Mono.empty();
                                     }
                                 })
                                 .zipWith(userDataService.getGitProfileForCurrentUser(defaultApplicationId))
@@ -104,11 +104,13 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                     autoCommitEvent.setWorkspaceId(application.getWorkspaceId());
                                     autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
                                     autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
+                                    autoCommitEvent.setRepoUrl(gitApplicationMetadata.getRemoteUrl());
                                     // it's a synchronous call, no need to return anything
                                     autoCommitEventHandler.publish(autoCommitEvent);
                                     return Boolean.TRUE;
                                 });
                     })
+                    .defaultIfEmpty(Boolean.FALSE)
                     // we cannot throw exception from this flow because doing so will fail the main operation
                     .onErrorResume(throwable -> {
                         log.error(

@@ -1,12 +1,15 @@
 name: Test, build and push Docker Image
 
 on:
+  # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC) on weekdays
+  schedule:
+    - cron: "30 00 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
-  # trigger for pushes to release and master
+  # trigger for pushes to master
   push:
-    branches: [release, master]
+    branches: [master]
     paths:
       - "app/client/**"
       - "app/server/**"

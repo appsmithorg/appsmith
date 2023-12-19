@@ -16,4 +16,5 @@ public class AutoCommitEvent {
     private String repoName;
     private String authorName;
     private String authorEmail;
+    private String repoUrl;
 }

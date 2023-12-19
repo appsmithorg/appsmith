@@ -7,7 +7,7 @@ import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/
 import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 
 export interface ExecuteActionPayloadEvent {
   type: EventType;
@@ -21,7 +21,7 @@ export interface ExecutionResult {
 export interface TriggerSource {
   id: string;
   name: string;
-  entityType?: ENTITY_TYPE;
+  entityType?: EntityTypeValue;
   collectionId?: string;
   isJSAction?: boolean;
   actionId?: string;

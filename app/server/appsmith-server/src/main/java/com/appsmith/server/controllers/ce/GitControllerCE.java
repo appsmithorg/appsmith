@@ -94,7 +94,7 @@ public class GitControllerCE {
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Metadata.class})
     @GetMapping("/metadata/app/{defaultApplicationId}")
     public Mono<ResponseDTO<GitApplicationMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
         return service.getGitApplicationMetadata(defaultApplicationId)

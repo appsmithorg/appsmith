@@ -4,6 +4,7 @@ import type { ListItemProps } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import keyBy from "lodash/keyBy";
 import { useLocation } from "react-router";
+import styled from "styled-components";
 
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { FocusEntity } from "navigation/FocusEntity";
@@ -14,6 +15,15 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { ADD_PATH } from "constants/routes";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+
+const StyledList = styled(List)`
+  padding: 0;
+`;
 
 const AddQuery = () => {
   const dispatch = useDispatch();
@@ -23,7 +33,14 @@ const AddQuery = () => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  let fileOperations = useFilteredFileOperations();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+  let fileOperations = useFilteredFileOperations({ canCreateActions });
   fileOperations = fileOperations.filter(
     (fileOperation) =>
       fileOperation.focusEntityType !== FocusEntity.JS_OBJECT &&
@@ -61,7 +78,10 @@ const AddQuery = () => {
         ));
       return {
         startIcon: icon,
-        title: fileOperation.dsName || fileOperation.title,
+        title:
+          fileOperation.entityExplorerTitle ||
+          fileOperation.dsName ||
+          fileOperation.title,
         description: "",
         descriptionType: "inline",
         onClick: addFromSource.bind(null, fileOperation),
@@ -79,15 +99,11 @@ const AddQuery = () => {
         alignItems="center"
         borderBottom={"1px solid var(--ads-v2-color-border)"}
         justifyContent="space-between"
-        padding="spaces-4"
-        paddingBottom="spaces-3"
+        px="spaces-4"
+        py="spaces-2"
       >
-        <Text
-          className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-          color="var(--ads-v2-color-fg)"
-          kind="heading-xs"
-        >
-          Create new query/API
+        <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
+          {createMessage(PAGES_PANE_TEXTS.query_create_tab_title)}
         </Text>
         <Button
           isIconButton
@@ -97,17 +113,23 @@ const AddQuery = () => {
           startIcon={"close-line"}
         />
       </Flex>
-      <Flex flexDirection="column" gap="spaces-3" padding="spaces-4">
+      <Flex
+        flexDirection="column"
+        gap="spaces-3"
+        overflow="scroll"
+        px="spaces-3"
+        py="spaces-4"
+      >
         <Flex flexDirection="column" gap="spaces-2">
           {/* From source */}
           <Text
-            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+            className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
-            From existing datasource
+            {createMessage(PAGES_PANE_TEXTS.queries_create_from_existing)}
           </Text>
-          <List
+          <StyledList
             className="t--from-source-list"
             items={getListItems(fromExistingSources)}
           />
@@ -115,13 +137,13 @@ const AddQuery = () => {
         <Flex flexDirection="column" gap="spaces-2">
           {/* From source */}
           <Text
-            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+            className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
-            New Blank API
+            {createMessage(PAGES_PANE_TEXTS.queries_create_new)}
           </Text>
-          <List
+          <StyledList
             className="t--new-blank-api"
             items={getListItems(fromNewBlankAPI)}
           />

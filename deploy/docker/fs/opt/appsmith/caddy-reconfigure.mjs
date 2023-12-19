@@ -3,17 +3,20 @@ import {dirname} from "path"
 import {spawnSync} from "child_process"
 import {X509Certificate} from "crypto"
 
-const APPSMITH_CUSTOM_DOMAIN = process.env.APPSMITH_CUSTOM_DOMAIN ?? null
+// The custom domain is expected to only have the domain. So if it has a protocol, we ignore the whole value.
+// This was the effective behaviour before Caddy.
+const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
+
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
 let certLocation = null
-if (APPSMITH_CUSTOM_DOMAIN != null) {
+if (CUSTOM_DOMAIN !== "") {
   try {
     fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
     certLocation = "/appsmith-stacks/ssl"
-  } catch (_) {
+  } catch {
     // no custom certs, see if old certbot certs are there.
-    const letsEncryptCertLocation = "/etc/letsencrypt/live/" + APPSMITH_CUSTOM_DOMAIN
+    const letsEncryptCertLocation = "/etc/letsencrypt/live/" + CUSTOM_DOMAIN
     const fullChainPath = letsEncryptCertLocation + `/fullchain.pem`
     try {
       fs.accessSync(fullChainPath, fs.constants.R_OK)
@@ -21,7 +24,7 @@ if (APPSMITH_CUSTOM_DOMAIN != null) {
       if (!isCertExpired(fullChainPath)) {
         certLocation = letsEncryptCertLocation
       }
-    } catch (_) {
+    } catch {
       // no certs there either, ignore.
     }
   }
@@ -32,14 +35,6 @@ const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem
 
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
-
-const bind = [
-  // The custom domain is expected to only have the domain. So if it has protocol or trailing slash, we remove it.
-  (APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, ""),
-  // Also bind to http on 80, so that if the cert provisioning fails, we can still serve on http.
-  // But this still means that if cert provisioning is successful, http will be redirected to https.
-  ":80",
-].join(" ")
 
 const parts = []
 
@@ -122,18 +117,31 @@ parts.push(`
 
   handle_errors {
     respond "{err.status_code} {err.status_text}" {err.status_code}
+    header -Server
   }
 }
 
-localhost:80 127.0.0.1:80 {
+# We bind to http on 80, so that localhost requests don't get redirected to https.
+:80 {
   import all-config
-}
-
-${bind} {
-  import all-config
-  ${tlsConfig}
 }
 `)
+
+if (CUSTOM_DOMAIN !== "") {
+  // If no custom domain, no extra routing needed.
+  // We have to own the http-to-https redirect, since we need to remove the `Server` header from the response.
+  parts.push(`
+  https://${CUSTOM_DOMAIN} {
+    import all-config
+    ${tlsConfig}
+  }
+  http://${CUSTOM_DOMAIN} {
+    redir https://{host}{uri}
+    header -Server
+    header Connection close
+  }
+  `)
+}
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
