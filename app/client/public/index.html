@@ -213,7 +213,7 @@
         parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"),
       );
 
-      const INTERCOM_APP_ID =
+      const INTERCOM_APP_ID = "TEST_STRING" || 
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
         parseConfig("__APPSMITH_INTERCOM_APP_ID__");
       const DISABLE_INTERCOM = parseConfig("__APPSMITH_DISABLE_INTERCOM__");
