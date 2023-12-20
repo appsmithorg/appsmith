@@ -2412,8 +2412,9 @@ public class DatabaseChangelog2 {
         return;
     }
 
-    @ChangeSet(order = "031", id = "create-system-themes-v3", author = "", runAlways = true)
-    public void createSystemThemes3(MongoTemplate mongoTemplate) throws IOException {
+    @ChangeSet(order = "031", id = "create-themes-indices", author = "")
+    public void createThemesIndices(MongoTemplate mongoTemplate) {
+
         Index systemThemeIndex = new Index()
                 .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
                 .named("system_theme_index")
@@ -2428,6 +2429,11 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongoTemplate, Theme.class, "system_theme_index");
         dropIndexIfExists(mongoTemplate, Theme.class, "application_id_index");
         ensureIndexes(mongoTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
+    }
+
+    // The order 031-a is ensured to run after 031, as theme indices might be a requirement.
+    @ChangeSet(order = "031-a", id = "create-system-themes-v3", author = "", runAlways = true)
+    public void createSystemThemes3(MongoTemplate mongoTemplate) throws IOException {
 
         final String themesJson = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
