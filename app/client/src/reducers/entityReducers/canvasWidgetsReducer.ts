@@ -12,6 +12,7 @@ import {
   getCanvasBottomRow,
   getCanvasWidgetHeightsToUpdate,
 } from "utils/WidgetSizeUtils";
+import { klona } from "klona";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values 
@@ -26,7 +27,7 @@ export type UpdateWidgetsPayload = Record<
   }>
 >;
 
-const initialState: CanvasWidgetsReduxState = {};
+export const initialState: CanvasWidgetsReduxState = {};
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -135,6 +136,9 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
     }
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 });
 

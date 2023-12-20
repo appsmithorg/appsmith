@@ -1,6 +1,7 @@
 package com.appsmith.server.actioncollections.refactors;
 
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -15,6 +16,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.regex.Pattern;
+
+import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 
 @Service
 public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefactoringServiceCEImpl
@@ -56,5 +59,20 @@ public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefa
                     this.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
                     return refactorEntityNameDTO;
                 });
+    }
+
+    // TODO: This should be coming from CE regardless of the contextType
+    @Override
+    protected Flux<ActionCollectionDTO> getExistingEntities(
+            String contextId, CreatorContextType contextType, String layoutId) {
+        if (isModuleContext(contextType)) {
+            return actionCollectionService
+                    .findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
+                            contextId, contextType, AclPermission.MANAGE_ACTIONS, false)
+                    .flatMap(actionCollection ->
+                            actionCollectionService.generateActionCollectionByViewMode(actionCollection, false));
+        } else {
+            return super.getExistingEntities(contextId, contextType, layoutId);
+        }
     }
 }

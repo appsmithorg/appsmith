@@ -1,0 +1,240 @@
+# This workflow is responsible for building, testing & packaging the Java server codebase
+name: Appsmith Server Self Hosted Workflow
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
+      branch:
+        description: "This is the branch to be used for the build."
+        required: false
+        type: string
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/server
+
+jobs:
+  server-unit-tests:
+    runs-on: appsmith-self-hosted-deployment-runner-8cpu-16gb-ram
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+
+    steps:
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # GitHub Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
+
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Check out merged commit from PR and base branch
+        uses: actions/checkout@v4
+        if: inputs.pr != 0
+        with:
+          fetch-tags: true
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.branch }}
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Check out the head commit of the branch
+        uses: actions/checkout@v4
+        if: inputs.pr == 0 && inputs.branch == ''
+        with:
+          fetch-tags: true
+
+      - name: Figure out the PR number
+        run: echo ${{ inputs.pr }}
+
+      - name: Print the Github event
+        run: echo ${{ github.event_name }}
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        if: inputs.skip-tests != 'true'
+        id: cache-appsmith
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-server-junit
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: |
+          if [ -f ~/run_result ]; then
+            echo "run_result=$(cat ~/run_result)" >> $GITHUB_OUTPUT
+          else
+            echo "run_result=default" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download the failed test artifact in case of rerun
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: actions/download-artifact@v3
+        with:
+          name: failed-server-tests
+          path: ~/failed-server-tests
+
+      - name: Extract the tests for rerun
+        id: failed_tests
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: |
+          failed_tests=$(awk '$0 != "" && !seen[$0]++ {printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
+          echo "$failed_tests"
+          echo "tests=$failed_tests" >> $GITHUB_OUTPUT
+
+      # In case of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      # Setup Java
+      - name: Set up JDK 17
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+          
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.8.2
+  
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
+
+      # Build the code
+      - name: Build
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          ACTIVE_PROFILE: test
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
+        run: |
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+          ./build.sh -DskipTests
+
+      # Test the code
+      - name: Run only tests
+        if: inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest'
+        env:
+          ACTIVE_PROFILE: test
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
+        run: |
+          args=()
+          if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+            failed_tests="${{ steps.failed_tests.outputs.tests }}"
+            args+=("-DfailIfNoTests=false" "-Dtest=${failed_tests}")
+          fi
+          args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
+          mvn test "${args[@]}"
+
+      # Set status = failedtest
+      - name: Set fail if there are test failures
+        if: failure()
+        run: |
+          echo "run_result=failedtest" >> $GITHUB_OUTPUT
+          echo "failedtest" > ~/run_result
+
+      # Force store previous run result to cache
+      - name: Store the previous run result
+        if: failure()
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-server-junit
+
+      - name: Upload the failed tests report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: failed-server-tests
+          path: app/server/failed-server-tests.txt
+          if-no-files-found: ignore
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v3
+        with:
+          path: |
+            app/server/dist/
+          key: ${{ github.run_id }}-${{ github.job }}-server
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: server-build
+          path: app/server/dist/
+
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

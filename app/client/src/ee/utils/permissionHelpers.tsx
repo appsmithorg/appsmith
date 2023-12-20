@@ -79,6 +79,7 @@ export enum EE_PERMISSION_TYPE {
   DELETE_WORKFLOWS = "delete:workflows",
   MANAGE_WORKFLOWS = "manage:workflows",
   READ_WORKFLOWS = "read:workflows",
+  CREATE_WORKFLOW_ACTIONS = "create:workflowActions",
 }
 
 export const PERMISSION_TYPE = {
@@ -173,6 +174,11 @@ export const hasCreateWorkflowPermission = (permissions: string[] = []) =>
 
 export const hasDeleteWorkflowPermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.DELETE_WORKFLOWS);
+
+export const hasCreateWorkflowActionsPermission = (
+  permissions: string[] = [],
+) => isPermitted(permissions, PERMISSION_TYPE.CREATE_WORKFLOW_ACTIONS);
+
 // Workflow permissions end
 
 // Module permissions start

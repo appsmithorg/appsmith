@@ -1,6 +1,5 @@
 export * from "ce/sagas/WorkspaceSagas";
 import {
-  fetchRolesSaga,
   fetchWorkspaceSaga,
   saveWorkspaceSaga,
   createWorkspaceSaga,
@@ -106,7 +105,6 @@ export default function* workspaceSagas() {
       ReduxActionTypes.FETCH_ALL_WORKSPACES_AND_APPS_OF_FIRST_WORKSPACE,
       fetchAllWorkspacesAndAppsOfFirstWorkspaceSaga,
     ),
-    takeLatest(ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT, fetchRolesSaga),
     takeLatest(ReduxActionTypes.FETCH_CURRENT_WORKSPACE, fetchWorkspaceSaga),
     takeLatest(ReduxActionTypes.SAVE_WORKSPACE_INIT, saveWorkspaceSaga),
     takeLatest(ReduxActionTypes.CREATE_WORKSPACE_INIT, createWorkspaceSaga),

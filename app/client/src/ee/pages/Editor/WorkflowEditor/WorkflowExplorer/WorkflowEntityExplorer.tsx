@@ -9,10 +9,17 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { EntityExplorerWrapper } from "pages/Editor/Explorer/Common/EntityExplorerWrapper";
 import { getExplorerStatus, saveExplorerStatus } from "../../Explorer/helpers";
 import Files from "pages/Editor/Explorer/Files";
-import { getCurrentWorkflowId } from "@appsmith/selectors/workflowSelectors";
+import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import {
+  getCurrentWorkflowId,
+  getWorkflowById,
+} from "@appsmith/selectors/workflowSelectors";
 import history from "utils/history";
 import { integrationEditorURL } from "ce/RouteBuilder";
 import { INTEGRATION_TABS } from "constants/routes";
+import type { AppState } from "@appsmith/reducers";
+import { hasCreateWorkflowActionsPermission } from "@appsmith/utils/permissionHelpers";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 function WorkflowEntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
@@ -28,6 +35,9 @@ function WorkflowEntityExplorer({ isActive }: { isActive: boolean }) {
   }, [currentWorkspaceId]);
 
   const workflowId = useSelector(getCurrentWorkflowId) || "";
+  const workflow = useSelector((state: AppState) =>
+    getWorkflowById(state, workflowId),
+  );
 
   const isDatasourcesOpen = getExplorerStatus(workflowId, "datasource");
 
@@ -54,9 +64,20 @@ function WorkflowEntityExplorer({ isActive }: { isActive: boolean }) {
     [workflowId],
   );
 
+  const canCreateActions = hasCreateWorkflowActionsPermission(
+    workflow.userPermissions,
+  );
+
   return (
     <EntityExplorerWrapper explorerRef={explorerRef} isActive={isActive}>
-      <Files />
+      <FilesContextProvider
+        canCreateActions={canCreateActions}
+        editorId={workflowId}
+        parentEntityId={workflowId}
+        parentEntityType={ACTION_PARENT_ENTITY_TYPE.WORKFLOW}
+      >
+        <Files />
+      </FilesContextProvider>
 
       <Datasources
         addDatasource={addDatasource}

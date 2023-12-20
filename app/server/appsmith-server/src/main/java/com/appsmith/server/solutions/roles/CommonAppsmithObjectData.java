@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class CommonAppsmithObjectData {
     Flux<ActionCollection> actionCollectionFlux;
     Flux<Datasource> datasourceFlux;
     Flux<Environment> environmentFlux;
+    Flux<Workflow> workflowFlux;
 
     Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono;
     Mono<Map<String, Collection<NewPage>>> applicationPageMapMono;
@@ -38,4 +40,7 @@ public class CommonAppsmithObjectData {
     Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionMapMono;
     Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono;
     Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono;
+    Mono<Map<String, Collection<Workflow>>> workspaceWorkflowMapMono;
+    Mono<Map<String, Collection<NewAction>>> workflowActionMapMono;
+    Mono<Map<String, Collection<ActionCollection>>> workflowActionCollectionMapMono;
 }

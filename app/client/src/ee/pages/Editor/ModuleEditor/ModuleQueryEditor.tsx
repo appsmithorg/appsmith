@@ -17,8 +17,7 @@ import { QueryEditorContextProvider } from "pages/Editor/QueryEditor/QueryEditor
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { INTEGRATION_TABS } from "constants/routes";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 
 interface ModuleQueryEditorRouteParams {
@@ -74,9 +73,9 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
 
   const onCreateDatasourceClick = () => {
     history.push(
-      integrationEditorURL({
-        pageId: packageId, // ankita: update later
-        selectedTab: INTEGRATION_TABS.NEW,
+      builderURL({
+        suffix: "datasources/NEW",
+        generateEditorPath: true,
       }),
     );
   };

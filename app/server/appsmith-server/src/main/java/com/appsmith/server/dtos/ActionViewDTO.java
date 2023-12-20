@@ -25,4 +25,7 @@ public class ActionViewDTO extends ActionViewCE_DTO {
 
     @JsonView(Views.Public.class)
     Boolean executeOnLoad;
+
+    @JsonView(Views.Public.class)
+    String workflowId;
 }

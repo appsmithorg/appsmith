@@ -2,7 +2,7 @@ const RBAC = require("../../../../../locators/RBAClocators.json");
 import { homePage } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Roles tab Tests", function () {
+describe("Roles tab Tests", { tags: ["@tag.AccessControl"] }, function () {
   let workspaceName;
   let newWorkspaceName;
   let appName;

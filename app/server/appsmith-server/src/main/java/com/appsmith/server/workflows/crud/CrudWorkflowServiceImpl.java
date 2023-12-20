@@ -1,20 +1,18 @@
 package com.appsmith.server.workflows.crud;
 
-import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -24,10 +22,10 @@ import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
@@ -52,16 +50,17 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 @Service
 public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl implements CrudWorkflowService {
 
-    private final DatasourceService datasourceService;
     private final NewActionService newActionService;
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
     private final PolicyGenerator policyGenerator;
     private final WorkflowHelper workflowHelper;
     private final ActionPermission actionPermission;
-    private final DatasourcePermission datasourcePermission;
     private final WorkflowPermission workflowPermission;
     private final WorkspacePermission workspacePermission;
+    private final CrudWorkflowEntityService crudWorkflowEntityService;
+    private final ActionCollectionService actionCollectionService;
+    private final LayoutCollectionService layoutCollectionService;
 
     public CrudWorkflowServiceImpl(
             Scheduler scheduler,
@@ -70,27 +69,29 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
             ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService,
-            DatasourceService datasourceService,
             NewActionService newActionService,
             WorkspaceService workspaceService,
             SessionUserService sessionUserService,
             PolicyGenerator policyGenerator,
             WorkflowHelper workflowHelper,
             ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission,
             WorkflowPermission workflowPermission,
-            WorkspacePermission workspacePermission) {
+            WorkspacePermission workspacePermission,
+            CrudWorkflowEntityService crudWorkflowEntityService,
+            ActionCollectionService actionCollectionService,
+            LayoutCollectionService layoutCollectionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.datasourceService = datasourceService;
+        this.crudWorkflowEntityService = crudWorkflowEntityService;
         this.newActionService = newActionService;
         this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.policyGenerator = policyGenerator;
         this.workflowHelper = workflowHelper;
         this.actionPermission = actionPermission;
-        this.datasourcePermission = datasourcePermission;
         this.workflowPermission = workflowPermission;
         this.workspacePermission = workspacePermission;
+        this.actionCollectionService = actionCollectionService;
+        this.layoutCollectionService = layoutCollectionService;
     }
 
     @Override
@@ -105,7 +106,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
 
-        return workspaceService
+        Mono<Workflow> createdWorkflowMono = workspaceService
                 .findById(workspaceId, workspacePermission.getWorkflowCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)))
@@ -121,7 +122,19 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                     resource.setModifiedBy(currentUser.getUsername());
 
                     return createSuffixedWorkflow(resource, resource.getName(), 0);
-                });
+                })
+                .cache();
+
+        Mono<ActionCollectionDTO> mainActionCollectionDTOMono = createdWorkflowMono
+                .flatMap(workflowHelper::generateMainActionCollectionDTO)
+                .flatMap(mainActionCollection -> layoutCollectionService.createCollection(mainActionCollection, null));
+
+        return Mono.zip(createdWorkflowMono, mainActionCollectionDTOMono).flatMap(pair -> {
+            Workflow workflow = pair.getT1();
+            ActionCollectionDTO mainActionCollection = pair.getT2();
+            workflow.setMainJsObjectId(mainActionCollection.getId());
+            return repository.save(workflow);
+        });
     }
 
     private Mono<Workflow> createSuffixedWorkflow(Workflow workflow, String name, int suffix) {
@@ -133,8 +146,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
             workflow.setColor(getRandomWorkflowCardColor());
         }
 
-        return repository
-                .save(workflow)
+        return super.create(workflow)
                 .flatMap(repository::setUserPermissionsInObject)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null && error.getMessage().contains("ws_pkg_name_deleted_at_uindex")) {
@@ -208,7 +220,8 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
                     return repository
                             .update(workflowId, updateObj, workflowPermission.getEditPermission())
-                            .then(repository.findById(workflowId));
+                            .then(repository.findById(workflowId))
+                            .flatMap(analyticsService::sendUpdateEvent);
                 })
                 .cache();
 
@@ -242,14 +255,14 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
     public Flux<Workflow> getAllWorkflows(String workspaceId) {
         return repository.findAllByWorkspaceId(
-                workspaceId, Optional.ofNullable(workflowPermission.getReadPermission()));
+                workspaceId, Optional.ofNullable(workflowPermission.getReadHistoryPermission()));
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
     public Mono<Workflow> getWorkflowById(String workflowId) {
         return repository
-                .findById(workflowId, workflowPermission.getReadPermission())
+                .findById(workflowId, workflowPermission.getReadHistoryPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKFLOW_ID, workflowId)));
     }
@@ -275,7 +288,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
      *   <li>Retrieves the workflow to be deleted based on the provided workflow ID with delete permissions checked.</li>
      *   <li>If the workflow is not found, an error with the corresponding ACL no-resource-found code is thrown.</li>
      *   <li>Archives all associated actions by invoking <code>archiveActionsByWorkflowId()</code> from the new action service.</li>
-     *   <li>TODO: Archives action collections as well.</li>
+     *   <li>Archives all associated action collections by invoking <code>archiveActionCollectionByWorkflowId()</code> from the action collection service.</li>
      *   <li>Deletes the workflow bot role and user associated with the workflow.</li>
      *   <li>Combines the results of archiving the workflow bot role and user and archiving associated actions.</li>
      *   <li>Archives the workflow itself in the repository and returns the archived workflow.</li>
@@ -298,7 +311,9 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                     // Archive all Actions.
                     Mono<List<NewAction>> archiveActionsByWorkflowIdMono = newActionService.archiveActionsByWorkflowId(
                             workflowToDelete.getId(), Optional.of(actionPermission.getDeletePermission()));
-                    // TODO: Archive action collections as well.
+                    Mono<List<ActionCollection>> archiveActionCollectionsByWorkflowIdMono =
+                            actionCollectionService.archiveActionCollectionByWorkflowId(
+                                    workflowToDelete.getId(), Optional.of(actionPermission.getDeletePermission()));
 
                     // Delete the Workflow Bot User and Role.
                     Mono<Boolean> archiveWorkflowBotRoleAndUserMono =
@@ -306,76 +321,8 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
                     return archiveWorkflowBotRoleAndUserMono
                             .then(archiveActionsByWorkflowIdMono)
-                            .then(repository.archive(workflowToDelete).thenReturn(workflowToDelete));
+                            .then(archiveActionCollectionsByWorkflowIdMono)
+                            .then(repository.archive(workflowToDelete).flatMap(analyticsService::sendDeleteEvent));
                 });
-    }
-
-    /**
-     * <p>
-     * Creates a workflow action and associates it with the specified workflow in a reactive manner.
-     * </p>
-     *
-     * <p>
-     * This method performs the following actions:
-     * <ol>
-     *   <li>Retrieves the workflow based on the provided workflow ID with action creation permissions checked.</li>
-     *   <li>If the workflow is not found, an error with the corresponding ACL no-resource-found code is thrown.</li>
-     *   <li>Generates a workflow action using the provided actionDTO and the retrieved workflow.</li>
-     *   <li>Validates and saves the workflow action to the repository using <code>validateAndSaveActionToRepository()</code> from the new action service.</li>
-     *   <li>If the actionDTO's datasource is null or has no ID, returns the created action without further checks.</li>
-     *   <li>Retrieves the datasource based on the datasource ID with action create permissions checked.</li>
-     *   <li>If the datasource is not found, an error with the corresponding ACL no-resource-found code is thrown.</li>
-     *   <li>Continues with the previously created action Mono, ensuring the action creation is dependent on datasource permissions.</li>
-     * </ol>
-     * </p>
-     *
-     * @param workflowId The ID of the workflow to which the action will be associated.
-     * @param actionDTO The DTO containing information for creating the workflow action.
-     * @return A Mono emitting the created action DTO after validation and saving to the repository.
-     *         The Mono will emit an error if the workflow is not found, the datasource is not found, or if any part
-     *         of the creation process encounters an issue.
-     * </p>
-     */
-    @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<ActionDTO> createWorkflowAction(String workflowId, ActionDTO actionDTO) {
-        Mono<Workflow> workflowMono = repository
-                .findById(workflowId, workflowPermission.getActionCreationPermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKFLOW, workflowId)));
-
-        Mono<ActionDTO> createActionMono = workflowMono.flatMap(workflow -> {
-            NewAction workflowAction = generateWorkflowAction(workflow, actionDTO);
-            return newActionService.validateAndSaveActionToRepository(workflowAction);
-        });
-
-        if (actionDTO.getDatasource() == null
-                || !StringUtils.hasLength(actionDTO.getDatasource().getId())) {
-            return createActionMono;
-        }
-
-        String datasourceId = actionDTO.getDatasource().getId();
-        return datasourceService
-                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "datasource", datasourceId)))
-                .then(createActionMono);
-    }
-
-    NewAction generateWorkflowAction(Workflow workflow, ActionDTO actionDTO) {
-        actionDTO.setWorkspaceId(workflow.getWorkspaceId());
-        actionDTO.setWorkflowId(workflow.getId());
-        actionDTO.setDefaultResources(new DefaultResources());
-        actionDTO.setContextType(CreatorContextType.WORKFLOW);
-        NewAction workflowAction = new NewAction();
-        workflowAction.setWorkspaceId(workflow.getWorkspaceId());
-        workflowAction.setUnpublishedAction(actionDTO);
-        workflowAction.setDefaultResources(new DefaultResources());
-        workflowAction.setPublishedAction(new ActionDTO());
-        workflowAction.setWorkflowId(workflow.getId());
-        Set<Policy> workflowActionPolicies =
-                policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, Action.class);
-        workflowAction.setPolicies(workflowActionPolicies);
-        return workflowAction;
     }
 }

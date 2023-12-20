@@ -53,9 +53,7 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Load secrets from AWS
         env:
@@ -129,15 +127,13 @@ jobs:
 
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
@@ -178,9 +174,7 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -231,7 +225,7 @@ jobs:
 
     steps:
       - name: Checkout the merged commit from PR and base branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Load secrets from AWS
         env:

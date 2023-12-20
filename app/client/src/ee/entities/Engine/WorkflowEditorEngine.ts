@@ -19,14 +19,13 @@ import {
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { fetchWorkflowSaga } from "@appsmith/sagas/workflowsSagas";
 import { fetchAllPageEntityCompletion } from "actions/pageActions";
-import { fetchActions } from "actions/pluginActionActions";
-import {
-  fetchAppThemesAction,
-  fetchSelectedAppThemeAction,
-} from "actions/appThemingActions";
 import type { FetchWorkflowResponse } from "@appsmith/api/WorkflowApi";
-// TODO (Workflows): parked till jsobject pageid dissociation is done
-// import { fetchJSCollections } from "actions/jsActionActions";
+import {
+  fetchWorkflowActions,
+  fetchWorkflowJSCollections,
+} from "@appsmith/actions/workflowActions";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
+import history from "utils/history";
 
 export default class WorkflowEditorEngine {
   *loadWorkflow(workflowId: string) {
@@ -47,6 +46,16 @@ export default class WorkflowEditorEngine {
         workflowId,
       },
     });
+
+    // Load the main js object id on workflow load
+    try {
+      const { mainJsObjectId } = response.data;
+      history.replace(
+        jsCollectionIdURL({ workflowId, collectionId: mainJsObjectId }),
+      );
+    } catch (e) {
+      return;
+    }
   }
 
   public *setupEngine() {
@@ -56,27 +65,18 @@ export default class WorkflowEditorEngine {
 
   *loadPageThemesAndActions(workflowId: string) {
     const initActionsCalls = [
-      fetchActions({ applicationId: workflowId }, []),
-      // TODO (Workflows): parked till jsobject pageid dissociation is done
-      // fetchJSCollections({ applicationId: workflowId }),
-      fetchSelectedAppThemeAction(workflowId),
-      fetchAppThemesAction(workflowId),
+      fetchWorkflowActions({ workflowId }, []),
+      fetchWorkflowJSCollections({ workflowId }),
     ];
 
     const successActionEffects = [
       ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      // TODO (Workflows): parked till jsobject pageid dissociation is done
-      // ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
     ];
 
     const failureActionEffects = [
       ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
-      ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
-      // TODO (Workflows): parked till jsobject pageid dissociation is done
-      // ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
     ];
 
     const allActionCalls: boolean = yield call(

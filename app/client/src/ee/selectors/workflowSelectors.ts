@@ -4,6 +4,8 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 import { createSelector } from "reselect";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 export const getIsFetchingWorkflows = (state: AppState) =>
   state.ui.workspaces.loadingStates.isFetchingWorkflowsList;
@@ -44,6 +46,14 @@ export const getIsSavingWorkflowName = (state: AppState) =>
 export const getisErrorSavingWorkflowName = (state: AppState) =>
   state.ui.workspaces.isErrorSavingWorkflowName;
 
+export const getMainJsObjectIdOfCurrentWorkflow = (
+  state: AppState,
+  workflowId: string,
+) => {
+  const workflow = getWorkflowById(state, workflowId);
+  return workflow ? workflow.mainJsObjectId : "";
+};
+
 /**
  * Checks if the release_workflows_enabled feature flag is enabled and if the
  * current instance is cloud hosted. This is the base condition for enabling
@@ -64,3 +74,33 @@ export const getIsCurrentEditorWorkflowType = createSelector(
   getCurrentWorkflowId,
   (currentWorkflowId) => !!currentWorkflowId,
 );
+
+// TODO: Remove this selector and use the one from selectors/workflowSelectors.ts instead
+// Did this to avoid error due to cyclic dependency
+const getActions = (state: AppState): ActionDataState => state.entities.actions;
+
+const getJSCollections = (state: AppState): JSCollectionDataState =>
+  state.entities.jsActions;
+
+export const getCurrentWorkflowActions = createSelector(
+  getCurrentWorkflowId,
+  getActions,
+  (workflowId, actions) => {
+    if (!actions || actions.length === 0) return [];
+    if (!workflowId) return [];
+    return actions.filter((a) => a.config.workflowId === workflowId);
+  },
+);
+
+export const getCurrentWorkflowJSActions = createSelector(
+  getCurrentWorkflowId,
+  getJSCollections,
+  (workflowId, jsActions) => {
+    if (!jsActions || jsActions.length === 0) return [];
+    if (!workflowId) return [];
+    return jsActions.filter((a) => a.config.workflowId === workflowId);
+  },
+);
+
+export const getIsWorkflowPublishing = (state: AppState) =>
+  state.ui.editor.isWorkflowPublishing;

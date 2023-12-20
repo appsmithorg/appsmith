@@ -6,24 +6,33 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +46,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
@@ -50,8 +61,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,6 +85,9 @@ public class CrudWorkflowServiceTest {
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
+    @MockBean
+    private PluginExecutor pluginExecutor;
+
     @Autowired
     private PluginRepository pluginRepository;
 
@@ -85,11 +97,37 @@ public class CrudWorkflowServiceTest {
     @Autowired
     private NewActionRepository newActionRepository;
 
+    @Autowired
+    private CrudWorkflowEntityService crudWorkflowEntityService;
+
+    @Autowired
+    private ActionCollectionRepository actionCollectionRepository;
+
+    @Autowired
+    private LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    private LayoutActionService layoutActionService;
+
     Workspace workspace;
     String defaultEnvironmentId;
 
     @BeforeEach
     public void setup() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(
+                FeatureFlagEnum.license_gac_enabled.name(),
+                TRUE,
+                FeatureFlagEnum.release_workflows_enabled.name(),
+                TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
         Workspace toCreateWorkspace = new Workspace();
         toCreateWorkspace.setName("CrudWorkflowServiceTest Workspace");
 
@@ -98,19 +136,21 @@ public class CrudWorkflowServiceTest {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
-                .thenReturn(Mono.just(TRUE));
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void createValidWorkflow() {
 
         Workflow toCreate = new Workflow();
         toCreate.setName("createValidWorkflow Workflow");
 
-        Mono<Workflow> workflowMono = crudWorkflowService.createWorkflow(toCreate, workspace.getId());
+        Mono<Workflow> workflowMono =
+                crudWorkflowService.createWorkflow(toCreate, workspace.getId()).cache();
+
+        Mono<ActionCollection> mainJSObjectMono = workflowMono.flatMap(workflow -> actionCollectionRepository
+                .findById(workflow.getMainJsObjectId())
+                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
         StepVerifier.create(workflowMono)
                 .assertNext(workflow -> {
@@ -123,21 +163,32 @@ public class CrudWorkflowServiceTest {
 
                     Set<String> expectedUserPermissions = Set.of(
                             MANAGE_WORKFLOWS.getValue(),
-                            READ_WORKFLOWS.getValue(),
                             PUBLISH_WORKFLOWS.getValue(),
                             DELETE_WORKFLOWS.getValue(),
                             EXPORT_WORKFLOWS.getValue(),
                             EXECUTE_WORKFLOWS.getValue(),
-                            RESOLVE_WORKFLOWS.getValue(),
                             WORKFLOW_CREATE_ACTIONS.getValue(),
                             READ_HISTORY_WORKFLOWS.getValue());
 
+                    assertThat(userPermissions).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
+                    assertThat(workflow.getMainJsObjectId()).isNotEmpty();
+                })
+                .verifyComplete();
+
+        StepVerifier.create(mainJSObjectMono)
+                .assertNext(jsObject -> {
+                    Set<String> userPermissions = jsObject.getUserPermissions();
+                    Set<String> expectedUserPermissions = Set.of(
+                            MANAGE_ACTIONS.getValue(),
+                            READ_ACTIONS.getValue(),
+                            EXECUTE_ACTIONS.getValue(),
+                            DELETE_ACTIONS.getValue());
                     assertThat(userPermissions).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
                 })
                 .verifyComplete();
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void createWorkflow_missingName() {
 
@@ -152,7 +203,7 @@ public class CrudWorkflowServiceTest {
                 .verify();
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void createWorkflow_missingWorkspaceId() {
 
@@ -169,7 +220,7 @@ public class CrudWorkflowServiceTest {
                 .verify();
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkflow() {
 
@@ -193,7 +244,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void getAllWorkflowsValid() {
         Workflow toCreate = new Workflow();
@@ -220,9 +271,9 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
-    public void getAllWorkflowsInvaalid() {
+    public void getAllWorkflowsInvalid() {
 
         Mono<List<Workflow>> workflowListMono =
                 crudWorkflowService.getAllWorkflows("randomString").collectList();
@@ -234,7 +285,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void getWorkflowById() {
         Workflow toCreate = new Workflow();
@@ -253,7 +304,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void deleteWorkflowTest() {
 
@@ -287,66 +338,7 @@ public class CrudWorkflowServiceTest {
                 .verify();
     }
 
-    //    @Test
-    @WithUserDetails(value = "api_user")
-    public void testValid_createWorkflowAction() {
-        String testName = "testValid_createWorkflowAction";
-        Workflow workflow = new Workflow();
-        workflow.setName(testName);
-        Workflow createdWorkflow =
-                crudWorkflowService.createWorkflow(workflow, workspace.getId()).block();
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Datasource externalDatasource = new Datasource();
-        externalDatasource.setName("updateShouldNotResetUserSetOnLoad Database");
-        externalDatasource.setWorkspaceId(workspace.getId());
-        Plugin installed_plugin =
-                pluginRepository.findByPackageName("installed-plugin").block();
-        externalDatasource.setPluginId(installed_plugin.getId());
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("some url here");
-
-        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(
-                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
-        externalDatasource.setDatasourceStorages(storages);
-        Datasource savedDs = datasourceService.create(externalDatasource).block();
-
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setName(testName);
-        actionDTO.setDatasource(savedDs);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        actionDTO.setActionConfiguration(actionConfiguration);
-        actionDTO.setWorkspaceId(workspace.getId());
-        actionDTO.setContextType(CreatorContextType.WORKFLOW);
-
-        ActionDTO workflowActionDTO = crudWorkflowService
-                .createWorkflowAction(workflow.getId(), actionDTO)
-                .block();
-
-        assertThat(workflowActionDTO.getWorkflowId()).isEqualTo(workflow.getId());
-        assertThat(workflowActionDTO.getWorkspaceId()).isEqualTo(workspace.getId());
-        assertThat(workflowActionDTO.getDatasource().getId()).isEqualTo(savedDs.getId());
-        assertThat(workflowActionDTO.getWorkflowId()).isEqualTo(workflow.getId());
-        Set<String> expectedUserPermissions = Set.of(
-                MANAGE_ACTIONS.getValue(),
-                READ_ACTIONS.getValue(),
-                EXECUTE_ACTIONS.getValue(),
-                DELETE_ACTIONS.getValue());
-        assertThat(workflowActionDTO.getUserPermissions()).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
-
-        NewAction createdNewAction =
-                newActionRepository.findById(workflowActionDTO.getId()).block();
-        assertThat(createdNewAction.getWorkflowId()).isEqualTo(workflow.getId());
-
-        Workflow deleteWorkflow =
-                crudWorkflowService.deleteWorkflow(createdWorkflow.getId()).block();
-    }
-
-    //    @Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void testValid_deleteWorkflow_shouldDeleteAction() {
         String testName = "testValid_deleteWorkflow_shouldDeleteAction";
@@ -374,6 +366,7 @@ public class CrudWorkflowServiceTest {
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
         ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setWorkflowId(workflow.getId());
         actionDTO.setName(testName);
         actionDTO.setDatasource(savedDs);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -382,8 +375,28 @@ public class CrudWorkflowServiceTest {
         actionDTO.setWorkspaceId(workspace.getId());
         actionDTO.setContextType(CreatorContextType.WORKFLOW);
 
-        ActionDTO workflowActionDTO = crudWorkflowService
-                .createWorkflowAction(workflow.getId(), actionDTO)
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setWorkspaceId(workflow.getWorkspaceId());
+        actionCollectionDTO.setPluginId(installed_plugin.getId());
+        actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.setWorkflowId(workflow.getId());
+        action1.setContextType(CreatorContextType.WORKFLOW);
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action1));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setBody("export default { x: 1 }");
+
+        ActionCollectionDTO workflowActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
                 .block();
 
         Workflow deleteWorkflow =
@@ -391,5 +404,12 @@ public class CrudWorkflowServiceTest {
 
         Mono<NewAction> deletedNewActionMono = newActionRepository.findById(workflowActionDTO.getId());
         StepVerifier.create(deletedNewActionMono).verifyComplete();
+
+        Mono<ActionCollection> mainJsObjectMono = actionCollectionRepository.findById(workflow.getMainJsObjectId());
+        StepVerifier.create(mainJsObjectMono).verifyComplete();
+
+        Mono<ActionCollection> deletedWorkflowActionCollectionMono =
+                actionCollectionRepository.findById(workflowActionCollection.getId());
+        StepVerifier.create(deletedWorkflowActionCollectionMono).verifyComplete();
     }
 }

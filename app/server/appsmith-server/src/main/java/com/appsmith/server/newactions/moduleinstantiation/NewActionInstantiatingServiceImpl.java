@@ -12,8 +12,8 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
-import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
+import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -98,8 +98,9 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
                         moduleInstantiatingMetaDTO.getEvalVersionMono()))
                 .then(Mono.defer(() -> {
                     // After all refactors, call extractAndSetJsonPathKeys for the current entity
-                    newActionService.extractAndSetJsonPathKeys(toBeInstantiatedAction);
-                    return Mono.just(toBeInstantiatedAction);
+                    return newActionService
+                            .extractAndSetJsonPathKeys(toBeInstantiatedAction)
+                            .map(actionWithJsonPathKeys -> toBeInstantiatedAction);
                 }));
 
         return newActionMono;

@@ -6,8 +6,10 @@ import {
   getActions,
   getJSCollections,
   selectFilesForExplorer as CE_selectFilesForExplorer,
+  getCurrentJSCollections,
+  selectDatasourceIdToNameMap,
 } from "ce/selectors/entitiesSelector";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
 import {
   getAllModules,
   getCurrentModuleId,
@@ -19,10 +21,18 @@ import type { AppState } from "@appsmith/reducers";
 import { find, sortBy } from "lodash";
 import { getAllModuleInstances } from "./moduleInstanceSelectors";
 import { getPackages } from "./packageSelectors";
-import type { ExplorerFileEntityForModule } from "@appsmith/pages/Editor/Explorer/helpers";
-import { getPackageNameForModule } from "@appsmith/utils/Packages/moduleHelpers";
+import type {
+  ExplorerFileEntity,
+  ExplorerFileEntityForModule,
+} from "@appsmith/pages/Editor/Explorer/helpers";
+import {
+  convertModulesToArray,
+  getModuleIdPackageNameMap,
+} from "@appsmith/utils/Packages/moduleHelpers";
 import type { ActionResponse } from "api/ActionAPI";
-import type { Action } from "entities/Action";
+import { PluginType, type Action } from "entities/Action";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { isEmbeddedRestDatasource } from "entities/Datasource";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -71,13 +81,11 @@ export const selectFilesForExplorer = createSelector(
   getAllModules,
   getPackages,
   (CE_files, moduleInstances, modules, packages) => {
+    const modulesArray = convertModulesToArray(modules);
+    const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
       (acc, file) => {
-        const group = getPackageNameForModule(
-          modules,
-          packages,
-          file.sourceModuleId,
-        );
+        const group = modulePackageMap[file.sourceModuleId] || "Packages";
         acc = acc.concat({
           type: "moduleInstance",
           entity: file,
@@ -95,6 +103,7 @@ export const selectFilesForExplorer = createSelector(
     const filesSortedByGroupName = sortBy(
       [...filteredCEFiles, ...moduleInstanceFiles],
       [
+        (file) => file.entity?.isMainJSCollection,
         (file) => file.group?.toLowerCase(),
         (file: any) => file.entity?.name?.toLowerCase(),
       ],
@@ -155,3 +164,112 @@ export const getActionData = (
   );
   if (moduleInstanceAction) return moduleInstanceAction.data;
 };
+
+export const getQueryModuleInstances = createSelector(
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInstances, moduleInstanceEntities) => {
+    const queryModuleInstances = Object.values(moduleInstances).map(
+      (instance) => {
+        if (instance.type === MODULE_TYPE.QUERY) {
+          const getPublicAction = moduleInstanceEntities.actions.find(
+            (entity: ActionData) =>
+              entity.config.moduleInstanceId === instance.id,
+          );
+          return {
+            config: instance,
+            data: getPublicAction?.data,
+          };
+        }
+      },
+    );
+    return queryModuleInstances.filter((instance) => !!instance);
+  },
+);
+
+/**
+ *
+ * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )
+ */
+export const getJSCollectionFromAllEntities = (
+  state: AppState,
+  actionId: string,
+) => {
+  const jsaction = find(
+    [
+      ...state.entities.jsActions,
+      ...state.entities.moduleInstanceEntities.jsCollections,
+    ],
+    (a) => a.config.id === actionId,
+  );
+  return jsaction && jsaction.config;
+};
+
+export const getAllJSCollections = createSelector(
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (currentContextJSCollections, moduleInstanceJSCollections) => {
+    return [...moduleInstanceJSCollections, ...currentContextJSCollections];
+  },
+);
+
+export const getPrivateActions = createSelector(getActions, (actions) =>
+  actions.filter((action) => !action.config.isPublic),
+);
+
+export const selectFilesForPackageExplorer = createSelector(
+  getPrivateActions,
+  getJSCollections,
+  selectDatasourceIdToNameMap,
+  (actions, jsActions, datasourceIdToNameMap) => {
+    const files = [...actions, ...jsActions].reduce((acc, file) => {
+      let group = "";
+      if (file.config.pluginType === PluginType.JS) {
+        group = "JS Objects";
+      } else if (file.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(file.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[file.config.datasource.id];
+      }
+      acc = acc.concat({
+        type: file.config.pluginType,
+        entity: file,
+        group,
+      });
+      return acc;
+    }, [] as Array<ExplorerFileEntity>);
+
+    const filesSortedByGroupName = sortBy(files, [
+      (file) => file.group?.toLowerCase(),
+      (file) => file.entity.config?.name?.toLowerCase(),
+    ]);
+    const groupedFiles = filesSortedByGroupName.reduce(
+      (acc, file) => {
+        if (acc.group !== file.group) {
+          acc.files = acc.files.concat({
+            type: "group",
+            entity: {
+              name: file.group,
+            },
+          });
+          acc.group = file.group;
+        }
+        acc.files = acc.files.concat({
+          ...file,
+          entity: {
+            id: file.entity.config.id,
+            name: file.entity.config.name,
+          },
+        });
+        return acc;
+      },
+      {
+        group: "" as any,
+        files: [] as any,
+      },
+    );
+    return groupedFiles.files;
+  },
+);

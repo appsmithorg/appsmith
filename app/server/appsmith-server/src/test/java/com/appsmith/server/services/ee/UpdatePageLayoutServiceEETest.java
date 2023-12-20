@@ -4,15 +4,16 @@ import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
@@ -118,6 +119,9 @@ public class UpdatePageLayoutServiceEETest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    CustomJSLibService customJSLibService;
+
     ModuleInstanceTestHelper moduleInstanceTestHelper;
     ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO;
 
@@ -138,7 +142,8 @@ public class UpdatePageLayoutServiceEETest {
                 commonConfig,
                 pluginService,
                 crudModuleInstanceService,
-                objectMapper);
+                objectMapper,
+                customJSLibService);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("CRUD_Module_Instance_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("CRUD_Module_Instance_Application");

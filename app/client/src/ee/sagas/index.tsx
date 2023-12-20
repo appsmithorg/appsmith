@@ -15,6 +15,8 @@ import WorkflowInitSagas from "./workflowInitSagas";
 import ModuleInstanceSaga from "./moduleInstanceSagas";
 import ModuleSagas from "./moduleSagas";
 import WorkflowsSagas from "./workflowsSagas";
+import WorkflowsActionSagas from "./workflowsActionSagas";
+import ModuleActionSagas from "./moduleActionSagas";
 
 const sagasArr = [
   ...CE_Sagas,
@@ -25,10 +27,12 @@ const sagasArr = [
   ProvisioningSagas,
   PackagesSagas,
   WorkflowsSagas,
+  WorkflowsActionSagas,
   PackageInitSagas,
   WorkflowInitSagas,
   ModuleInstanceSaga,
   ModuleSagas,
+  ModuleActionSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagasArr): any {

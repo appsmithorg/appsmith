@@ -1,11 +1,13 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -19,11 +21,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -44,10 +44,7 @@ public class ModuleController {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ModuleDTO>> createModule(
-            @Valid @RequestBody ModuleDTO resource,
-            @RequestHeader(name = "Origin", required = false) String originHeader,
-            ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ModuleDTO>> createModule(@Valid @RequestBody ModuleDTO resource) {
         log.debug("Going to create module under package {}", resource.getPackageId());
         return crudModuleService
                 .createModule(resource)
@@ -76,7 +73,7 @@ public class ModuleController {
     @JsonView(Views.Public.class)
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{moduleId}/{actionId}")
-    public Mono<ResponseDTO<ModuleActionDTO>> updateModuleAction(
+    public Mono<ResponseDTO<ActionDTO>> updateModuleAction(
             @PathVariable String moduleId,
             @PathVariable String actionId,
             @RequestBody @Valid ModuleActionDTO moduleActionDTO) {
@@ -98,9 +95,19 @@ public class ModuleController {
     @JsonView(Views.Public.class)
     @GetMapping("/{moduleId}/actions")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<List<ModuleConsumable>>> getModuleActions(@PathVariable String moduleId) {
+    public Mono<ResponseDTO<List<ActionDTO>>> getModuleActions(@PathVariable String moduleId) {
         return crudModuleEntityService
                 .getModuleActions(moduleId)
                 .map(moduleActions -> new ResponseDTO<>(HttpStatus.OK.value(), moduleActions, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{moduleId}/entities")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<ModuleEntitiesDTO>> getModuleEntities(@PathVariable String moduleId) {
+        return crudModuleEntityService
+                .getAllEntities(moduleId, CreatorContextType.MODULE, null)
+                .map(moduleInstanceEntitiesDTO ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), moduleInstanceEntitiesDTO, null));
     }
 }

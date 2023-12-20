@@ -2,13 +2,14 @@ package com.appsmith.server.moduleinstances.publish;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
 import com.appsmith.server.modules.crud.CrudModuleService;
@@ -108,6 +109,9 @@ public class ModuleInstanceApplicationPublishableServiceTest {
     @SpyBean
     PluginService pluginService;
 
+    @Autowired
+    CustomJSLibService customJSLibService;
+
     @BeforeEach
     public void setup() {
         moduleInstanceTestHelper = new ModuleInstanceTestHelper(
@@ -125,7 +129,8 @@ public class ModuleInstanceApplicationPublishableServiceTest {
                 commonConfig,
                 pluginService,
                 crudModuleInstanceService,
-                objectMapper);
+                objectMapper,
+                customJSLibService);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("CRUD_Module_Instance_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("CRUD_Module_Instance_Application");

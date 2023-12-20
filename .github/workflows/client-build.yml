@@ -32,7 +32,6 @@ on:
         type: string
         default: "true"
 
-
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
@@ -47,7 +46,8 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' 
     defaults:
       run:
         working-directory: app/client
@@ -61,36 +61,37 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-tags: true
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
         if: inputs.pr == 0 && inputs.branch != ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          fetch-tags: true
           ref: ${{ inputs.branch }}
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0 && inputs.branch == ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-tags: true
 
-      # get all the files changes in the cypress/e2e folder    
+      # get all the files changes in the cypress/e2e folder
       - name: Get added files in cypress/e2e folder
         if: inputs.pr != 0
         id: files
-        uses: umani/changed-files@v4.0.0
+        uses: umani/changed-files@v4.1.0
         with:
           repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          pattern: 'app/client/cypress/e2e/.*'
+          pattern: "app/client/cypress/e2e/.*"
           pr-number: ${{ inputs.pr }}
-          
-      # Check all the newly added files are in ts  
+
+      # Check all the newly added files are in ts
       - name: Check the newly added files are written in ts
         if: inputs.check-test-files == 'true' && inputs.pr != 0
         id: check_files
@@ -104,11 +105,11 @@ jobs:
           done
           echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
           echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
-      
-      # Comment in PR if test files are not written in ts and fail the workflow    
+
+      # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
         if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ inputs.pr }}
           body: |
@@ -117,17 +118,17 @@ jobs:
             <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
       - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
         run: exit 1
-           
+
       - name: Get all the added or changed files in client/src folder
         if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         id: client_files
-        uses: umani/changed-files@v4.0.0
+        uses: umani/changed-files@v4.1.0
         with:
           repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          pattern: 'app/client/src/.*'
+          pattern: "app/client/src/.*"
           pr-number: ${{ inputs.pr }}
 
-      # Check all the newly added files are in ts  
+      # Check all the newly added files are in ts
       - name: ADS compliant check
         if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         id: ads_check
@@ -146,10 +147,10 @@ jobs:
           echo "ads_non_compliant_files=$unique_files" >> $GITHUB_OUTPUT
           echo "ads_non_compliant_count=${#unique_files[@]}" >> $GITHUB_OUTPUT
 
-      # Comment in PR if test files are not written in ts and fail the workflow    
+      # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
         if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ inputs.pr }}
           body: |
@@ -197,11 +198,10 @@ jobs:
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
+        id: cache-dependencies
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -217,6 +217,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
+          set +o pipefail
           echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
               echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
@@ -226,7 +227,7 @@ jobs:
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
@@ -259,11 +260,10 @@ jobs:
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v3
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # We may not need the client_build_dir env variable.
       - name: Set the client build path env vars

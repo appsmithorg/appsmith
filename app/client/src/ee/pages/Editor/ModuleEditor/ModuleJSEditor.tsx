@@ -7,7 +7,7 @@ import Loader from "./Loader";
 import JsEditorForm from "pages/Editor/JSEditor/Form";
 import ModuleJSEditorContextMenu from "./ModuleJSEditorContextMenu";
 import { getIsPackageEditorInitialized } from "@appsmith/selectors/packageSelectors";
-import { getJSCollectionById } from "selectors/editorSelectors";
+import { getJSCollectionDataById } from "selectors/editorSelectors";
 import { saveJSObjectName } from "actions/jsActionActions";
 
 interface ModuleJSEditorRouteParams {
@@ -19,12 +19,13 @@ interface ModuleJSEditorRouteParams {
 type ModuleJSEditorProps = RouteComponentProps<ModuleJSEditorRouteParams>;
 
 function ModuleJSEditor(props: ModuleJSEditorProps) {
-  const { moduleId } = props.match.params;
+  const { collectionId, moduleId } = props.match.params;
   const isPackageEditorInitialized = useSelector(getIsPackageEditorInitialized);
-  const jsCollection = useSelector((state) =>
-    getJSCollectionById(state, props),
+  const jsCollectionData = useSelector((state) =>
+    getJSCollectionDataById(state, collectionId),
   );
 
+  const jsCollection = jsCollectionData?.config;
   const contextMenu = useMemo(() => {
     if (!jsCollection) {
       return null;
@@ -36,7 +37,7 @@ function ModuleJSEditor(props: ModuleJSEditorProps) {
         moduleId={moduleId}
       />
     );
-  }, [jsCollection]);
+  }, [jsCollection, moduleId]);
 
   if (!isPackageEditorInitialized || !jsCollection) {
     return <Loader />;
@@ -45,7 +46,7 @@ function ModuleJSEditor(props: ModuleJSEditorProps) {
   return (
     <JsEditorForm
       contextMenu={contextMenu}
-      jsCollection={jsCollection}
+      jsCollectionData={jsCollectionData}
       onUpdateSettings={noop}
       saveJSObjectName={saveJSObjectName}
       showSettings={false}

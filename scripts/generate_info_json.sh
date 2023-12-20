@@ -8,8 +8,10 @@ commit_sha="$(git rev-parse HEAD)"
 # Base URL of the current repository on GitHub.
 base_url="$(git remote get-url origin | sed 's,^git@github\.com:,https://github.com/,; s/\.git$//')"
 
-if [[ "${GITHUB_REF-}" =~ ^refs/tags/v ]]; then
-  version="${GITHUB_REF#refs/tags/v}"
+if [[ "${GITHUB_REF_NAME-}" == *"airgap-"* ]]; then
+  version="$(echo "$GITHUB_REF_NAME" | cut -d'-' -f2-)"
+elif [[ "${GITHUB_REF-}" =~ ^refs/tags/v ]]; then
+  version="${GITHUB_REF#refs/tags/}"
 else
   latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
   echo "latest_released_version = $latest_released_version" >&2

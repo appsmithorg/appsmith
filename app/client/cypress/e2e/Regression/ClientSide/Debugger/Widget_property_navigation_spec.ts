@@ -27,9 +27,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Tab 2");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Tab 2");
     _.propPane.AssertIfPropertyIsVisible("visible");
-
     _.debuggerHelper.CloseBottomBar();
     EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Tabs1");
@@ -48,9 +47,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Menu Item 1");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Menu Item 1");
     _.propPane.AssertIfPropertyIsVisible("icon");
-
     _.debuggerHelper.CloseBottomBar();
     EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("ButtonGroup1");
@@ -66,10 +64,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Second Menu Item");
-    _.agHelper.Sleep();
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Second Menu Item");
     _.propPane.AssertIfPropertyIsVisible("disabled");
-
     _.debuggerHelper.CloseBottomBar();
     EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
@@ -113,7 +109,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Custom Field 2");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Custom Field 2");
     _.propPane.AssertIfPropertyIsVisible("borderradius");
 
     _.debuggerHelper.CloseBottomBar();
@@ -136,8 +132,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink(true);
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("First Menu Item");
-
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "First Menu Item");
     _.debuggerHelper.CloseBottomBar();
     EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
@@ -152,9 +147,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
-
+    _.agHelper.AssertContains("Select collection");
     _.agHelper.AssertElementEnabledDisabled(OneClickBindingLocator.connectData);
-    _.agHelper.Sleep(3000); //for tables to populate for CI runs
     _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
     _.agHelper.GetNClick(
       OneClickBindingLocator.tableOrSpreadsheetDropdownOption("movies"),
@@ -167,7 +161,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
       ),
     );
     _.agHelper.GetNClick(OneClickBindingLocator.connectData);
-
+    _.table.WaitUntilTableLoad(0, 0, "v2");
     _.propPane.OpenTableColumnSettings("imdb_id");
     _.propPane.TypeTextIntoField("Regex", "{{test}}");
     _.debuggerHelper.AssertErrorCount(1);
@@ -176,8 +170,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("imdb_id");
-
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "imdb_id");
     _.debuggerHelper.CloseBottomBar();
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");

@@ -33,6 +33,9 @@ function EditorContextMenu({
     confirmDelete ? onDelete() : setConfirmDelete(true);
   };
 
+  // Do not show anything if no items are available to use.
+  if (!isDeletePermitted) return null;
+
   return (
     <Menu className={className} onOpenChange={toggleMenuOpen} open={isMenuOpen}>
       <MenuTrigger>
@@ -45,17 +48,15 @@ function EditorContextMenu({
         />
       </MenuTrigger>
       <MenuContent loop style={{ zIndex: 100 }} width="200px">
-        {isDeletePermitted && (
-          <MenuItem
-            className="t--more-action-deleteBtn error-menuitem"
-            onSelect={onDeleteClick}
-            startIcon="trash"
-          >
-            {confirmDelete
-              ? createMessage(CONFIRM_CONTEXT_DELETE)
-              : createMessage(CONTEXT_DELETE)}
-          </MenuItem>
-        )}
+        <MenuItem
+          className="t--more-action-deleteBtn error-menuitem"
+          onSelect={onDeleteClick}
+          startIcon="trash"
+        >
+          {confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE)}
+        </MenuItem>
       </MenuContent>
     </Menu>
   );

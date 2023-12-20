@@ -13,6 +13,7 @@ import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
   WORKFLOW_API_EDITOR_PATH,
+  WORKFLOW_CURL_IMPORT_PATH,
   WORKFLOW_QUERY_EDITOR_PATH,
 } from "@appsmith/constants/routes/workflowRoutes";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
@@ -23,6 +24,7 @@ import WorkflowApiEditor from "./WorkflowApiEditor";
 import BottomBar from "components/BottomBar";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
+import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 
 function WorkflowMainContainer() {
   const { path } = useRouteMatch();
@@ -45,6 +47,20 @@ function WorkflowMainContainer() {
               exact
               path={`${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`}
             />
+            <SentryRoute
+              component={WorkflowQueryEditor}
+              path={`${path}${WORKFLOW_QUERY_EDITOR_PATH}`}
+            />
+            <SentryRoute
+              component={WorkflowQueryEditor}
+              path={`${path}${SAAS_EDITOR_API_ID_PATH}`}
+            />
+            {/* TODO (wWrkflows): Fix this import path */}
+            <SentryRoute
+              component={CurlImportEditor}
+              exact
+              path={`${path}${WORKFLOW_CURL_IMPORT_PATH}`}
+            />
             {/* TO BE IMPLEMENTED */}
             <SentryRoute
               component={JSEditor}
@@ -55,14 +71,6 @@ function WorkflowMainContainer() {
               component={JSEditor}
               exact
               path={`${path}${JS_COLLECTION_ID_PATH}`}
-            />
-            <SentryRoute
-              component={WorkflowQueryEditor}
-              path={`${path}${WORKFLOW_QUERY_EDITOR_PATH}`}
-            />
-            <SentryRoute
-              component={WorkflowQueryEditor}
-              path={`${path}${SAAS_EDITOR_API_ID_PATH}`}
             />
             <SentryRoute
               component={WorkflowApiEditor}

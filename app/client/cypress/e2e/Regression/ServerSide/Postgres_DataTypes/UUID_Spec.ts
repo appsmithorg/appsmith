@@ -18,7 +18,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("UUID Datatype tests", function () {
+describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Importing App & setting theme", () => {
@@ -46,9 +46,7 @@ describe("UUID Datatype tests", function () {
 
   it("2. Creating table query - uuidtype", () => {
     query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, nil uuid);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     dataSources.RunQuery();
   });
 
@@ -247,12 +245,9 @@ describe("UUID Datatype tests", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyUUIDFunctions");
-
     //Validating use of extention
     query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyUUIDFunctions");
     dataSources.RunQueryNVerifyResponseViews(1);
     dataSources.AssertQueryResponseHeaders(["affectedRows"]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {

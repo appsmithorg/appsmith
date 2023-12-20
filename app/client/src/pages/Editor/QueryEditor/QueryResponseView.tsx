@@ -238,10 +238,10 @@ function QueryResponseView({
                   (actionResponse.pluginErrorDetails ? (
                     <>
                       <div data-testid="t--query-error">
-                        {
+                        {actionResponse.pluginErrorDetails
+                          .downstreamErrorMessage ||
                           actionResponse.pluginErrorDetails
-                            .downstreamErrorMessage
-                        }
+                            .appsmithErrorMessage}
                       </div>
                       {actionResponse.pluginErrorDetails
                         .downstreamErrorCode && (

@@ -24,9 +24,15 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryImpl<ModuleInstance>
         implements CustomModuleInstanceRepository {
 
-    private final Map<CreatorContextType, String> contextTypeToContextIdPathMap = Map.of(
-            CreatorContextType.PAGE, fieldName(QModuleInstance.moduleInstance.pageId),
-            CreatorContextType.MODULE, fieldName(QModuleInstance.moduleInstance.moduleId));
+    private final Map<CreatorContextType, String> publishedContextTypeToContextIdPathMap = Map.of(
+            CreatorContextType.PAGE, completeFieldName(QModuleInstance.moduleInstance.publishedModuleInstance.pageId),
+            CreatorContextType.MODULE,
+                    completeFieldName(QModuleInstance.moduleInstance.publishedModuleInstance.moduleId));
+
+    private final Map<CreatorContextType, String> unpublishedContextTypeToContextIdPathMap = Map.of(
+            CreatorContextType.PAGE, completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.pageId),
+            CreatorContextType.MODULE,
+                    completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.moduleId));
 
     public CustomModuleInstanceRepositoryImpl(
             ReactiveMongoOperations mongoOperations,
@@ -36,19 +42,19 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Mono<Long> getModuleInstanceCountByModuleId(String moduleId) {
+    public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID) {
         Criteria moduleIdCriteria =
-                where(fieldName(QModuleInstance.moduleInstance.sourceModuleId)).is(moduleId);
+                where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
 
         return count(List.of(moduleIdCriteria), Optional.empty());
     }
 
     @Override
-    public Flux<ModuleInstance> findAllByContextIdAndContextType(
+    public Flux<ModuleInstance> findAllPublishedByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        Criteria contextIdAndContextTypeCriteria = where(contextTypeToContextIdPathMap.get(contextType))
+        Criteria contextIdAndContextTypeCriteria = where(publishedContextTypeToContextIdPathMap.get(contextType))
                 .is(contextId)
-                .and(fieldName(QModuleInstance.moduleInstance.contextType))
+                .and(completeFieldName(QModuleInstance.moduleInstance.publishedModuleInstance.contextType))
                 .is(contextType);
 
         return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
@@ -57,16 +63,19 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Flux<ModuleInstance> findAllUnpublishedByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        Criteria contextIdAndContextTypeCriteria = where(contextTypeToContextIdPathMap.get(contextType))
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria contextIdAndContextTypeCriteria = where(unpublishedContextTypeToContextIdPathMap.get(contextType))
                 .is(contextId)
-                .and(fieldName(QModuleInstance.moduleInstance.contextType))
+                .and(completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.contextType))
                 .is(contextType);
+        criteria.add(contextIdAndContextTypeCriteria);
 
-        Criteria deletedAtNullCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance)
-                        + "." + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
+        Criteria deletedAtNullCriterion = where(
+                        completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
                 .isNull();
+        criteria.add(deletedAtNullCriterion);
 
-        return queryAll(List.of(contextIdAndContextTypeCriteria, deletedAtNullCriterion), Optional.of(permission));
+        return queryAll(criteria, Optional.of(permission));
     }
 
     @Override
@@ -120,5 +129,34 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
         return updateByCriteria(List.of(applicationIdCriterion, deletedFromUnpublishedCriteria), update, permission);
+    }
+
+    @Override
+    public Flux<ModuleInstance> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(
+                        completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.pageId))
+                .in(pageIds);
+
+        Criteria notAModuleInstancePrivateEntity = where(
+                        completeFieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
+                .exists(false);
+
+        return queryAll(List.of(pageIdCriteria, notAModuleInstancePrivateEntity), permission);
+    }
+
+    @Override
+    public Flux<ModuleInstance> findAllUnpublishedByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria moduleUUIDCriterion =
+                where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
+
+        Criteria notDeletedCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+                        + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
+                .is(null);
+
+        criteria.add(moduleUUIDCriterion);
+        criteria.add(notDeletedCriterion);
+
+        return queryAll(criteria, permission);
     }
 }

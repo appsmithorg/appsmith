@@ -2,6 +2,7 @@ import type {
   CreateWorkflowFromWorkspacePayload,
   DeleteWorkflowPayload,
   FetchWorkflowPayload,
+  PublishWorkflowPayload,
 } from "@appsmith/actions/workflowActions";
 import {
   ReduxActionTypes,
@@ -36,9 +37,10 @@ import {
   getWorkflowById,
   getWorkflowsList,
 } from "@appsmith/selectors/workflowSelectors";
-import type { Workspaces } from "ce/constants/workspaceConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { workflowEditorURL } from "@appsmith/RouteBuilder";
+import type { Workspaces } from "@appsmith/constants/workspaceConstants";
+import { toast } from "design-system";
 import { getFetchedWorkspaces } from "ce/selectors/workspaceSelectors";
 
 interface CreateWorkflowSagaProps {
@@ -264,6 +266,36 @@ export function* updateWorkflowNameSaga(
   }
 }
 
+export function* publishWorkflowSaga(
+  action: ReduxAction<PublishWorkflowPayload>,
+) {
+  try {
+    const response: ApiResponse<PublishWorkflowPayload> = yield call(
+      WorkflowApi.publishWorkflow,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.PUBLISH_WORKFLOW_SUCCESS,
+        payload: response.data,
+      });
+
+      toast.show("Workflow published successfully", { kind: "success" });
+
+      return response.data;
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PUBLISH_WORKFLOW_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* workflowsSagas() {
   yield all([
     takeLatest(
@@ -284,5 +316,6 @@ export default function* workflowsSagas() {
       ReduxActionTypes.UPDATE_WORKFLOW_NAME_INIT,
       updateWorkflowNameSaga,
     ),
+    takeLatest(ReduxActionTypes.PUBLISH_WORKFLOW_INIT, publishWorkflowSaga),
   ]);
 }

@@ -156,7 +156,11 @@ public enum AppsmithErrorCode {
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     INVALID_APPROVAL_REQUEST_RESOLUTION("AE-APP-4029", "Invalid approval request resolution"),
     INVALID_APPROVAL_REQUEST_CREATION("AE-APP-4030", "Invalid approval request creation"),
-    WORKFLOW_PROXY_REQUEST_FAILED("AE-APP-5016", "Workflow Proxy request failed");
+    WORKFLOW_PROXY_REQUEST_FAILED("AE-APP-5016", "Workflow Proxy request failed"),
+    WORKFLOW_NOT_TRIGGERED_WORKFLOW_NOT_PUBLISHED("AE-APP-5027", "Unable to trigger workflow. Workflow not published."),
+    WORKFLOW_NOT_TRIGGERED_MAIN_JS_OBJECT_NOT_FOUND(
+            "AE-APP-5028", "Unable to trigger workflow. Main JS Object not found."),
+    ;
     private final String code;
     private final String description;
 

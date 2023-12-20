@@ -8,6 +8,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.actioncollections.base.ActionCollectionServiceImpl;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
@@ -22,6 +23,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
+import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -32,6 +35,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ApplicationPermissionImpl;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PagePermissionImpl;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -123,6 +127,15 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private PolicyGenerator policyGenerator;
 
+    @MockBean
+    private CrudWorkflowEntityService crudWorkflowEntityService;
+
+    @MockBean
+    private ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
+
+    @MockBean
+    private ModulePermissionChecker modulePermissionChecker;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -153,7 +166,10 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 actionCollectionRepository,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                crudWorkflowEntityService,
+                actionCollectionModuleEntityService,
+                modulePermissionChecker);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(
@@ -200,7 +216,7 @@ public class ActionCollectionServiceImplTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setId("testId");
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.createCollection(actionCollectionDTO);
+                layoutCollectionService.createCollection(actionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -212,7 +228,7 @@ public class ActionCollectionServiceImplTest {
     public void testCreateCollection_withoutOrgPageApplicationPluginIds_throwsError() {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.createCollection(actionCollectionDTO);
+                layoutCollectionService.createCollection(actionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
@@ -234,10 +250,12 @@ public class ActionCollectionServiceImplTest {
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
         Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(false));
 
-        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
@@ -247,7 +265,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Flux.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.createCollection(actionCollectionDTO);
+                layoutCollectionService.createCollection(actionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -275,10 +293,12 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
 
-        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
@@ -308,8 +328,16 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
+        Mockito.when(responseUtils.updateCollectionDTOWithDefaultResources(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final ActionCollectionDTO argument =
+                            (ActionCollectionDTO) invocation.getArguments()[0];
+                    argument.setDefaultResources(setDefaultResources(argument));
+                    return argument;
+                });
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.createCollection(actionCollectionDTO);
+                layoutCollectionService.createCollection(actionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
@@ -340,10 +368,12 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
 
-        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
@@ -357,6 +387,20 @@ public class ActionCollectionServiceImplTest {
                     final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
                     argument.setId("testActionId");
                     return Mono.just(argument);
+                });
+        Mockito.when(newActionService.generateActionDomain(Mockito.any())).thenAnswer(invocation -> {
+            final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
+            NewAction newAction = new NewAction();
+            newAction.setId(argument.getId());
+            newAction.setUnpublishedAction(argument);
+            return newAction;
+        });
+        Mockito.when(newActionService.validateAndSaveActionToRepository(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final NewAction argument = (NewAction) invocation.getArguments()[0];
+                    ActionDTO unpublishedAction = argument.getUnpublishedAction();
+                    unpublishedAction.setId("testActionId");
+                    return Mono.just(unpublishedAction);
                 });
 
         Mockito.when(updateLayoutService.updatePageLayoutsByPageId(Mockito.anyString()))
@@ -385,8 +429,16 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
+        Mockito.when(responseUtils.updateCollectionDTOWithDefaultResources(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final ActionCollectionDTO argument =
+                            (ActionCollectionDTO) invocation.getArguments()[0];
+                    argument.setDefaultResources(setDefaultResources(argument));
+                    return argument;
+                });
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.createCollection(actionCollectionDTO);
+                layoutCollectionService.createCollection(actionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {

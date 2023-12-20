@@ -1,5 +1,6 @@
 package com.appsmith.server.workflows.interact;
 
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -14,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApprovalRequestRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -35,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -45,6 +48,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +57,6 @@ import java.util.Set;
 import static com.appsmith.server.constants.ApprovalRequestStatus.PENDING;
 import static com.appsmith.server.constants.ApprovalRequestStatus.RESOLVED;
 import static com.appsmith.server.constants.FieldName.REQUEST;
-import static com.appsmith.server.constants.FieldName.WORKFLOW;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
@@ -105,6 +108,12 @@ public class InteractApprovalRequestServiceTest {
     @SpyBean
     WorkflowProxyHelper workflowProxyHelper;
 
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    private PluginExecutor pluginExecutor;
+
     Workspace workspace = null;
     Workflow workflow = null;
     PermissionGroup workspaceAdminRole = null;
@@ -122,6 +131,9 @@ public class InteractApprovalRequestServiceTest {
 
     @BeforeEach
     void setUp() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
@@ -413,55 +425,6 @@ public class InteractApprovalRequestServiceTest {
         assertThat(resolvedApprovalRequest.getResolutionReason()).isEqualTo(approvalRequestResolutionReason);
         assertThat(resolvedApprovalRequest.getResolvedAt()).isBefore(Instant.now());
         assertThat(resolvedApprovalRequest.getResolvedBy()).isEqualTo(createdUser.getUsername());
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testInvalidApprovalResolution_noResolveAccessToWorkflow() {
-        String testName = "testInvalidApprovalResolution_noResolveAccessToWorkflow";
-
-        User user = new User();
-        user.setEmail(testName);
-        user.setPassword(testName);
-        User createdUser = userService.create(user).block();
-
-        String resolution1 = "resolution1";
-        String resolution2 = "resolution2";
-        String resolution3 = "resolution3";
-        Set<String> allowedResolutions = Set.of(resolution1, resolution2);
-        String approvalRequestTitle = "Title: " + testName;
-        String approvalRequestMessage = "Message: " + testName;
-
-        ApprovalRequest approvalRequest = createTestApprovalRequest(
-                approvalRequestTitle, approvalRequestMessage, allowedResolutions, createdUser, null);
-
-        String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Mono<JSONObject> resolutionMono = resolveApprovalRequestInviteUser(
-                approvalRequest, approvalRequestResolutionReason, resolution1, createdUser, testName);
-
-        StepVerifier.create(resolutionMono)
-                .expectErrorMatches(throwable -> {
-                    assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    assertThat(throwable.getMessage())
-                            .contains(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKFLOW, workflow.getId()));
-                    return true;
-                })
-                .verify();
-
-        ApprovalRequest resolvedApprovalRequest =
-                approvalRequestRepository.findById(approvalRequest.getId()).block();
-        assertThat(resolvedApprovalRequest).isNotNull();
-        assertThat(resolvedApprovalRequest.getId()).isNotEmpty();
-        assertThat(resolvedApprovalRequest.getTitle()).isEqualTo(approvalRequestTitle);
-        assertThat(resolvedApprovalRequest.getDescription()).isEqualTo(approvalRequestMessage);
-        assertThat(resolvedApprovalRequest.getWorkflowId()).isEqualTo(workflow.getId());
-        assertThat(resolvedApprovalRequest.getResolutionStatus()).isEqualTo(PENDING);
-        assertThat(resolvedApprovalRequest.getAllowedResolutions())
-                .containsExactlyInAnyOrderElementsOf(allowedResolutions);
-        assertThat(resolvedApprovalRequest.getResolution()).isNullOrEmpty();
-        assertThat(resolvedApprovalRequest.getResolutionReason()).isNullOrEmpty();
-        assertThat(resolvedApprovalRequest.getResolvedAt()).isNull();
-        assertThat(resolvedApprovalRequest.getResolvedBy()).isNullOrEmpty();
     }
 
     @Test

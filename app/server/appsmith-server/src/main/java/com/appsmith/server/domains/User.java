@@ -37,10 +37,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private String hashedEmail;
 
-    // TODO: This is deprecated in favour of groups
-    @JsonView(Views.Public.class)
-    private Set<Role> roles;
-
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonView(Views.Public.class)
     private String password;
@@ -109,6 +105,12 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @JsonView(Views.Public.class)
     private String tenantId;
+
+    // Field to indicate if the user is system generated or not. Expected to be `true` for system generated users, null
+    // otherwise.
+    // e.g. AnonymousUser is created by the system migration during the first time startup.
+    @JsonView(Views.Internal.class)
+    Boolean isSystemGenerated;
 
     @JsonView(Views.Public.class)
     private Boolean isProvisioned = false;

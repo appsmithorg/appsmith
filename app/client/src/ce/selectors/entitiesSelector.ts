@@ -23,12 +23,12 @@ import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import type {
   JSCollectionData,
   JSCollectionDataState,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
 } from "api/PluginApi";
-import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -46,8 +46,11 @@ import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type { Plugin } from "api/PluginApi";
+import {
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
+} from "@appsmith/selectors/workflowSelectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -673,15 +676,27 @@ export const getActionData = (
   return action ? action.data : undefined;
 };
 
-export const getJSCollection = (
-  state: AppState,
-  actionId: string,
-): JSCollection | undefined => {
+export const getJSCollection = (state: AppState, actionId: string) => {
   const jsaction = find(
     state.entities.jsActions,
     (a) => a.config.id === actionId,
   );
-  return jsaction ? jsaction.config : undefined;
+  return jsaction && jsaction.config;
+};
+
+/**
+ *
+ * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )
+ */
+export const getJSCollectionFromAllEntities = (
+  state: AppState,
+  actionId: string,
+) => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction && jsaction.config;
 };
 
 export function getCurrentPageNameByActionId(
@@ -955,9 +970,22 @@ export const getDatasourceLoading = (state: AppState) => {
 export const selectFilesForExplorer = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, datasourceIdToNameMap) => {
-    const files = [...actions, ...jsActions].reduce((acc, file) => {
+  (
+    actions,
+    jsActions,
+    workflowActions,
+    workflowJsActions,
+    datasourceIdToNameMap,
+  ) => {
+    const files = [
+      ...actions,
+      ...jsActions,
+      ...workflowActions,
+      ...workflowJsActions,
+    ].reduce((acc, file) => {
       let group = "";
       if (file.config.pluginType === PluginType.JS) {
         group = "JS Objects";
@@ -977,6 +1005,7 @@ export const selectFilesForExplorer = createSelector(
     }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
+      (file) => file.entity.config?.isMainJSCollection,
       (file) => file.group?.toLowerCase(),
       (file) => file.entity.config?.name?.toLowerCase(),
     ]);
@@ -993,7 +1022,11 @@ export const selectFilesForExplorer = createSelector(
         }
         acc.files = acc.files.concat({
           ...file,
-          entity: { id: file.entity.config.id, name: file.entity.config.name },
+          entity: {
+            id: file.entity.config.id,
+            name: file.entity.config.name,
+            isMainJSCollection: file.entity?.config?.isMainJSCollection,
+          },
         });
         return acc;
       },
@@ -1319,13 +1352,82 @@ export function getInputsForModule(): Module["inputsForm"] {
   return [];
 }
 
-export const getModuleInstances = (): Record<string, ModuleInstance> => {
-  return {};
+export const getModuleInstances = (
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  state: AppState,
+) => {
+  return null;
 };
 
 export const getModuleInstanceEntities = () => {
-  return {
-    actions: [],
-    jsCollections: [],
-  };
+  return null;
 };
+
+interface PagePaneData {
+  [key: string]: { id: string; name: string; type: string }[];
+}
+
+const GroupAndSortPagePaneData = (
+  files: ActionData[] | JSCollectionData[],
+  datasourceIdToNameMap: Record<string, string>,
+) => {
+  let data: PagePaneData = {};
+
+  files.forEach((file) => {
+    let group = "";
+
+    if (file.config.pluginType === PluginType.JS) {
+      group = "JS Objects";
+    } else if (file.config.pluginType === PluginType.API) {
+      group = isEmbeddedRestDatasource(file.config.datasource)
+        ? "APIs"
+        : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+    } else {
+      group = datasourceIdToNameMap[file.config.datasource.id];
+    }
+    if (!data[group]) {
+      data[group] = [];
+    }
+    data[group].push({
+      id: file.config.id,
+      name: file.config.name,
+      type: file.config.pluginType,
+    });
+  });
+
+  data = Object.keys(data)
+    .sort()
+    .reduce(function (acc, key) {
+      acc[key] = sortBy(data[key], (file) => file.name);
+      return acc;
+    }, {} as PagePaneData);
+  return data;
+};
+
+export const selectQueriesForPagespane = createSelector(
+  getCurrentActions,
+  selectDatasourceIdToNameMap,
+  (actions, datasourceIdToNameMap) => {
+    return GroupAndSortPagePaneData(actions, datasourceIdToNameMap);
+  },
+);
+
+export const selectJSForPagespane = createSelector(
+  getCurrentJSCollections,
+  selectDatasourceIdToNameMap,
+  (jsActions, datasourceIdToNameMap) => {
+    return GroupAndSortPagePaneData(jsActions, datasourceIdToNameMap);
+  },
+);
+
+export const getQueryModuleInstances = () => {
+  return [];
+};
+
+export const getAllJSCollections = createSelector(
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (currentContextJSCollections, moduleInstanceJSCollections) => {
+    return [...moduleInstanceJSCollections, ...currentContextJSCollections];
+  },
+);

@@ -122,10 +122,13 @@ public enum AclPermission {
 
     // Was the user assigned a global permission at the workspace level to manage workflows?
     WORKSPACE_MANAGE_WORKFLOWS("manage:workspaceWorkflows", Workspace.class),
+    @Deprecated
     WORKSPACE_READ_WORKFLOWS("read:workspaceWorkflows", Workspace.class),
+    WORKSPACE_READ_HISTORY_WORKFLOW("readHistory:workspaceWorkflows", Workspace.class),
     WORKSPACE_PUBLISH_WORKFLOWS("publish:workspaceWorkflows", Workspace.class),
     WORKSPACE_EXPORT_WORKFLOWS("export:workspaceWorkflows", Workspace.class),
     WORKSPACE_DELETE_WORKFLOWS("delete:workspaceWorkflows", Workspace.class),
+    @Deprecated
     WORKSPACE_RESOLVE_WORKFLOWS("resolve:workspaceWorkflows", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
@@ -224,12 +227,12 @@ public enum AclPermission {
 
     // Workflow Permissions
     MANAGE_WORKFLOWS("manage:workflows", Workflow.class),
+    @Deprecated
     READ_WORKFLOWS("read:workflows", Workflow.class),
     PUBLISH_WORKFLOWS("publish:workflows", Workflow.class),
     DELETE_WORKFLOWS("delete:workflows", Workflow.class),
     EXPORT_WORKFLOWS("export:workflows", Workflow.class),
     EXECUTE_WORKFLOWS("execute:workflows", Workflow.class),
-    RESOLVE_WORKFLOWS("resolve:workflows", Workflow.class),
     WORKFLOW_CREATE_ACTIONS("create:workflowActions", Workflow.class),
     READ_HISTORY_WORKFLOWS("readHistory:workflows", Workflow.class),
 

@@ -1,8 +1,8 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { debounce } from "lodash";
 import { Text } from "design-system";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { klona } from "klona";
 
 import Form from "@appsmith/components/InputsForm/Form";
@@ -10,8 +10,7 @@ import SectionField from "@appsmith/components/InputsForm/Fields/SectionField";
 import { updateModuleInputs } from "@appsmith/actions/moduleActions";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
-import useEvalValues from "./hooks/useEvalValues";
-import equal from "fast-deep-equal/es6";
+import { getModuleInputsEvalValues } from "@appsmith/selectors/modulesSelector";
 
 const StyledHeading = styled(Text)`
   margin-bottom: var(--ads-v2-spaces-3);
@@ -55,29 +54,28 @@ const DEBOUNCE_TIMEOUT = 150;
 
 function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
   const dispatch = useDispatch();
-  const valuesRef = useRef(defaultValues?.inputsForm);
+  const inputsEvaluatedValues = useSelector(
+    getModuleInputsEvalValues,
+  ) as Record<string, unknown>;
 
   const onUpdateInputsForm = useMemo(() => {
     const onUpdate = (values: { inputsForm: Module["inputsForm"] }) => {
       if (!moduleId) return;
 
-      if (!equal(values.inputsForm, valuesRef.current)) {
-        const newValues = klona(values.inputsForm);
-        valuesRef.current = newValues;
+      const newValues = klona(values.inputsForm);
 
-        newValues.forEach((section) => {
-          section.children.forEach((sectionProperties) => {
-            sectionProperties.propertyName = `inputs.${sectionProperties.label}`;
-          });
+      newValues.forEach((section) => {
+        section.children.forEach((sectionProperties) => {
+          sectionProperties.propertyName = `inputs.${sectionProperties.label}`;
         });
+      });
 
-        dispatch(
-          updateModuleInputs({
-            id: moduleId,
-            inputsForm: newValues,
-          }),
-        );
-      }
+      dispatch(
+        updateModuleInputs({
+          id: moduleId,
+          inputsForm: newValues,
+        }),
+      );
     };
 
     return debounce(onUpdate, DEBOUNCE_TIMEOUT);
@@ -99,9 +97,10 @@ function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
           <Text>{`{{ inputs.input1 }}`}</Text>
         </InstructionsWrapper>
         <Form
+          dataTreePathPrefix="inputs"
           defaultValues={defaultValues || generateDefaultInputForm()}
+          evaluatedValues={inputsEvaluatedValues}
           onUpdateForm={onUpdateInputsForm}
-          useEvalValues={useEvalValues}
         >
           <SectionField name="inputsForm" />
         </Form>

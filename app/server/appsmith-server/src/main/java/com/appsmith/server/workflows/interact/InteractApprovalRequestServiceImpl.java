@@ -30,7 +30,6 @@ import java.time.Instant;
 import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
-import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.constants.ApprovalRequestStatus.RESOLVED;
 import static com.appsmith.server.constants.FieldName.REQUEST;
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
@@ -65,7 +64,7 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<Workflow> workflowMono = workflowRepository
-                .findById(approvalRequestResolutionDTO.getWorkflowId(), RESOLVE_WORKFLOWS)
+                .findById(approvalRequestResolutionDTO.getWorkflowId(), Optional.empty())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, WORKFLOW, approvalRequestResolutionDTO.getWorkflowId())));
 

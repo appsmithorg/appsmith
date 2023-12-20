@@ -17,8 +17,8 @@ export interface PublishPackagePayload {
   packageId: string;
 }
 
-export interface FetchAllPackagesInWorkspacePayload {
-  wodrkspaceId: string;
+export interface FetchConsumablePackagesInWorkspacePayload {
+  workspaceId: string;
 }
 
 export const fetchAllPackages = () => {
@@ -27,11 +27,11 @@ export const fetchAllPackages = () => {
   };
 };
 
-export const fetchAllPackagesInWorkspace = (
-  payload: FetchAllPackagesInWorkspacePayload,
+export const fetchConsumablePackagesInWorkspace = (
+  payload: FetchConsumablePackagesInWorkspacePayload,
 ) => {
   return {
-    type: ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_INIT,
+    type: ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_INIT,
     payload,
   };
 };

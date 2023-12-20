@@ -1157,6 +1157,9 @@ function* changeDatasourceSaga(
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
   const pageId: string = yield select(getCurrentPageId);
   let data;
   if (isEmpty(draft)) {
@@ -1173,7 +1176,8 @@ function* changeDatasourceSaga(
     ),
   );
   // on reconnect modal, it shouldn't be redirected to datasource edit page
-  if (shouldNotRedirect) return;
+  // on create new app onboarding flow, it shouldn't redirect either
+  if (shouldNotRedirect || currentApplicationIdForCreateNewApp) return;
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
@@ -1407,11 +1411,13 @@ function* fetchDatasourceStructureSaga(
         });
       }
       if (!!(response.data as any)?.error) {
+        isSuccess = false;
         errorMessage = (response.data as any).error?.message;
       }
     }
   } catch (error) {
     errorMessage = (error as any)?.message;
+    isSuccess = false;
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
@@ -1524,10 +1530,12 @@ function* refreshDatasourceStructure(
         });
       }
       if (!!(response.data as any)?.error) {
-        errorMessage = (response.data as any)?.message;
+        isSuccess = false;
+        errorMessage = (response.data as any)?.error?.message;
       }
     }
   } catch (error) {
+    isSuccess = false;
     errorMessage = (error as any)?.message;
     yield put({
       type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,

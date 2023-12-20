@@ -17,7 +17,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Array Datatype tests", function () {
+describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create DS, Add DS & setting theme", () => {
@@ -34,10 +34,11 @@ describe("Array Datatype tests", function () {
   });
 
   it("1. Creating table query - arraytypes + Bug 14493", () => {
-    query = `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(
+      dsName,
+      `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`,
+      "createTable",
+    );
     dataSources.RunQuery();
 
     //Creating other queries
@@ -171,7 +172,7 @@ describe("Array Datatype tests", function () {
     table.WaitUntilTableLoad();
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
     agHelper.RenameWithInPane("verifyArrayFunctions");
 
     query = `SELECT name FROM arraytypes WHERE pay_by_quarter[1] <> pay_by_quarter[2];`;

@@ -4,15 +4,17 @@ import type {
   ModuleInstanceCreatorType,
 } from "ce/constants/ModuleInstanceConstants";
 import type { MODULE_TYPE } from "./ModuleConstants";
-export interface ModuleInstance
-  extends Omit<CE_ModuleInstance, "moduleId" | "creatorId" | "creatorType"> {
+export interface ModuleInstance extends CE_ModuleInstance {
+  userPermissions: string[];
   sourceModuleId: string;
   contextId: string;
   contextType: ModuleInstanceCreatorType;
-  userPermissions?: string[];
+  jsonPathKeys: string[];
+  dynamicBindingPathList?: Record<string, true>;
 }
 export interface QueryModuleInstance extends ModuleInstance {
   type: MODULE_TYPE.QUERY;
-  jsonPathKeys: string[];
-  dynamicBindingPathList: Record<string, true>;
+}
+export interface JSModuleInstance extends ModuleInstance {
+  type: MODULE_TYPE.JS;
 }

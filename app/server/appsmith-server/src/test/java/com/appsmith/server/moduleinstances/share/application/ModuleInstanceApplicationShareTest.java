@@ -1,6 +1,7 @@
 package com.appsmith.server.moduleinstances.share.application;
 
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
@@ -21,6 +22,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
 import com.appsmith.server.modules.crud.CrudModuleService;
@@ -35,7 +37,6 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -199,6 +200,9 @@ public class ModuleInstanceApplicationShareTest {
     @Autowired
     PublishPackageService publishPackageService;
 
+    @Autowired
+    CustomJSLibService customJSLibService;
+
     String workspaceId;
 
     Workspace workspace;
@@ -221,7 +225,8 @@ public class ModuleInstanceApplicationShareTest {
                 commonConfig,
                 pluginService,
                 crudModuleInstanceService,
-                objectMapper);
+                objectMapper,
+                customJSLibService);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));

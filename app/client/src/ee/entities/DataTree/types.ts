@@ -8,25 +8,36 @@ import type {
   EvaluationSubstitutionType,
   DataTreeSeed as CE_DataTreeSeed,
   ActionDispatcher,
+  MetaArgs,
 } from "ce/entities/DataTree/types";
 import type { EntityConfig } from "ce/entities/DataTree/types";
 import type { ModuleInstanceReducerState } from "@appsmith/reducers/entityReducers/moduleInstancesReducer";
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstanceEntitiesReducerState } from "@appsmith/reducers/entityReducers/moduleInstanceEntitiesReducer";
-export enum EE_ENTITY_TYPE {
-  MODULE_INPUT = "MODULE_INPUT",
-  MODULE_INSTANCE = "MODULE_INSTANCE",
+
+export enum CreateNewActionKey {
+  PAGE = "pageId",
+  WORKFLOW = "workflowId",
+  MODULE = "moduleId",
 }
 
-export type ENTITY_TYPE = CE_ENTITY_TYPE | EE_ENTITY_TYPE;
+export enum ActionContextType {
+  PAGE = "PAGE",
+  WORKFLOW = "WORKFLOW",
+  MODULE = "MODULE",
+}
 
-export const ENTITY_TYPE_VALUE = {
+export const ENTITY_TYPE = {
   ...CE_ENTITY_TYPE,
-  ...EE_ENTITY_TYPE,
-};
+  MODULE_INSTANCE: "MODULE_INSTANCE",
+  MODULE_INPUT: "MODULE_INPUT",
+} as const;
+
+type ValueOf<T> = T[keyof T];
+export type EntityTypeValue = ValueOf<typeof ENTITY_TYPE>;
 
 export interface ModuleInputsConfig extends EntityConfig {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INPUT;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INPUT;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
@@ -34,11 +45,11 @@ export interface ModuleInputsConfig extends EntityConfig {
 }
 
 export interface ModuleInputsEntity {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INPUT;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INPUT;
   [propName: string]: unknown;
 }
 export interface QueryModuleInstanceEntityConfig extends EntityConfig {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.QUERY;
   actionId: string;
   moduleId: string;
@@ -50,8 +61,24 @@ export interface QueryModuleInstanceEntityConfig extends EntityConfig {
   reactivePaths: Record<string, EvaluationSubstitutionType>;
 }
 
+export interface JSModuleInstanceEntityConfig extends EntityConfig {
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
+  type: MODULE_TYPE.JS;
+  moduleId: string;
+  dynamicBindingPathList: DynamicPath[];
+  moduleInstanceId: string;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
+  variables: Array<string>;
+  dependencyMap: DependencyMap;
+  name: string;
+  actionId: string;
+  publicEntityName: string;
+  meta: Record<string, MetaArgs>;
+}
+
 export interface QueryModuleInstanceEntity {
-  ENTITY_TYPE: EE_ENTITY_TYPE.MODULE_INSTANCE;
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.QUERY;
   actionId: string;
   moduleId: string;
@@ -63,9 +90,20 @@ export interface QueryModuleInstanceEntity {
   inputs: Record<string, string>;
 }
 
+export interface JSModuleInstanceEntity {
+  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
+  type: MODULE_TYPE.JS;
+  actionId: string;
+  moduleId: string;
+  moduleInstanceId: string;
+  [propName: string]: any;
+  inputs: Record<string, string>;
+}
+
 export type EE_DataTreeEntityObject =
   | ModuleInputsEntity
-  | QueryModuleInstanceEntity;
+  | QueryModuleInstanceEntity
+  | JSModuleInstanceEntity;
 
 export type DataTreeEntityObject =
   | CE_DataTreeEntityObject
@@ -77,7 +115,8 @@ export type UnEvalTreeEntityObject =
 
 export type EE_DataTreeEntityConfig =
   | ModuleInputsConfig
-  | QueryModuleInstanceEntityConfig;
+  | QueryModuleInstanceEntityConfig
+  | JSModuleInstanceEntityConfig;
 
 export type DataTreeEntityConfig =
   | CE_DataTreeEntityConfig

@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
@@ -47,6 +48,9 @@ public class Workflow extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     Boolean tokenGenerated = Boolean.FALSE;
 
+    @JsonView(Views.Public.class)
+    String mainJsObjectId;
+
     /**
      * `updatedAt` property is modified by the framework when there is any change in domain,
      * a new property lastEditedAt has been added to track the edit actions from users.
@@ -69,5 +73,10 @@ public class Workflow extends BranchAwareDomain {
             return ISO_FORMATTER.format(lastDeployedAt);
         }
         return null;
+    }
+
+    @JsonView(Views.Public.class)
+    public Boolean isWorkflowPublished() {
+        return Objects.nonNull(this.lastDeployedAt);
     }
 }

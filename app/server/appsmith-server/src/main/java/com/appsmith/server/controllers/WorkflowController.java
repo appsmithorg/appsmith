@@ -1,14 +1,15 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.appsmith.server.workflows.proxy.ProxyWorkflowService;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -40,14 +41,17 @@ public class WorkflowController {
     private final ProxyWorkflowService proxyWorkflowService;
 
     private final InteractWorkflowService interactWorkflowService;
+    private final CrudWorkflowEntityService crudWorkflowEntityService;
 
     public WorkflowController(
             CrudWorkflowService crudWorkflowService,
             ProxyWorkflowService proxyWorkflowService,
-            InteractWorkflowService interactWorkflowService) {
+            InteractWorkflowService interactWorkflowService,
+            CrudWorkflowEntityService crudWorkflowEntityService) {
         this.crudWorkflowService = crudWorkflowService;
         this.proxyWorkflowService = proxyWorkflowService;
         this.interactWorkflowService = interactWorkflowService;
+        this.crudWorkflowEntityService = crudWorkflowEntityService;
     }
 
     @JsonView(Views.Public.class)
@@ -106,17 +110,6 @@ public class WorkflowController {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{id}/action")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ActionDTO>> createWorkflowAction(
-            @PathVariable String id, @Valid @RequestBody ActionDTO resource) {
-        log.debug("Going to create action for workflow id: {}", id);
-        return crudWorkflowService
-                .createWorkflowAction(id, resource)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
-    }
-
-    @JsonView(Views.Public.class)
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/history")
     public Mono<ResponseDTO<JSONObject>> getWorkflowHistory(@RequestParam MultiValueMap<String, String> filters) {
@@ -143,5 +136,22 @@ public class WorkflowController {
         return interactWorkflowService
                 .archiveBearerTokenForWebhook(id)
                 .map(archived -> new ResponseDTO<>(HttpStatus.OK.value(), archived, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/publish/{workflowId}")
+    public Mono<ResponseDTO<Workflow>> publish(@PathVariable String workflowId) {
+        return interactWorkflowService
+                .publishWorkflow(workflowId)
+                .map(publishedWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), publishedWorkflow, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/trigger/{workflowId}")
+    public Mono<ResponseDTO<JSONObject>> triggerWorkflow(
+            @PathVariable String workflowId, ServerWebExchange serverWebExchange, @RequestBody JsonNode triggerData) {
+        return interactWorkflowService
+                .triggerWorkflow(workflowId, serverWebExchange.getRequest().getHeaders(), triggerData)
+                .map(triggeredWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), triggeredWorkflow, null));
     }
 }

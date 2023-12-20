@@ -85,6 +85,8 @@ describe("InputsForm", () => {
                 children: [],
               },
             ]}
+            moduleInstanceId="1"
+            moduleInstanceName="moduleInstance"
           />
         </ThemeProvider>
       </Provider>,
@@ -99,7 +101,13 @@ describe("InputsForm", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InputsForm defaultValues={defaultValues} inputsForm={inputsForm} />,
+          <InputsForm
+            defaultValues={defaultValues}
+            inputsForm={inputsForm}
+            moduleInstanceId="1"
+            moduleInstanceName="moduleInstance"
+          />
+          ,
         </ThemeProvider>
       </Provider>,
     );
@@ -118,6 +126,7 @@ describe("InputsForm", () => {
             defaultValues={defaultValues}
             inputsForm={inputsForm}
             moduleInstanceId="1"
+            moduleInstanceName="moduleInstance"
           />
         </ThemeProvider>
       </Provider>,

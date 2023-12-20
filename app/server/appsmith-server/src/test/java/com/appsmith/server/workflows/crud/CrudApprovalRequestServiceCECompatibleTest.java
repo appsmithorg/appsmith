@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
@@ -36,6 +37,7 @@ class CrudApprovalRequestServiceCECompatibleTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void create() {
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudApprovalRequestService
                 .createApprovalRequest(new ApprovalRequestCreationDTO())
@@ -44,6 +46,7 @@ class CrudApprovalRequestServiceCECompatibleTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getById() {
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudApprovalRequestService
                 .getApprovalRequestById("random-id")
@@ -52,6 +55,7 @@ class CrudApprovalRequestServiceCECompatibleTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getAll() {
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudApprovalRequestService
                 .getPaginatedApprovalRequests(new LinkedMultiValueMap<>())

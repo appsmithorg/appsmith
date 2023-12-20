@@ -1,12 +1,12 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Divider } from "design-system";
-import type { RouteComponentProps } from "react-router";
+import { Button, Divider } from "design-system";
 
 import InputsForm from "../common/InputsForm";
 import { Header, Body, Container } from "../common";
 import {
+  getIsModuleInstanceRunningStatus,
   getModuleInstanceById,
   getModuleInstancePublicAction,
 } from "@appsmith/selectors/moduleInstanceSelectors";
@@ -22,12 +22,9 @@ import Loader from "../../ModuleEditor/Loader";
 import ResponseView from "./ResponseView";
 import { hasExecuteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
 
-interface QueryModuleInstanceRouteParams {
+export interface QueryModuleInstanceEditorProps {
   moduleInstanceId: string;
 }
-
-export type QueryModuleInstanceEditorProps =
-  RouteComponentProps<QueryModuleInstanceRouteParams>;
 
 const StyledInputsFormWrapper = styled.div`
   width: 270px;
@@ -38,8 +35,13 @@ const StyledDivider = styled(Divider)`
   margin: var(--ads-spaces-7) 0;
 `;
 
-function QueryModuleInstanceEditor(props: QueryModuleInstanceEditorProps) {
-  const { moduleInstanceId } = props.match.params;
+const StyledSettingsWrapper = styled.div`
+  width: 600px;
+`;
+
+function QueryModuleInstanceEditor({
+  moduleInstanceId,
+}: QueryModuleInstanceEditorProps) {
   const dispatch = useDispatch();
   const moduleInstance = useSelector((state) =>
     getModuleInstanceById(state, moduleInstanceId),
@@ -53,6 +55,10 @@ function QueryModuleInstanceEditor(props: QueryModuleInstanceEditorProps) {
 
   const isExecutePermitted = hasExecuteModuleInstancePermission(
     moduleInstance?.userPermissions,
+  );
+
+  const { isRunning } = useSelector((state) =>
+    getIsModuleInstanceRunningStatus(state, moduleInstanceId),
   );
 
   const onSettingsFormChange = useCallback(
@@ -84,25 +90,35 @@ function QueryModuleInstanceEditor(props: QueryModuleInstanceEditorProps) {
 
   return (
     <Container>
-      <Header
-        isExecutePermitted={isExecutePermitted}
-        moduleInstance={moduleInstance}
-        onRunClick={onRunClick}
-      />
+      <Header moduleInstance={moduleInstance}>
+        <Button
+          className="t--run-module-instance"
+          data-guided-tour-id="run-module-instance"
+          isDisabled={!isExecutePermitted}
+          isLoading={isRunning}
+          onClick={onRunClick}
+          size="md"
+        >
+          Run
+        </Button>
+      </Header>
       <Body>
-        <StyledInputsFormWrapper>
-          <InputsForm
-            defaultValues={{ inputs: moduleInstance.inputs }}
-            inputsForm={module.inputsForm}
-            moduleInstanceId={moduleInstanceId}
+        <StyledSettingsWrapper>
+          <StyledInputsFormWrapper>
+            <InputsForm
+              defaultValues={{ inputs: moduleInstance.inputs }}
+              inputsForm={module.inputsForm}
+              moduleInstanceId={moduleInstanceId}
+              moduleInstanceName={moduleInstance.name}
+            />
+          </StyledInputsFormWrapper>
+          <StyledDivider />
+          <SettingsForm
+            initialValues={publicAction}
+            onFormValuesChange={onSettingsFormChange}
+            settings={module.settingsForm}
           />
-        </StyledInputsFormWrapper>
-        <StyledDivider />
-        <SettingsForm
-          initialValues={publicAction}
-          onFormValuesChange={onSettingsFormChange}
-          settings={module.settingsForm}
-        />
+        </StyledSettingsWrapper>
       </Body>
       <ResponseView
         action={publicAction}

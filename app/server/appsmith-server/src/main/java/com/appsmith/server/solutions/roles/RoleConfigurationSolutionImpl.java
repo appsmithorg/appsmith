@@ -10,11 +10,14 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GacEntityMetadata;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QModule;
 import com.appsmith.server.domains.QModuleInstance;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
@@ -33,12 +36,15 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
+import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -50,6 +56,7 @@ import com.appsmith.server.solutions.roles.helpers.ce_compatible.RoleConfigurati
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -64,6 +71,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,15 +79,22 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_WORKFLOWS;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
@@ -87,6 +102,9 @@ import static com.appsmith.server.constants.FieldName.GAC_TAB;
 import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORIZED;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
+import static com.appsmith.server.solutions.roles.constants.RoleTab.WORKFLOWS;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @Component
 @Slf4j
@@ -104,11 +122,15 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ModuleInstanceRepository moduleInstanceRepository;
+    private final ModuleRepository moduleRepository;
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
     private final EnvironmentRepository environmentRepository;
     private final RoleConfigurationHelper roleConfigurationHelper;
+    private final WorkflowResources workflowResources;
+    private final FeatureFlagService featureFlagService;
+    private final WorkflowRepository workflowRepository;
 
     public RoleConfigurationSolutionImpl(
             WorkspaceResources workspaceResources,
@@ -122,11 +144,15 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             NewActionRepository newActionRepository,
             ActionCollectionRepository actionCollectionRepository,
             ModuleInstanceRepository moduleInstanceRepository,
+            ModuleRepository moduleRepository,
             AnalyticsService analyticsService,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
             EnvironmentRepository environmentRepository,
-            RoleConfigurationHelper roleConfigurationHelper) {
+            RoleConfigurationHelper roleConfigurationHelper,
+            WorkflowResources workflowResources,
+            FeatureFlagService featureFlagService,
+            WorkflowRepository workflowRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -139,18 +165,22 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
         this.moduleInstanceRepository = moduleInstanceRepository;
+        this.moduleRepository = moduleRepository;
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
         this.datasourceRepository = datasourceRepository;
         this.environmentRepository = environmentRepository;
         this.roleConfigurationHelper = roleConfigurationHelper;
+        this.workflowResources = workflowResources;
+        this.featureFlagService = featureFlagService;
+        this.workflowRepository = workflowRepository;
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<RoleViewDTO> getAllTabViews(String permissionGroupId) {
         CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
-        return Mono.zip(
+        Mono<RoleViewDTO> baseRoleViewDTOMono = Mono.zip(
                         workspaceResources.createApplicationResourcesTabView(
                                 permissionGroupId, dataFromRepositoryForAllTabs),
                         workspaceResources.createDatasourceResourcesTabView(
@@ -174,6 +204,54 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
 
                     return roleViewDTO;
                 });
+        return appendAdditionalTabsBasedOnFeatureFlag(
+                permissionGroupId, dataFromRepositoryForAllTabs, baseRoleViewDTOMono);
+    }
+
+    private Mono<RoleViewDTO> appendAdditionalTabsBasedOnFeatureFlag(
+            String permissionGroupId,
+            CommonAppsmithObjectData dataFromRepositoryForAllTabs,
+            Mono<RoleViewDTO> baseRoleViewDTOMono) {
+        Mono<Map<RoleTab, Boolean>> gacTabToEnabledMapMono = getGacTabToFeatureFlagMap();
+        Mono<Map<RoleTab, RoleTabDTO>> gacTabToRoleTabDTOMapMono =
+                getGacTabToRoleTabDTOMonoMap(permissionGroupId, dataFromRepositoryForAllTabs);
+        return Mono.zip(baseRoleViewDTOMono, gacTabToEnabledMapMono, gacTabToRoleTabDTOMapMono)
+                .map(tuple -> {
+                    RoleViewDTO baseRoleViewDTO = tuple.getT1();
+                    Map<RoleTab, Boolean> gacTabToEnabledMap = tuple.getT2();
+                    Map<RoleTab, RoleTabDTO> gacTabToRoleTabDTOMap = tuple.getT3();
+                    gacTabToEnabledMap.forEach((roleTab, enabled) -> {
+                        if (TRUE.equals(enabled)) {
+                            baseRoleViewDTO.getTabs().put(roleTab.getName(), gacTabToRoleTabDTOMap.get(roleTab));
+                        }
+                    });
+                    return baseRoleViewDTO;
+                });
+    }
+
+    private Mono<Map<RoleTab, Boolean>> getGacTabToFeatureFlagMap() {
+        Map<RoleTab, Boolean> gacTabToFeatureFlagMap = new ConcurrentHashMap<>();
+        Mono<Boolean> featureFlagEnabledMono = featureFlagService
+                .check(FeatureFlagEnum.release_workflows_enabled)
+                .map(enabled -> {
+                    gacTabToFeatureFlagMap.put(WORKFLOWS, enabled);
+                    return 1;
+                })
+                .thenReturn(TRUE);
+        return featureFlagEnabledMono.then(Mono.just(gacTabToFeatureFlagMap));
+    }
+
+    private Mono<Map<RoleTab, RoleTabDTO>> getGacTabToRoleTabDTOMonoMap(
+            String permissionGroupId, CommonAppsmithObjectData commonAppsmithObjectData) {
+        Map<RoleTab, RoleTabDTO> gacTabToRoleViewDTOMap = new ConcurrentHashMap<>();
+        Mono<Boolean> workflowTabInfoMono = workflowResources
+                .getWorkflowTabInfo(permissionGroupId, commonAppsmithObjectData)
+                .map(roleTabDTO -> {
+                    gacTabToRoleViewDTOMap.put(WORKFLOWS, roleTabDTO);
+                    return 1;
+                })
+                .thenReturn(TRUE);
+        return workflowTabInfoMono.then(Mono.just(gacTabToRoleViewDTOMap));
     }
 
     @Override
@@ -520,13 +598,189 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             // If the tab is application resources, and the entity is an Action Collection, then we need  to give all
             // associated actions the same permission as the entity.
             sideEffectOnActionsGivenActionCollectionUpdate(
-                    sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+                    sideEffects,
+                    tab,
+                    id,
+                    added,
+                    removed,
+                    sideEffectsAddedMap,
+                    sideEffectsRemovedMap,
+                    sideEffectsClassMap);
         } else if (tab == RoleTab.DATASOURCES_ENVIRONMENTS && Workspace.class.equals(aClazz)) {
             sideEffectOnEnvironmentsGivenWorkspaceUpdate(
                     sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
         } else if (tab == RoleTab.DATASOURCES_ENVIRONMENTS && Datasource.class.equals(aClazz)) {
             sideEffectOnEnvironmentsGivenDatasourceUpdate(
                     sideEffects, id, added, sideEffectsAddedMap, sideEffectsClassMap);
+        } else if (tab == WORKFLOWS && Workflow.class.equals(aClazz)) {
+            sideEffectOnWorkflowsGivenEditPermission(
+                    id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+            sideEffectOnReadWorkspaceGivenAnyWorkflowPermission(
+                    id,
+                    sideEffects,
+                    permissions,
+                    workspaceReadGivenAsSideEffect,
+                    sideEffectsAddedMap,
+                    sideEffectsRemovedMap,
+                    sideEffectsClassMap);
+        } else if (tab == WORKFLOWS && Workspace.class.equals(aClazz)) {
+            sideEffectOnPublishWorkspaceWorkflowGivenManageWorkspaceWorkflowPermission(
+                    id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+        } else if (tab == WORKFLOWS && NewAction.class.equals(aClazz)) {
+            sideEffectOnExecutablesGivenEditOrDeleteExecutablePermission(
+                    id, added, removed, aClazz, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+        } else if (tab == WORKFLOWS && ActionCollection.class.equals(aClazz)) {
+            sideEffectOnExecutablesGivenEditOrDeleteExecutablePermission(
+                    id, added, removed, aClazz, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+            sideEffectOnActionsGivenActionCollectionUpdate(
+                    sideEffects,
+                    tab,
+                    id,
+                    added,
+                    removed,
+                    sideEffectsAddedMap,
+                    sideEffectsRemovedMap,
+                    sideEffectsClassMap);
+        }
+    }
+
+    /**
+     * Applies side effects on workspace read permissions based on any workflow permission.
+     *
+     * <p>
+     * <b>Side Effects:</b>
+     * </p>
+     * <ul>
+     *   <li>If any of the permissions are true in this tab for workflow, gives workspace read permission to make
+     *       the workflow visible on the home page. The side effect is added to the provided list of Monos.</li>
+     *   <li>Ensures that the same workspace read permission is not given again if already done.</li>
+     * </ul>
+     *
+     */
+    private void sideEffectOnReadWorkspaceGivenAnyWorkflowPermission(
+            String id,
+            List<Mono<Long>> sideEffects,
+            List<Integer> permissions,
+            Set<String> workspaceReadGivenAsSideEffect,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        // If any of the permissions are true in this tab for workflow, give workspace read so that
+        // the workflow is visible on the home page.
+        boolean anyPermissionTrue = permissions.stream().anyMatch(permission -> permission == 1);
+
+        if (anyPermissionTrue && !workspaceReadGivenAsSideEffect.contains(id)) {
+            sideEffects.add(addReadPermissionToWorkspaceGivenWorkflow(id, sideEffectsAddedMap, sideEffectsClassMap));
+            // Don't give the same workspace read permission again if done already.
+            workspaceReadGivenAsSideEffect.add(id);
+        }
+    }
+
+    private Mono<Long> addReadPermissionToWorkspaceGivenWorkflow(
+            String id,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        return workflowRepository.findById(id).map(workflow -> {
+            String workspaceId = workflow.getWorkspaceId();
+            // If the workspace should be given READ permission, then we need to add the READ permission
+            sideEffectsClassMap.put(workspaceId, Workspace.class);
+            sideEffectsAddedMap.merge(workspaceId, List.of(READ_WORKSPACES), ListUtils::union);
+            return 1L;
+        });
+    }
+
+    /**
+     * Applies side effects on executables when MANAGE_ACTIONS or DELETE_ACTIONS permission is added or removed.
+     * <p>
+     * <b>Side Effects:</b>
+     * </p>
+     * <ul>
+     *   <li>If {@code MANAGE_ACTIONS} or {@code DELETE_ACTIONS} permission is added, {@code READ_ACTIONS} and
+     *       {@code EXECUTE_ACTIONS} permissions are given.</li>
+     *   <li>If both {@code MANAGE_ACTIONS} and {@code DELETE_ACTIONS} permissions are removed,
+     *       {@code READ_ACTIONS} and {@code EXECUTE_ACTIONS} permissions are removed.</li>
+     * </ul>
+     *
+     */
+    private void sideEffectOnExecutablesGivenEditOrDeleteExecutablePermission(
+            String id,
+            List<AclPermission> added,
+            List<AclPermission> removed,
+            Class<?> aClazz,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        if (added.contains(MANAGE_ACTIONS) || added.contains(DELETE_ACTIONS)) {
+            sideEffectsClassMap.put(id, aClazz);
+            sideEffectsAddedMap.merge(id, List.of(READ_ACTIONS, EXECUTE_ACTIONS), ListUtils::union);
+        }
+
+        if (removed.contains(MANAGE_ACTIONS) && removed.contains(DELETE_ACTIONS)) {
+            sideEffectsClassMap.put(id, aClazz);
+            sideEffectsRemovedMap.merge(id, List.of(READ_ACTIONS, EXECUTE_ACTIONS), ListUtils::union);
+        }
+    }
+
+    /**
+     * Applies side effects on a workspace based on added and removed ACL permissions.
+     *
+     * <p>
+     * <b>Side Effects:</b>
+     * </p>
+     * <ul>
+     *   <li>If {@code WORKSPACE_MANAGE_WORKFLOWS} is given or removed, {@code WORKSPACE_PUBLISH_WORKFLOWS} permission is
+     *       given or removed, respectively.</li>
+     * </ul>
+     */
+    private void sideEffectOnPublishWorkspaceWorkflowGivenManageWorkspaceWorkflowPermission(
+            String id,
+            List<AclPermission> added,
+            List<AclPermission> removed,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        // If WORKSPACE_MANAGE_WORKFLOWS is given or removed, give or remove WORKSPACE_PUBLISH_WORKFLOWS permissions
+        // respectively
+        if (added.contains(WORKSPACE_MANAGE_WORKFLOWS)) {
+            sideEffectsClassMap.put(id, Workspace.class);
+            sideEffectsAddedMap.merge(id, List.of(WORKSPACE_PUBLISH_WORKFLOWS), ListUtils::union);
+        } else if (removed.contains(WORKSPACE_MANAGE_WORKFLOWS)) {
+            sideEffectsClassMap.put(id, Workspace.class);
+            sideEffectsRemovedMap.merge(id, List.of(WORKSPACE_PUBLISH_WORKFLOWS), ListUtils::union);
+        }
+    }
+
+    private boolean datasourceIdPresent(ActionDTO actionDTO) {
+        return Objects.nonNull(actionDTO)
+                && Objects.nonNull(actionDTO.getDatasource())
+                && StringUtils.isNotBlank(actionDTO.getDatasource().getId());
+    }
+
+    /**
+     * Applies side effects on workflows when MANAGE_WORKFLOWS permission is added or removed.
+     *
+     * <p>
+     * <b>Side Effects:</b>
+     * </p>
+     * <ul>
+     *   <li>If {@code MANAGE_WORKFLOWS} permission is added, {@code PUBLISH_WORKFLOWS} permission is added.</li>
+     *   <li>If {@code MANAGE_WORKFLOWS} permission is removed, {@code PUBLISH_WORKFLOWS} permission is removed.</li>
+     * </ul>
+     *
+     */
+    private void sideEffectOnWorkflowsGivenEditPermission(
+            String id,
+            List<AclPermission> added,
+            List<AclPermission> removed,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        if (added.contains(MANAGE_WORKFLOWS)) {
+            sideEffectsClassMap.put(id, Workflow.class);
+            sideEffectsAddedMap.merge(id, List.of(PUBLISH_WORKFLOWS), ListUtils::union);
+        } else if (removed.contains(MANAGE_WORKFLOWS)) {
+            sideEffectsClassMap.put(id, Workflow.class);
+            sideEffectsRemovedMap.merge(id, List.of(PUBLISH_WORKFLOWS), ListUtils::union);
         }
     }
 
@@ -611,8 +865,30 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         sideEffects.add(environmentsUpdated);
     }
 
+    /**
+     * Applies side effects on actions when an action collection is updated.
+     * <p>
+     * <b>Side Effects:</b>
+     * </p>
+     * <ul>
+     *   <li>Updates permissions on actions associated with the action collection based on added and removed ACL permissions.</li>
+     *   <li>If the role tab is {@code WORKFLOWS}, additional permissions are added to children actions:</li>
+     *   <ul>
+     *     <li>If {@code MANAGE_ACTIONS} or {@code DELETE_ACTIONS} permission is added, adds {@code READ_ACTIONS}
+     *         and {@code EXECUTE_ACTIONS} permissions.</li>
+     *     <li>If both {@code MANAGE_ACTIONS} and {@code DELETE_ACTIONS} permissions are removed, removes
+     *         {@code READ_ACTIONS} and {@code EXECUTE_ACTIONS} permissions.</li>
+     *   </ul>
+     *   <li>If the role tab is not {@code WORKFLOWS}, permissions are mirrored to children actions:</li>
+     *   <ul>
+     *     <li>If {@code MANAGE_ACTIONS} or {@code DELETE_ACTIONS} permission is added, adds the same permissions to children actions.</li>
+     *     <li>If both {@code MANAGE_ACTIONS} and {@code DELETE_ACTIONS} permissions are removed, removes the same permissions from children actions.</li>
+     *   </ul>
+     * </ul>
+     */
     private void sideEffectOnActionsGivenActionCollectionUpdate(
             List<Mono<Long>> sideEffects,
+            RoleTab roleTab,
             String actionCollectionId,
             List<AclPermission> added,
             List<AclPermission> removed,
@@ -624,11 +900,25 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionId), includedFields)
                 .map(NewAction::getId);
 
+        List<AclPermission> addedForNewActionInActionCollection = new ArrayList<>(added);
+        List<AclPermission> removedForNewActionInActionCollection = new ArrayList<>(removed);
+
+        if (WORKFLOWS.equals(roleTab)) {
+            if (added.contains(MANAGE_ACTIONS) || added.contains(DELETE_ACTIONS)) {
+                addedForNewActionInActionCollection.add(READ_ACTIONS);
+                addedForNewActionInActionCollection.add(EXECUTE_ACTIONS);
+            }
+            if (removed.contains(MANAGE_ACTIONS) && removed.contains(DELETE_ACTIONS)) {
+                removedForNewActionInActionCollection.add(READ_ACTIONS);
+                removedForNewActionInActionCollection.add(EXECUTE_ACTIONS);
+            }
+        }
+
         Mono<Long> actionsUpdated = actionFlux
                 .map(actionId -> {
                     sideEffectsClassMap.put(actionId, NewAction.class);
-                    sideEffectsAddedMap.merge(actionId, added, ListUtils::union);
-                    sideEffectsRemovedMap.merge(actionId, removed, ListUtils::union);
+                    sideEffectsAddedMap.merge(actionId, addedForNewActionInActionCollection, ListUtils::union);
+                    sideEffectsRemovedMap.merge(actionId, removedForNewActionInActionCollection, ListUtils::union);
                     return 1L;
                 })
                 .reduce(0L, Long::sum);
@@ -913,7 +1203,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                     // No permission at the workspace level or application level. Remove the READ_WORKSPACES permission
                     return removeReadPermissionFromWorkspace(workspace.getId(), permissionGroupId);
                 })
-                .then(Mono.just(Boolean.TRUE));
+                .then(Mono.just(TRUE));
     }
 
     private Map<String, Object> getRoleUpdateMetadata(UpdateRoleConfigDTO updateRoleConfigDTO) {
@@ -985,10 +1275,10 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                         if (areInvalidPermissionChanged) {
                             throw new AppsmithException(ACTION_IS_NOT_AUTHORIZED, "Update restricted permissions");
                         }
-                        return Boolean.TRUE;
+                        return TRUE;
                     });
         }
-        return Flux.just(Boolean.TRUE);
+        return Flux.just(TRUE);
     }
 
     private Flux<PermissionGroup> findPermissionGroupsByIds(Set<String> ids) {
@@ -1016,7 +1306,10 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                         + fieldName(QNewAction.newAction.publishedAction.datasource) + "."
                         + fieldName(QNewAction.newAction.publishedAction.datasource.id));
         List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
-        List<String> includedFieldsForModuleInstance = List.of(fieldName(QModuleInstance.moduleInstance.id));
+        List<String> includedFieldsForModuleInstance = List.of(
+                fieldName(QModuleInstance.moduleInstance.id), fieldName(QModuleInstance.moduleInstance.sourceModuleId));
+        List<String> includedFieldsForModule =
+                List.of(fieldName(QModule.module.id), fieldName(QModule.module.packageId));
 
         Mono<List<NewPage>> allPagesInApplicationMono = newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(applicationId), includeFieldsForPage)
@@ -1028,20 +1321,32 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         Mono<List<ActionCollection>> allActionCollectionInApplicationMono = actionCollectionRepository
                 .findAllByApplicationIds(List.of(applicationId), includeFieldsForActionCollection)
                 .collectList();
-        Mono<List<ModuleInstance>> allModuleInstancesInApplicationMono = moduleInstanceRepository
+        Flux<ModuleInstance> moduleInstancesFlux = moduleInstanceRepository
                 .findAllByApplicationIds(List.of(applicationId), includedFieldsForModuleInstance)
+                .cache();
+
+        Mono<List<ModuleInstance>> allModuleInstancesInApplicationMono = moduleInstancesFlux.collectList();
+
+        Mono<Set<String>> moduleIdListMono =
+                moduleInstancesFlux.map(ModuleInstance::getSourceModuleId).collect(Collectors.toSet());
+
+        Mono<List<Module>> allModulesUsedInApplicationMono = moduleIdListMono
+                .flatMapMany(moduleIdSet ->
+                        moduleRepository.findAllByIds(moduleIdSet, includedFieldsForModule, Optional.empty()))
                 .collectList();
 
         return Mono.zip(
                         allPagesInApplicationMono,
                         allActionsInApplicationMono,
                         allActionCollectionInApplicationMono,
-                        allModuleInstancesInApplicationMono)
+                        allModuleInstancesInApplicationMono,
+                        allModulesUsedInApplicationMono)
                 .flatMap(tuple -> {
                     List<NewPage> newPages = tuple.getT1();
                     List<NewAction> newActions = tuple.getT2();
                     List<ActionCollection> actionCollections = tuple.getT3();
                     List<ModuleInstance> moduleInstances = tuple.getT4();
+                    List<Module> modules = tuple.getT5();
                     Set<String> datasourceIds = getAllDatasourceIdsFromActions(newActions);
 
                     Map<String, Class> entityIdEntityClassMap = new HashMap<>();
@@ -1106,6 +1411,28 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                                 toBeRemovedPermissions.getOrDefault(ModuleInstance.class.getSimpleName(), List.of()));
                     });
 
+                    Set<String> packageIds = new HashSet<>();
+
+                    modules.forEach(module -> {
+                        packageIds.add(module.getPackageId());
+                        entityIdEntityClassMap.put(module.getId(), Module.class);
+                        toBeAddedPermissionsForEntities.put(
+                                module.getId(),
+                                toBeAddedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                module.getId(),
+                                toBeRemovedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
+                    });
+
+                    packageIds.forEach(packageId -> {
+                        entityIdEntityClassMap.put(packageId, Package.class);
+                        toBeAddedPermissionsForEntities.put(
+                                packageId, toBeAddedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                packageId,
+                                toBeRemovedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
+                    });
+
                     return bulkUpdateEntityPoliciesForApplicationRole(
                             entityIdEntityClassMap,
                             roleId,
@@ -1149,7 +1476,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         List<String> applicationsRevokedInApplicationResourcesTab = new ArrayList<>();
 
         Mono<List<Boolean>> collectEntitiesAndSideEffectEntities = Flux.fromIterable(entityIdEntityClassMap.entrySet())
-                .map(entry -> {
+                .flatMap(entry -> {
                     String entityId = entry.getKey();
                     Class<?> clazz = entry.getValue();
                     List<AclPermission> toBeAddedPermissions =
@@ -1183,9 +1510,8 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                         sideEffects.add(addReadPermissionToWorkspaceGivenApplication(
                                 entityId, sideEffectsPermissionsAddedMap, sideEffectsClassMap));
                     }
-                    return Mono.just(Boolean.TRUE);
+                    return Mono.just(TRUE);
                 })
-                .map(value -> true)
                 .collectList();
 
         Flux<Boolean> updateEntityPoliciesAndSideEffectsFlux = updateEntityPoliciesAndSideEffects(
@@ -1260,8 +1586,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             toBeRemovedPermissionsForEntities.put(
                     workspaceId, toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
             environments.forEach(environment -> {
-                if (APPLICATION_VIEWER.equals(applicationRoleType)
-                        && !Boolean.TRUE.equals(environment.getIsDefault())) {
+                if (APPLICATION_VIEWER.equals(applicationRoleType) && !TRUE.equals(environment.getIsDefault())) {
                     // If this is an app viewer role, don't make changes to anything other than default environment
                     return;
                 }
@@ -1296,13 +1621,13 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
      *     <li>Prepares maps for entity IDs to entity classes, to-be-added permissions, and to-be-removed permissions.</li>
      *     <li>Invokes bulkUpdateEntityPoliciesForApplicationRole to update permissions for all entities.</li>
      * </ol>
-     *
+     * <p>
      * Note: Permissions for ActionCollections are not yet implemented (TODO).
      *
-     * @param workflowId The ID of the workflow to be updated.
-     * @param workspaceId The ID of the workspace containing the workflow.
-     * @param roleId The ID of the role for which permissions are to be updated.
-     * @param toBeAddedPermissions A map containing entity class names and the corresponding permissions to be added.
+     * @param workflowId             The ID of the workflow to be updated.
+     * @param workspaceId            The ID of the workspace containing the workflow.
+     * @param roleId                 The ID of the role for which permissions are to be updated.
+     * @param toBeAddedPermissions   A map containing entity class names and the corresponding permissions to be added.
      * @param toBeRemovedPermissions A map containing entity class names and the corresponding permissions to be removed.
      */
     @Override
@@ -1324,7 +1649,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
 
         Mono<List<NewAction>> allActionsInWorkflowMono = newActionRepository
-                .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForAction))
+                .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForAction), FALSE)
                 .collectList()
                 .cache();
 
@@ -1374,7 +1699,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                     });
 
                     environmentList.forEach(environment -> {
-                        if (!Boolean.TRUE.equals(environment.getIsDefault())) {
+                        if (!TRUE.equals(environment.getIsDefault())) {
                             // Don't make changes to anything other than default environment
                             return;
                         }

@@ -1,22 +1,39 @@
 package com.appsmith.server.workflows.helpers;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workflow;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.appsmith.server.workflows.constants.WorkflowDefaultExecutables.EXECUTE_WORKFLOW_ACTION_BODY;
+import static com.appsmith.server.workflows.constants.WorkflowDefaultExecutables.MAIN_JS_OBJECT_BODY;
+
 @Component
 public class WorkflowHelperImpl implements WorkflowHelper {
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserRepository userRepository;
+    private final PluginService pluginService;
 
-    public WorkflowHelperImpl(PermissionGroupRepository permissionGroupRepository, UserRepository userRepository) {
+    public WorkflowHelperImpl(
+            PermissionGroupRepository permissionGroupRepository,
+            UserRepository userRepository,
+            PluginService pluginService) {
         this.permissionGroupRepository = permissionGroupRepository;
         this.userRepository = userRepository;
+        this.pluginService = pluginService;
     }
 
     @Override
@@ -128,5 +145,32 @@ public class WorkflowHelperImpl implements WorkflowHelper {
                 .thenReturn(Boolean.TRUE);
 
         return Mono.zip(archiveWorkflowBotRoleMono, archiveWorkflowBotUserMono).thenReturn(Boolean.TRUE);
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> generateMainActionCollectionDTO(Workflow workflow) {
+        return pluginService.findByName("JS Functions").map(jsPlugin -> {
+            ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+            actionCollectionDTO.setWorkflowId(workflow.getId());
+            actionCollectionDTO.setBody(MAIN_JS_OBJECT_BODY);
+            actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
+            actionCollectionDTO.setWorkspaceId(workflow.getWorkspaceId());
+            actionCollectionDTO.setName("Main");
+            actionCollectionDTO.setPluginType(PluginType.JS);
+            actionCollectionDTO.setPluginId(jsPlugin.getId());
+            ActionDTO actionDTO = new ActionDTO();
+            actionDTO.setContextType(CreatorContextType.WORKFLOW);
+            actionDTO.setName("executeWorkflow");
+            actionDTO.setWorkflowId(workflow.getId());
+            actionDTO.setWorkspaceId(workflow.getWorkspaceId());
+            actionDTO.setContextType(CreatorContextType.WORKFLOW);
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setJsArguments(new ArrayList<>());
+            actionConfiguration.setTimeoutInMillisecond("0");
+            actionConfiguration.setBody(EXECUTE_WORKFLOW_ACTION_BODY);
+            actionDTO.setActionConfiguration(actionConfiguration);
+            actionCollectionDTO.setActions(List.of(actionDTO));
+            return actionCollectionDTO;
+        });
     }
 }

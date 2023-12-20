@@ -16,6 +16,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
@@ -117,7 +118,9 @@ public class ImportExportApplicationServiceEETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mockito.when(featureFlagService.check(Mockito.any())).thenReturn(Mono.just(true));
+        Mockito.when(featureFlagService.check(
+                        Mockito.argThat(argument -> !FeatureFlagEnum.release_query_module_enabled.equals(argument))))
+                .thenReturn(Mono.just(true));
     }
 
     private FilePart createFilePart(String filePath) {
@@ -326,6 +329,9 @@ public class ImportExportApplicationServiceEETest {
                     Assertions.assertThat(storage.getName()).isEqualTo(savedDatasource.getName());
                     Assertions.assertThat(storage.getPluginId()).isEqualTo("mongo-plugin");
                     Assertions.assertThat(storage.getGitSyncId()).isEqualTo(savedDatasource.getGitSyncId());
+                    Assertions.assertThat(applicationJson.getModuleList()).isNull();
+                    Assertions.assertThat(applicationJson.getModuleInstanceList())
+                            .isNull();
                 })
                 .verifyComplete();
     }

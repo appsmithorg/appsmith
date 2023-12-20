@@ -41,14 +41,14 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { Plugin } from "api/PluginApi";
 import type {
   JSActionEntity,
   JSActionEntityConfig,
   DataTreeEntityObject,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { DatasourceStructure } from "entities/Datasource";
 import type {
   ConfigTree,
@@ -586,7 +586,7 @@ export const selectEntityNamesForGPT = createSelector(
     Object.keys(dataTree).forEach((k) => {
       const entity = dataTree[k];
       if (isDataTreeEntityObject(entity)) {
-        if (entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.JSACTION) {
+        if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
           const functionNames = Object.keys(entity)
             .filter(
               (key) =>
@@ -601,7 +601,7 @@ export const selectEntityNamesForGPT = createSelector(
         }
 
         if (
-          entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.WIDGET &&
+          entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET &&
           entity.type === "CANVAS_WIDGET"
         ) {
           return;

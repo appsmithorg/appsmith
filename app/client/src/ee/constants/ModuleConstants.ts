@@ -5,23 +5,16 @@ import type {
   ModuleInput as CE_ModuleInput,
 } from "ce/constants/ModuleConstants";
 import type { ControlData } from "components/formControls/BaseControl";
-import type { Action } from "entities/Action";
 
 export enum MODULE_TYPE {
   QUERY = "QUERY_MODULE",
-  JS = "JS",
-  UI = "UI",
+  JS = "JS_MODULE",
+  UI = "UI_MODULE",
 }
-
 export enum MODULE_PREFIX {
   QUERY = "Query",
+  JS = "JS",
 }
-
-export type ModuleAction = Action & {
-  moduleId: string;
-  packageId: string;
-};
-
 export interface PluginSettings {
   id: number;
   sectionName: string;
@@ -50,4 +43,9 @@ export interface Module extends CE_Module {
   settingsForm: PluginSettings[];
   type: MODULE_TYPE;
   userPermissions: string[];
+}
+
+export enum MODULE_ENTITY_TYPE {
+  ACTION = "ACTION",
+  JS_OBJECT = "JS_OBJECT",
 }

@@ -2,7 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
@@ -96,10 +96,10 @@ public class Application extends BaseDomain {
     AppLayout publishedAppLayout;
 
     @JsonView(Views.Public.class)
-    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    Set<CustomJSLibContextDTO> unpublishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
-    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
+    Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
     GitApplicationMetadata gitApplicationMetadata;

@@ -67,7 +67,7 @@ describe(
 
     it("2. Create and test query responses for both ds on both environments and bind to a table", function () {
       // Create a query on the ME DS
-      dataSources.CreateQueryFromActiveTab(meDatasourceName);
+      dataSources.CreateQueryForDS(meDatasourceName);
       agHelper.RenameWithInPane(meQueryName, true);
 
       dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
@@ -88,7 +88,7 @@ describe(
       // Create query on staging only DS
       agHelper.Sleep(2000);
       PageList.AddNewPage("New blank page");
-      dataSources.CreateQueryFromActiveTab(meDSStagingOnlyName);
+      dataSources.CreateQueryForDS(meDSStagingOnlyName);
       agHelper.RenameWithInPane(meStagingOnlyQueryName, true);
       dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
       agHelper.EnterValue("100", {
@@ -144,7 +144,7 @@ describe(
     });
 
     it("4. Generate CRUD page for both datasources", function () {
-      dataSources.NavigateFromActiveDS(meDatasourceName, false);
+      dataSources.GeneratePageForDS(meDatasourceName);
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "mongomart");
       // generate crud on staging env

@@ -7,25 +7,24 @@ import type { ActionDataState } from "ce/reducers/entityReducers/actionsReducer"
 import type { Action } from "entities/Action";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
+import type { FetchModuleEntitiesResponse } from "@appsmith/api/ModuleApi";
 
 const handlers = {
   ...CE_handlers,
-  [ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS]: (
+  [ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS]: (
     draftMetaState: ActionDataState,
-    action: ReduxAction<Action[]>,
+    action: ReduxAction<FetchModuleEntitiesResponse>,
   ) => {
-    if (action.payload.length > 0) {
-      const result: ActionDataState = [];
+    const result: ActionDataState = [];
 
-      action.payload.forEach((actionPayload: Action) => {
-        result.push({
-          isLoading: false,
-          config: actionPayload,
-        });
+    action.payload.actions.forEach((actionPayload: Action) => {
+      result.push({
+        isLoading: false,
+        config: actionPayload,
       });
+    });
 
-      return result;
-    }
+    return result;
   },
   [ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS]: (
     draftMetaState: ActionDataState,

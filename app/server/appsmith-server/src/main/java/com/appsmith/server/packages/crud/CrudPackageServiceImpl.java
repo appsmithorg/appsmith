@@ -1,6 +1,7 @@
 package com.appsmith.server.packages.crud;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.ApplicationConstants;
@@ -25,6 +26,7 @@ import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.types.ObjectId;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Update;
@@ -34,16 +36,20 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PACKAGES;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl implements CrudPackageService {
 
-    private final PackageRepository packageRepository;
+    private final PackageRepository repository;
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
     private final PolicyGenerator policyGenerator;
@@ -53,7 +59,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     private final TransactionalOperator transactionalOperator;
 
     public CrudPackageServiceImpl(
-            PackageRepository packageRepository,
+            PackageRepository repository,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             PolicyGenerator policyGenerator,
@@ -61,8 +67,8 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
             CrudModuleService crudModuleService,
             SessionUserService sessionUserService,
             TransactionalOperator transactionalOperator) {
-        super(packageRepository);
-        this.packageRepository = packageRepository;
+        super(repository);
+        this.repository = repository;
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
         this.policyGenerator = policyGenerator;
@@ -70,6 +76,27 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         this.crudModuleService = crudModuleService;
         this.sessionUserService = sessionUserService;
         this.transactionalOperator = transactionalOperator;
+    }
+
+    @Override
+    public Mono<Package> findByBranchNameAndDefaultPackageId(
+            String branchName,
+            String defaultPackageId,
+            List<String> projectionFieldNames,
+            AclPermission aclPermission) {
+        if (StringUtils.hasText(branchName)) {
+            return repository
+                    .findByBranchNameAndDefaultPackageId(
+                            defaultPackageId, projectionFieldNames, branchName, aclPermission)
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.ACL_NO_RESOURCE_FOUND,
+                            FieldName.PACKAGE,
+                            defaultPackageId + "," + branchName)));
+        }
+        return repository
+                .findById(defaultPackageId, projectionFieldNames, aclPermission)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE, defaultPackageId)));
     }
 
     @Override
@@ -97,6 +124,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     newPackage.setPackageUUID(new ObjectId().toString());
 
                     newPackage.setUnpublishedPackage(packageToBeCreated);
+                    packageToBeCreated.setCustomJSLibs(new HashSet<>());
                     newPackage.setPublishedPackage(new PackageDTO());
 
                     Set<Policy> policies = policyGenerator.getAllChildPolicies(
@@ -111,9 +139,25 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
+    public Mono<UpdateResult> update(String contextId, Map<String, Object> fieldNameValueMap, String branchName) {
+        String defaultIdPath = "id";
+        if (!isBlank(branchName)) {
+            // TODO: Use QDSL here
+            defaultIdPath = "gitPackageMetadata.defaultPackageId";
+        }
+        return repository.updateFieldByDefaultIdAndBranchName(
+                contextId,
+                defaultIdPath,
+                fieldNameValueMap,
+                branchName,
+                "gitPackageMetadata.branchName",
+                MANAGE_PACKAGES);
+    }
+
+    @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<List<PackageDTO>> getAllPackages() {
-        return packageRepository
+        return repository
                 .findAllUserPackages(packagePermission.getEditPermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.EDIT))
                 .collectList();
@@ -138,7 +182,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<PackageDetailsDTO> getPackageDetails(String packageId) {
 
-        Mono<PackageDTO> packageDataMono = packageRepository
+        Mono<PackageDTO> packageDataMono = repository
                 .findById(packageId, packagePermission.getReadPermission())
                 .flatMap(aPackage -> this.generatePackageByViewMode(aPackage, ResourceModes.EDIT))
                 .switchIfEmpty(Mono.error(
@@ -164,7 +208,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     public Mono<PackageDTO> updatePackage(PackageDTO packageResource, String packageId) {
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
 
-        return packageRepository
+        return repository
                 .findById(packageId, packagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)))
@@ -180,9 +224,9 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     updateObj.set(fieldName(QPackage.package$.updatedAt), Instant.now());
                     updateObj.set(fieldName(QPackage.package$.modifiedBy), currentUser.getUsername());
 
-                    return packageRepository
+                    return repository
                             .updateAndReturn(packageId, updateObj, Optional.of(packagePermission.getEditPermission()))
-                            .flatMap(updatedPackage -> packageRepository.setUserPermissionsInObject(updatedPackage))
+                            .flatMap(repository::setUserPermissionsInObject)
                             .flatMap(updatedPackage -> setTransientFieldsFromPackageToPackageDTO(
                                     updatedPackage, updatedPackage.getUnpublishedPackage()));
                 });
@@ -191,36 +235,29 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<PackageDTO> deletePackage(String packageId) {
-        Mono<Package> packageMono = packageRepository
+        Mono<Package> packageMono = repository
                 .findById(packageId, packagePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)))
                 .cache();
 
-        return packageMono.flatMap(aPackage -> {
-            return crudModuleService
-                    .archiveModulesByPackageId(packageId)
-                    .then(packageRepository.archiveById(aPackage.getId()))
-                    .as(transactionalOperator::transactional)
-                    .then(setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getUnpublishedPackage()));
-        });
+        return packageMono.flatMap(aPackage -> crudModuleService
+                .archiveModulesByPackageId(packageId)
+                .then(repository.archiveById(aPackage.getId()))
+                .as(transactionalOperator::transactional)
+                .then(setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getUnpublishedPackage())));
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ConsumablePackagesAndModulesDTO> getAllPackagesForConsumer(String workspaceId) {
-        Mono<Workspace> workspaceMono = workspaceService
-                .findById(workspaceId, workspacePermission.getReadPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)));
-        return workspaceMono.then(packageRepository
+        return repository
                 .findAllConsumablePackages(workspaceId, packagePermission.getReadPermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.VIEW))
                 .collectList()
                 .flatMap(packageDTOS -> {
-                    List<String> packageIds = packageDTOS.stream()
-                            .map(packageDTO -> packageDTO.getId())
-                            .toList();
+                    List<String> packageIds =
+                            packageDTOS.stream().map(PackageDTO::getId).toList();
 
                     return crudModuleService.getAllConsumableModules(packageIds).flatMap(moduleDTOS -> {
                         ConsumablePackagesAndModulesDTO consumablePackagesAndModulesDTO =
@@ -230,7 +267,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
 
                         return Mono.just(consumablePackagesAndModulesDTO);
                     });
-                }));
+                });
     }
 
     private Update prepareUpdatableFieldsForPackage(PackageDTO packageResource) {
@@ -269,9 +306,9 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
             requestedPackage.getUnpublishedPackage().setColor(getRandomPackageCardColor());
         }
 
-        return packageRepository
+        return repository
                 .save(requestedPackage)
-                .flatMap(packageRepository::setUserPermissionsInObject)
+                .flatMap(repository::setUserPermissionsInObject)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null && error.getMessage().contains("ws_pkg_name_deleted_at_uindex")) {
                         if (suffix > 5) {

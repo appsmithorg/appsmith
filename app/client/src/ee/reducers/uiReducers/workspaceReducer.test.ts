@@ -29,6 +29,8 @@ const workflow1: Workflow = {
   userPermissions: [],
   new: false,
   slug: "",
+  mainJsObjectId: "",
+  tokenGenerated: false,
 };
 
 const workflow2: Workflow = {
@@ -39,7 +41,6 @@ const workflow2: Workflow = {
 
 const DEFAULT_STATE: WorkspaceReduxState = {
   loadingStates: {
-    fetchingRoles: false,
     isFetchAllRoles: false,
     isFetchAllUsers: false,
     isFetchingWorkspaces: false,

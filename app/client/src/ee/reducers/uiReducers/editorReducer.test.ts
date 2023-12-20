@@ -43,43 +43,43 @@ describe("Your Reducer", () => {
     expect(state.currentPackageId).toBe(packageId);
   });
 
-  it("should handle FETCH_MODULE_ACTIONS_INIT", () => {
+  it("should handle FETCH_MODULE_ENTITIES_INIT", () => {
     const action = {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
+      type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
       payload: undefined,
     };
 
     const state = reducer(initialState, action);
 
-    expect(state.isModuleFetchingActions).toBe(true);
+    expect(state.isModuleFetchingEntities).toBe(true);
   });
 
-  it("should handle FETCH_MODULE_ACTIONS_SUCCESS", () => {
+  it("should handle FETCH_MODULE_ENTITIES_SUCCESS", () => {
     const action = {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
+      type: ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS,
       payload: undefined,
     };
 
     const state = reducer(
-      { ...initialState, isModuleFetchingActions: true },
+      { ...initialState, isModuleFetchingEntities: true },
       action,
     );
 
-    expect(state.isModuleFetchingActions).toBe(false);
+    expect(state.isModuleFetchingEntities).toBe(false);
   });
 
-  it("should handle FETCH_MODULE_ACTIONS_ERROR", () => {
+  it("should handle FETCH_MODULE_ENTITIES_ERROR", () => {
     const action = {
-      type: ReduxActionErrorTypes.FETCH_MODULE_ACTIONS_ERROR,
+      type: ReduxActionErrorTypes.FETCH_MODULE_ENTITIES_ERROR,
       payload: undefined,
     };
 
     const state = reducer(
-      { ...initialState, isModuleFetchingActions: true },
+      { ...initialState, isModuleFetchingEntities: true },
       action,
     );
 
-    expect(state.isModuleFetchingActions).toBe(false);
+    expect(state.isModuleFetchingEntities).toBe(false);
   });
 
   it("should handle UPDATE_MODULE_INPUTS_INIT", () => {

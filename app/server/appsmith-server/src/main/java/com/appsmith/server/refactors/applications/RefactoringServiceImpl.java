@@ -2,9 +2,9 @@ package com.appsmith.server.refactors.applications;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.ModuleInstance;
@@ -12,6 +12,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -21,7 +22,6 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.CompositeEntityRefactoringService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.validations.EntityValidationService;
@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements RefactoringService {
-
     private final EntityRefactoringService<ModuleInstance> moduleInstanceEntityRefactoringService;
     private final CompositeEntityRefactoringService<ModuleInstance> moduleInstanceCompositeEntityRefactoringService;
 

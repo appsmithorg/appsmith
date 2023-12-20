@@ -16,7 +16,6 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.UserWorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -43,14 +42,14 @@ import static com.appsmith.server.helpers.AppsmithComparators.workspaceMembersCo
 public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl implements UserWorkspaceService {
 
     private final UserGroupRepository userGroupRepository;
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceService workspaceService;
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
     private final ApplicationMemberService applicationMemberService;
 
     public UserWorkspaceServiceImpl(
             SessionUserService sessionUserService,
-            WorkspaceRepository workspaceRepository,
+            WorkspaceService workspaceService,
             UserRepository userRepository,
             UserDataRepository userDataRepository,
             PolicySolution policySolution,
@@ -65,7 +64,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
 
         super(
                 sessionUserService,
-                workspaceRepository,
+                workspaceService,
                 userRepository,
                 userDataRepository,
                 policySolution,
@@ -76,7 +75,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                 workspacePermission,
                 permissionGroupPermission);
         this.userGroupRepository = userGroupRepository;
-        this.workspaceRepository = workspaceRepository;
+        this.workspaceService = workspaceService;
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
         this.applicationMemberService = applicationMemberService;
@@ -93,7 +92,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
             return super.updatePermissionGroupForMember(workspaceId, changeUserGroupDTO, originHeader);
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository
+        Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, AclPermission.READ_WORKSPACES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))

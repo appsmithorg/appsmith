@@ -42,14 +42,7 @@ class ModuleInstancesApi extends Api {
   static async fetchModuleInstances(
     payload: FetchModuleInstancesPayload,
   ): Promise<AxiosPromise<ApiResponse<ModuleInstance[]>>> {
-    const url = ModuleInstancesApi.moduleInstancesUrl;
-    return Api.get(url, payload);
-  }
-
-  static async fetchModuleInstancesForView(
-    payload: FetchModuleInstancesPayload,
-  ): Promise<AxiosPromise<ApiResponse<ModuleInstance[]>>> {
-    const url = `${ModuleInstancesApi.moduleInstancesUrl}/view`;
+    const url = `${ModuleInstancesApi.moduleInstancesUrl}`;
     return Api.get(url, payload);
   }
 

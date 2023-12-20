@@ -3,29 +3,23 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
 import { setCurrentModule, setupModule } from "@appsmith/actions/moduleActions";
-import { SentryRoute } from "@appsmith/AppRouter";
-import ModuleQueryEditor from "./ModuleQueryEditor";
 import {
-  DATA_SOURCES_EDITOR_ID_PATH,
-  INTEGRATION_EDITOR_PATH,
-  MODULE_API_EDITOR_PATH,
-  MODULE_JS_COLLECTION_EDITOR_PATH,
-  MODULE_QUERY_EDITOR_PATH,
-  SAAS_EDITOR_API_ID_PATH,
-  SAAS_EDITOR_DATASOURCE_ID_PATH,
-} from "@appsmith/constants/routes/packageRoutes";
-import ModuleApiEditor from "./ModuleApiEditor";
-import {
-  getIsModuleFetchingActions,
+  getIsModuleFetchingEntities,
   getModuleById,
 } from "@appsmith/selectors/modulesSelector";
 import ModuleEditorDefaultRedirect from "./ModuleEditorDefaultRedirect";
-import IntegrationEditor from "pages/Editor/IntegrationEditor";
-import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
-import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import Loader from "./Loader";
+import { SentryRoute } from "@appsmith/AppRouter";
+import ModuleQueryEditor from "./ModuleQueryEditor";
+import ModuleApiEditor from "./ModuleApiEditor";
 import ModuleJSEditor from "./ModuleJSEditor";
+import {
+  MODULE_API_EDITOR_PATH,
+  MODULE_JS_COLLECTION_EDITOR_PATH,
+  MODULE_QUERY_EDITOR_PATH,
+} from "@appsmith/constants/routes/packageRoutes";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 
 interface RouteProps {
   moduleId: string;
@@ -36,7 +30,7 @@ export type ModuleEditorProps = RouteComponentProps<RouteProps>;
 function ModuleEditor({ match }: ModuleEditorProps) {
   const { moduleId } = match.params;
   const dispatch = useDispatch();
-  const isModuleFetchingActions = useSelector(getIsModuleFetchingActions);
+  const isModuleFetchingEntities = useSelector(getIsModuleFetchingEntities);
   const module = useSelector((state) => getModuleById(state, moduleId));
 
   useEffect(() => {
@@ -47,14 +41,14 @@ function ModuleEditor({ match }: ModuleEditorProps) {
     urlBuilder.setCurrentModuleId(moduleId);
 
     return () => {
-      dispatch(setCurrentModule(null));
-      urlBuilder.setCurrentModuleId(null);
+      dispatch(setCurrentModule(undefined));
+      urlBuilder.setCurrentModuleId(undefined);
     };
   }, [moduleId]);
 
   if (!module) return null;
 
-  if (isModuleFetchingActions) {
+  if (isModuleFetchingEntities) {
     return <Loader />;
   }
 
@@ -71,21 +65,6 @@ function ModuleEditor({ match }: ModuleEditorProps) {
       <SentryRoute
         component={ModuleApiEditor}
         path={`${match.path}${MODULE_API_EDITOR_PATH}`}
-      />
-      <SentryRoute
-        component={IntegrationEditor}
-        exact
-        path={`${match.path}${INTEGRATION_EDITOR_PATH}`}
-      />
-      <SentryRoute
-        component={DataSourceEditor}
-        exact
-        path={`${match.path}${DATA_SOURCES_EDITOR_ID_PATH}`}
-      />
-      <SentryRoute
-        component={DatasourceForm}
-        exact
-        path={`${match.path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`}
       />
       <SentryRoute
         component={ModuleJSEditor}

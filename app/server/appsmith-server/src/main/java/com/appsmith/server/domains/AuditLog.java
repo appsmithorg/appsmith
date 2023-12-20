@@ -49,6 +49,7 @@ public class AuditLog extends BaseDomain {
 
     Set<String> instanceSettings;
     AuditLogLicenseMetadata license;
+    AuditLogWorkflowMetadata workflow;
 
     @Override
     @JsonIgnore

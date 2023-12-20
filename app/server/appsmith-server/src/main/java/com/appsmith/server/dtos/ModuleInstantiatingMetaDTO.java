@@ -19,6 +19,8 @@ import java.util.Map;
 @Builder(toBuilder = true)
 public class ModuleInstantiatingMetaDTO {
     String sourceModuleId;
+    String sourcePackageId;
+    String sourcePackageName;
     CreatorContextType contextType;
     String contextId;
     NewPage page;

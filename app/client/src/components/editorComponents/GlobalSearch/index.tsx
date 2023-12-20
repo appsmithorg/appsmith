@@ -45,7 +45,10 @@ import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
 import { noop } from "lodash";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { getQueryParams } from "utils/URLUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import {
@@ -65,6 +68,9 @@ import {
   DatasourceCreateEntryPoints,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   max-height: 530px;
@@ -243,11 +249,22 @@ function GlobalSearch() {
     if (query) setActiveItemIndex(0);
   }, [query]);
 
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
   const filteredWidgets = useFilteredWidgets(query);
   const filteredActions = useFilteredActions(query);
   const filteredJSCollections = useFilteredJSCollections(query);
   const filteredPages = useFilteredPages(query);
-  const filteredFileOperations = useFilteredFileOperations(query);
+  const filteredFileOperations = useFilteredFileOperations({
+    canCreateActions,
+    query,
+  });
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {

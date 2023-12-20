@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.NoArgsConstructor;
-import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
@@ -31,6 +30,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
@@ -40,6 +40,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -147,12 +148,12 @@ public class RestAPIActivateUtils {
                         } else if (MediaType.IMAGE_GIF.equals(contentType)
                                 || MediaType.IMAGE_JPEG.equals(contentType)
                                 || MediaType.IMAGE_PNG.equals(contentType)) {
-                            String encode = Base64.encode(body);
+                            String encode = Base64.getEncoder().encodeToString(body);
                             result.setBody(encode);
                             responseDataType = ResponseDataType.IMAGE;
 
                         } else if (BINARY_DATA_TYPES.contains(contentType.toString())) {
-                            String encode = Base64.encode(body);
+                            String encode = Base64.getEncoder().encodeToString(body);
                             result.setBody(encode);
                             responseDataType = ResponseDataType.BINARY;
                         } else {
@@ -244,7 +245,7 @@ public class RestAPIActivateUtils {
 
     public WebClient.Builder getWebClientBuilder(
             ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
-        HttpClient httpClient = getHttpClient(datasourceConfiguration);
+        HttpClient httpClient = getHttpClient(datasourceConfiguration, actionConfiguration.getHttpVersion());
         WebClient.Builder webClientBuilder = WebClientUtils.builder(httpClient);
         addAllHeaders(webClientBuilder, actionConfiguration, datasourceConfiguration);
         addSecretKey(webClientBuilder, datasourceConfiguration);
@@ -299,7 +300,10 @@ public class RestAPIActivateUtils {
                 .forEach(header -> webClientBuilder.defaultHeader(header.getKey(), (String) header.getValue()));
     }
 
-    protected HttpClient getHttpClient(DatasourceConfiguration datasourceConfiguration) {
+    protected HttpClient getHttpClient(DatasourceConfiguration datasourceConfiguration, HttpProtocol httpProtocol) {
+        if (httpProtocol == null) {
+            httpProtocol = HttpProtocol.HTTP11;
+        }
         // Initializing webClient to be used for http call
         final ConnectionProvider provider = ConnectionProvider.builder("rest-api-provider")
                 .maxIdleTime(Duration.ofSeconds(600))
@@ -307,6 +311,7 @@ public class RestAPIActivateUtils {
                 .build();
 
         HttpClient httpClient = HttpClient.create(provider)
+                .protocol(httpProtocol)
                 .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
                 .compress(true);
 

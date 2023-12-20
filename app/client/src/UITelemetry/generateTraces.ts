@@ -1,4 +1,4 @@
-import type { Span, Attributes, HrTime } from "@opentelemetry/api";
+import type { Span, Attributes, HrTime, TimeInput } from "@opentelemetry/api";
 import { SpanKind } from "@opentelemetry/api";
 import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
@@ -19,6 +19,7 @@ export function startNestedSpan(
   spanName: string,
   parentSpan: Span,
   spanAttributes?: Attributes,
+  startTime?: TimeInput,
 ) {
   if (!spanName || !parentSpan) {
     // do not generate nested span without parentSpan..we cannot generate context out of it
@@ -28,18 +29,13 @@ export function startNestedSpan(
   const parentContext = generateContext(parentSpan);
 
   const generatorTrace = trace.getTracer(GENERATOR_TRACE);
-  if (!spanAttributes) {
-    return generatorTrace.startSpan(
-      spanName,
-      { kind: SpanKind.CLIENT },
-      parentContext,
-    );
-  }
-  return generatorTrace.startSpan(
-    spanName,
-    { attributes: { kind: SpanKind.CLIENT, ...spanAttributes } },
-    parentContext,
-  );
+
+  const attributes = {
+    kind: SpanKind.CLIENT,
+    ...(startTime ? { startTime } : {}),
+    ...(spanAttributes ? { attributes: spanAttributes } : {}),
+  };
+  return generatorTrace.startSpan(spanName, attributes, parentContext);
 }
 
 function convertHighResolutionTimeToEpoch(hr: HrTime) {

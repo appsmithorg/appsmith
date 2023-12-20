@@ -17,7 +17,7 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
 
-describe("Git discard changes:", function () {
+describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   let datasourceName;
   let repoName;
   const query1 = "get_employees";
@@ -68,9 +68,11 @@ describe("Git discard changes:", function () {
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait("@getPage");
     // create new postgres query
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    dataSources.EnterQuery(`SELECT * FROM public."category" LIMIT 10;`);
-    agHelper.RenameWithInPane(query2);
+    dataSources.CreateQueryForDS(
+      datasourceName,
+      `SELECT * FROM public."category" LIMIT 10;`,
+      query2,
+    );
     dataSources.RunQuery();
     // navigate to Page1
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);

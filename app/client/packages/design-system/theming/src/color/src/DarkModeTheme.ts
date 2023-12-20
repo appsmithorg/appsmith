@@ -77,6 +77,14 @@ export class DarkModeTheme implements ColorModeTheme {
       bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
       bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
 
+      bgElevation1: this.bgElevation1.to("sRGB").toString(),
+      bgElevation2: this.bgElevation2.to("sRGB").toString(),
+      bgElevation3: this.bgElevation3.to("sRGB").toString(),
+
+      shadowElevation1: this.shadowElevation1.to("sRGB").toString(),
+      shadowElevation2: this.shadowElevation2.to("sRGB").toString(),
+      shadowElevation3: this.shadowElevation3.to("sRGB").toString(),
+
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.to("sRGB").toString(),
@@ -577,6 +585,62 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bgWarningSubtle.clone();
 
     color.oklch.l -= 0.02;
+
+    return color;
+  }
+
+  /*
+   * Elevation colors
+   */
+
+  private get bgElevation1() {
+    const color = this.bg.clone();
+
+    color.oklch.l += 0.07;
+
+    return color;
+  }
+
+  private get bgElevation2() {
+    const color = this.bgElevation1.clone();
+
+    color.oklch.l += 0.04;
+
+    return color;
+  }
+
+  private get bgElevation3() {
+    const color = this.bgElevation2.clone();
+
+    color.oklch.l += 0.02;
+
+    return color;
+  }
+
+  /*
+   * Shadow colors
+   */
+
+  private get shadowElevation1() {
+    const color = this.seedColor.clone();
+
+    color.oklch.l = 0.2;
+
+    return color;
+  }
+
+  private get shadowElevation2() {
+    const color = this.shadowElevation1.clone();
+
+    color.oklch.l -= 0.05;
+
+    return color;
+  }
+
+  private get shadowElevation3() {
+    const color = this.shadowElevation2.clone();
+
+    color.oklch.l -= 0.05;
 
     return color;
   }

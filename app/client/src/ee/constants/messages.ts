@@ -400,20 +400,28 @@ export const FETCH_PACKAGES_ERROR = () => "Failed to fetch Packages";
 export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Package";
 export const CREATE_PACKAGE_ERROR = () => "Failed to create package";
 export const QUERY_MODULES_TITLE = () => "Queries";
+export const JS_MODULES_TITLE = () => "JS Modules";
 export const ADD_QUERY_MODULE_TOOLTIP = () => "Add a new query module";
+export const ADD_JS_MODULE_TOOLTIP = () => "Add a new JS module";
 export const CREATE_NEW_QUERY_MODULE = () => "New query";
 export const EMPTY_QUERY_MODULES_MSG = () => "No queries to show here.";
+export const EMPTY_JS_MODULES_MSG = () => "No js modules to show here.";
 export const NEW_QUERY_BUTTON = () => "New query";
+export const NEW_JS_MODULE_BUTTON = () => "New JS Module";
 export const RENAME_PACKAGE_TOOLTIP = () => "Rename package";
 export const ADD_QUERY_BUTTON = () => "Add query";
+export const ADD_JS_BUTTON = () => "Add JS Module";
 export const PACKAGE_NAME_CANT_BE_EMPTY = () => "Package name can't be empty";
 export const ERROR_DELETING_PACKAGE = () => "Error while deleting Package";
 export const INVALID_INPUT_NAME = () =>
   "Input names can only contain alphanumeric and should start with an alphabet";
+export const UNIQUE_INPUT_NAME = () => "Input name should be unique.";
 export const MODULE_INSTANCE_EMPTY_INPUT = () =>
   "No inputs parameters defined for this query.";
 export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>
   `Unable to update module instance name to ${name}`;
+export const NEW_REUSABLE_QUERY_BUTTON_TEXT = () => "New reusable query";
+export const NEW_REUSABLE_API_BUTTON_TEXT = () => "New reusable API";
 // Modules end
 
 //Worflows start

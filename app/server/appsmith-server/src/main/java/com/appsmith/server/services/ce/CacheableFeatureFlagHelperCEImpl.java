@@ -116,8 +116,10 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         return Mono.zip(instanceIdMono, defaultTenantMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
                     String tenantId = objects.getT2().getId();
-                    return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
-                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3()));
+                    String appsmithVersion = releaseNotesService.getRunningVersion();
+                    FeatureFlagIdentityTraits featureFlagIdentityTraits = new FeatureFlagIdentityTraits(
+                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
+                    return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
                 .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
     }
@@ -152,7 +154,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     // We're gobbling up errors here so that all feature flags are turned off by default
                     // This will be problematic if we do not maintain code to reflect validity of flags
                     log.debug("Received error from CS for feature flags: {}", error.getMessage());
-                    return Mono.just(Map.of());
+                    return Mono.just(new HashMap<>());
                 });
     }
 
@@ -166,8 +168,14 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     public Mono<CachedFeatures> fetchCachedTenantFeatures(String tenantId) {
         return this.forceAllRemoteFeaturesForTenant(tenantId).flatMap(flags -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
-            cachedFeatures.setRefreshedAt(Instant.now());
             cachedFeatures.setFeatures(flags);
+            // If CS is down we expect the empty flags, from upstream method. Hence, setting the refreshed at to past
+            // so that the next call will have the force refresh.
+            if (CollectionUtils.isNullOrEmpty(flags)) {
+                cachedFeatures.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+            } else {
+                cachedFeatures.setRefreshedAt(Instant.now());
+            }
             return Mono.just(cachedFeatures);
         });
     }

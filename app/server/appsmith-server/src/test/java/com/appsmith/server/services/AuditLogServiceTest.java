@@ -22,6 +22,7 @@ import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
@@ -38,6 +39,8 @@ import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
 import com.appsmith.server.domains.AuditLogResource;
 import com.appsmith.server.domains.AuditLogUserGroupMetadata;
 import com.appsmith.server.domains.AuditLogUserMetadata;
+import com.appsmith.server.domains.AuditLogWorkflowMetadata;
+import com.appsmith.server.domains.AuditLogWorkspaceMetadata;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
@@ -48,6 +51,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -98,6 +102,8 @@ import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
 import com.appsmith.server.themes.base.ThemeService;
+import com.appsmith.server.workflows.crud.CrudWorkflowService;
+import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -294,6 +300,12 @@ public class AuditLogServiceTest {
 
     @SpyBean
     FeatureFlagService featureFlagService;
+
+    @Autowired
+    private CrudWorkflowService crudWorkflowService;
+
+    @Autowired
+    private InteractWorkflowService interactWorkflowService;
 
     private static String workspaceId;
     private static String defaultEnvironmentId;
@@ -4737,8 +4749,9 @@ public class AuditLogServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setBody("export default { x: 1 }");
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("Permission Group - testPermissionGroup_testUpdateRoles");
@@ -6574,5 +6587,319 @@ public class AuditLogServiceTest {
         userGroupMetadata2.getRemovedUsers().forEach(removedUser -> assertThat(Set.of(createdUser2.getEmail()))
                 .contains(removedUser));
         assertThat(userGroupMetadata2.getInvitedUsers()).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLogs_workflowCreateOperation() {
+        String testName = "testAuditLogs_workflowCreateOperation";
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_workflows_enabled))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Workspace workspaceToCreate = new Workspace();
+        workspaceToCreate.setName("Workspace - " + testName);
+        Workspace createdWorkspace = workspaceService.create(workspaceToCreate).block();
+        Workflow workflowToCreate = new Workflow();
+        workflowToCreate.setName("Workflow - " + testName);
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflowToCreate, workspaceToCreate.getId())
+                .block();
+
+        String workflowId = createdWorkflow.getId();
+        String resourceTypeRole = auditLogService.getResourceType(createdWorkflow);
+        String createWorkflowEvent = auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKFLOW_CREATED);
+
+        MultiValueMap<String, String> auditLogRequestCreateWorkflow = getAuditLogRequest(
+                null, createWorkflowEvent, resourceTypeRole, workflowId, null, null, null, null, null);
+
+        List<AuditLog> auditLogsCreateWorkflow =
+                auditLogService.getAuditLogs(auditLogRequestCreateWorkflow).block();
+
+        assertThat(auditLogsCreateWorkflow).isNotEmpty();
+        AuditLog auditLogCreateWorkflow = auditLogsCreateWorkflow.get(0);
+
+        assertThat(auditLogCreateWorkflow.getEvent()).isEqualTo(createWorkflowEvent);
+        assertThat(auditLogCreateWorkflow.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogCreateWorkflow.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogCreateWorkflow.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogCreateWorkflow.getResource()).isNotNull();
+        AuditLogResource auditLogResource = auditLogCreateWorkflow.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo(Workflow.class.getSimpleName());
+        assertThat(auditLogResource.getId()).isEqualTo(createdWorkflow.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdWorkflow.getName());
+
+        assertThat(auditLogCreateWorkflow.getMetadata()).isNotNull();
+        AuditLogMetadata auditLogMetadata = auditLogCreateWorkflow.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        assertThat(auditLogCreateWorkflow.getWorkspace()).isNotNull();
+        AuditLogWorkspaceMetadata auditLogWorkspace = auditLogCreateWorkflow.getWorkspace();
+        assertThat(auditLogWorkspace.getId()).isEqualTo(createdWorkspace.getId());
+        assertThat(auditLogWorkspace.getName()).isEqualTo(createdWorkspace.getName());
+
+        assertThat(auditLogCreateWorkflow.getUser()).isNotNull();
+        AuditLogUserMetadata auditLogUser = auditLogCreateWorkflow.getUser();
+        assertThat(auditLogUser.getEmail()).isEqualTo("api_user");
+
+        assertThat(auditLogCreateWorkflow.getGroup()).isNull();
+        assertThat(auditLogCreateWorkflow.getApplication()).isNull();
+        assertThat(auditLogCreateWorkflow.getRole()).isNull();
+        assertThat(auditLogCreateWorkflow.getPage()).isNull();
+
+        List<NewAction> actionsInMainJsObject = newActionService
+                .findAllJSActionsByCollectionIds(List.of(createdWorkflow.getMainJsObjectId()), null)
+                .collectList()
+                .block();
+        assertThat(actionsInMainJsObject).hasSize(1);
+
+        NewAction actionInMainJsObject = actionsInMainJsObject.get(0);
+        String actionIdInMainJsObject = actionInMainJsObject.getId();
+        String actionInMainJsObjectResourceTypeRole = auditLogService.getResourceType(actionInMainJsObject);
+        String createQueryEvent = auditLogService.getAuditLogEventName(AuditLogEvents.Events.QUERY_CREATED);
+
+        MultiValueMap<String, String> auditLogRequestAction = getAuditLogRequest(
+                null,
+                createQueryEvent,
+                actionInMainJsObjectResourceTypeRole,
+                actionIdInMainJsObject,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogsAction =
+                auditLogService.getAuditLogs(auditLogRequestAction).block();
+
+        assertThat(auditLogsAction).isNotEmpty();
+        AuditLog auditLogAction = auditLogsAction.get(0);
+
+        assertThat(auditLogAction.getEvent()).isEqualTo(createQueryEvent);
+        assertThat(auditLogAction.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogAction.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogAction.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogAction.getResource()).isNotNull();
+        AuditLogResource auditLogResource1 = auditLogAction.getResource();
+        assertThat(auditLogResource1.getType()).isEqualTo("Query");
+        assertThat(auditLogResource1.getId()).isEqualTo(actionIdInMainJsObject);
+        assertThat(auditLogResource1.getName())
+                .isEqualTo(actionInMainJsObject.getUnpublishedAction().getName());
+
+        assertThat(auditLogAction.getMetadata()).isNotNull();
+        AuditLogMetadata auditLogMetadata1 = auditLogAction.getMetadata();
+        assertThat(auditLogMetadata1.getAppsmithVersion()).isNotEmpty();
+
+        assertThat(auditLogAction.getWorkspace()).isNotNull();
+        AuditLogWorkspaceMetadata auditLogWorkspace1 = auditLogAction.getWorkspace();
+        assertThat(auditLogWorkspace1.getId()).isEqualTo(createdWorkspace.getId());
+        assertThat(auditLogWorkspace1.getName()).isEqualTo(createdWorkspace.getName());
+
+        assertThat(auditLogAction.getUser()).isNotNull();
+        AuditLogUserMetadata auditLogUser1 = auditLogAction.getUser();
+        assertThat(auditLogUser1.getEmail()).isEqualTo("api_user");
+
+        assertThat(auditLogAction.getWorkflow()).isNotNull();
+        AuditLogWorkflowMetadata auditLogWorkflow1 = auditLogAction.getWorkflow();
+        assertThat(auditLogWorkflow1.getId()).isEqualTo(createdWorkflow.getId());
+        assertThat(auditLogWorkflow1.getName()).isEqualTo(createdWorkflow.getName());
+
+        assertThat(auditLogAction.getGroup()).isNull();
+        assertThat(auditLogAction.getApplication()).isNull();
+        assertThat(auditLogAction.getRole()).isNull();
+        assertThat(auditLogAction.getPage()).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLog_workflowUpdateOperation() {
+        String testName = "testAuditLog_workflowUpdateOperation";
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_workflows_enabled))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Workspace workspaceToCreate = new Workspace();
+        workspaceToCreate.setName("Workspace - " + testName);
+        Workspace createdWorkspace = workspaceService.create(workspaceToCreate).block();
+        Workflow workflowToCreate = new Workflow();
+        workflowToCreate.setName("Workflow - " + testName);
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflowToCreate, workspaceToCreate.getId())
+                .block();
+
+        String workflowId = createdWorkflow.getId();
+        String resourceTypeRole = auditLogService.getResourceType(createdWorkflow);
+        String updateWorkflowEvent = auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKFLOW_UPDATED);
+
+        Workflow workflowToUpdate = new Workflow();
+        workflowToUpdate.setName(createdWorkflow.getName() + "_updated");
+        Workflow updatedWorkflow =
+                crudWorkflowService.updateWorkflow(workflowToUpdate, workflowId).block();
+
+        MultiValueMap<String, String> auditLogRequestUpdateWorkflow = getAuditLogRequest(
+                null, updateWorkflowEvent, resourceTypeRole, workflowId, null, null, null, null, null);
+
+        List<AuditLog> auditLogsUpdateWorkflow =
+                auditLogService.getAuditLogs(auditLogRequestUpdateWorkflow).block();
+
+        assertThat(auditLogsUpdateWorkflow).isNotEmpty();
+        AuditLog auditLogUpdateWorkflow = auditLogsUpdateWorkflow.get(0);
+
+        assertThat(auditLogUpdateWorkflow.getEvent()).isEqualTo(updateWorkflowEvent);
+        assertThat(auditLogUpdateWorkflow.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogUpdateWorkflow.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogUpdateWorkflow.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogUpdateWorkflow.getResource()).isNotNull();
+        AuditLogResource auditLogResource = auditLogUpdateWorkflow.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo(Workflow.class.getSimpleName());
+        assertThat(auditLogResource.getId()).isEqualTo(createdWorkflow.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdWorkflow.getName() + "_updated");
+
+        assertThat(auditLogUpdateWorkflow.getMetadata()).isNotNull();
+        AuditLogMetadata auditLogMetadata = auditLogUpdateWorkflow.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        assertThat(auditLogUpdateWorkflow.getWorkspace()).isNotNull();
+        AuditLogWorkspaceMetadata auditLogWorkspace = auditLogUpdateWorkflow.getWorkspace();
+        assertThat(auditLogWorkspace.getId()).isEqualTo(createdWorkspace.getId());
+        assertThat(auditLogWorkspace.getName()).isEqualTo(createdWorkspace.getName());
+
+        assertThat(auditLogUpdateWorkflow.getUser()).isNotNull();
+        AuditLogUserMetadata auditLogUser = auditLogUpdateWorkflow.getUser();
+        assertThat(auditLogUser.getEmail()).isEqualTo("api_user");
+
+        assertThat(auditLogUpdateWorkflow.getGroup()).isNull();
+        assertThat(auditLogUpdateWorkflow.getApplication()).isNull();
+        assertThat(auditLogUpdateWorkflow.getRole()).isNull();
+        assertThat(auditLogUpdateWorkflow.getPage()).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLog_workflowDeleteOperation() {
+        String testName = "testAuditLog_workflowDeleteOperation";
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_workflows_enabled))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Workspace workspaceToCreate = new Workspace();
+        workspaceToCreate.setName("Workspace - " + testName);
+        Workspace createdWorkspace = workspaceService.create(workspaceToCreate).block();
+        Workflow workflowToCreate = new Workflow();
+        workflowToCreate.setName("Workflow - " + testName);
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflowToCreate, workspaceToCreate.getId())
+                .block();
+
+        String workflowId = createdWorkflow.getId();
+        String resourceTypeRole = auditLogService.getResourceType(createdWorkflow);
+        String deleteWorkflowEvent = auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKFLOW_DELETED);
+
+        Workflow deletedWorkflow =
+                crudWorkflowService.deleteWorkflow(workflowId).block();
+
+        MultiValueMap<String, String> auditLogRequestDeleteWorkflow = getAuditLogRequest(
+                null, deleteWorkflowEvent, resourceTypeRole, workflowId, null, null, null, null, null);
+
+        List<AuditLog> auditLogsDeleteWorkflow =
+                auditLogService.getAuditLogs(auditLogRequestDeleteWorkflow).block();
+
+        assertThat(auditLogsDeleteWorkflow).isNotEmpty();
+        AuditLog auditLogDeleteWorkflow = auditLogsDeleteWorkflow.get(0);
+
+        assertThat(auditLogDeleteWorkflow.getEvent()).isEqualTo(deleteWorkflowEvent);
+        assertThat(auditLogDeleteWorkflow.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogDeleteWorkflow.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogDeleteWorkflow.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogDeleteWorkflow.getResource()).isNotNull();
+        AuditLogResource auditLogResource = auditLogDeleteWorkflow.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo(Workflow.class.getSimpleName());
+        assertThat(auditLogResource.getId()).isEqualTo(createdWorkflow.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdWorkflow.getName());
+
+        assertThat(auditLogDeleteWorkflow.getMetadata()).isNotNull();
+        AuditLogMetadata auditLogMetadata = auditLogDeleteWorkflow.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        assertThat(auditLogDeleteWorkflow.getWorkspace()).isNotNull();
+        AuditLogWorkspaceMetadata auditLogWorkspace = auditLogDeleteWorkflow.getWorkspace();
+        assertThat(auditLogWorkspace.getId()).isEqualTo(createdWorkspace.getId());
+        assertThat(auditLogWorkspace.getName()).isEqualTo(createdWorkspace.getName());
+
+        assertThat(auditLogDeleteWorkflow.getUser()).isNotNull();
+        AuditLogUserMetadata auditLogUser = auditLogDeleteWorkflow.getUser();
+        assertThat(auditLogUser.getEmail()).isEqualTo("api_user");
+
+        assertThat(auditLogDeleteWorkflow.getGroup()).isNull();
+        assertThat(auditLogDeleteWorkflow.getApplication()).isNull();
+        assertThat(auditLogDeleteWorkflow.getRole()).isNull();
+        assertThat(auditLogDeleteWorkflow.getPage()).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLog_workflowDeployOperation() {
+        String testName = "testAuditLog_workflowDeployOperation";
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_workflows_enabled))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Workspace workspaceToCreate = new Workspace();
+        workspaceToCreate.setName("Workspace - " + testName);
+        Workspace createdWorkspace = workspaceService.create(workspaceToCreate).block();
+        Workflow workflowToCreate = new Workflow();
+        workflowToCreate.setName("Workflow - " + testName);
+        Workflow createdWorkflow = crudWorkflowService
+                .createWorkflow(workflowToCreate, workspaceToCreate.getId())
+                .block();
+
+        String workflowId = createdWorkflow.getId();
+        String resourceTypeRole = auditLogService.getResourceType(createdWorkflow);
+        String deployWorkflowEvent = auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKFLOW_DEPLOYED);
+
+        Workflow block =
+                interactWorkflowService.publishWorkflow(createdWorkflow.getId()).block();
+
+        MultiValueMap<String, String> auditLogRequestDeployWorkflow = getAuditLogRequest(
+                null, deployWorkflowEvent, resourceTypeRole, workflowId, null, null, null, null, null);
+
+        List<AuditLog> auditLogsDeployWorkflow =
+                auditLogService.getAuditLogs(auditLogRequestDeployWorkflow).block();
+
+        assertThat(auditLogsDeployWorkflow).isNotEmpty();
+        AuditLog auditLogDeployWorkflow = auditLogsDeployWorkflow.get(0);
+
+        assertThat(auditLogDeployWorkflow.getEvent()).isEqualTo(deployWorkflowEvent);
+        assertThat(auditLogDeployWorkflow.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogDeployWorkflow.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogDeployWorkflow.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogDeployWorkflow.getResource()).isNotNull();
+        AuditLogResource auditLogResource = auditLogDeployWorkflow.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo(Workflow.class.getSimpleName());
+        assertThat(auditLogResource.getId()).isEqualTo(createdWorkflow.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdWorkflow.getName());
+
+        assertThat(auditLogDeployWorkflow.getMetadata()).isNotNull();
+        AuditLogMetadata auditLogMetadata = auditLogDeployWorkflow.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        assertThat(auditLogDeployWorkflow.getWorkspace()).isNotNull();
+        AuditLogWorkspaceMetadata auditLogWorkspace = auditLogDeployWorkflow.getWorkspace();
+        assertThat(auditLogWorkspace.getId()).isEqualTo(createdWorkspace.getId());
+        assertThat(auditLogWorkspace.getName()).isEqualTo(createdWorkspace.getName());
+
+        assertThat(auditLogDeployWorkflow.getUser()).isNotNull();
+        AuditLogUserMetadata auditLogUser = auditLogDeployWorkflow.getUser();
+        assertThat(auditLogUser.getEmail()).isEqualTo("api_user");
+
+        assertThat(auditLogDeployWorkflow.getGroup()).isNull();
+        assertThat(auditLogDeployWorkflow.getApplication()).isNull();
+        assertThat(auditLogDeployWorkflow.getRole()).isNull();
+        assertThat(auditLogDeployWorkflow.getPage()).isNull();
     }
 }

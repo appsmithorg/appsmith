@@ -57,7 +57,7 @@ public class PackageController {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/")
+    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<List<PackageDTO>>> getAllPackages() {
         return crudPackageService
@@ -66,7 +66,7 @@ public class PackageController {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("")
+    @GetMapping("/consumables")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<ConsumablePackagesAndModulesDTO>> getAllConsumablePackages(
             @RequestParam String workspaceId) {

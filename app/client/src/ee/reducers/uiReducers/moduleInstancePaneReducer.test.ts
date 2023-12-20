@@ -140,7 +140,7 @@ describe("moduleInstancePaneReducer", () => {
   it("should handle UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT", () => {
     const action = {
       type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT,
-      payload: { id: "moduleId" },
+      payload: { actionId: "moduleId" },
     };
 
     const expectedState = {

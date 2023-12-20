@@ -1,11 +1,20 @@
 export * from "ce/entities/Engine/actionHelpers";
-import { fetchAllPackagesInWorkspace } from "@appsmith/actions/packageActions";
+import { fetchConsumablePackagesInWorkspace } from "@appsmith/actions/packageActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
 import { getPageDependencyActions as CE_getPageDependencyActions } from "ce/entities/Engine/actionHelpers";
+
+export enum ACTION_PARENT_ENTITY_TYPE {
+  PAGE = "PAGE",
+  WORKFLOW = "WORKFLOW",
+  PACKAGE = "PACKAGE",
+}
+
+export type ActionParentEntityTypeInterface =
+  (typeof ACTION_PARENT_ENTITY_TYPE)[keyof typeof ACTION_PARENT_ENTITY_TYPE];
 
 export const getPageDependencyActions = (
   currentWorkspaceId: string = "",
@@ -15,21 +24,25 @@ export const getPageDependencyActions = (
   const initActions = [
     ...CE.initActions,
     ...(featureFlags.showQueryModule
-      ? [fetchAllPackagesInWorkspace({ wodrkspaceId: currentWorkspaceId })]
+      ? [
+          fetchConsumablePackagesInWorkspace({
+            workspaceId: currentWorkspaceId,
+          }),
+        ]
       : []),
   ];
 
   const successActions = [
     ...CE.successActions,
     ...(featureFlags.showQueryModule
-      ? [ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_SUCCESS]
+      ? [ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_SUCCESS]
       : []),
   ];
 
   const errorActions = [
     ...CE.errorActions,
     ...(featureFlags.showQueryModule
-      ? [ReduxActionErrorTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_ERROR]
+      ? [ReduxActionErrorTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_ERROR]
       : []),
   ];
 

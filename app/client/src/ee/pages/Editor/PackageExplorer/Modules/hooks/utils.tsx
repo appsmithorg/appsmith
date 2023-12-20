@@ -42,14 +42,15 @@ export const actionOperations: ActionOperation[] = [
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     redirect: (packageId: string, from: EventLocation) => {
       const queryParams = getQueryParams();
       const curlImportURL = curlImportPageURL({
-        pageId: packageId, // ankita: update later
         params: {
           from,
           ...queryParams,
         },
+        generateEditorPath: true,
       });
       history.push(curlImportURL);
     },

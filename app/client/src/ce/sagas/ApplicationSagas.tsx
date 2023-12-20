@@ -33,7 +33,10 @@ import ApplicationApi from "@appsmith/api/ApplicationApi";
 import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
-import { getDeletingMultipleApps } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentApplicationIdForCreateNewApp,
+  getDeletingMultipleApps,
+} from "@appsmith/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
@@ -218,15 +221,14 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
       ApplicationApi.fetchAllApplicationsOfWorkspace,
       activeWorkspaceId,
     );
-    const isEnabledForStartWithData: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
-    );
     const isEnabledForCreateNew: boolean = yield select(
       selectFeatureFlagCheck,
       FEATURE_FLAG.ab_create_new_apps_enabled,
     );
     const workspaces: Workspace[] = yield select(getFetchedWorkspaces);
+    const isOnboardingApplicationId: string = yield select(
+      getCurrentApplicationIdForCreateNewApp,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const applications = response.data.map((application) => {
@@ -239,10 +241,12 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
         type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_SUCCESS,
         payload: applications,
       });
+
+      // This will initialise the current workspace to first only during onboarding
       if (
-        isEnabledForStartWithData &&
         isEnabledForCreateNew &&
-        workspaces.length > 0
+        workspaces.length > 0 &&
+        !!isOnboardingApplicationId
       ) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,

@@ -1,12 +1,25 @@
 export * from "ce/utils/FilterInternalProperties/getEntityPeekData";
 
 import { getEntityPeekData as CE_getEntityPeekData } from "ce/utils/FilterInternalProperties/getEntityPeekData";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
-import { getModuleInputsPeekData } from "./ModuleInputs";
+import { getModuleInputsPeekData, getModuleInstancePeekData } from "./Modules";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export const getEntityPeekData: typeof CE_getEntityPeekData = {
   ...CE_getEntityPeekData,
-  [ENTITY_TYPE_VALUE.MODULE_INPUT]: ({ dataTreeEntity }) => {
+  [ENTITY_TYPE.MODULE_INPUT]: ({ dataTreeEntity }) => {
     return getModuleInputsPeekData(dataTreeEntity);
+  },
+  [ENTITY_TYPE.MODULE_INSTANCE]: ({
+    configTree,
+    dataTree,
+    dataTreeEntity,
+    objectName,
+  }) => {
+    return getModuleInstancePeekData(
+      configTree,
+      dataTree,
+      dataTreeEntity,
+      objectName,
+    );
   },
 };

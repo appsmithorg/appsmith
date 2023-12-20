@@ -4,22 +4,23 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type {
   FetchPackageResponse,
-  FetchPackagesInWorkspaceResponse,
+  FetchConsumablePackagesInWorkspaceResponse,
 } from "@appsmith/api/PackageApi";
 import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
+import { klona } from "klona";
 
 type ID = string;
 
 export type ModulesReducerState = Record<ID, Module>;
 
-const INITIAL_STATE: ModulesReducerState = {};
+export const initialState: ModulesReducerState = {};
 
-const modulesReducer = createImmerReducer(INITIAL_STATE, {
+const modulesReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_PACKAGE_SUCCESS]: (
     draftState: ModulesReducerState,
     action: ReduxAction<FetchPackageResponse>,
   ) => {
-    draftState = {};
+    draftState = klona(initialState);
     const { modules } = action.payload;
     modules.forEach((module) => {
       draftState[module.id] = module;
@@ -54,6 +55,15 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
 
     return draftState;
   },
+  [ReduxActionTypes.CREATE_JS_MODULE_SUCCESS]: (
+    draftState: ModulesReducerState,
+    action: ReduxAction<Module>,
+  ) => {
+    const module = action.payload;
+    draftState[module.id] = module;
+
+    return draftState;
+  },
   [ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS]: (
     draftState: ModulesReducerState,
     action: ReduxAction<Module>,
@@ -63,17 +73,20 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
 
     return draftState;
   },
-  [ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_SUCCESS]: (
+  [ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_SUCCESS]: (
     draftState: ModulesReducerState,
-    action: ReduxAction<FetchPackagesInWorkspaceResponse>,
+    action: ReduxAction<FetchConsumablePackagesInWorkspaceResponse>,
   ) => {
-    draftState = INITIAL_STATE;
+    draftState = klona(initialState);
     const { modules } = action.payload;
     modules.map((module) => {
       draftState[module.id] = module;
     });
 
     return draftState;
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 });
 

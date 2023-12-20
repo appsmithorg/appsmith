@@ -1,8 +1,13 @@
-import type { DeleteWorkflowPayload } from "@appsmith/actions/workflowActions";
+import type {
+  DeleteWorkflowPayload,
+  PublishWorkflowPayload,
+} from "@appsmith/actions/workflowActions";
 import type { Workflow } from "@appsmith/constants/WorkflowConstants";
+import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
+import type { Action } from "entities/Action";
 
 export interface FetchWorkflowResponseData extends Workflow {}
 
@@ -14,6 +19,12 @@ export interface CreateWorkflowPayload {
   name: string;
   icon?: string;
   color?: string;
+}
+
+export interface CreateWorkflowQueryActionPayload {
+  id: string;
+  name: string;
+  actionConfiguration: any;
 }
 
 const BASE_URL = "v1/workflows";
@@ -61,6 +72,25 @@ class WorkflowApi extends Api {
     const url = `${BASE_URL}/${payload.id}`;
 
     return Api.put(url, payload);
+  }
+
+  static async CreateWorkflowAction(
+    payload: Partial<Action>,
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
+    const url = `${BASE_URL}/${payload.workflowId}/action`;
+
+    return Api.post(url, payload);
+  }
+
+  static async publishWorkflow(
+    payload: PublishWorkflowPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const { workflowId } = payload;
+    // TODO (workflows): fix the url once server side is fixed
+    // const url = `${BASE_URL}/${workflowId}/publish`;
+    const url = `${BASE_URL}/publish/${workflowId}`;
+
+    return Api.post(url);
   }
 }
 

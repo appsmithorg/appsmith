@@ -68,13 +68,16 @@ describe("actionsReducer", () => {
     expect(state).toEqual(initialState);
   });
 
-  it("should handle FETCH_MODULE_ACTIONS_SUCCESS action", () => {
+  it("should handle FETCH_MODULE_ENTITIES_SUCCESS action", () => {
     const initialState: ActionDataState = [];
     const actionPayload = DEFAULT_ACTIONS;
 
     const action = {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
-      payload: actionPayload,
+      type: ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS,
+      payload: {
+        actions: actionPayload,
+        jsCollections: [{ id: "js-collection" }],
+      },
     };
 
     const state = actionsReducer(initialState, action);
@@ -104,8 +107,8 @@ describe("actionsReducer", () => {
     };
 
     const updatedState: ActionDataState = actionsReducer(state, {
-      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
-      payload: [additionalAction],
+      type: ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS,
+      payload: { actions: [additionalAction], jsCollection: { id: "test-id" } },
     });
 
     expect(updatedState.length).toBe(1);

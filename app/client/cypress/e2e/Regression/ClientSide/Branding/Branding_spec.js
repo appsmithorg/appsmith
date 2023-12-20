@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 const locators = {
@@ -31,7 +32,7 @@ const locators = {
   upgradeButton: "[data-testid='t--branding-upgrade-button']",
 };
 
-describe("Branding", () => {
+describe("Branding", { tags: ["@tag.Settings"] }, () => {
   let logo;
   let favicon;
   let shades = {};
@@ -56,9 +57,8 @@ describe("Branding", () => {
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
     cy.url().should("contain", "/settings/general");
-    cy.get(locators.LeftPaneBrandingLink).should("be.visible");
-    cy.get(locators.LeftPaneBrandingLink).click();
-    cy.wait(2000);
+    agHelper.AssertElementVisibility(locators.LeftPaneBrandingLink);
+    agHelper.GetNClick(locators.LeftPaneBrandingLink);
   });
 
   it("3. Should test that changing logo,favicon and color changes the preview", () => {
@@ -77,8 +77,7 @@ describe("Branding", () => {
       { force: true },
     );
 
-    cy.wait(1000);
-    cy.get(locators.AdmingSettingsLogoInputImage).should("be.visible");
+    agHelper.AssertElementVisibility(locators.AdmingSettingsLogoInputImage);
     cy.get(locators.BrandingLogo)
       .invoke("attr", "src")
       .then((src) => {
@@ -92,8 +91,7 @@ describe("Branding", () => {
       "cypress/fixtures/appsmithlogo.png",
       { force: true },
     );
-    cy.wait(1000);
-    cy.get(locators.AdmingSettingsFaviconInputImage).should("be.visible");
+    agHelper.AssertElementVisibility(locators.AdmingSettingsFaviconInputImage);
     cy.get(locators.BrandingFavicon)
       .invoke("attr", "src")
       .then((src) => {
@@ -107,18 +105,15 @@ describe("Branding", () => {
       "cypress/fixtures/testFile.mov",
       { force: true },
     );
-    cy.wait(1000);
-    cy.get(commonlocators.toastMsg).contains(
+    agHelper.ValidateToastMessage(
       Cypress.env("MESSAGES").ADMIN_BRANDING_LOGO_FORMAT_ERROR(),
     );
-
     // validations - favicon
     cy.get(locators.AdmingSettingsFaviconInput).selectFile(
       "cypress/fixtures/testFile.mov",
       { force: true },
     );
-    cy.wait(1000);
-    cy.get(commonlocators.toastMsg).contains(
+    agHelper.ValidateToastMessage(
       Cypress.env("MESSAGES").ADMIN_BRANDING_FAVICON_FORMAT_ERROR(),
     );
   });

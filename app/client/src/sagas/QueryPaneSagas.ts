@@ -96,11 +96,11 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
-  const { applicationId, id, moduleId, packageId, pageId } =
+  const { applicationId, id, moduleId, packageId, pageId, workflowId } =
     actionPayload.payload;
   let configInitialValues = {};
 
-  if (!(packageId && moduleId) && !(applicationId && pageId)) {
+  if (!(packageId && moduleId) && !(applicationId && pageId) && !workflowId) {
     history.push(APPLICATIONS_URL);
     return;
   }
@@ -347,9 +347,8 @@ function* formValueChangeSaga(
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
-  const { actionConfiguration, id, pluginId, pluginType } =
+  const { actionConfiguration, id, pageId, pluginId, pluginType } =
     actionPayload.payload;
-  const pageId: string = yield select(getCurrentPageId);
   if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
     return;
   const pluginTemplates: Record<string, unknown> =

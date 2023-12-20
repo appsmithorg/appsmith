@@ -22,6 +22,8 @@ describe("workflowsReducer", () => {
     userPermissions: [],
     new: false,
     slug: "",
+    mainJsObjectId: "",
+    tokenGenerated: false,
   };
 
   const workflow2: Workflow = {

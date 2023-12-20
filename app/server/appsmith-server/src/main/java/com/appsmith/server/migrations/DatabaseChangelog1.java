@@ -27,7 +27,6 @@ import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -42,7 +41,6 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
-import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -369,8 +367,6 @@ public class DatabaseChangelog1 {
                 makeIndex("type"),
                 makeIndex("packageName").unique());
 
-        ensureIndexes(mongoTemplate, Role.class, createdAtIndex);
-
         ensureIndexes(
                 mongoTemplate, User.class, createdAtIndex, makeIndex("email").unique());
     }
@@ -463,15 +459,7 @@ public class DatabaseChangelog1 {
     }
 
     @ChangeSet(order = "010", id = "add-delete-datasource-perm-existing-groups", author = "")
-    public void addDeleteDatasourcePermToExistingGroups(MongoTemplate mongoTemplate) {
-        for (Group group : mongoTemplate.findAll(Group.class)) {
-            if (CollectionUtils.isEmpty(group.getPermissions())) {
-                group.setPermissions(new HashSet<>());
-            }
-            group.getPermissions().add("delete:datasources");
-            mongoTemplate.save(group);
-        }
-    }
+    public void addDeleteDatasourcePermToExistingGroups(MongoTemplate mongoTemplate) {}
 
     @ChangeSet(order = "011", id = "install-default-plugins-to-all-organizations", author = "")
     public void installDefaultPluginsToAllOrganizations(MongoTemplate mongoTemplate) {

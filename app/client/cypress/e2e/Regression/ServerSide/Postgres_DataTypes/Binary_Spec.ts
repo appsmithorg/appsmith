@@ -16,7 +16,7 @@ import EditorNavigation, {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Binary Datatype tests", function () {
+describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
@@ -251,12 +251,9 @@ describe("Binary Datatype tests", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyBinaryFunctions");
-
     //Validating zero octet
     query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyBinaryFunctions");
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
       "zero octet Hex",

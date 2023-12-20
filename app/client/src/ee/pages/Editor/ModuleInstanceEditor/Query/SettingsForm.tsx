@@ -8,6 +8,7 @@ import { QUERY_MODULE_INSTANCE_SETTINGS_FORM_NAME } from "@appsmith/constants/fo
 import { useSelector } from "react-redux";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Action } from "entities/Action";
+import { klona } from "klona";
 
 interface SettingsFormOwnProps<TValues> {
   settings: Module["settingsForm"];
@@ -34,6 +35,7 @@ function SettingsForm<TValues>({
 
   useEffect(() => {
     if (!equal(formValues, valuesRef.current)) {
+      valuesRef.current = klona(formValues);
       onFormValuesChange(formValues);
     }
   }, [formValues, onFormValuesChange]);

@@ -14,6 +14,10 @@ import { Spinner } from "design-system";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "actions/widgetActions";
 import PackageIDE from "./PackageIDE";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { setCurrentModule } from "@appsmith/actions/moduleActions";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { resetEditorRequest } from "actions/initActions";
 
 const theme = getTheme(ThemeMode.LIGHT);
 
@@ -29,6 +33,18 @@ function PackageEditor() {
     editorInitializer().then(() => {
       dispatch(widgetInitialisationSuccess());
     });
+
+    return () => {
+      dispatch({
+        type: ReduxActionTypes.SET_CURRENT_PACKAGE_ID,
+        payload: {
+          packageId: undefined,
+        },
+      });
+      dispatch(setCurrentModule(undefined));
+      urlBuilder.setCurrentModuleId(undefined);
+      dispatch(resetEditorRequest());
+    };
   }, []);
 
   if (!isPackageEditorInitialized) {

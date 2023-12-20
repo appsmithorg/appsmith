@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -83,7 +84,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class LayoutActionServiceTest {
+class LayoutActionServiceTest {
     @SpyBean
     NewActionService newActionService;
 
@@ -158,7 +159,7 @@ public class LayoutActionServiceTest {
     Plugin installedJsPlugin;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
@@ -254,7 +255,7 @@ public class LayoutActionServiceTest {
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         List<Application> deletedApplications = applicationService
                 .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
@@ -265,7 +266,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void deleteUnpublishedAction_WhenActionDeleted_OnPageLoadActionsIsEmpty() {
+    void deleteUnpublishedAction_WhenActionDeleted_OnPageLoadActionsIsEmpty() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -308,14 +309,14 @@ public class LayoutActionServiceTest {
 
                     // Verify that no action is marked to run on page load.
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions())
-                            .hasSize(0);
+                            .isEmpty();
                 })
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateActionUpdatesLayout() {
+    void updateActionUpdatesLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -422,7 +423,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLayout_WhenOnLoadChanged_ActionExecuted() {
+    void updateLayout_WhenOnLoadChanged_ActionExecuted() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -470,7 +471,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(1);
+                    assertThat(actionUpdates).hasSize(1);
                     assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
                     assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
                 })
@@ -507,7 +508,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("secondAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(2);
+                    assertThat(actionUpdates).hasSize(2);
 
                     Optional<LayoutExecutableUpdateDTO> firstActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("firstAction"))
@@ -536,7 +537,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testHintMessageOnLocalhostUrlOnUpdateActionEvent() {
+    void testHintMessageOnLocalhostUrlOnUpdateActionEvent() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -587,7 +588,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void tableWidgetKeyEscape() {
+    void tableWidgetKeyEscape() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -628,7 +629,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void duplicateActionNameCreation() {
+    void duplicateActionNameCreation() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -663,7 +664,7 @@ public class LayoutActionServiceTest {
     @SneakyThrows
     @Test
     @WithUserDetails(value = "api_user")
-    public void OnLoadActionsWhenActionDependentOnActionViaWidget() {
+    void OnLoadActionsWhenActionDependentOnActionViaWidget() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -745,7 +746,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO = updatedLayout
@@ -767,7 +768,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void simpleOnPageLoadActionCreationTest() throws JsonProcessingException {
+    void simpleOnPageLoadActionCreationTest() throws JsonProcessingException {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -863,11 +864,12 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
-                    // Assert that all three the actions dont belong to the same set
+                    // Assert that all three the actions don't belong to the same set
                     final Set<DslExecutableDTO> firstSet =
                             updatedLayout.getLayoutOnLoadActions().get(0);
+                    assertThat(firstSet).isNotEmpty();
                     assertThat(firstSet).allMatch(actionDTO -> Set.of("firstAction", "thirdAction")
                             .contains(actionDTO.getName()));
                     final DslExecutableDTO secondSetAction = updatedLayout
@@ -883,7 +885,7 @@ public class LayoutActionServiceTest {
     @SneakyThrows
     @Test
     @WithUserDetails(value = "api_user")
-    public void OnLoadActionsWhenActionDependentOnWidgetButNotPageLoadCandidate() {
+    void OnLoadActionsWhenActionDependentOnWidgetButNotPageLoadCandidate() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -956,7 +958,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
@@ -971,7 +973,7 @@ public class LayoutActionServiceTest {
     @SneakyThrows(JsonProcessingException.class)
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLayout_withSelfReferencingWidget_updatesLayout() {
+    void updateLayout_withSelfReferencingWidget_updatesLayout() {
         JSONObject parentDsl = new JSONObject(
                 objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
 
@@ -1007,7 +1009,7 @@ public class LayoutActionServiceTest {
     @SneakyThrows(JsonProcessingException.class)
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateMultipleLayouts_MultipleLayouts_LayoutsUpdated() {
+    void updateMultipleLayouts_MultipleLayouts_LayoutsUpdated() {
         // clone the current page to create another page for testing
         PageDTO secondPage = applicationPageService.clonePage(testPage.getId()).block();
 
@@ -1043,8 +1045,8 @@ public class LayoutActionServiceTest {
                     ArrayList<LinkedHashMap> childArray1 = (ArrayList) dsl1.get("children");
                     ArrayList<LinkedHashMap> childArray2 = (ArrayList) dsl2.get("children");
 
-                    assertEquals(childArray1.size(), 1);
-                    assertEquals(childArray2.size(), 1);
+                    assertEquals(1, childArray1.size());
+                    assertEquals(1, childArray2.size());
 
                     LinkedHashMap<String, String> widget1 = childArray1.get(0);
                     LinkedHashMap<String, String> widget2 = childArray2.get(0);
@@ -1065,7 +1067,7 @@ public class LayoutActionServiceTest {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void testExecuteOnPageLoadOrderWhenAllActionsAreOnlyExplicitlySetToExecute() throws JsonProcessingException {
+    void testExecuteOnPageLoadOrderWhenAllActionsAreOnlyExplicitlySetToExecute() throws JsonProcessingException {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1128,7 +1130,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout
@@ -1156,7 +1158,7 @@ public class LayoutActionServiceTest {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLayout_WhenPageLoadActionSetBothWaysExplicitlyAndImplicitlyViaWidget_ActionsSaved() {
+    void updateLayout_WhenPageLoadActionSetBothWaysExplicitlyAndImplicitlyViaWidget_ActionsSaved() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1200,7 +1202,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout
@@ -1215,7 +1217,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void introduceCyclicDependencyAndRemoveLater() {
+    void introduceCyclicDependencyAndRemoveLater() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));

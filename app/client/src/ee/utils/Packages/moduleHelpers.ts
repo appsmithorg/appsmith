@@ -3,8 +3,9 @@ import {
   MODULE_TYPE,
   type Module,
 } from "@appsmith/constants/ModuleConstants";
-import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
+import type { PackagesReducerState } from "@appsmith/reducers/entityReducers/packagesReducer";
+import type { ModuleId } from "@appsmith/constants/ModuleInstanceConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 export const createNewModuleName = (
@@ -27,12 +28,21 @@ export const selectAllQueryModules = (modules: Module[]) => {
   return queryModules;
 };
 
-export const getPackageNameForModule = (
-  modules: Record<string, Module>,
-  packages: Record<string, Package>,
-  moduleId: string,
+export const selectAllJSModules = (modules: Module[]) => {
+  const jsModules = modules.filter((module) => module.type === MODULE_TYPE.JS);
+  return jsModules;
+};
+
+export const getModuleIdPackageNameMap = (
+  modules: Module[],
+  packages: PackagesReducerState,
 ) => {
-  const module = modules[moduleId];
-  const packageName = module ? packages[module.packageId]?.name : "";
-  return packageName || "Packages";
+  const modulePackageMap: Record<ModuleId, string> = {};
+
+  modules.forEach((module) => {
+    const pkgId = module.packageId;
+    modulePackageMap[module.id] = packages[pkgId]?.name || "";
+  });
+
+  return modulePackageMap;
 };

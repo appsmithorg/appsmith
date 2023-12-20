@@ -14,7 +14,7 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context Property Pane", function () {
+describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
 
@@ -264,7 +264,7 @@ function verifyPropertyPaneContext(
 
   //Navigate to API1 Pane and back
   EditorNavigation.SelectEntityByName(api1, EntityType.Api);
-  cy.get(".t--close-editor").click();
+  EditorNavigation.ShowCanvas();
   cy.wait(500);
 
   //assert Callback

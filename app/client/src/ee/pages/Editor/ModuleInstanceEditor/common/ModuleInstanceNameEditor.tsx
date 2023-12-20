@@ -19,7 +19,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import { getIsModuleInstanceNameSavingStatus } from "@appsmith/selectors/moduleInstanceSelectors";
-import { noop } from "lodash";
+import { saveModuleInstanceName } from "@appsmith/actions/moduleInstanceActions";
 
 interface ModuleInstanceNameEditorProps {
   disabled?: boolean;
@@ -44,7 +44,7 @@ function ModuleInstanceNameEditor({
   return (
     <NameEditorComponent
       checkForGuidedTour
-      dispatchAction={noop}
+      dispatchAction={saveModuleInstanceName}
       id={moduleInstance.id}
       idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
       name={moduleInstance.name}

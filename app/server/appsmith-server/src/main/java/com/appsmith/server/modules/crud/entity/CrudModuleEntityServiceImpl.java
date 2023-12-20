@@ -1,16 +1,20 @@
 package com.appsmith.server.modules.crud.entity;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
+import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.ModuleConsumable;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ModuleRepository;
@@ -20,7 +24,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
@@ -30,17 +33,24 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
     private final ModuleRepository moduleRepository;
     private final NewActionService newActionService;
     private final ModulePermission modulePermission;
+    // TODO: Remove actionPermission once we remove the dependency on `getActions`
     private final ActionPermission actionPermission;
+    private final ModuleEntityService<NewAction> newActionModuleEntityService;
+    private final ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
 
     public CrudModuleEntityServiceImpl(
             ModuleRepository moduleRepository,
             NewActionService newActionService,
             ModulePermission modulePermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ModuleEntityService<NewAction> newActionModuleEntityService,
+            ModuleEntityService<ActionCollection> actionCollectionModuleEntityService) {
         this.moduleRepository = moduleRepository;
         this.newActionService = newActionService;
         this.modulePermission = modulePermission;
         this.actionPermission = actionPermission;
+        this.newActionModuleEntityService = newActionModuleEntityService;
+        this.actionCollectionModuleEntityService = actionCollectionModuleEntityService;
     }
 
     /**
@@ -53,7 +63,7 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
      */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<ModuleActionDTO> updateModuleAction(ModuleActionDTO moduleActionDTO, String moduleId, String actionId) {
+    public Mono<ActionDTO> updateModuleAction(ModuleActionDTO moduleActionDTO, String moduleId, String actionId) {
         Mono<Module> moduleMono = moduleRepository
                 .findById(moduleId, modulePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
@@ -82,13 +92,13 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
 
             return newActionService
                     .updateUnpublishedActionWithoutAnalytics(dbAction.getId(), moduleActionDTO, Optional.empty())
-                    .flatMap(moduleActionTuple -> Mono.just((ModuleActionDTO) moduleActionTuple.getT1()));
+                    .flatMap(moduleActionTuple -> Mono.just(moduleActionTuple.getT1()));
         });
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<List<ModuleConsumable>> getModuleActions(String moduleId) {
+    public Mono<List<ActionDTO>> getModuleActions(String moduleId) {
         Mono<Module> moduleMono = moduleRepository
                 .findById(moduleId, modulePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
@@ -98,9 +108,25 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
                 .findAllActionsByContextIdAndContextTypeAndViewMode(
                         module.getId(), CreatorContextType.MODULE, actionPermission.getEditPermission(), false, false)
                 .flatMap(moduleAction -> newActionService.generateActionByViewMode(moduleAction, false))
-                .collectList()
-                .map(actionList -> actionList.stream()
-                        .map(actionDTO -> (ModuleConsumable) actionDTO)
-                        .collect(Collectors.toList())));
+                .collectList());
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<ModuleEntitiesDTO> getAllEntities(String contextId, CreatorContextType contextType, String branchName) {
+
+        Mono<List<Reusable>> actionsMono =
+                newActionModuleEntityService.getAllEntitiesForPackageEditor(contextId, contextType);
+        Mono<List<Reusable>> actionCollectionsMono =
+                actionCollectionModuleEntityService.getAllEntitiesForPackageEditor(contextId, contextType);
+
+        return Mono.zip(actionsMono, actionCollectionsMono).flatMap(tuple2 -> {
+            ModuleEntitiesDTO moduleEntitiesDTO = new ModuleEntitiesDTO();
+            List<ActionDTO> actionDTOs = (List<ActionDTO>) (List<?>) tuple2.getT1();
+            List<ActionCollectionDTO> actionCollectionDTOs = (List<ActionCollectionDTO>) (List<?>) tuple2.getT2();
+            moduleEntitiesDTO.setActions(actionDTOs);
+            moduleEntitiesDTO.setJsCollections(actionCollectionDTOs);
+            return Mono.just(moduleEntitiesDTO);
+        });
     }
 }

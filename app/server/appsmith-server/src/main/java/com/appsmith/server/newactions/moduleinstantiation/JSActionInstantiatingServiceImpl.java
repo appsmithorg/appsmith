@@ -12,9 +12,9 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
-import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.moduleinstantiation.JSActionType;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
+import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +40,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         final Map<String, List<String>> newCollectionIdToNewActionsMap = new HashMap<>();
         return newActionRepository
-                .findAllByActionCollectionIdWithoutPermissions(
-                        moduleInstantiatingMetaDTO.getSourceCollectionIds(), null)
+                .findAllByCollectionIds(moduleInstantiatingMetaDTO.getSourceCollectionIds(), null, true)
                 .flatMap(sourceAction -> {
                     String newCollectionId = extractNewCollectionId(moduleInstantiatingMetaDTO, sourceAction);
                     NewAction toBeInstantiatedAction = createNewJSActionFromSource(sourceAction);
@@ -51,7 +50,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
                     unpublishedAction.setCollectionId(newCollectionId);
 
                     setFullyQualifiedName(moduleInstantiatingMetaDTO, unpublishedAction);
-                    setContextTypeAndContextId(moduleInstantiatingMetaDTO, unpublishedAction);
+                    setContextTypeAndContextId(moduleInstantiatingMetaDTO, toBeInstantiatedAction);
 
                     resetIsPublicAttributeForComposedModuleInstances(toBeInstantiatedAction);
 
@@ -136,10 +135,11 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
     }
 
     private void setContextTypeAndContextId(
-            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionDTO unpublishedAction) {
+            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, NewAction toBeInstantiatedAction) {
+        ActionDTO unpublishedAction = toBeInstantiatedAction.getUnpublishedAction();
         unpublishedAction.setContextType(moduleInstantiatingMetaDTO.getContextType());
         if (CreatorContextType.PAGE.equals(moduleInstantiatingMetaDTO.getContextType())) {
-            unpublishedAction.setApplicationId(
+            toBeInstantiatedAction.setApplicationId(
                     moduleInstantiatingMetaDTO.getPage().getApplicationId());
             unpublishedAction.setPageId(moduleInstantiatingMetaDTO.getContextId());
             unpublishedAction.setModuleId(null);
@@ -172,7 +172,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, NewAction sourceAction) {
         String newCollectionId = moduleInstantiatingMetaDTO
                 .getOldToNewCollectionIdMap()
-                .get(sourceAction.getUnpublishedAction().getCollectionId());
+                .get(sourceAction.getPublishedAction().getCollectionId());
         return newCollectionId;
     }
 

@@ -17,7 +17,7 @@ export function* startWorkflowEngine(
     yield call(workflowEngine.setupEngine);
     yield call(workflowEngine.loadWorkflow, workflowId);
     // TODO (Workflows): Lot of these apis require separate workflow apis without dependance on pageId or applicationId
-    // yield call(workflowEngine.loadPageThemesAndActions, workflowId);
+    yield call(workflowEngine.loadPageThemesAndActions, workflowId);
     yield call(workflowEngine.loadPluginsAndDatasources);
     yield call(workflowEngine.completeChore);
   } catch (error) {

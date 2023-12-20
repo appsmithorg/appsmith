@@ -7,6 +7,7 @@ import type {
   QueryModuleInstance,
 } from "@appsmith/constants/ModuleInstanceConstants";
 import type { CreateModuleInstanceResponse } from "@appsmith/api/ModuleInstanceApi";
+import { klona } from "klona";
 
 export type ModuleInstanceReducerState = Record<
   ModuleInstanceId,
@@ -45,19 +46,7 @@ export const handlers = {
     draftState: ModuleInstanceReducerState,
     action: ReduxAction<QueryModuleInstance[]>,
   ) => {
-    const moduleInstances = action.payload;
-
-    moduleInstances.forEach((moduleInstance: QueryModuleInstance) => {
-      draftState[moduleInstance.id] = moduleInstance;
-    });
-
-    return draftState;
-  },
-
-  [ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_VIEW_MODE_SUCCESS]: (
-    draftState: ModuleInstanceReducerState,
-    action: ReduxAction<QueryModuleInstance[]>,
-  ) => {
+    draftState = klona(initialState);
     const moduleInstances = action.payload;
 
     moduleInstances.forEach((moduleInstance: QueryModuleInstance) => {
@@ -79,6 +68,10 @@ export const handlers = {
     draftState[id].name = newName;
 
     return draftState;
+  },
+
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 };
 

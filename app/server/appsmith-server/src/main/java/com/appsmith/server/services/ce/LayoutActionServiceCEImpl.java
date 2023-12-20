@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
@@ -16,7 +15,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -43,8 +41,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
-    private final NewActionService newActionService;
-    private final RefactoringService refactoringService;
+    protected final NewActionService newActionService;
+    protected final RefactoringService refactoringService;
     private final CollectionService collectionService;
     private final UpdateLayoutService updateLayoutService;
     private final ResponseUtils responseUtils;
@@ -254,12 +252,20 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> updateSingleActionWithBranchName(
             String defaultActionId, ActionDTO action, String branchName) {
+        return newActionService
+                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+                .flatMap(newAction -> updateActionBasedOnContextType(newAction, action));
+    }
+
+    /**
+     * Does not check for any CreatorContext on Actions.
+     * This is a basic action update, which updates actions related to pages.
+     */
+    protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
         String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
-        return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
-                .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
+        return updateSingleAction(newAction.getId(), action)
                 .flatMap(updatedAction ->
                         updateLayoutService.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
@@ -360,26 +366,62 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
 
-        if (action.getId() != null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
+        return validateAndGenerateActionDomainBasedOnContext(action, isJsAction)
+                .flatMap(newAction -> {
+                    // If the datasource is embedded, check for workspaceId and set it in action
+                    if (action.getDatasource() != null && action.getDatasource().getId() == null) {
+                        Datasource datasource = action.getDatasource();
+                        if (datasource.getWorkspaceId() == null) {
+                            return Mono.error(
+                                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+                        }
+                        newAction.setWorkspaceId(datasource.getWorkspaceId());
+                    }
 
-        if (action.getName() == null || action.getName().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
-        }
+                    // New actions will never be set to auto-magical execution, unless it is triggered via a
+                    // page or application clone event.
+                    if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
+                        action.setExecuteOnLoad(false);
+                    }
 
-        if (action.getPageId() == null || action.getPageId().isBlank()) {
+                    newAction.setUnpublishedAction(action);
+
+                    newActionService.updateDefaultResourcesInAction(newAction);
+
+                    return Mono.just(newAction);
+                })
+                .flatMap(savedNewAction -> newActionService
+                        .validateAndSaveActionToRepository(savedNewAction)
+                        .zipWith(Mono.just(savedNewAction)))
+                .zipWhen(zippedActions -> {
+                    ActionDTO savedActionDTO = zippedActions.getT1();
+                    if (savedActionDTO.getDatasource() != null
+                            && savedActionDTO.getDatasource().getId() != null) {
+                        return datasourceService.findById(
+                                savedActionDTO.getDatasource().getId());
+                    } else {
+                        return Mono.justOrEmpty(savedActionDTO.getDatasource());
+                    }
+                })
+                .flatMap(zippedData -> {
+                    final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
+                    final Datasource datasource = zippedData.getT2();
+                    final NewAction newAction1 = zippedActions.getT2();
+                    final Datasource embeddedDatasource =
+                            newAction1.getUnpublishedAction().getDatasource();
+                    embeddedDatasource.setIsMock(datasource.getIsMock());
+                    embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
+
+                    return analyticsService
+                            .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
+                            .thenReturn(zippedActions.getT1());
+                });
+    }
+
+    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(ActionDTO action, boolean isJsAction) {
+        if (!StringUtils.hasLength(action.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
-
-        if (action.getDefaultResources() == null) {
-            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(action, null);
-        }
-
-        NewAction newAction = new NewAction();
-        newAction.setPublishedAction(new ActionDTO());
-        newAction.getPublishedAction().setDatasource(new Datasource());
-
         // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
         // Else fetch the page with create action permission to ensure that the user has the right to create an action
         AclPermission aclPermission =
@@ -390,6 +432,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();
+
+        final NewAction newAction = newActionService.generateActionDomain(action);
 
         return pageMono.flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
@@ -416,75 +460,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     // Set the application id in the main domain
                     newAction.setApplicationId(page.getApplicationId());
-
-                    // If the datasource is embedded, check for workspaceId and set it in action
-                    if (action.getDatasource() != null && action.getDatasource().getId() == null) {
-                        Datasource datasource = action.getDatasource();
-                        if (datasource.getWorkspaceId() == null) {
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-                        }
-                        newAction.setWorkspaceId(datasource.getWorkspaceId());
-                    }
-
-                    // New actions will never be set to auto-magical execution, unless it is triggered via a
-                    // page or application clone event.
-                    if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-                        action.setExecuteOnLoad(false);
-                    }
-
-                    final DefaultResources immutableDefaultResources = action.getDefaultResources();
-                    // Only store defaultPageId and defaultCollectionId for actionDTO level resource
-                    DefaultResources defaultActionResource = new DefaultResources();
-                    AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaultActionResource);
-
-                    defaultActionResource.setApplicationId(null);
-                    defaultActionResource.setActionId(null);
-                    defaultActionResource.setBranchName(null);
-                    if (!StringUtils.hasLength(defaultActionResource.getPageId())) {
-                        defaultActionResource.setPageId(action.getPageId());
-                    }
-                    if (!StringUtils.hasLength(defaultActionResource.getCollectionId())) {
-                        defaultActionResource.setCollectionId(action.getCollectionId());
-                    }
-                    action.setDefaultResources(defaultActionResource);
-
-                    // Only store defaultApplicationId and defaultActionId for NewAction level resource
-                    DefaultResources defaults = new DefaultResources();
-                    AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
-                    defaults.setPageId(null);
-                    defaults.setCollectionId(null);
-                    if (!StringUtils.hasLength(defaults.getApplicationId())) {
-                        defaults.setApplicationId(newAction.getApplicationId());
-                    }
-                    newAction.setDefaultResources(defaults);
-
-                    newAction.setUnpublishedAction(action);
-
                     return Mono.just(newAction);
-                })
-                .flatMap(savedNewAction -> newActionService
-                        .validateAndSaveActionToRepository(savedNewAction)
-                        .zipWith(Mono.just(savedNewAction)))
-                .zipWith(Mono.defer(() -> {
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId());
-                    } else {
-                        return Mono.justOrEmpty(action.getDatasource());
-                    }
-                }))
-                .flatMap(zippedData -> {
-                    final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
-                    final Datasource datasource = zippedData.getT2();
-                    final NewAction newAction1 = zippedActions.getT2();
-                    final Datasource embeddedDatasource =
-                            newAction1.getUnpublishedAction().getDatasource();
-                    embeddedDatasource.setIsMock(datasource.getIsMock());
-                    embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
-
-                    return analyticsService
-                            .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
-                            .thenReturn(zippedActions.getT1());
                 });
     }
 }

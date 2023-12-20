@@ -5,6 +5,8 @@ import type {
 } from "@appsmith/constants/ModuleInstanceConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
+import type { JSCollection } from "entities/JSCollection";
+import type { OnUpdateSettingsProps } from "pages/Editor/JSEditor/JSFunctionSettings";
 
 export interface CreateQueryModuleInstancePayload {
   sourceModuleId: string;
@@ -21,19 +23,24 @@ export interface UpdateModuleInstancePayload {
 export interface FetchModuleInstancesPayload {
   contextId: string;
   contextType: ModuleInstanceCreatorType;
+  viewMode: boolean;
 }
 
 export interface FetchModuleInstanceEntitiesPayload {
   contextId: string;
   contextType: ModuleInstanceCreatorType;
+  viewMode: boolean;
 }
 
 export interface SetupModuleInstancePayload {
   contextId: string;
   contextType: ModuleInstanceCreatorType;
+  viewMode: boolean;
 }
 
-export type UpdateModuleInstanceSettingsPayload = Action;
+export type UpdateModuleInstanceSettingsPayload = Action | JSCollection;
+
+export type UpdateJSModuleInstanceSettingsPayload = OnUpdateSettingsProps;
 
 export interface UpdateModuleInstanceOnPageLoadSettingsPayload {
   actionId: string;
@@ -51,6 +58,11 @@ export interface DeleteModuleInstancePayload {
 
 export interface RunQueryModuleInstancePayload {
   id: string;
+}
+
+export interface SetModuleInstanceActiveJSActionPayload {
+  jsCollectionId: string;
+  jsActionId: string;
 }
 
 export const createQueryModuleInstance = (
@@ -72,18 +84,6 @@ export const updateModuleInstance = (payload: UpdateModuleInstancePayload) => ({
 
 export const fetchModuleInstances = (payload: FetchModuleInstancesPayload) => ({
   type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,
-  payload,
-});
-
-export const fetchModuleInstancesForView = (
-  payload: FetchModuleInstancesPayload,
-) => ({
-  type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_VIEW_MODE_INIT,
-  payload,
-});
-
-export const setupModuleInstances = (payload: SetupModuleInstancePayload) => ({
-  type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
   payload,
 });
 
@@ -128,3 +128,12 @@ export const runQueryModuleInstance = (
   type: ReduxActionTypes.RUN_QUERY_MODULE_INSTANCE_INIT,
   payload,
 });
+
+export const setModuleInstanceActiveJSAction = (
+  payload: SetModuleInstanceActiveJSActionPayload,
+) => {
+  return {
+    type: ReduxActionTypes.SET_MODULE_INSTANCE_ACTIVE_JS_ACTION,
+    payload,
+  };
+};

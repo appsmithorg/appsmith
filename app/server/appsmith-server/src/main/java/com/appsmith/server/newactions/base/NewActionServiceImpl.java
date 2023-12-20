@@ -9,6 +9,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -19,18 +20,15 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -41,20 +39,28 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.validations.EntityValidationService;
 import com.appsmith.server.workflows.helpers.WorkflowUtils;
+import com.appsmith.server.workflows.permission.WorkflowPermission;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +68,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
+import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
@@ -74,6 +82,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final NewPageService newPageService;
     private final WorkflowRepository workflowRepository;
     private final EntityValidationService entityValidationService;
+    private final WorkflowPermission workflowPermission;
 
     public NewActionServiceImpl(
             Scheduler scheduler,
@@ -93,15 +102,16 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
+            NewActionHelper newActionHelper,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            ObservationRegistry observationRegistry,
             EntityValidationService entityValidationService,
+            ObservationRegistry observationRegistry,
             PermissionGroupRepository permissionGroupRepository,
-            WorkflowRepository workflowRepository) {
-
+            WorkflowRepository workflowRepository,
+            WorkflowPermission workflowPermission) {
         super(
                 scheduler,
                 validator,
@@ -120,13 +130,13 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 configService,
                 responseUtils,
                 permissionGroupService,
+                newActionHelper,
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
                 actionPermission,
                 entityValidationService,
                 observationRegistry);
-
         this.permissionGroupRepository = permissionGroupRepository;
         this.datasourceService = datasourceService;
         this.permissionGroupService = permissionGroupService;
@@ -134,6 +144,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.newPageService = newPageService;
         this.workflowRepository = workflowRepository;
         this.entityValidationService = entityValidationService;
+        this.workflowPermission = workflowPermission;
     }
 
     /**
@@ -210,7 +221,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
             if (actionDTO.getPluginType() == PluginType.JS
                     || StringUtils.isEmpty(actionDTO.getDatasource().getId())
-                    || ModuleUtils.isModuleContext(actionDTO)) {
+                    || isModuleContext(actionDTO.getContextType())) {
                 return Mono.just(actionDTO);
             }
 
@@ -226,7 +237,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                         .findById(actionDTO.getWorkflowId(), Optional.empty())
                         .flatMap(workflow -> {
                             Mono<Map<String, List<String>>> mapPermissionToDefaultWorlflowRoleIdMono =
-                                    getMapDatasourcePermissionToDefaultWorkflowRoleId(actionDTO.getWorkflowId());
+                                    getMapDatasourcePermissionToDefaultWorkflowRoleId(newAction.getWorkflowId());
                             return updateDatasourcePolicyMap(
                                     actionDTO.getDatasource().getId(), mapPermissionToDefaultWorlflowRoleIdMono);
                         })
@@ -353,26 +364,12 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
-        if (ModuleUtils.isModuleContext(action)) {
-            if (action.getModuleId() == null || action.getModuleId().isBlank()) {
-                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID);
-            }
-        } else if (WorkflowUtils.isWorkflowContext(action)) {
-            if (action.getWorkflowId() == null || action.getWorkflowId().isBlank()) {
-                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKFLOW_ID);
-            }
-        } else {
-            super.validateCreatorId(action);
-        }
-        return Mono.just(action);
-    }
-
-    @Override
     protected void setGitSyncIdInNewAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
-        if (ModuleUtils.isModuleContext(action)) {
-            newAction.setGitSyncId(action.getModuleId() + "_" + new ObjectId());
+        if (isModuleContext(action.getContextType())) {
+            if (newAction.getGitSyncId() == null) {
+                newAction.setGitSyncId(action.getModuleId() + "_" + new ObjectId());
+            }
         } else {
             super.setGitSyncIdInNewAction(newAction);
         }
@@ -428,7 +425,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission) {
         List<String> includeFields = List.of(fieldName(QNewAction.newAction.id));
         return repository
-                .findByWorkflowId(workflowId, permission, Optional.of(includeFields))
+                .findByWorkflowId(workflowId, permission, Optional.of(includeFields), Boolean.FALSE)
                 .filter(newAction -> {
                     boolean unpublishedActionNotFromCollection = Objects.isNull(newAction.getUnpublishedAction())
                             || StringUtils.isEmpty(
@@ -440,6 +437,29 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 })
                 .flatMap(repository::archive)
                 .collectList();
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
+        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+                repository.archiveDeletedUnpublishedActionsForWorkflows(workflowId, aclPermission);
+        Mono<List<BulkWriteResult>> publishActionsForWorkflows =
+                repository.publishActionsForWorkflows(workflowId, aclPermission);
+        return archiveDeletedUnpublishedActions.then(publishActionsForWorkflows);
+    }
+
+    @Override
+    public Flux<NewAction> findPublicActionsByModuleInstanceId(
+            String moduleInstanceId, Optional<AclPermission> permission) {
+        return repository.findPublicActionsByModuleInstanceId(moduleInstanceId, permission);
+    }
+
+    @Override
+    public Mono<Boolean> archiveAllByIdsWithoutPermission(Collection<String> actionIds) {
+        if (CollectionUtils.isEmpty(actionIds)) {
+            return Mono.just(Boolean.TRUE);
+        }
+        return repository.archiveAllById(actionIds);
     }
 
     @Override
@@ -473,19 +493,98 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
-        ActionViewDTO actionViewDTO = super.generateActionViewDTO(action, actionDTO);
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode) {
+        ActionViewDTO actionViewDTO = super.generateActionViewDTO(action, actionDTO, viewMode);
 
         if (action.getModuleInstanceId() != null) {
-            actionViewDTO.setPluginId(action.getPluginId());
             actionViewDTO.setIsPublic(action.getIsPublic());
             actionViewDTO.setModuleInstanceId(action.getModuleInstanceId());
-            actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
-            if (!actionDTO.getUserSetOnLoad()) {
-                actionViewDTO.setExecuteOnLoad(actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
+            if (!viewMode) {
+                actionViewDTO.setPluginId(action.getPluginId());
+                actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
+                if (!actionDTO.getUserSetOnLoad()) {
+                    actionViewDTO.setExecuteOnLoad(
+                            actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
+                }
             }
         }
-
+        if (StringUtils.isNotBlank(action.getWorkflowId())) {
+            actionViewDTO.setWorkflowId(action.getWorkflowId());
+        }
         return actionViewDTO;
+    }
+
+    @Override
+    public Flux<ActionViewDTO> getActionsForViewModeForWorkflow(String workflowId, String branchName) {
+        return findAllActionsByContextIdAndContextTypeAndViewMode(
+                        workflowId,
+                        CreatorContextType.WORKFLOW,
+                        actionPermission.getExecutePermission(),
+                        Boolean.TRUE,
+                        Boolean.FALSE)
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), Boolean.TRUE));
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActions(
+            MultiValueMap<String, String> params, String branchName, Boolean includeJsActions) {
+        MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
+
+        Mono<Workflow> workflowMono = StringUtils.isEmpty(params.getFirst(FieldName.WORKFLOW_ID))
+                ? Mono.just(new Workflow())
+                : workflowRepository
+                        .findById(params.getFirst(FieldName.WORKFLOW_ID), workflowPermission.getReadPermission())
+                        .switchIfEmpty(Mono.just(new Workflow()));
+
+        return workflowMono.flatMapMany(workflow -> {
+            String workflowId = workflow.getId();
+            if (!CollectionUtils.isEmpty(updatedParams.get(FieldName.WORKFLOW_ID))
+                    && StringUtils.isNotBlank(workflowId)) {
+                updatedParams.set(FieldName.WORKFLOW_ID, workflowId);
+            }
+            return super.getUnpublishedActions(updatedParams, branchName, includeJsActions);
+        });
+    }
+
+    @Override
+    protected Flux<NewAction> getUnpublishedActionsFromRepo(
+            MultiValueMap<String, String> params, Boolean includeJsActions) {
+        if (params.getFirst(FieldName.WORKFLOW_ID) != null) {
+            String workflowId = params.getFirst(FieldName.WORKFLOW_ID);
+            return repository.findAllUnpublishedActionsByContextIdAndContextType(
+                    workflowId, CreatorContextType.WORKFLOW, actionPermission.getEditPermission(), includeJsActions);
+        }
+        return super.getUnpublishedActionsFromRepo(params, includeJsActions);
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
+        ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
+        Map<String, Object> analyticsProperties = super.getAnalyticsProperties(savedAction);
+        analyticsProperties.put(
+                FieldName.WORKFLOW_ID,
+                ObjectUtils.defaultIfNull(
+                        savedAction.getWorkflowId(), ObjectUtils.defaultIfNull(unpublishedAction.getWorkflowId(), "")));
+        return analyticsProperties;
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> publishActionsForActionCollection(
+            String actionCollectionId, AclPermission aclPermission) {
+        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+                repository.archiveDeletedUnpublishedActionsForCollection(actionCollectionId, aclPermission);
+        Mono<List<BulkWriteResult>> publishActions =
+                repository.publishActionsForCollection(actionCollectionId, aclPermission);
+        return archiveDeletedUnpublishedActions.then(publishActions);
+    }
+
+    @Override
+    public void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
+        super.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+        if (isModuleContext(action.getContextType())) {
+            newAction.setIsPublic(action.getIsPublic());
+        } else if (isWorkflowContext(action.getContextType())) {
+            newAction.setWorkflowId(action.getWorkflowId());
+        }
     }
 }

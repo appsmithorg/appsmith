@@ -1,10 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 import { ObjectsRegistry } from "../support/Objects/Registry";
-import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
-} from "./Pages/EditorNavigation";
+import EditorNavigation, { EntityType } from "./Pages/EditorNavigation";
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const jsEditorLocators = require("../locators/JSEditor.json");
@@ -12,11 +9,9 @@ const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const queryEditor = require("../locators/QueryEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
-const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
-const queryLocators = require("../locators/QueryEditor.json");
-const { AggregateHelper, DataSources, PropertyPane } = ObjectsRegistry;
+const { AggregateHelper, PropertyPane } = ObjectsRegistry;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -24,12 +19,6 @@ export const initLocalstorage = () => {
     window.localStorage.setItem("updateDismissed", "true");
   });
 };
-
-Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
-  EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
-  cy.get(queryLocators.createQuery).click({ force: true });
-  cy.wait(2000); //for the specified page to load
-});
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
   EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);

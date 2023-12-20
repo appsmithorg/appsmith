@@ -16,8 +16,9 @@ export type EditorReduxState = CE_EditorReduxState & {
   currentModuleId?: string | null;
   currentPackageId?: string;
   isPackagePublishing: boolean;
-  isModuleFetchingActions: boolean;
+  isModuleFetchingEntities: boolean;
   currentWorkflowId?: string;
+  isWorkflowPublishing: boolean;
   isWorkflowEditorInitialized: boolean;
   isModuleUpdating: boolean;
 };
@@ -26,7 +27,8 @@ export const initialState: EditorReduxState = {
   ...CE_initialState,
   isPackageEditorInitialized: false,
   isPackagePublishing: false,
-  isModuleFetchingActions: false,
+  isWorkflowPublishing: false,
+  isModuleFetchingEntities: false,
   isWorkflowEditorInitialized: false,
   isModuleUpdating: false,
 };
@@ -58,28 +60,28 @@ const handlers = {
     };
   },
 
-  [ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT]: (state: EditorReduxState) => {
+  [ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT]: (state: EditorReduxState) => {
     return {
       ...state,
-      isModuleFetchingActions: true,
+      isModuleFetchingEntities: true,
     };
   },
 
-  [ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS]: (
+  [ReduxActionTypes.FETCH_MODULE_ENTITIES_SUCCESS]: (
     state: EditorReduxState,
   ) => {
     return {
       ...state,
-      isModuleFetchingActions: false,
+      isModuleFetchingEntities: false,
     };
   },
 
-  [ReduxActionErrorTypes.FETCH_MODULE_ACTIONS_ERROR]: (
+  [ReduxActionErrorTypes.FETCH_MODULE_ENTITIES_ERROR]: (
     state: EditorReduxState,
   ) => {
     return {
       ...state,
-      isModuleFetchingActions: false,
+      isModuleFetchingEntities: false,
     };
   },
 
@@ -215,6 +217,27 @@ const handlers = {
     return {
       ...state,
       isPackagePublishing: false,
+    };
+  },
+
+  [ReduxActionTypes.PUBLISH_WORKFLOW_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isWorkflowPublishing: true,
+    };
+  },
+
+  [ReduxActionTypes.PUBLISH_WORKFLOW_SUCCESS]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isWorkflowPublishing: false,
+    };
+  },
+
+  [ReduxActionErrorTypes.PUBLISH_WORKFLOW_ERROR]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isWorkflowPublishing: false,
     };
   },
 };

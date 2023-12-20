@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface CrudPackageService extends BasePackageService, CrudPackageServiceCECompatible {
+
     Mono<PackageDTO> createPackage(PackageDTO packageToBeCreated, String workspaceId);
 
     Mono<List<PackageDTO>> getAllPackages();

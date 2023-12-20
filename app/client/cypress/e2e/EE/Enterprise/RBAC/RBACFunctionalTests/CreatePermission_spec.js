@@ -223,7 +223,7 @@ describe.skip("Create Permission flow ", function () {
       datasourceName2 = `MySQL MockDS ${UUID}`;
       cy.renameDatasource(datasourceName2);
       // verify user is able to create new query & verify create new datasource dropdown cta is visible
-      cy.NavigateToActiveDSQueryPane(datasourceName2);
+      dataSources.CreateQueryAfterDSSaved();
       agHelper.GetNClick(".rc-select-selector", 0, true);
       cy.get(".rc-select-item-option-content")
         .last()

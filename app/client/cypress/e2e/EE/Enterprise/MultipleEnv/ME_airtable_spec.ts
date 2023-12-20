@@ -58,7 +58,7 @@ describe(
 
     it("2. Create and test query responses for both ds on both environmets and add to a table", function () {
       // Create a query on the OOS ds
-      dataSources.CreateQueryFromActiveTab(oosDatasourceName);
+      dataSources.CreateQueryForDS(oosDatasourceName);
       agHelper.RenameWithInPane(oosQueryName, true);
       //List all records
       dataSources.ValidateNSelectDropdown(

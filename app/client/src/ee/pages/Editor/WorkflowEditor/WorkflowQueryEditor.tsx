@@ -21,6 +21,7 @@ import { INTEGRATION_TABS } from "constants/routes";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getIsWorkflowEditorInitialized } from "@appsmith/selectors/workflowSelectors";
+import { saveWorkflowActionName } from "@appsmith/actions/workflowActions";
 
 interface WorkflowQueryEditorRouteParams {
   pageId: string; // TODO: @ashit remove this and add generic key in the Editor
@@ -108,6 +109,13 @@ function WorkflowQueryEditor(props: WorkflowQueryEditorProps) {
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
+  const onSaveWorkflowActionName = useCallback(
+    ({ id, name }: { id: string; name: string }) => {
+      return saveWorkflowActionName(id, name, workflowId);
+    },
+    [workflowId],
+  );
+
   return (
     <QueryEditorContextProvider
       changeQueryPage={changeQueryPage}
@@ -115,6 +123,7 @@ function WorkflowQueryEditor(props: WorkflowQueryEditorProps) {
       moreActionsMenu={moreActionsMenu}
       onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={onEntityNotFoundBackClick}
+      saveActionName={onSaveWorkflowActionName}
     >
       <Editor
         {...props}
