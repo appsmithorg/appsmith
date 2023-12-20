@@ -8,26 +8,6 @@ import history from "utils/history";
 import { queryAddURL } from "@appsmith/RouteBuilder";
 import { createNewJSCollection } from "actions/jsPaneActions";
 
-const PaneContainer = styled.div`
-  width: 256px;
-`;
-const PaneBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 340px);
-`;
-const CreateNewContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: var(--ads-v2-spaces-3);
-  gap: 8px;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-`;
-const CTAContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-`;
 const CTABox = styled.div`
   height: 62px;
   width: 100%;
@@ -86,10 +66,15 @@ const GlobalAdd = () => {
     dispatch(createNewJSCollection(pageId, "ADD_PANE"));
   }, [pageId]);
   return (
-    <PaneContainer>
-      <CreateNewContainer>
+    <Flex width={"256px"}>
+      <Flex
+        border-bottom={"1px solid var(--ads-v2-color-border)"}
+        flexDirection={"column"}
+        gap={"spaces-3"}
+        padding={"spaces-3"}
+      >
         <Text kind="heading-xs">Create new..</Text>
-        <CTAContainer>
+        <Flex gap={"spaces-3"} justifyContent={"flex-start"}>
           <CreateCTA
             icon={{
               name: "queries-line",
@@ -108,15 +93,19 @@ const GlobalAdd = () => {
             onClick={onCreateJS}
             title={"JS Object"}
           />
-        </CTAContainer>
-      </CreateNewContainer>
-      <PaneBody>
+        </Flex>
+      </Flex>
+      <Flex
+        display={"flex"}
+        flexDirection={"column"}
+        height={"calc(100vh - 340px)"}
+      >
         <Flex padding="spaces-3">
           <Text kind="heading-xs">Drag & drop widgets</Text>
         </Flex>
         <WidgetSidebarWithTags isActive />
-      </PaneBody>
-    </PaneContainer>
+      </Flex>
+    </Flex>
   );
 };
 
