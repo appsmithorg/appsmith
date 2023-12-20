@@ -27,10 +27,6 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
@@ -69,15 +65,6 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @Slf4j
 @ChangeLog(order = "001")
 public class DatabaseChangelog1 {
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Setter
-    @Getter
-    class DslUpdateDto {
-        private JSONObject dsl;
-        private Boolean updated;
-    }
 
     /**
      * A public, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
@@ -205,10 +192,14 @@ public class DatabaseChangelog1 {
     public void addInitialIndexes(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
+        ensureIndexes(mongoTemplate, Application.class, createdAtIndex);
+
         ensureIndexes(mongoTemplate, Collection.class, createdAtIndex);
 
         ensureIndexes(
                 mongoTemplate, Config.class, createdAtIndex, makeIndex("name").unique());
+
+        ensureIndexes(mongoTemplate, Datasource.class, createdAtIndex);
 
         ensureIndexes(
                 mongoTemplate,

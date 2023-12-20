@@ -1215,7 +1215,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.save(publicPermissionGroup);
     }
 
-    @ChangeSet(order = "32", id = "create-indices-on-permissions-for-performance", author = "")
+    @ChangeSet(order = "032", id = "create-indices-on-permissions-for-performance", author = "")
     public void addPermissionGroupIndex(MongoTemplate mongoTemplate) {
         doAddPermissionGroupIndex(mongoTemplate);
     }
