@@ -11,7 +11,7 @@ import { osName } from "react-device-detect";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "./AnalyticsUtil";
-import { CreateNewActionKey } from "@appsmith/entities/DataTree/types";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
 export const initializeAnalyticsAndTrackers = async () => {
   const appsmithConfigs = getAppsmithConfigs();

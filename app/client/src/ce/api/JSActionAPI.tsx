@@ -5,7 +5,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
-import type { ActionContextTypeInterface } from "@appsmith/entities/DataTree/types";
+import type { ActionContextTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;

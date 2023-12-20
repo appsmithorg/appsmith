@@ -1,9 +1,5 @@
 export * from "ce/entities/DataTree/types";
-import type { ActionContextType } from "ce/entities/DataTree/types";
 import { ENTITY_TYPE as CE_ENTITY_TYPE } from "ce/entities/DataTree/types";
-
-export type ActionContextTypeInterface =
-  (typeof ActionContextType)[keyof typeof ActionContextType];
 
 export const ENTITY_TYPE = {
   ...CE_ENTITY_TYPE,

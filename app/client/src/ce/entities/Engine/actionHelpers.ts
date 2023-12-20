@@ -8,6 +8,14 @@ import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
 
+export const CreateNewActionKey = {
+  PAGE: "pageId",
+} as const;
+
+export const ActionContextType = {
+  PAGE: "PAGE",
+} as const;
+
 export const ACTION_PARENT_ENTITY_TYPE = {
   PAGE: "PAGE",
 } as const;

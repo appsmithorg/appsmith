@@ -22,14 +22,6 @@ import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
-export const CreateNewActionKey = {
-  PAGE: "pageId",
-} as const;
-
-export const ActionContextType = {
-  PAGE: "PAGE",
-} as const;
-
 export const ENTITY_TYPE = {
   ACTION: "ACTION",
   WIDGET: "WIDGET",
