@@ -22,13 +22,13 @@ import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
-export enum CreateNewActionKey {
-  PAGE = "pageId",
-}
+export const CreateNewActionKey = {
+  PAGE: "pageId",
+};
 
-export enum ActionContextType {
-  PAGE = "PAGE",
-}
+export const ActionContextType = {
+  PAGE: "PAGE",
+};
 
 export const ENTITY_TYPE = {
   ACTION: "ACTION",

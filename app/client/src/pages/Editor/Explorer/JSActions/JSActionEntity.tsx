@@ -2,7 +2,6 @@ import React, { memo, useCallback } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import history, { NavigationMethod } from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
-import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
 import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
@@ -18,7 +17,8 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { Icon } from "design-system";
+import { saveJSObjectNameBasedOnParentEntity } from "@appsmith/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 interface ExplorerJSCollectionEntityProps {
   step: number;
@@ -27,10 +27,15 @@ interface ExplorerJSCollectionEntityProps {
   isActive: boolean;
   type: PluginType;
   parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
 }
 
-const getUpdateJSObjectName = (id: string, name: string) => {
-  return saveJSObjectName({ id, name });
+const getUpdateJSObjectName = (
+  id: string,
+  name: string,
+  parentEntityType: ActionParentEntityTypeInterface,
+) => {
+  return saveJSObjectNameBasedOnParentEntity(id, name, parentEntityType);
 };
 
 export const ExplorerJSCollectionEntity = memo(
@@ -39,7 +44,7 @@ export const ExplorerJSCollectionEntity = memo(
       getJSCollection(state, props.id),
     ) as JSCollection;
     const location = useLocation();
-    const { parentEntityId } = props;
+    const { parentEntityId, parentEntityType } = props;
     const navigateToUrl = jsCollectionIdURL({
       parentEntityId,
       collectionId: jsAction.id,
@@ -78,27 +83,27 @@ export const ExplorerJSCollectionEntity = memo(
         canDelete={canDeleteJSAction}
         canManage={canManageJSAction}
         className={EntityClassNames.CONTEXT_MENU}
+        hideMenuItems={jsAction?.hideContextMenu || false}
         id={jsAction.id}
         name={jsAction.name}
-        showMenuItems={jsAction?.isMainJSCollection || false}
       />
     );
     return (
       <Entity
         action={navigateToJSCollection}
         active={props.isActive}
-        alwaysShowRightIcon={!!jsAction.isMainJSCollection}
         canEditEntityName={canManageJSAction}
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}
         icon={JsFileIconV2(16, 16)}
         key={jsAction.id}
-        name={jsAction.name}
-        rightIcon={!!jsAction.isMainJSCollection && <Icon name="pin-3" />}
+        name={jsAction?.displayName || jsAction.name}
         searchKeyword={props.searchKeyword}
         step={props.step}
-        updateEntityName={getUpdateJSObjectName}
+        updateEntityName={(id, name) =>
+          getUpdateJSObjectName(id, name, parentEntityType)
+        }
       />
     );
   },

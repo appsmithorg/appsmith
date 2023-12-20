@@ -10,6 +10,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { omit } from "lodash";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
+import type { ActionContextTypeInterface } from "@appsmith/entities/DataTree/types";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -141,11 +142,13 @@ export interface CopyActionRequest {
 }
 
 export interface UpdateActionNameRequest {
-  pageId: string;
+  pageId?: string;
   actionId: string;
-  layoutId: string;
+  layoutId?: string;
   newName: string;
   oldName: string;
+  moduleId?: string;
+  contextType?: ActionContextTypeInterface;
 }
 
 export interface FetchActionsPayload {

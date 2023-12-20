@@ -198,10 +198,10 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
 export const createNewApiName = (
   actions: ActionDataState,
   entityId: string,
-  key: CreateNewActionKey = CreateNewActionKey.PAGE,
+  key = CreateNewActionKey.PAGE,
 ) => {
   const pageApiNames = actions
-    .filter((a) => a.config[key] === entityId)
+    .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
   return getNextEntityName("Api", pageApiNames);
 };
@@ -209,10 +209,10 @@ export const createNewApiName = (
 export const createNewJSFunctionName = (
   jsActions: JSCollectionData[],
   entityId: string,
-  key: CreateNewActionKey = CreateNewActionKey.PAGE,
+  key = CreateNewActionKey.PAGE,
 ) => {
   const pageJsFunctionNames = jsActions
-    .filter((a) => a.config[key] === entityId)
+    .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
   return getNextEntityName("JSObject", pageJsFunctionNames);
 };
@@ -229,10 +229,10 @@ export const createNewQueryName = (
   queries: ActionDataState,
   entityId: string,
   prefix = "Query",
-  key: CreateNewActionKey = CreateNewActionKey.PAGE,
+  key = CreateNewActionKey.PAGE,
 ) => {
   const pageApiNames = queries
-    .filter((a) => a.config[key] === entityId)
+    .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
 
   return getNextEntityName(prefix, pageApiNames);
