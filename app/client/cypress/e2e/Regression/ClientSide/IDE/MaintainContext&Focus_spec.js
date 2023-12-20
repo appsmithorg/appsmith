@@ -3,13 +3,11 @@ import {
   agHelper,
   apiPage,
   dataSources,
-  entityExplorer,
   homePage,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -101,7 +99,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
 
   it("2. Maintains focus on property/Api/Query/Js Pane", () => {
     //Maintains focus on the property pane
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.ShowCanvas();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
     cy.assertSoftFocusOnCodeInput(".t--property-control-text", {

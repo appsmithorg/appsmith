@@ -32,17 +32,14 @@ import {
 import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
 import { WidgetsSection } from "./WidgetsSection";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
+import { EditorEntityTab } from "entities/IDE/constants";
 import PaneHeader from "../LeftPane/PaneHeader";
-
-enum TabsType {
-  QUERIES = "queries",
-  JS = "js",
-  UI = "ui",
-}
 
 const _pagesPane = () => {
   const location = useLocation();
-  const [selected, setSelected] = useState<TabsType | undefined>(undefined);
+  const [selected, setSelected] = useState<EditorEntityTab | undefined>(
+    undefined,
+  );
   const pageId = useSelector(getCurrentPageId);
   const { path } = useRouteMatch();
 
@@ -59,17 +56,17 @@ const _pagesPane = () => {
       case FocusEntity.QUERY_LIST:
       case FocusEntity.QUERY_ADD:
       case FocusEntity.API:
-        setSelected(TabsType.QUERIES);
+        setSelected(EditorEntityTab.QUERIES);
         break;
       case FocusEntity.JS_OBJECT:
       case FocusEntity.JS_OBJECT_LIST:
-        setSelected(TabsType.JS);
+        setSelected(EditorEntityTab.JS);
         break;
       case FocusEntity.CANVAS:
       case FocusEntity.NONE:
       case FocusEntity.PROPERTY_PANE:
       case FocusEntity.WIDGET_LIST:
-        setSelected(TabsType.UI);
+        setSelected(EditorEntityTab.UI);
         break;
     }
   }, [location.pathname]);
@@ -83,13 +80,13 @@ const _pagesPane = () => {
    */
   const onSegmentChange = (value: string) => {
     switch (value) {
-      case TabsType.QUERIES:
+      case EditorEntityTab.QUERIES:
         history.push(queryListURL({ pageId }));
         break;
-      case TabsType.JS:
+      case EditorEntityTab.JS:
         history.push(jsCollectionListURL({ pageId }));
         break;
-      case TabsType.UI:
+      case EditorEntityTab.UI:
         history.push(widgetListURL({ pageId }));
         break;
     }
@@ -137,15 +134,15 @@ const _pagesPane = () => {
           options={[
             {
               label: createMessage(PAGES_PANE_TEXTS.queries_tab),
-              value: TabsType.QUERIES,
+              value: EditorEntityTab.QUERIES,
             },
             {
               label: createMessage(PAGES_PANE_TEXTS.js_tab),
-              value: TabsType.JS,
+              value: EditorEntityTab.JS,
             },
             {
               label: createMessage(PAGES_PANE_TEXTS.ui_tab),
-              value: TabsType.UI,
+              value: EditorEntityTab.UI,
             },
           ]}
           value={selected}
