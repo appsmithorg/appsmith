@@ -25,13 +25,13 @@ export interface SidebarButton {
 export const TopButtons: SidebarButton[] = [
   {
     state: EditorState.EDITOR,
-    icon: "file-copy-2-line",
+    icon: "editor-v3",
     title: SidebarTopButtonTitles.EDITOR,
     urlSuffix: "",
   },
   {
     state: EditorState.DATA,
-    icon: "database-2-line",
+    icon: "datasource-v3",
     title: SidebarTopButtonTitles.DATA,
     urlSuffix: "datasource",
   },
@@ -40,13 +40,13 @@ export const TopButtons: SidebarButton[] = [
 export const BottomButtons: SidebarButton[] = [
   {
     state: EditorState.LIBRARIES,
-    icon: "box-3-line",
+    icon: "packages-v3",
     title: SidebarBottomButtonTitles.LIBRARIES,
     urlSuffix: "libraries",
   },
   {
     state: EditorState.SETTINGS,
-    icon: "settings-2-line",
+    icon: "settings-v3",
     title: SidebarBottomButtonTitles.SETTINGS,
     urlSuffix: "settings",
   },

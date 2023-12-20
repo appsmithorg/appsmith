@@ -4,11 +4,15 @@ import { List, Text } from "design-system";
 import { useSelector } from "react-redux";
 import {
   getActions,
+  getCurrentPageId,
   getDatasources,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
-import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
+import {
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+} from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "../../../../navigation/FocusSelectors";
 import { countBy, groupBy, keyBy } from "lodash";
 import { PluginType } from "entities/Action";
@@ -17,11 +21,17 @@ import { useLocation } from "react-router";
 import {
   createMessage,
   DATA_PANE_TITLE,
-  DATASOURCE_BLANK_STATE_MESSAGE,
-  DATASOURCE_LIST_BLANK_TITLE,
+  DATASOURCE_LIST_BLANK_DESCRIPTION,
 } from "@appsmith/constants/messages";
 import PaneHeader from "./PaneHeader";
 import { useEditorType } from "@appsmith/hooks";
+import { EmptyState } from "../PagesPane/EmptyState";
+import { INTEGRATION_TABS } from "../../../../constants/routes";
+import type { AppState } from "@appsmith/reducers";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -39,13 +49,6 @@ const SubListContainer = styled.div`
   gap: 12px;
 `;
 
-const EmptyStateContainer = styled.div`
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  max-width: 300px;
-`;
-
 const DatasourceIcon = styled.img`
   height: 16px;
   width: 16px;
@@ -54,6 +57,7 @@ const DatasourceIcon = styled.img`
 
 const DataSidePane = () => {
   const editorType = useEditorType(history.location.pathname);
+  const pageId = useSelector(getCurrentPageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
   >("");
@@ -84,6 +88,25 @@ const DataSidePane = () => {
     setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
   }, [location]);
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
+    userWorkspacePermissions,
+  );
+
+  const addButtonClickHandler = () =>
+    history.push(
+      integrationEditorURL({
+        pageId: pageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+
   return (
     <PaneContainer>
       <PaneHeader
@@ -92,14 +115,12 @@ const DataSidePane = () => {
       />
       <PaneBody>
         {datasources.length === 0 ? (
-          <EmptyStateContainer>
-            <Text kind="heading-xs">
-              {createMessage(DATASOURCE_LIST_BLANK_TITLE)}
-            </Text>
-            <Text kind="body-s">
-              {createMessage(DATASOURCE_BLANK_STATE_MESSAGE)}
-            </Text>
-          </EmptyStateContainer>
+          <EmptyState
+            buttonText={"Bring your data"}
+            description={createMessage(DATASOURCE_LIST_BLANK_DESCRIPTION)}
+            icon={"datasource-v3"}
+            onClick={canCreateDatasource ? addButtonClickHandler : undefined}
+          />
         ) : null}
         {Object.entries(groupedDatasources).map(([key, value]) => (
           <SubListContainer key={key}>

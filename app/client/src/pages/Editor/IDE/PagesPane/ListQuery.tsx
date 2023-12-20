@@ -20,6 +20,7 @@ import { ADD_PATH } from "constants/routes";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "./EmptyState";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -45,7 +46,7 @@ const ListQuery = () => {
       overflow="hidden"
       padding="spaces-3"
     >
-      {canCreateActions && (
+      {Object.keys(files).length > 0 && canCreateActions && (
         <Button
           kind={"secondary"}
           onClick={addButtonClickHandler}
@@ -93,14 +94,14 @@ const ListQuery = () => {
       </Flex>
 
       {Object.keys(files).length === 0 && (
-        <Flex px="spaces-3">
-          <Text
-            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-            kind="heading-xs"
-          >
-            No queries to display
-          </Text>
-        </Flex>
+        <EmptyState
+          buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
+          description={createMessage(
+            PAGES_PANE_TEXTS.query_blank_state_description,
+          )}
+          icon={"queries-v3"}
+          onClick={canCreateActions ? addButtonClickHandler : undefined}
+        />
       )}
     </Flex>
   );

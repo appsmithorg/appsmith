@@ -14,6 +14,7 @@ import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/per
 import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
 import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "./EmptyState";
 
 const ListWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -42,16 +43,19 @@ const ListWidgets = () => {
       overflow="hidden"
       padding="spaces-3"
     >
-      {canManagePages && (
-        <Button
-          kind={"secondary"}
-          onClick={addButtonClickHandler}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
-          {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
-        </Button>
-      )}
+      {widgets &&
+        widgets.children &&
+        widgets.children.length > 0 &&
+        canManagePages && (
+          <Button
+            kind={"secondary"}
+            onClick={addButtonClickHandler}
+            size={"sm"}
+            startIcon={"add-line"}
+          >
+            {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
+          </Button>
+        )}
 
       <Flex flex="1" flexDirection={"column"} gap="spaces-2" overflow="scroll">
         {widgets?.children?.map((child) => (
@@ -68,6 +72,16 @@ const ListWidgets = () => {
           />
         ))}
       </Flex>
+      {(!widgets || !widgets.children || widgets?.children?.length === 0) && (
+        <EmptyState
+          buttonText={createMessage(PAGES_PANE_TEXTS.widget_add_button)}
+          description={createMessage(
+            PAGES_PANE_TEXTS.widget_blank_state_description,
+          )}
+          icon={"widgets-v3"}
+          onClick={canManagePages ? addButtonClickHandler : undefined}
+        />
+      )}
     </Flex>
   );
 };

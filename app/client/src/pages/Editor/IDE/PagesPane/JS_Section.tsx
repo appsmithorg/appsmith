@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Flex, Text } from "design-system";
+import { Button, Flex } from "design-system";
 import styled from "styled-components";
 
 import { selectJSForPagespane } from "@appsmith/selectors/entitiesSelector";
@@ -16,6 +16,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "./EmptyState";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -56,7 +57,7 @@ const JSSection = () => {
       overflow="hidden"
       padding="spaces-3"
     >
-      {canCreateActions && (
+      {JSObjects && JSObjects.length > 0 && canCreateActions && (
         <Button
           kind={"secondary"}
           onClick={addButtonClickHandler}
@@ -85,17 +86,16 @@ const JSSection = () => {
           })}
       </Flex>
 
-      {!JSObjects ||
-        (JSObjects.length === 0 && (
-          <Flex px="spaces-3">
-            <Text
-              className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-              kind="heading-xs"
-            >
-              No JS objects to display
-            </Text>
-          </Flex>
-        ))}
+      {(!JSObjects || JSObjects.length === 0) && (
+        <EmptyState
+          buttonText={createMessage(PAGES_PANE_TEXTS.js_add_button)}
+          description={createMessage(
+            PAGES_PANE_TEXTS.js_blank_state_description,
+          )}
+          icon={"js-square-v3"}
+          onClick={canCreateActions ? addButtonClickHandler : undefined}
+        />
+      )}
     </JSContainer>
   );
 };
