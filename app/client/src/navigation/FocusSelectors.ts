@@ -12,8 +12,6 @@ import {
   QUERIES_EDITOR_ID_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "../constants/routes";
-import { shouldStorePageURLForFocus } from "./FocusUtils";
-import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
@@ -32,19 +30,6 @@ export const getSelectedDatasourceId = (path: string): string | undefined => {
   ]);
   if (!match) return undefined;
   return match.params.datasourceId;
-};
-
-export const getCurrentPageUrl = (path: string): string | undefined => {
-  if (shouldStorePageURLForFocus(path)) {
-    return path;
-  }
-};
-
-export const getCurrentAppUrl = (path: string): string | undefined => {
-  const focusInfo = identifyEntityFromPath(path);
-  if (focusInfo.entity !== FocusEntity.NONE) {
-    return path;
-  }
 };
 
 export type QueryListState =
