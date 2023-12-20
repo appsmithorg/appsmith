@@ -11,6 +11,7 @@ import { osName } from "react-device-detect";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "./AnalyticsUtil";
+import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
 export const initializeAnalyticsAndTrackers = async () => {
@@ -198,7 +199,7 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
 export const createNewApiName = (
   actions: ActionDataState,
   entityId: string,
-  key = CreateNewActionKey.PAGE,
+  key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
   const pageApiNames = actions
     .filter((a: any) => a.config[key] === entityId)
@@ -209,7 +210,7 @@ export const createNewApiName = (
 export const createNewJSFunctionName = (
   jsActions: JSCollectionData[],
   entityId: string,
-  key = CreateNewActionKey.PAGE,
+  key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
   const pageJsFunctionNames = jsActions
     .filter((a: any) => a.config[key] === entityId)
@@ -229,7 +230,7 @@ export const createNewQueryName = (
   queries: ActionDataState,
   entityId: string,
   prefix = "Query",
-  key = CreateNewActionKey.PAGE,
+  key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
   const pageApiNames = queries
     .filter((a: any) => a.config[key] === entityId)
