@@ -18,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,7 +59,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
 
         List<Criteria> criteria = super.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        Criteria nonModuleInstanceCollectionCriterion = getNonModuleInstanceCollectionCriterion();
+        Criteria nonModuleInstanceCollectionCriterion = getModuleInstanceNonExistenceCriterion();
         criteria.add(nonModuleInstanceCollectionCriterion);
 
         return queryAll(criteria, aclPermission);
@@ -74,7 +75,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
             Sort sort) {
         List<Criteria> criteria = super.getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                 branchName, viewMode, name, pageIds);
-        criteria.add(getNonModuleInstanceCollectionCriterion());
+        criteria.add(getModuleInstanceNonExistenceCriterion());
 
         return queryAll(criteria, aclPermission, sort);
     }
@@ -96,11 +97,18 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         return queryAll(List.of(pageIdCriteria, notAModuleInstancePrivateEntity), permission);
     }
 
-    private Criteria getNonModuleInstanceCollectionCriterion() {
+    private Criteria getModuleInstanceNonExistenceCriterion() {
         Criteria nonModuleInstanceCollectionCriterion = where(
                         fieldName(QActionCollection.actionCollection.moduleInstanceId))
                 .exists(false);
         return nonModuleInstanceCollectionCriterion;
+    }
+
+    private Criteria getModuleInstanceExistenceCriterion() {
+        Criteria moduleInstanceCollectionCriterion = where(
+                        fieldName(QActionCollection.actionCollection.moduleInstanceId))
+                .exists(true);
+        return moduleInstanceCollectionCriterion;
     }
 
     @Override
@@ -180,5 +188,39 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
         return updateByCriteria(List.of(workflowIdCriteria, deletedFromUnpublishedCriteria), update, aclPermission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllModuleInstanceEntitiesByContextAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            Optional<AclPermission> optionalPermission,
+            boolean viewMode) {
+        List<Criteria> criteria = new ArrayList<>();
+        criteria.add(getModuleInstanceExistenceCriterion());
+        String contextIdPath;
+        String contextTypePath;
+        if (viewMode) {
+            contextTypePath = completeFieldName(QActionCollection.actionCollection.publishedCollection.contextType);
+            switch (contextType) {
+                case MODULE -> contextIdPath =
+                        completeFieldName(QActionCollection.actionCollection.publishedCollection.moduleId);
+                default -> contextIdPath =
+                        completeFieldName(QActionCollection.actionCollection.publishedCollection.pageId);
+            }
+        } else {
+            contextTypePath = completeFieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
+            switch (contextType) {
+                case MODULE -> contextIdPath =
+                        completeFieldName(QActionCollection.actionCollection.unpublishedCollection.moduleId);
+                default -> contextIdPath =
+                        completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
+            }
+        }
+        Criteria contextIdAndContextTypeCriterion =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        criteria.add(contextIdAndContextTypeCriterion);
+
+        return queryAll(criteria, optionalPermission);
     }
 }

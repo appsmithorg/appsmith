@@ -65,6 +65,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1239,6 +1240,10 @@ public class CrudModuleInstanceServiceTest {
                 .createModuleInstance(moduleInstanceReqDTO, null)
                 .block();
 
+        // Create a regular action that has contextType as PAGE to verify that it should not be returned in get entities
+        // call
+        createPageAction();
+
         ModuleInstanceEntitiesDTO editModeModuleInstanceEntitiesDTO = crudModuleInstanceService
                 .getAllEntities(moduleInstanceTestHelperDTO.getPageDTO().getId(), CreatorContextType.PAGE, null, false)
                 .block();
@@ -1262,6 +1267,20 @@ public class CrudModuleInstanceServiceTest {
         assertThat(videModeActionViewDTO.getPluginId()).isNull();
         assertThat(videModeActionViewDTO.getExecuteOnLoad()).isNull();
         assertThat(videModeActionViewDTO.getIsPublic()).isTrue();
+    }
+
+    @NotNull private ActionDTO createPageAction() {
+        ActionDTO pageActionDTO = new ActionDTO();
+        pageActionDTO.setName("Query1");
+        pageActionDTO.setActionConfiguration(new ActionConfiguration());
+        pageActionDTO.setContextType(CreatorContextType.PAGE);
+        pageActionDTO.setPageId(moduleInstanceTestHelperDTO.getPageDTO().getId());
+        pageActionDTO.setDatasource(moduleInstanceTestHelperDTO.getDatasource());
+        pageActionDTO.setWorkspaceId(moduleInstanceTestHelperDTO.getWorkspaceId());
+
+        return layoutActionService
+                .createSingleActionWithBranch(pageActionDTO, null)
+                .block();
     }
 
     private void addAnotherInputFieldToExistingModule(ModuleDTO moduleDTO) {

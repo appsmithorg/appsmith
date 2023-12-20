@@ -222,4 +222,11 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             super.setGitSyncIdInActionCollection(collection);
         }
     }
+
+    @Override
+    public Flux<ActionCollection> getAllModuleInstanceCollectionsInContext(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode) {
+        return repository.findAllModuleInstanceEntitiesByContextAndViewMode(
+                contextId, contextType, Optional.of(permission), viewMode);
+    }
 }

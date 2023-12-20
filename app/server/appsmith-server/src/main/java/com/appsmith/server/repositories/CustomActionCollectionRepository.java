@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.ce.CustomActionCollectionRepositoryCE;
@@ -24,4 +25,10 @@ public interface CustomActionCollectionRepository extends CustomActionCollection
 
     Mono<UpdateResult> archiveDeletedUnpublishedActionsCollectionsForWorkflows(
             String workflowId, AclPermission aclPermission);
+
+    Flux<ActionCollection> findAllModuleInstanceEntitiesByContextAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            Optional<AclPermission> optionalPermission,
+            boolean viewMode);
 }

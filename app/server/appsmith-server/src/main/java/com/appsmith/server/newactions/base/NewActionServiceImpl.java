@@ -587,4 +587,15 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             newAction.setWorkflowId(action.getWorkflowId());
         }
     }
+
+    @Override
+    public Flux<NewAction> getAllModuleInstanceActionInContext(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs) {
+        return repository.findAllModuleInstanceEntitiesByContextAndViewMode(
+                contextId, contextType, Optional.of(permission), viewMode, includeJs);
+    }
 }
