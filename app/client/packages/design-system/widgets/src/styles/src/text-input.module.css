@@ -1,6 +1,7 @@
 /* NOTE: these input styles are used in text area and text input */
 .text-input {
   & [data-field-input] {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--inner-spacing-1);
@@ -19,6 +20,7 @@
     color: var(--color-fg);
     text-overflow: ellipsis;
     width: 100%;
+    padding: 0;
 
     &:autofill,
     &:autofill:hover,
@@ -34,11 +36,32 @@
 
   /**
   * ----------------------------------------------------------------------------
+  * READONLY
+  *-----------------------------------------------------------------------------
+  */
+  & [data-readonly][data-field-input] {
+    box-shadow: none;
+    padding-inline: 0;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
   * FOCUSSED
   *-----------------------------------------------------------------------------
   */
-  & [data-field-input][data-focused] {
+  & [data-field-input][data-focused]:before {
+    content: "";
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
     box-shadow: 0 0 0 2px var(--color-bd-focus);
+    border-radius: var(--border-radius-1);
+  }
+
+  & [data-readonly][data-field-input][data-focused]:before {
+    left: calc(-0.5 * var(--inner-spacing-1));
+    width: calc(100% + var(--inner-spacing-1));
   }
 
   /**

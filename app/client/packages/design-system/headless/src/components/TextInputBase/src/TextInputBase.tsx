@@ -19,6 +19,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     inputRef: userInputRef,
     isDisabled = false,
     isLoading = false,
+    isReadOnly = false,
     labelProps,
     multiLine = false,
     onBlur,
@@ -28,7 +29,11 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     suffix,
     validationState,
   } = props;
-  const { hoverProps, isHovered } = useHover({ isDisabled });
+  const getDisabledState = () => isDisabled && !isReadOnly;
+
+  const { hoverProps, isHovered } = useHover({
+    isDisabled: getDisabledState(),
+  });
   const domRef = useRef<HTMLDivElement>(null);
   const defaultInputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const inputRef = userInputRef ?? defaultInputRef;
@@ -36,7 +41,10 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const ElementType: React.ElementType = Boolean(multiLine)
     ? "textarea"
     : "input";
-  const isInvalid = validationState === "invalid" && !Boolean(isDisabled);
+  const isInvalid =
+    validationState === "invalid" &&
+    !Boolean(isDisabled) &&
+    !Boolean(isReadOnly);
 
   const { focusProps, isFocused, isFocusVisible } = useFocusRing({
     isTextInput: true,
@@ -44,7 +52,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   });
 
   const { focusableProps } = useFocusable(
-    { isDisabled, onFocus: onFocus, onBlur: onBlur },
+    { isDisabled: getDisabledState(), onFocus: onFocus, onBlur: onBlur },
     inputRef,
   );
 
@@ -56,12 +64,15 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const inputField = (
     <div
       aria-busy={isLoading ? true : undefined}
-      data-disabled={isDisabled ? "" : undefined}
+      data-disabled={getDisabledState() ? "" : undefined}
       data-field-input=""
-      data-focused={isFocusVisible || isFocused ? "" : undefined}
+      data-focused={
+        isFocusVisible || (isFocused && !isReadOnly) ? "" : undefined
+      }
       data-hovered={isHovered ? "" : undefined}
       data-invalid={isInvalid ? "" : undefined}
       data-loading={isLoading ? "" : undefined}
+      data-readonly={isReadOnly ? "" : undefined}
       onClick={focusInput}
       ref={ref}
     >
@@ -71,6 +82,8 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       <ElementType
         {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
         className={inputClassName}
+        disabled={getDisabledState()}
+        readOnly={isReadOnly}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={inputRef as any}
         rows={multiLine ? 1 : undefined}
