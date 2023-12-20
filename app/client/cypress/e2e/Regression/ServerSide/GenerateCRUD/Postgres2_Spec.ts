@@ -144,7 +144,7 @@ describe(
       dataSources.AssertJSONFormHeader(0, 0, "ship_id");
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       // //Delete the test data
       // entityExplorer.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
       // assertHelper.AssertNetworkStatus("@deletePage" , 200);
@@ -180,10 +180,10 @@ describe(
     it("5. Verify Update data from Deploy page - on Vessels - existing record", () => {
       deployMode.DeployApp();
       agHelper.Sleep(2000);
-      table.SelectTableRow(0, 0, false); //to make JSON form hidden
+      table.SelectTableRow(0, 0, false, "v2"); //to make JSON form hidden
       agHelper.Sleep(2000); //Sleep time for tab to disappear!
       agHelper.AssertElementAbsence(locators._jsonFormWidget);
-      table.SelectTableRow(5);
+      table.SelectTableRow(5, 0, true, "v2");
       agHelper.AssertElementVisibility(locators._jsonFormWidget);
       dataSources.AssertJSONFormHeader(5, 0, "ship_id");
       generateCallsignInfo(5);
@@ -288,7 +288,7 @@ describe(
     });
 
     it("7. Verify Delete field data from Deploy page - on Vessels - existing record", () => {
-      table.SelectTableRow(8);
+      table.SelectTableRow(8, 0, true, "v2");
       dataSources.AssertJSONFormHeader(8, 0, "ship_id");
 
       deployMode.ClearJSONFieldValue("Country");
@@ -334,7 +334,7 @@ describe(
     });
 
     it("8. Verify Delete row from Deploy page - on Vessels - existing record", () => {
-      table.SelectTableRow(1);
+      table.SelectTableRow(1, 0, true, "v2");
       dataSources.AssertJSONFormHeader(1, 0, "ship_id");
       agHelper.ClickButton("Delete", 1);
       agHelper.AssertElementVisibility(locators._modal);
@@ -375,21 +375,21 @@ describe(
         expect($cellData).not.eq("371584"); //Deleted record ship_id should not be present anymore!
       });
 
-      table.NavigateToNextPage(); //page 2
+      table.NavigateToNextPage(true, "v2"); //page 2
       agHelper.Sleep(3000); //wait for table navigation to take effect!
-      table.WaitForTableEmpty(); //page 2
+      table.WaitForTableEmpty("v2"); //page 2
       agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form also should not be present
 
       //Try to add via to Insert Modal - JSON fields not showing correct fields, Open bug 14122
 
-      table.NavigateToPreviousPage();
+      table.NavigateToPreviousPage(true, "v2");
       agHelper.Sleep(3000); //wait for table navigation to take effect!
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
     });
 
     it("10. Update the InsertQuery to insert all columns from UI", () => {
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       const insertQuery = `INSERT INTO public."vessels" (
       "ship_id",
       "callsign",
@@ -565,7 +565,7 @@ describe(
     });
 
     it("14. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
-      table.SelectTableRow(0);
+      table.SelectTableRow(0, 0, true, "v2");
       agHelper.Sleep(2000); //since table taking time to display JSON form
 
       //validating update happened fine!
@@ -578,14 +578,14 @@ describe(
 
       UpdateNVerify(0, 2, "MAJESTIC MAERSK");
 
-      table.NavigateToNextPage(); //page 2
+      table.NavigateToNextPage(true, "v2"); //page 2
       agHelper.Sleep(3000); //wait for table navigation to take effect!
-      table.WaitForTableEmpty(); //page 2
+      table.WaitForTableEmpty("v2"); //page 2
       agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form should be present
 
-      table.NavigateToPreviousPage();
+      table.NavigateToPreviousPage(true, "v2");
       agHelper.Sleep(3000); //wait for table navigation to take effect!
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180");
       agHelper.ClickButton("Delete", 0);
@@ -607,7 +607,7 @@ describe(
 
     it("15. Validate Deletion of the Newly Created Page - Vessels", () => {
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Public.vessels",

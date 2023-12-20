@@ -50,7 +50,7 @@ describe(
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Delete the test data
       entityExplorer.ActionContextMenuByEntityName({
@@ -76,7 +76,7 @@ describe(
       agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
       GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(1, 0);
+      table.WaitUntilTableLoad(1, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -104,7 +104,7 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);

@@ -59,7 +59,7 @@ describe(
       GenerateCRUDNValidateDeployPage("ABW", "Aruba", "North America", "Code");
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -128,7 +128,7 @@ describe(
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -192,7 +192,7 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
@@ -274,7 +274,7 @@ describe(
 
     it("8. Validate Deletion of the Newly Created Page - Productlines", () => {
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Productlines",
@@ -329,7 +329,7 @@ describe(
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);

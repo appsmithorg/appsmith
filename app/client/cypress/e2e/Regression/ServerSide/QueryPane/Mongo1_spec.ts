@@ -726,7 +726,7 @@ describe(
 
     it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -916,7 +916,7 @@ describe(
 
       agHelper.ClickButton("Got it");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
