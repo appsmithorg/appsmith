@@ -1,23 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { withProfiler } from "@sentry/react";
-import { Button, Flex, SegmentedControl } from "design-system";
-import { Switch, useLocation, useRouteMatch } from "react-router";
-import { useSelector } from "react-redux";
-
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { Flex, SegmentedControl } from "design-system";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import history from "utils/history";
-import {
-  builderURL,
-  jsCollectionListURL,
-  queryListURL,
-  widgetListURL,
-} from "@appsmith/RouteBuilder";
-import Pages from "pages/Editor/Explorer/Pages";
-import { JSSection } from "./JS_Section";
-import { QueriesSection } from "./QueriesSection";
+import { Switch, useLocation, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
+import { QueriesSection } from "./QueriesSection";
 import {
   API_EDITOR_ID_PATH,
   BUILDER_CUSTOM_PATH,
@@ -30,12 +16,21 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
+import { JSSection } from "./JS_Section";
 import { WidgetsSection } from "./WidgetsSection";
-import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import history from "utils/history";
+import {
+  jsCollectionListURL,
+  queryListURL,
+  widgetListURL,
+} from "@appsmith/RouteBuilder";
 import { EditorEntityTab } from "entities/IDE/constants";
-import PaneHeader from "../LeftPane/PaneHeader";
+import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
-const _pagesPane = () => {
+const EditorPaneSegments = () => {
   const location = useLocation();
   const [selected, setSelected] = useState<EditorEntityTab | undefined>(
     undefined,
@@ -92,38 +87,9 @@ const _pagesPane = () => {
     }
   };
   return (
-    <Flex
-      className="ide-pages-pane"
-      flexDirection="column"
-      gap="spacing-2"
-      height="100%"
-      width="256px"
-    >
-      <Pages />
-      {/* divider is inside the Pages component */}
-      <PaneHeader
-        rightIcon={
-          <Button
-            className={"t--add-editor-button"}
-            isIconButton
-            kind="primary"
-            onClick={() =>
-              history.push(
-                builderURL({
-                  suffix: "add",
-                }),
-              )
-            }
-            size="sm"
-            startIcon="add-line"
-          />
-        }
-        title={"Editor"}
-      />
-      <EntityProperties />
+    <Flex flexDirection="column" gap="spacing-2">
       <Flex
         alignItems="center"
-        backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
         className="ide-pages-pane__header"
         justifyContent="space-between"
         padding="spaces-2"
@@ -148,6 +114,7 @@ const _pagesPane = () => {
           value={selected}
         />
       </Flex>
+      <EntityProperties />
       <Flex
         className="ide-pages-pane__content"
         flexDirection="column"
@@ -187,6 +154,4 @@ const _pagesPane = () => {
   );
 };
 
-const PagesPane = withProfiler(_pagesPane);
-
-export { PagesPane };
+export default EditorPaneSegments;

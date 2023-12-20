@@ -45,16 +45,6 @@ const ListQuery = () => {
       overflow="hidden"
       padding="spaces-3"
     >
-      {canCreateActions && (
-        <Button
-          kind={"secondary"}
-          onClick={addButtonClickHandler}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
-          {createMessage(PAGES_PANE_TEXTS.query_add_button)}
-        </Button>
-      )}
       <Flex flex="1" flexDirection={"column"} gap="spaces-3" overflow="scroll">
         {Object.keys(files).map((key) => {
           return (
@@ -101,6 +91,16 @@ const ListQuery = () => {
             No queries to display
           </Text>
         </Flex>
+      )}
+      {canCreateActions && (
+        <Button
+          kind={"secondary"}
+          onClick={addButtonClickHandler}
+          size={"sm"}
+          startIcon={"add-line"}
+        >
+          {createMessage(PAGES_PANE_TEXTS.query_add_button)}
+        </Button>
       )}
     </Flex>
   );

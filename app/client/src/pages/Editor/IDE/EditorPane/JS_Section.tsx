@@ -60,16 +60,6 @@ const JSSection = () => {
       overflow="hidden"
       padding="spaces-3"
     >
-      {canCreateActions && (
-        <Button
-          kind={"secondary"}
-          onClick={addButtonClickHandler}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
-          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
-        </Button>
-      )}
       <FilesContextProvider
         canCreateActions={canCreateActions}
         editorId={applicationId}
@@ -107,6 +97,16 @@ const JSSection = () => {
             </Text>
           </Flex>
         ))}
+      {canCreateActions && (
+        <Button
+          kind={"secondary"}
+          onClick={addButtonClickHandler}
+          size={"sm"}
+          startIcon={"add-line"}
+        >
+          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
+        </Button>
+      )}
     </JSContainer>
   );
 };

@@ -50,17 +50,6 @@ const ListWidgets = () => {
       overflow="hidden"
       padding="spaces-3"
     >
-      {canManagePages && (
-        <Button
-          kind={"secondary"}
-          onClick={addButtonClickHandler}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
-          {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
-        </Button>
-      )}
-
       <Flex flex="1" flexDirection={"column"} gap="spaces-2" overflow="scroll">
         {widgets?.children?.map((child) => (
           <WidgetEntity
@@ -76,6 +65,16 @@ const ListWidgets = () => {
           />
         ))}
       </Flex>
+      {canManagePages && (
+        <Button
+          kind={"secondary"}
+          onClick={addButtonClickHandler}
+          size={"sm"}
+          startIcon={"add-line"}
+        >
+          {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
+        </Button>
+      )}
     </Flex>
   );
 };
