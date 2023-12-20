@@ -477,6 +477,10 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.merge(mainBranch);
     agHelper.GetNClick(gitSyncLocators.closeGitSyncModal);
+    cy.latestDeployPreview();
+    // verify page is hidden on deploy mode
+    agHelper.AssertContains("Child_Page Copy", "not.exist");
+    deployMode.NavigateBacktoEditor();
   });
 
   it("10. After merge back to master, verify page is deleted on master", () => {
