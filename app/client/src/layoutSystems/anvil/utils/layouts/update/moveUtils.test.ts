@@ -55,7 +55,7 @@ describe("Layouts - moveUtils test", () => {
       const canvas1: BaseWidgetProps = mockCanvasProps();
       const mock1 = generateLayoutComponentMock();
       const layout1: LayoutComponentProps = mock1.layout;
-      if (!mock1.childrenMap) return;
+      if (!mock1.childrenMap) throw new Error("childrenMap is undefined");
       canvas1.children = [layout1.layout[0], layout1.layout[1]];
       canvas1.layout = [layout1];
       const movedWidget: WidgetLayoutProps = layout1
@@ -154,7 +154,8 @@ describe("Layouts - moveUtils test", () => {
         (layout2.layout[1] as WidgetLayoutProps).widgetId,
       ];
       canvas2.layout = [layout2];
-      if (!mock1.childrenMap || !mock2.childrenMap) return;
+      if (!mock1.childrenMap || !mock2.childrenMap)
+        throw new Error("One of the childrenMaps is undefined");
       const movedWidgetIds: string[] = [
         ...canvas1.children,
         canvas2.children[1],

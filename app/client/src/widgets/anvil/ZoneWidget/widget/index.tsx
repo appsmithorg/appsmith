@@ -1,6 +1,7 @@
 import React, { type ReactNode } from "react";
 import type {
   AnvilConfig,
+  AutoLayoutConfig,
   AutocompletionDefinitions,
   WidgetBaseConfiguration,
   WidgetDefaultProps,
@@ -62,6 +63,10 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  static getAutoLayoutConfig(): AutoLayoutConfig | null {
     return {};
   }
 

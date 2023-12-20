@@ -2,7 +2,6 @@ import {
   type ReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -36,11 +35,6 @@ import {
   moveWidgetsToSection,
 } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { updateAndSaveLayout } from "actions/pageActions";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { saveAnvilLayout } from "../actions/saveLayoutActions";
 import {
   addNewWidgetToDsl,
@@ -177,13 +171,14 @@ export function* addNewChildToDSL(
       highlight,
     );
   } else if (!!isSection) {
-    updatedWidgets = yield call(
+    const res: { canvasWidgets: CanvasWidgetsReduxState } = yield call(
       addWidgetsToSection,
       updatedWidgets,
       draggedWidgets,
       highlight,
       updatedWidgets[canvasId],
     );
+    updatedWidgets = res.canvasWidgets;
   } else {
     updatedWidgets = yield call(
       addWidgetToGenericLayout,
@@ -252,7 +247,7 @@ function* addWidgetToGenericLayout(
   },
 ) {
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-  const canvasWidget = allWidgets[highlight.canvasId];
+  const canvasWidget = updatedWidgets[highlight.canvasId];
   const canvasLayout = canvasWidget.layout
     ? canvasWidget.layout
     : generateDefaultLayoutPreset();
@@ -262,7 +257,7 @@ function* addWidgetToGenericLayout(
    */
   updatedWidgets = yield call(
     addNewWidgetToDsl,
-    allWidgets,
+    updatedWidgets,
     getCreateWidgetPayload(
       newWidget.newWidgetId,
       newWidget.type,
@@ -275,11 +270,11 @@ function* addWidgetToGenericLayout(
   return {
     ...updatedWidgets,
     [canvasWidget.widgetId]: {
-      ...canvasWidget,
+      ...updatedWidgets[canvasWidget.widgetId],
       layout: addWidgetsToPreset(canvasLayout, highlight, draggedWidgets),
     },
     [newWidget.newWidgetId]: {
-      ...allWidgets[newWidget.newWidgetId],
+      ...updatedWidgets[newWidget.newWidgetId],
       // This is a temp fix, widget dimensions will be self computed by widgets
       height: newWidget.height,
       width: newWidget.width,
@@ -341,97 +336,6 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
   }
 }
 
-function* updateAndSaveAnvilLayoutSaga(
-  action: ReduxAction<{
-    isRetry?: boolean;
-    widgets: CanvasWidgetsReduxState;
-    shouldReplay?: boolean;
-    updatedWidgetIds?: string[];
-  }>,
-) {
-  try {
-    const currentWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const { widgets } = action.payload;
-    const layoutSystemType: LayoutSystemTypes =
-      yield select(getLayoutSystemType);
-    if (layoutSystemType !== LayoutSystemTypes.ANVIL || !widgets) {
-      yield put(updateAndSaveLayout(widgets));
-    }
-
-    let updatedWidgets: CanvasWidgetsReduxState = { ...widgets };
-
-    /**
-     * Extract all section widgets
-     */
-    const sections: FlattenedWidgetProps[] = Object.values(widgets).filter(
-      (each: FlattenedWidgetProps) => each.type === SectionWidget.type,
-    );
-
-    for (const each of sections) {
-      const children: string[] | undefined = each.children;
-      const sectionWidget = currentWidgets[each.widgetId];
-      /**
-       * If a section doesn't have any children,
-       * => delete it.
-       */
-      if (!children || !children?.length) {
-        let parent: FlattenedWidgetProps =
-          updatedWidgets[each.parentId || MAIN_CONTAINER_WIDGET_ID];
-        if (parent) {
-          parent = {
-            ...parent,
-            children: parent.children?.filter(
-              (id: string) => id !== each.widgetId,
-            ),
-          };
-          delete updatedWidgets[each.widgetId];
-          updatedWidgets = updateAnvilParentPostWidgetDeletion(
-            { ...updatedWidgets, [parent.widgetId]: parent },
-            parent.widgetId,
-            each.widgetId,
-            each.type,
-          );
-        }
-      } else if (each.zoneCount !== each.children?.length && sectionWidget) {
-        // update the section with the new space distribution
-        updatedWidgets = yield call(
-          updateSectionsDistributedSpace,
-          currentWidgets,
-          updatedWidgets,
-          each,
-        );
-        /**
-         * If section's zone count doesn't match it's child count,
-         * => update the zone count.
-         */
-        updatedWidgets = {
-          ...updatedWidgets,
-          [each.widgetId]: {
-            ...updatedWidgets[each.widgetId],
-            zoneCount: each.children?.length,
-          },
-        };
-      } else if (!each.spaceDistributed) {
-        // update the section with the default space distribution
-        updatedWidgets = yield call(
-          updateSectionWithDefaultSpaceDistribution,
-          updatedWidgets,
-          each,
-        );
-      }
-    }
-    yield put(updateAndSaveLayout(updatedWidgets));
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: AnvilReduxActionTypes.SAVE_ANVIL_LAYOUT,
-        error,
-      },
-    });
-  }
-}
-
 export default function* anvilDraggingSagas() {
   yield all([
     takeLatest(AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET, addWidgetsSaga),
@@ -439,10 +343,6 @@ export default function* anvilDraggingSagas() {
     takeLatest(
       AnvilReduxActionTypes.ANVIL_ADD_SUGGESTED_WIDGET,
       addSuggestedWidgetsAnvilSaga,
-    ),
-    takeLatest(
-      AnvilReduxActionTypes.SAVE_ANVIL_LAYOUT,
-      updateAndSaveAnvilLayoutSaga,
     ),
   ]);
 }

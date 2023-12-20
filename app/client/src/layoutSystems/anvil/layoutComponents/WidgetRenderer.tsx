@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { useContext } from "react";
 import { ChildrenMapContext } from "../context/childrenMapContext";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type { RenderModes } from "constants/WidgetConstants";

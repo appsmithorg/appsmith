@@ -122,25 +122,27 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
+        setGitSyncIdInActionCollection(collection);
+        return repository.save(collection);
+    }
+
+    protected void setGitSyncIdInActionCollection(ActionCollection collection) {
         if (collection.getGitSyncId() == null) {
             collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
         }
-        return repository.save(collection);
     }
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
         collections.forEach(collection -> {
-            if (collection.getGitSyncId() == null) {
-                collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-            }
+            setGitSyncIdInActionCollection(collection);
         });
         return repository.saveAll(collections);
     }
 
     @Override
     public Mono<ActionCollection> findByIdAndBranchName(String id, String branchName) {
-        // TODO sanitise resonse for default IDs
+        // TODO sanitise response for default IDs
         return this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getReadPermission());
     }
 
@@ -222,60 +224,51 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMapMany(branchedApplicationId -> repository
                         .findByApplicationIdAndViewMode(
                                 branchedApplicationId, true, actionPermission.getExecutePermission())
-                        // Filter out all the action collections which haven't been published
-                        .flatMap(actionCollection -> {
-                            if (actionCollection.getPublishedCollection() == null) {
-                                return Mono.empty();
-                            }
-                            return Mono.just(actionCollection);
-                        })
-                        .flatMap(actionCollection -> {
-                            ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
-                            final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
-                            actionCollectionViewDTO.setId(actionCollection.getId());
-                            actionCollectionViewDTO.setName(publishedCollection.getName());
-                            actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
-                            actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
-                            actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
-                            actionCollectionViewDTO.setBody(publishedCollection.getBody());
-                            // Update default resources :
-                            // actionCollection.defaultResources contains appId, collectionId and branch(optional).
-                            // Default pageId will be taken from publishedCollection.defaultResources
-                            DefaultResources defaults = actionCollection.getDefaultResources();
-                            // Consider a situation when collection is not published but user is viewing in deployed
-                            // mode
-                            if (publishedCollection.getDefaultResources() != null && defaults != null) {
-                                defaults.setPageId(publishedCollection
-                                        .getDefaultResources()
-                                        .getPageId());
-                            } else {
-                                log.debug(
-                                        "Unreachable state, unable to find default ids for actionCollection: {}",
-                                        actionCollection.getId());
-                                if (defaults == null) {
-                                    defaults = new DefaultResources();
-                                    defaults.setApplicationId(actionCollection.getApplicationId());
-                                    defaults.setCollectionId(actionCollection.getId());
-                                }
-                                defaults.setPageId(actionCollection
-                                        .getPublishedCollection()
-                                        .getPageId());
-                            }
-                            actionCollectionViewDTO.setDefaultResources(defaults);
-                            return Flux.fromIterable(publishedCollection
-                                            .getDefaultToBranchedActionIdsMap()
-                                            .values())
-                                    .flatMap(actionId -> {
-                                        return newActionService.findActionDTObyIdAndViewMode(
-                                                actionId, true, actionPermission.getExecutePermission());
-                                    })
-                                    .collectList()
-                                    .map(actionDTOList -> {
-                                        actionCollectionViewDTO.setActions(actionDTOList);
-                                        return actionCollectionViewDTO;
-                                    });
-                        })
-                        .map(responseUtils::updateActionCollectionViewDTOWithDefaultResources));
+                        .flatMap(this::generateActionCollectionViewDTO));
+    }
+
+    @Override
+    public Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection) {
+        if (actionCollection.getPublishedCollection() == null) {
+            return Mono.empty();
+        }
+        ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
+        final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+        actionCollectionViewDTO.setId(actionCollection.getId());
+        actionCollectionViewDTO.setName(publishedCollection.getName());
+        actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
+        actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
+        actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+        actionCollectionViewDTO.setBody(publishedCollection.getBody());
+        // Update default resources :
+        // actionCollection.defaultResources contains appId, collectionId and branch(optional).
+        // Default pageId will be taken from publishedCollection.defaultResources
+        DefaultResources defaults = actionCollection.getDefaultResources();
+        // Consider a situation when collection is not published but user is viewing in deployed
+        // mode
+        if (publishedCollection.getDefaultResources() != null && defaults != null) {
+            defaults.setPageId(publishedCollection.getDefaultResources().getPageId());
+        } else {
+            log.debug(
+                    "Unreachable state, unable to find default ids for actionCollection: {}", actionCollection.getId());
+            if (defaults == null) {
+                defaults = new DefaultResources();
+                defaults.setApplicationId(actionCollection.getApplicationId());
+                defaults.setCollectionId(actionCollection.getId());
+            }
+            defaults.setPageId(actionCollection.getPublishedCollection().getPageId());
+        }
+        actionCollectionViewDTO.setDefaultResources(defaults);
+        return Flux.fromIterable(
+                        publishedCollection.getDefaultToBranchedActionIdsMap().values())
+                .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
+                        actionId, true, actionPermission.getExecutePermission()))
+                .collectList()
+                .map(actionDTOList -> {
+                    actionCollectionViewDTO.setActions(actionDTOList);
+                    return actionCollectionViewDTO;
+                })
+                .map(responseUtils::updateActionCollectionViewDTOWithDefaultResources);
     }
 
     @Override
@@ -587,9 +580,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> create(ActionCollection collection) {
-        if (collection.getGitSyncId() == null) {
-            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-        }
+        setGitSyncIdInActionCollection(collection);
         return super.create(collection);
     }
 

@@ -159,6 +159,7 @@ export interface AppState {
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
     layoutElementPositions: LayoutElementPositionsReduxState;
+    moduleInstanceEntities: any;
   };
   evaluations: {
     tree: EvaluatedTreeState;

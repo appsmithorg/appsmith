@@ -153,6 +153,7 @@ export interface WidgetDragResizeState {
   entityExplorerAncestry: string[];
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
+  isDistributingSpace: boolean;
 }
 
 export default widgetDraggingReducer;

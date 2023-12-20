@@ -106,18 +106,25 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   rendersWidgets: (props: LayoutProps) => boolean;
 }
 
-export interface AnvilHighlightInfo {
-  alignment: FlexLayerAlignment; // Alignment of the child in the layout.
-  canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
+export interface HighlightRenderInfo {
   dropZone: DropZone; // size of the drop zone of this highlight.
   height: number; // height of the highlight.
   isVertical: boolean; // Whether the highlight is vertical or horizontal.
-  layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
+  width: number; // width of the highlight.
   posX: number; // x position of the highlight.
   posY: number; // y position of the highlight.
-  rowIndex: number; // Index with in the layout array to insert the child at.
-  width: number; // width of the highlight.
 }
+
+export interface HighlightDropInfo {
+  alignment: FlexLayerAlignment; // Alignment of the child in the layout.
+  canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
+  layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
+  rowIndex: number; // Index with in the layout array to insert the child at.
+}
+
+export interface AnvilHighlightInfo
+  extends HighlightRenderInfo,
+    HighlightDropInfo {}
 
 export interface DraggedWidget {
   parentId?: string;

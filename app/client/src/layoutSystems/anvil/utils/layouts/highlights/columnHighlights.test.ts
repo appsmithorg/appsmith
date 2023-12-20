@@ -30,7 +30,7 @@ describe("columnHighlights", () => {
     it("should derive highlights for a column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      }).layout;
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -87,7 +87,7 @@ describe("columnHighlights", () => {
     it("should discount dragged child widgets from highlight calculation", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      }).layout;
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -144,7 +144,7 @@ describe("columnHighlights", () => {
     it("should calculate drop zones properly", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      }).layout;
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -219,7 +219,7 @@ describe("columnHighlights", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [],
-      }).layout;
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -249,7 +249,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "center",
         },
-      }).layout;
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -283,7 +283,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "end",
         },
-      }).layout;
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -312,11 +312,13 @@ describe("columnHighlights", () => {
       /**
        * Create 2 rows with two widgets in each of them.
        */
-      const row1: LayoutComponentProps = generateLayoutComponentMock().layout;
+      const row1: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
-      const row2: LayoutComponentProps = generateLayoutComponentMock().layout;
+      const row2: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -329,7 +331,7 @@ describe("columnHighlights", () => {
           layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
         },
         false,
-      ).layout;
+      ).layout as LayoutComponentProps;
 
       /**
        * Create dimensions data

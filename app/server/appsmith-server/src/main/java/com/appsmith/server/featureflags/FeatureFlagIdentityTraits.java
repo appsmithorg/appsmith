@@ -21,4 +21,5 @@ public class FeatureFlagIdentityTraits {
     String tenantId;
     Set<String> userIdentifiers;
     Map<String, Object> traits;
+    String appsmithVersion;
 }
