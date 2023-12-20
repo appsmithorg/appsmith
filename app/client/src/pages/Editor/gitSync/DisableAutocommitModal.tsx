@@ -23,6 +23,7 @@ import {
   getIsAutocommitModalOpen,
   getIsAutocommitToggling,
 } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function DisableAutocommitModal() {
   const isAutocommitModalOpen = useSelector(getIsAutocommitModalOpen);
@@ -36,6 +37,7 @@ function DisableAutocommitModal() {
 
   const handleDisableAutocommit = () => {
     dispatch(toggleAutocommitEnabledInit());
+    AnalyticsUtil.logEvent("GS_AUTO_COMMIT_DISABLED");
     dispatch(setIsAutocommitModalOpen(false));
   };
 

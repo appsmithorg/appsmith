@@ -96,6 +96,7 @@ function GitDisconnect() {
       dispatch(setIsAutocommitModalOpen(true));
     } else {
       dispatch(toggleAutocommitEnabledInit());
+      AnalyticsUtil.logEvent("GS_AUTO_COMMIT_ENABLED");
     }
   };
 
