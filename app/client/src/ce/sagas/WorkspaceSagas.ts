@@ -13,7 +13,6 @@ import {
   getResponseErrorMessage,
 } from "sagas/ErrorSagas";
 import type {
-  FetchWorkspaceRolesResponse,
   SaveWorkspaceRequest,
   FetchWorkspaceRequest,
   FetchWorkspaceResponse,
@@ -79,29 +78,6 @@ export function* fetchAllWorkspacesAndAppsOfFirstWorkspaceSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* fetchRolesSaga() {
-  try {
-    const response: FetchWorkspaceRolesResponse = yield call(
-      WorkspaceApi.fetchRoles,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_WORKSPACE_ROLES_SUCCESS,
-        payload: response.data,
-      });
-    }
-  } catch (error) {
-    log.error(error);
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_WORKSPACE_ROLES_ERROR,
       payload: {
         error,
       },
