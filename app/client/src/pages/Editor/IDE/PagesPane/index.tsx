@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { withProfiler } from "@sentry/react";
-import { Flex, SegmentedControl } from "design-system";
+import { Button, Flex, SegmentedControl } from "design-system";
 import { Switch, useLocation, useRouteMatch } from "react-router";
 import { useSelector } from "react-redux";
 
@@ -9,6 +9,7 @@ import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import {
+  builderURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
@@ -31,6 +32,7 @@ import {
 import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
 import { WidgetsSection } from "./WidgetsSection";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
+import PaneHeader from "../LeftPane/PaneHeader";
 
 enum TabsType {
   QUERIES = "queries",
@@ -102,6 +104,25 @@ const _pagesPane = () => {
     >
       <Pages />
       {/* divider is inside the Pages component */}
+      <PaneHeader
+        rightIcon={
+          <Button
+            className={"t--add-editor-button"}
+            isIconButton
+            kind="primary"
+            onClick={() =>
+              history.push(
+                builderURL({
+                  suffix: "add",
+                }),
+              )
+            }
+            size="sm"
+            startIcon="add-line"
+          />
+        }
+        title={"Editor"}
+      />
       <EntityProperties />
       <Flex
         alignItems="center"
