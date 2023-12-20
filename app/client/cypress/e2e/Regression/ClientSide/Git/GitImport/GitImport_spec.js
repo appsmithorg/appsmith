@@ -33,7 +33,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
 
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     homePage.NavigateToHome();
-    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.createNew).first().click();
     cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
     cy.get(homePageLocators.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
@@ -94,7 +94,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
     cy.get(homePageLocators.homeIcon).click();
-    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.createNew).first().click();
     cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
     cy.get(".t--import-json-card").next().click();
     cy.importAppFromGit(repoName);

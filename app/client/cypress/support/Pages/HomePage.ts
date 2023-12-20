@@ -17,6 +17,7 @@ export class HomePage {
   private _workspaceName = ".t--workspace-name";
   private _workspaceNameText = ".t--workspace-name-text";
   private _optionsIcon = ".t--options-icon";
+  private _newIcon = ".createnew";
   private _optionsIconInWorkspace = (workspaceName: string) =>
     "//span[text()='" +
     workspaceName +
@@ -36,7 +37,7 @@ export class HomePage {
       ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
       : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
-  _newWorkSpaceLink = this._visibleTextSpan("New workspace") + "/ancestor::a";
+  _newWorkSpaceLink = "[data-testid=t--workspace-new-workspace-auto-create]";
   private _userRole = (role: string) =>
     "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
     role +
@@ -54,7 +55,8 @@ export class HomePage {
   _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   _appContainer = ".t--applications-container";
-  _homePageAppCreateBtn = this._appContainer + " .createnew";
+  _homePageAppCreateBtn = " .createnew";
+  _newButtonCreateApplication = "[data-testid=t--workspace-action-create-app]";
   _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   _applicationName = ".t--application-name";
@@ -74,8 +76,6 @@ export class HomePage {
   private _workspaceImportAppModal = ".t--import-application-modal";
   private _leaveWorkspaceConfirmButton =
     "[data-testid=t--workspace-leave-button]";
-  private _lastWorkspaceInHomePage =
-    "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   private _leaveWorkspace = "//span[text()='Leave workspace']";
   private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
@@ -96,8 +96,7 @@ export class HomePage {
   private _wsAction = (action: string) =>
     ".ads-v2-menu__menu-item-children:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
-  private _workSpaceByName = (wsName: string) =>
-    `//div[contains(@class, 't--applications-container')]//span[text()='${wsName}']`;
+  private adsV2Text = ".ads-v2-text";
   private _forkWorkspaceDropdownOption = "div.rc-select-selector";
   private _forkWorkspaceSelectOptions = (option: string) =>
     "div[title='" + option + "']";
@@ -152,8 +151,8 @@ export class HomePage {
 
     workspaceNewName &&
       cy
-        .xpath(this._lastWorkspaceInHomePage)
-        .first()
+        .get(this._workspaceNameText)
+        .find(this.adsV2Text)
         .then(($ele) => {
           oldName = $ele.text();
           cy.log("oldName is : " + oldName);
@@ -162,14 +161,7 @@ export class HomePage {
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
-    this.agHelper
-      .GetElement(this._workSpaceByName(workspaceName))
-      .last()
-      .closest(this._workspaceCompleteSection)
-      .scrollIntoView()
-      .wait(1000) ///for scroll to finish & element to come to view
-      .find(this._optionsIcon)
-      .click({ force: true });
+    this.agHelper.GetElement(this._optionsIcon).click({ force: true });
   }
 
   public OpenWorkspaceSettings(workspaceName: string) {
@@ -277,6 +269,7 @@ export class HomePage {
 
   public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
+    cy.get(this._newButtonCreateApplication).first().click({ force: true });
     this.AssertApplicationCreated();
     if (skipSignposting) {
       this.agHelper.AssertElementVisibility(
@@ -571,7 +564,7 @@ export class HomePage {
         this.agHelper.GetNClick(
           this._optionsIconInWorkspace(intoWorkspaceName),
         );
-      else this.agHelper.GetNClick(this._optionsIcon);
+      else this.agHelper.GetNClick(this._newIcon);
       this.agHelper.GetNClick(this._workspaceImport, 0, true);
       this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     }

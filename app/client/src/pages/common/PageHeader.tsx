@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import type { RefObject } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useRouteMatch } from "react-router-dom";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -30,6 +31,7 @@ import {
   MenuTrigger,
   SearchInput,
   Text,
+  Tooltip,
 } from "design-system";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
@@ -53,9 +55,11 @@ import {
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import {
+  ADMIN_SETTINGS,
   APPSMITH_DISPLAY_VERSION,
   CHAT_WITH_US,
   DOCUMENTATION,
+  HELP,
   TRY_GUIDED_TOUR,
   WHATS_NEW,
   createMessage,
@@ -73,6 +77,9 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { debounce } from "lodash";
 import bootIntercom from "utils/bootIntercom";
 import { IntercomConsent } from "pages/Editor/HelpButton";
+import { viewerURL } from "@appsmith/RouteBuilder";
+import { getApplicationIcon } from "utils/AppsmithUtils";
+import { AppIcon, Size, type AppIconName } from "design-system-old";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const StyledPageHeader = styled(StyledHeader)<{
@@ -163,11 +170,46 @@ const MobileSearchInput = styled(SearchInput)`
   }
 `;
 
+const CircleAppIcon = styled(AppIcon)`
+  display: flex;
+  align-items: center;
+  svg {
+    width: 16px;
+    height: 16px;
+    path {
+      fill: var(--ads-v2-color-fg);
+    }
+  }
+`;
+
 interface PageHeaderProps {
   user?: User;
   hideShadow?: boolean;
   showSeparator?: boolean;
   hideEditProfileLink?: boolean;
+}
+
+function useOutsideClick<T extends HTMLElement>(
+  ref: RefObject<T>,
+  inputRef: RefObject<T>,
+  callback: () => void,
+) {
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        ref.current &&
+        !ref.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        callback();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [ref, inputRef, callback]);
 }
 
 const HomepageHeaderAction = ({
@@ -197,22 +239,24 @@ const HomepageHeaderAction = ({
     <div className="flex items-center">
       <ShowUpgradeMenuItem />
       {getShowAdminSettings(isFeatureEnabled, user) && (
-        <Button
-          className="admin-settings-menu-option"
-          isIconButton
-          kind="tertiary"
-          onClick={() => {
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: getAdminSettingsPath(
-                isFeatureEnabled,
-                user?.isSuperUser,
-                tenantPermissions,
-              ),
-            });
-          }}
-          size="md"
-          startIcon="settings-control"
-        />
+        <Tooltip content={createMessage(ADMIN_SETTINGS)} placement="bottom">
+          <Button
+            className="admin-settings-menu-option"
+            isIconButton
+            kind="tertiary"
+            onClick={() => {
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: getAdminSettingsPath(
+                  isFeatureEnabled,
+                  user?.isSuperUser,
+                  tenantPermissions,
+                ),
+              });
+            }}
+            size="md"
+            startIcon="settings-control"
+          />
+        </Tooltip>
       )}
       {!isAirgappedInstance && (
         <Menu
@@ -222,15 +266,17 @@ const HomepageHeaderAction = ({
             }
           }}
         >
-          <MenuTrigger>
-            <Button
-              isIconButton
-              kind="tertiary"
-              onClick={() => {}}
-              size="md"
-              startIcon="question-line"
-            />
-          </MenuTrigger>
+          <Tooltip content={createMessage(HELP)} placement="bottom">
+            <MenuTrigger>
+              <Button
+                isIconButton
+                kind="tertiary"
+                onClick={() => {}}
+                size="md"
+                startIcon="question-line"
+              />
+            </MenuTrigger>
+          </Tooltip>
           <MenuContent align="end" width="172px">
             {showIntercomConsent ? (
               <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
@@ -363,7 +409,7 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
-        <div className="flex items-center pl-4 w-full">
+        <div className="flex items-center w-full pl-4">
           <Icon className="!text-black !mr-2" name="search" size={"md"} />
           <MobileSearchInput
             data-testid="t--application-search-input"
@@ -387,16 +433,40 @@ export function PageHeader(props: PageHeaderProps) {
 
   function MainSearchBar() {
     const [searchInput, setSearchInput] = useState("");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const searchListContainerRef = useRef(null);
+    const searchInputRef = useRef(null);
     const workspacesList = useSelector(getSearchedWorkspaces);
     const applicationsList = useSelector(getSearchedApplications);
+    useOutsideClick(searchListContainerRef, searchInputRef, () => {
+      setIsDropdownOpen(false);
+    });
     const canShowSearchDropdown = !!(
-      workspacesList?.length || applicationsList?.length
+      (workspacesList?.length || applicationsList?.length) &&
+      searchInput
     );
 
     function handleSearchInput(text: string) {
       setSearchInput(text);
       handleSearchDebounced(text);
+      setIsDropdownOpen(true);
     }
+
+    function navigateToApplication(applicationId: string) {
+      const searchedApplication = applicationsList?.find(
+        (app: ApplicationPayload) => app.id === applicationId,
+      );
+
+      const defaultPageId = searchedApplication?.pages.find(
+        (page) => page.isDefault === true,
+      )?.id;
+      const viewURL = viewerURL({
+        pageId: defaultPageId,
+      });
+      setIsDropdownOpen(false);
+      window.location.href = `${viewURL}`;
+    }
+
     return (
       <StyledPageHeader
         data-testid="t--appsmith-page-header"
@@ -454,18 +524,26 @@ export function PageHeader(props: PageHeaderProps) {
                 data-testid="t--application-search-input"
                 isDisabled={isFetchingApplications}
                 onChange={handleSearchInput}
+                onClick={() => setIsDropdownOpen(true)}
                 placeholder={""}
+                ref={searchInputRef}
                 value={searchInput}
               />
-              {canShowSearchDropdown && (
-                <SearchListContainer>
+              {canShowSearchDropdown && isDropdownOpen && (
+                <SearchListContainer ref={searchListContainerRef}>
                   {!!workspacesList?.length && (
-                    <>
-                      <Text className="!mb-2" kind="body-s">
+                    <div className="mb-2">
+                      <Text className="!mb-2 !block" kind="body-s">
                         Workspaces
                       </Text>
                       {workspacesList.map((workspace: Workspace) => (
-                        <SearchListItem key={workspace.id}>
+                        <SearchListItem
+                          key={workspace.id}
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            window.location.href = `${window.location.pathname}#${workspace?.id}`;
+                          }}
+                        >
                           <Icon
                             className="!mr-2"
                             color="var(--ads-v2-color-fg)"
@@ -477,7 +555,7 @@ export function PageHeader(props: PageHeaderProps) {
                           </Text>
                         </SearchListItem>
                       ))}
-                    </>
+                    </div>
                   )}
                   {!!applicationsList?.length && (
                     <>
@@ -486,12 +564,22 @@ export function PageHeader(props: PageHeaderProps) {
                       </Text>
                       {applicationsList.map(
                         (application: ApplicationPayload) => (
-                          <SearchListItem key={application.id}>
-                            <Icon
-                              className="!mr-2"
+                          <SearchListItem
+                            key={application.id}
+                            onClick={() =>
+                              navigateToApplication(application.id)
+                            }
+                          >
+                            <CircleAppIcon
+                              className="!mr-1"
                               color="var(--ads-v2-color-fg)"
-                              name="group-2-line"
-                              size="md"
+                              name={
+                                application?.icon ||
+                                (getApplicationIcon(
+                                  application.id,
+                                ) as AppIconName)
+                              }
+                              size={Size.xxs}
                             />
                             <Text className="truncate" kind="body-m">
                               {application.name}

@@ -38,7 +38,14 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { Button, Icon, Text as NewText, Option, Select } from "design-system";
+import {
+  Button,
+  Icon,
+  Text as NewText,
+  Option,
+  Select,
+  Tooltip,
+} from "design-system";
 import {
   fetchAllApplicationsOfWorkspace,
   updateApplication,
@@ -63,6 +70,7 @@ import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
 import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import {
+  CREATE_A_NEW_WORKSPACE,
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
@@ -241,6 +249,9 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   height: calc(100vh - ${(props) => 48 + (props.isBannerVisible ? 48 : 0)}px);
   display: flex;
   flex-direction: column;
+  button {
+    height: 34px !important;
+  }
 `;
 
 export function LeftPaneSection(props: {
@@ -277,13 +288,18 @@ export function LeftPaneSection(props: {
       <div className="flex items-center py-3 justify-between">
         <NewText kind="heading-xs">{props.heading}</NewText>
         {canCreateWorkspace && (
-          <Button
-            data-testid="t--workspace-new-workspace-auto-create"
-            isDisabled={props.isFetchingWorkspaces}
-            kind="tertiary"
-            onClick={createNewWorkspace}
-            startIcon="add-line"
-          />
+          <Tooltip
+            content={createMessage(CREATE_A_NEW_WORKSPACE)}
+            placement="right"
+          >
+            <Button
+              data-testid="t--workspace-new-workspace-auto-create"
+              isDisabled={props.isFetchingWorkspaces}
+              kind="tertiary"
+              onClick={createNewWorkspace}
+              startIcon="add-line"
+            />
+          </Tooltip>
         )}
       </div>
       {props.children}
@@ -300,6 +316,12 @@ export const WorkpsacesNavigator = styled.div`
   overflow: auto;
   margin-bottom: 4px;
   ${thinScrollbar};
+  .selected-workspace {
+    border-radius: 4px !important;
+    &:hover {
+      background-color: var(--ads-v2-color-bg-muted);
+    }
+  }
 `;
 
 export const textIconStyles = (props: { color: string; hover: string }) => {
@@ -331,6 +353,7 @@ export function WorkspaceMenuItem({
   if (!workspace.id) return null;
   return (
     <ListItem
+      className={selected ? "selected-workspace" : ""}
       containerClassName={isFetchingWorkspaces ? BlueprintClasses.SKELETON : ""}
       ellipsize={
         isFetchingWorkspaces ? 100 : 22

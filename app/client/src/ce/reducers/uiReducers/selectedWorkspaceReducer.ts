@@ -30,12 +30,6 @@ export const initialState: SelectedWorkspaceReduxState = {
 };
 
 export const handlers = {
-  [ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT]: (
-    draftState: SelectedWorkspaceReduxState,
-  ) => {
-    draftState.workspace = null;
-  },
-
   [ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_INIT]: (
     draftState: SelectedWorkspaceReduxState,
   ) => {
