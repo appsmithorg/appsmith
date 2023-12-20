@@ -20,11 +20,11 @@
 }
 
 .tag {
-  height: var(--sizing-6);
+  height: var(--sizing-5);
   color: var(--color-fg);
   background-color: var(--color-bg-neutral-subtle);
   border-radius: var(--border-radius-1);
-  padding: 0 var(--inner-spacing-2);
+  padding: 0 var(--inner-spacing-1);
   outline: none;
   cursor: default;
   display: flex;
@@ -75,7 +75,7 @@
     background: none;
     border: none;
     padding: 0;
-    margin-inline-start: var(--inner-spacing-1);
+    margin-inline-start: var(--inner-spacing-0);
     color: var(--color-fg);
     transition: color 200ms;
     outline: none;
