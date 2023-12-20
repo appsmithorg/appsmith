@@ -19,6 +19,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import { basePathForActiveAction } from "@appsmith/pages/Editor/Explorer/helpers";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -36,7 +37,7 @@ const JSSection = () => {
   const pageId = useSelector(getCurrentPageId);
   const files = useSelector(selectJSForPagespane);
   const JSObjects = files["JS Objects"];
-  const activeActionId = useActiveAction();
+  const activeActionId = useActiveAction(basePathForActiveAction);
   const applicationId = useSelector(getCurrentApplicationId);
 
   const pagePermissions = useSelector(getPagePermissions);

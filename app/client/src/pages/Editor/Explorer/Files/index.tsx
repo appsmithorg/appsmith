@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import {
+  basePathForActiveAction,
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -67,7 +68,7 @@ function Files() {
     openMenu(true);
   }, [dispatch, openMenu]);
 
-  const activeActionId = useActiveAction();
+  const activeActionId = useActiveAction(basePathForActiveAction);
 
   useEffect(() => {
     if (!activeActionId) return;

@@ -16,8 +16,6 @@ import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReduce
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -264,11 +262,11 @@ export const useEntityEditState = (entityId: string) => {
   );
 };
 
-export function useActiveAction() {
+export function useActiveAction(path: string[]) {
   const location = useLocation();
 
   const baseMatch = matchPath<{ apiId: string }>(location.pathname, {
-    path: [BUILDER_PATH, BUILDER_PATH_DEPRECATED],
+    path,
     strict: false,
     exact: false,
   });

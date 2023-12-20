@@ -20,11 +20,12 @@ import { ADD_PATH } from "constants/routes";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { basePathForActiveAction } from "@appsmith/pages/Editor/Explorer/helpers";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectQueriesForPagespane);
-  const activeActionId = useActiveAction();
+  const activeActionId = useActiveAction(basePathForActiveAction);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
