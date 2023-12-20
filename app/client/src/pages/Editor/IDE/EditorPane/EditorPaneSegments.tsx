@@ -87,7 +87,7 @@ const EditorPaneSegments = () => {
     }
   };
   return (
-    <Flex flexDirection="column" gap="spacing-2">
+    <Flex flexDirection="column" gap="spacing-2" height={"calc(100vh - 225px)"}>
       <Flex
         alignItems="center"
         className="ide-pages-pane__header"

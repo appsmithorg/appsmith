@@ -47,7 +47,7 @@ const ListWidgets = () => {
     <Flex
       flexDirection="column"
       gap="spaces-3"
-      overflow="hidden"
+      overflow="scroll"
       padding="spaces-3"
     >
       <Flex flex="1" flexDirection={"column"} gap="spaces-2" overflow="scroll">
