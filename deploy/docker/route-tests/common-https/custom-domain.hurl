@@ -16,7 +16,7 @@ GET https://custom-domain.com
 HTTP 200
 [Asserts]
 header "Server" not exists
-certificate "Issuer" == "O = mkcert development CA, OU = root@ar, CN = mkcert root@ar"
+certificate "Issuer" contains "{{ca_issuer}}"
 
 GET https://custom-domain.com/random/path
 HTTP 200

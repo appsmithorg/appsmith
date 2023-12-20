@@ -6,6 +6,8 @@ import type { COLORS } from "../../../shared";
 
 interface ItemProps<T> extends HeadlessItemProps<T> {
   color?: keyof typeof COLORS;
+  icon?: React.ComponentType;
+  iconPosition?: "start" | "end";
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

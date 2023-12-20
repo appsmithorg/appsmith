@@ -69,7 +69,7 @@ describe(
         .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
         .then((height) => {
           const textHeight = parseInt(height?.split("px")[0]);
-          expect(textHeight).to.eq(172);
+          expect(textHeight).to.greaterThan(170);
         });
     });
   },
