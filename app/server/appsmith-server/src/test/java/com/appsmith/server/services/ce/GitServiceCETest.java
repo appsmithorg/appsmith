@@ -2857,14 +2857,14 @@ public class GitServiceCETest {
                     branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
 
-                    Application.ThemeSettings themeSettings = new Application.ThemeSettings();
+                    Application.ThemeSetting themeSettings = new Application.ThemeSetting();
                     themeSettings.setSizing(1);
                     themeSettings.setDensity(1);
                     themeSettings.setBorderRadius("#000000");
                     themeSettings.setAccentColor("#FFFFFF");
                     themeSettings.setFontFamily("#000000");
-                    themeSettings.setColorMode(Application.ThemeSettings.Type.LIGHT);
-                    branchedApplication.getUnpublishedApplicationDetail().setThemeSettings(themeSettings);
+                    themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication -> applicationService.update(
@@ -2884,11 +2884,11 @@ public class GitServiceCETest {
                                     .getOrientation())
                             .isEqualTo("top");
                     assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
-                    Application.ThemeSettings themes =
-                            branchedApp.getApplicationDetail().getThemeSettings();
+                    Application.ThemeSetting themes =
+                            branchedApp.getApplicationDetail().getThemeSetting();
                     assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
                     assertThat(themes.getBorderRadius()).isEqualTo("#000000");
-                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSettings.Type.LIGHT);
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
                     assertThat(themes.getDensity()).isEqualTo(1);
                     assertThat(themes.getFontFamily()).isEqualTo("#000000");
                     assertThat(themes.getSizing()).isEqualTo(1);

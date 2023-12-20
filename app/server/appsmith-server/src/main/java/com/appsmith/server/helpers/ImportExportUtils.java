@@ -99,8 +99,8 @@ public class ImportExportUtils {
                 existingApplicationDetail.setNavigationSetting(null);
             }
 
-            if (importedApplicationDetail.getThemeSettings() == null) {
-                existingApplicationDetail.setThemeSettings(null);
+            if (importedApplicationDetail.getThemeSetting() == null) {
+                existingApplicationDetail.setThemeSetting(null);
             }
         }
     }

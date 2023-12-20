@@ -265,6 +265,16 @@ public class ImportApplicationServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
 
+        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+        themeSettings.setSizing(1);
+        themeSettings.setDensity(1);
+        themeSettings.setBorderRadius("#000000");
+        themeSettings.setAccentColor("#FFFFFF");
+        themeSettings.setFontFamily("#000000");
+        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
+
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .block();
@@ -806,6 +816,40 @@ public class ImportApplicationServiceTests {
                     assertThat(exportedApp.getPages()).hasSize(1);
                     assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
                     assertThat(exportedApp.getGitApplicationMetadata()).isNull();
+
+                    assertThat(exportedApp.getApplicationDetail()).isNotNull();
+                    assertThat(exportedApp.getApplicationDetail().getThemeSetting())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getAccentColor())
+                            .isEqualTo("#FFFFFF");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getColorMode())
+                            .isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getDensity())
+                            .isEqualTo(1);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getFontFamily())
+                            .isEqualTo("#000000");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isEqualTo(1);
 
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
@@ -2420,14 +2464,14 @@ public class ImportApplicationServiceTests {
                     navigationSetting.setOrientation("top");
                     applicationDetail.setNavigationSetting(navigationSetting);
 
-                    Application.ThemeSettings themeSettings = new Application.ThemeSettings();
+                    Application.ThemeSetting themeSettings = new Application.ThemeSetting();
                     themeSettings.setSizing(1);
                     themeSettings.setDensity(1);
                     themeSettings.setBorderRadius("#000000");
                     themeSettings.setAccentColor("#FFFFFF");
                     themeSettings.setFontFamily("#000000");
-                    themeSettings.setColorMode(Application.ThemeSettings.Type.LIGHT);
-                    applicationDetail.setThemeSettings(themeSettings);
+                    themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    applicationDetail.setThemeSetting(themeSettings);
 
                     application.setUnpublishedApplicationDetail(applicationDetail);
                     application.setPublishedApplicationDetail(applicationDetail);
@@ -2460,11 +2504,11 @@ public class ImportApplicationServiceTests {
                                     .getOrientation())
                             .isEqualTo("top");
 
-                    Application.ThemeSettings themes =
-                            initialApplication.getApplicationDetail().getThemeSettings();
+                    Application.ThemeSetting themes =
+                            initialApplication.getApplicationDetail().getThemeSetting();
                     assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
                     assertThat(themes.getBorderRadius()).isEqualTo("#000000");
-                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSettings.Type.LIGHT);
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
                     assertThat(themes.getDensity()).isEqualTo(1);
                     assertThat(themes.getFontFamily()).isEqualTo("#000000");
                     assertThat(themes.getSizing()).isEqualTo(1);

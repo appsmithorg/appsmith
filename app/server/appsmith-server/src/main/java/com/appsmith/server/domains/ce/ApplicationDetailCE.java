@@ -13,11 +13,11 @@ import lombok.ToString;
 public class ApplicationDetailCE {
     Application.AppPositioning appPositioning;
     Application.NavigationSetting navigationSetting;
-    Application.ThemeSettings themeSettings;
+    Application.ThemeSetting themeSetting;
 
     public ApplicationDetailCE() {
         this.appPositioning = null;
         this.navigationSetting = null;
-        this.themeSettings = null;
+        this.themeSetting = null;
     }
 }

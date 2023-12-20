@@ -253,15 +253,15 @@ public class Application extends BaseDomain {
                                 ? null
                                 : new NavigationSetting());
         this.getUnpublishedApplicationDetail()
-                .setThemeSettings(
-                        application.getUnpublishedApplicationDetail().getThemeSettings() == null
+                .setThemeSetting(
+                        application.getUnpublishedApplicationDetail().getThemeSetting() == null
                                 ? null
-                                : new ThemeSettings());
+                                : new ThemeSetting());
         this.getPublishedApplicationDetail()
-                .setThemeSettings(
-                        application.getPublishedApplicationDetail().getThemeSettings() == null
+                .setThemeSetting(
+                        application.getPublishedApplicationDetail().getThemeSetting() == null
                                 ? null
-                                : new ThemeSettings());
+                                : new ThemeSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -427,7 +427,7 @@ public class Application extends BaseDomain {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ThemeSettings {
+    public static class ThemeSetting {
 
         @JsonView(Views.Public.class)
         private String accentColor;
@@ -447,7 +447,7 @@ public class Application extends BaseDomain {
         @JsonView(Views.Public.class)
         Type colorMode;
 
-        public ThemeSettings(Type colorMode) {
+        public ThemeSetting(Type colorMode) {
             this.colorMode = colorMode;
         }
 
