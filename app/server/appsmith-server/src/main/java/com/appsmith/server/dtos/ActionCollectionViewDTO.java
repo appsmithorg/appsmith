@@ -10,4 +10,6 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ActionCollectionViewDTO extends ActionCollectionCE_DTO {}
+public class ActionCollectionViewDTO extends ActionCollectionCE_DTO {
+    String workflowId;
+}

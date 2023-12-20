@@ -3,6 +3,7 @@ package com.appsmith.server.actioncollections.base;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,4 +22,6 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
             String workflowId, Optional<AclPermission> permission);
 
     Mono<List<ActionCollection>> publishActionCollectionsForWorkflow(String workflowId, AclPermission aclPermission);
+
+    Flux<ActionCollectionViewDTO> getActionCollectionsForViewModeForWorkflow(String workflowId, String branchName);
 }

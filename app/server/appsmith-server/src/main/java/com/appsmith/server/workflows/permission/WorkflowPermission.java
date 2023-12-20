@@ -10,5 +10,7 @@ public interface WorkflowPermission extends DomainPermission {
 
     AclPermission getPublishPermission();
 
+    AclPermission getExecutePermission();
+
     AclPermission getReadHistoryPermission();
 }

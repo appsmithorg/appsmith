@@ -506,7 +506,21 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 }
             }
         }
+        if (StringUtils.isNotBlank(action.getWorkflowId())) {
+            actionViewDTO.setWorkflowId(action.getWorkflowId());
+        }
         return actionViewDTO;
+    }
+
+    @Override
+    public Flux<ActionViewDTO> getActionsForViewModeForWorkflow(String workflowId, String branchName) {
+        return findAllActionsByContextIdAndContextTypeAndViewMode(
+                        workflowId,
+                        CreatorContextType.WORKFLOW,
+                        actionPermission.getExecutePermission(),
+                        Boolean.TRUE,
+                        Boolean.FALSE)
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), Boolean.TRUE));
     }
 
     @Override
@@ -539,6 +553,16 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                     workflowId, CreatorContextType.WORKFLOW, actionPermission.getEditPermission(), includeJsActions);
         }
         return super.getUnpublishedActionsFromRepo(params, includeJsActions);
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> publishActionsForActionCollection(
+            String actionCollectionId, AclPermission aclPermission) {
+        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+                repository.archiveDeletedUnpublishedActionsForCollection(actionCollectionId, aclPermission);
+        Mono<List<BulkWriteResult>> publishActions =
+                repository.publishActionsForCollection(actionCollectionId, aclPermission);
+        return archiveDeletedUnpublishedActions.then(publishActions);
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -19,7 +18,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -46,8 +44,6 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
     private final DatasourcePermission datasourcePermission;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
-    private final ActionCollectionService actionCollectionService;
-    private final ActionCollectionRepository actionCollectionRepository;
 
     public CrudWorkflowEntityServiceImpl(
             Scheduler scheduler,
@@ -61,9 +57,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
             DatasourceService datasourceService,
             DatasourcePermission datasourcePermission,
             ActionPermission actionPermission,
-            PolicyGenerator policyGenerator,
-            ActionCollectionService actionCollectionService,
-            ActionCollectionRepository actionCollectionRepository) {
+            PolicyGenerator policyGenerator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workflowPermission = workflowPermission;
         this.newActionService = newActionService;
@@ -71,8 +65,6 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
         this.datasourcePermission = datasourcePermission;
         this.actionPermission = actionPermission;
         this.policyGenerator = policyGenerator;
-        this.actionCollectionService = actionCollectionService;
-        this.actionCollectionRepository = actionCollectionRepository;
     }
 
     /**
@@ -136,7 +128,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
         workflowAction.setWorkspaceId(workflow.getWorkspaceId());
         workflowAction.setUnpublishedAction(actionDTO);
         workflowAction.setDefaultResources(new DefaultResources());
-        workflowAction.setPublishedAction(new ActionDTO());
+        workflowAction.setPublishedAction(null);
         workflowAction.setWorkflowId(workflow.getId());
         Set<Policy> workflowActionPolicies =
                 policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, Action.class);
@@ -187,6 +179,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
         Set<Policy> workflowActionPolicies =
                 policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, Action.class);
         workflowActionCollection.setPolicies(workflowActionPolicies);
+        workflowActionCollection.setPublishedCollection(null);
         return workflowActionCollection;
     }
 

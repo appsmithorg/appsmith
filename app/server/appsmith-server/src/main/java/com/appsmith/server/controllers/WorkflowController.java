@@ -9,6 +9,7 @@ import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.appsmith.server.workflows.proxy.ProxyWorkflowService;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -143,5 +144,14 @@ public class WorkflowController {
         return interactWorkflowService
                 .publishWorkflow(workflowId)
                 .map(publishedWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), publishedWorkflow, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/trigger/{workflowId}")
+    public Mono<ResponseDTO<JSONObject>> triggerWorkflow(
+            @PathVariable String workflowId, ServerWebExchange serverWebExchange, @RequestBody JsonNode triggerData) {
+        return interactWorkflowService
+                .triggerWorkflow(workflowId, serverWebExchange.getRequest().getHeaders(), triggerData)
+                .map(triggeredWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), triggeredWorkflow, null));
     }
 }

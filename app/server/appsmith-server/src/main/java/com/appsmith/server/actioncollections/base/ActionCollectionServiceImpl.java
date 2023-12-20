@@ -8,17 +8,17 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
+import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
@@ -42,7 +43,6 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
-    private final NewActionRepository newActionRepository;
 
     public ActionCollectionServiceImpl(
             Scheduler scheduler,
@@ -56,8 +56,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission,
-            NewActionRepository newActionRepository) {
+            ActionPermission actionPermission) {
         super(
                 scheduler,
                 validator,
@@ -73,7 +72,6 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 actionPermission);
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
-        this.newActionRepository = newActionRepository;
     }
 
     @Override
@@ -174,29 +172,40 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Mono<List<ActionCollection>> publishActionCollectionsForWorkflow(
             String workflowId, AclPermission aclPermission) {
-        return repository
+        Mono<UpdateResult> archiveDeletedUnpublishedActionsCollectionsMono =
+                repository.archiveDeletedUnpublishedActionsCollectionsForWorkflows(workflowId, aclPermission);
+
+        Mono<List<ActionCollection>> publishActionCollectionsAndChildActionsMono = repository
                 .findAllUnpublishedActionCollectionsByContextIdAndContextType(
                         workflowId, CreatorContextType.WORKFLOW, aclPermission)
                 .flatMap(collection -> {
-                    // If the collection was deleted in edit mode, now this can be safely deleted from the repository
-                    if (collection.getUnpublishedCollection().getDeletedAt() != null) {
-                        return this.archiveById(collection.getId()).then(Mono.empty());
-                    }
                     // Publish the collection by copying the unpublished collectionDTO to published collectionDTO
                     collection.setPublishedCollection(collection.getUnpublishedCollection());
-                    return publishActionsForActionCollection(collection.getId(), aclPermission)
+                    return newActionService
+                            .publishActionsForActionCollection(collection.getId(), aclPermission)
                             .then(this.save(collection));
                 })
                 .collectList();
+        return archiveDeletedUnpublishedActionsCollectionsMono.then(publishActionCollectionsAndChildActionsMono);
     }
 
-    private Mono<List<BulkWriteResult>> publishActionsForActionCollection(
-            String actionCollectionId, AclPermission aclPermission) {
-        Mono<UpdateResult> archiveDeletedUnpublishedActions =
-                newActionRepository.archiveDeletedUnpublishedActionsForCollection(actionCollectionId, aclPermission);
-        Mono<List<BulkWriteResult>> publishActions =
-                newActionRepository.publishActionsForCollection(actionCollectionId, aclPermission);
-        return archiveDeletedUnpublishedActions.then(publishActions);
+    @Override
+    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewModeForWorkflow(
+            String workflowId, String branchName) {
+        return repository
+                .findAllPublishedActionCollectionsByContextIdAndContextType(
+                        workflowId, CreatorContextType.WORKFLOW, actionPermission.getExecutePermission())
+                .flatMap(this::generateActionCollectionViewDTO);
+    }
+
+    @Override
+    public Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection) {
+        return super.generateActionCollectionViewDTO(actionCollection).map(actionCollectionViewDTO -> {
+            if (StringUtils.isNotBlank(actionCollection.getWorkflowId())) {
+                actionCollectionViewDTO.setWorkflowId(actionCollection.getWorkflowId());
+            }
+            return actionCollectionViewDTO;
+        });
     }
 
     @Override
@@ -204,6 +213,10 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         if (isModuleContext(collection.getUnpublishedCollection().getContextType())) {
             if (collection.getGitSyncId() == null) {
                 collection.setGitSyncId(collection.getUnpublishedCollection().getModuleId() + "_" + new ObjectId());
+            }
+        } else if (isWorkflowContext(collection.getContextType())) {
+            if (collection.getGitSyncId() == null) {
+                collection.setGitSyncId(collection.getWorkflowId() + "_" + new ObjectId());
             }
         } else {
             super.setGitSyncIdInActionCollection(collection);

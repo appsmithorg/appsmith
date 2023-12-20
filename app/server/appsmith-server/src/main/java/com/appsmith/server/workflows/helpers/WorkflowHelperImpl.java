@@ -18,6 +18,9 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.appsmith.server.workflows.constants.WorkflowDefaultExecutables.EXECUTE_WORKFLOW_ACTION_BODY;
+import static com.appsmith.server.workflows.constants.WorkflowDefaultExecutables.MAIN_JS_OBJECT_BODY;
+
 @Component
 public class WorkflowHelperImpl implements WorkflowHelper {
     private final PermissionGroupRepository permissionGroupRepository;
@@ -146,27 +149,10 @@ public class WorkflowHelperImpl implements WorkflowHelper {
 
     @Override
     public Mono<ActionCollectionDTO> generateMainActionCollectionDTO(Workflow workflow) {
-        String actionFunctionBody =
-                "\n\tThis function takes in a json object as arguments (args) which can be passed when you trigger the workflow.\n"
-                        + "\n\t"
-                        + "\n\t//complete the following line to set up your first activity. Place the cursor after activities. and select the action you'd like"
-                        + "\n\t//to execute from the list menu that appears."
-                        + "\n"
-                        + "\n\tawait activities;"
-                        + "\n\t}"
-                        + "\n}";
-        String actionBody = "function ()" + actionFunctionBody;
-        String actionCollectionBody = "export default {"
-                + "\n// This is a main file for building your workflows. All activities to be executed should be defined within the workflowActivities\n"
-                + "functions. Know more"
-                + "\n"
-                + "\n\texecuteWorkflow () {"
-                + actionFunctionBody;
-
         return pluginService.findByName("JS Functions").map(jsPlugin -> {
             ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
             actionCollectionDTO.setWorkflowId(workflow.getId());
-            actionCollectionDTO.setBody(actionCollectionBody);
+            actionCollectionDTO.setBody(MAIN_JS_OBJECT_BODY);
             actionCollectionDTO.setContextType(CreatorContextType.WORKFLOW);
             actionCollectionDTO.setWorkspaceId(workflow.getWorkspaceId());
             actionCollectionDTO.setName("Main");
@@ -181,7 +167,7 @@ public class WorkflowHelperImpl implements WorkflowHelper {
             ActionConfiguration actionConfiguration = new ActionConfiguration();
             actionConfiguration.setJsArguments(new ArrayList<>());
             actionConfiguration.setTimeoutInMillisecond("0");
-            actionConfiguration.setBody(actionBody);
+            actionConfiguration.setBody(EXECUTE_WORKFLOW_ACTION_BODY);
             actionDTO.setActionConfiguration(actionConfiguration);
             actionCollectionDTO.setActions(List.of(actionDTO));
             return actionCollectionDTO;

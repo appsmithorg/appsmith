@@ -1199,6 +1199,22 @@ public enum AppsmithError {
             "Workflow proxy request failed.",
             ErrorType.INTERNAL_ERROR,
             null),
+    WORKFLOW_NOT_TRIGGERED_WORKFLOW_NOT_PUBLISHED(
+            500,
+            AppsmithErrorCode.WORKFLOW_NOT_TRIGGERED_WORKFLOW_NOT_PUBLISHED.getCode(),
+            "Unable to trigger workflow with ID: {0}. Error: Workflow not published.",
+            AppsmithErrorAction.DEFAULT,
+            "Unable to trigger workflow.",
+            ErrorType.WORKFLOW_ERROR,
+            null),
+    WORKFLOW_NOT_TRIGGERED_MAIN_JS_OBJECT_NOT_FOUND(
+            500,
+            AppsmithErrorCode.WORKFLOW_NOT_TRIGGERED_MAIN_JS_OBJECT_NOT_FOUND.getCode(),
+            "Unable to trigger workflow with ID: {0}. Error: Main JS Object not found.",
+            AppsmithErrorAction.DEFAULT,
+            "Unable to trigger workflow.",
+            ErrorType.WORKFLOW_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

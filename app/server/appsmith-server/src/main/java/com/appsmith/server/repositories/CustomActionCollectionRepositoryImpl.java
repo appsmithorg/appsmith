@@ -2,17 +2,22 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomActionCollectionRepositoryCEImpl;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -131,7 +136,13 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                 completeFieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        // In case an action has been deleted in edit mode, but still exists in deployed mode, ActionCollection object
+        // would exist. To handle this, only fetch non-deleted actions
+        Criteria deletedCriterion = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                        + fieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+                .is(null);
+        List<Criteria> criteriaList = List.of(contextIdAndContextTypeCriteria, deletedCriterion);
+        return queryAll(criteriaList, Optional.of(permission));
     }
 
     @Override
@@ -151,5 +162,23 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+    }
+
+    @Override
+    public Mono<UpdateResult> archiveDeletedUnpublishedActionsCollectionsForWorkflows(
+            String workflowId, AclPermission aclPermission) {
+        Criteria workflowIdCriteria =
+                where(fieldName(QActionCollection.actionCollection.workflowId)).is(workflowId);
+        String unpublishedDeletedAtFieldName = String.format(
+                "%s.%s",
+                fieldName(QActionCollection.actionCollection.unpublishedCollection),
+                fieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt));
+        Criteria deletedFromUnpublishedCriteria =
+                where(unpublishedDeletedAtFieldName).ne(null);
+
+        Update update = new Update();
+        update.set(FieldName.DELETED, true);
+        update.set(FieldName.DELETED_AT, Instant.now());
+        return updateByCriteria(List.of(workflowIdCriteria, deletedFromUnpublishedCriteria), update, aclPermission);
     }
 }
