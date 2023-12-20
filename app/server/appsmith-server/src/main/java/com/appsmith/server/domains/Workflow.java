@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
@@ -72,5 +73,10 @@ public class Workflow extends BranchAwareDomain {
             return ISO_FORMATTER.format(lastDeployedAt);
         }
         return null;
+    }
+
+    @JsonView(Views.Public.class)
+    public Boolean isWorkflowPublished() {
+        return Objects.nonNull(this.lastDeployedAt);
     }
 }

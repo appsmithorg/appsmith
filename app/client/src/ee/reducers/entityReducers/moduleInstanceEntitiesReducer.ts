@@ -21,6 +21,7 @@ import type {
 } from "@appsmith/api/ModuleInstanceApi";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { SavePageResponse } from "api/PageApi";
+import { klona } from "klona";
 
 type UpdateModuleInstanceSettingsResponse = JSCollection | Action;
 
@@ -29,7 +30,7 @@ export interface ModuleInstanceEntitiesReducerState {
   jsCollections: JSCollectionData[];
 }
 
-const initialState: ModuleInstanceEntitiesReducerState = {
+export const initialState: ModuleInstanceEntitiesReducerState = {
   actions: [],
   jsCollections: [],
 };
@@ -442,6 +443,9 @@ export const handlers = {
         });
       });
     });
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 };
 

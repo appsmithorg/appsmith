@@ -35,6 +35,10 @@ const StyledDivider = styled(Divider)`
   margin: var(--ads-spaces-7) 0;
 `;
 
+const StyledSettingsWrapper = styled.div`
+  width: 600px;
+`;
+
 function QueryModuleInstanceEditor({
   moduleInstanceId,
 }: QueryModuleInstanceEditorProps) {
@@ -99,19 +103,22 @@ function QueryModuleInstanceEditor({
         </Button>
       </Header>
       <Body>
-        <StyledInputsFormWrapper>
-          <InputsForm
-            defaultValues={{ inputs: moduleInstance.inputs }}
-            inputsForm={module.inputsForm}
-            moduleInstanceId={moduleInstanceId}
+        <StyledSettingsWrapper>
+          <StyledInputsFormWrapper>
+            <InputsForm
+              defaultValues={{ inputs: moduleInstance.inputs }}
+              inputsForm={module.inputsForm}
+              moduleInstanceId={moduleInstanceId}
+              moduleInstanceName={moduleInstance.name}
+            />
+          </StyledInputsFormWrapper>
+          <StyledDivider />
+          <SettingsForm
+            initialValues={publicAction}
+            onFormValuesChange={onSettingsFormChange}
+            settings={module.settingsForm}
           />
-        </StyledInputsFormWrapper>
-        <StyledDivider />
-        <SettingsForm
-          initialValues={publicAction}
-          onFormValuesChange={onSettingsFormChange}
-          settings={module.settingsForm}
-        />
+        </StyledSettingsWrapper>
       </Body>
       <ResponseView
         action={publicAction}

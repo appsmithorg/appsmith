@@ -1,27 +1,20 @@
 import { InputText } from "components/propertyControls/InputTextControl";
-import React, { useContext } from "react";
+import React from "react";
 
-import { useController, useFormContext } from "react-hook-form";
-import { InputsFormContext } from "../InputsFormContext";
+import { useController } from "react-hook-form";
 
 interface InputFieldProps {
   name: string;
-  evaluatedValueLookupPath: string;
+  evaluatedValue: unknown;
+  dataTreePath?: string;
 }
 
-function InputField({ evaluatedValueLookupPath, name }: InputFieldProps) {
+function InputField({ dataTreePath, evaluatedValue, name }: InputFieldProps) {
   const {
     field: { onBlur, onChange, value },
   } = useController({
     name,
   });
-  const { getValues } = useFormContext();
-  const { dataTreePathPrefix, useWatchEvalPath } =
-    useContext(InputsFormContext);
-  const evalKey = getValues(evaluatedValueLookupPath);
-
-  const evaluatedValue = useWatchEvalPath?.(evalKey);
-  const dataTreePath = `${dataTreePathPrefix}.${evalKey}`;
 
   return (
     <InputText

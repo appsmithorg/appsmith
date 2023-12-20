@@ -30,10 +30,16 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
             String moduleId, AclPermission editPermission);
 
     Flux<NewAction> findByWorkflowId(
-            String workflowId, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
+            String workflowId,
+            Optional<AclPermission> aclPermission,
+            Optional<List<String>> includeFields,
+            Boolean includeJs);
 
     Flux<NewAction> findByWorkflowIds(
-            List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
+            List<String> workflowIds,
+            Optional<AclPermission> aclPermission,
+            Optional<List<String>> includeFields,
+            Boolean includeJs);
 
     Mono<UpdateResult> archiveDeletedUnpublishedActionsForWorkflows(String workflowId, AclPermission aclPermission);
 

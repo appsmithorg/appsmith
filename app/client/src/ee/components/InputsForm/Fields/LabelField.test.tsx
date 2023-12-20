@@ -27,7 +27,7 @@ describe("LabelField", () => {
 
     render(
       <Wrapper defaultValues={defaultValues}>
-        <LabelField name={name} onDeleteClick={onDeleteClick} />
+        <LabelField id="test" name={name} onDeleteClick={onDeleteClick} />
       </Wrapper>,
     );
 
@@ -42,7 +42,7 @@ describe("LabelField", () => {
 
     render(
       <Wrapper>
-        <LabelField name={name} onDeleteClick={onDeleteClick} />
+        <LabelField id="test" name={name} onDeleteClick={onDeleteClick} />
       </Wrapper>,
     );
 

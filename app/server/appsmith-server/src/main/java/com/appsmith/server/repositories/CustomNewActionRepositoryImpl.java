@@ -160,16 +160,30 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
     @Override
     public Flux<NewAction> findByWorkflowId(
-            String workflowId, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
-        return this.findByWorkflowIds(List.of(workflowId), aclPermission, includeFields);
+            String workflowId,
+            Optional<AclPermission> aclPermission,
+            Optional<List<String>> includeFields,
+            Boolean includeJs) {
+        return this.findByWorkflowIds(List.of(workflowId), aclPermission, includeFields, includeJs);
     }
 
     @Override
     public Flux<NewAction> findByWorkflowIds(
-            List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
+            List<String> workflowIds,
+            Optional<AclPermission> aclPermission,
+            Optional<List<String>> includeFields,
+            Boolean includeJs) {
+        List<Criteria> criteria = new ArrayList<>();
         Criteria workflowCriteria =
                 Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
-        return queryAll(List.of(workflowCriteria), includeFields, aclPermission, Optional.empty());
+        criteria.add(workflowCriteria);
+        if (!includeJs) {
+            Criteria nonJsTypeCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+            criteria.add(nonJsTypeCriteria);
+        }
+
+        return queryAll(criteria, includeFields, aclPermission, Optional.empty());
     }
 
     @Override

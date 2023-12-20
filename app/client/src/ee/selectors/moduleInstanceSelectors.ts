@@ -6,6 +6,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { QueryModuleInstanceEntity } from "@appsmith/entities/DataTree/types";
 
 const DEFAULT_SAVING_STATUS = {
   isSaving: false,
@@ -15,6 +16,8 @@ const DEFAULT_SAVING_STATUS = {
 const DEFAULT_RUNNING_STATUS = {
   isRunning: false,
 };
+
+const DEFAULT_INPUT_EVAL_VALUES = {};
 
 export const getAllModuleInstances = (
   state: AppState,
@@ -114,3 +117,14 @@ export const getIsModuleInstanceRunningStatus = (
 ) =>
   state.ui.moduleInstancePane.runningStatus[moduleInstanceId] ||
   DEFAULT_RUNNING_STATUS;
+
+export const getModuleInstanceEvalValues = (
+  state: AppState,
+  moduleInstanceName: string,
+) => {
+  const moduleInstance = state.evaluations.tree[
+    moduleInstanceName
+  ] as QueryModuleInstanceEntity;
+
+  return moduleInstance?.inputs || DEFAULT_INPUT_EVAL_VALUES;
+};

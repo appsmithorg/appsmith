@@ -1,6 +1,5 @@
 export * from "ce/sagas/WorkspaceSagas";
 import {
-  fetchRolesSaga,
   fetchWorkspaceSaga,
   saveWorkspaceSaga,
   createWorkspaceSaga,
@@ -96,7 +95,6 @@ export function* deleteWorkspaceUserSaga(
 
 export default function* workspaceSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT, fetchRolesSaga),
     takeLatest(ReduxActionTypes.FETCH_CURRENT_WORKSPACE, fetchWorkspaceSaga),
     takeLatest(ReduxActionTypes.SAVE_WORKSPACE_INIT, saveWorkspaceSaga),
     takeLatest(ReduxActionTypes.CREATE_WORKSPACE_INIT, createWorkspaceSaga),

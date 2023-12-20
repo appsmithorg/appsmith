@@ -13,9 +13,9 @@ type ID = string;
 
 export type PackagesReducerState = Record<ID, Package>;
 
-const INITIAL_STATE: PackagesReducerState = {};
+export const initialState: PackagesReducerState = {};
 
-const packageReducer = createImmerReducer(INITIAL_STATE, {
+const packageReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_SUCCESS]: (
     draftState: PackagesReducerState,
     action: ReduxAction<Package>,
@@ -50,13 +50,17 @@ const packageReducer = createImmerReducer(INITIAL_STATE, {
     draftState: PackagesReducerState,
     action: ReduxAction<FetchConsumablePackagesInWorkspaceResponse>,
   ) => {
-    draftState = klona(INITIAL_STATE);
+    draftState = klona(initialState);
     const { packages } = action.payload;
     packages.map((pkg) => {
       draftState[pkg.id] = pkg;
     });
 
     return draftState;
+  },
+
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 });
 

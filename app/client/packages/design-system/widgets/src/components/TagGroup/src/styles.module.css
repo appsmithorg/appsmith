@@ -85,7 +85,7 @@
       background: var(--color-bg-neutral-subtle-hover);
     }
 
-    svg {
+    :is(svg) {
       width: 1em;
       height: 1em;
     }

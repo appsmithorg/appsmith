@@ -71,6 +71,7 @@ import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPerm
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getLateralPermMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getRoleViewPermissionDTO;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -1178,7 +1179,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                     List<String> workflowIds =
                             workflows.stream().map(Workflow::getId).toList();
                     return actionRepository
-                            .findByWorkflowIds(workflowIds, Optional.empty(), Optional.of(workflowActionsIncludeFields))
+                            .findByWorkflowIds(
+                                    workflowIds, Optional.empty(), Optional.of(workflowActionsIncludeFields), FALSE)
                             .collectMultimap(NewAction::getWorkflowId, Function.identity());
                 })
                 .cache();

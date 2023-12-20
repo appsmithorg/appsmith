@@ -101,7 +101,9 @@ public enum AnalyticsEvents {
     FREE_PLAN("free_plan_instance"),
     REMOVE_LICENSE("remove_license_instance"),
     UPDATE_LICENSE("update_license_instance"),
-    REFRESH_LICENSE("refresh_license_instance");
+    REFRESH_LICENSE("refresh_license_instance"),
+    WORKFLOW_DEPLOYED,
+    ;
 
     private final String eventName;
 

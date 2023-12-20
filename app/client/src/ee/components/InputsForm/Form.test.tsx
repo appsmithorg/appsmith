@@ -61,4 +61,99 @@ describe("Form", () => {
     // Ensure that the subscription is unsubscribed upon unmount
     expect(onUpdateForm).toHaveBeenCalledTimes(0); // Called initially
   });
+
+  it("should reset form on triggerReset true", () => {
+    const onUpdateForm = jest.fn();
+    const onResetComplete = jest.fn();
+
+    const { rerender } = render(
+      <Form defaultValues={{ name: "John" }} onUpdateForm={onUpdateForm}>
+        <TestField name="name" />
+      </Form>,
+    );
+
+    // Check the value of the field
+    expect(screen.getByTestId("testField-name")).toHaveValue("John");
+    expect(onUpdateForm).toBeCalledTimes(0);
+
+    const updatedDefaultValues = {
+      name: "Harry",
+    };
+
+    // Attempt reset by setting triggerReset to true
+    rerender(
+      <Form
+        defaultValues={updatedDefaultValues}
+        onResetComplete={onResetComplete}
+        onUpdateForm={onUpdateForm}
+        triggerReset
+      >
+        <TestField name="name" />
+      </Form>,
+    );
+
+    // Check the value of the field
+    expect(screen.getByTestId("testField-name")).toHaveValue("Harry");
+    expect(onResetComplete).toBeCalledTimes(1);
+    expect(onUpdateForm).toBeCalledTimes(0);
+
+    // Attempt unsetting reset by setting triggerReset to false
+    rerender(
+      <Form
+        defaultValues={updatedDefaultValues}
+        onResetComplete={onResetComplete}
+        onUpdateForm={onUpdateForm}
+        triggerReset={false}
+      >
+        <TestField name="name" />
+      </Form>,
+    );
+
+    // Check the value of the field to still remain the same
+    expect(screen.getByTestId("testField-name")).toHaveValue("Harry");
+    expect(onResetComplete).toBeCalledTimes(1);
+    expect(onUpdateForm).toBeCalledTimes(0);
+
+    jest.clearAllMocks();
+
+    // Attempt to reset with different defaultValues structure
+    const newDefaultValues = {
+      age: 10,
+    };
+
+    rerender(
+      <Form
+        defaultValues={newDefaultValues}
+        onResetComplete={onResetComplete}
+        onUpdateForm={onUpdateForm}
+        triggerReset
+      >
+        <TestField name="age" />
+      </Form>,
+    );
+
+    // Check the value of the new field
+    expect(screen.getByTestId("testField-age")).toHaveValue("10");
+    // Check the value of the old field is removed
+    expect(screen.queryByTestId("testField-name")).toBeNull();
+    expect(onResetComplete).toBeCalledTimes(1);
+    expect(onUpdateForm).toBeCalledTimes(0);
+
+    // Attempt unsetting reset by setting triggerReset to false
+    rerender(
+      <Form
+        defaultValues={updatedDefaultValues}
+        onResetComplete={onResetComplete}
+        onUpdateForm={onUpdateForm}
+        triggerReset={false}
+      >
+        <TestField name="age" />
+      </Form>,
+    );
+
+    // Check the value of the field to still remain the same
+    expect(screen.getByTestId("testField-age")).toHaveValue("10");
+    expect(onResetComplete).toBeCalledTimes(1);
+    expect(onUpdateForm).toBeCalledTimes(0);
+  });
 });

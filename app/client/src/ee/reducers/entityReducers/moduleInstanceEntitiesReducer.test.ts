@@ -1,6 +1,8 @@
 import { klona } from "klona";
 
-import moduleInstanceEntitiesReducer from "./moduleInstanceEntitiesReducer";
+import moduleInstanceEntitiesReducer, {
+  initialState,
+} from "./moduleInstanceEntitiesReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
@@ -324,5 +326,19 @@ describe("moduleInstanceEntitiesReducer", () => {
 
     const nextState = moduleInstanceEntitiesReducer(currentState, action);
     expect(nextState).toEqual(expectedState);
+  });
+
+  it("should reset to initial state on RESET_EDITOR_REQUEST", () => {
+    const currentState = {
+      actions: convertActionsToStateActions(DEFAULT_ACTIONS),
+      jsCollections: convertActionsToStateActions(DEFAULT_JS_COLLECTIONS),
+    };
+
+    const result = moduleInstanceEntitiesReducer(currentState, {
+      type: ReduxActionTypes.RESET_EDITOR_REQUEST,
+      payload: undefined,
+    });
+
+    expect(result).toStrictEqual(initialState);
   });
 });

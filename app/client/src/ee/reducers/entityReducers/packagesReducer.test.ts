@@ -1,6 +1,8 @@
 import { klona } from "klona";
 
-import reducer from "@appsmith/reducers/entityReducers/packagesReducer";
+import reducer, {
+  initialState,
+} from "@appsmith/reducers/entityReducers/packagesReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { PackagesReducerState } from "@appsmith/reducers/entityReducers/packagesReducer";
 import type { Package } from "@appsmith/constants/PackageConstants";
@@ -114,5 +116,16 @@ describe("packageReducer", () => {
         },
       }),
     ).toEqual(expectedState);
+  });
+
+  it("should reset to initial state on RESET_EDITOR_REQUEST", () => {
+    const currentState = klona(DEFAULT_STATE);
+
+    const result = reducer(currentState, {
+      type: ReduxActionTypes.RESET_EDITOR_REQUEST,
+      payload: undefined,
+    });
+
+    expect(result).toStrictEqual(initialState);
   });
 });

@@ -29,7 +29,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -101,9 +100,6 @@ public class ActionCollectionServiceImplTest {
     NewActionService newActionService;
 
     @MockBean
-    NewActionRepository newActionRepository;
-
-    @MockBean
     ApplicationService applicationService;
 
     @MockBean
@@ -157,8 +153,7 @@ public class ActionCollectionServiceImplTest {
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission,
-                newActionRepository);
+                actionPermission);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,

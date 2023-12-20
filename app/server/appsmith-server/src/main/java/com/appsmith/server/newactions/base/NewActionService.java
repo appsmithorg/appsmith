@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.mongodb.bulk.BulkWriteResult;
 import reactor.core.publisher.Flux;
@@ -35,5 +36,10 @@ public interface NewActionService extends NewActionServiceCE {
 
     Flux<NewAction> findPublicActionsByModuleInstanceId(String moduleInstanceId, Optional<AclPermission> permission);
 
+    Flux<ActionViewDTO> getActionsForViewModeForWorkflow(String workflowId, String branchName);
+
     Mono<Boolean> archiveAllByIdsWithoutPermission(Collection<String> actionIds);
+
+    Mono<List<BulkWriteResult>> publishActionsForActionCollection(
+            String actionCollectionId, AclPermission aclPermission);
 }

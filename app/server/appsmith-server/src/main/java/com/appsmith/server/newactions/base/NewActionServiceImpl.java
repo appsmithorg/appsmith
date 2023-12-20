@@ -47,6 +47,7 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -68,6 +69,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
+import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
@@ -423,7 +425,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission) {
         List<String> includeFields = List.of(fieldName(QNewAction.newAction.id));
         return repository
-                .findByWorkflowId(workflowId, permission, Optional.of(includeFields))
+                .findByWorkflowId(workflowId, permission, Optional.of(includeFields), Boolean.FALSE)
                 .filter(newAction -> {
                     boolean unpublishedActionNotFromCollection = Objects.isNull(newAction.getUnpublishedAction())
                             || StringUtils.isEmpty(
@@ -506,7 +508,21 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 }
             }
         }
+        if (StringUtils.isNotBlank(action.getWorkflowId())) {
+            actionViewDTO.setWorkflowId(action.getWorkflowId());
+        }
         return actionViewDTO;
+    }
+
+    @Override
+    public Flux<ActionViewDTO> getActionsForViewModeForWorkflow(String workflowId, String branchName) {
+        return findAllActionsByContextIdAndContextTypeAndViewMode(
+                        workflowId,
+                        CreatorContextType.WORKFLOW,
+                        actionPermission.getExecutePermission(),
+                        Boolean.TRUE,
+                        Boolean.FALSE)
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), Boolean.TRUE));
     }
 
     @Override
@@ -542,10 +558,33 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
+        ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
+        Map<String, Object> analyticsProperties = super.getAnalyticsProperties(savedAction);
+        analyticsProperties.put(
+                FieldName.WORKFLOW_ID,
+                ObjectUtils.defaultIfNull(
+                        savedAction.getWorkflowId(), ObjectUtils.defaultIfNull(unpublishedAction.getWorkflowId(), "")));
+        return analyticsProperties;
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> publishActionsForActionCollection(
+            String actionCollectionId, AclPermission aclPermission) {
+        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+                repository.archiveDeletedUnpublishedActionsForCollection(actionCollectionId, aclPermission);
+        Mono<List<BulkWriteResult>> publishActions =
+                repository.publishActionsForCollection(actionCollectionId, aclPermission);
+        return archiveDeletedUnpublishedActions.then(publishActions);
+    }
+
+    @Override
     public void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
         super.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
         if (isModuleContext(action.getContextType())) {
             newAction.setIsPublic(action.getIsPublic());
+        } else if (isWorkflowContext(action.getContextType())) {
+            newAction.setWorkflowId(action.getWorkflowId());
         }
     }
 }

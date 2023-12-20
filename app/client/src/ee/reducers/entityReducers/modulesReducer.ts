@@ -13,14 +13,14 @@ type ID = string;
 
 export type ModulesReducerState = Record<ID, Module>;
 
-const INITIAL_STATE: ModulesReducerState = {};
+export const initialState: ModulesReducerState = {};
 
-const modulesReducer = createImmerReducer(INITIAL_STATE, {
+const modulesReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_PACKAGE_SUCCESS]: (
     draftState: ModulesReducerState,
     action: ReduxAction<FetchPackageResponse>,
   ) => {
-    draftState = klona(INITIAL_STATE);
+    draftState = klona(initialState);
     const { modules } = action.payload;
     modules.forEach((module) => {
       draftState[module.id] = module;
@@ -77,13 +77,16 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
     draftState: ModulesReducerState,
     action: ReduxAction<FetchConsumablePackagesInWorkspaceResponse>,
   ) => {
-    draftState = klona(INITIAL_STATE);
+    draftState = klona(initialState);
     const { modules } = action.payload;
     modules.map((module) => {
       draftState[module.id] = module;
     });
 
     return draftState;
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 });
 

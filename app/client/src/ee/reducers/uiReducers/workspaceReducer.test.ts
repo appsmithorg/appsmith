@@ -41,7 +41,6 @@ const workflow2: Workflow = {
 
 const DEFAULT_STATE: WorkspaceReduxState = {
   loadingStates: {
-    fetchingRoles: false,
     isFetchAllRoles: false,
     isFetchAllUsers: false,
     isFetchingWorkspace: false,

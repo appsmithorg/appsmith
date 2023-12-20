@@ -234,7 +234,7 @@ function JSModuleInstanceEditor({
           </StyledJSFunctionRunWrapper>
         )}
       </Header>
-      <Body width="full">
+      <Body>
         <JSFunctionSettingsView
           actions={sortedJSactions}
           additionalHeadings={additionalHeadings}

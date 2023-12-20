@@ -17,6 +17,7 @@ import PackageIDE from "./PackageIDE";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { setCurrentModule } from "@appsmith/actions/moduleActions";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { resetEditorRequest } from "actions/initActions";
 
 const theme = getTheme(ThemeMode.LIGHT);
 
@@ -42,6 +43,7 @@ function PackageEditor() {
       });
       dispatch(setCurrentModule(undefined));
       urlBuilder.setCurrentModuleId(undefined);
+      dispatch(resetEditorRequest());
     };
   }, []);
 

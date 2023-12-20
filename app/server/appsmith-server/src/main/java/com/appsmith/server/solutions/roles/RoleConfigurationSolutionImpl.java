@@ -103,6 +103,7 @@ import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORI
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 import static com.appsmith.server.solutions.roles.constants.RoleTab.WORKFLOWS;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -1648,7 +1649,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
 
         Mono<List<NewAction>> allActionsInWorkflowMono = newActionRepository
-                .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForAction))
+                .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForAction), FALSE)
                 .collectList()
                 .cache();
 

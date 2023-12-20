@@ -12,6 +12,8 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { ModuleInstanceDefMap } from "./EntityDefinitions";
 import type {
+  ActionEntityConfig,
+  JSActionEntityConfig,
   JSModuleInstanceEntity,
   QueryModuleInstanceEntity,
 } from "@appsmith/entities/DataTree/types";
@@ -39,15 +41,17 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
   },
   [ENTITY_TYPE.ACTION]: (props) => {
     const { configTree, entityName } = props;
-    const entityConfig = configTree[entityName];
-    if (!entityConfig.hasOwnProperty("moduleInstanceId")) {
+    const entityConfig = configTree[entityName] as ActionEntityConfig;
+    const moduleInstanceId = entityConfig["moduleInstanceId"];
+    if (!moduleInstanceId) {
       CE_entityDefGeneratorMap[ENTITY_TYPE.ACTION](props);
     }
   },
   [ENTITY_TYPE.JSACTION]: (props) => {
     const { configTree, entityName } = props;
-    const entityConfig = configTree[entityName];
-    if (!entityConfig.hasOwnProperty("moduleInstanceId")) {
+    const entityConfig = configTree[entityName] as JSActionEntityConfig;
+    const moduleInstanceId = entityConfig["moduleInstanceId"];
+    if (!moduleInstanceId) {
       CE_entityDefGeneratorMap[ENTITY_TYPE.JSACTION](props);
     }
   },
