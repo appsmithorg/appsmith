@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
+  Divider,
   Menu,
   MenuContent,
   MenuItem,
@@ -18,6 +19,7 @@ import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import { createPackageFromWorkspace } from "@appsmith/actions/packageActions";
 import { getIsCreatingPackage } from "@appsmith/selectors/packageSelectors";
 import {
+  IMPORT_BTN_LABEL,
   NEW_APP,
   NEW_PACKAGE,
   NEW_WORKFLOW,
@@ -40,7 +42,14 @@ const StyledCreateNewButton = styled(Button)`
 `;
 
 function WorkspaceAction(props: CE_WorkspaceActionProps) {
-  const { isMobile, onCreateNewApplication, workspace, workspaceId } = props;
+  const {
+    enableImportExport,
+    isMobile,
+    onCreateNewApplication,
+    setSelectedWorkspaceIdForImportApplication,
+    workspace,
+    workspaceId,
+  } = props;
 
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const dispatch = useDispatch();
@@ -147,6 +156,18 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
             startIcon="package"
           >
             {createMessage(NEW_WORKFLOW)}
+          </MenuItem>
+        )}
+        <Divider className="!block mb-[2px]" />
+        {enableImportExport && hasCreateNewApplicationPermission && (
+          <MenuItem
+            data-testid="t--workspace-import-app"
+            onSelect={() =>
+              setSelectedWorkspaceIdForImportApplication(workspace.id)
+            }
+            startIcon="download"
+          >
+            {createMessage(IMPORT_BTN_LABEL)}
           </MenuItem>
         )}
       </MenuContent>
