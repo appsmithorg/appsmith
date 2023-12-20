@@ -244,13 +244,13 @@ jobs:
       # - run: |
       #     echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
-      - name: Install Electron
-        run: |
-            npm install electron@latest
+      # - name: Install Electron
+      #   run: |
+      #       npm install electron@latest
 
-      - name: Set up Electron environment variable
-        run: |
-            echo "BROWSER_PATH=$(npm bin)/electron" >> $GITHUB_ENV
+      # - name: Set up Electron environment variable
+      #   run: |
+      #       echo "BROWSER_PATH=$(npm bin)/electron" >> $GITHUB_ENV
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -362,7 +362,7 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
         with:
-          browser: ${{ env.BROWSER_PATH }}
+          # browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_custom.config.ts
           spec: ${{ env.specs_to_run }}
