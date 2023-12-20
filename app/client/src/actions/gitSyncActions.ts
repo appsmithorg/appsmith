@@ -502,3 +502,7 @@ export const startAutocommitProgressPolling = () => ({
 export const stopAutocommitProgressPolling = () => ({
   type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
 });
+
+export const getGitMetadataInitAction = () => ({
+  type: ReduxActionTypes.GIT_GET_METADATA_INIT,
+});

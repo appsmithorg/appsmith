@@ -15,7 +15,6 @@ import {
   delay,
   fork,
   put,
-  race,
   select,
   take,
   takeLatest,
@@ -87,6 +86,8 @@ import {
   getWorkspaceIdForImport,
 } from "@appsmith/selectors/applicationSelectors";
 import {
+  AUTOCOMMIT_DISABLED_TOAST,
+  AUTOCOMMIT_ENABLED_TOAST,
   createMessage,
   DELETE_BRANCH_SUCCESS,
   DISCARD_SUCCESS,
@@ -1150,8 +1151,7 @@ function* updateGitProtectedBranchesSaga({
 
 function* toggleAutocommitSaga() {
   const applicationId: string = yield select(getCurrentApplicationId);
-  const currentPageId: string = yield select(getCurrentPageId);
-  let response: ApiResponse<string[]>;
+  let response: ApiResponse<boolean>;
   try {
     response = yield call(GitSyncAPI.toggleAutocommit, applicationId);
     const isValidResponse: boolean = yield validateResponse(
@@ -1163,13 +1163,16 @@ function* toggleAutocommitSaga() {
       yield put({
         type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS,
       });
-      yield put({
-        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
-        payload: { applicationId, pageId: currentPageId },
-      });
-      toast.show(createMessage(PROTECT_BRANCH_SUCCESS), {
-        kind: "success",
-      });
+      yield put({ type: ReduxActionTypes.GIT_GET_METADATA_INIT });
+      if (!!response.data) {
+        toast.show(createMessage(AUTOCOMMIT_ENABLED_TOAST), {
+          kind: "success",
+        });
+      } else {
+        toast.show(createMessage(AUTOCOMMIT_DISABLED_TOAST), {
+          kind: "success",
+        });
+      }
     } else {
       yield put({
         type: ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR,
@@ -1187,19 +1190,37 @@ function* toggleAutocommitSaga() {
   }
 }
 
-// function* getAutocommitStatusSaga() {
-//   const applicationId: string = yield select(getCurrentApplicationId);
-//   const response: ApiResponse<any> = yield call(
-//     GitSyncAPI.getAutocommitProgress,
-//     applicationId,
-//   );
-//   // const isValidResponse: boolean = yield validateResponse(
-//   //   response,
-//   //   false,
-//   //   getLogToSentryFromResponse(response),
-//   // );
-//   return response;
-// }
+function* getGitMetadataSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  let response: ApiResponse<string[]>;
+  try {
+    response = yield call(GitSyncAPI.getGitMetadata, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GIT_GET_METADATA_SUCCESS,
+        payload: { gitMetadata: response.data },
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.GIT_GET_METADATA_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_GET_METADATA_ERROR,
+      payload: { error, show: true },
+    });
+  }
+}
 
 function* pollAutocommitProgressSaga(): any {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -1287,6 +1308,7 @@ const gitRequestNonBlockingActions: Record<
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
     fetchGitProtectedBranchesSaga,
   [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: toggleAutocommitSaga,
+  [ReduxActionTypes.GIT_GET_METADATA_INIT]: getGitMetadataSaga,
 };
 
 /**

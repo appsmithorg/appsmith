@@ -7,6 +7,7 @@ import {
   resetPullMergeStatus,
   fetchBranchesInit,
   startAutocommitProgressPolling,
+  getGitMetadataInitAction,
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
@@ -286,6 +287,8 @@ export default class AppEditorEngine extends AppEngine {
 
     yield put(fetchBranchesInit());
     yield put(fetchGitProtectedBranchesInit());
+    yield put(fetchGitProtectedBranchesInit());
+    yield put(getGitMetadataInitAction());
 
     if (isGitStatusLiteEnabled) {
       yield put(fetchGitRemoteStatusInit());

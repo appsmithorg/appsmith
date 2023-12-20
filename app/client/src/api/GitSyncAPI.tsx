@@ -217,6 +217,10 @@ class GitSyncAPI extends Api {
     );
   }
 
+  static async getGitMetadata(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/metadata/app/${applicationId}`);
+  }
+
   static async toggleAutocommit(applicationId: string) {
     return Api.patch(
       `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${applicationId}`,

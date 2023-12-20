@@ -47,10 +47,6 @@ export type GitApplicationMetadata =
       isRepoPrivate?: boolean;
       browserSupportedRemoteUrl: string;
       defaultApplicationId: string;
-      isProtectedBranch: boolean;
-      autoCommitConfig: {
-        enabled: boolean;
-      };
     }
   | undefined;
 

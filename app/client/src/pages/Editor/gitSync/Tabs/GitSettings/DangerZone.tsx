@@ -21,7 +21,8 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import {
-  getIsAutocommitEnabled,
+  getAutocommitEnabledSelector,
+  getGitMetadataLoadingSelector,
   getIsAutocommitToggling,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
@@ -68,7 +69,8 @@ function GitDisconnect() {
     FEATURE_FLAG.release_git_autocommit_feature_enabled,
   );
   const isAutocommitToggling = useSelector(getIsAutocommitToggling);
-  const isAutocommitEnabled = useSelector(getIsAutocommitEnabled);
+  const isAutocommitEnabled = useSelector(getAutocommitEnabledSelector);
+  const gitMetadataLoading = useSelector(getGitMetadataLoadingSelector);
 
   const dispatch = useDispatch();
 
@@ -116,7 +118,7 @@ function GitDisconnect() {
               </BodyInnerContainer>
               <Button
                 data-testid="t--git-disconnect-btn"
-                isLoading={isAutocommitToggling}
+                isLoading={isAutocommitToggling || gitMetadataLoading}
                 kind={isAutocommitEnabled ? "error" : "secondary"}
                 onClick={handleToggleAutocommit}
                 size="md"
