@@ -238,11 +238,19 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
-      - run: |
-          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+      # - uses: browser-actions/setup-chrome@latest
+      #   with:
+      #     chrome-version: stable
+      # - run: |
+      #     echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+
+      - name: Install Electron
+        run: |
+            npm install electron@latest
+
+      - name: Set up Electron environment variable
+        run: |
+            echo "BROWSER_PATH=$(npm bin)/electron" >> $GITHUB_ENV
 
       - name: Save Git values
         # pass env variables from this step to other steps
