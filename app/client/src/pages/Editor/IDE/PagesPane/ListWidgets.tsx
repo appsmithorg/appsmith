@@ -14,10 +14,14 @@ import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/per
 import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
 import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import history from "utils/history";
+import { builderURL } from "@appsmith/RouteBuilder";
+import { getSelectedWidgets } from "selectors/ui";
 
 const ListWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
+  const selectedWidgets = useSelector(getSelectedWidgets);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const dispatch = useDispatch();
@@ -32,8 +36,12 @@ const ListWidgets = () => {
   }, [widgets?.children]);
 
   const addButtonClickHandler = useCallback(() => {
-    dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
-  }, [pageId]);
+    if (selectedWidgets.length) {
+      dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
+    } else {
+      history.push(builderURL({ pageId }));
+    }
+  }, [widgets]);
 
   return (
     <Flex
