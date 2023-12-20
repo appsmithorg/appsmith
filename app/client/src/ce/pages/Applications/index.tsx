@@ -889,9 +889,7 @@ export const ApplictionsMainPage = (props: any) => {
   }, [activeWorkspaceId]);
 
   const packagesOfWorkspace = activeWorkspaceId
-    ? fetchedPackages.filter(
-        (singlePackage) => singlePackage.workspaceId === activeWorkspaceId,
-      )
+    ? fetchedPackages.filter((pkg) => pkg.workspaceId === activeWorkspaceId)
     : [];
 
   return (
