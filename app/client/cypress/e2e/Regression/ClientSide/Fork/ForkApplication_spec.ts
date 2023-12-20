@@ -100,23 +100,28 @@ describe(
         // });
         cy.enablePublicAccess();
 
-  it("2. Non signed user should be able to fork a public forkable app", function () {
-    homePage.NavigateToHome();
-    cy.get(homepagelocators.homeIcon).click();
-    cy.get(homepagelocators.createNew).first().click();
-    cy.get(homepagelocators.workspaceImportAppOption).click({ force: true });
-    cy.get(homepagelocators.workspaceImportAppModal).should("be.visible");
-    cy.xpath(homepagelocators.uploadLogo).selectFile(
-      "cypress/fixtures/forkNonSignedInUser.json",
-      { force: true },
-    );
-    cy.wait("@importNewApplication").then((interception) => {
-      const { isPartialImport } = interception?.response?.body.data;
-      cy.log("isPartialImport : ", isPartialImport);
-      if (isPartialImport) {
-        cy.wait(2000);
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
-          force: true,
+        cy.url().then((url) => {
+          forkableAppUrl = url;
+          cy.LogOut();
+
+          cy.visit(forkableAppUrl);
+          //cy.reload();
+          //cy.visit(forkableAppUrl);
+          cy.wait(4000);
+          cy.get(applicationLocators.forkButton).first().click({ force: true });
+          cy.get(loginPageLocators.signupLink).click();
+          cy.generateUUID().then((uid: string) => {
+            cy.get(signupPageLocators.username).type(`${uid}@appsmith.com`);
+            cy.get(signupPageLocators.password).type(uid);
+            cy.get(signupPageLocators.submitBtn).click();
+            cy.wait(10000);
+            cy.get(applicationLocators.forkButton)
+              .first()
+              .click({ force: true });
+            cy.get(homepagelocators.forkAppWorkspaceButton).should(
+              "be.visible",
+            );
+          });
         });
       });
     });
