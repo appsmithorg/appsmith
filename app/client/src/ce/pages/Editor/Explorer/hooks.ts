@@ -21,6 +21,7 @@ import {
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { basePathForActiveAction } from "@appsmith/constants/routes/appRoutes";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -262,8 +263,9 @@ export const useEntityEditState = (entityId: string) => {
   );
 };
 
-export function useActiveAction(path: string[]) {
+export function useActiveAction() {
   const location = useLocation();
+  const path = basePathForActiveAction;
 
   const baseMatch = matchPath<{ apiId: string }>(location.pathname, {
     path,

@@ -22,8 +22,6 @@ import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActio
 import type { PluginType } from "entities/Action";
 import localStorage from "utils/localStorage";
 
-export const basePathForActiveAction = [BUILDER_PATH, BUILDER_PATH_DEPRECATED];
-
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
     enabled: false,
