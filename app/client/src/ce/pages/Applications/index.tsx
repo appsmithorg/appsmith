@@ -888,6 +888,12 @@ export const ApplictionsMainPage = (props: any) => {
     }
   }, [activeWorkspaceId]);
 
+  const packagesOfWorkspace = activeWorkspaceId
+    ? fetchedPackages.filter(
+        (singlePackage) => singlePackage.workspaceId === activeWorkspaceId,
+      )
+    : [];
+
   return (
     <PageWrapper displayName="Applications">
       <LeftPane
@@ -926,7 +932,7 @@ export const ApplictionsMainPage = (props: any) => {
             <ApplicationsSection
               activeWorkspaceId={activeWorkspaceId}
               applications={fetchedApplications}
-              packages={fetchedPackages}
+              packages={packagesOfWorkspace}
               searchKeyword={searchKeyword}
               workflows={fetchedWorkflows}
               workspaces={workspaces}
