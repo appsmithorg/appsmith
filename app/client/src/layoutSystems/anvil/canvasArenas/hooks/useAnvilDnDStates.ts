@@ -16,6 +16,7 @@ import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
 import { getDraggedBlocks, getDraggedWidgetTypes } from "./utils";
+import ModalWidget from "widgets/ModalWidget/widget";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -37,7 +38,7 @@ export interface AnvilDnDStates {
   mainCanvasLayoutId: string;
 }
 
-const AnvilOverlayWidgetTypes = ["MODAL_WIDGET"];
+const AnvilOverlayWidgetTypes = [ModalWidget.type];
 
 /**
  * function to validate if the widget(s) being dragged is supported by the canvas.
