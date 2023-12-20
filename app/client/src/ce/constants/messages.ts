@@ -1484,9 +1484,9 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us about your primary skillset";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
-  "What are you planning to use Appsmith for?";
+  "What would you like to use Appsmith for?";
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
-  "How would you rate your development proficiency?";
+  "What is your general development proficiency?";
 
 export const WELCOME_FORM_ROLE_ERROR_MESSAGE = () => "Please enter a role";
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
@@ -2286,8 +2286,13 @@ export const PAGES_PANE_TEXTS = {
   ui_tab: () => "UI",
   query_blank_state: () => "Write your first query or API to access data",
   js_blank_state: () => "Use JS to transform your data or write business logic",
-  query_blank_button: () => "New Query/API",
-  js_blank_button: () => "New JS Object",
+  query_add_button: () => "New query / API",
+  js_add_button: () => "New JS Object",
+  widget_add_button: () => "New Widget",
+  query_create_tab_title: () => "Create new query / API",
+  widgets_create_tab_title: () => "Drag & drop a widget",
+  queries_create_from_existing: () => "From existing datasource",
+  queries_create_new: () => "New API",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2310,3 +2315,4 @@ export const PARTIAL_IMPORT_EXPORT = {
 };
 
 export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
+export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
