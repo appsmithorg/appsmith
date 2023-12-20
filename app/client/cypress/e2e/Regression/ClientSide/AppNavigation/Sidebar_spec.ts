@@ -11,7 +11,7 @@ import {
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Sidebar navigation style", function () {
+describe("Test Sidebar navigation style", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     // Import an application
     homePage.NavigateToHome();
@@ -19,7 +19,6 @@ describe("Test Sidebar navigation style", function () {
     assertHelper
       .WaitForNetworkCall("@importNewApplication")
       .then((response) => {
-        agHelper.Sleep();
         const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           homePage.AssertNCloseImport();
@@ -86,7 +85,7 @@ describe("Test Sidebar navigation style", function () {
     agHelper.GetNClick(
       `${appSettings.locators._sideNavbar} ${appSettings.locators._shareButton}`,
     );
-    agHelper.Sleep(1000);
+    agHelper.WaitUntilEleAppear(appSettings.locators._modal);
     agHelper.AssertElementVisibility(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown

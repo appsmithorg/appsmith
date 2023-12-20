@@ -69,7 +69,7 @@ import {
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -320,12 +320,14 @@ function JSEditorForm({
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
-                disabled={!isChangePermitted}
+                disabled={
+                  !isChangePermitted || !!currentJSCollection.isMainJSCollection
+                }
                 saveJSObjectName={saveJSObjectName}
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              {contextMenu}
+              {!currentJSCollection.isMainJSCollection && contextMenu}
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}

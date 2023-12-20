@@ -8,7 +8,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { FocusEntity } from "navigation/FocusEntity";
 import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import { useMemo } from "react";

@@ -24,8 +24,6 @@ import static com.external.plugins.constants.AnthropicConstants.CHAT;
 import static com.external.plugins.constants.AnthropicConstants.CHAT_MODEL_SELECTOR;
 import static com.external.plugins.constants.AnthropicConstants.CLOUD_SERVICES;
 import static com.external.plugins.constants.AnthropicConstants.COMMAND;
-import static com.external.plugins.constants.AnthropicConstants.COMPONENT;
-import static com.external.plugins.constants.AnthropicConstants.COMPONENT_DATA;
 import static com.external.plugins.constants.AnthropicConstants.CONTENT;
 import static com.external.plugins.constants.AnthropicConstants.DATA;
 import static com.external.plugins.constants.AnthropicConstants.DEFAULT_MAX_TOKEN;
@@ -130,15 +128,15 @@ public class ChatCommand implements AnthropicCommand {
         }
     }
 
+    /**
+     * When JS is enabled in form component, value is stored in data key only. Difference is if viewType is json,
+     * it's stored as JSON string otherwise it's Java serialized object
+     */
     private List<Map<String, String>> getMessages(Map<String, Object> messages) {
         Type listType = new TypeToken<List<Map<String, String>>>() {}.getType();
-        if (messages.containsKey(VIEW_TYPE)) {
-            if (JSON.equals(messages.get(VIEW_TYPE))) {
-                // data is present in data key as String
-                return gson.fromJson((String) messages.get(DATA), listType);
-            } else if (COMPONENT.equals(messages.get(VIEW_TYPE))) {
-                return (List<Map<String, String>>) messages.get(COMPONENT_DATA);
-            }
+        if (messages.containsKey(VIEW_TYPE) && JSON.equals(messages.get(VIEW_TYPE))) {
+            // data is present in data key as String
+            return gson.fromJson((String) messages.get(DATA), listType);
         }
         // return object stored in data key
         return (List<Map<String, String>>) messages.get(DATA);

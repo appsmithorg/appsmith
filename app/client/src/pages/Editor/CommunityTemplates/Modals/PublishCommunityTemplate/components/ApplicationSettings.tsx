@@ -28,6 +28,7 @@ const ApplicationSettings = ({
       </Text>
       <Switch
         data-testid="t--community-template-app-settting-public-switch"
+        isDisabled
         isSelected={isPublic}
         onChange={setIsPublic}
       >
@@ -37,6 +38,7 @@ const ApplicationSettings = ({
       </Switch>
       <Switch
         data-testid="t--community-template-app-settting-forkable-switch"
+        isDisabled
         isSelected={isForkable}
         onChange={setIsForkable}
       >

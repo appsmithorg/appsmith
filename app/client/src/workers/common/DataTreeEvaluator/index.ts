@@ -35,7 +35,7 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
@@ -59,6 +59,7 @@ import {
   DataTreeDiffEvent,
   resetValidationErrorsForEntityProperty,
   isAPathDynamicBindingPath,
+  isAnyJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -1079,7 +1080,7 @@ export default class DataTreeEvaluator {
         const entityType = entity.ENTITY_TYPE;
         if (!propertyPath) continue;
         switch (entityType) {
-          case ENTITY_TYPE_VALUE.WIDGET: {
+          case ENTITY_TYPE.WIDGET: {
             if (isATriggerPath) continue;
 
             const isNewWidget =
@@ -1130,7 +1131,7 @@ export default class DataTreeEvaluator {
             );
             break;
           }
-          case ENTITY_TYPE_VALUE.ACTION: {
+          case ENTITY_TYPE.ACTION: {
             const actionEntity = entity as ActionEntity;
 
             const configProperty = propertyPath.replace(
@@ -1175,7 +1176,7 @@ export default class DataTreeEvaluator {
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
             break;
           }
-          case ENTITY_TYPE_VALUE.JSACTION: {
+          case ENTITY_TYPE.JSACTION: {
             const variableList =
               (entityConfig as JSActionEntityConfig).variables || [];
             if (variableList.indexOf(propertyPath) === -1) break;
@@ -1384,7 +1385,7 @@ export default class DataTreeEvaluator {
               triggerMeta: {
                 source: {
                   id: getEntityId(entity) || "",
-                  entityType: getEntityType(entity) || ENTITY_TYPE_VALUE.WIDGET,
+                  entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
                   name: getEntityName(entity, entityConfig) || "",
                 },
                 triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
@@ -1395,7 +1396,7 @@ export default class DataTreeEvaluator {
           const { errors: evalErrors, result } = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
-            !!entity && isJSAction(entity),
+            !!entity && isAnyJSAction(entity),
             contextData,
             callBackData,
           );

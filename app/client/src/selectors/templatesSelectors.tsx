@@ -227,3 +227,6 @@ export const templateModalOpenSelector = (state: AppState) =>
 
 export const templatesCountSelector = (state: AppState) =>
   state.ui.templates.templates.length;
+
+export const activeLoadingTemplateId = (state: AppState) =>
+  state.ui.templates.activeLoadingTemplateId;

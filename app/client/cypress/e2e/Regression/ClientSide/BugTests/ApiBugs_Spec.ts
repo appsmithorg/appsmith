@@ -22,7 +22,7 @@ import {
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("API Bugs", function () {
+describe("API Bugs", { tags: ["@tag.Datasource"] }, function () {
   before(() => {
     agHelper.RefreshPage();
   });
