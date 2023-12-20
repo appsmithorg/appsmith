@@ -38,7 +38,14 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { Button, Icon, Text as NewText, Option, Select } from "design-system";
+import {
+  Button,
+  Icon,
+  Text as NewText,
+  Option,
+  Select,
+  Tooltip,
+} from "design-system";
 import {
   fetchAllApplicationsOfWorkspace,
   updateApplication,
@@ -63,6 +70,7 @@ import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
 import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import {
+  CREATE_A_NEW_WORKSPACE,
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
@@ -277,13 +285,18 @@ export function LeftPaneSection(props: {
       <div className="flex items-center py-3 justify-between">
         <NewText kind="heading-xs">{props.heading}</NewText>
         {canCreateWorkspace && (
-          <Button
-            data-testid="t--workspace-new-workspace-auto-create"
-            isDisabled={props.isFetchingWorkspaces}
-            kind="tertiary"
-            onClick={createNewWorkspace}
-            startIcon="add-line"
-          />
+          <Tooltip
+            content={createMessage(CREATE_A_NEW_WORKSPACE)}
+            placement="right"
+          >
+            <Button
+              data-testid="t--workspace-new-workspace-auto-create"
+              isDisabled={props.isFetchingWorkspaces}
+              kind="tertiary"
+              onClick={createNewWorkspace}
+              startIcon="add-line"
+            />
+          </Tooltip>
         )}
       </div>
       {props.children}

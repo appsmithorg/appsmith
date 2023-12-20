@@ -31,6 +31,7 @@ import {
   MenuTrigger,
   SearchInput,
   Text,
+  Tooltip,
 } from "design-system";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
@@ -54,9 +55,11 @@ import {
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import {
+  ADMIN_SETTINGS,
   APPSMITH_DISPLAY_VERSION,
   CHAT_WITH_US,
   DOCUMENTATION,
+  HELP,
   TRY_GUIDED_TOUR,
   WHATS_NEW,
   createMessage,
@@ -236,22 +239,24 @@ const HomepageHeaderAction = ({
     <div className="flex items-center">
       <ShowUpgradeMenuItem />
       {getShowAdminSettings(isFeatureEnabled, user) && (
-        <Button
-          className="admin-settings-menu-option"
-          isIconButton
-          kind="tertiary"
-          onClick={() => {
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: getAdminSettingsPath(
-                isFeatureEnabled,
-                user?.isSuperUser,
-                tenantPermissions,
-              ),
-            });
-          }}
-          size="md"
-          startIcon="settings-control"
-        />
+        <Tooltip content={createMessage(ADMIN_SETTINGS)} placement="bottom">
+          <Button
+            className="admin-settings-menu-option"
+            isIconButton
+            kind="tertiary"
+            onClick={() => {
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: getAdminSettingsPath(
+                  isFeatureEnabled,
+                  user?.isSuperUser,
+                  tenantPermissions,
+                ),
+              });
+            }}
+            size="md"
+            startIcon="settings-control"
+          />
+        </Tooltip>
       )}
       {!isAirgappedInstance && (
         <Menu
@@ -261,15 +266,17 @@ const HomepageHeaderAction = ({
             }
           }}
         >
-          <MenuTrigger>
-            <Button
-              isIconButton
-              kind="tertiary"
-              onClick={() => {}}
-              size="md"
-              startIcon="question-line"
-            />
-          </MenuTrigger>
+          <Tooltip content={createMessage(HELP)} placement="bottom">
+            <MenuTrigger>
+              <Button
+                isIconButton
+                kind="tertiary"
+                onClick={() => {}}
+                size="md"
+                startIcon="question-line"
+              />
+            </MenuTrigger>
+          </Tooltip>
           <MenuContent align="end" width="172px">
             {showIntercomConsent ? (
               <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
