@@ -1,7 +1,7 @@
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Icon, Text } from "design-system";
+import { Flex, Icon, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history from "utils/history";
@@ -12,10 +12,9 @@ const PaneContainer = styled.div`
   width: 256px;
 `;
 const PaneBody = styled.div`
+  display: flex;
+  flex-direction: column;
   height: calc(100vh - 340px);
-  overflow-y: scroll;
-  gap: 12px;
-  padding: var(--ads-v2-spaces-3);
 `;
 const CreateNewContainer = styled.div`
   display: flex;
@@ -34,7 +33,7 @@ const CTABox = styled.div`
   width: 100%;
   padding: var(--ads-v2-spaces-3);
   border-radius: 4px;
-  gap: 8px;
+  gap: var(--ads-v2-spaces-3);
   border: 1px solid var(--ads-v2-color-border);
   display: flex;
   align-items: flex-start;
@@ -45,14 +44,33 @@ const CTABox = styled.div`
   }
 `;
 
+const CTAIcon = styled.div<{ bgColor: string; color: string }>`
+  .ads-v2-icon {
+    padding: var(--ads-v2-spaces-2);
+    background-color: ${(props) => props.bgColor};
+    border-radius: var(--ads-v2-spaces-1);
+  }
+  svg {
+    & path {
+      fill: ${(props) => props.color};
+    }
+  }
+`;
+
 const CreateCTA = (props: {
   title: string;
-  icon: string;
+  icon: {
+    name: string;
+    bgColor: string;
+    color: string;
+  };
   onClick: () => void;
 }) => {
   return (
     <CTABox onClick={props.onClick}>
-      <Icon name={props.icon} size="md" />
+      <CTAIcon bgColor={props.icon.bgColor} color={props.icon.color}>
+        <Icon name={props.icon.name} size="md" />
+      </CTAIcon>
       <Text kind="body-s">{props.title}</Text>
     </CTABox>
   );
@@ -73,21 +91,29 @@ const GlobalAdd = () => {
         <Text kind="heading-xs">Create new..</Text>
         <CTAContainer>
           <CreateCTA
-            icon={"queries-line"}
+            icon={{
+              name: "queries-line",
+              bgColor: "#DBEAFE",
+              color: "#2D6BF4",
+            }}
             onClick={onCreateNewQuery}
             title={"Query/API"}
           />
           <CreateCTA
-            icon={"braces-line"}
+            icon={{
+              name: "braces-line",
+              bgColor: "#FEF3C7",
+              color: "#B47A01",
+            }}
             onClick={onCreateJS}
             title={"JS Object"}
           />
         </CTAContainer>
       </CreateNewContainer>
       <PaneBody>
-        <Text className="pl-3.5" kind="heading-xs">
-          Drag & drop widgets
-        </Text>
+        <Flex padding="spaces-3">
+          <Text kind="heading-xs">Drag & drop widgets</Text>
+        </Flex>
         <WidgetSidebarWithTags isActive />
       </PaneBody>
     </PaneContainer>

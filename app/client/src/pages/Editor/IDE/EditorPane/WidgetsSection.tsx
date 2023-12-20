@@ -33,7 +33,6 @@ const WidgetsSection = () => {
       className="ide-pages-pane__content-widgets"
       flexDirection="column"
       gap="spaces-3"
-      overflow="scroll"
     >
       <Switch>
         <SentryRoute
