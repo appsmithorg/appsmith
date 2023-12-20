@@ -323,6 +323,17 @@ storageClass:
 podDisruptionBudgets:
   minAvailable: 1
 
+keda:
+  enabled: false
+  pollingInterval: 30
+  cooldownPeriod: 60
+  minReplicaCount: 1
+  maxReplicaCount: 6
+  fallback:
+    failureThreshold: 3
+    replicas: 4
+  triggers: []
+
 autoupdate:
   ## @param autoupdate.enabled - Enable config autoupdate
   ##
