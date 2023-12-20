@@ -9,6 +9,14 @@ export enum ActionEntityContextMenuItemsEnum {
   DELETE = "Delete",
 }
 
+export const defaultMenuItems = [
+  ActionEntityContextMenuItemsEnum.EDIT_NAME,
+  ActionEntityContextMenuItemsEnum.DELETE,
+  ActionEntityContextMenuItemsEnum.SHOW_BINDING,
+  ActionEntityContextMenuItemsEnum.COPY,
+  ActionEntityContextMenuItemsEnum.MOVE,
+];
+
 interface FilesContextContextProps {
   canCreateActions: boolean;
   editorId: string; // applicationId, workflowId or packageId
@@ -42,25 +50,13 @@ export const FilesContextProvider = ({
   selectFilesForExplorer,
   showModules,
 }: FilesContextProviderProps) => {
-  const defaultMenuItems = [
-    ActionEntityContextMenuItemsEnum.EDIT_NAME,
-    ActionEntityContextMenuItemsEnum.DELETE,
-    ActionEntityContextMenuItemsEnum.SHOW_BINDING,
-    ActionEntityContextMenuItemsEnum.COPY,
-    ActionEntityContextMenuItemsEnum.MOVE,
-  ];
-  const finalMenuItems = useMemo(
-    () => menuItems || defaultMenuItems,
-    [menuItems],
-  );
-
   const value = useMemo(() => {
     return {
       canCreateActions,
       editorId,
       parentEntityId,
       parentEntityType,
-      menuItems: finalMenuItems,
+      menuItems: menuItems || defaultMenuItems,
       selectFilesForExplorer,
       showModules,
     };
@@ -68,6 +64,7 @@ export const FilesContextProvider = ({
     canCreateActions,
     parentEntityId,
     parentEntityType,
+    menuItems,
     showModules,
     selectFilesForExplorer,
     editorId,

@@ -10,7 +10,7 @@ import { fetchPlugins } from "actions/pluginActions";
 
 export const ACTION_PARENT_ENTITY_TYPE = {
   PAGE: "PAGE",
-};
+} as const;
 
 export const getPageDependencyActions = (
   currentWorkspaceId: string = "",

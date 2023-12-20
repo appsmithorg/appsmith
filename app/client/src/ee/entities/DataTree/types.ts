@@ -1,17 +1,6 @@
 export * from "ce/entities/DataTree/types";
-import {
-  ENTITY_TYPE as CE_ENTITY_TYPE,
-  CreateNewActionKey as CE_CreateNewActionKey,
-  ActionContextType as CE_ActionContextType,
-} from "ce/entities/DataTree/types";
-
-export const CreateNewActionKey = {
-  ...CE_CreateNewActionKey,
-};
-
-export const ActionContextType = {
-  ...CE_ActionContextType,
-};
+import type { ActionContextType } from "ce/entities/DataTree/types";
+import { ENTITY_TYPE as CE_ENTITY_TYPE } from "ce/entities/DataTree/types";
 
 export type ActionContextTypeInterface =
   (typeof ActionContextType)[keyof typeof ActionContextType];
