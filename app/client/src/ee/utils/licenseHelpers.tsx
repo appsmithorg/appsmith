@@ -32,9 +32,8 @@ export const ShowUpgradeMenuItem = () => {
     <Button
       className="business-plan-menu-option mr-2"
       data-testid="t--upgrade-to-business"
-      href={customerPortalPlansUrl}
       kind="secondary"
-      target="_blank"
+      onClick={() => window.open(customerPortalPlansUrl, "_blank")}
     >
       {createMessage(UPGRADE)}
     </Button>
