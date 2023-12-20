@@ -8,6 +8,7 @@ import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
 import type { PluginType } from "entities/Action";
 import {
+  getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
@@ -17,6 +18,8 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EmptyState } from "./EmptyState";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -35,6 +38,7 @@ const JSSection = () => {
   const files = useSelector(selectJSForPagespane);
   const JSObjects = files["JS Objects"];
   const activeActionId = useActiveAction();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -67,24 +71,31 @@ const JSSection = () => {
           {createMessage(PAGES_PANE_TEXTS.js_add_button)}
         </Button>
       )}
-      <Flex flex="1" flexDirection="column" gap="spaces-2" overflow="scroll">
-        {JSObjects &&
-          JSObjects.map((JSobject) => {
-            return (
-              <Flex flexDirection={"column"} key={JSobject.id}>
-                <ExplorerJSCollectionEntity
-                  id={JSobject.id}
-                  isActive={JSobject.id === activeActionId}
-                  key={JSobject.id}
-                  parentEntityId={pageId}
-                  searchKeyword={""}
-                  step={2}
-                  type={JSobject.type as PluginType}
-                />
-              </Flex>
-            );
-          })}
-      </Flex>
+      <FilesContextProvider
+        canCreateActions={canCreateActions}
+        editorId={applicationId}
+        parentEntityId={pageId}
+        parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+      >
+        <Flex flex="1" flexDirection="column" gap="spaces-2" overflow="scroll">
+          {JSObjects &&
+            JSObjects.map((JSobject) => {
+              return (
+                <Flex flexDirection={"column"} key={JSobject.id}>
+                  <ExplorerJSCollectionEntity
+                    id={JSobject.id}
+                    isActive={JSobject.id === activeActionId}
+                    key={JSobject.id}
+                    parentEntityId={pageId}
+                    searchKeyword={""}
+                    step={2}
+                    type={JSobject.type as PluginType}
+                  />
+                </Flex>
+              );
+            })}
+        </Flex>
+      </FilesContextProvider>
 
       {(!JSObjects || JSObjects.length === 0) && (
         <EmptyState

@@ -12,8 +12,6 @@ import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
@@ -49,7 +47,7 @@ describe(
         dataSources.CreateQueryAfterDSSaved();
         cy.wait(500);
 
-        PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+        EditorNavigation.ShowCanvas();
         agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
         expandLoadMoreOptions();

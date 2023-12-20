@@ -15,6 +15,12 @@ export const SidebarBottomButtonTitles = {
   LIBRARIES: "Libraries",
 };
 
+export enum EditorEntityTab {
+  QUERIES = "queries",
+  JS = "js",
+  UI = "ui",
+}
+
 export interface SidebarButton {
   state: EditorState;
   icon: string;
