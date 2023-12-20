@@ -33,6 +33,10 @@ spec:
         {{- toYaml .Values.podLabels | nindent 8 }}
         {{- end }}
     spec:
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName | quote }}
       {{- end }}

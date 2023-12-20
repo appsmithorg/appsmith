@@ -233,6 +233,11 @@ tolerations: []
 
 affinity: {}
 
+#topologySpreadConstraints:
+#  - maxSkew: 1 # distribute pods in an absolute even manner
+#    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
+#    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
+
 persistence:
   ## @param persistence.enabled - Enable data persistence using PVC
   ##
@@ -314,6 +319,9 @@ storageClass:
   ## @param storageClass.parameters - storage class parameters used for volumes created with this storage class
   ##
   parameters: {}
+
+podDisruptionBudgets:
+  minAvailable: 1
 
 autoupdate:
   ## @param autoupdate.enabled - Enable config autoupdate
