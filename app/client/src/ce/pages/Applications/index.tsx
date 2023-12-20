@@ -249,6 +249,9 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   height: calc(100vh - ${(props) => 48 + (props.isBannerVisible ? 48 : 0)}px);
   display: flex;
   flex-direction: column;
+  button {
+    height: 30px !important;
+  }
 `;
 
 export function LeftPaneSection(props: {
