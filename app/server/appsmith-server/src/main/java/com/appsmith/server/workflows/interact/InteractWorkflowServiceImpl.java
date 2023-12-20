@@ -1,5 +1,6 @@
 package com.appsmith.server.workflows.interact;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
 import com.appsmith.server.acl.AclPermission;
@@ -279,7 +280,8 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
                                     publishActionCollectionsForWorkflows)
                             .then(updateDeployedAtForWorkflowMono);
                 })
-                .as(transactionalOperator::transactional);
+                .as(transactionalOperator::transactional)
+                .flatMap(workflow -> analyticsService.sendObjectEvent(AnalyticsEvents.WORKFLOW_DEPLOYED, workflow));
     }
 
     private Mono<PermissionGroup> getOrCreateWorkflowRole(Workflow workflow, User user) {

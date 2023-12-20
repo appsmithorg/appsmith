@@ -33,6 +33,7 @@ import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
 import com.appsmith.server.domains.AuditLogResource;
 import com.appsmith.server.domains.AuditLogUserGroupMetadata;
 import com.appsmith.server.domains.AuditLogUserMetadata;
+import com.appsmith.server.domains.AuditLogWorkflowMetadata;
 import com.appsmith.server.domains.AuditLogWorkspaceMetadata;
 import com.appsmith.server.domains.GacEntityMetadata;
 import com.appsmith.server.domains.License;
@@ -43,6 +44,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.AuditLogExportDTO;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
@@ -56,10 +58,10 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce_compatible.AuditLogServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.workflows.helpers.WorkflowUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -82,6 +84,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -112,7 +115,7 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
     private final PluginRepository pluginRepository;
     private final CommonConfig commonConfig;
     private final EnvironmentRepository environmentRepository;
-
+    private final WorkflowRepository workflowRepository;
     private static int RECORD_LIMIT = 200;
     private static int EXPORT_RECORD_LIMIT = 5000;
     public static String DELIMITER = ",";
@@ -460,6 +463,9 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
             auditLogMono = setResourceProperties((User) resource, auditLog, auditLogResource);
         } else if (resource instanceof License) {
             auditLogMono = setResourceProperties((License) resource, auditLog, auditLogResource);
+        } else if (resource instanceof Workflow) {
+            auditLogMono =
+                    setResourceProperties((Workflow) resource, auditLog, auditLogResource, eventData, properties);
         }
 
         // Instance setting events
@@ -482,6 +488,25 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         }
 
         return auditLogMono;
+    }
+
+    private Mono<AuditLog> setResourceProperties(
+            Workflow resource,
+            AuditLog auditLog,
+            AuditLogResource auditLogResource,
+            Map<String, Object> eventData,
+            Map<String, Object> properties) {
+        auditLogResource.setId(resource.getId());
+        auditLogResource.setName(resource.getName());
+        auditLog.setResource(auditLogResource);
+
+        return workspaceRepository
+                .findById(resource.getWorkspaceId())
+                .switchIfEmpty(Mono.just(new Workspace()))
+                .map(workspace -> {
+                    setWorkspaceProperties(auditLog, workspace);
+                    return auditLog;
+                });
     }
 
     private Mono<AuditLog> setResourceProperties(
@@ -721,15 +746,27 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         }
         auditLog.setResource(auditLogResource);
 
-        if (isModuleContext(newAction.getUnpublishedAction().getContextType())
-                || WorkflowUtils.isWorkflowContext(newAction.getUnpublishedAction())) {
+        if (Objects.nonNull(newAction.getUnpublishedAction())
+                && isModuleContext(newAction.getUnpublishedAction().getContextType())) {
             return Mono.empty();
         }
 
-        return setPage(auditLog, newAction.getUnpublishedAction().getPageId(), properties)
-                .flatMap(newPage -> setApplication(auditLog, newAction.getApplicationId(), properties))
-                .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
-                .thenReturn(auditLog);
+        Mono<Workspace> workspaceMono;
+
+        if (StringUtils.isNotEmpty(newAction.getWorkflowId())
+                || StringUtils.isNotEmpty(newAction.getUnpublishedAction().getWorkflowId())) {
+            String workflowId = StringUtils.isNotEmpty(newAction.getWorkflowId())
+                    ? newAction.getWorkflowId()
+                    : newAction.getUnpublishedAction().getWorkflowId();
+            workspaceMono = setWorkflow(auditLog, workflowId, properties)
+                    .flatMap(workflow -> setWorkspace(auditLog, workflow.getWorkspaceId(), properties));
+        } else {
+            workspaceMono = setPage(auditLog, newAction.getUnpublishedAction().getPageId(), properties)
+                    .flatMap(newPage -> setApplication(auditLog, newAction.getApplicationId(), properties))
+                    .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties));
+        }
+
+        return workspaceMono.thenReturn(auditLog);
     }
 
     /**
@@ -1088,6 +1125,18 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         });
     }
 
+    private Mono<Workflow> setWorkflow(AuditLog auditLog, String workflowId, Map<String, Object> properties) {
+        if (properties != null && properties.containsKey(FieldName.WORKFLOW)) {
+            Workflow workflow = (Workflow) properties.get(FieldName.WORKFLOW);
+            setWorkflowProperties(auditLog, workflow);
+            return Mono.just(workflow);
+        }
+        return workflowRepository.findById(workflowId).map(workflow -> {
+            setWorkflowProperties(auditLog, workflow);
+            return workflow;
+        });
+    }
+
     /**
      * To set Workspace properties to AuditLog
      *
@@ -1148,6 +1197,13 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         // TODO: use view mode to get the name
         auditLogPageMetadata.setName(newPage.getUnpublishedPage().getName());
         auditLog.setPage(auditLogPageMetadata);
+    }
+
+    private void setWorkflowProperties(AuditLog auditLog, Workflow workflow) {
+        AuditLogWorkflowMetadata auditLogWorkflowMetadata = new AuditLogWorkflowMetadata();
+        auditLogWorkflowMetadata.setId(workflow.getId());
+        auditLogWorkflowMetadata.setName(workflow.getName());
+        auditLog.setWorkflow(auditLogWorkflowMetadata);
     }
 
     private Mono<Set<Policy>> getAuditLogPolicies() {

@@ -146,8 +146,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
             workflow.setColor(getRandomWorkflowCardColor());
         }
 
-        return repository
-                .save(workflow)
+        return super.create(workflow)
                 .flatMap(repository::setUserPermissionsInObject)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null && error.getMessage().contains("ws_pkg_name_deleted_at_uindex")) {
@@ -221,7 +220,8 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
                     return repository
                             .update(workflowId, updateObj, workflowPermission.getEditPermission())
-                            .then(repository.findById(workflowId));
+                            .then(repository.findById(workflowId))
+                            .flatMap(analyticsService::sendUpdateEvent);
                 })
                 .cache();
 
@@ -322,7 +322,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                     return archiveWorkflowBotRoleAndUserMono
                             .then(archiveActionsByWorkflowIdMono)
                             .then(archiveActionCollectionsByWorkflowIdMono)
-                            .then(repository.archive(workflowToDelete).thenReturn(workflowToDelete));
+                            .then(repository.archive(workflowToDelete).flatMap(analyticsService::sendDeleteEvent));
                 });
     }
 }

@@ -12,6 +12,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 
 import java.util.Map;
@@ -68,7 +69,12 @@ public class AuditLogEvents {
         ROLE_UNASSIGNED_USERS,
         LICENSE_ADDED,
         LICENSE_UPDATED,
-        LICENSE_REMOVED
+        LICENSE_REMOVED,
+
+        WORKFLOW_CREATED,
+        WORKFLOW_UPDATED,
+        WORKFLOW_DELETED,
+        WORKFLOW_DEPLOYED,
     }
 
     // Map of AnalyticEvent name with their corresponding Audit Log Action name
@@ -86,6 +92,7 @@ public class AuditLogEvents {
             entry(AnalyticsEvents.LOGIN.getEventName(), FieldName.LOGGED_IN),
             entry(AnalyticsEvents.LOGOUT.getEventName(), FieldName.LOGGED_OUT),
             entry(AnalyticsEvents.FIRST_LOGIN.getEventName(), FieldName.SIGNED_UP),
+            entry(AnalyticsEvents.WORKFLOW_DEPLOYED.getEventName(), FieldName.DEPLOYED),
             //            Note: This change signifies that the event Analytics event: `EXECUTE_INVITE_USERS` will not be
             // translated
             //            into an action event in the AuditLogs. Hence, this event will not be logged as part of Audit
@@ -131,7 +138,8 @@ public class AuditLogEvents {
             entry(PermissionGroup.class.getSimpleName(), FieldName.ROLE),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.INSTANCE_SETTING),
             entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING),
-            entry(License.class.getSimpleName(), FieldName.LICENSE));
+            entry(License.class.getSimpleName(), FieldName.LICENSE),
+            entry(Workflow.class.getSimpleName(), FieldName.WORKFLOW));
 
     public static final Map<String, String> authenticationMethodsMap = Map.ofEntries(
             entry(APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.toString(), FieldName.GOOGLE),

@@ -170,6 +170,7 @@ class InteractWorkflowServiceTest {
     private Workspace workspace;
     private Workflow workflow;
     private Datasource datasource;
+    private String jsPluginId;
 
     @BeforeEach
     public void setup() {
@@ -220,6 +221,11 @@ class InteractWorkflowServiceTest {
                 defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         externalDatasource.setDatasourceStorages(storages);
         datasource = datasourceService.create(externalDatasource).block();
+
+        jsPluginId = pluginRepository
+                .findByPackageName("installed-js-plugin")
+                .map(Plugin::getId)
+                .block();
     }
 
     @Test
@@ -315,7 +321,7 @@ class InteractWorkflowServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName(name);
         actionCollectionDTO.setWorkflowId(workflow.getId());
-        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginId(jsPluginId);
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setWorkspaceId(workspace.getId());
         actionCollectionDTO.setContextType(WORKFLOW);
@@ -491,7 +497,7 @@ class InteractWorkflowServiceTest {
         actionCollectionDTO.setBody("Body - " + testName);
         actionCollectionDTO.setWorkflowId(workflow.getId());
         actionCollectionDTO.setContextType(WORKFLOW);
-        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginId(jsPluginId);
         actionCollectionDTO.setPluginType(PluginType.JS);
         ActionDTO action1 = new ActionDTO();
         action1.setName("Action in JS Object - " + testName);
@@ -740,7 +746,7 @@ class InteractWorkflowServiceTest {
         ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
         actionCollectionDTO1.setName(name + "1");
         actionCollectionDTO1.setWorkflowId(workflow.getId());
-        actionCollectionDTO1.setPluginId(datasource.getPluginId());
+        actionCollectionDTO1.setPluginId(jsPluginId);
         actionCollectionDTO1.setPluginType(PluginType.JS);
         actionCollectionDTO1.setWorkspaceId(workspace.getId());
         actionCollectionDTO1.setContextType(WORKFLOW);
@@ -757,7 +763,7 @@ class InteractWorkflowServiceTest {
         ActionCollectionDTO actionCollectionDTO2 = new ActionCollectionDTO();
         actionCollectionDTO2.setName(name + "2");
         actionCollectionDTO2.setWorkflowId(workflow.getId());
-        actionCollectionDTO2.setPluginId(datasource.getPluginId());
+        actionCollectionDTO2.setPluginId(jsPluginId);
         actionCollectionDTO2.setPluginType(PluginType.JS);
         actionCollectionDTO2.setWorkspaceId(workspace.getId());
         actionCollectionDTO2.setContextType(WORKFLOW);
