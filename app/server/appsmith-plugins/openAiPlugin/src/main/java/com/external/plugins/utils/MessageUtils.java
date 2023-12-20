@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -20,7 +21,7 @@ public class MessageUtils {
     private static final Gson gson = new Gson();
 
     public static Object extractMessages(Map<String, Object> messages) {
-        if (messages == null || !messages.containsKey(DATA)) {
+        if (CollectionUtils.isEmpty(messages) || !messages.containsKey(DATA)) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
