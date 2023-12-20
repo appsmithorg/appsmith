@@ -49,6 +49,7 @@ import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type { JSCollection } from "entities/JSCollection";
 import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
+import { updateActionData } from "actions/pluginActionActions";
 
 export interface RefactorModuleInstanceNameProps {
   id: string;
@@ -370,6 +371,11 @@ export function* refactorModuleInstanceName({
 }: RefactorModuleInstanceNameProps) {
   const layoutId: string = yield select(getCurrentLayoutId);
   // call to refactor module instance
+  const oldPublicQuery: Action | undefined = yield select(
+    getModuleInstancePublicAction,
+    id,
+  );
+
   const refactorResponse: ApiResponse =
     yield ModuleInstanceApi.refactorModuleInstance({
       layoutId,
@@ -378,7 +384,6 @@ export function* refactorModuleInstanceName({
       oldName: oldName,
       newName: newName,
     });
-
   const isRefactorSuccessful: boolean =
     yield validateResponse(refactorResponse);
 
@@ -404,6 +409,22 @@ export function* refactorModuleInstanceName({
         viewMode: false,
       },
     });
+    if (currentPageId === pageId) {
+      const publicQuery: Action | undefined = yield select(
+        getModuleInstancePublicAction,
+        id,
+      );
+      yield put(
+        updateActionData([
+          {
+            entityName: `${publicQuery?.name}`,
+            dataPath: "data",
+            data: undefined,
+            dataPathRef: `${oldPublicQuery?.name}.data`,
+          },
+        ]),
+      );
+    }
   }
 }
 
