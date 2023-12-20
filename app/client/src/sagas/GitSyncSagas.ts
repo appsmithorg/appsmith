@@ -10,9 +10,12 @@ import {
 import {
   actionChannel,
   call,
+  cancel,
+  cancelled,
   delay,
   fork,
   put,
+  race,
   select,
   take,
   takeLatest,
@@ -1184,6 +1187,69 @@ function* toggleAutocommitSaga() {
   }
 }
 
+// function* getAutocommitStatusSaga() {
+//   const applicationId: string = yield select(getCurrentApplicationId);
+//   const response: ApiResponse<any> = yield call(
+//     GitSyncAPI.getAutocommitProgress,
+//     applicationId,
+//   );
+//   // const isValidResponse: boolean = yield validateResponse(
+//   //   response,
+//   //   false,
+//   //   getLogToSentryFromResponse(response),
+//   // );
+//   return response;
+// }
+
+function* pollAutocommitProgressSaga(): any {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  try {
+    while (true) {
+      const response: ApiResponse<any> = yield call(
+        GitSyncAPI.getAutocommitProgress,
+        applicationId,
+      );
+      const isValidResponse: boolean = yield validateResponse(
+        response,
+        false,
+        getLogToSentryFromResponse(response),
+      );
+      if (isValidResponse) {
+        yield put({
+          type: ReduxActionTypes.GIT_SET_AUTOCOMMIT_PROGRESS,
+          payload: response.data,
+        });
+        if (!response?.data?.isRunning) {
+          yield put({
+            type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+            payload: response.data,
+          });
+        }
+      } else {
+        yield put({
+          type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
+          payload: {
+            error: response?.responseMeta?.error?.message,
+            show: true,
+          },
+        });
+      }
+      yield delay(1000);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
+      payload: { error },
+    });
+  } finally {
+    if (yield cancelled()) {
+      yield put({
+        type: ReduxActionTypes.GIT_RESET_AUTOCOMMIT_PROGRESS,
+      });
+    }
+  }
+}
+
 const gitRequestBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
@@ -1251,7 +1317,18 @@ function* watchGitNonBlockingRequests() {
   }
 }
 
+function* watchGitAutocommitPolling() {
+  while (true) {
+    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING);
+    /* @ts-expect-error: not sure how to do typings of this */
+    const pollTask = yield fork(pollAutocommitProgressSaga);
+    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);
+    yield cancel(pollTask);
+  }
+}
+
 export default function* gitSyncSagas() {
   yield fork(watchGitNonBlockingRequests);
   yield fork(watchGitBlockingRequests);
+  yield fork(watchGitAutocommitPolling);
 }

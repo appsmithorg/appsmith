@@ -6,6 +6,7 @@ import {
   remoteUrlInputValue,
   resetPullMergeStatus,
   fetchBranchesInit,
+  startAutocommitProgressPolling,
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
@@ -292,6 +293,8 @@ export default class AppEditorEngine extends AppEngine {
     } else {
       yield put(fetchGitStatusInit({ compareRemote: true }));
     }
+
+    yield put(startAutocommitProgressPolling());
     yield put(resetPullMergeStatus());
   }
 }

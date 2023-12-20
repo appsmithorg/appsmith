@@ -495,7 +495,10 @@ export const setIsAutocommitModalOpen = (isAutocommitModalOpen: boolean) => ({
   payload: { isAutocommitModalOpen },
 });
 
-export const setIsAutocommitInProgress = (isAutocommitInProgress: boolean) => ({
-  type: ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_IN_PROGRESS,
-  payload: { isAutocommitInProgress },
+export const startAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING,
+});
+
+export const stopAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
 });

@@ -46,8 +46,8 @@ const initialState: GitSyncReducerState = {
   isUpdateProtectedBranchesLoading: false,
 
   isAutocommitModalOpen: false,
-  isAutocommitInProgress: false,
   togglingAutocommit: false,
+  pollingAutocommitStatus: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -609,13 +609,6 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isAutocommitModalOpen: action.payload.isAutocommitModalOpen,
   }),
-  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_IN_PROGRESS]: (
-    state,
-    action: ReduxAction<{ isAutocommitInProgress: boolean }>,
-  ) => ({
-    ...state,
-    isAutocommitInProgress: action.payload.isAutocommitInProgress,
-  }),
   [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: (state) => ({
     ...state,
     togglingAutocommit: true,
@@ -627,6 +620,18 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR]: (state) => ({
     ...state,
     togglingAutocommit: false,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: true,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
+  }),
+  [ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
   }),
 });
 
@@ -769,8 +774,8 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isUpdateProtectedBranchesLoading: boolean;
 
   isAutocommitModalOpen: boolean;
-  isAutocommitInProgress: boolean;
   togglingAutocommit: boolean;
+  pollingAutocommitStatus: boolean;
 };
 
 export default gitSyncReducer;

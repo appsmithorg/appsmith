@@ -222,6 +222,12 @@ class GitSyncAPI extends Api {
       `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${applicationId}`,
     );
   }
+
+  static async getAutocommitProgress(applicationId: string) {
+    return Api.get(
+      `${GitSyncAPI.baseURL}/auto-commit/progress/app/${applicationId}`,
+    );
+  }
 }
 
 export default GitSyncAPI;
