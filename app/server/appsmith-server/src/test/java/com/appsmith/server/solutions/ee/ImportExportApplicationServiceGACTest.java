@@ -139,7 +139,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class ImportExportApplicationServiceTestsWithGAC {
+public class ImportExportApplicationServiceGACTest {
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
@@ -885,7 +885,8 @@ public class ImportExportApplicationServiceTestsWithGAC {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromInvalidJsonFileWithoutApplicationTest() {
+    public void
+            testImportApplication_whenPartialImportOrInvalidJsonFileWithoutApplication_throwsValidationFailureError() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
         Mono<ApplicationImportDTO> resultMono =
@@ -895,8 +896,9 @@ public class ImportExportApplicationServiceTestsWithGAC {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage(
-                                        "Field '" + FieldName.APPLICATION + "' is missing in the JSON.")))
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage("Field '" + FieldName.APPLICATION
+                                        + "' Sorry! Seems like you've imported a page-level json "
+                                        + "instead of an application. Please use the import within the page.")))
                 .verify();
     }
 
@@ -983,7 +985,8 @@ public class ImportExportApplicationServiceTestsWithGAC {
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
                     final List<CustomJSLib> importedJSLibList = tuple.getT6();
 
-                    assertEquals(1, importedJSLibList.size());
+                    // this would be 2 because of default xml parser addition to older apps
+                    assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
                             "TestLib", Set.of("accessor1"), "url", "docsUrl", "1" + ".0", "defs_string");
@@ -993,11 +996,8 @@ public class ImportExportApplicationServiceTestsWithGAC {
                     assertEquals(expectedJSLib.getDocsUrl(), importedJSLib.getDocsUrl());
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
                     assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
-                    assertEquals(1, application.getUnpublishedCustomJSLibs().size());
-                    assertEquals(
-                            getDTOFromCustomJSLib(expectedJSLib),
-                            application.getUnpublishedCustomJSLibs().toArray()[0]);
-
+                    // this would be 2 because of default xml parser addition to older apps
+                    assertEquals(2, application.getUnpublishedCustomJSLibs().size());
                     assertThat(application.getName()).isEqualTo("valid_application");
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(2);
