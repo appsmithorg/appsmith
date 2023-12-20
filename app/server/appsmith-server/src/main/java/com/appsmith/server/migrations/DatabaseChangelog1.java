@@ -6,14 +6,12 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QActionCollection;
@@ -207,22 +205,10 @@ public class DatabaseChangelog1 {
     public void addInitialIndexes(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
-        ensureIndexes(
-                mongoTemplate,
-                Action.class,
-                createdAtIndex,
-                makeIndex("pageId", "name").unique().named("action_page_compound_index"));
-
         ensureIndexes(mongoTemplate, Collection.class, createdAtIndex);
 
         ensureIndexes(
                 mongoTemplate, Config.class, createdAtIndex, makeIndex("name").unique());
-
-        ensureIndexes(
-                mongoTemplate,
-                Page.class,
-                createdAtIndex,
-                makeIndex("applicationId", "name").unique().named("application_page_compound_index"));
 
         ensureIndexes(
                 mongoTemplate,
@@ -239,13 +225,6 @@ public class DatabaseChangelog1 {
 
         ensureIndexes(
                 mongoTemplate, User.class, createdAtIndex, makeIndex("email").unique());
-
-        ensureIndexes(
-                mongoTemplate,
-                Page.class,
-                makeIndex(FieldName.APPLICATION_ID, FieldName.NAME, FieldName.DELETED_AT)
-                        .unique()
-                        .named("application_page_deleted_compound_index"));
 
         ensureIndexes(mongoTemplate, Sequence.class, makeIndex(FieldName.NAME).unique());
     }
