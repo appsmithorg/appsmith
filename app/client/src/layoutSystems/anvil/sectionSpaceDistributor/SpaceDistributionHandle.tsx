@@ -214,19 +214,20 @@ export const SpaceDistributionHandle = ({
         rightZoneDom: HTMLElement,
       ) => {
         if (ref.current) {
-          if (leftZoneComputedColumns <= minSpacePerBlock) {
+          const isLeftZoneLessThanMinimum =
+            leftZoneComputedColumns <= minSpacePerBlock;
+          const isRightZoneLessThanMinimum =
+            rightZoneComputedColumns <= minSpacePerBlock;
+
+          if (isLeftZoneLessThanMinimum) {
             leftZoneDom.style.transition = "all 0.6s ease";
-            // ref.current.style.transition = "all 0.6s ease";
           } else {
             leftZoneDom.style.transition = "";
-            ref.current.style.transition = "";
           }
-          if (rightZoneComputedColumns <= minSpacePerBlock) {
+          if (isRightZoneLessThanMinimum) {
             rightZoneDom.style.transition = "all 0.6s ease";
-            // ref.current.style.transition = "all 0.6s ease";
           } else {
             rightZoneDom.style.transition = "";
-            ref.current.style.transition = "";
           }
         }
       };
@@ -266,12 +267,8 @@ export const SpaceDistributionHandle = ({
                 rightZoneComputedColumns,
                 minSpacePerBlock,
               ).toString();
-              const spaceBetweenZones =
-                rightZoneDom.offsetLeft -
-                (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
               const updatedLeft =
                 rightZoneDom.offsetLeft -
-                spaceBetweenZones * 0.5 -
                 SpaceDistributorHandleDimensions.width * 0.5;
               lastValidHandlePosition = updatedLeft;
               ref.current.style.left = updatedLeft + "px";
@@ -292,12 +289,8 @@ export const SpaceDistributionHandle = ({
                   currentFlexGrow.leftZone -
                   minSpacePerBlock
                 ).toString();
-                const spaceBetweenZones =
-                  rightZoneDom.offsetLeft -
-                  (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
                 const updatedLeft =
                   rightZoneDom.offsetLeft -
-                  spaceBetweenZones * 0.5 -
                   SpaceDistributorHandleDimensions.width * 0.5;
                 lastValidHandlePosition = updatedLeft;
                 ref.current.style.left = updatedLeft + "px";
@@ -315,12 +308,8 @@ export const SpaceDistributionHandle = ({
                   currentFlexGrow.leftZone -
                   minSpacePerBlock
                 ).toString();
-                const spaceBetweenZones =
-                  rightZoneDom.offsetLeft -
-                  (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
                 const updatedLeft =
                   rightZoneDom.offsetLeft -
-                  spaceBetweenZones * 0.5 -
                   SpaceDistributorHandleDimensions.width * 0.5;
                 lastValidHandlePosition = updatedLeft;
                 ref.current.style.left = updatedLeft + "px";
