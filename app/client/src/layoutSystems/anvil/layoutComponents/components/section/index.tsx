@@ -1,12 +1,14 @@
 import React from "react";
 import {
   LayoutComponentTypes,
+  type WidgetLayoutProps,
   type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import WidgetRow from "../WidgetRow";
 import { SectionRow } from "./SectionRow";
 import type { FlexLayoutProps } from "../FlexLayout";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { SectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/SectionSpaceDistributor";
 
 class Section extends WidgetRow {
   static type: LayoutComponentTypes = LayoutComponentTypes.SECTION;
@@ -25,6 +27,24 @@ class Section extends WidgetRow {
       alignSelf: "stretch",
       direction: "row",
     };
+  }
+
+  renderSectionSpaceDistributor() {
+    return (
+      <SectionSpaceDistributor
+        sectionLayoutId={this.props.layoutId}
+        sectionWidgetId={this.props.canvasId}
+        zones={this.props.layout as WidgetLayoutProps[]}
+      />
+    );
+  }
+  renderDraggingArena(): React.ReactNode {
+    return (
+      <>
+        {super.renderDraggingArena()}
+        {this.renderSectionSpaceDistributor()}
+      </>
+    );
   }
 
   render(): JSX.Element {

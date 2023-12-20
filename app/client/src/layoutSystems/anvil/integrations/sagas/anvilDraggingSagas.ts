@@ -40,10 +40,6 @@ import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "layoutSystems/anvil/utils/widgetAdditionUtils";
-import {
-  updateSectionWithDefaultSpaceDistribution,
-  updateSectionsDistributedSpace,
-} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {

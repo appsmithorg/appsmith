@@ -4,6 +4,8 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SectionColumns, ZoneMinColumnWidth } from "../utils/constants";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
+import { select } from "redux-saga/effects";
+import { getWidgets } from "sagas/selectors";
 
 /**
  * Redistributes space among zones in a section while preserving column ratios.
@@ -136,11 +138,11 @@ export const getDefaultSpaceDistributed = (zones: string[]) => {
  * @returns {Object} - The updated state of widgets with the updated space distribution.
  */
 export function* updateSectionsDistributedSpace(
-  widgetsBeforeUpdate: CanvasWidgetsReduxState,
   widgetsAfterUpdate: CanvasWidgetsReduxState,
   sectionWidget: FlattenedWidgetProps,
 ) {
   // Extracting necessary information from the section widget
+  const widgetsBeforeUpdate: CanvasWidgetsReduxState = yield select(getWidgets);
   const sectionWidgetId = sectionWidget.widgetId;
   const updatedWidgets = { ...widgetsAfterUpdate };
   const childrenToUpdate = sectionWidget.children || [];

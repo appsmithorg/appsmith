@@ -6,7 +6,6 @@ import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionAct
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 
 const initialState: WidgetDragResizeState = {
-  isDraggingDisabled: false,
   isDragging: false,
   dragDetails: {},
   autoLayoutDragDetails: {},
@@ -139,7 +138,6 @@ export interface DragDetails {
 }
 
 export interface WidgetDragResizeState {
-  isDraggingDisabled: boolean;
   isDragging: boolean;
   dragDetails: DragDetails;
   autoLayoutDragDetails: any;
@@ -153,7 +151,6 @@ export interface WidgetDragResizeState {
   entityExplorerAncestry: string[];
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
-  isDistributingSpace: boolean;
 }
 
 export default widgetDraggingReducer;
