@@ -65,7 +65,7 @@ import java.util.Set;
         repositoryBaseClass = BaseRepositoryImpl.class)
 public class MongoConfig {
 
-    final Set<String> FORBIDDEN_IDS = Set.of(
+    private static final Set<String> FORBIDDEN_IDS = Set.of(
             // List generated during PR developmeng with the following command:
             // git diff release HEAD | awk -F\" '/^-[[:space:]]+@ChangeSet/ {print "\"" $4 "\","}'
             // Any deleted migration in the future, should go into this list.
@@ -151,7 +151,14 @@ public class MongoConfig {
             "make-applications-public",
             "install-graphql-plugin-to-remaining-workspaces",
             "delete-rapid-api-plugin-related-items",
-            "remove-preferred-ssl-mode-from-mysql");
+            "remove-preferred-ssl-mode-from-mysql",
+            "update-organization-slugs",
+            "update-sequence-names-from-organization-to-workspace",
+            "migrate-organizationId-to-workspaceId-in-domain-objects",
+            "migrate-permission-in-user",
+            "migrate-google-sheets-to-uqi",
+            "add-tenant-to-all-users-and-flush-redis",
+            "fix-deleted-themes-when-git-branch-deleted");
 
     /*
         Changing this froom ApplicationRunner to InitializingBeanRunner

@@ -2,7 +2,6 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -20,7 +19,6 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
@@ -31,13 +29,10 @@ import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.QUser;
-import com.appsmith.server.domains.QUserData;
-import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -57,18 +52,14 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -81,12 +72,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
@@ -105,7 +94,6 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToA
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
-import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -649,17 +637,6 @@ public class DatabaseChangelog2 {
     }
 
     /**
-     * We'll remove the unique index on organization slugs. We'll also regenerate the slugs for all organizations as
-     * most of them are outdated
-     *
-     * @param mongoTemplate MongoTemplate instance
-     */
-    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
-    public void updateOrganizationSlugs(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Organization.class, "slug");
-    }
-
-    /**
      * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
      * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
      * the `Action.datasource` field.
@@ -667,19 +644,6 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, Workspace.class, makeIndex("createdAt"));
-    }
-
-    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "")
-    public void updateSequenceNamesFromOrganizationToWorkspace(MongoTemplate mongoTemplate) {
-        for (Sequence sequence : mongoTemplate.findAll(Sequence.class)) {
-            String oldName = sequence.getName();
-            String newName =
-                    oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
-            if (!newName.equals(oldName)) {
-                // Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
-                mongoTemplate.updateFirst(query(where("name").is(oldName)), update("name", newName), Sequence.class);
-            }
-        }
     }
 
     @ChangeSet(order = "012", id = "add-default-tenant", author = "")
@@ -700,77 +664,6 @@ public class DatabaseChangelog2 {
         defaultTenant.setPricingPlan(PricingPlan.FREE);
 
         mongoTemplate.save(defaultTenant);
-    }
-
-    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
-    public void addTenantToUsersAndFlushRedis(
-            MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-
-        Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
-        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
-        assert (defaultTenant != null);
-
-        // Set all the users to be under the default tenant
-        mongoTemplate.updateMulti(new Query(), new Update().set("tenantId", defaultTenant.getId()), User.class);
-
-        // Now sign out all the existing users since this change impacts the user object.
-        final String script = "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))"
-                + " do redis.call('del',k) " + "end";
-        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
-
-        flushdb.subscribe();
-    }
-
-    @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
-    public void migrateOrganizationIdToWorkspaceIdInDomainObjects(
-            MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        // Theme
-        if (mongoTemplate.findOne(new Query(), Theme.class) == null) {
-            System.out.println("No theme to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QTheme.theme.workspaceId))
-                            .toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
-                    Theme.class);
-        }
-
-        // UserData
-        if (mongoTemplate.findOne(new Query(), UserData.class) == null) {
-            System.out.println("No userData to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds))
-                            .toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
-                    UserData.class);
-        }
-
-        // User
-        if (mongoTemplate.findOne(new Query(), User.class) == null) {
-            System.out.println("No user to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QUser.user.workspaceIds))
-                            .toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
-                            .set(fieldName(QUser.user.currentWorkspaceId))
-                            .toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
-                            .set(fieldName(QUser.user.examplesWorkspaceId))
-                            .toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
-                    User.class);
-        }
-
-        // Now sign out all the existing users since this change impacts the user object.
-        final String script = "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))"
-                + " do redis.call('del',k) " + "end";
-        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
-
-        flushdb.subscribe();
     }
 
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
@@ -799,32 +692,6 @@ public class DatabaseChangelog2 {
                                 fieldName(QDatasource.datasource.deletedAt))
                         .unique()
                         .named("workspace_datasource_deleted_compound_index"));
-    }
-
-    @ChangeSet(order = "017", id = "migrate-permission-in-user", author = "")
-    public void migratePermissionsInUser(MongoTemplate mongoTemplate) {
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("manage:userOrganization")),
-                new Update().set("policies.$.permission", "manage:userWorkspace"),
-                User.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
-                new Update().set("policies.$.permission", "read:userWorkspace"),
-                User.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
-                new Update().set("policies.$.permission", "read:userWorkspace"),
-                User.class);
-    }
-
-    @ChangeSet(order = "020", id = "migrate-google-sheets-to-uqi", author = "")
-    public void migrateGoogleSheetsToUqi(MongoTemplate mongoTemplate) {
-
-        // Get plugin references to Google Sheets actions
-        Plugin uqiPlugin = mongoTemplate.findOne(query(where("packageName").in("google-sheets-plugin")), Plugin.class);
-        uqiPlugin.setUiComponent("UQIDbEditorForm");
-
-        mongoTemplate.save(uqiPlugin);
     }
 
     public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
@@ -1123,97 +990,6 @@ public class DatabaseChangelog2 {
         DatabaseChangelog1.doClearRedisKeys(reactiveRedisOperations);
     }
 
-    private List<String> getCustomizedThemeIds(
-            String fieldName,
-            Function<Application, String> getThemeIdMethod,
-            List<String> systemThemeIds,
-            MongoTemplate mongoTemplate) {
-        // query to get application having a customized theme in the provided fieldName
-        Query getAppsWithCustomTheme = new Query(Criteria.where(
-                        fieldName(QApplication.application.gitApplicationMetadata))
-                .exists(true)
-                .and(fieldName(QApplication.application.deleted))
-                .is(false)
-                .andOperator(
-                        where(fieldName).nin(systemThemeIds), where(fieldName).exists(true)));
-
-        // we need the provided field "fieldName" only
-        getAppsWithCustomTheme.fields().include(fieldName);
-
-        List<Application> applications = mongoTemplate.find(getAppsWithCustomTheme, Application.class);
-        return applications.stream().map(getThemeIdMethod).collect(Collectors.toList());
-    }
-
-    @ChangeSet(order = "022", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
-    public void fixDeletedThemesWhenGitBranchDeleted(MongoTemplate mongoTemplate) {
-        Query getSystemThemesQuery =
-                new Query(Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(TRUE));
-        getSystemThemesQuery.fields().include(fieldName(QTheme.theme.id));
-        List<Theme> systemThemes = mongoTemplate.find(getSystemThemesQuery, Theme.class);
-        List<String> systemThemeIds =
-                systemThemes.stream().map(BaseDomain::getId).collect(Collectors.toList());
-
-        List<String> customizedEditModeThemeIds = getCustomizedThemeIds(
-                fieldName(QApplication.application.editModeThemeId),
-                Application::getEditModeThemeId,
-                systemThemeIds,
-                mongoTemplate);
-
-        List<String> customizedPublishedModeThemeIds = getCustomizedThemeIds(
-                fieldName(QApplication.application.publishedModeThemeId),
-                Application::getPublishedModeThemeId,
-                systemThemeIds,
-                mongoTemplate);
-
-        // combine the theme ids
-        Set<String> set = new HashSet<>();
-        set.addAll(customizedEditModeThemeIds);
-        set.addAll(customizedPublishedModeThemeIds);
-
-        Update update =
-                new Update().set(fieldName(QTheme.theme.deleted), false).unset(fieldName(QTheme.theme.deletedAt));
-        Criteria deletedCustomThemes = Criteria.where(fieldName(QTheme.theme.id))
-                .in(set)
-                .and(fieldName(QTheme.theme.deleted))
-                .is(true);
-
-        mongoTemplate.updateMulti(new Query(deletedCustomThemes), update, Theme.class);
-
-        for (String editModeThemeId : customizedEditModeThemeIds) {
-            Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId))
-                            .is(editModeThemeId))
-                    .addCriteria(
-                            where(fieldName(QApplication.application.deleted)).is(false))
-                    .addCriteria(where(fieldName(QApplication.application.gitApplicationMetadata))
-                            .exists(true));
-            query.fields().include(fieldName(QApplication.application.id));
-
-            List<Application> applicationList = mongoTemplate.find(query, Application.class);
-            if (applicationList.size() > 1) { // same custom theme is set to more than one application
-                // Remove one as we will create a  new theme for all the other branch apps
-                applicationList.remove(applicationList.size() - 1);
-
-                // clone the custom theme for each of these applications
-                Query themeQuery = new Query(
-                                Criteria.where(fieldName(QTheme.theme.id)).is(editModeThemeId))
-                        .addCriteria(where(fieldName(QTheme.theme.deleted)).is(false));
-                Theme theme = mongoTemplate.findOne(themeQuery, Theme.class);
-                for (Application application : applicationList) {
-                    Theme newTheme = new Theme();
-                    copyNestedNonNullProperties(theme, newTheme);
-                    newTheme.setId(null);
-                    newTheme.setSystemTheme(false);
-                    newTheme = mongoTemplate.insert(newTheme);
-                    mongoTemplate.updateFirst(
-                            new Query(Criteria.where(fieldName(QApplication.application.id))
-                                    .is(application.getId())),
-                            new Update().set(fieldName(QApplication.application.editModeThemeId), newTheme.getId()),
-                            Application.class);
-                }
-            }
-        }
-    }
-
     @ChangeSet(order = "023", id = "add-anonymousUser", author = "")
     public void addAnonymousUser(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
@@ -1376,9 +1152,6 @@ public class DatabaseChangelog2 {
                 .create()
                 .fromJson(themesJson, Theme[].class);
 
-        Theme legacyTheme = null;
-        boolean themeExists = false;
-
         // Make this theme accessible to anonymous users.
         Query anonymousUserPermissionConfig = new Query();
         anonymousUserPermissionConfig.addCriteria(
@@ -1414,7 +1187,6 @@ public class DatabaseChangelog2 {
             if (savedTheme == null) { // this theme does not exist, create it
                 savedTheme = mongoTemplate.save(theme);
             } else { // theme already found, update
-                themeExists = true;
                 savedTheme.setDisplayName(theme.getDisplayName());
                 savedTheme.setPolicies(theme.getPolicies());
                 savedTheme.setConfig(theme.getConfig());
@@ -1424,10 +1196,6 @@ public class DatabaseChangelog2 {
                     savedTheme.setCreatedAt(Instant.now());
                 }
                 mongoTemplate.save(savedTheme);
-            }
-
-            if (theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
-                legacyTheme = savedTheme;
             }
 
             // Add the access to this theme to the public permission group
@@ -1440,15 +1208,6 @@ public class DatabaseChangelog2 {
             if (!isThemePermissionPresent) {
                 permissions.add(new Permission(finalSavedTheme.getId(), READ_THEMES));
             }
-        }
-
-        if (!themeExists) { // this is the first time we're running the migration
-            // migrate all applications and set legacy theme to them in both mode
-            Update update = new Update()
-                    .set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
-                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
-            mongoTemplate.updateMulti(
-                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class);
         }
 
         // Finally save the role which gives access to all the system themes to the anonymous user.

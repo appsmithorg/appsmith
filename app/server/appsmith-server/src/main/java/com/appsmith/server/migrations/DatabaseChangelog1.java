@@ -84,8 +84,8 @@ public class DatabaseChangelog1 {
 
     /**
      * A public, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
-     * Note: The order of the fields here is important. An index with the fields `"name", "organizationId"` is different
-     * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering, and we try
+     * Note: The order of the fields here is important. An index with the fields `"name", "workspaceId"` is different
+     * from an index with the fields `"workspaceId", "name"`. If an index exists with the first ordering, and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
      * <p>
@@ -218,12 +218,6 @@ public class DatabaseChangelog1 {
 
         ensureIndexes(
                 mongoTemplate, Config.class, createdAtIndex, makeIndex("name").unique());
-
-        ensureIndexes(
-                mongoTemplate,
-                Datasource.class,
-                createdAtIndex,
-                makeIndex("organizationId", "name").unique().named("organization_datasource_compound_index"));
 
         ensureIndexes(
                 mongoTemplate,
@@ -704,6 +698,7 @@ public class DatabaseChangelog1 {
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-google-sheets");
         plugin.setDefaultInstall(true);
+        plugin.setUiComponent("UQIDbEditorForm");
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
