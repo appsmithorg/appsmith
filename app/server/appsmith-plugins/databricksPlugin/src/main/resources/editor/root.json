@@ -1,8 +1,8 @@
 {
   "editor": [
     {
-      "sectionName": "",
-      "id": 1,
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
       "children": [
         {
           "label": "",
