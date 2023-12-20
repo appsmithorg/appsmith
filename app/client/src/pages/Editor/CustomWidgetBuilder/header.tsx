@@ -28,7 +28,12 @@ export default function Header() {
         <HeaderSection
           className={clsx(styles.headerSection, styles.headerControls)}
         >
-          <Button kind="tertiary" onClick={close} size="lg">
+          <Button
+            className={styles.closeButton}
+            kind="tertiary"
+            onClick={close}
+            size="lg"
+          >
             Close
           </Button>
         </HeaderSection>

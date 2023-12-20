@@ -6,6 +6,7 @@ import Counter from "./counter";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import { CustomWidgetBuilderContext } from "../..";
 import { DebuggerLogType } from "../../types";
+import BugIcon from "../Debugger/icon.svg";
 
 const LOCAL_STORAGE_KEYS_IS_DEBUGGER_OPEN =
   "custom-widget-builder-context-state-is-debugger-open";
@@ -74,7 +75,7 @@ export default function Debugger() {
             ) : (
               <div className={styles.debuggerEmptyContainer}>
                 <div className={styles.debuggerEmptyIcon}>
-                  <Icon name="bug-line" size="lg" />
+                  <img src={BugIcon} />
                 </div>
                 <div className={styles.debuggerEmpty}>
                   Errors and logs will appear here

@@ -150,5 +150,5 @@ export const APPLICATION_TITLE_MAX_WIDTH_MOBILE = 150;
 //all values are in milliseconds
 export const REQUEST_IDLE_CALLBACK_TIMEOUT = {
   highPriority: 1500,
-  lowPriority: 3000,
+  lowPriority: 30000,
 };

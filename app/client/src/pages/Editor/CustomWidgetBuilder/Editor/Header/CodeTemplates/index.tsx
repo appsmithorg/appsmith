@@ -17,6 +17,16 @@ import codeTemplates from "./Templates";
 import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";
 import styles from "../styles.module.css";
 import type { SrcDoc } from "pages/Editor/CustomWidgetBuilder/types";
+import styled from "styled-components";
+
+const StyledButton = styled(Button)`
+  height: 32px !important;
+
+  & .ads-v2-button__content-children {
+    font-size: 14px;
+    font-weight: 400;
+  }
+`;
 
 function ConfirmationModal(props: {
   open: boolean;
@@ -29,19 +39,22 @@ function ConfirmationModal(props: {
       onOpenChange={(flag: boolean) => props.onOpenChange(flag)}
       open={props.open}
     >
-      <ModalContent>
-        <ModalHeader>Confirmation modal</ModalHeader>
+      <ModalContent
+        style={{
+          width: "580px",
+        }}
+      >
+        <ModalHeader>Are you sure?</ModalHeader>
         <ModalBody>
           <Text kind="body-m">
             This will replace the current changes in the HTML, CSS and JS files.
-            Are you sure?
           </Text>
         </ModalBody>
         <ModalFooter>
-          <Button kind="secondary" onClick={props.onCancel} size="md">
+          <Button kind="secondary" onClick={props.onCancel} size="sm">
             Cancel
           </Button>
-          <Button onClick={props.onReplace} size="md">
+          <Button onClick={props.onReplace} size="sm">
             Replace
           </Button>
         </ModalFooter>
@@ -63,16 +76,9 @@ export function CodeTemplates() {
     <div className={styles.templateMenu}>
       <Menu>
         <MenuTrigger>
-          <Button
-            kind="secondary"
-            size="sm"
-            startIcon="code"
-            style={{
-              height: "32px",
-            }}
-          >
+          <StyledButton kind="secondary" size="sm" startIcon="query" style={{}}>
             Templates
-          </Button>
+          </StyledButton>
         </MenuTrigger>
         <MenuContent>
           {initialSrcDoc && lastSaved && (

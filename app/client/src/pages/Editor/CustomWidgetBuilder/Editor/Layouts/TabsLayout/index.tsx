@@ -73,7 +73,7 @@ export default function TabLayout(props: Props) {
           }}
           value={selectedTab}
         >
-          <TabsList>
+          <TabsList className={styles.tabList}>
             {tabs.map((tab) => (
               <Tab key={tab.title} value={tab.title}>
                 {tab.title}

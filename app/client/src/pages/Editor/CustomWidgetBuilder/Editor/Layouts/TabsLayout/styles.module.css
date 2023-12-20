@@ -3,6 +3,10 @@
   position: relative;
 }
 
+.tabList.tabList {
+  padding-left: 5px;
+}
+
 .tabPanel.tabPanel {
   margin-top: 0px;
 }

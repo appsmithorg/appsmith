@@ -1,5 +1,5 @@
 .headerWrapper.headerWrapper {
-  padding: 0 12px;
+  padding: 0 0 0 12px;
   display: flex;
   justify-content: space-between;
 }
@@ -24,4 +24,8 @@
   width: 100vw;
   height: 100vh;
   justify-content: center;
+}
+
+.closeButton.closeButton {
+  height: 36px;
 }

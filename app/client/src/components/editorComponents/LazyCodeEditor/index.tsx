@@ -245,6 +245,7 @@ function LazyCodeEditor({
     return (
       <LazyEditorWrapper className="t--lazyCodeEditor-fallback">
         <CodeEditorFallback
+          borderLess={otherProps.borderLess}
           height={otherProps?.height}
           input={input}
           isReadOnly={otherProps.isReadOnly}

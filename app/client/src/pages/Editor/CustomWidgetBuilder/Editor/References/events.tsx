@@ -9,6 +9,22 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import styled from "styled-components";
+
+const StyledLazyCodeEditorWrapper = styled.div`
+  .CodeMirror-line.CodeMirror-line {
+    padding-left: 0;
+  }
+
+  & .CodeMirror.CodeMirror {
+    border: none !important;
+    pointer-events: none;
+  }
+
+  & .LazyCodeEditor pre {
+    padding-left: 0px !important;
+  }
+`;
 
 export default function Events() {
   const { events } = useContext(CustomWidgetBuilderContext);
@@ -50,9 +66,9 @@ export default function Events() {
                 </div>
               </div>
               {openState[event] && (
-                <div className={styles.eventValue}>
+                <StyledLazyCodeEditorWrapper className={styles.eventValue}>
                   <LazyCodeEditor
-                    disabled
+                    borderLess
                     evaluatedValue={events[event]}
                     hideEvaluatedValue
                     input={{
@@ -68,13 +84,19 @@ export default function Events() {
                     tabBehaviour={TabBehaviour.INDENT}
                     theme={EditorTheme.LIGHT}
                   />
-                </div>
+                </StyledLazyCodeEditorWrapper>
               )}
             </div>
           );
         })}
       {events && Object.keys(events).length === 0 && (
-        <Text color="#6A7585" renderAs="p">
+        <Text
+          color="#6A7585"
+          renderAs="p"
+          style={{
+            lineHeight: "18px",
+          }}
+        >
           You haven’t created any events. Return to the app editor to add events
           to this custom widget.
         </Text>

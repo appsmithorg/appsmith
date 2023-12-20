@@ -36,6 +36,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  font-weight: 500;
 }
 
 .layoutControl {

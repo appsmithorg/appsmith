@@ -10,7 +10,7 @@ export default function ModelVariables() {
     displayObjectSize: false,
     displayDataTypes: false,
     style: {
-      fontSize: "10px",
+      fontSize: "12px",
       width: "100%",
       overflow: "auto",
       marginTop: "10px",

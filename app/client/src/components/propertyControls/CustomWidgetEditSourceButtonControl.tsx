@@ -144,7 +144,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   render() {
     return (
       <Button
-        kind="primary"
+        kind="secondary"
         onClick={this.onCTAClick}
         size="md"
         style={{

@@ -5,7 +5,13 @@ import React from "react";
 export default function Help() {
   return (
     <div>
-      <Text color="#6A7585" renderAs="p">
+      <Text
+        color="#6A7585"
+        renderAs="p"
+        style={{
+          lineHeight: "18px",
+        }}
+      >
         Learn how custom widgets work, and how to access data from the rest of
         your app within this widget.
       </Text>
