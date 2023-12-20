@@ -2404,7 +2404,7 @@ public class ImportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void discardChange_addNavigationAndThemeSettingAfterImport_addedNavigationAndThemeSSettingRemoved() {
+    public void discardChange_addNavigationAndThemeSettingAfterImport_addedNavigationAndThemeSettingRemoved() {
         Mono<ApplicationJson> applicationJsonMono = createAppJson(
                 "test_assets/ImportExportServiceTest/valid-application-without-navigation-theme-setting.json");
         String workspaceId = createTemplateWorkspace().getId();
