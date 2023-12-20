@@ -250,7 +250,7 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   display: flex;
   flex-direction: column;
   button {
-    height: 30px !important;
+    height: 34px !important;
   }
 `;
 
