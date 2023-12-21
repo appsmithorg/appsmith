@@ -445,7 +445,7 @@ describe("rowHighlights tests", () => {
         data,
         getDimensions,
       );
-      const highlights = deriveRowHighlights(
+      const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
         [],
@@ -536,7 +536,7 @@ describe("rowHighlights tests", () => {
         data,
         getDimensions,
       );
-      const highlights = deriveRowHighlights(
+      const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
         [],
@@ -630,7 +630,7 @@ describe("rowHighlights tests", () => {
         data,
         getDimensions,
       );
-      const highlights = deriveRowHighlights(
+      const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
         [],
@@ -686,7 +686,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -725,7 +725,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -768,7 +768,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -896,7 +896,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -964,7 +964,7 @@ describe("rowHighlights tests", () => {
       /**
        * Calculate highlights when the first child widget is being dragged.
        */
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],

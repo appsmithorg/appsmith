@@ -1,5 +1,6 @@
 import type {
   AnvilConfig,
+  AutoLayoutConfig,
   AutocompletionDefinitions,
   WidgetBaseConfiguration,
   WidgetDefaultProps,
@@ -61,6 +62,10 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  static getAutoLayoutConfig(): AutoLayoutConfig | null {
     return {};
   }
 

@@ -1,10 +1,12 @@
+import React from "react";
 import {
   LayoutComponentTypes,
   type LayoutProps,
   type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { isLargeWidget } from "layoutSystems/anvil/utils/widgetUtils";
-import AlignedLayoutColumn from "./AlignedLayoutColumn";
+import AlignedLayoutColumn from "../AlignedLayoutColumn";
+import { ZoneColumn } from "./ZoneColumn";
 
 class Zone extends AlignedLayoutColumn {
   static type: LayoutComponentTypes = LayoutComponentTypes.ZONE;
@@ -41,6 +43,14 @@ class Zone extends AlignedLayoutColumn {
       allowedWidgetTypes: hasLargeWidget ? [] : ["SMALL_WIDGETS"],
       maxChildLimit: hasLargeWidget ? 1 : 0,
     };
+  }
+
+  render() {
+    return (
+      <ZoneColumn {...this.getFlexLayoutProps()}>
+        {this.renderContent()}
+      </ZoneColumn>
+    );
   }
 }
 

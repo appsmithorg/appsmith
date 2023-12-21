@@ -28,6 +28,7 @@ export function deleteWidgetFromPreset(
  * 4. Recursively traverse back to the top most layout, removing any layout that is empty and not permanent.
  * @param layout | LayoutProps : Layout to be updated.
  * @param widgetId | string: widget id.
+ * @param widgetType | string: widget type.
  * @returns : LayoutProps
  */
 export function deleteWidgetFromLayout(
@@ -46,8 +47,8 @@ export function deleteWidgetFromLayout(
       return layoutProps;
     }
     return Comp.removeChild(layoutProps, {
-      widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetId,
       widgetType,
     });
   }
@@ -73,12 +74,14 @@ export function deleteWidgetFromLayout(
  * @param allWidgets | CanvasWidgetsReduxState : all widgets.
  * @param parentId | string : id of canvas widget to be updated.
  * @param widgetId | string : id of widget that is deleted.
+ * @param widgetType | string : type of widget that is deleted.
  * @returns CanvasWidgetsReduxState
  */
 export function updateAnvilParentPostWidgetDeletion(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   widgetId: string,
+  widgetType: string,
 ): CanvasWidgetsReduxState {
   if (!parentId || !widgetId || !allWidgets[parentId]) return allWidgets;
   return {
@@ -88,7 +91,7 @@ export function updateAnvilParentPostWidgetDeletion(
       layout: deleteWidgetFromPreset(
         allWidgets[parentId].layout,
         widgetId,
-        allWidgets[widgetId].type,
+        widgetType,
       ),
     },
   };
