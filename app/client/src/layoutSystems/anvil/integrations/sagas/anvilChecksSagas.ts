@@ -12,7 +12,6 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { anvilWidgets } from "widgets/anvil/constants";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
 import {
   updateSectionWithDefaultSpaceDistribution,
   updateSectionsDistributedSpace,
