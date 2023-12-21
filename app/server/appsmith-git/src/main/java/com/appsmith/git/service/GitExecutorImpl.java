@@ -557,7 +557,7 @@ public class GitExecutorImpl implements GitExecutor {
                                 // remove this code in future when all the older format js libs are migrated to new
                                 // format
 
-                                if (x.contains(":")) {
+                                if (x.contains("js.json")) {
                                     /*
                                     As this updated filename has color(:), it means this is the older format js
                                     lib file that we're going to rename with the format without colon.

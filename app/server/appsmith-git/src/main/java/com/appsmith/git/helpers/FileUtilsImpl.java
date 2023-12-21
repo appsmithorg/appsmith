@@ -47,8 +47,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -305,7 +308,7 @@ public class FileUtilsImpl implements FileInterface {
                                 ? updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString)
                                 : Boolean.FALSE;
 
-                        String fileNameWithExtension = urlToFileName(uidString) + CommonConstants.JSON_EXTENSION;
+                        String fileNameWithExtension = getJsLibFileName(uidString) + CommonConstants.JSON_EXTENSION;
 
                         Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
                         if (isResourceUpdated) {
@@ -1116,7 +1119,24 @@ public class FileUtilsImpl implements FileInterface {
      * that's not allowed in any operating systems.
      * @return String
      */
-    public static String urlToFileName(String urlString) {
-        return urlString.replaceAll("[/:]", "_");
+    public static String getJsLibFileName(String uidString) {
+        int firstUnderscoreIndex = uidString.indexOf('_'); // this finds the first occurrence of "_"
+        String prefix;
+        if (firstUnderscoreIndex != -1) {
+            prefix = uidString.substring(0, firstUnderscoreIndex); // we're getting the prefix from the uidString
+        } else {
+            prefix = "jslib";
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(prefix);
+        stringBuilder.append("_");
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(uidString.getBytes(StandardCharsets.UTF_8));
+            stringBuilder.append(Base64.getUrlEncoder().withoutPadding().encodeToString(hash));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Failed to hash URL string", e);
+        }
+        return stringBuilder.toString();
     }
 }
