@@ -1,6 +1,5 @@
 import React, { createContext, useMemo } from "react";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 export enum ActionEntityContextMenuItemsEnum {
   EDIT_NAME = "Edit Name",
@@ -10,9 +9,18 @@ export enum ActionEntityContextMenuItemsEnum {
   DELETE = "Delete",
 }
 
+export const defaultMenuItems = [
+  ActionEntityContextMenuItemsEnum.EDIT_NAME,
+  ActionEntityContextMenuItemsEnum.DELETE,
+  ActionEntityContextMenuItemsEnum.SHOW_BINDING,
+  ActionEntityContextMenuItemsEnum.COPY,
+  ActionEntityContextMenuItemsEnum.MOVE,
+];
+
 interface FilesContextContextProps {
   canCreateActions: boolean;
   editorId: string; // applicationId, workflowId or packageId
+  menuItems?: ActionEntityContextMenuItemsEnum[];
   parentEntityId: string; // page, workflow or module
   parentEntityType: ActionParentEntityTypeInterface;
   showModules?: boolean;
@@ -36,33 +44,19 @@ export const FilesContextProvider = ({
   canCreateActions,
   children,
   editorId,
+  menuItems,
   parentEntityId,
   parentEntityType,
   selectFilesForExplorer,
   showModules,
 }: FilesContextProviderProps) => {
-  const menuItems = useMemo(() => {
-    const items = [
-      ActionEntityContextMenuItemsEnum.EDIT_NAME,
-      ActionEntityContextMenuItemsEnum.DELETE,
-    ];
-    if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-      items.push(
-        ActionEntityContextMenuItemsEnum.SHOW_BINDING,
-        ActionEntityContextMenuItemsEnum.COPY,
-        ActionEntityContextMenuItemsEnum.MOVE,
-      );
-    }
-    return items;
-  }, [parentEntityType]);
-
   const value = useMemo(() => {
     return {
       canCreateActions,
       editorId,
       parentEntityId,
       parentEntityType,
-      menuItems,
+      menuItems: menuItems || defaultMenuItems,
       selectFilesForExplorer,
       showModules,
     };
@@ -70,6 +64,7 @@ export const FilesContextProvider = ({
     canCreateActions,
     parentEntityId,
     parentEntityType,
+    menuItems,
     showModules,
     selectFilesForExplorer,
     editorId,

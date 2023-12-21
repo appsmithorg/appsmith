@@ -78,6 +78,8 @@ interface JSFormProps {
   onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
   saveJSObjectName: JSObjectNameEditorProps["saveJSObjectName"];
   backLink?: React.ReactNode;
+  hideContextMenuOnEditor?: boolean;
+  hideEditIconOnEditor?: boolean;
 }
 
 type Props = JSFormProps;
@@ -105,6 +107,8 @@ const SecondaryWrapper = styled.div`
 function JSEditorForm({
   backLink,
   contextMenu,
+  hideContextMenuOnEditor = false,
+  hideEditIconOnEditor = false,
   jsCollectionData,
   onUpdateSettings,
   saveJSObjectName,
@@ -320,14 +324,12 @@ function JSEditorForm({
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
-                disabled={
-                  !isChangePermitted || !!currentJSCollection.isMainJSCollection
-                }
+                disabled={!isChangePermitted || hideEditIconOnEditor}
                 saveJSObjectName={saveJSObjectName}
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              {!currentJSCollection.isMainJSCollection && contextMenu}
+              {!hideContextMenuOnEditor && contextMenu}
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
