@@ -39,6 +39,18 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   }
 `;
 
+const updateHandlePosition = (
+  entries: ResizeObserverEntry[],
+  ref: React.RefObject<HTMLDivElement>,
+) => {
+  if (ref.current && entries.length) {
+    const target = entries[0].target as HTMLElement;
+    const updatedLeft =
+      target.offsetLeft - SpaceDistributorHandleDimensions.width * 0.5;
+    ref.current.style.left = updatedLeft + "px";
+  }
+};
+
 export const SpaceDistributionHandle = ({
   columnPosition,
   layoutElementPositions,
@@ -62,15 +74,23 @@ export const SpaceDistributionHandle = ({
   const minimumShrinkableSpacePerBlock =
     minSpacePerBlock - minLimitBounceBackThreshold;
   const columnIndicatorDivRef = useRef<HTMLDivElement>();
-
+  const resizeObserverRef = useRef<ResizeObserver>();
+  resizeObserverRef.current = new ResizeObserver((entries) => {
+    updateHandlePosition(entries, ref);
+  });
   useEffect(() => {
     if (ref.current) {
+      const rightZoneDom = document.getElementById(
+        getAnvilWidgetDOMId(rightZone),
+      );
       if (isDistributingSpace) {
         if (!isCurrentHandleDistributingSpace.current) {
           ref.current.style.display = "none";
         }
+        rightZoneDom && resizeObserverRef.current?.observe(rightZoneDom);
       } else {
         ref.current.style.display = "block";
+        rightZoneDom && resizeObserverRef.current?.unobserve(rightZoneDom);
       }
     }
   }, [isDistributingSpace]);
@@ -78,7 +98,6 @@ export const SpaceDistributionHandle = ({
     if (ref.current) {
       // The current position of mouse
       let x = 0;
-      let lastValidHandlePosition = 0;
       const currentFlexGrow = {
         leftZone: spaceDistributed[leftZone],
         rightZone: spaceDistributed[rightZone],
@@ -267,11 +286,6 @@ export const SpaceDistributionHandle = ({
                 rightZoneComputedColumns,
                 minSpacePerBlock,
               ).toString();
-              const updatedLeft =
-                rightZoneDom.offsetLeft -
-                SpaceDistributorHandleDimensions.width * 0.5;
-              lastValidHandlePosition = updatedLeft;
-              ref.current.style.left = updatedLeft + "px";
               currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
               currentGrowthFactor.rightZone = rightZoneComputedColumnsRoundOff;
               if (columnIndicatorDivRef.current) {
@@ -289,11 +303,6 @@ export const SpaceDistributionHandle = ({
                   currentFlexGrow.leftZone -
                   minSpacePerBlock
                 ).toString();
-                const updatedLeft =
-                  rightZoneDom.offsetLeft -
-                  SpaceDistributorHandleDimensions.width * 0.5;
-                lastValidHandlePosition = updatedLeft;
-                ref.current.style.left = updatedLeft + "px";
                 currentGrowthFactor.leftZone = minSpacePerBlock;
                 currentGrowthFactor.rightZone =
                   currentFlexGrow.rightZone +
@@ -308,18 +317,12 @@ export const SpaceDistributionHandle = ({
                   currentFlexGrow.leftZone -
                   minSpacePerBlock
                 ).toString();
-                const updatedLeft =
-                  rightZoneDom.offsetLeft -
-                  SpaceDistributorHandleDimensions.width * 0.5;
-                lastValidHandlePosition = updatedLeft;
-                ref.current.style.left = updatedLeft + "px";
                 currentGrowthFactor.leftZone =
                   currentFlexGrow.rightZone +
                   currentFlexGrow.leftZone -
                   minSpacePerBlock;
                 currentGrowthFactor.rightZone = minSpacePerBlock;
               }
-              ref.current.style.left = lastValidHandlePosition + "px";
             }
           }
         }
