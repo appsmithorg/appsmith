@@ -1,16 +1,8 @@
-import {
-  getApplicationByIdFromWorkspaces,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
-import {
-  importTemplateIntoApplicationViaOnboardingFlow,
-  setActiveLoadingTemplateId,
-} from "actions/templateActions";
-import type { Template } from "api/TemplatesApi";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
-  getForkableWorkspaces,
   getTemplatesSelector,
   isFetchingTemplatesSelector,
   isImportingTemplateToAppSelector,
@@ -37,49 +29,25 @@ const TemplateContentWrapper = styled.div`
 `;
 
 interface StartWithTemplatesProps {
-  currentApplicationIdForCreateNewApp: string;
-  isModalLayout?: boolean;
   initialFilters?: Record<string, string[]>;
+  isForkingEnabled?: boolean;
+  isModalLayout?: boolean;
   setSelectedTemplate: (id: string) => void;
+  onForkTemplateClick: (template: TemplateInterface) => void;
 }
 
 const StartWithTemplates = ({
-  currentApplicationIdForCreateNewApp,
   initialFilters,
+  isForkingEnabled = false,
   isModalLayout,
+  onForkTemplateClick,
   setSelectedTemplate,
 }: StartWithTemplatesProps) => {
-  const dispatch = useDispatch();
-  const workspaceList = useSelector(getForkableWorkspaces);
   const allTemplates = useSelector(getTemplatesSelector);
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const isLoading = isFetchingApplications || isFetchingTemplates;
-  const application = useSelector((state) =>
-    getApplicationByIdFromWorkspaces(
-      state,
-      currentApplicationIdForCreateNewApp,
-    ),
-  );
-
-  const onForkTemplateClick = (template: Template) => {
-    const title = template.title;
-    AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
-    // When fork template is clicked to add a new app using the template
-    if (!isImportingTemplate && application) {
-      dispatch(setActiveLoadingTemplateId(template.id));
-      dispatch(
-        importTemplateIntoApplicationViaOnboardingFlow(
-          template.id,
-          template.title,
-          template.pages.map((p) => p.name),
-          application.id,
-          application.workspaceId,
-        ),
-      );
-    }
-  };
 
   const getTemplateById = (id: string) => {
     return allTemplates.find((template) => template.id === id);
@@ -101,7 +69,7 @@ const StartWithTemplates = ({
     <>
       <TemplateContentWrapper>
         <StartWithTemplateContent
-          isForkingEnabled={!!isModalLayout || !!workspaceList.length}
+          isForkingEnabled={isForkingEnabled}
           isModalLayout={!!isModalLayout}
           onForkTemplateClick={onForkTemplateClick}
           onTemplateClick={onTemplateClick}
