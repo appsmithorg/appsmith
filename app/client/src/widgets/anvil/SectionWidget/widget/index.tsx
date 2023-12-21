@@ -22,9 +22,10 @@ import type { ReactNode } from "react";
 import React from "react";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
+import { anvilWidgets } from "widgets/anvil/constants";
 
 class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
-  static type = "SECTION_WIDGET";
+  static type = anvilWidgets.SECTION_WIDGET;
 
   static getConfig(): WidgetBaseConfiguration {
     return baseConfig;

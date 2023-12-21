@@ -4,12 +4,11 @@ import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import {
   type AnvilDraggedWidgetTypes,
   AnvilDraggedWidgetTypesEnum,
 } from "../types";
+import { anvilWidgets } from "widgets/anvil/constants";
 
 const DEFAULT_DROP_RANGE = 10;
 
@@ -72,9 +71,9 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
   const draggedWidgetTypes =
     extractWidgetTypesDragged.length > 1
       ? AnvilDraggedWidgetTypesEnum.WIDGETS
-      : extractWidgetTypesDragged[0] === ZoneWidget.type
+      : extractWidgetTypesDragged[0] === anvilWidgets.ZONE_WIDGET
       ? AnvilDraggedWidgetTypesEnum.ZONE
-      : extractWidgetTypesDragged[0] === SectionWidget.type
+      : extractWidgetTypesDragged[0] === anvilWidgets.SECTION_WIDGET
       ? AnvilDraggedWidgetTypesEnum.SECTION
       : AnvilDraggedWidgetTypesEnum.WIDGETS;
 

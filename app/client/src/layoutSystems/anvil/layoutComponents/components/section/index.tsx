@@ -6,7 +6,7 @@ import {
 import WidgetRow from "../WidgetRow";
 import { SectionRow } from "./SectionRow";
 import type { FlexLayoutProps } from "../FlexLayout";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { anvilWidgets } from "widgets/anvil/constants";
 
 class Section extends WidgetRow {
   static type: LayoutComponentTypes = LayoutComponentTypes.SECTION;
@@ -16,7 +16,7 @@ class Section extends WidgetRow {
       return props.allowedWidgetTypes;
     }
     // TODO: remove string hard coding.
-    return [ZoneWidget.type];
+    return [anvilWidgets.ZONE_WIDGET];
   }
 
   getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
