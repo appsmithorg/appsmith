@@ -15,6 +15,7 @@ public interface PluginConstants {
         String OPEN_AI_PLUGIN = "openai-plugin";
         String ANTHROPIC_PLUGIN = "anthropic-plugin";
         String GOOGLE_AI_PLUGIN = "googleai-plugin";
+        String APPSMITH_AI_PLUGIN = "appsmithai-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
@@ -41,6 +42,7 @@ public interface PluginConstants {
         public static final String OPEN_AI_PLUGIN_NAME = "Open AI";
         public static final String ANTHROPIC_PLUGIN_NAME = "Anthropic";
         public static final String GOOGLE_AI_PLUGIN_NAME = "Google AI";
+        public static final String APPSMITH_AI_PLUGIN_NAME = "Appsmith AI";
     }
 
     interface HostName {

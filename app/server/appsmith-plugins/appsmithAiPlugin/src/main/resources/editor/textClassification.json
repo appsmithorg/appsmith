@@ -1,0 +1,29 @@
+{
+  "identifier": "TEXT_CLASSIFICATION",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_CLASSIFY'}}"
+  },
+  "children": [
+    {
+      "label": "Input",
+      "tooltipText": "Provide input for your use-case",
+      "Description": "For text classification, provide input content for classification? content for labeling?",
+      "subtitle": "For text classification, provide input content for classification? content for labeling?",
+      "configProperty": "actionConfiguration.formData.input.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "initialValue": "",
+      "isRequired": true
+    },
+    {
+      "label": "Labels",
+      "tooltipText": "Provide labels to classify data on",
+      "Description": "For text classification, provide labels as comma-separated string input for classification?",
+      "subtitle": "For text classification, provide labels as comma-separated string input for classification?",
+      "configProperty": "actionConfiguration.formData.labels.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "initialValue": "Java, Javascript, Python",
+      "isRequired": true
+    }
+  ]
+}

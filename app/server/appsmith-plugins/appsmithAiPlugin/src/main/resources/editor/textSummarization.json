@@ -1,0 +1,19 @@
+{
+  "identifier": "TEXT_SUMMARIZATION",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_SUMMARY'}}"
+  },
+  "children": [
+    {
+      "label": "Input",
+      "tooltipText": "Provide input for your use-case",
+      "Description": "For text summarization, provide input of what to summarize? summarise a report content maybe?",
+      "subtitle": "For text summarization, provide input of what to summarize? summarise a report content maybe?",
+      "configProperty": "actionConfiguration.formData.input.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "initialValue": "",
+      "isRequired": true
+    }
+  ]
+}

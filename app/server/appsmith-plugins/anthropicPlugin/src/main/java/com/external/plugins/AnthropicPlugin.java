@@ -106,7 +106,7 @@ public class AnthropicPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
-            // Get prompt from action configuration
+            // Get input from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);

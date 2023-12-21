@@ -1,0 +1,13 @@
+package com.external.plugins.models;
+
+public enum Feature {
+    TEXT_GENERATE,
+    TEXT_CLASSIFY,
+    TEXT_SUMMARY,
+    IMAGE_GENERATE,
+    KNOWLEDGE_RETRIEVE,
+    TEXT_ENTITY_EXTRACT,
+    IMAGE_ENTITY_EXTRACT,
+    IMAGE_CAPTION,
+    IMAGE_CLASSIFY
+}

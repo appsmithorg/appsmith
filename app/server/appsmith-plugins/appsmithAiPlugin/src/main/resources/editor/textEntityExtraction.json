@@ -1,0 +1,29 @@
+{
+  "identifier": "TEXT_ENTITY_EXTRACT",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_ENTITY_EXTRACT'}}"
+  },
+  "children": [
+    {
+      "label": "Input",
+      "tooltipText": "Provide input for your use-case",
+      "Description": "For text extraction, provide input content for extraction? content for finding popular keywords?",
+      "subtitle": "For text extraction, provide input content for extraction? content for finding popular keywords?",
+      "configProperty": "actionConfiguration.formData.input.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "initialValue": "",
+      "isRequired": true
+    },
+    {
+      "label": "Entities",
+      "tooltipText": "Provide entities to extract from content",
+      "Description": "For text extraction, provide entities to extract as comma-separated string input for extraction?",
+      "subtitle": "For text extraction, provide entities to extract as comma-separated string input for extraction?",
+      "configProperty": "actionConfiguration.formData.entities.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "initialValue": "Java, Javascript, Python",
+      "isRequired": true
+    }
+  ]
+}

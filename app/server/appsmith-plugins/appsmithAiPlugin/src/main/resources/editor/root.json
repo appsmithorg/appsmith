@@ -1,0 +1,42 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Usecase",
+          "description": "Choose the use-case you would like to use",
+          "configProperty": "actionConfiguration.formData.usecase.data",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "TEXT_GENERATION",
+          "options": [
+            {
+              "label": "Text Generation",
+              "value": "TEXT_GENERATE"
+            },
+            {
+              "label": "Text Classification",
+              "value": "TEXT_CLASSIFY"
+            },
+            {
+              "label": "Text Summarization",
+              "value": "TEXT_SUMMARY"
+            },
+            {
+              "label": "Text Entity Extraction",
+              "value": "TEXT_ENTITY_EXTRACT"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    "textGeneration.json",
+    "textClassification.json",
+    "textSummarization.json",
+    "textEntityExtraction.json"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "identifier": "TEXT_GENERATION",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_GENERATE'}}"
+  },
+  "children": [
+    {
+      "label": "Input",
+      "tooltipText": "Provide input for your use-case",
+      "Description": "For text generation, provide input of what to generate? generate a blog on AI maybe?",
+      "subtitle": "For text generation, provide input of what to generate? generate a blog on AI maybe?",
+      "configProperty": "actionConfiguration.formData.input.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "initialValue": "",
+      "isRequired": true
+    }
+  ]
+}
