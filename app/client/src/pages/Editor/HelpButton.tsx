@@ -106,6 +106,7 @@ export function IntercomConsent({
   const dispatch = useDispatch();
 
   const sendUserDataToIntercom = () => {
+    const { email } = user || {};
     updateIntercomProperties(instanceId, user);
     dispatch(
       updateUserDetails({
@@ -114,6 +115,14 @@ export function IntercomConsent({
     );
     dispatch(updateIntercomConsent());
     showIntercomConsent(false);
+
+    if (user?.enableTelemetry) {
+      AnalyticsUtil.identifyUser(user, true);
+      AnalyticsUtil.logEvent("SUPPORT_REQUEST_INITIATED", {
+        email,
+      });
+    }
+
     window.Intercom("show");
   };
   return (
