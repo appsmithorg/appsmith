@@ -26,11 +26,11 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      tags: ${{ steps.setup.outputs.tags }}
-      matrix: ${{ steps.setup.outputs.matrix }}
+      tags: ${{ steps.matrix_setup.outputs.tags }}
+      matrix: ${{ steps.matrix_setup.outputs.matrix }}
     steps:
       - name: Set tags and matrix runner
-        id: setup
+        id: matrix_setup
         run: |
           if [ "${{github.event_name}}" == "workflow_dispatch" ]; then
             if [[ "${{inputs.tags}}" != "" && "${{inputs.tags}}" != *"@tag.All"* ]]; then
