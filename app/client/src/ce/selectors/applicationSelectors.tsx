@@ -155,6 +155,10 @@ export const getAppSidebarPinned = (state: AppState) => {
   return state.ui.applications.isAppSidebarPinned;
 };
 
+export const getIsFetchingEntities = (state: AppState) => {
+  return state.ui.applications.isFetchingEntities;
+};
+
 /**
  * Return the width of the sidbar depending on the sidebar style.
  * If there isn't any sidebar or it is unpinned, return 0.

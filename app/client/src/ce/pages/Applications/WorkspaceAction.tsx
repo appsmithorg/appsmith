@@ -18,13 +18,11 @@ import {
 } from "@appsmith/constants/messages";
 import { NEW_APP } from "@appsmith/constants/messages";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import type { Application } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;
   isMobile: boolean;
-  applications: Application[];
   enableImportExport: boolean;
   workspaceId: string;
   onCreateNewApplication: (workspaceId: string) => void;
@@ -32,7 +30,6 @@ export interface WorkspaceActionProps {
 }
 
 function WorkspaceAction({
-  applications,
   enableImportExport,
   isMobile,
   onCreateNewApplication,
@@ -58,12 +55,7 @@ function WorkspaceAction({
   const hasCreateNewApplicationPermission =
     hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
-  if (
-    !hasCreateNewApplicationPermission ||
-    isFetchingApplications ||
-    applications.length === 0
-  )
-    return null;
+  if (!hasCreateNewApplicationPermission || isFetchingApplications) return null;
 
   return (
     <Menu

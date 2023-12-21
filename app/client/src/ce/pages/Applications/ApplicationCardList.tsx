@@ -1,17 +1,15 @@
 import React from "react";
-import { Button, Text } from "design-system";
+import { Text } from "design-system";
 import { useSelector } from "react-redux";
 
 import CardList from "pages/Applications/CardList";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
-import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { NoAppsFound } from "@appsmith/pages/Applications";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
   APPLICATION_CARD_LIST_ZERO_STATE,
-  NEW_APPLICATION,
   createMessage,
 } from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
@@ -40,13 +38,9 @@ function ApplicationCardList({
   hasCreateNewApplicationPermission,
   hasManageWorkspacePermissions,
   isMobile,
-  onClickAddNewButton,
   updateApplicationDispatch,
   workspaceId,
 }: ApplicationCardListProps) {
-  const isCreatingApplication = Boolean(
-    useSelector(getIsCreatingApplicationByWorkspaceId(workspaceId)),
-  );
   const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
@@ -86,17 +80,6 @@ function ApplicationCardList({
             {createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}
           </Text>
           {/* below component is duplicate. This is because of cypress test were failing */}
-          {hasCreateNewApplicationPermission && (
-            <Button
-              className="t--new-button createnew"
-              isLoading={isCreatingApplication}
-              onClick={() => onClickAddNewButton(workspaceId)}
-              size="md"
-              startIcon={"plus"}
-            >
-              {createMessage(NEW_APPLICATION)}
-            </Button>
-          )}
         </NoAppsFound>
       )}
     </CardList>

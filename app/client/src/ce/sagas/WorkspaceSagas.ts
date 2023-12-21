@@ -135,14 +135,7 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
         payload: users,
       });
     }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_ALL_USERS_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
+  } catch (error) {}
 }
 
 export function* changeWorkspaceUserRoleSaga(
