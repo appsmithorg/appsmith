@@ -4,7 +4,9 @@ import com.appsmith.server.applications.imports.ApplicationImportService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ImportableJsonType;
 import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ContextImportDTO;
+import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -36,12 +38,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public ContextBasedImportService<?> getContextBasedImportService(ImportableContextJson importableContextJson) {
+    public ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO>
+            getContextBasedImportService(ImportableContextJson importableContextJson) {
         return getContextBasedImportService(importableContextJson.getImportableJsonType());
     }
 
     @Override
-    public ContextBasedImportService<?> getContextBasedImportService(ImportableJsonType importableJsonType) {
+    public ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO>
+            getContextBasedImportService(ImportableJsonType importableJsonType) {
         if (APPLICATION.equals(importableJsonType)) {
             return applicationImportService;
         }
@@ -51,7 +55,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public ContextBasedImportService<?> getContextBasedImportService(MediaType contentType) {
+    public ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO>
+            getContextBasedImportService(MediaType contentType) {
         if (MediaType.APPLICATION_JSON.equals(contentType)) {
             return applicationImportService;
         }
@@ -106,21 +111,60 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            return getContextBasedImportService(contextJson)
-                    .importContextInWorkspaceFromJson(workspaceId, contextJson, userPermissionGroups);
-        });
+        return permissionGroupRepository
+                .getCurrentUserPermissionGroups()
+                .flatMap(userPermissionGroups -> getContextBasedImportService(contextJson)
+                        .importContextInWorkspaceFromJson(workspaceId, contextJson, userPermissionGroups));
     }
 
     @Override
     public Mono<ImportableContext> updateNonGitConnectedContextFromJson(
             String workspaceId, String contextId, ImportableContextJson importableContextJson) {
-        return null;
+
+        if (!StringUtils.isEmpty(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        if (StringUtils.isEmpty(contextId)) {
+            // error message according to the context
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        }
+
+        Mono<Boolean> isContextConnectedToGitMono = Mono.just(Boolean.FALSE);
+
+        Mono<ImportableContext> importedContextMono = isContextConnectedToGitMono.flatMap(isConnectedToGit -> {
+            if (isConnectedToGit) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
+            } else {
+                return getContextBasedImportService(importableContextJson)
+                        .updateNonGitConnectedContextFromJson(
+                                workspaceId, contextId, (ApplicationJson) importableContextJson)
+                        .onErrorResume(error -> {
+                            if (error instanceof AppsmithException) {
+                                return Mono.error(error);
+                            }
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, error.getMessage()));
+                        });
+            }
+        });
+
+        return Mono.create(
+                sink -> importedContextMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     @Override
     public Mono<ContextImportDTO> getContextImportDTO(
             String contextId, String workspaceId, ImportableContext importableContext) {
         return null;
+    }
+
+    private ApplicationJson getTypecastedContextJsons(ImportableContextJson importableContextJson) {
+        if (APPLICATION.equals(importableContextJson.getImportableJsonType())) {
+            return (ApplicationJson) importableContextJson;
+        }
+
+        return (ApplicationJson) importableContextJson;
     }
 }

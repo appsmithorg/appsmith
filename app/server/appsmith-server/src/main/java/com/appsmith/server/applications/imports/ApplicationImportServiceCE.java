@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface ApplicationImportServiceCE extends ContextBasedImportService<Application> {
+public interface ApplicationImportServiceCE extends ContextBasedImportService<Application, ApplicationImportDTO> {
 
     // --------------------------- These interfaces will be analysed and methods would be reduced further
 

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ApplicationImportDTO {
+public class ApplicationImportDTO implements ImportableContextDTO {
 
     Application application;
 

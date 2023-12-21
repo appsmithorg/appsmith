@@ -121,7 +121,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<Application> importContextInWorkspaceFromJson(
-            String workspaceId, ImportableContextJson importableContextJson, Set<String> currentUserPermissionGroup) {
+            String workspaceId, ImportableContextJson applicationJson, Set<String> currentUserPermissionGroup) {
 
         ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
                         applicationPermission,
@@ -136,7 +136,26 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 .build();
 
         return importApplicationInWorkspace(
-                workspaceId, (ApplicationJson) importableContextJson, null, null, false, permissionProvider);
+                workspaceId, (ApplicationJson) applicationJson, null, null, false, permissionProvider);
+    }
+
+    @Override
+    public Mono<Application> updateNonGitConnectedContextFromJson(
+            String workspaceId, String applicationId, ImportableContextJson importableContextJson) {
+        return getPermissionProviderForUpdateNonGitConnectedAppFromJson().flatMap(permissionProvider -> {
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
+                // Remove the application name from JSON file as updating the application name is not
+                // supported
+                // via JSON import. This is to avoid name conflict during the import flow within the
+                // workspace
+                applicationJson.getExportedApplication().setName(null);
+                applicationJson.getExportedApplication().setSlug(null);
+            }
+
+            return importApplicationInWorkspace(
+                    workspaceId, applicationJson, applicationId, null, false, permissionProvider);
+        });
     }
 
     // ------------------------------------------------------

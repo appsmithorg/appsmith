@@ -3,6 +3,7 @@ package com.appsmith.server.imports.importable;
 import com.appsmith.server.constants.ImportableJsonType;
 import com.appsmith.server.domains.ImportableContext;
 import com.appsmith.server.dtos.ContextImportDTO;
+import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.imports.internal.ContextBasedImportService;
 import org.springframework.http.MediaType;
@@ -11,11 +12,14 @@ import reactor.core.publisher.Mono;
 
 public interface ImportServiceCE {
 
-    ContextBasedImportService<?> getContextBasedImportService(ImportableContextJson importableContextJson);
+    ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO> getContextBasedImportService(
+            ImportableContextJson importableContextJson);
 
-    ContextBasedImportService<?> getContextBasedImportService(ImportableJsonType importableJsonType);
+    ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO> getContextBasedImportService(
+            ImportableJsonType importableJsonType);
 
-    ContextBasedImportService<?> getContextBasedImportService(MediaType contentType);
+    ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO> getContextBasedImportService(
+            MediaType contentType);
 
     Mono<ImportableContextJson> extractImportableContextJson(Part filePart);
 
