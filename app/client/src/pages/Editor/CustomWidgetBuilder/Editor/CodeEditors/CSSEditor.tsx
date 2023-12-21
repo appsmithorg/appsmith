@@ -59,7 +59,9 @@ export function TitleControls() {
 export default function CSSEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);
 
-  const { uncompiledSrcDoc, update } = useContext(CustomWidgetBuilderContext);
+  const { showConnectionLostMessage, uncompiledSrcDoc, update } = useContext(
+    CustomWidgetBuilderContext,
+  );
 
   const { height } = props;
 
@@ -69,6 +71,7 @@ export default function CSSEditor(props: ContentProps) {
         border={CodeEditorBorder.NONE}
         borderLess
         className={"js-editor"}
+        disabled={showConnectionLostMessage}
         focusElementName="custom-widget-css-editor"
         folding
         height={height}

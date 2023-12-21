@@ -45,6 +45,9 @@ export interface CustomWidgetBuilderContextValueType {
 
   //Array of logs to show on the debugger section
   debuggerLogs: Array<DebuggerLog>;
+
+  //Flag to indicatae that widget is not focus in main window
+  showConnectionLostMessage: boolean;
 }
 
 export interface CustomWidgetBuilderContextFunctionType {

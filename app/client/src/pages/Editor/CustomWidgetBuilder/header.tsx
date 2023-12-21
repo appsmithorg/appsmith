@@ -7,7 +7,7 @@ import {
 } from "../commons/EditorHeaderComponents";
 import { AppsmithLink } from "../AppsmithLink";
 import styles from "./styles.module.css";
-import { Button, Text } from "design-system";
+import { Button, Icon, Text } from "design-system";
 import clsx from "clsx";
 import { CustomWidgetBuilderContext } from ".";
 import {
@@ -18,7 +18,9 @@ import {
 const theme = getTheme(ThemeMode.LIGHT);
 
 export default function Header() {
-  const { close } = useContext(CustomWidgetBuilderContext);
+  const { close, showConnectionLostMessage } = useContext(
+    CustomWidgetBuilderContext,
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -32,6 +34,20 @@ export default function Header() {
         <HeaderSection
           className={clsx(styles.headerSection, styles.headerControls)}
         >
+          {showConnectionLostMessage && (
+            <>
+              <Text color="var(--ads-old-color-pomegranate)">
+                {createMessage(CUSTOM_WIDGET_FEATURE.builder.connectionLost)}
+              </Text>
+              <Icon
+                name="link-unlink"
+                size="md"
+                style={{
+                  color: "var(--ads-old-color-pomegranate)",
+                }}
+              />
+            </>
+          )}
           <Button
             className={styles.closeButton}
             kind="tertiary"

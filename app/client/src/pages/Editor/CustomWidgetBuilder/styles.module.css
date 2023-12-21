@@ -29,3 +29,12 @@
 .closeButton.closeButton {
   height: 36px;
 }
+
+.connectionLostContainer {
+  height: calc(100vh - 40px);
+  left: 0;
+  position: fixed;
+  top: 40px;
+  width: 100vw;
+  background: #ffffffa1;
+}

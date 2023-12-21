@@ -5,6 +5,8 @@ export const CUSTOM_WIDGET_BUILDER_EVENTS = {
   UPDATE_SRCDOC_ACK: "UPDATE_SRCDOC_ACK",
   UPDATE_REFERENCES: "UPDATE_REFERENCES",
   UPDATE_REFERENCES_ACK: "UPDATE_REFERENCES_ACK",
+  PAUSE: "PAUSE",
+  RESUME: "RESUME",
   DISCONNECTED: "DISCONNECTED",
   CLOSE: "CLOSE",
 };
@@ -33,4 +35,5 @@ export const DEFAULT_CONTEXT_VALUE = {
   isReferenceOpen: false,
   selectedLayout: "tabs",
   debuggerLogs: [],
+  showConnectionLostMessage: false,
 };

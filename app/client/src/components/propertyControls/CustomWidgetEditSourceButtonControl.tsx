@@ -8,10 +8,10 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import CustomWidgetBuilderService from "utils/CustomWidgetBuilderService";
 
 interface ButtonControlState {
   isSourceEditorOpen: boolean;
-  sourceEditor?: Window;
 }
 
 class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
@@ -20,86 +20,95 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   };
 
   onCTAClick = () => {
-    const builderUrl = window.location.pathname + "/builder";
-
     if (
-      this.state.isSourceEditorOpen &&
-      !this.state.sourceEditor?.closed &&
-      this.state.sourceEditor
+      CustomWidgetBuilderService.isConnected(
+        this.props.widgetProperties.widgetId,
+      )
     ) {
-      this.state.sourceEditor.focus();
+      CustomWidgetBuilderService.focus(this.props.widgetProperties.widgetId);
     } else {
-      const editSourceWindow = window.open(builderUrl, "_blank");
+      const { onMessage, postMessage } =
+        CustomWidgetBuilderService.createConnection(
+          this.props.widgetProperties.widgetId,
+        );
 
-      if (editSourceWindow) {
+      onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.READY, () => {
+        postMessage({
+          type: CUSTOM_WIDGET_BUILDER_EVENTS.READY_ACK,
+          name: this.props.widgetProperties.widgetName,
+          srcDoc: this.props.widgetProperties.srcDoc,
+          uncompiledSrcDoc: this.props.widgetProperties.uncompiledSrcDoc,
+          model:
+            this.props.widgetProperties.__evaluation__?.evaluatedValues
+              .defaultModel,
+          events: this.props.widgetProperties.events.reduce(
+            (prev: Record<string, string>, curr: string) => {
+              prev[curr] = this.props.widgetProperties[curr];
+
+              return prev;
+            },
+            {},
+          ),
+        });
+      });
+
+      onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC, (data: any) => {
+        this.props.onBatchUpdateProperties?.({
+          srcDoc: data.srcDoc,
+          uncompiledSrcDoc: data.uncompiledSrcDoc,
+        });
+
+        postMessage({
+          type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC_ACK,
+          success: true,
+        });
+      });
+
+      onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED, () => {
+        CustomWidgetBuilderService.closeConnection(
+          this.props.widgetProperties.widgetId,
+        );
+
         this.setState({
-          isSourceEditorOpen: true,
-          sourceEditor: editSourceWindow,
+          isSourceEditorOpen: false,
         });
+      });
 
-        editSourceWindow?.addEventListener("message", (event: any) => {
-          if (event.source === editSourceWindow) {
-            switch (event.data.type) {
-              case CUSTOM_WIDGET_BUILDER_EVENTS.READY:
-                editSourceWindow.postMessage({
-                  type: CUSTOM_WIDGET_BUILDER_EVENTS.READY_ACK,
-                  name: this.props.widgetProperties.widgetName,
-                  srcDoc: this.props.widgetProperties.srcDoc,
-                  uncompiledSrcDoc:
-                    this.props.widgetProperties.uncompiledSrcDoc,
-                  model:
-                    this.props.widgetProperties.__evaluation__?.evaluatedValues
-                      .defaultModel,
-                  events: this.props.widgetProperties.events.reduce(
-                    (prev: Record<string, string>, curr: string) => {
-                      prev[curr] = this.props.widgetProperties[curr];
-
-                      return prev;
-                    },
-                    {},
-                  ),
-                });
-                break;
-              case CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC:
-                this.props.onBatchUpdateProperties?.({
-                  srcDoc: event.data.srcDoc,
-                  uncompiledSrcDoc: event.data.uncompiledSrcDoc,
-                });
-
-                editSourceWindow.postMessage({
-                  type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC_ACK,
-                  success: true,
-                });
-                break;
-              case CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED:
-                this.setState({
-                  isSourceEditorOpen: false,
-                  sourceEditor: undefined,
-                });
-                break;
-            }
-          }
-        });
-      }
+      this.setState({
+        isSourceEditorOpen: true,
+      });
     }
   };
 
   beforeWindowUnload = () => {
-    if (
-      this.state.sourceEditor &&
-      !this.state.sourceEditor.closed &&
-      this.state.isSourceEditorOpen
-    ) {
-      this.state.sourceEditor.close();
-    }
+    CustomWidgetBuilderService.closeConnection(
+      this.props.widgetProperties.widgetId,
+    );
   };
 
   componentDidMount(): void {
     window.addEventListener("beforeunload", this.beforeWindowUnload);
+
+    if (
+      CustomWidgetBuilderService.isConnected(
+        this.props.widgetProperties.widgetId,
+      )
+    ) {
+      CustomWidgetBuilderService.getConnection(
+        this.props.widgetProperties.widgetId,
+      )?.postMessage({
+        type: CUSTOM_WIDGET_BUILDER_EVENTS.RESUME,
+      });
+    }
   }
 
   componentWillUnmount(): void {
-    this.beforeWindowUnload();
+    CustomWidgetBuilderService.getConnection(
+      this.props.widgetProperties.widgetId,
+    )?.postMessage({
+      type: CUSTOM_WIDGET_BUILDER_EVENTS.PAUSE,
+    });
+
     window.removeEventListener("beforeunload", this.beforeWindowUnload);
   }
 
@@ -115,7 +124,9 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       });
 
     if (
-      this.state.isSourceEditorOpen &&
+      CustomWidgetBuilderService.isConnected(
+        this.props.widgetProperties.widgetId,
+      ) &&
       (prevProps.widgetProperties.widgetName !==
         this.props.widgetProperties.widgetName ||
         hasEventChanged ||
@@ -124,24 +135,25 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
           this.props.widgetProperties.__evaluation__?.evaluatedValues
             .defaultModel)
     ) {
-      this.state.sourceEditor?.postMessage(
-        {
-          type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERENCES,
-          name: this.props.widgetProperties.widgetName,
-          model:
-            this.props.widgetProperties.__evaluation__?.evaluatedValues
-              .defaultModel,
-          events: this.props.widgetProperties.events.reduce(
-            (prev: Record<string, string>, curr: string) => {
-              prev[curr] = this.props.widgetProperties[curr];
-
-              return prev;
-            },
-            {},
-          ),
-        },
-        "*",
+      const connection = CustomWidgetBuilderService.getConnection(
+        this.props.widgetProperties.widgetId,
       );
+
+      connection?.postMessage({
+        type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERENCES,
+        name: this.props.widgetProperties.widgetName,
+        model:
+          this.props.widgetProperties.__evaluation__?.evaluatedValues
+            .defaultModel,
+        events: this.props.widgetProperties.events.reduce(
+          (prev: Record<string, string>, curr: string) => {
+            prev[curr] = this.props.widgetProperties[curr];
+
+            return prev;
+          },
+          {},
+        ),
+      });
     }
   }
 
@@ -155,7 +167,10 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
           width: "100%",
         }}
       >
-        {this.state.isSourceEditorOpen
+        {this.state.isSourceEditorOpen ||
+        CustomWidgetBuilderService.isConnected(
+          this.props.widgetProperties.widgetId,
+        )
           ? createMessage(CUSTOM_WIDGET_FEATURE.editSource.goToSourceCTA)
           : createMessage(CUSTOM_WIDGET_FEATURE.editSource.editSourceCTA)}
         &nbsp;

@@ -21,6 +21,7 @@ import {
   type SrcDoc,
 } from "./types";
 import { compileSrcDoc } from "./utility";
+import ConnectionLost from "./connectionLost";
 
 export const CustomWidgetBuilderContext = React.createContext<
   Partial<CustomWidgetBuilderContextType>
@@ -55,7 +56,7 @@ export default function CustomWidgetBuilder() {
     });
 
     if (contextValue.lastSaved) {
-      window.parent.postMessage(
+      window.opener.postMessage(
         {
           type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC,
           srcDoc: result.code,
@@ -105,7 +106,7 @@ export default function CustomWidgetBuilder() {
         setSelectedLayout(layout);
       },
       close: () => {
-        window.parent.focus();
+        window.opener.focus();
         window.close();
       },
       bulkUpdate: (uncompiledSrcDoc: SrcDoc) => {
@@ -207,10 +208,26 @@ export default function CustomWidgetBuilder() {
           });
           replay();
           break;
+        case CUSTOM_WIDGET_BUILDER_EVENTS.PAUSE:
+          setContextValue((prev) => {
+            return {
+              ...prev,
+              showConnectionLostMessage: true,
+            };
+          });
+          break;
+        case CUSTOM_WIDGET_BUILDER_EVENTS.RESUME:
+          setContextValue((prev) => {
+            return {
+              ...prev,
+              showConnectionLostMessage: false,
+            };
+          });
+          break;
       }
     });
 
-    window.parent.postMessage(
+    window.opener.postMessage(
       {
         type: CUSTOM_WIDGET_BUILDER_EVENTS.READY,
       },
@@ -218,7 +235,7 @@ export default function CustomWidgetBuilder() {
     );
 
     window.addEventListener("beforeunload", () => {
-      window.parent.postMessage(
+      window.opener.postMessage(
         {
           type: CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED,
         },
@@ -243,6 +260,7 @@ export default function CustomWidgetBuilder() {
           <Editor />
         </div>
       )}
+      <ConnectionLost />
     </CustomWidgetBuilderContext.Provider>
   );
 }

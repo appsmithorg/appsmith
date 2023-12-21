@@ -20,7 +20,9 @@ import {
 export default function HTMLEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);
 
-  const { uncompiledSrcDoc, update } = useContext(CustomWidgetBuilderContext);
+  const { showConnectionLostMessage, uncompiledSrcDoc, update } = useContext(
+    CustomWidgetBuilderContext,
+  );
 
   const { height } = props;
 
@@ -30,6 +32,7 @@ export default function HTMLEditor(props: ContentProps) {
         border={CodeEditorBorder.NONE}
         borderLess
         className={"js-editor"}
+        disabled={showConnectionLostMessage}
         focusElementName="custom-widget-html-editor"
         folding
         height={height}

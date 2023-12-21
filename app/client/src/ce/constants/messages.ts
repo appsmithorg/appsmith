@@ -2329,6 +2329,8 @@ export const CUSTOM_WIDGET_FEATURE = {
   builder: {
     header: () => "Custom Widget Builder",
     close: () => "Close",
+    connectionLost: () =>
+      "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
     editor: {
       css: {
         contextTooltip: () => "You can use following css variables",
