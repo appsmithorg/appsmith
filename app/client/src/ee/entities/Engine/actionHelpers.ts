@@ -5,13 +5,36 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
-import { getPageDependencyActions as CE_getPageDependencyActions } from "ce/entities/Engine/actionHelpers";
+import {
+  getPageDependencyActions as CE_getPageDependencyActions,
+  ACTION_PARENT_ENTITY_TYPE as CE_ACTION_PARENT_ENTITY_TYPE,
+  ActionContextType as CE_ActionContextType,
+  CreateNewActionKey as CE_CreateNewActionKey,
+} from "ce/entities/Engine/actionHelpers";
 
-export enum ACTION_PARENT_ENTITY_TYPE {
-  PAGE = "PAGE",
-  WORKFLOW = "WORKFLOW",
-  PACKAGE = "PACKAGE",
-}
+export const CreateNewActionKey = {
+  ...CE_CreateNewActionKey,
+  WORKFLOW: "workflowId",
+  MODULE: "moduleId",
+} as const;
+
+export type CreateNewActionKeyInterface =
+  (typeof CreateNewActionKey)[keyof typeof CreateNewActionKey];
+
+export const ActionContextType = {
+  ...CE_ActionContextType,
+  WORKFLOW: "WORKFLOW",
+  MODULE: "MODULE",
+} as const;
+
+export type ActionContextTypeInterface =
+  (typeof ActionContextType)[keyof typeof ActionContextType];
+
+export const ACTION_PARENT_ENTITY_TYPE = {
+  ...CE_ACTION_PARENT_ENTITY_TYPE,
+  WORKFLOW: "WORKFLOW",
+  PACKAGE: "PACKAGE",
+};
 
 export type ActionParentEntityTypeInterface =
   (typeof ACTION_PARENT_ENTITY_TYPE)[keyof typeof ACTION_PARENT_ENTITY_TYPE];
