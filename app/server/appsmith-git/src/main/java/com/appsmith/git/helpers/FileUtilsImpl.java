@@ -47,8 +47,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -304,7 +307,9 @@ public class FileUtilsImpl implements FileInterface {
                         Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))
                                 ? updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString)
                                 : Boolean.FALSE;
-                        String fileNameWithExtension = uidString.replaceAll("/", "_") + CommonConstants.JSON_EXTENSION;
+
+                        String fileNameWithExtension = getJsLibFileName(uidString) + CommonConstants.JSON_EXTENSION;
+
                         Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
                         if (isResourceUpdated) {
                             saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
@@ -1107,5 +1112,34 @@ public class FileUtilsImpl implements FileInterface {
             log.error("Error reading index.lock file: {}", ex.getMessage());
             return Mono.just(0L);
         }
+    }
+
+    /**
+     * We use UID string for custom js lib. UID strings are in this format: {libname}_{url to the lib src}.
+     * This method converts this uid string into a valid file name so that there is no unsupported character in the
+     * file name for any OS.
+     * This method returns a string in the format: {libname}_{base64 encoded hash of uid string}
+     * @param uidString UID string value of a JS lib
+     * @return String
+     */
+    public static String getJsLibFileName(String uidString) {
+        int firstUnderscoreIndex = uidString.indexOf('_'); // this finds the first occurrence of "_"
+        String prefix;
+        if (firstUnderscoreIndex != -1) {
+            prefix = uidString.substring(0, firstUnderscoreIndex); // we're getting the prefix from the uidString
+        } else {
+            prefix = "jslib";
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(prefix);
+        stringBuilder.append("_");
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(uidString.getBytes(StandardCharsets.UTF_8));
+            stringBuilder.append(Base64.getUrlEncoder().withoutPadding().encodeToString(hash));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Failed to hash URL string", e);
+        }
+        return stringBuilder.toString();
     }
 }
