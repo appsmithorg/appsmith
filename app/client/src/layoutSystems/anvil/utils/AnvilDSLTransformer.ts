@@ -23,7 +23,7 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
           border: "none",
           height: "100%",
           minHeight: "70vh",
-          padding: "0px 0px 5rem",
+          padding: "spacing-2",
         },
         isDropTarget: true,
         isPermanent: true,

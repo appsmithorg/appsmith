@@ -16,13 +16,12 @@ import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReduce
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { basePathForActiveAction } from "@appsmith/constants/routes/appRoutes";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -266,9 +265,10 @@ export const useEntityEditState = (entityId: string) => {
 
 export function useActiveAction() {
   const location = useLocation();
+  const path = basePathForActiveAction;
 
   const baseMatch = matchPath<{ apiId: string }>(location.pathname, {
-    path: [BUILDER_PATH, BUILDER_PATH_DEPRECATED],
+    path,
     strict: false,
     exact: false,
   });

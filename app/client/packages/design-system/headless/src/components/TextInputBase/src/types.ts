@@ -20,4 +20,6 @@ export interface TextInputBaseProps
   errorMessageProps?: TextFieldAria["errorMessageProps"];
   /** ref for input component */
   inputRef?: RefObject<HTMLInputElement | HTMLTextAreaElement>;
+  /** Whether the input can be selected but not changed by the user. Readonly has a higher priority than disabled. */
+  isReadOnly?: boolean;
 }
