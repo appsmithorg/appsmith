@@ -15,10 +15,8 @@ import {
   propertyPaneContent,
   propertyPaneStyle,
 } from "./config";
-import BaseWidget, {
-  type WidgetProps,
-  type WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import ContainerComponent from "widgets/ContainerWidget/component";
