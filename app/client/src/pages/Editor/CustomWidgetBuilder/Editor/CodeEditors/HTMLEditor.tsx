@@ -12,6 +12,10 @@ import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styles from "./styles.module.css";
 import { Spinner } from "design-system";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function HTMLEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);
@@ -41,7 +45,9 @@ export default function HTMLEditor(props: ContentProps) {
         }}
         mode={EditorModes.HTMLMIXED}
         onLoad={() => setLoading(false)}
-        placeholder="<!-- no need to write html, head, body tags, it is handled by the widget -->"
+        placeholder={createMessage(
+          CUSTOM_WIDGET_FEATURE.builder.editor.html.placeholder,
+        )}
         showLightningMenu={false}
         showLineNumbers
         size={EditorSize.EXTENDED}

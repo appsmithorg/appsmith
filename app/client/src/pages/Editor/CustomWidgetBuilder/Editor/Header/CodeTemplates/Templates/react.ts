@@ -1,5 +1,10 @@
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
+
 export default {
-  key: "React",
+  key: createMessage(CUSTOM_WIDGET_FEATURE.templateKey.react),
   uncompiledSrcDoc: {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
 <div id="root"></div>

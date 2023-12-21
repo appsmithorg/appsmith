@@ -4,6 +4,10 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { Button, Icon } from "design-system";
 import { CUSTOM_WIDGET_BUILDER_EVENTS } from "pages/Editor/CustomWidgetBuilder/contants";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 interface ButtonControlState {
   isSourceEditorOpen: boolean;
@@ -100,15 +104,15 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   }
 
   componentDidUpdate(prevProps: Readonly<ControlProps>): void {
-    const hasEventChanged = this.props.widgetProperties.events.some(
-      (event: string) => {
+    const hasEventChanged =
+      this.props.widgetProperties.events.length !==
+        prevProps.widgetProperties.events.length ||
+      this.props.widgetProperties.events.some((event: string) => {
         return (
           prevProps.widgetProperties[event] !==
-            this.props.widgetProperties[event] ||
-          !prevProps.widgetProperties.events.includes(event)
+          this.props.widgetProperties[event]
         );
-      },
-    );
+      });
 
     if (
       this.state.isSourceEditorOpen &&
@@ -151,7 +155,9 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
           width: "100%",
         }}
       >
-        {this.state.isSourceEditorOpen ? "Go to source editor" : "Edit Source"}
+        {this.state.isSourceEditorOpen
+          ? createMessage(CUSTOM_WIDGET_FEATURE.editSource.goToSourceCTA)
+          : createMessage(CUSTOM_WIDGET_FEATURE.editSource.editSourceCTA)}
         &nbsp;
         <Icon name="share-box-line" size="sm" />
       </Button>

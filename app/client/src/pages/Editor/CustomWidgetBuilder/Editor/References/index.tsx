@@ -4,6 +4,10 @@ import Collapsible from "./collapsible";
 import Help from "./help";
 import LiveModel from "./liveModel";
 import Events from "./events";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function References() {
   return (
@@ -11,14 +15,19 @@ export default function References() {
       <Collapsible
         helpMessage={
           <ol>
-            <li>- Use `appsmith.model` to access your model in javascript</li>
             <li>
-              - Use `appsmith.updateModel()` to update your model from
-              javascript
+              {createMessage(
+                CUSTOM_WIDGET_FEATURE.referrences.liveModel.helpMessage[0],
+              )}
+            </li>
+            <li>
+              {createMessage(
+                CUSTOM_WIDGET_FEATURE.referrences.liveModel.helpMessage[1],
+              )}
             </li>
           </ol>
         }
-        label="Live Model"
+        label={createMessage(CUSTOM_WIDGET_FEATURE.referrences.liveModel.label)}
       >
         <LiveModel />
       </Collapsible>
@@ -26,16 +35,18 @@ export default function References() {
         helpMessage={
           <ol>
             <li>
-              - Use `appsmith.triggerEvent(&lt;EVENT_NAME&gt;)` to trigger an
-              event
+              {createMessage(
+                CUSTOM_WIDGET_FEATURE.referrences.events.helpMessage[0],
+              )}
             </li>
             <li>
-              - `appsmith.triggerEvent()` also accepts context data as second
-              arg
+              {createMessage(
+                CUSTOM_WIDGET_FEATURE.referrences.events.helpMessage[1],
+              )}
             </li>
           </ol>
         }
-        label="Events"
+        label={createMessage(CUSTOM_WIDGET_FEATURE.referrences.events.label)}
       >
         <Events />
       </Collapsible>

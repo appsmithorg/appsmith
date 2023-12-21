@@ -21,6 +21,10 @@ import {
   SearchInput,
   Text,
 } from "design-system";
+import {
+  WIDGET_PANEL_EMPTY_MESSAGE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -126,8 +130,8 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
             renderAs="p"
             style={{ marginBottom: "15px" }}
           >
-            We couldn’t find any widgets called `{searchInputRef.current?.value}
-            `
+            {createMessage(WIDGET_PANEL_EMPTY_MESSAGE)} `
+            {searchInputRef.current?.value}`
           </Text>
         )}
         <div>

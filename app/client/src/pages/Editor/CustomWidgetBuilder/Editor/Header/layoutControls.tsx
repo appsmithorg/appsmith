@@ -3,6 +3,10 @@ import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
 import styles from "./styles.module.css";
 import styled from "styled-components";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   & .ads-v2-icon {
@@ -23,12 +27,12 @@ export default function LayoutControls() {
         onChange={onChange}
         options={[
           {
-            label: "Split",
+            label: createMessage(CUSTOM_WIDGET_FEATURE.layout.split),
             startIcon: "layout-column-line",
             value: "split",
           },
           {
-            label: "Tabs",
+            label: createMessage(CUSTOM_WIDGET_FEATURE.layout.tab),
             startIcon: "layout-left-2-line",
             value: "tabs",
           },

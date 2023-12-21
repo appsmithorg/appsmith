@@ -9,6 +9,10 @@ import {
 } from "design-system";
 import styles from "./styles.module.css";
 import type { DebuggerLog } from "../../types";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function HelpDropdown(props: DebuggerLog) {
   const { args } = props;
@@ -41,7 +45,9 @@ export default function HelpDropdown(props: DebuggerLog) {
             // },
             {
               startIcon: <Icon name="snippet" size="md" />,
-              title: "Search StackOverflow",
+              title: createMessage(
+                CUSTOM_WIDGET_FEATURE.debugger.helpDropdown.stackoverflow,
+              ),
               onClick: () => {
                 args[0] &&
                   window.open(

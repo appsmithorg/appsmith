@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Tabs, TabsList, Tab, TabPanel, Icon, Tooltip } from "design-system";
 import DebuggerItem from "./debuggerItem";
 import styles from "./styles.module.css";
@@ -7,11 +7,17 @@ import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import { CustomWidgetBuilderContext } from "../..";
 import { DebuggerLogType } from "../../types";
 import BugIcon from "../Debugger/icon.svg";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const LOCAL_STORAGE_KEYS_IS_DEBUGGER_OPEN =
   "custom-widget-builder-context-state-is-debugger-open";
 
 export default function Debugger() {
+  const scrollToRef = React.useRef<HTMLDivElement>(null);
+
   const [open, setOpen] = useLocalStorageState(
     LOCAL_STORAGE_KEYS_IS_DEBUGGER_OPEN,
     false,
@@ -20,6 +26,10 @@ export default function Debugger() {
   const { clearDegbuggerLogs, debuggerLogs } = useContext(
     CustomWidgetBuilderContext,
   );
+
+  useEffect(() => {
+    scrollToRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [debuggerLogs]);
 
   return (
     <div className={styles.wrapper}>
@@ -59,7 +69,7 @@ export default function Debugger() {
       <Tabs value={"Debugger"}>
         <TabsList className={styles.debuggerTab} onClick={() => setOpen(!open)}>
           <Tab key="Debugger" value="Debugger">
-            Console
+            {createMessage(CUSTOM_WIDGET_FEATURE.debugger.title)}
           </Tab>
         </TabsList>
         {open && (
@@ -78,10 +88,11 @@ export default function Debugger() {
                   <img src={BugIcon} />
                 </div>
                 <div className={styles.debuggerEmpty}>
-                  Errors and logs will appear here
+                  {createMessage(CUSTOM_WIDGET_FEATURE.debugger.emptyMessage)}
                 </div>
               </div>
             )}
+            <div ref={scrollToRef} />
           </TabPanel>
         )}
       </Tabs>

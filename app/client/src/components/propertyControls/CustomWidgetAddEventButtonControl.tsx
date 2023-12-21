@@ -5,6 +5,10 @@ import BaseControl from "./BaseControl";
 import { Button, Input, Icon } from "design-system";
 import type { WidgetProps } from "widgets/BaseWidget";
 import styled from "styled-components";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 interface ButtonControlState {
   showInput: boolean;
@@ -22,7 +26,38 @@ const StyledErrorMessage = styled.div`
   align-items: center;
 `;
 
-const RESTRICTED_NAMES = ["onReset"];
+// TODO (sbalaji1192): Find a better place to maintain this variable
+const RESTRICTED_NAMES = [
+  "onReset",
+  "ENTITY_TYPE",
+  "isVisible",
+  "widgetName",
+  "events",
+  "defaultModel",
+  "srcDoc",
+  "uncompiledSrcDoc",
+  "key",
+  "isCanvas",
+  "isSearchWildcard",
+  "widgetId",
+  "isLoading",
+  "parentColumnSpace",
+  "parentRowSpace",
+  "leftColumn",
+  "rightColumn",
+  "topRow",
+  "bottomRow",
+  "mobileLeftColumn",
+  "mobileRightColumn",
+  "mobileTopRow",
+  "mobileBottomRow",
+  "model",
+  "meta",
+  "componentHeight",
+  "componentWidth",
+  "type",
+  "__evaluation__",
+];
 
 class ButtonControl extends BaseControl<
   ButtonControlProps,
@@ -70,9 +105,13 @@ class ButtonControl extends BaseControl<
       this.props.widgetProperties.hasOwnProperty(this.state.eventName.trim()) ||
       this.props.widgetProperties.events.includes(this.state.eventName.trim())
     ) {
-      errorMessage = "Event name already exists";
+      errorMessage = createMessage(
+        CUSTOM_WIDGET_FEATURE.addEvent.errors.duplicate,
+      );
     } else if (RESTRICTED_NAMES.includes(this.state.eventName.trim())) {
-      errorMessage = "Event name is restricted";
+      errorMessage = createMessage(
+        CUSTOM_WIDGET_FEATURE.addEvent.errors.restricted,
+      );
     }
 
     return (
@@ -94,7 +133,7 @@ class ButtonControl extends BaseControl<
               <Input
                 autoFocus
                 errorMessage={this.getErrorMessages()}
-                label="Name"
+                label={createMessage(CUSTOM_WIDGET_FEATURE.addEvent.nameLabel)}
                 onChange={(value: string) => {
                   this.setState({ eventName: value.split(/\W+/).join("_") });
                 }}
@@ -115,7 +154,7 @@ class ButtonControl extends BaseControl<
             <div className="flex justify-end mt-4">
               <div className="pr-2">
                 <Button kind="secondary" onClick={this.onCancel} size="sm">
-                  Cancel
+                  {createMessage(CUSTOM_WIDGET_FEATURE.addEvent.cancelCTA)}
                 </Button>
               </div>
               <div className="pl-2">
@@ -125,7 +164,7 @@ class ButtonControl extends BaseControl<
                   onClick={this.onSave}
                   size="sm"
                 >
-                  Add
+                  {createMessage(CUSTOM_WIDGET_FEATURE.addEvent.addCTA)}
                 </Button>
               </div>
             </div>
@@ -137,7 +176,7 @@ class ButtonControl extends BaseControl<
             size="sm"
             startIcon="plus"
           >
-            Add Event
+            {createMessage(CUSTOM_WIDGET_FEATURE.addEvent.addEventCTA)}
           </Button>
         )}
       </div>

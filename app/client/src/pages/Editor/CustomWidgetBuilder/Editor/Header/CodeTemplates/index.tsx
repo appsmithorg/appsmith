@@ -18,6 +18,10 @@ import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";
 import styles from "../styles.module.css";
 import type { SrcDoc } from "pages/Editor/CustomWidgetBuilder/types";
 import styled from "styled-components";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const StyledButton = styled(Button)`
   height: 32px !important;
@@ -44,18 +48,20 @@ function ConfirmationModal(props: {
           width: "580px",
         }}
       >
-        <ModalHeader>Are you sure?</ModalHeader>
+        <ModalHeader>
+          {createMessage(CUSTOM_WIDGET_FEATURE.template.modal.header)}
+        </ModalHeader>
         <ModalBody>
           <Text kind="body-m">
-            This will replace the current changes in the HTML, CSS and JS files.
+            {createMessage(CUSTOM_WIDGET_FEATURE.template.modal.body)}
           </Text>
         </ModalBody>
         <ModalFooter>
           <Button kind="secondary" onClick={props.onCancel} size="sm">
-            Cancel
+            {createMessage(CUSTOM_WIDGET_FEATURE.template.modal.cancelCTA)}
           </Button>
           <Button onClick={props.onReplace} size="sm">
-            Replace
+            {createMessage(CUSTOM_WIDGET_FEATURE.template.modal.successCTA)}
           </Button>
         </ModalFooter>
       </ModalContent>
@@ -77,7 +83,7 @@ export function CodeTemplates() {
       <Menu>
         <MenuTrigger>
           <StyledButton kind="secondary" size="sm" startIcon="query" style={{}}>
-            Templates
+            {createMessage(CUSTOM_WIDGET_FEATURE.template.buttonCTA)}
           </StyledButton>
         </MenuTrigger>
         <MenuContent>
@@ -89,7 +95,7 @@ export function CodeTemplates() {
                   setOpen(true);
                 }}
               >
-                Revert to Original
+                {createMessage(CUSTOM_WIDGET_FEATURE.template.revert)}
               </MenuItem>
               <MenuSeparator />
             </>

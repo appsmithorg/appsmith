@@ -11,6 +11,10 @@ import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { Icon, Tooltip, Spinner } from "design-system";
 import styles from "./styles.module.css";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export function TitleControls() {
   const { isReferenceOpen, model } = useContext(CustomWidgetBuilderContext);
@@ -32,7 +36,11 @@ export function TitleControls() {
     <Tooltip
       content={
         <>
-          <div>You can use following css variables</div>
+          <div>
+            {createMessage(
+              CUSTOM_WIDGET_FEATURE.builder.editor.css.contextTooltip,
+            )}
+          </div>
           <div>&nbsp;</div>
           <ol>
             {variableList.map((value, index) => (
@@ -76,7 +84,9 @@ export default function CSSEditor(props: ContentProps) {
         }}
         mode={EditorModes.CSS}
         onLoad={() => setLoading(false)}
-        placeholder="/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/"
+        placeholder={createMessage(
+          CUSTOM_WIDGET_FEATURE.builder.editor.css.placeholder,
+        )}
         showLightningMenu={false}
         showLineNumbers
         size={EditorSize.EXTENDED}

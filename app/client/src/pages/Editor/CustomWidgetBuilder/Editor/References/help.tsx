@@ -1,6 +1,10 @@
 import { Button, Text } from "design-system";
 import styles from "./styles.module.css";
 import React from "react";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function Help() {
   return (
@@ -12,8 +16,7 @@ export default function Help() {
           lineHeight: "18px",
         }}
       >
-        Learn how custom widgets work, and how to access data from the rest of
-        your app within this widget.
+        {createMessage(CUSTOM_WIDGET_FEATURE.referrences.help.message)}
       </Text>
       <Button
         className={styles.marginTop}
@@ -21,7 +24,7 @@ export default function Help() {
         size="md"
         startIcon="book"
       >
-        Documentation
+        {createMessage(CUSTOM_WIDGET_FEATURE.referrences.help.buttonCTA)}
       </Button>
     </div>
   );

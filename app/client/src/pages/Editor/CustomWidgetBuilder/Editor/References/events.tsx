@@ -10,6 +10,10 @@ import {
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const StyledLazyCodeEditorWrapper = styled.div`
   .CodeMirror-line.CodeMirror-line {
@@ -97,8 +101,7 @@ export default function Events() {
             lineHeight: "18px",
           }}
         >
-          You haven’t created any events. Return to the app editor to add events
-          to this custom widget.
+          {createMessage(CUSTOM_WIDGET_FEATURE.referrences.events.emptyMessage)}
         </Text>
       )}
     </div>

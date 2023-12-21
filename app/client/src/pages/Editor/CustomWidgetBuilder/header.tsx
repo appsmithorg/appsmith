@@ -10,6 +10,10 @@ import styles from "./styles.module.css";
 import { Button, Text } from "design-system";
 import clsx from "clsx";
 import { CustomWidgetBuilderContext } from ".";
+import {
+  createMessage,
+  CUSTOM_WIDGET_FEATURE,
+} from "@appsmith/constants/messages";
 
 const theme = getTheme(ThemeMode.LIGHT);
 
@@ -22,7 +26,7 @@ export default function Header() {
         <HeaderSection className={styles.headerSection}>
           <AppsmithLink />
           <Text className={styles.header} kind="heading-xs">
-            Custom Widget Builder
+            {createMessage(CUSTOM_WIDGET_FEATURE.builder.header)}
           </Text>
         </HeaderSection>
         <HeaderSection
@@ -34,7 +38,7 @@ export default function Header() {
             onClick={close}
             size="lg"
           >
-            Close
+            {createMessage(CUSTOM_WIDGET_FEATURE.builder.close)}
           </Button>
         </HeaderSection>
       </HeaderWrapper>

@@ -16,6 +16,10 @@ import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constant
 // import { Severity } from "entities/AppsmithConsole";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { Spinner } from "design-system";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function JSEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);
@@ -74,7 +78,9 @@ export default function JSEditor(props: ContentProps) {
         }}
         mode={EditorModes.JAVASCRIPT}
         onLoad={() => setLoading(false)}
-        placeholder="// no need to write window onLoad, it is handled by the widget"
+        placeholder={createMessage(
+          CUSTOM_WIDGET_FEATURE.builder.editor.js.placeholder,
+        )}
         showLightningMenu={false}
         showLineNumbers
         size={EditorSize.EXTENDED}

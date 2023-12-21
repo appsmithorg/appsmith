@@ -1,5 +1,10 @@
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
+
 export default {
-  key: "Vue.js",
+  key: createMessage(CUSTOM_WIDGET_FEATURE.templateKey.vue),
   uncompiledSrcDoc: {
     html: `<div id="hello-world-app">
   <h1>{{ msg }}</h1>

@@ -1,5 +1,10 @@
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
+
 export default {
-  key: "Blank",
+  key: createMessage(CUSTOM_WIDGET_FEATURE.templateKey.blank),
   uncompiledSrcDoc: {
     html: "",
     css: "",

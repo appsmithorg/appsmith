@@ -4,6 +4,10 @@ import CustomComponent from "widgets/CustomWidget/component";
 import { CustomWidgetBuilderContext } from "../index";
 import { toast } from "design-system";
 import Debugger from "./Debugger";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function Preview() {
   const { key, model, srcDoc, updateDebuggerLogs, updateModel } = useContext(
@@ -51,12 +55,21 @@ export default function Preview() {
     <div className={styles.contentLeft} ref={containerRef}>
       <CustomComponent
         execute={(name, contextObjec) => {
-          toast.show(`Event fired: ${name}`, { kind: "success" });
+          toast.show(
+            `${createMessage(
+              CUSTOM_WIDGET_FEATURE.preview.eventFired,
+            )} ${name}`,
+            { kind: "success" },
+          );
 
           updateDebuggerLogs?.({
             type: "info",
             args: [
-              { message: `Event fired: '${name}'` },
+              {
+                message: `${createMessage(
+                  CUSTOM_WIDGET_FEATURE.preview.eventFired,
+                )} '${name}'`,
+              },
               { message: contextObjec },
             ],
           });
@@ -75,7 +88,9 @@ export default function Preview() {
         update={(data) => {
           updateModel?.(data);
 
-          const message = `Model updated`;
+          const message = createMessage(
+            CUSTOM_WIDGET_FEATURE.preview.modelUpdated,
+          );
 
           toast.show(message, { kind: "success" });
 
