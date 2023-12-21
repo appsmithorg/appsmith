@@ -158,7 +158,6 @@ jobs:
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
@@ -179,7 +178,6 @@ jobs:
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
