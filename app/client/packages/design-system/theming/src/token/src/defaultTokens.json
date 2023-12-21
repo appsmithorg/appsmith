@@ -57,7 +57,7 @@
     "1": "0px"
   },
   "boxShadow": {
-    "1": "0 4px 6px 0 var(--color-shadow-elevation-1)",
+    "1": "0 4px 8px 0 var(--color-shadow-elevation-1)",
     "2": "0 2px 4px 0 var(--color-shadow-elevation-2)",
     "3": "0 1px 2px 0 var(--color-shadow-elevation-3)"
   },
