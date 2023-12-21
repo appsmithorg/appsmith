@@ -425,7 +425,6 @@ public class Application extends BaseDomain {
     }
 
     @Data
-    @AllArgsConstructor
     @NoArgsConstructor
     public static class ThemeSetting {
 

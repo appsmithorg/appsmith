@@ -77,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -265,13 +266,7 @@ public class ImportApplicationServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
 
-        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
-        themeSettings.setSizing(1);
-        themeSettings.setDensity(1);
-        themeSettings.setBorderRadius("#000000");
-        themeSettings.setAccentColor("#FFFFFF");
-        themeSettings.setFontFamily("#000000");
-        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
 
@@ -2464,13 +2459,7 @@ public class ImportApplicationServiceTests {
                     navigationSetting.setOrientation("top");
                     applicationDetail.setNavigationSetting(navigationSetting);
 
-                    Application.ThemeSetting themeSettings = new Application.ThemeSetting();
-                    themeSettings.setSizing(1);
-                    themeSettings.setDensity(1);
-                    themeSettings.setBorderRadius("#000000");
-                    themeSettings.setAccentColor("#FFFFFF");
-                    themeSettings.setFontFamily("#000000");
-                    themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    Application.ThemeSetting themeSettings = getThemeSetting();
                     applicationDetail.setThemeSetting(themeSettings);
 
                     application.setUnpublishedApplicationDetail(applicationDetail);
@@ -2537,6 +2526,17 @@ public class ImportApplicationServiceTests {
                     assertThat(application.getPublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @NotNull private static Application.ThemeSetting getThemeSetting() {
+        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+        themeSettings.setSizing(1);
+        themeSettings.setDensity(1);
+        themeSettings.setBorderRadius("#000000");
+        themeSettings.setAccentColor("#FFFFFF");
+        themeSettings.setFontFamily("#000000");
+        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        return themeSettings;
     }
 
     /**
