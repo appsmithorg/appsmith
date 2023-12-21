@@ -7,9 +7,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public interface ContextBasedImportServiceCE<T extends ImportableContext, U extends ImportableContextDTO> {
+public interface ContextBasedImportServiceCE<
+        T extends ImportableContext, U extends ImportableContextDTO, V extends ImportableContextJson> {
 
-    ImportableContextJson extractImportableContextJson(String jsonString);
+    V extractImportableContextJson(String jsonString);
 
     Mono<T> importContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson importableContextJson, Set<String> currentUserPermissionGroup);
@@ -18,5 +19,5 @@ public interface ContextBasedImportServiceCE<T extends ImportableContext, U exte
             String workspaceId, String importableContextId, ImportableContextJson importableContextJson);
 
     Mono<T> importContextInWorkspaceFromGit(
-            String workspaceId, ImportableContextJson importableContextJson, String contextId, String branchName);
+            String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName);
 }

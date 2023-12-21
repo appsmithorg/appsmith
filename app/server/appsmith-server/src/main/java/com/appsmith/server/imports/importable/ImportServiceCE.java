@@ -12,27 +12,31 @@ import reactor.core.publisher.Mono;
 
 public interface ImportServiceCE {
 
-    ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO> getContextBasedImportService(
-            ImportableContextJson importableContextJson);
+    ContextBasedImportService<
+                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
+            getContextBasedImportService(ImportableContextJson importableContextJson);
 
-    ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO> getContextBasedImportService(
-            ImportableJsonType importableJsonType);
+    ContextBasedImportService<
+                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
+            getContextBasedImportService(ImportableJsonType importableJsonType);
 
-    ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO> getContextBasedImportService(
-            MediaType contentType);
+    ContextBasedImportService<
+                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
+            getContextBasedImportService(MediaType contentType);
 
-    Mono<ImportableContextJson> extractImportableContextJson(Part filePart);
+    Mono<? extends ImportableContextJson> extractImportableContextJson(Part filePart);
 
-    Mono<ContextImportDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId);
+    Mono<? extends ContextImportDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId);
 
-    Mono<ImportableContext> importContextInWorkspaceFromJson(String workspaceId, ImportableContextJson contextJson);
+    Mono<? extends ImportableContext> importContextInWorkspaceFromJson(
+            String workspaceId, ImportableContextJson contextJson);
 
-    Mono<ImportableContext> updateNonGitConnectedContextFromJson(
+    Mono<? extends ImportableContext> updateNonGitConnectedContextFromJson(
             String workspaceId, String contextId, ImportableContextJson importableContextJson);
 
-    Mono<ImportableContext> importContextInWorkspaceFromGit(
-            String workspaceId, ImportableContextJson importedDoc, String contextId, String branchName);
+    Mono<? extends ImportableContext> importContextInWorkspaceFromGit(
+            String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName);
 
-    Mono<ContextImportDTO> getContextImportDTO(
+    Mono<? extends ContextImportDTO> getContextImportDTO(
             String contextId, String workspaceId, ImportableContext importableContext);
 }

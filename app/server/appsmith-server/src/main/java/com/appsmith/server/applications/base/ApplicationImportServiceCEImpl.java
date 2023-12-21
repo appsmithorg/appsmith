@@ -160,15 +160,15 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     /**
      * This function will update an existing application. The application is connected to Git.
      *
-     * @param workspaceId   workspace to which application is going to be stored
-     * @param applicationJson   application resource which contains necessary information to save the application
-     * @param applicationId application which needs to be saved with the updated resources
-     * @param branchName    name of the git branch. null if not connected to git.
+     * @param workspaceId     workspace to which application is going to be stored
+     * @param applicationId   application which needs to be saved with the updated resources
+     * @param applicationJson application resource which contains necessary information to save the application
+     * @param branchName      name of the git branch. null if not connected to git.
      * @return saved application in DB
      */
     @Override
     public Mono<Application> importContextInWorkspaceFromGit(
-            String workspaceId, ImportableContextJson applicationJson, String applicationId, String branchName) {
+            String workspaceId, String applicationId, ImportableContextJson applicationJson, String branchName) {
         return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
             /**
              * If the application is connected to git, then the user must have edit permission on the application.
@@ -187,6 +187,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
                     .currentUserPermissionGroups(userPermissionGroups)
                     .build();
+
             return importApplicationInWorkspace(
                     workspaceId,
                     (ApplicationJson) applicationJson,

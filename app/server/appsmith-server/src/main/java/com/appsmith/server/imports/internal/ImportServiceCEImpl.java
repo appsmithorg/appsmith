@@ -30,7 +30,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     public static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
     private final ApplicationImportService applicationImportService;
-    private final Map<ImportableJsonType, ContextBasedImportService<?, ?>> serviceFactory = new HashMap<>();
+    private final Map<ImportableJsonType, ContextBasedImportService<?, ?, ?>> serviceFactory = new HashMap<>();
     private final PermissionGroupRepository permissionGroupRepository;
 
     public ImportServiceCEImpl(
@@ -41,19 +41,22 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO>
+    public ContextBasedImportService<
+                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
             getContextBasedImportService(ImportableContextJson importableContextJson) {
         return getContextBasedImportService(importableContextJson.getImportableJsonType());
     }
 
     @Override
-    public ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO>
+    public ContextBasedImportService<
+                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
             getContextBasedImportService(ImportableJsonType importableJsonType) {
         return serviceFactory.getOrDefault(importableJsonType, applicationImportService);
     }
 
     @Override
-    public ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO>
+    public ContextBasedImportService<
+                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
             getContextBasedImportService(MediaType contentType) {
         if (MediaType.APPLICATION_JSON.equals(contentType)) {
             return applicationImportService;
@@ -62,7 +65,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return applicationImportService;
     }
 
-    public Mono<ImportableContextJson> extractImportableContextJson(Part filePart) {
+    public Mono<? extends ImportableContextJson> extractImportableContextJson(Part filePart) {
 
         final MediaType contentType = filePart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -81,7 +84,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<ContextImportDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId) {
+    public Mono<? extends ContextImportDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId) {
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
@@ -101,7 +104,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<ImportableContext> importContextInWorkspaceFromJson(
+    public Mono<? extends ImportableContext> importContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson contextJson) {
 
         // workspace id must be present and valid
@@ -116,7 +119,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<ImportableContext> updateNonGitConnectedContextFromJson(
+    public Mono<? extends ImportableContext> updateNonGitConnectedContextFromJson(
             String workspaceId, String contextId, ImportableContextJson importableContextJson) {
 
         if (!StringUtils.isEmpty(workspaceId)) {
@@ -152,13 +155,15 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<ImportableContext> importContextInWorkspaceFromGit(
-            String workspaceId, ImportableContextJson importedDoc, String contextId, String branchName) {
-        return null;
+    public Mono<? extends ImportableContext> importContextInWorkspaceFromGit(
+            String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName) {
+
+        return getContextBasedImportService(importableContextJson)
+                .importContextInWorkspaceFromGit(workspaceId, contextId, importableContextJson, branchName);
     }
 
     @Override
-    public Mono<ContextImportDTO> getContextImportDTO(
+    public Mono<? extends ContextImportDTO> getContextImportDTO(
             String contextId, String workspaceId, ImportableContext importableContext) {
         return null;
     }
