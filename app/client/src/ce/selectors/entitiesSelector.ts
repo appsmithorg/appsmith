@@ -28,7 +28,7 @@ import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
 } from "api/PluginApi";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -1424,8 +1424,12 @@ export const getQueryModuleInstances = () => {
   return [];
 };
 
-export const getJSModuleInstancesData = () => {
-  return [];
+export const getJSModuleInstancesData = (_: AppState) => {
+  return [] as Array<{
+    config: JSCollection;
+    data: unknown;
+    name: string;
+  }>;
 };
 
 export const getAllJSCollections = createSelector(
