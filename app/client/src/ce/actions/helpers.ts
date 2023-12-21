@@ -5,6 +5,8 @@ import {
 } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { saveActionName } from "actions/pluginActionActions";
+import { saveJSObjectName } from "actions/jsActionActions";
 
 export const createNewQueryBasedOnParentEntity = (
   entityId: string,
@@ -36,4 +38,24 @@ export const createNewJSCollectionBasedOnParentEntity = (
   parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
   return createNewJSCollection(entityId, from);
+};
+
+export const saveActionNameBasedOnParentEntity = (
+  id: string,
+  name: string,
+  // Used in EE
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
+) => {
+  return saveActionName({ id, name });
+};
+
+export const saveJSObjectNameBasedOnParentEntity = (
+  id: string,
+  name: string,
+  // Used in EE
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
+) => {
+  return saveJSObjectName({ id, name });
 };

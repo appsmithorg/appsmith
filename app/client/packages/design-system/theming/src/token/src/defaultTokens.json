@@ -28,7 +28,7 @@
       "userDensityRatio": 1.5
     },
     "innerSpacing": {
-      "minV": 2.25,
+      "minV": 1.5,
       "maxV": 3,
       "minR": 2,
       "maxR": 3,
@@ -57,9 +57,9 @@
     "1": "0px"
   },
   "boxShadow": {
-    "1": "0 8px 8px 0 rgba(0, 0, 0, 0.05)",
-    "2": "0 4px 4px 0 rgba(0, 0, 0, 0.1)",
-    "3": "0 2px 2px 0 rgba(0, 0, 0, 0.15)"
+    "1": "0 4px 6px 0 var(--color-shadow-elevation-1)",
+    "2": "0 2px 4px 0 var(--color-shadow-elevation-2)",
+    "3": "0 1px 2px 0 var(--color-shadow-elevation-3)"
   },
   "borderWidth": {
     "1": "1px",

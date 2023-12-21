@@ -30,7 +30,7 @@ const JSInput2TestCode =
 
 let repoName;
 
-describe("1. CommandClickNavigation", function () {
+describe("1. CommandClickNavigation", { tags: ["@tag.IDE"] }, function () {
   it("1. Import application & Assert few things", () => {
     homePage.NavigateToHome();
     cy.reload();

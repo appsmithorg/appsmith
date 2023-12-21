@@ -97,7 +97,7 @@ describe(
         .GetElement(appSettings.locators._scrollArrows)
         .last()
         .trigger("mousedown");
-      agHelper.Sleep(1500); //removing this sleep fails the case in CI, is needed for trigger event to complete
+      agHelper.Sleep(1500); //removing this sleep fails the case in CI & local, is needed for trigger event to complete
       agHelper
         .GetElement(appSettings.locators._scrollArrows)
         .last()
