@@ -1,6 +1,6 @@
-import { WDSTextWidget } from "widgets/wds/WDSParagraphWidget";
+import { WDSParagraphWidget } from "widgets/wds/WDSParagraphWidget";
 
-class WDSHeadingWidget extends WDSTextWidget {
+class WDSHeadingWidget extends WDSParagraphWidget {
   static type = "WDS_HEADING_WIDGET";
 
   static getConfig() {
