@@ -35,7 +35,7 @@ describe("FirstTimeUserOnboarding", function () {
 
   it(
     "2. onboarding flow - should check the checklist actions",
-    { tags: ["@tag.Authentication"] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       agHelper.GetNAssertContains(OnboardingLocator.checklistStatus, "0 of 5");
       agHelper.AssertElementExist(OnboardingLocator.checklistDatasourceBtn);

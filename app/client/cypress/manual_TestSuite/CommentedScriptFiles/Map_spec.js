@@ -6,7 +6,7 @@ import * as _ from "../../support/Objects/ObjectsCore";
 if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
   describe(
     "Map Widget Functionality",
-    { tags: ["@tag.excludeForAirgap", "@tag.Maps"] },
+    { tags: ["@tag.Maps", "@tag.excludeForAirgap"] },
     function () {
       before(() => {
         _.agHelper.AddDsl("Mapdsl");

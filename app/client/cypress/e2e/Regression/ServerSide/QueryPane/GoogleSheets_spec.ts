@@ -11,7 +11,7 @@ import {
 
 describe(
   "Google Sheets datasource row objects placeholder",
-  { tags: ["@tag.excludeForAirgap", "@tag.GSheet", "@tag.Datasource"] },
+  { tags: ["@tag.GSheet", "@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     let pluginName = "Google Sheets";
 

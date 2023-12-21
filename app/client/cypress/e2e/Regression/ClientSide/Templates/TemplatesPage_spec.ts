@@ -2,7 +2,7 @@ import { agHelper, templates } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Templates page",
-  { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
     it("1. Templates tab should have no impact of 'allowPageImport:true'", () => {
       agHelper.RefreshPage(); //is important for below intercept to go thru!

@@ -6,7 +6,7 @@ import {
 
 describe(
   "Templates page filtering",
-  { tags: ["@tag.excludeForAirgap"] },
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap",] },
   () => {
     const FUNCTIONS_FILTER = ["Operations", "Customer Support"];
     const NAME_FILTER = "order";

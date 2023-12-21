@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Fork a template to an workspace",
-  { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
     it("1. Fork a template to an workspace", () => {
       _.templates.SwitchToTemplatesTab();

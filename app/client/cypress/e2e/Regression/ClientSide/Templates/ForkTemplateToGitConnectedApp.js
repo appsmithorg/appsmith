@@ -12,7 +12,7 @@ import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Fork a template to the current app",
-  { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       _.homePage.NavigateToHome();

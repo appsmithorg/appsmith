@@ -329,7 +329,7 @@ describe("Linting", { tags: ["@tag.JS"] }, () => {
 
   it(
     "9. Shows lint errors for usage of library that are not installed yet",
-    { tags: ["@tag.Authentication"] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       const JS_OBJECT_WITH_LIB_API = `export default {
       myFun1: () => {

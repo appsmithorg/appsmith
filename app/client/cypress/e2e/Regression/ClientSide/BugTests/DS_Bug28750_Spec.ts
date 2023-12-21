@@ -10,18 +10,15 @@ describe(
       dataSources.CreateMockDB("Users");
     });
 
-    it(
-      "1. Verify if the schema table accordions is collapsed in case of search",
-      () => {
-        agHelper.TypeText(
-          dataSources._datasourceStructureSearchInput,
-          "public.us",
-        );
-        agHelper.Sleep(1000);
-        agHelper.AssertElementAbsence(
-          `${dataSources._dsStructurePreviewMode} ${dataSources._datasourceSchemaColumn}`,
-        );
-      },
-    );
+    it("1. Verify if the schema table accordions is collapsed in case of search", () => {
+      agHelper.TypeText(
+        dataSources._datasourceStructureSearchInput,
+        "public.us",
+      );
+      agHelper.Sleep(1000);
+      agHelper.AssertElementAbsence(
+        `${dataSources._dsStructurePreviewMode} ${dataSources._datasourceSchemaColumn}`,
+      );
+    });
   },
 );

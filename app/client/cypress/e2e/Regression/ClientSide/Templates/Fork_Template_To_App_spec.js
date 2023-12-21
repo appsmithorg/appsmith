@@ -12,7 +12,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Fork a template to the current app",
-  { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();
