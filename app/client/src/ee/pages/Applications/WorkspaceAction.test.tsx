@@ -37,22 +37,6 @@ const DEFAULT_USER_WORKSPACES = [
   },
 ];
 
-const DEFAULT_APPLICATIONS = [
-  {
-    id: "loadingAppId1",
-    userPermissions: [],
-    name: "loadingAppName1",
-    workspaceId: DEFAULT_WORKSPACE_ID,
-    isPublic: false,
-    appIsExample: false,
-    defaultPageId: "5f7c3bc3b295692137139bd7",
-    applicationVersion: 1,
-    pages: [],
-    slug: "app1",
-    new: false,
-  },
-];
-
 // const DEFAULT_USERS = [];
 
 // const DEFAULT_PACKAGES = [
@@ -152,7 +136,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -177,7 +160,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -203,7 +185,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -229,7 +210,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -258,7 +238,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -286,7 +265,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -315,7 +293,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -358,7 +335,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={onCreateNewAppMock}
@@ -398,7 +374,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -442,7 +417,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -486,7 +460,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -530,7 +503,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
@@ -571,7 +543,6 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
-            applications={DEFAULT_APPLICATIONS}
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
