@@ -1617,12 +1617,12 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
      *     This method performs the following actions:
      *     <li>Retrieves all actions in the specified workflow along with specific fields (ID and Datasource IDs).</li>
      *     <li>Retrieves all environments in the specified workspace (ID and isDefault).</li>
+     *     <li>Retrieves all action collections in the specified workflow along with specific fields. (ID) </li>
      *     <li>Collects datasource IDs from the retrieved actions.</li>
      *     <li>Prepares maps for entity IDs to entity classes, to-be-added permissions, and to-be-removed permissions.</li>
      *     <li>Invokes bulkUpdateEntityPoliciesForApplicationRole to update permissions for all entities.</li>
      * </ol>
      * <p>
-     * Note: Permissions for ActionCollections are not yet implemented (TODO).
      *
      * @param workflowId             The ID of the workflow to be updated.
      * @param workspaceId            The ID of the workspace containing the workflow.
@@ -1653,7 +1653,15 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .collectList()
                 .cache();
 
-        // TODO: Add permissions for ActionCollections as well.
+        Mono<List<ActionCollection>> allActionCollectionsInWorkflowMono = actionCollectionRepository
+                .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForActionCollection))
+                .collectList()
+                .cache();
+
+        Mono<List<NewAction>> allJsActionsInWorkflowMono = newActionRepository
+                .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForAction), TRUE)
+                .collectList()
+                .cache();
 
         List<String> includedEnvironmentFields =
                 List.of(fieldName(QEnvironment.environment.id), fieldName(QEnvironment.environment.isDefault));
@@ -1661,10 +1669,16 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includedEnvironmentFields)
                 .collectList();
 
-        return Mono.zip(allActionsInWorkflowMono, allEnvironmentsInWorkspaceMono)
+        return Mono.zip(
+                        allActionsInWorkflowMono,
+                        allEnvironmentsInWorkspaceMono,
+                        allActionCollectionsInWorkflowMono,
+                        allJsActionsInWorkflowMono)
                 .flatMap(tuple -> {
                     List<NewAction> actionList = tuple.getT1();
                     List<Environment> environmentList = tuple.getT2();
+                    List<ActionCollection> actionCollectionList = tuple.getT3();
+                    List<NewAction> jsActionList = tuple.getT4();
 
                     Set<String> datasourceIds = getAllDatasourceIdsFromActions(actionList);
 
@@ -1695,6 +1709,26 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                                 toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                         toBeRemovedPermissionsForEntities.put(
                                 newAction.getId(),
+                                toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                    });
+
+                    jsActionList.forEach(newAction -> {
+                        entityIdEntityClassMap.put(newAction.getId(), NewAction.class);
+                        toBeAddedPermissionsForEntities.put(
+                                newAction.getId(),
+                                toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                newAction.getId(),
+                                toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                    });
+
+                    actionCollectionList.forEach(actionCollection -> {
+                        entityIdEntityClassMap.put(actionCollection.getId(), ActionCollection.class);
+                        toBeAddedPermissionsForEntities.put(
+                                actionCollection.getId(),
+                                toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                actionCollection.getId(),
                                 toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                     });
 
