@@ -3,7 +3,7 @@
 cypress/e2e/Regression/ClientSide/Widgets/Text/Text2_Spec.ts
 cypress/e2e/Regression/ClientSide/Widgets/Select/Select2_Spec.ts
 cypress/e2e/Regression/ClientSide/JSLibrary/Library_spec.ts
-
+cypress/e2e/Regression/ClientSide/Git/GitWithJSLibrary/GitwithCustomJSLibrary_spec.js
 
 
 # For running all specs - uncomment below:

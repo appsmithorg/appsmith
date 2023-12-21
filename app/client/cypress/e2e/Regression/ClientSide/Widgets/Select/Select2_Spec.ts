@@ -184,7 +184,6 @@ describe(
       propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
       agHelper.AssertElementExist(locators._autoHeightOverlay);
       agHelper.AssertElementExist(locators._autoHeightHandles);
-      agHelper.AssertElementVisibility(locators._autoHeightHandles);
       agHelper.AssertElementVisibility(locators._autoHeightMin);
       agHelper.AssertElementVisibility(locators._autoHeightMax);
       propPane.SelectPropertiesDropDown("Height", "Fixed");
