@@ -26,7 +26,7 @@ import NameEditorComponent, {
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
-interface SaveActionNameParams {
+export interface SaveActionNameParams {
   id: string;
   name: string;
 }
