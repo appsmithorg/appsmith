@@ -109,6 +109,7 @@ import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environ
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -816,6 +817,7 @@ export interface ApplicationProps {
   resetCurrentWorkspace: () => void;
   currentApplicationIdForCreateNewApp?: string;
   resetCurrentApplicationIdForCreateNewApp: () => void;
+  currentWorkspaceId: string;
 }
 
 export interface ApplicationState {
@@ -854,12 +856,14 @@ export class Applications<
 
   public render() {
     return this.props.currentApplicationIdForCreateNewApp ? (
-      <CreateNewAppsOption
-        currentApplicationIdForCreateNewApp={
-          this.props.currentApplicationIdForCreateNewApp
-        }
-        onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
-      />
+      !!this.props.currentWorkspaceId ? (
+        <CreateNewAppsOption
+          currentApplicationIdForCreateNewApp={
+            this.props.currentApplicationIdForCreateNewApp
+          }
+          onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
+        />
+      ) : null
     ) : (
       <PageWrapper displayName="Applications">
         <LeftPane />
@@ -894,6 +898,7 @@ export const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
   currentApplicationIdForCreateNewApp:
     getCurrentApplicationIdForCreateNewApp(state),
+  currentWorkspaceId: getCurrentWorkspaceId(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
