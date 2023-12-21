@@ -45,46 +45,46 @@ jobs:
             echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]"
           fi
 
-  server-build:
-    needs: [setup]
-    if: success()
-    name: server-build
-    uses: ./.github/workflows/server-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-      skip-tests: true
+  # server-build:
+  #   needs: [setup]
+  #   if: success()
+  #   name: server-build
+  #   uses: ./.github/workflows/server-build.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: 0
+  #     skip-tests: true
 
-  client-build:
-    needs: [setup]
-    if: success()
-    name: client-build
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: 0
+  # client-build:
+  #   needs: [setup]
+  #   if: success()
+  #   name: client-build
+  #   uses: ./.github/workflows/client-build.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: 0
 
-  rts-build:
-    needs: [setup]
-    if: success()
-    name: rts-build
-    uses: ./.github/workflows/rts-build.yml
-    secrets: inherit
-    with:
-      pr: 0
+  # rts-build:
+  #   needs: [setup]
+  #   if: success()
+  #   name: rts-build
+  #   uses: ./.github/workflows/rts-build.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: 0
 
-  build-docker-image:
-    needs: [client-build, server-build, rts-build]
-    # Only run if the build step is successful
-    if: success()
-    name: build-docker-image
-    uses: ./.github/workflows/build-docker-image.yml
-    secrets: inherit
-    with:
-      pr: 0
+  # build-docker-image:
+  #   needs: [client-build, server-build, rts-build]
+  #   # Only run if the build step is successful
+  #   if: success()
+  #   name: build-docker-image
+  #   uses: ./.github/workflows/build-docker-image.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: 0
 
   ci-test:
-    needs: [setup, build-docker-image]
+    needs: [setup]
     # Only run if the build step is successful
     if: success()
     name: ci-test
