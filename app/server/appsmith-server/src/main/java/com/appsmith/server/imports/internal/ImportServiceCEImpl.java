@@ -4,7 +4,6 @@ import com.appsmith.server.applications.imports.ApplicationImportService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ImportableJsonType;
 import com.appsmith.server.domains.ImportableContext;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ContextImportDTO;
 import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
@@ -19,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.constants.ImportableJsonType.APPLICATION;
@@ -29,11 +30,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     public static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
     private final ApplicationImportService applicationImportService;
+    private final Map<ImportableJsonType, ContextBasedImportService<?, ?>> serviceFactory = new HashMap<>();
     private final PermissionGroupRepository permissionGroupRepository;
 
     public ImportServiceCEImpl(
             ApplicationImportService applicationImportService, PermissionGroupRepository permissionGroupRepository) {
         this.applicationImportService = applicationImportService;
+        serviceFactory.put(APPLICATION, applicationImportService);
         this.permissionGroupRepository = permissionGroupRepository;
     }
 
@@ -46,12 +49,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     @Override
     public ContextBasedImportService<? extends ImportableContext, ? extends ImportableContextDTO>
             getContextBasedImportService(ImportableJsonType importableJsonType) {
-        if (APPLICATION.equals(importableJsonType)) {
-            return applicationImportService;
-        }
-
-        // rest of the services would be taken from here
-        return applicationImportService;
+        return serviceFactory.getOrDefault(importableJsonType, applicationImportService);
     }
 
     @Override
@@ -138,8 +136,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
                 return getContextBasedImportService(importableContextJson)
-                        .updateNonGitConnectedContextFromJson(
-                                workspaceId, contextId, (ApplicationJson) importableContextJson)
+                        .updateNonGitConnectedContextFromJson(workspaceId, contextId, importableContextJson)
                         .onErrorResume(error -> {
                             if (error instanceof AppsmithException) {
                                 return Mono.error(error);
@@ -155,16 +152,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<ContextImportDTO> getContextImportDTO(
-            String contextId, String workspaceId, ImportableContext importableContext) {
+    public Mono<ImportableContext> importContextInWorkspaceFromGit(
+            String workspaceId, ImportableContextJson importedDoc, String contextId, String branchName) {
         return null;
     }
 
-    private ApplicationJson getTypecastedContextJsons(ImportableContextJson importableContextJson) {
-        if (APPLICATION.equals(importableContextJson.getImportableJsonType())) {
-            return (ApplicationJson) importableContextJson;
-        }
-
-        return (ApplicationJson) importableContextJson;
+    @Override
+    public Mono<ContextImportDTO> getContextImportDTO(
+            String contextId, String workspaceId, ImportableContext importableContext) {
+        return null;
     }
 }

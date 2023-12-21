@@ -30,6 +30,9 @@ public interface ImportServiceCE {
     Mono<ImportableContext> updateNonGitConnectedContextFromJson(
             String workspaceId, String contextId, ImportableContextJson importableContextJson);
 
+    Mono<ImportableContext> importContextInWorkspaceFromGit(
+            String workspaceId, ImportableContextJson importedDoc, String contextId, String branchName);
+
     Mono<ContextImportDTO> getContextImportDTO(
             String contextId, String workspaceId, ImportableContext importableContext);
 }

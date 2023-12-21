@@ -46,7 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.MediaType;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -158,10 +157,47 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         });
     }
 
-    // ------------------------------------------------------
+    /**
+     * This function will update an existing application. The application is connected to Git.
+     *
+     * @param workspaceId   workspace to which application is going to be stored
+     * @param applicationJson   application resource which contains necessary information to save the application
+     * @param applicationId application which needs to be saved with the updated resources
+     * @param branchName    name of the git branch. null if not connected to git.
+     * @return saved application in DB
+     */
+    @Override
+    public Mono<Application> importContextInWorkspaceFromGit(
+            String workspaceId, ImportableContextJson applicationJson, String applicationId, String branchName) {
+        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
+            /**
+             * If the application is connected to git, then the user must have edit permission on the application.
+             * If user is importing application from Git, create application permission is already checked by the
+             * caller method, so it's not required here.
+             * Other permissions are not required because Git is the source of truth for the application and Git
+             * Sync is a system level operation to get the latest code from Git. If the user does not have some
+             * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
+             */
+            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+                            applicationPermission,
+                            pagePermission,
+                            actionPermission,
+                            datasourcePermission,
+                            workspacePermission)
+                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                    .currentUserPermissionGroups(userPermissionGroups)
+                    .build();
+            return importApplicationInWorkspace(
+                    workspaceId,
+                    (ApplicationJson) applicationJson,
+                    applicationId,
+                    branchName,
+                    false,
+                    permissionProvider);
+        });
+    }
 
-    private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
-    private static final String INVALID_JSON_FILE = "invalid json file";
+    // ------------------------------------------------------
     private final DatasourceService datasourceService;
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
@@ -199,145 +235,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     .currentUserPermissionGroups(permissionGroups)
                     .build();
             return permissionProvider;
-        });
-    }
-
-    /**
-     * This function will take the Json filepart and updates/creates the application in workspace depending on presence
-     * of applicationId field
-     *
-     * @param workspaceId     Workspace to which the application needs to be hydrated
-     * @param applicationJson Json file which contains the entire application object
-     * @param applicationId   Optional field for application ref which needs to be overridden by the incoming JSON file
-     * @return saved application in DB
-     */
-    private Mono<Application> updateNonGitConnectedAppFromJson(
-            String workspaceId, String applicationId, ApplicationJson applicationJson) {
-        /*
-           1. Verify if application is connected to git, in case if it's connected throw exception asking user to
-           update app via git ops like pull, merge etc.
-           2. Check the validity of file part
-           3. Depending upon availability of applicationId update/save application to workspace
-        */
-        if (StringUtils.isEmpty(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-        }
-
-        if (StringUtils.isEmpty(applicationId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
-        }
-
-        // Check if the application is connected to git and if it's connected throw exception asking user to update
-        // app via git ops like pull, merge etc.
-        Mono<Boolean> isConnectedToGitMono = Mono.just(false);
-        if (!StringUtils.isEmpty(applicationId)) {
-            isConnectedToGitMono = applicationService.isApplicationConnectedToGit(applicationId);
-        }
-
-        Mono<Application> importedApplicationMono = isConnectedToGitMono.flatMap(isConnectedToGit -> {
-            if (isConnectedToGit) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
-            } else {
-                return getPermissionProviderForUpdateNonGitConnectedAppFromJson()
-                        .flatMap(permissionProvider -> {
-                            if (!StringUtils.isEmpty(applicationId)
-                                    && applicationJson.getExportedApplication() != null) {
-                                // Remove the application name from JSON file as updating the application name is not
-                                // supported
-                                // via JSON import. This is to avoid name conflict during the import flow within the
-                                // workspace
-                                applicationJson.getExportedApplication().setName(null);
-                                applicationJson.getExportedApplication().setSlug(null);
-                            }
-
-                            return importApplicationInWorkspace(
-                                            workspaceId,
-                                            applicationJson,
-                                            applicationId,
-                                            null,
-                                            false,
-                                            permissionProvider)
-                                    .onErrorResume(error -> {
-                                        if (error instanceof AppsmithException) {
-                                            return Mono.error(error);
-                                        }
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.GENERIC_JSON_IMPORT_ERROR,
-                                                workspaceId,
-                                                error.getMessage()));
-                                    });
-                        });
-            }
-        });
-
-        return Mono.create(
-                sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
-    }
-
-    /**
-     * This function will create the application to workspace from the application resource.
-     *
-     * @param workspaceId workspace to which application is going to be stored
-     * @param importedDoc application resource which contains necessary information to save the application
-     * @return saved application in DB
-     */
-    @Override
-    public Mono<Application> importNewApplicationInWorkspaceFromJson(String workspaceId, ApplicationJson importedDoc) {
-        // workspace id must be present and valid
-        if (StringUtils.isEmpty(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-        }
-
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
-                    .permissionRequiredToCreateDatasource(true)
-                    .permissionRequiredToEditDatasource(true)
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-
-            return importApplicationInWorkspace(workspaceId, importedDoc, null, null, false, permissionProvider);
-        });
-    }
-
-    /**
-     * This function will update an existing application. The application is connected to Git.
-     *
-     * @param workspaceId   workspace to which application is going to be stored
-     * @param importedDoc   application resource which contains necessary information to save the application
-     * @param applicationId application which needs to be saved with the updated resources
-     * @param branchName    name of the git branch. null if not connected to git.
-     * @return saved application in DB
-     */
-    @Override
-    public Mono<Application> importApplicationInWorkspaceFromGit(
-            String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            /**
-             * If the application is connected to git, then the user must have edit permission on the application.
-             * If user is importing application from Git, create application permission is already checked by the
-             * caller method, so it's not required here.
-             * Other permissions are not required because Git is the source of truth for the application and Git
-             * Sync is a system level operation to get the latest code from Git. If the user does not have some
-             * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
-             */
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return importApplicationInWorkspace(
-                    workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
         });
     }
 

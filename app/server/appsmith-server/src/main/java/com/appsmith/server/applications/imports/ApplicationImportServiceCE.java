@@ -32,26 +32,6 @@ public interface ApplicationImportServiceCE extends ContextBasedImportService<Ap
             List<String> pagesToImport);
 
     /**
-     * This function will save the application to workspace from the application resource
-     *
-     * @param workspaceId workspace to which application is going to be stored
-     * @param importedDoc application resource which contains necessary information to save the application
-     * @return saved application in DB
-     */
-    Mono<Application> importNewApplicationInWorkspaceFromJson(String workspaceId, ApplicationJson importedDoc);
-
-    /**
-     * This function will take the application reference object to hydrate the application in mongoDB
-     *
-     * @param workspaceId   workspace to which application is going to be stored
-     * @param importedDoc   application resource which contains necessary information to save the application
-     * @param applicationId application which needs to be saved with the updated resources
-     * @return Updated application
-     */
-    Mono<Application> importApplicationInWorkspaceFromGit(
-            String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
-
-    /**
      * This function will replace an existing application with the provided application json. It's the top level method
      * called from snapshot service. Reason to have this method is to provide necessary permission checks.
      * @param workspaceId

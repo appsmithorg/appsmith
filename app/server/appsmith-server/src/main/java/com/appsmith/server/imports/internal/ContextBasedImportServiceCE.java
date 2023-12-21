@@ -16,4 +16,7 @@ public interface ContextBasedImportServiceCE<T extends ImportableContext, U exte
 
     Mono<T> updateNonGitConnectedContextFromJson(
             String workspaceId, String importableContextId, ImportableContextJson importableContextJson);
+
+    Mono<T> importContextInWorkspaceFromGit(
+            String workspaceId, ImportableContextJson importableContextJson, String contextId, String branchName);
 }
