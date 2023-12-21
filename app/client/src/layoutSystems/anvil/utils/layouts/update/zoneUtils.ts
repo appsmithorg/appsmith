@@ -9,13 +9,13 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
 import { addWidgetsToChildTemplate } from "./additionUtils";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "../../widgetAdditionUtils";
 import { isLargeWidget } from "../../widgetUtils";
+import { anvilWidgets } from "widgets/anvil/constants";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -30,7 +30,7 @@ export function* createZoneAndAddWidgets(
   let updatedWidgets: CanvasWidgetsReduxState = yield call(
     addNewWidgetToDsl,
     allWidgets,
-    getCreateWidgetPayload(widgetId, ZoneWidget.type, parentId),
+    getCreateWidgetPayload(widgetId, anvilWidgets.ZONE_WIDGET, parentId),
   );
 
   /**

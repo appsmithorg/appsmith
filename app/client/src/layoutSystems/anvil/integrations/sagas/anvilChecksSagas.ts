@@ -11,6 +11,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { anvilWidgets } from "widgets/anvil/constants";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
 import {
   updateSectionWithDefaultSpaceDistribution,
@@ -39,7 +40,7 @@ function* updateAndSaveAnvilLayoutSaga(
      * Extract all section widgets
      */
     const sections: FlattenedWidgetProps[] = Object.values(widgets).filter(
-      (each: FlattenedWidgetProps) => each.type === SectionWidget.type,
+      (each: FlattenedWidgetProps) => each.type === anvilWidgets.SECTION_WIDGET,
     );
 
     for (const each of sections) {

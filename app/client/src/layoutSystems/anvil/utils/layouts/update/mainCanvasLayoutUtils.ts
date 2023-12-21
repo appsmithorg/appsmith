@@ -9,8 +9,9 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { createSectionAndAddWidget } from "./sectionUtils";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { call } from "redux-saga/effects";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
+
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
+import { anvilWidgets } from "widgets/anvil/constants";
 
 export function* addWidgetsToMainCanvasLayout(
   allWidgets: CanvasWidgetsReduxState,
@@ -121,7 +122,7 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
   const sections: WidgetLayoutProps[] = [];
   const nonSections: WidgetLayoutProps[] = [];
   widgets.forEach((widget: WidgetLayoutProps) => {
-    if (widget.widgetType === SectionWidget.type) {
+    if (widget.widgetType === anvilWidgets.SECTION_WIDGET) {
       sections.push(widget);
     } else {
       nonSections.push(widget);
