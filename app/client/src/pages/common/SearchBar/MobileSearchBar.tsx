@@ -8,13 +8,11 @@ import { getApplicationIcon } from "utils/AppsmithUtils";
 import { Size, type AppIconName, AppIcon } from "design-system-old";
 
 const SearchListContainer = styled.div`
-  width: 350px;
-  max-height: 420px;
+  width: 100%;
+  height: 100vh;
   position: absolute;
-  top: 30px;
+  top: 47px;
   left: 0;
-  border-radius: 4px;
-  box-shadow: 0 1px 20px 0 rgba(76, 86, 100, 0.11);
   border: solid 1px var(--ads-v2-color-bg-muted);
   background-color: var(--ads-v2-color-bg);
   display: flex;
