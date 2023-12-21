@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.helpers.Identifiable;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -47,6 +48,10 @@ public class PackageDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
+
+    @Transient
+    @JsonView(Views.Internal.class)
+    protected Set<Policy> policies = new HashSet<>();
 
     @Transient
     @JsonView(Views.Public.class)

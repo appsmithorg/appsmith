@@ -2,10 +2,12 @@ package com.appsmith.server.packages.services.crud;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleType;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
@@ -20,9 +22,11 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.packages.crud.CrudPackageService;
+import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.publish.PublishPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.publishable.PackagePublishableService;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -50,8 +54,14 @@ import reactor.test.StepVerifier;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
+import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,6 +112,12 @@ public class CrudPackageServiceTest {
 
     @SpyBean
     PluginService pluginService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PackagePermission packagePermission;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -236,15 +252,82 @@ public class CrudPackageServiceTest {
                 })
                 .verifyComplete();
 
+        Mono<Workspace> workspaceResponse = workspaceService.findById(firstWorkspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
+
         // get all packages in workspace home test
         Mono<List<PackageDTO>> allPackagesMono = crudPackageService.getAllPackages();
 
         AtomicReference<String> packageId = new AtomicReference<>();
-        StepVerifier.create(allPackagesMono)
-                .assertNext(allPackages -> {
+        StepVerifier.create(Mono.zip(allPackagesMono, defaultPermissionGroupsMono))
+                .assertNext(tuple2 -> {
+                    List<PackageDTO> allPackages = tuple2.getT1();
                     assertThat(allPackages).isNotNull();
-                    assertThat(allPackages).size().isGreaterThanOrEqualTo(2);
+                    allPackages = allPackages.stream()
+                            .filter(packageDTO -> packageDTO.getWorkspaceId().equals(firstWorkspaceId))
+                            .collect(Collectors.toList());
+                    assertThat(allPackages).size().isEqualTo(2);
                     packageId.set(allPackages.get(0).getId());
+
+                    // assert permissions
+                    List<PermissionGroup> permissionGroups = tuple2.getT2();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR)
+                                    && permissionGroup.getDefaultDomainId().equals(firstWorkspaceId))
+                            .findFirst()
+                            .get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER)
+                                    && permissionGroup.getDefaultDomainId().equals(firstWorkspaceId))
+                            .findFirst()
+                            .get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER)
+                                    && permissionGroup.getDefaultDomainId().equals(firstWorkspaceId))
+                            .findFirst()
+                            .get();
+
+                    Policy publishPackagePolicy = Policy.builder()
+                            .permission(packagePermission.getPublishPermission().getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy readPackagePolicy = Policy.builder()
+                            .permission(packagePermission.getReadPermission().getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
+                            .build();
+
+                    Policy deletePackagePolicy = Policy.builder()
+                            .permission(packagePermission.getDeletePermission().getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy createModulesPolicy = Policy.builder()
+                            .permission(packagePermission
+                                    .getModuleCreatePermission()
+                                    .getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    allPackages.forEach(packageDTO -> {
+                        assertThat(packageDTO.getPolicies())
+                                .contains(
+                                        publishPackagePolicy,
+                                        readPackagePolicy,
+                                        deletePackagePolicy,
+                                        createModulesPolicy);
+                    });
                 })
                 .verifyComplete();
     }
