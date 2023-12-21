@@ -32,6 +32,8 @@ export type ActionContextTypeInterface =
 
 export const ACTION_PARENT_ENTITY_TYPE = {
   ...CE_ACTION_PARENT_ENTITY_TYPE,
+  WORKFLOW: "WORKFLOW",
+  PACKAGE: "PACKAGE",
 };
 
 export type ActionParentEntityTypeInterface =
