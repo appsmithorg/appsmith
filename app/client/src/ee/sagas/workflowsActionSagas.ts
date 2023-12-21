@@ -35,7 +35,7 @@ import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import {
   ActionContextType,
   CreateNewActionKey,
-} from "@appsmith/entities/DataTree/types";
+} from "@appsmith/entities/Engine/actionHelpers";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import type { JSCollection } from "entities/JSCollection";

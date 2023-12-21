@@ -1,6 +1,5 @@
 export * from "ce/reducers/entityReducers/jsActionsReducer";
 import type { FetchModuleEntitiesResponse } from "@appsmith/api/ModuleApi";
-import type { Module } from "@appsmith/constants/ModuleConstants";
 import {
   ReduxActionTypes,
   type ReduxAction,
@@ -20,24 +19,22 @@ const handlers = {
     state: JSCollectionDataState,
     action: ReduxAction<FetchModuleEntitiesResponse>,
   ) => {
-    return action.payload.jsCollections.map((action) => ({
-      isLoading: false,
-      config: action,
-      data: undefined,
-    }));
-  },
-  [ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS]: (
-    draftMetaState: JSCollectionDataState,
-    action: ReduxAction<Module>,
-  ) => {
-    const { id, name } = action.payload;
-    draftMetaState.forEach((a) => {
-      if (a.config.moduleId === id && a.config.isPublic) {
-        a.config.name = name;
-      }
+    const result: JSCollectionDataState = [];
+    action.payload.jsCollections.forEach((action) => {
+      result.push({
+        isLoading: false,
+        config: action.isPublic
+          ? {
+              ...action,
+              isMainJSCollection: true,
+              displayName: "Main",
+            }
+          : action,
+        data: undefined,
+      });
     });
 
-    return draftMetaState;
+    return result;
   },
 };
 

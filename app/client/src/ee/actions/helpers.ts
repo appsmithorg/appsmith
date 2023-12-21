@@ -18,6 +18,8 @@ import {
   createNewAPIActionForPackage,
   createNewJSCollectionForPackage,
   createNewQueryActionForPackage,
+  saveActionNameForPackage,
+  saveJSObjectNameForPackage,
 } from "./moduleActions";
 
 export const createNewQueryBasedOnParentEntity = (
@@ -70,13 +72,11 @@ export const createNewJSCollectionBasedOnParentEntity = (
 export const saveActionNameBasedOnParentEntity = (
   id: string,
   name: string,
-  // Used in EE
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   parentEntityType: ActionParentEntityTypeInterface = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
   switch (parentEntityType) {
     case ACTION_PARENT_ENTITY_TYPE.PACKAGE:
-      return CE_saveActionNameBasedOnParentEntity(id, name);
+      return saveActionNameForPackage({ id, name });
     default:
       return CE_saveActionNameBasedOnParentEntity(id, name);
   }
@@ -85,13 +85,11 @@ export const saveActionNameBasedOnParentEntity = (
 export const saveJSObjectNameBasedOnParentEntity = (
   id: string,
   name: string,
-  // Used in EE
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   parentEntityType: ActionParentEntityTypeInterface = ACTION_PARENT_ENTITY_TYPE.PAGE,
 ) => {
   switch (parentEntityType) {
     case ACTION_PARENT_ENTITY_TYPE.PACKAGE:
-      return CE_saveJSObjectNameBasedOnParentEntity(id, name);
+      return saveJSObjectNameForPackage({ id, name });
     default:
       return CE_saveJSObjectNameBasedOnParentEntity(id, name);
   }

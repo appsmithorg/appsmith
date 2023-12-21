@@ -34,7 +34,7 @@ export const ACTION_PARENT_ENTITY_TYPE = {
   ...CE_ACTION_PARENT_ENTITY_TYPE,
   WORKFLOW: "WORKFLOW",
   PACKAGE: "PACKAGE",
-};
+} as const;
 
 export type ActionParentEntityTypeInterface =
   (typeof ACTION_PARENT_ENTITY_TYPE)[keyof typeof ACTION_PARENT_ENTITY_TYPE];
