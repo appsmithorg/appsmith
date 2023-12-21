@@ -186,13 +186,13 @@ describe("Layouts - moveUtils test", () => {
           ...mock2?.childrenMap[
             (layout2.layout[0] as WidgetLayoutProps).widgetId
           ],
-          parentId: canvas1.widgetId,
+          parentId: canvas2.widgetId,
         },
         [(layout2.layout[1] as WidgetLayoutProps).widgetId]: {
           ...mock2?.childrenMap[
             (layout2.layout[1] as WidgetLayoutProps).widgetId
           ],
-          parentId: canvas1.widgetId,
+          parentId: canvas2.widgetId,
         },
       };
 
