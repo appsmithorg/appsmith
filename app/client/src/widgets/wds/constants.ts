@@ -1,3 +1,5 @@
+import { anvilWidgets } from "widgets/anvil/constants";
+
 export const WDS_V2_WIDGET_MAP = {
   BUTTON_WIDGET: "WDS_BUTTON_WIDGET",
   INPUT_WIDGET_V2: "WDS_INPUT_WIDGET",
@@ -15,5 +17,5 @@ export const WDS_V2_WIDGET_MAP = {
   MENU_BUTTON_WIDGET: "WDS_MENU_BUTTON_WIDGET",
 
   // Anvil layout widgets
-  ZONE_WIDGET: "ZONE_WIDGET",
+  ZONE_WIDGET: anvilWidgets.ZONE_WIDGET,
 };

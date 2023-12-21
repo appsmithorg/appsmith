@@ -152,3 +152,5 @@ export const PLACEHOLDER_PAGE_SLUG = "page";
 
 export const SHOW_FILE_PICKER_KEY = "showPicker";
 export const RESPONSE_STATUS = "response_status";
+
+export const basePathForActiveAction = [BUILDER_PATH, BUILDER_PATH_DEPRECATED];

@@ -13,12 +13,11 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
 import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "../../widgetAdditionUtils";
+import { anvilWidgets } from "widgets/anvil/constants";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -33,7 +32,7 @@ export function* createSectionAndAddWidget(
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     addNewWidgetToDsl,
     allWidgets,
-    getCreateWidgetPayload(widgetId, SectionWidget.type, parentId),
+    getCreateWidgetPayload(widgetId, anvilWidgets.SECTION_WIDGET, parentId),
   );
 
   /**
@@ -66,7 +65,7 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
   const zones: WidgetLayoutProps[] = [];
   const nonZones: WidgetLayoutProps[] = [];
   widgets.forEach((widget: WidgetLayoutProps) => {
-    if (widget.widgetType === ZoneWidget.type) {
+    if (widget.widgetType === anvilWidgets.ZONE_WIDGET) {
       zones.push(widget);
     } else {
       nonZones.push(widget);
@@ -95,7 +94,11 @@ function* addZoneToSection(
     canvasWidgets = yield call(
       addNewWidgetToDsl,
       canvasWidgets,
-      getCreateWidgetPayload(zoneWidgetId, ZoneWidget.type, sectionWidgetId),
+      getCreateWidgetPayload(
+        zoneWidgetId,
+        anvilWidgets.ZONE_WIDGET,
+        sectionWidgetId,
+      ),
     );
   } else {
     /**

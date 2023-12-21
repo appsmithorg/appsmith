@@ -381,8 +381,7 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
     });
@@ -474,8 +473,7 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
     });
@@ -531,11 +529,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 70,
         },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
-      const res: RowMetaInformation = extractMetaInformation(
-        data,
-        getDimensions,
-      );
+
       const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
@@ -565,8 +559,7 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
 
@@ -625,11 +618,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
-      const res: RowMetaInformation = extractMetaInformation(
-        data,
-        getDimensions,
-      );
+
       const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
@@ -659,8 +648,7 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
 
