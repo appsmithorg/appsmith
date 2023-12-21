@@ -1,7 +1,7 @@
 export * from "ce/pages/Applications/PackageCardList";
 
 import React from "react";
-import { Button, Text } from "design-system";
+import { Text } from "design-system";
 
 import PackageCard from "@appsmith/pages/Applications/PackageCard";
 import {
@@ -17,7 +17,6 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { Package } from "@appsmith/constants/PackageConstants";
-import { NEW_PACKAGE } from "@appsmith/constants/messages";
 
 export interface PackageCardListRendererProps {
   createPackage: () => void;
@@ -29,8 +28,6 @@ export interface PackageCardListRendererProps {
 }
 
 function PackageCardListRenderer({
-  createPackage,
-  isCreatingPackage = false,
   isFetchingPackages = false,
   isMobile,
   packages = [],
@@ -61,16 +58,6 @@ function PackageCardListRenderer({
               src="https://assets.appsmith.com/no-packages.svg"
             />
             <Text kind="heading-xs">{createMessage(EMPTY_PACKAGE_LIST)}</Text>
-            <Button
-              className="t--new-package-button createnew"
-              isLoading={isCreatingPackage}
-              kind="secondary"
-              onClick={createPackage}
-              size="md"
-              startIcon="plus"
-            >
-              {createMessage(NEW_PACKAGE)}
-            </Button>
           </NoAppsFound>
         )}
       </CardListWrapper>
