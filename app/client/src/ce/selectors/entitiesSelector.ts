@@ -1424,6 +1424,10 @@ export const getQueryModuleInstances = () => {
   return [];
 };
 
+export const getJSModuleInstancesData = () => {
+  return [];
+};
+
 export const getAllJSCollections = createSelector(
   getCurrentJSCollections,
   getCurrentModuleJSCollections,
