@@ -11,7 +11,7 @@ import {
   WELCOME_FORM_VERIFY_PASSWORD,
   CONTINUE,
   ONBOARDING_STATUS_GET_STARTED,
-  PRODUCT_UPDATES,
+  PRODUCT_UPDATES_CONFIRMATION_LABEL,
   WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
 } from "@appsmith/constants/messages";
@@ -176,7 +176,7 @@ export default function DetailsForm(
             <Space />
             {!isAirgapped() && (
               <Checkbox defaultSelected name="signupForNewsletter" value="true">
-                {createMessage(PRODUCT_UPDATES)}
+                {createMessage(PRODUCT_UPDATES_CONFIRMATION_LABEL)}
               </Checkbox>
             )}
           </div>

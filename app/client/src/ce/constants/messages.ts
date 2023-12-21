@@ -1295,7 +1295,8 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 export const WELCOME_HEADER = () => "Almost there";
 export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
-export const PRODUCT_UPDATES = () => "I want security and product updates.";
+export const PRODUCT_UPDATES_CONFIRMATION_LABEL = () =>
+  "I want security and product updates.";
 
 // API Editor
 export const API_EDITOR_TAB_TITLES = {

@@ -45,9 +45,9 @@ const StyledTextBanner = styled.div<{ isSuperUser?: boolean }>`
 `;
 
 const StyledBannerHeader = styled.div`
-  font-size: 40px;
+  font-size: calc(2 * var(--ads-v2-font-size-10));
   margin: 0px;
-  font-weight: 600;
+  font-weight: var(--ads-font-weight-bold-xl);
   color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
@@ -63,16 +63,22 @@ const ActionContainer = styled.div`
 `;
 
 interface LandingPageProps {
+  // To have a get started button click function for non super user form
   onGetStarted?: (proficiency?: string, useCase?: string) => void;
+  // Property to determine whether the user is super admin or not
   isSuperUser: boolean;
 }
 
 export default memo(function UserWelcomeScreen(props: LandingPageProps) {
+  const logEvent = () => {
+    AnalyticsUtil.logEvent("PAGE_VIEW", {
+      pageType: "profilingQuestions",
+      isSuperUser: !!props.isSuperUser,
+    });
+  };
+
   useEffect(() => {
-    if (!props.isSuperUser)
-      AnalyticsUtil.logEvent("PAGE_VIEW", {
-        pageType: "profilingQuestions",
-      });
+    logEvent();
   }, []);
 
   return (
