@@ -169,6 +169,7 @@ import {
   startRootSpan,
 } from "UITelemetry/generateTraces";
 import {
+  getActionExecutionAnalytics,
   getJSActionPathNameToDisplay,
   getPluginActionNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
@@ -531,35 +532,26 @@ export default function* executePluginActionTriggerSaga(
     setAttributesToSpan(span, {
       actionId: actionId,
     });
-  const appMode: APP_MODE | undefined = yield select(getAppMode);
   const action = shouldBeDefined<Action>(
     yield select(getAction, actionId),
     `Action not found for id - ${actionId}`,
   );
   const datasourceId: string = (action?.datasource as any)?.id;
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
   const plugin: Plugin = yield select(getPlugin, action?.pluginId);
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
 
   const currentEnvDetails: { id: string; name: string } = yield select(
     getCurrentEnvironmentDetails,
   );
-  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: action?.pluginType,
-    name: action?.name,
-    pageId: action?.pageId,
-    appId: currentApp.id,
-    appMode: appMode,
-    appName: currentApp.name,
-    environmentId: currentEnvDetails.id,
-    environmentName: currentEnvDetails.name,
-    isExampleApp: currentApp.appIsExample,
-    pluginName: plugin?.name,
-    datasourceId: datasourceId,
-    isMock: !!datasource?.isMock,
-    actionId: action?.id,
-    inputParams: Object.keys(params).length,
-  });
+
+  const actionExecutionAnalytics = getActionExecutionAnalytics(
+    action,
+    plugin,
+    params,
+    currentApp,
+    datasourceId,
+  );
+  AnalyticsUtil.logEvent("EXECUTE_ACTION", actionExecutionAnalytics);
   const pagination =
     eventType === EventType.ON_NEXT_PAGE
       ? "NEXT"
@@ -621,21 +613,8 @@ export default function* executePluginActionTriggerSaga(
       },
     ]);
     AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
-      type: action?.pluginType,
-      name: action?.name,
-      pageId: action?.pageId,
-      appId: currentApp.id,
-      appMode: appMode,
-      appName: currentApp.name,
-      environmentId: currentEnvDetails.id,
-      environmentName: currentEnvDetails.name,
-      isExampleApp: currentApp.appIsExample,
-      pluginName: plugin?.name,
-      datasourceId: datasourceId,
-      isMock: !!datasource?.isMock,
-      actionId: action?.id,
+      ...actionExecutionAnalytics,
       ...payload.pluginErrorDetails,
-      inputParams: Object.keys(params).length,
     });
     if (onError) {
       throw new PluginTriggerFailureError(
@@ -649,22 +628,7 @@ export default function* executePluginActionTriggerSaga(
       );
     }
   } else {
-    AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
-      type: action?.pluginType,
-      name: action?.name,
-      pageId: action?.pageId,
-      appId: currentApp.id,
-      appMode: appMode,
-      appName: currentApp.name,
-      environmentId: currentEnvDetails.id,
-      environmentName: currentEnvDetails.name,
-      isExampleApp: currentApp.appIsExample,
-      pluginName: plugin?.name,
-      datasourceId: datasourceId,
-      isMock: !!datasource?.isMock,
-      actionId: action?.id,
-      inputParams: Object.keys(params).length,
-    });
+    AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", actionExecutionAnalytics);
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
       text: "Executed successfully from widget request",
