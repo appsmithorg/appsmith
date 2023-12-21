@@ -2,7 +2,7 @@ export * from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import { default as useCE_Routes } from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import type { RouteReturnType } from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import ModuleInstanceEditor from "@appsmith/pages/Editor/ModuleInstanceEditor";
-import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/eeAppRoutes";
+import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/appRoutes";
 import { useSelector } from "react-redux";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import ModuleEditor from "../../ModuleEditor";

@@ -131,3 +131,19 @@ export const createNewJSCollectionForPackage = (
   type: ReduxActionTypes.CREATE_NEW_JS_ACTION_FOR_PACKAGE,
   payload: { moduleId, from: from },
 });
+
+export const saveActionNameForPackage = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.SAVE_ACTION_NAME_FOR_PACKAGE_INIT,
+  payload,
+});
+
+export const saveJSObjectNameForPackage = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.SAVE_JS_OBJECT_NAME_FOR_PACKAGE_INIT,
+  payload,
+});

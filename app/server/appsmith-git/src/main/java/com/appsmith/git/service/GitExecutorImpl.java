@@ -60,6 +60,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
+
 @RequiredArgsConstructor
 @Component
 @Slf4j
@@ -551,6 +553,17 @@ public class GitExecutorImpl implements GitExecutor {
                                 modifiedDatasources++;
                             } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                                 modifiedJSLibs++;
+                                // remove this code in future when all the older format js libs are migrated to new
+                                // format
+
+                                if (x.contains("js.json")) {
+                                    /*
+                                    As this updated filename has color(:), it means this is the older format js
+                                    lib file that we're going to rename with the format without colon.
+                                    Hence, we need to show a message to user saying this might be a system level change.
+                                     */
+                                    response.setMigrationMessage(FILE_MIGRATION_MESSAGE);
+                                }
                             }
                         }
                         response.setModified(modifiedAssets);

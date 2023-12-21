@@ -9,7 +9,10 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { EntityExplorerWrapper } from "pages/Editor/Explorer/Common/EntityExplorerWrapper";
 import { getExplorerStatus, saveExplorerStatus } from "../../Explorer/helpers";
 import Files from "pages/Editor/Explorer/Files";
-import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import {
+  ActionEntityContextMenuItemsEnum,
+  FilesContextProvider,
+} from "pages/Editor/Explorer/Files/FilesContextProvider";
 import {
   getCurrentWorkflowId,
   getWorkflowById,
@@ -73,6 +76,10 @@ function WorkflowEntityExplorer({ isActive }: { isActive: boolean }) {
       <FilesContextProvider
         canCreateActions={canCreateActions}
         editorId={workflowId}
+        menuItems={[
+          ActionEntityContextMenuItemsEnum.EDIT_NAME,
+          ActionEntityContextMenuItemsEnum.DELETE,
+        ]}
         parentEntityId={workflowId}
         parentEntityType={ACTION_PARENT_ENTITY_TYPE.WORKFLOW}
       >

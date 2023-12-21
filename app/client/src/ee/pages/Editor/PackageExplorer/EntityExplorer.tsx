@@ -6,7 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { EntityExplorerWrapper } from "pages/Editor/Explorer/Common/EntityExplorerWrapper";
-import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import {
+  ActionEntityContextMenuItemsEnum,
+  FilesContextProvider,
+} from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
 import { getCurrentModule } from "@appsmith/selectors/modulesSelector";
@@ -35,6 +38,10 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
         <FilesContextProvider
           canCreateActions
           editorId={packageId}
+          menuItems={[
+            ActionEntityContextMenuItemsEnum.EDIT_NAME,
+            ActionEntityContextMenuItemsEnum.DELETE,
+          ]}
           parentEntityId={module.id}
           parentEntityType={ACTION_PARENT_ENTITY_TYPE.PACKAGE}
           selectFilesForExplorer={selectFilesForPackageExplorer}

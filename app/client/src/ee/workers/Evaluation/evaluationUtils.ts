@@ -2,6 +2,9 @@ export * from "ce/workers/Evaluation/evaluationUtils";
 import type {
   ModuleInputsEntity,
   DataTreeEntityConfig,
+  ModuleInstanceEntity,
+  JSModuleInstanceEntity,
+  QueryModuleInstanceEntity,
 } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -22,7 +25,9 @@ export function isModuleInput(
   );
 }
 
-export function isQueryModuleInstance(entity: DataTreeEntity) {
+export function isQueryModuleInstance(
+  entity: DataTreeEntity,
+): entity is QueryModuleInstanceEntity {
   return (
     isModuleInstance(entity) &&
     "type" in entity &&
@@ -30,7 +35,9 @@ export function isQueryModuleInstance(entity: DataTreeEntity) {
   );
 }
 
-export function isModuleInstance(entity: DataTreeEntity) {
+export function isModuleInstance(
+  entity: DataTreeEntity,
+): entity is ModuleInstanceEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -38,7 +45,9 @@ export function isModuleInstance(entity: DataTreeEntity) {
   );
 }
 
-export function isJSModuleInstance(entity: DataTreeEntity) {
+export function isJSModuleInstance(
+  entity: DataTreeEntity,
+): entity is JSModuleInstanceEntity {
   return (
     isModuleInstance(entity) &&
     "type" in entity &&

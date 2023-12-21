@@ -39,6 +39,7 @@ export const generateDataTreeModuleInputs = (
       dynamicBindingPathList.push({ key: moduleInput.label });
     }
   }
+
   return {
     unEvalEntity: {
       ...unEvalEntity,

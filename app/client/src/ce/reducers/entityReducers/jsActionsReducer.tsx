@@ -96,7 +96,6 @@ export const handlers = {
                 ...action.payload.data,
                 isMainJSCollection: true,
                 displayName: "Main",
-                hideContextMenu: true,
               }
             : action.payload.data,
           activeJSActionId:

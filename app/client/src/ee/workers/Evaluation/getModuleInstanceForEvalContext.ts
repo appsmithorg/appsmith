@@ -12,22 +12,17 @@ const getModuleInstanceForEvalContextMap: Record<
 > = {
   [MODULE_TYPE.QUERY]: null,
   [MODULE_TYPE.JS]: (entityName, entity) => {
-    if (!dataTreeEvaluator) return;
+    if (!dataTreeEvaluator) return entity;
     const { configTree, evalTree } = dataTreeEvaluator;
     const configTreeEntity = configTree[
       entityName
     ] as JSModuleInstanceEntityConfig;
     const { publicEntityName } = configTreeEntity;
-    /**
-     * For 1st eval, publicEvalJSObject will be undefined and for subsequent evals, publicEvalJSObject will be defined.
-     *
+    /*
+     * For 1st eval, evalTree[publicEntityName] will be undefined and for subsequent evals, it will be defined hence we pass entity for the 1st eval and publicEvalJSObject for subsequent evals.
      */
-    const publicEvalJSObject = evalTree[publicEntityName];
-
-    return getJSActionForEvalContext(
-      publicEntityName,
-      publicEvalJSObject || entity,
-    );
+    const publicEvalJSObject = evalTree[publicEntityName] || entity;
+    return getJSActionForEvalContext(publicEntityName, publicEvalJSObject);
   },
   [MODULE_TYPE.UI]: null,
 };
