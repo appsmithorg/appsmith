@@ -1115,8 +1115,11 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     /**
-     * This method converts an URL string to a valid file name. The file name should not contain any character
-     * that's not allowed in any operating systems.
+     * We use UID string for custom js lib. UID strings are in this format: {libname}_{url to the lib src}.
+     * This method converts this uid string into a valid file name so that there is no unsupported character in the
+     * file name for any OS.
+     * This method returns a string in the format: {libname}_{base64 encoded hash of uid string}
+     * @param uidString UID string value of a JS lib
      * @return String
      */
     public static String getJsLibFileName(String uidString) {
