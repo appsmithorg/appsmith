@@ -7,11 +7,15 @@ import {
 import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { importStarterBuildingBlockIntoApplication } from "actions/templateActions";
+import {
+  importStarterBuildingBlockIntoApplication,
+  showTemplatesModal,
+} from "actions/templateActions";
 import {
   STARTER_BUILDING_BLOCKS,
   STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
 } from "constants/TemplatesConstants";
+import { Button } from "design-system";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -26,12 +30,11 @@ import {
   TemplateLayoutContentGrid,
   TemplateLayoutContentItem,
   TemplateLayoutContentItemContent,
-  TemplateLayoutDragAndDropText,
   TemplateLayoutFrame,
   TemplateLayoutHeaderText,
-  TemplateLayoutOrText,
   TemplateLayoutRowItemDescription,
   TemplateLayoutRowItemTitle,
+  TemplateLayoutSeeMoreText,
 } from "./StyledComponents";
 
 function StarterBuildingBlocks() {
@@ -41,6 +44,7 @@ function StarterBuildingBlocks() {
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
   ); // manage template background screenshot image
+
   const currentApplication = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
   const currentWorkSpace = useSelector(getCurrentAppWorkspace);
@@ -96,6 +100,10 @@ function StarterBuildingBlocks() {
     });
   };
 
+  const onSeeMoreClick = () => {
+    dispatch(showTemplatesModal({ isOpenFromCanvas: true }));
+  };
+
   if (isImportingStarterBuildingBlockToApp) {
     return (
       <TemplateLayoutFrame>
@@ -148,15 +156,12 @@ function StarterBuildingBlocks() {
             </TemplateLayoutContentItem>
           ))}
         </TemplateLayoutContentGrid>
+        <TemplateLayoutSeeMoreText onClick={onSeeMoreClick}>
+          <Button kind="tertiary" size="md">
+            {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.seeMoreText)}
+          </Button>
+        </TemplateLayoutSeeMoreText>
       </TemplateLayoutContainer>
-
-      <TemplateLayoutOrText layoutActive={layoutActive}>
-        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.or)}
-      </TemplateLayoutOrText>
-
-      <TemplateLayoutDragAndDropText layoutActive={layoutActive}>
-        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.dragAndDrop)}
-      </TemplateLayoutDragAndDropText>
     </TemplateLayoutFrame>
   );
 }
