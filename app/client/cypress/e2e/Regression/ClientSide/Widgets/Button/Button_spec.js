@@ -194,8 +194,8 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "8. Button-Check recaptcha type can be selected",
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         cy.selectDropdownValue(commonlocators.recaptchaVersion, "reCAPTCHA v2");
         cy.get(commonlocators.recaptchaVersionText)

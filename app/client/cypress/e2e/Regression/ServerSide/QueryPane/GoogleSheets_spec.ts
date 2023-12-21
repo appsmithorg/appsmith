@@ -10,8 +10,8 @@ import {
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
-  "excludeForAirgap",
   "Google Sheets datasource row objects placeholder",
+  { tags: ["@tag.excludeForAirgap", "@tag.GSheet", "@tag.Datasource"] },
   function () {
     let pluginName = "Google Sheets";
 

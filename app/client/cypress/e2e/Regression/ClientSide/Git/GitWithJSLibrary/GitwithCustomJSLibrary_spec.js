@@ -16,9 +16,8 @@ const tempBranch = "feat/tempBranch";
 let repoName;
 
 describe(
-  "excludeForAirgap",
   "Tests JS Library with Git",
-  { tags: ["@tag.Git"] },
+  { tags: ["@tag.Git", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       homePage.NavigateToHome();

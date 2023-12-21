@@ -1,7 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Welcome tour spec",
   { tags: ["@tag.excludeForAirgap"] },
   function () {

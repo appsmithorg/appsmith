@@ -58,5 +58,7 @@ module.exports = {
     "@tag.PropertyPane",
     "@tag.Workspace",
     "@tag.Sanity",
+    "@tag.Templates",
+    "@tag.Authentication"
   ],
 };

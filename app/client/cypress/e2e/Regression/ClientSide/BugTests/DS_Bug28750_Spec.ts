@@ -3,7 +3,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Datasource structure schema preview data",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       featureFlagIntercept({ ab_gsheet_schema_enabled: true });
@@ -11,7 +11,6 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "1. Verify if the schema table accordions is collapsed in case of search",
       () => {
         agHelper.TypeText(
