@@ -83,7 +83,7 @@ export const ExplorerJSCollectionEntity = memo(
         canDelete={canDeleteJSAction}
         canManage={canManageJSAction}
         className={EntityClassNames.CONTEXT_MENU}
-        hideMenuItems={jsAction?.hideContextMenu || false}
+        hideMenuItems={Boolean(jsAction?.isMainJSCollection)}
         id={jsAction.id}
         name={jsAction.name}
       />
