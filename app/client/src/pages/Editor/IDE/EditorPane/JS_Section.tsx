@@ -76,6 +76,7 @@ const JSSection = () => {
                     isActive={JSobject.id === activeActionId}
                     key={JSobject.id}
                     parentEntityId={pageId}
+                    parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
                     searchKeyword={""}
                     step={2}
                     type={JSobject.type as PluginType}
