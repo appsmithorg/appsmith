@@ -70,10 +70,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                             Exception.class,
                             e -> new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR, "Unsupported command: " + command))
-                    .map(obj -> {
-                        System.out.println("obj = " + obj.getBody());
-                        return obj;
-                    })
+                    .map(obj -> obj)
                     .subscribeOn(Schedulers.boundedElastic());
         }
 
