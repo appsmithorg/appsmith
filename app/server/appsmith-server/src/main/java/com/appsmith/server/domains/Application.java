@@ -436,10 +436,10 @@ public class Application extends BaseDomain {
         private String borderRadius;
 
         @JsonView(Views.Public.class)
-        private int sizing = 1;
+        private float sizing = 1;
 
         @JsonView(Views.Public.class)
-        private int density = 1;
+        private float density = 1;
 
         @JsonView(Views.Public.class)
         private String fontFamily;
