@@ -624,7 +624,9 @@ export class DarkModeTheme implements ColorModeTheme {
   private get shadowElevation1() {
     const color = this.seedColor.clone();
 
-    color.oklch.l = 0.2;
+    color.oklch.l = 0.1;
+
+    color.alpha = 0.5;
 
     return color;
   }
@@ -632,7 +634,9 @@ export class DarkModeTheme implements ColorModeTheme {
   private get shadowElevation2() {
     const color = this.shadowElevation1.clone();
 
-    color.oklch.l -= 0.05;
+    color.oklch.l += 0.05;
+
+    color.alpha = 0.45;
 
     return color;
   }
@@ -640,7 +644,9 @@ export class DarkModeTheme implements ColorModeTheme {
   private get shadowElevation3() {
     const color = this.shadowElevation2.clone();
 
-    color.oklch.l -= 0.05;
+    color.oklch.l += 0.05;
+
+    color.alpha = 0.4;
 
     return color;
   }
