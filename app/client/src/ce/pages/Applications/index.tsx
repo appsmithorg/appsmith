@@ -739,7 +739,6 @@ export function ApplicationsSection(props: any) {
                   />
                 )}
                 <WorkspaceAction
-                  applications={applications}
                   enableImportExport={enableImportExport}
                   isMobile={isMobile}
                   onCreateNewApplication={onClickAddNewAppButton}
