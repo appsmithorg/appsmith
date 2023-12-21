@@ -856,6 +856,8 @@ export class Applications<
 
   public render() {
     return this.props.currentApplicationIdForCreateNewApp ? (
+      // Workspace id condition is added to ensure that we have workspace id present before we show 3 options
+      // as workspace id is required to fetch plugins
       !!this.props.currentWorkspaceId ? (
         <CreateNewAppsOption
           currentApplicationIdForCreateNewApp={
