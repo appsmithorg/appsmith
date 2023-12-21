@@ -2,29 +2,25 @@ FROM ubuntu:20.04
 
 LABEL maintainer="tech@appsmith.com"
 
-# Set workdir to /opt/appsmith
 WORKDIR /opt/appsmith
 
 # The env variables are needed for Appsmith server to correctly handle non-roman scripts like Arabic.
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
-# Update APT packages - Base Layer
+# Install dependency packages
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
+    supervisor curl cron nfs-common gnupg wget netcat openssh-client \
     gettext \
-    python3-pip python3-venv git ca-certificates \
+    python3-pip git ca-certificates \
     gawk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
-  && python3 -m venv --prompt certbot /opt/certbot/venv \
-  && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
-  && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
-  && apt-get remove --yes git python3-pip python3-venv \
+  && apt-get remove --yes git python3-pip \
   && apt-get autoremove --yes
 
-# Install MongoDB v5.0.14, Redis, PostgreSQL v13
+# Install MongoDB v5, Redis, PostgreSQL v13
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
@@ -66,7 +62,7 @@ RUN mkdir -p /opt/keycloak/data \
   && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1 \
   && curl --location --output "/opt/h2-2.1.214.jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.1.214/h2-2.1.214.jar'
 
-# Clean up cache file - Service layer
+# Clean up
 RUN rm -rf \
   /root/.cache \
   /root/.npm \
@@ -77,10 +73,7 @@ RUN rm -rf \
   /var/lib/apt/lists/* \
   /tmp/*
 
-# Define volumes - Service Layer
 VOLUME [ "/appsmith-stacks" ]
 
-# ------------------------------------------------------------------------
 ENV TMP="/tmp/appsmith"
-ENV NGINX_WWW_PATH="$TMP/www"
 ENV WWW_PATH="$TMP/www"
