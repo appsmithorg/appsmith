@@ -68,6 +68,8 @@
 
         <module>databricksPlugin</module>
 
+        <module>awsLambdaPlugin</module>
+
     </modules>
 
     <properties>

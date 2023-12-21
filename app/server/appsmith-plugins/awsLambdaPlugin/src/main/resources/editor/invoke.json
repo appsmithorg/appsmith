@@ -1,0 +1,30 @@
+{
+  "identifier": "INVOKE_FUNCTION",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Details of lambda function",
+      "children": [
+        {
+          "label": "Name of function to invoke",
+          "configProperty": "actionConfiguration.formData.functionName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "Post body",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "initialValue": "",
+          "placeHolderText": "{`\"key1\": \"value1\"`}"
+        }
+      ]
+    }
+  ]
+}
