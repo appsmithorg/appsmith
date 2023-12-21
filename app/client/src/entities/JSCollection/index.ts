@@ -30,9 +30,6 @@ export interface JSCollection {
   // cannot be deleted or renamed
   isMainJSCollection?: boolean;
   displayName?: string;
-  hideEditIconOnEditor?: boolean;
-  hideContextMenu?: boolean;
-  hideContextMenuOnEditor?: boolean;
 }
 
 export interface JSActionConfig {
