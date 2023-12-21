@@ -321,13 +321,14 @@ function JSEditorForm({
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
                 disabled={
-                  !isChangePermitted || !!currentJSCollection.isMainJSCollection
+                  !isChangePermitted ||
+                  !!currentJSCollection.hideEditIconOnEditor
                 }
                 saveJSObjectName={saveJSObjectName}
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              {!currentJSCollection.isMainJSCollection && contextMenu}
+              {!currentJSCollection.hideContextMenuOnEditor && contextMenu}
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
