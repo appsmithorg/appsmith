@@ -299,13 +299,17 @@ describe(
     }`);
       jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true, false); //for on page load execution, since sync function is updated to async
       deployMode.DeployApp();
-      agHelper
-        .GetElement(
-          locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-            " " +
-            locators._input,
-        )
-        .waitUntil(($ele) => cy.wrap($ele).should("not.have.value", "[]"));
+      agHelper.WaitForCondition(
+        agHelper
+          .GetElement(
+            locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+              " " +
+              locators._input,
+          )
+          .then(($ele) => {
+            return cy.wrap($ele).should("not.have.value", "[]");
+          }),
+      );
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -342,13 +346,17 @@ describe(
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Default value", "{{Select3.options}}");
       deployMode.DeployApp();
-      agHelper
-        .GetElement(
-          locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-            " " +
-            locators._input,
-        )
-        .waitUntil(($ele) => cy.wrap($ele).should("include.value", "monday"));
+      agHelper.WaitForCondition(
+        agHelper
+          .GetElement(
+            locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+              " " +
+              locators._input,
+          )
+          .then(($ele) => {
+            return cy.wrap($ele).should("include.value", "monday");
+          }),
+      );
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -390,7 +398,7 @@ describe(
         });
       agHelper.ClickButton("Submit");
       agHelper.Sleep(); //settimeout timer, hence sleep needed here!
-      cy.waitUntil(() =>
+      agHelper.WaitForCondition(
         agHelper
           .GetText(
             locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
