@@ -20,8 +20,21 @@ import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPos
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import styled from "styled-components";
+import { generateReactKey } from "widgets/WidgetUtils";
 
 export const FLEX_LAYOUT_PADDING = 4;
+
+const StyledFlex = styled(Flex)<{ $key: string }>`
+  color: ${(props) => `#${props.$key}`};
+  ${(props) =>
+    props.direction === "row"
+      ? `&:has(.anvil-widget-wrapper [data-field-label-wrapper])
+    .anvil-widget-wrapper:not(:has([data-field-label-wrapper])) {
+    margin-top: calc(var(--inner-spacing-2) + var(--sizing-3));`
+      : ``}
+  }
+`;
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -163,14 +176,15 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
   }, [isContainer, layoutId, layoutIndex]);
 
   return (
-    <Flex
+    <StyledFlex
       {...flexProps}
+      $key={generateReactKey()}
       className={className}
       id={getAnvilLayoutDOMId(canvasId, layoutId)}
       ref={ref}
       style={styleProps}
     >
       {children}
-    </Flex>
+    </StyledFlex>
   );
 });

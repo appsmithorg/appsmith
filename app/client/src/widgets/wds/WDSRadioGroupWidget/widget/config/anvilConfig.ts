@@ -6,6 +6,6 @@ export const anvilConfig: AnvilConfig = {
     maxHeight: {},
     maxWidth: {},
     minHeight: { base: "70px" },
-    minWidth: { base: "240px" },
+    minWidth: { base: "130px" },
   },
 };
