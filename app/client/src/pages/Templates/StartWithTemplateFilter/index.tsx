@@ -5,7 +5,7 @@ import {
 } from "actions/templateActions";
 import { Icon, SearchInput } from "design-system";
 import { debounce } from "lodash";
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getFilterListSelector,
@@ -80,6 +80,19 @@ const FilterItem = ({
 };
 
 function modifyAndSortFilterList(originalFilterList: Filter[]) {
+  // Define the order of filter categories
+  const filterOrder = [
+    "All Templates",
+    "Building Blocks",
+    "Customer Support",
+    "Operations",
+    "Human Resources (HR)",
+    "Finance",
+    "Sales",
+    "Marketing",
+    "Other",
+  ];
+
   // Change the label from "All" to "All Templates"
   const modifiedFilterList = originalFilterList.map((filter) => {
     if (filter.label === ALL_TEMPLATES_FILTER_VALUE) {
@@ -88,10 +101,21 @@ function modifyAndSortFilterList(originalFilterList: Filter[]) {
     return filter;
   });
 
-  // Sort the filterList with "All Templates" coming first
+  // Sort the filterList based on the predefined order
   modifiedFilterList.sort((a, b) => {
-    if (a.label === ALL_TEMPLATES_UPDATED_LABEL) return -1;
-    if (b.label === ALL_TEMPLATES_UPDATED_LABEL) return 1;
+    const indexA = filterOrder.indexOf(a.label);
+    const indexB = filterOrder.indexOf(b.label);
+
+    // If both labels are in the predefined order, use their order
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+
+    // If only one label is in the predefined order, prioritize it
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+
+    // If neither label is in the predefined order, use the default localeCompare
     return a.label.localeCompare(b.label);
   });
 
@@ -181,6 +205,11 @@ const StartWithTemplateFilters = (props: FilterWrapperProps) => {
     dispatch(setTemplateSearchQuery(query));
     AnalyticsUtil.logEvent("TEMPLATES_SEARCH_INPUT_EVENT", { query });
   }, INPUT_DEBOUNCE_TIMER);
+
+  // Set default filter to "All" on mount
+  useEffect(() => {
+    dispatch(filterTemplates("functions", ["All"]));
+  }, []);
 
   return (
     <FilterWrapper className="filter-wrapper">

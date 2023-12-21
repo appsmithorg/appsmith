@@ -22,6 +22,7 @@ export interface BuildingBlockProps {
   buildingBlock: TemplateInterface;
   onClick?: (id: string) => void;
   onForkTemplateClick?: (buildingBlock: TemplateInterface) => void;
+  hideForkTemplateButton?: boolean;
 }
 
 const BuildingBlock = (props: BuildingBlockProps) => {
@@ -60,19 +61,23 @@ const BuildingBlock = (props: BuildingBlockProps) => {
         </Text>
 
         <BuildingBlockContentFooter>
-          <Tooltip
-            content={createMessage(FORK_THIS_TEMPLATE_BUILDING_BLOCK)}
-            placement={Position.BOTTOM}
-          >
-            <Button
-              className="t--fork-template fork-button"
-              isIconButton
-              isLoading={props.onForkTemplateClick && loadingTemplateId === id}
-              onClick={onForkButtonTrigger}
-              size="sm"
-              startIcon="plus"
-            />
-          </Tooltip>
+          {!props.hideForkTemplateButton && (
+            <Tooltip
+              content={createMessage(FORK_THIS_TEMPLATE_BUILDING_BLOCK)}
+              placement={Position.BOTTOM}
+            >
+              <Button
+                className="t--fork-template fork-button"
+                isIconButton
+                isLoading={
+                  props.onForkTemplateClick && loadingTemplateId === id
+                }
+                onClick={onForkButtonTrigger}
+                size="sm"
+                startIcon="plus"
+              />
+            </Tooltip>
+          )}
         </BuildingBlockContentFooter>
       </BuildingBlockContent>
     </BuildingBlockWrapper>

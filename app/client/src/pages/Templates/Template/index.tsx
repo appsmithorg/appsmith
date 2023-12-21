@@ -169,7 +169,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               );
             })}
           </TemplateDatasources>
-          {props.hideForkTemplateButton && (
+          {!props.hideForkTemplateButton && (
             <Tooltip
               content={createMessage(FORK_THIS_TEMPLATE)}
               placement={Position.BOTTOM}

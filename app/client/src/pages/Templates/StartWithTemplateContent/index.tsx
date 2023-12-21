@@ -68,12 +68,13 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
             {buildingBlocks.map((template) => (
               <BuildingBlock
                 buildingBlock={template}
+                hideForkTemplateButton={!props.isForkingEnabled}
                 key={template.id}
                 onClick={props.onTemplateClick}
                 onForkTemplateClick={props.onForkTemplateClick}
               />
             ))}
-            {onlyBuildingBlocksFilterSet && <RequestTemplate />}
+            {onlyBuildingBlocksFilterSet && <RequestTemplate isBuildingBlock />}
           </TemplateGrid>
         </>
       )}
@@ -82,12 +83,12 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
 
       {!onlyBuildingBlocksFilterSet && (
         <>
-          <SubheadingText kind="heading-m">Operations</SubheadingText>
+          <SubheadingText kind="heading-m">Use case templates</SubheadingText>
 
           <TemplateGrid>
             {useCaseTemplates.map((template) => (
               <FixedHeightTemplate
-                hideForkTemplateButton={props.isForkingEnabled}
+                hideForkTemplateButton={!props.isForkingEnabled}
                 key={template.id}
                 onClick={props.onTemplateClick}
                 onForkTemplateClick={props.onForkTemplateClick}
