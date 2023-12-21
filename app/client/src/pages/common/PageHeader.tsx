@@ -272,6 +272,7 @@ const HomepageHeaderAction = ({
           <Tooltip content={createMessage(HELP)} placement="bottom">
             <MenuTrigger>
               <Button
+                className="t--help-menu-option"
                 isIconButton
                 kind="tertiary"
                 onClick={() => {}}
