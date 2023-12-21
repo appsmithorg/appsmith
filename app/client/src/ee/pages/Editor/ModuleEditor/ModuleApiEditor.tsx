@@ -55,7 +55,7 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
   );
 
   const actionRightPaneAdditionSections = useMemo(() => {
-    if (!module?.inputsForm) {
+    if (!module?.inputsForm || !action?.isPublic) {
       return null;
     }
 
@@ -65,7 +65,7 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
         moduleId={module?.id}
       />
     );
-  }, [[module?.id, module?.inputsForm]]);
+  }, [[module?.id, module?.inputsForm, action?.isPublic]]);
 
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {

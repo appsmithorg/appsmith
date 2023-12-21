@@ -17,7 +17,7 @@ const StyledHeading = styled(Text)`
 `;
 
 const InstructionsWrapper = styled.div`
-  margin-bottom: var(--ads-v2-spaces-3);
+  margin-bottom: var(--ads-v2-spaces-4);
 `;
 
 const StyledWrapper = styled.div`
@@ -33,6 +33,12 @@ const StyledBody = styled.div`
   margin-top: var(--ads-v2-spaces-4);
   margin-bottom: var(--ads-v2-spaces-4);
   overflow-y: auto;
+`;
+
+const StyledExample = styled(Text)`
+  display: block;
+  font-size: 13px;
+  margin-top: var(--ads-v2-spaces-2);
 `;
 
 interface DEFAULT_VALUES {
@@ -92,9 +98,7 @@ function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
             To use an input in this query, wrap the input name inside double
             curly braces:
           </Text>
-          <br />
-          <br />
-          <Text>{`{{ inputs.input1 }}`}</Text>
+          <StyledExample kind="code">{`{{ inputs.input_name }}`}</StyledExample>
         </InstructionsWrapper>
         <Form
           dataTreePathPrefix="inputs"
