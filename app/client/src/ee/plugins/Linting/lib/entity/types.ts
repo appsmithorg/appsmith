@@ -5,6 +5,7 @@ import { ENTITY_TYPE as CE_ENTITY_TYPE } from "ce/plugins/Linting/lib/entity/typ
 export const ENTITY_TYPE = {
   ...CE_ENTITY_TYPE,
   MODULE_INPUT: "MODULE_INPUT",
+  MODULE_INSTANCE: "MODULE_INSTANCE",
 };
 
 type ValueOf<T> = T[keyof T];
