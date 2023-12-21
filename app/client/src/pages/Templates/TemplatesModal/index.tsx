@@ -3,15 +3,14 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
-  templateModalOpenSelector,
+  templateModalSelector,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import {
   getAllTemplates,
   getTemplateFilters,
-  showTemplatesModal,
+  hideTemplatesModal,
 } from "actions/templateActions";
-import TemplatesList from "./TemplateList";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { isEmpty } from "lodash";
@@ -19,6 +18,7 @@ import type { AppState } from "@appsmith/reducers";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import TemplateModalHeader from "./Header";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import TemplatesListLayoutSwitcher from "./TemplatesListLayoutSwitcher";
 
 const ModalContentWrapper = styled(ModalContent)`
   width: 100%;
@@ -26,10 +26,9 @@ const ModalContentWrapper = styled(ModalContent)`
 `;
 const ModalBodyWrapper = styled(ModalBody)`
   width: 100%;
-  overflow-y: hidden;
 `;
 function TemplatesModal() {
-  const templatesModalOpen = useSelector(templateModalOpenSelector);
+  const templatesModalInfo = useSelector(templateModalSelector);
   const dispatch = useDispatch();
   const templatesCount = useSelector(templatesCountSelector);
   const pluginListLength = useSelector(
@@ -40,18 +39,18 @@ function TemplatesModal() {
 
   useEffect(() => {
     setShowTemplateDetails("");
-    if (templatesModalOpen) {
+    if (templatesModalInfo.isOpen) {
       dispatch({
         type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
       });
     }
-  }, [templatesModalOpen]);
+  }, [templatesModalInfo]);
 
   useEffect(() => {
-    if (!templatesCount && templatesModalOpen) {
+    if (!templatesCount && templatesModalInfo) {
       dispatch(getAllTemplates());
     }
-  }, [templatesCount, templatesModalOpen]);
+  }, [templatesCount, templatesModalInfo]);
 
   useEffect(() => {
     if (!pluginListLength) {
@@ -67,7 +66,7 @@ function TemplatesModal() {
 
   const onClose = (open: boolean) => {
     if (open === false) {
-      dispatch(showTemplatesModal(false));
+      dispatch(hideTemplatesModal());
       setShowTemplateDetails("");
     }
   };
@@ -77,7 +76,10 @@ function TemplatesModal() {
   };
 
   return (
-    <Modal onOpenChange={(open) => onClose(open)} open={templatesModalOpen}>
+    <Modal
+      onOpenChange={(open) => onClose(open)}
+      open={templatesModalInfo.isOpen}
+    >
       <ModalContentWrapper data-testid="t--templates-dialog-component">
         <ModalHeader>
           {!!showTemplateDetails ? (
@@ -101,8 +103,9 @@ function TemplatesModal() {
               templateId={showTemplateDetails}
             />
           ) : (
-            <TemplatesList
-              onClose={() => onClose(false)}
+            <TemplatesListLayoutSwitcher
+              isStartWithTemplateFlow={templatesModalInfo.isOpenFromCanvas}
+              onClose={onClose}
               onTemplateClick={onTemplateClick}
             />
           )}
