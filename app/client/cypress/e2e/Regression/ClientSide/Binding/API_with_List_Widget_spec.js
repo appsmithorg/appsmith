@@ -100,7 +100,7 @@ describe(
       cy.waitUntil(
         () => cy.get(".t--widget-textwidget span").should("be.visible"),
         {
-          errorMsg: "Pubish app page is not loaded evn after 20 secs",
+          errorMsg: "Pubish app page is not loaded even after 20 seconds",
           timeout: 20000,
           interval: 1000,
         },

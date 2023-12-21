@@ -362,11 +362,9 @@ export class GitSync {
       () => {
         this.agHelper.GetNClick(this._branchButton, 0, true);
         if (this.agHelper.IsElementVisible(this._branchSearchInput)) {
-          // If visible, return true to stop waiting
-          return true;
+          return true; //visible, return true to stop waiting
         }
-        // If not visible, return false to continue waiting
-        return false;
+        return false; //not visible, return false to continue waiting
       },
       { timeout: Cypress.config("pageLoadTimeout") },
     );
