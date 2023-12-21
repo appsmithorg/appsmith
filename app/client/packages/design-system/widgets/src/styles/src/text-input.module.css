@@ -49,6 +49,11 @@
   * FOCUSSED
   *-----------------------------------------------------------------------------
   */
+
+  /**
+  * We use an absolutely positioned pseudo element because
+  * we need to make the focus state in read mode a bit wider than the component width
+  */
   & [data-field-input][data-focused]:before {
     content: "";
     left: 0;

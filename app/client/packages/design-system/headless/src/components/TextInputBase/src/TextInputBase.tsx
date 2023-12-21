@@ -29,6 +29,8 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     suffix,
     validationState,
   } = props;
+
+  // Readonly has a higher priority than disabled.
   const getDisabledState = () => isDisabled && !isReadOnly;
 
   const { hoverProps, isHovered } = useHover({

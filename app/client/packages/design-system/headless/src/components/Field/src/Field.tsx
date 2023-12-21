@@ -42,6 +42,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     wrapperProps = {},
   } = props;
 
+  // Readonly has a higher priority than disabled.
   const getDisabledState = () => Boolean(isDisabled) && !Boolean(isReadOnly);
 
   const hasHelpText =
