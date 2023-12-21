@@ -299,17 +299,20 @@ describe(
     }`);
       jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true, false); //for on page load execution, since sync function is updated to async
       deployMode.DeployApp();
-      cy.waitUntil(() => {
-        return agHelper
-          .GetElement(
-            locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-              " " +
-              locators._input,
-          )
-          .then(($ele) => {
-            return cy.wrap($ele).should("not.have.value", "[]");
-          });
-      });
+      cy.waitUntil(
+        () => {
+          return agHelper
+            .GetElement(
+              locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+                " " +
+                locators._input,
+            )
+            .then(($ele) => {
+              return cy.wrap($ele).should("not.have.value", "[]");
+            });
+        },
+        { timeout: Cypress.config("pageLoadTimeout") },
+      );
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -346,17 +349,20 @@ describe(
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Default value", "{{Select3.options}}");
       deployMode.DeployApp();
-      cy.waitUntil(() => {
-        return agHelper
-          .GetElement(
-            locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-              " " +
-              locators._input,
-          )
-          .then(($ele) => {
-            return cy.wrap($ele).should("include.value", "monday");
-          });
-      });
+      cy.waitUntil(
+        () => {
+          return agHelper
+            .GetElement(
+              locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+                " " +
+                locators._input,
+            )
+            .then(($ele) => {
+              return cy.wrap($ele).should("include.value", "monday");
+            });
+        },
+        { timeout: Cypress.config("pageLoadTimeout") },
+      );
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
