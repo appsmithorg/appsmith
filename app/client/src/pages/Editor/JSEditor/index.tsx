@@ -67,6 +67,12 @@ function JSEditor(props: Props) {
       <JsEditorForm
         backLink={isPagesPaneEnabled ? null : backLink}
         contextMenu={contextMenu}
+        hideContextMenuOnEditor={
+          jsCollectionData?.config.isMainJSCollection ? true : false
+        }
+        hideEditIconOnEditor={
+          jsCollectionData?.config.isMainJSCollection ? true : false
+        }
         jsCollectionData={jsCollectionData}
         onUpdateSettings={onUpdateSettings}
         saveJSObjectName={saveJSObjectName}
