@@ -39,7 +39,7 @@ const StyledTextBanner = styled.div<{ isSuperUser?: boolean }>`
   flex-direction: column;
   ${(props) =>
     props.isSuperUser
-      ? "padding: var(--ads-spaces-17) 0 0;"
+      ? "padding: calc(2*var(--ads-spaces-17)) 0 0;"
       : "justify-content: center;"}
   margin-left: 8rem;
 `;
