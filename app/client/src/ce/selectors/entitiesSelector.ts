@@ -47,6 +47,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
+import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
@@ -91,6 +92,7 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  getAnvilSpaceDistributionStatus,
   // cannot import other selectors, breaks the app
   (state) => {
     const gitMetaData =
@@ -109,6 +111,7 @@ export const getShouldShowWidgetName = createSelector(
     isDragging,
     isPreviewMode,
     isAutoCanvasResizing,
+    isDistributingSpace,
     isProtectedMode,
   ) => {
     return (
@@ -116,6 +119,7 @@ export const getShouldShowWidgetName = createSelector(
       !isDragging &&
       !isPreviewMode &&
       !isAutoCanvasResizing &&
+      !isDistributingSpace &&
       !isProtectedMode
     );
   },
