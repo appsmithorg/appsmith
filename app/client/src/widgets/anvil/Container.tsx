@@ -35,8 +35,13 @@ const StyledContainerComponent = styled.div<
       : ""}
     
   border-radius: var(--border-radius-1);
-  padding-block: var(--inner-spacing-2);
-  padding-inline: var(--inner-spacing-2);
+  padding-block: var(--outer-spacing-2);
+  padding-inline: var(--outer-spacing-2);
+  ${(props) =>
+    props.elevation === "1"
+      ? `padding-block: var(--outer-spacing-0); padding-inline: var(--outer-spacing-0);`
+      : ""}
+
   border-width: var(--border-width-1);
 `;
 
