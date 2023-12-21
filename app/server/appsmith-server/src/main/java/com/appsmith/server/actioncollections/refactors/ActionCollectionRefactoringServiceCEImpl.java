@@ -154,7 +154,8 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         return getExistingEntities(contextId, contextType, layoutId).map(ActionCollectionDTO::getName);
     }
 

@@ -190,7 +190,7 @@ class RefactoringServiceCEImplTest {
 
         Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))
                 .when(actionCollectionEntityRefactoringService)
-                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), false);
 
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
@@ -227,7 +227,7 @@ class RefactoringServiceCEImplTest {
 
         Mockito.doReturn(Flux.just("oldName", "newName"))
                 .when(actionCollectionEntityRefactoringService)
-                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), false);
 
         NewPage newPage = new NewPage();
         newPage.setId("testPageId");
@@ -332,7 +332,7 @@ class RefactoringServiceCEImplTest {
 
         Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))
                 .when(actionCollectionEntityRefactoringService)
-                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), false);
 
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);

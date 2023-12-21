@@ -48,7 +48,11 @@ public interface Executable {
 
     @JsonIgnore
     @Transient
-    String getExecutableName();
+    Set<String> getExecutableNames();
+
+    @JsonIgnore
+    @Transient
+    String getUserExecutableName();
 
     EntityReferenceType getEntityReferenceType();
 
@@ -66,4 +70,8 @@ public interface Executable {
     }
 
     void setExecuteOnLoad(Boolean isExecuteOnLoad);
+
+    @JsonIgnore
+    @Transient
+    Boolean isOnLoadMessageAllowed();
 }
