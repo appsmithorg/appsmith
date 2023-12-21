@@ -28,6 +28,7 @@ const breakpointColumnsObject = {
 
 interface StartWithTemplateListProps {
   isForkingEnabled: boolean;
+  isModalLayout?: boolean;
   templates: TemplateInterface[];
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
@@ -63,7 +64,7 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
   );
 
   return (
-    <Wrapper>
+    <Wrapper isModalLayout={props.isModalLayout}>
       {showBuildingBlocksSection && (
         <>
           <SubheadingText kind="heading-m">Building blocks</SubheadingText>
@@ -119,6 +120,7 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
 }
 
 interface StartWithTemplateContentProps {
+  isModalLayout?: boolean;
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
   stickySearchBar?: boolean;
@@ -150,6 +152,7 @@ export function StartWithTemplateContent(props: StartWithTemplateContentProps) {
   return (
     <StartWithTemplateList
       isForkingEnabled={props.isForkingEnabled}
+      isModalLayout={props.isModalLayout}
       onForkTemplateClick={props.onForkTemplateClick}
       onTemplateClick={props.onTemplateClick}
       templates={templates}
