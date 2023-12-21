@@ -1,6 +1,10 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import type { LayoutComponentProps, WidgetLayoutProps } from "../../anvilTypes";
+import type {
+  LayoutComponentProps,
+  LayoutProps,
+  WidgetLayoutProps,
+} from "../../anvilTypes";
 import { mockCanvasProps } from "mocks/widgetProps/canvas";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { moveWidgets, updateWidgetRelationships } from "./moveUtils";
@@ -97,7 +101,9 @@ describe("Layouts - moveUtils test", () => {
       canvas1.layout = [layout1];
       const canvas2: BaseWidgetProps = mockCanvasProps();
       canvas2.children = [];
-      canvas2.layout = [generateLayoutComponentMock({ layout: [] })];
+      canvas2.layout = [
+        generateLayoutComponentMock({ layout: [] }).layout as LayoutProps,
+      ];
       const movedWidget: WidgetLayoutProps = layout1
         .layout[0] as WidgetLayoutProps;
       const state: CanvasWidgetsReduxState = {
@@ -123,6 +129,7 @@ describe("Layouts - moveUtils test", () => {
           layoutOrder: [canvas2.layout[0].layoutId],
         }),
       );
+
       expect(res[canvas1.widgetId].children?.length).toEqual(1);
       expect(res[movedWidget.widgetId].parentId).toEqual(canvas2.widgetId);
       expect(res[canvas1.widgetId].layout[0].layout.length).toEqual(1);

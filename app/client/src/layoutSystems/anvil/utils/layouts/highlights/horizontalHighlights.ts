@@ -386,10 +386,10 @@ export function generateHighlights(
       posY = Math.max(currentDimension.top - layoutDimension.top, 0);
     } else {
       const gap: number =
-        layoutDimension.left +
-        layoutDimension.width -
-        currentDimension.left -
-        currentDimension.width;
+        layoutDimension.top +
+        layoutDimension.height -
+        currentDimension.top -
+        currentDimension.height;
       posY = Math.min(
         currentDimension.top + currentDimension.height,
         layoutDimension.top +
