@@ -591,9 +591,18 @@ export function PageHeader(props: PageHeaderProps) {
               {isDropdownOpen && canShowSearchDropdown && (
                 <SearchListContainer ref={searchListContainerRef}>
                   {noSearchResults && !isFetchingEntities && (
-                    <div className="text-center">
-                      <Text className="!mb-2 !block" kind="body-s">
-                        No results found
+                    <div className="text-center py-[52px]">
+                      <Icon
+                        className="mb-2"
+                        color="--ads-v2-color-fg"
+                        name="search-line"
+                        size="lg"
+                      />
+                      <Text className="!mb-1 !block" kind="heading-xs">
+                        No search results found
+                      </Text>
+                      <Text className="!mb-1 !block" kind="body-m">
+                        Please try again with a <br /> different search query
                       </Text>
                     </div>
                   )}
