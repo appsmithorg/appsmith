@@ -32,6 +32,7 @@ import {
   SearchInput,
   Text,
   Tooltip,
+  Spinner,
 } from "design-system";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
@@ -40,6 +41,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Banner, ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
 import {
+  getIsFetchingEntities,
   getCurrentApplicationIdForCreateNewApp,
   getSearchedApplications,
   getSearchedWorkspaces,
@@ -70,7 +72,6 @@ import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import { searchEntities } from "@appsmith/actions/applicationActions";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
@@ -83,6 +84,10 @@ import { AppIcon, Size, type AppIconName } from "design-system-old";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
 import { DEFAULT_PACKAGE_ICON } from "@appsmith/constants/PackageConstants";
+import {
+  resetSearchEntity,
+  searchEntities,
+} from "@appsmith/actions/applicationActions";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const StyledPageHeader = styled(StyledHeader)<{
@@ -401,8 +406,10 @@ export function PageHeader(props: PageHeaderProps) {
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
   const handleSearchDebounced = debounce((text: string) => {
-    dispatch(searchEntities(text));
-  }, 1000);
+    if (text.trim().length !== 0) {
+      dispatch(searchEntities(text));
+    }
+  }, 500);
 
   function MobileSearchBar() {
     return (
@@ -444,6 +451,9 @@ export function PageHeader(props: PageHeaderProps) {
     const workspacesList = useSelector(getSearchedWorkspaces);
     const applicationsList = useSelector(getSearchedApplications);
     const fetchedPackages = useSelector(getPackagesList);
+    const [noSearchResults, setNoSearchResults] = useState(false);
+    const isFetchingEntities = useSelector(getIsFetchingEntities);
+    const prevIsFetchingEntitiesRef = useRef<boolean | undefined>(undefined);
     const fuzzy = new Fuse(fetchedPackages, {
       keys: ["name"],
       shouldSort: true,
@@ -454,12 +464,36 @@ export function PageHeader(props: PageHeaderProps) {
     useOutsideClick(searchListContainerRef, searchInputRef, () => {
       setIsDropdownOpen(false);
     });
-    const canShowSearchDropdown = !!(
-      (workspacesList?.length ||
+    useEffect(() => {
+      const prevIsFetchingEntities = prevIsFetchingEntitiesRef.current;
+      if (prevIsFetchingEntities && !isFetchingEntities) {
+        if (
+          !workspacesList?.length &&
+          !applicationsList?.length &&
+          !searchedPackages?.length
+        ) {
+          setNoSearchResults(true);
+        } else {
+          setNoSearchResults(false);
+        }
+      }
+      prevIsFetchingEntitiesRef.current = isFetchingEntities;
+    }, [isFetchingEntities]);
+
+    useEffect(() => {
+      if (!isDropdownOpen) {
+        dispatch(resetSearchEntity());
+      }
+    }, [isDropdownOpen]);
+
+    const canShowSearchDropdown =
+      (noSearchResults && !isFetchingEntities) ||
+      isFetchingEntities ||
+      !!(
+        workspacesList?.length ||
         applicationsList?.length ||
-        searchedPackages?.length) &&
-      searchInput
-    );
+        searchedPackages?.length
+      );
 
     function handleSearchInput(text: string) {
       setSearchInput(text);
@@ -481,6 +515,12 @@ export function PageHeader(props: PageHeaderProps) {
       });
       setIsDropdownOpen(false);
       window.location.href = `${viewURL}`;
+    }
+
+    function handleInputClicked() {
+      if (searchInput?.trim()?.length || !noSearchResults) {
+        setIsDropdownOpen(false);
+      }
     }
 
     return (
@@ -540,90 +580,105 @@ export function PageHeader(props: PageHeaderProps) {
                 data-testid="t--application-search-input"
                 isDisabled={isFetchingApplications}
                 onChange={handleSearchInput}
-                onClick={() => setIsDropdownOpen(true)}
+                onClick={handleInputClicked}
                 placeholder={""}
                 ref={searchInputRef}
                 value={searchInput}
               />
-              {canShowSearchDropdown && isDropdownOpen && (
+              {isDropdownOpen && canShowSearchDropdown && (
                 <SearchListContainer ref={searchListContainerRef}>
-                  {!!workspacesList?.length && (
-                    <div className="mb-2">
+                  {noSearchResults && !isFetchingEntities && (
+                    <div className="text-center">
                       <Text className="!mb-2 !block" kind="body-s">
-                        Workspaces
+                        No results found
                       </Text>
-                      {workspacesList.map((workspace: Workspace) => (
-                        <SearchListItem
-                          key={workspace.id}
-                          onClick={() => {
-                            setIsDropdownOpen(false);
-                            window.location.href = `${window.location.pathname}#${workspace?.id}`;
-                          }}
-                        >
-                          <Icon
-                            className="!mr-2"
-                            color="var(--ads-v2-color-fg)"
-                            name="group-2-line"
-                            size="md"
-                          />
-                          <Text className="truncate" kind="body-m">
-                            {workspace.name}
-                          </Text>
-                        </SearchListItem>
-                      ))}
                     </div>
                   )}
-                  {!!applicationsList?.length && (
-                    <div className="mb-2">
-                      <Text className="!mb-2 !block" kind="body-s">
-                        Applications
-                      </Text>
-                      {applicationsList.map(
-                        (application: ApplicationPayload) => (
-                          <SearchListItem
-                            key={application.id}
-                            onClick={() =>
-                              navigateToApplication(application.id)
-                            }
-                          >
-                            <CircleAppIcon
-                              className="!mr-1"
-                              color="var(--ads-v2-color-fg)"
-                              name={
-                                application?.icon ||
-                                (getApplicationIcon(
-                                  application.id,
-                                ) as AppIconName)
-                              }
-                              size={Size.xxs}
-                            />
-                            <Text className="truncate" kind="body-m">
-                              {application.name}
-                            </Text>
-                          </SearchListItem>
-                        ),
+                  {isFetchingEntities ? (
+                    <div className="search-loader">
+                      <Spinner />
+                    </div>
+                  ) : (
+                    <>
+                      {!!workspacesList?.length && (
+                        <div className="mb-2">
+                          <Text className="!mb-2 !block" kind="body-s">
+                            Workspaces
+                          </Text>
+                          {workspacesList.map((workspace: Workspace) => (
+                            <SearchListItem
+                              key={workspace.id}
+                              onClick={() => {
+                                setIsDropdownOpen(false);
+                                window.location.href = `${window.location.pathname}#${workspace?.id}`;
+                              }}
+                            >
+                              <Icon
+                                className="!mr-2"
+                                color="var(--ads-v2-color-fg)"
+                                name="group-2-line"
+                                size="md"
+                              />
+                              <Text className="truncate" kind="body-m">
+                                {workspace.name}
+                              </Text>
+                            </SearchListItem>
+                          ))}
+                        </div>
                       )}
-                    </div>
-                  )}
-                  {!!searchedPackages?.length && (
-                    <div>
-                      <Text className="!mb-2 !block" kind="body-s">
-                        Packages
-                      </Text>
-                      {searchedPackages.map((pkg: any) => (
-                        <SearchListItem key={pkg.id}>
-                          <Icon
-                            className="!mr-2"
-                            color="var(--ads-v2-color-fg)"
-                            name={pkg.icon || DEFAULT_PACKAGE_ICON}
-                            size="md"
-                          />
-                          <Text className="truncate" kind="body-m">
-                            {pkg.name}
+                      {!!applicationsList?.length && (
+                        <div className="mb-2">
+                          <Text className="!mb-2 !block" kind="body-s">
+                            Applications
                           </Text>
-                        </SearchListItem>
-                      ))}
-                    </div>
+                          {applicationsList.map(
+                            (application: ApplicationPayload) => (
+                              <SearchListItem
+                                key={application.id}
+                                onClick={() =>
+                                  navigateToApplication(application.id)
+                                }
+                              >
+                                <CircleAppIcon
+                                  className="!mr-1"
+                                  color="var(--ads-v2-color-fg)"
+                                  name={
+                                    application?.icon ||
+                                    (getApplicationIcon(
+                                      application.id,
+                                    ) as AppIconName)
+                                  }
+                                  size={Size.xxs}
+                                />
+                                <Text className="truncate" kind="body-m">
+                                  {application.name}
+                                </Text>
+                              </SearchListItem>
+                            ),
+                          )}
+                        </div>
+                      )}
+                      {!!searchedPackages?.length && (
+                        <div>
+                          <Text className="!mb-2 !block" kind="body-s">
+                            Packages
+                          </Text>
+                          {searchedPackages.map((pkg: any) => (
+                            <SearchListItem key={pkg.id}>
+                              <Icon
+                                className="!mr-2"
+                                color="var(--ads-v2-color-fg)"
+                                name={pkg.icon || DEFAULT_PACKAGE_ICON}
+                                size="md"
+                              />
+                              <Text className="truncate" kind="body-m">
+                                {pkg.name}
+                              </Text>
+                            </SearchListItem>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </SearchListContainer>
               )}
