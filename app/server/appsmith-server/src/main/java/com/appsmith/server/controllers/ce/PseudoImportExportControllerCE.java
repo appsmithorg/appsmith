@@ -2,7 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.dtos.ContextImportDTO;
+import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.imports.importable.ImportService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -31,7 +31,7 @@ public class PseudoImportExportControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<ContextImportDTO>> importApplicationFromFile(
+    public Mono<ResponseDTO<ImportableContextDTO>> importApplicationFromFile(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {

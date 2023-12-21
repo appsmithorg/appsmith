@@ -1,3 +1,3 @@
 package com.appsmith.server.dtos;
 
-public interface ImportableContextDTO {}
+public abstract class ImportableContextDTO {}

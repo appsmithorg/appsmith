@@ -11,6 +11,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ImportableContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
@@ -677,8 +678,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<ApplicationImportDTO> getApplicationImportDTO(
-            String applicationId, String workspaceId, Application application) {
+    public Mono<ApplicationImportDTO> getImportableContextDTO(
+            String workspaceId, String applicationId, ImportableContext importableContext) {
+        Application application = (Application) importableContext;
         return findDatasourceByApplicationId(applicationId, workspaceId)
                 .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {

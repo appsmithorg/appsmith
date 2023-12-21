@@ -4,7 +4,6 @@ import com.appsmith.server.applications.imports.ApplicationImportService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ImportableJsonType;
 import com.appsmith.server.domains.ImportableContext;
-import com.appsmith.server.dtos.ContextImportDTO;
 import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -84,12 +83,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<? extends ContextImportDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId) {
+    public Mono<? extends ImportableContextDTO> extractAndSaveContext(
+            String workspaceId, Part filePart, String contextId) {
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        Mono<ContextImportDTO> importedContextMono = extractImportableContextJson(filePart)
+        Mono<ImportableContextDTO> importedContextMono = extractImportableContextJson(filePart)
                 .flatMap(contextJson -> {
                     if (StringUtils.isEmpty(contextId)) {
                         return importContextInWorkspaceFromJson(workspaceId, contextJson);
@@ -97,7 +97,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         return updateNonGitConnectedContextFromJson(workspaceId, contextId, contextJson);
                     }
                 })
-                .flatMap(context -> getContextImportDTO(context.getId(), context.getWorkspaceId(), context));
+                .flatMap(context -> getContextImportDTO(context.getWorkspaceId(), context.getId(), context));
 
         return Mono.create(
                 sink -> importedContextMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -163,8 +163,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<? extends ContextImportDTO> getContextImportDTO(
-            String contextId, String workspaceId, ImportableContext importableContext) {
-        return null;
+    public Mono<? extends ImportableContextDTO> getContextImportDTO(
+            String workspaceId, String contextId, ImportableContext importableContext) {
+        return applicationImportService.getImportableContextDTO(workspaceId, contextId, importableContext);
     }
 }

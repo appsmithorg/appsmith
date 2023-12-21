@@ -20,4 +20,6 @@ public interface ContextBasedImportServiceCE<
 
     Mono<T> importContextInWorkspaceFromGit(
             String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName);
+
+    Mono<U> getImportableContextDTO(String workspaceId, String contextId, ImportableContext importableContext);
 }

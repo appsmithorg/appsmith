@@ -2,7 +2,6 @@ package com.appsmith.server.imports.importable;
 
 import com.appsmith.server.constants.ImportableJsonType;
 import com.appsmith.server.domains.ImportableContext;
-import com.appsmith.server.dtos.ContextImportDTO;
 import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.imports.internal.ContextBasedImportService;
@@ -26,7 +25,7 @@ public interface ImportServiceCE {
 
     Mono<? extends ImportableContextJson> extractImportableContextJson(Part filePart);
 
-    Mono<? extends ContextImportDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId);
+    Mono<? extends ImportableContextDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId);
 
     Mono<? extends ImportableContext> importContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson contextJson);
@@ -37,6 +36,6 @@ public interface ImportServiceCE {
     Mono<? extends ImportableContext> importContextInWorkspaceFromGit(
             String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName);
 
-    Mono<? extends ContextImportDTO> getContextImportDTO(
-            String contextId, String workspaceId, ImportableContext importableContext);
+    Mono<? extends ImportableContextDTO> getContextImportDTO(
+            String workspaceId, String contextId, ImportableContext importableContext);
 }
