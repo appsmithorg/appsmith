@@ -110,7 +110,11 @@ const DataSidePane = () => {
   return (
     <PaneContainer>
       <PaneHeader
-        rightIcon={<CreateDatasourcePopover />}
+        rightIcon={
+          canCreateDatasource && datasources.length !== 0 ? (
+            <CreateDatasourcePopover />
+          ) : undefined
+        }
         title={createMessage(DATA_PANE_TITLE)}
       />
       <PaneBody>

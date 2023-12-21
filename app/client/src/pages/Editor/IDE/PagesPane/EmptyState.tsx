@@ -42,12 +42,7 @@ const EmptyState = ({
         {description}
       </Text>
       {onClick && (
-        <Button
-          kind={"primary"}
-          onClick={onClick}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
+        <Button kind={"primary"} onClick={onClick} size={"sm"}>
           {buttonText}
         </Button>
       )}
