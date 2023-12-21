@@ -20,13 +20,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.migrations.db.ce.Migration039TagApplicationsForGitOperationsPermissionMigration.MIGRATION_FLAG_039_TAG_APPLICATIONS_WITHOUT_GIT_PERMISSIONS;
+
 @Slf4j
-@ChangeUnit(order = "038", id = "add-permissions-for-git-operations", author = " ")
-public class Migration038AddPermissionsForGitOperations {
+@ChangeUnit(order = "040", id = "add-permissions-for-git-operations", author = " ")
+public class Migration040AddPermissionsForGitOperations {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration038AddPermissionsForGitOperations(MongoTemplate mongoTemplate) {
+    public Migration040AddPermissionsForGitOperations(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -39,11 +41,12 @@ public class Migration038AddPermissionsForGitOperations {
     @Execution
     public void addPermissionForGitOperationsToExistingApplications() {
         /*
-         1. Get all applications in batches
+        This will set the new policies to the application which is not already migrated.
+         1. Get all applications in batches that does not have migration flag set
          2. For each application
          3. Generate a new policy for the permission groups and permissions
-         4. Add the policy to set of policies of this application
-         5. Save the application
+         4. Add the policy to set of policies of this application and remove the migration flag
+         5. Update the application
         */
         String policiesFieldPath = BaseAppsmithRepositoryCEImpl.fieldName(QApplication.application.policies);
         String idFieldPath = BaseAppsmithRepositoryCEImpl.fieldName(QApplication.application.id);
@@ -52,7 +55,10 @@ public class Migration038AddPermissionsForGitOperations {
 
         do {
             // get applications which are not deleted
-            Criteria criteria = Criteria.where(FieldName.DELETED_AT).exists(false);
+            Criteria criteria = Criteria.where(FieldName.DELETED_AT)
+                    .exists(false)
+                    .and(MIGRATION_FLAG_039_TAG_APPLICATIONS_WITHOUT_GIT_PERMISSIONS)
+                    .exists(true);
             Query allApplicationsInBatchQuery = Query.query(criteria).limit(batchSize);
             allApplicationsInBatchQuery.skip(updatedCount);
             allApplicationsInBatchQuery.fields().include(policiesFieldPath); // we only need the policies
@@ -75,7 +81,8 @@ public class Migration038AddPermissionsForGitOperations {
                     addGitPoliciesToPolicySet(application.getPolicies(), managePermissionPermissionGroups);
 
                     Update update = new Update();
-                    update.set(policiesFieldPath, application.getPolicies());
+                    update.set(policiesFieldPath, application.getPolicies())
+                            .unset(MIGRATION_FLAG_039_TAG_APPLICATIONS_WITHOUT_GIT_PERMISSIONS);
 
                     Query updateQuery = Query.query(Criteria.where(idFieldPath).is(application.getId()));
                     mongoTemplate.updateFirst(updateQuery, update, Application.class);
