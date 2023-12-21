@@ -72,10 +72,6 @@ import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import {
-  resetSearchEntity,
-  searchEntities,
-} from "@appsmith/actions/applicationActions";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
@@ -88,6 +84,10 @@ import { AppIcon, Size, type AppIconName } from "design-system-old";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
 import { DEFAULT_PACKAGE_ICON } from "@appsmith/constants/PackageConstants";
+import {
+  resetSearchEntity,
+  searchEntities,
+} from "@appsmith/actions/applicationActions";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const StyledPageHeader = styled(StyledHeader)<{
@@ -466,7 +466,6 @@ export function PageHeader(props: PageHeaderProps) {
     useOutsideClick(searchListContainerRef, searchInputRef, () => {
       setIsDropdownOpen(false);
     });
-
     useEffect(() => {
       const prevIsFetchingEntities = prevIsFetchingEntitiesRef.current;
       if (prevIsFetchingEntities && !isFetchingEntities) {
