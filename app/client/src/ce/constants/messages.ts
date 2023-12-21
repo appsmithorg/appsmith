@@ -2258,6 +2258,7 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   or: () => "or",
   dragAndDrop: () => "Drag and Drop Widgets",
   importLoadingText: () => "Importing template",
+  seeMoreText: () => "See more",
 };
 
 // Create New Apps Intermediary step

@@ -74,3 +74,7 @@ export const STARTER_BUILDING_BLOCKS = {
     },
   ],
 };
+
+export const CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER = {
+  functions: ["Building Block"],
+};
