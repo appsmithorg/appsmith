@@ -1,8 +1,7 @@
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER } from "constants/TemplatesConstants";
 import { Flex } from "design-system";
 import React from "react";
-import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import StartWithTemplates from "../StartWithTemplates";
 import TemplatesList from "./TemplateList";
@@ -18,16 +17,18 @@ const TemplatesListLayoutSwitcher = ({
   onClose,
   onTemplateClick,
 }: Props) => {
-  const currentApplicationId = useSelector(getCurrentApplicationId);
+  const onForkTemplateClick = (template: TemplateInterface) => {
+    onTemplateClick(template.id);
+  };
   return isStartWithTemplateFlow ? (
     <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
       <TemplateWrapper>
         <StartWithTemplates
-          currentApplicationIdForCreateNewApp={currentApplicationId}
           initialFilters={
             CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER
           }
           isModalLayout
+          onForkTemplateClick={onForkTemplateClick}
           setSelectedTemplate={onTemplateClick}
         />
       </TemplateWrapper>
