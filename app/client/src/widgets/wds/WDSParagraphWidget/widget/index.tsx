@@ -9,7 +9,7 @@ import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
 
-class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static type = "WDS_TEXT_WIDGET";
 
   static getConfig() {
@@ -69,7 +69,7 @@ class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getWidgetView() {
     return (
       <Text
-        color={this.props.textColor}
+        color="neutral"
         isBold={this.props?.fontStyle?.includes("bold")}
         isItalic={this.props?.fontStyle?.includes("italic")}
         lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
@@ -83,4 +83,4 @@ class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   }
 }
 
-export { WDSTextWidget };
+export { WDSParagraphWidget };
