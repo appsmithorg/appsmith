@@ -35,7 +35,7 @@ public class Migration039AddDatabricksPlugin {
         plugin.setUiComponent("UQIDbEditorForm");
         plugin.setDatasourceComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        //        plugin.setIconLocation("https://assets.appsmith.com/google-ai.svg");
+        plugin.setIconLocation("https://assets.appsmith.com/databricks-logo.png");
         //        plugin.setDocumentationLink("https://docs.appsmith.com/connect-data/reference/google-ai");
         plugin.setDefaultInstall(true);
         try {
