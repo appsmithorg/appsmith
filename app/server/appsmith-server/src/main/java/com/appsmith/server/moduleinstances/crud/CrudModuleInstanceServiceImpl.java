@@ -403,12 +403,11 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
         AclPermission permission =
                 viewMode ? actionPermission.getExecutePermission() : actionPermission.getEditPermission();
-        Flux<NewAction> actionFlux = newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
-                contextId, contextType, permission, false, false);
+        Flux<NewAction> actionFlux =
+                newActionService.getAllModuleInstanceActionInContext(contextId, contextType, permission, false, false);
 
-        Flux<ActionCollection> actionCollectionFlux =
-                actionCollectionService.findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
-                        contextId, contextType, permission, false);
+        Flux<ActionCollection> actionCollectionFlux = actionCollectionService.getAllModuleInstanceCollectionsInContext(
+                contextId, contextType, permission, false);
 
         return getModuleInstanceEntitiesDTOMono(actionFlux, actionCollectionFlux, viewMode);
     }

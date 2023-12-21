@@ -239,6 +239,47 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findAllModuleInstanceEntitiesByContextAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            Optional<AclPermission> optionalPermission,
+            boolean viewMode,
+            boolean includeJs) {
+        List<Criteria> criteria = new ArrayList<>();
+        criteria.add(getModuleInstanceExistenceCriterion());
+        String contextIdPath;
+        String contextTypePath;
+        if (viewMode) {
+            contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
+            switch (contextType) {
+                case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
+                default -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.pageId);
+            }
+        } else {
+            contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
+            switch (contextType) {
+                case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
+                default -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.pageId);
+            }
+        }
+        Criteria contextIdAndContextTypeCriterion =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        criteria.add(contextIdAndContextTypeCriterion);
+
+        Criteria jsInclusionOrExclusionCriteria;
+        if (includeJs) {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+        } else {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        }
+        criteria.add(jsInclusionOrExclusionCriteria);
+
+        return queryAll(criteria, optionalPermission);
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         if (null == contextType || contextType == CreatorContextType.PAGE) {
@@ -312,13 +353,17 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteria =
                 super.getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode);
 
-        criteria.add(getNonModuleInstanceActionCriterion());
+        criteria.add(getModuleInstanceNonExistenceCriterion());
 
         return queryAll(criteria, aclPermission);
     }
 
-    private Criteria getNonModuleInstanceActionCriterion() {
-        return where(fieldName(QNewAction.newAction.moduleInstanceId)).exists(false);
+    private Criteria getModuleInstanceNonExistenceCriterion() {
+        return where(fieldName(QNewAction.newAction.rootModuleInstanceId)).exists(false);
+    }
+
+    private Criteria getModuleInstanceExistenceCriterion() {
+        return where(fieldName(QNewAction.newAction.rootModuleInstanceId)).exists(true);
     }
 
     @Override
@@ -327,7 +372,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         List<Criteria> criteria = super.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        criteria.add(getNonModuleInstanceActionCriterion());
+        criteria.add(getModuleInstanceNonExistenceCriterion());
 
         return queryAll(criteria, aclPermission);
     }
@@ -352,7 +397,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteria =
                 super.getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
 
-        criteria.add(getNonModuleInstanceActionCriterion());
+        criteria.add(getModuleInstanceNonExistenceCriterion());
 
         return queryAll(criteria, aclPermission, sort);
     }
@@ -363,7 +408,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteria =
                 super.getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
 
-        criteria.add(getNonModuleInstanceActionCriterion());
+        criteria.add(getModuleInstanceNonExistenceCriterion());
 
         return queryAll(criteria, aclPermission, sort);
     }
@@ -375,7 +420,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Criteria applicationIdCriterion = super.getCriterionForFindByApplicationId(applicationId);
 
         criteria.add(applicationIdCriterion);
-        criteria.add(getNonModuleInstanceActionCriterion());
+        criteria.add(getModuleInstanceNonExistenceCriterion());
 
         return queryAll(criteria, aclPermission, sort);
     }

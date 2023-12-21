@@ -77,6 +77,7 @@ import java.util.Map;
 
 import static com.appsmith.external.models.CreatorContextType.WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
@@ -231,6 +232,38 @@ class InteractWorkflowServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testGenerateBearerTokenForWebhook() {
+        String testName = "testGenerateBearerTokenForWebhook";
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setWorkflowId(workflow.getId());
+        actionDTO.setName(testName);
+        actionDTO.setDatasource(datasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionDTO.setActionConfiguration(actionConfiguration);
+        actionDTO.setWorkspaceId(workspace.getId());
+        actionDTO.setContextType(WORKFLOW);
+
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName(testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName(testName);
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody(testName);
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollectionDTO workflowActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
+
         String workflowBearerToken = interactWorkflowService
                 .generateBearerTokenForWebhook(workflow.getId())
                 .block();
@@ -273,6 +306,75 @@ class InteractWorkflowServiceTest {
                 assertThat(policy.getPermissionGroups().contains(workflowBotRole.getId()));
             }
         });
+
+        NewAction workflowActionFromDb =
+                newActionRepository.findById(workflowActionDTO.getId()).block();
+        workflowActionFromDb.getPolicies().forEach(policy -> {
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+            }
+        });
+
+        ActionCollection workflowActionCollectionFromDb = actionCollectionRepository
+                .findById(workflowActionCollectionDTO.getId())
+                .block();
+        workflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+            }
+        });
+
+        assertThat(workflowActionCollectionFromDb.getUnpublishedCollection().getDefaultToBranchedActionIdsMap())
+                .hasSize(1);
+
+        workflowActionCollectionFromDb
+                .getUnpublishedCollection()
+                .getDefaultToBranchedActionIdsMap()
+                .forEach((key, value) -> {
+                    NewAction jsActionInsideWorkflowActionCollectionFromDb =
+                            newActionRepository.findById(key).block();
+                    jsActionInsideWorkflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+                        if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                            assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+                        } else {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+                        }
+                    });
+                });
+
+        ActionCollection mainWorkflowActionCollectionFromDb = actionCollectionRepository
+                .findById(workflow.getMainJsObjectId())
+                .block();
+        mainWorkflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+            }
+        });
+
+        assertThat(mainWorkflowActionCollectionFromDb.getUnpublishedCollection().getDefaultToBranchedActionIdsMap())
+                .hasSize(1);
+
+        workflowActionCollectionFromDb
+                .getUnpublishedCollection()
+                .getDefaultToBranchedActionIdsMap()
+                .forEach((key, value) -> {
+                    NewAction jsActionInsideWorkflowActionCollectionFromDb =
+                            newActionRepository.findById(key).block();
+                    jsActionInsideWorkflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+                        if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                            assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+                        } else {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+                        }
+                    });
+                });
+
         assertThat(workflowFromDB.getTokenGenerated()).isTrue();
     }
 

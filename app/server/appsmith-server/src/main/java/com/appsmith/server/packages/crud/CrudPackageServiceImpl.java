@@ -294,6 +294,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         packageDTO.setModifiedAt(aPackage.getLastUpdateTime());
         packageDTO.setModifiedBy(aPackage.getModifiedBy());
         packageDTO.setLastPublishedAt(aPackage.getLastPublishedTime());
+        packageDTO.setPolicies(aPackage.getPolicies());
 
         return Mono.just(packageDTO);
     }
