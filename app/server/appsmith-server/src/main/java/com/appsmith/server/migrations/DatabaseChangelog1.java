@@ -174,7 +174,7 @@ public class DatabaseChangelog1 {
         plugin3.setName("MongoDB");
         plugin3.setType(PluginType.DB);
         plugin3.setPackageName("mongo-plugin");
-        plugin3.setUiComponent("DbEditorForm");
+        plugin3.setUiComponent("UQIDbEditorForm");
         plugin3.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin3);
