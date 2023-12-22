@@ -33,9 +33,9 @@ import { GitSyncModalTab } from "entities/GitSync";
 import {
   getCountOfChangesToCommit,
   getGitStatus,
-  getIsAutocommitInProgress,
   getIsFetchingGitStatus,
   getIsGitConnected,
+  getIsPollingAutocommit,
   getPullFailed,
   getPullInProgress,
   protectedModeSelector,
@@ -338,7 +338,7 @@ export default function QuickGitActions() {
   const isAutocommitFeatureEnabled = useFeatureFlag(
     FEATURE_FLAG.release_git_autocommit_feature_enabled,
   );
-  const isAutocommitInProgress = useSelector(getIsAutocommitInProgress);
+  const isPollingAutocommit = useSelector(getIsPollingAutocommit);
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
@@ -403,8 +403,8 @@ export default function QuickGitActions() {
   return isGitConnected ? (
     <Container>
       <BranchButton />
-      {isAutocommitFeatureEnabled && isAutocommitInProgress ? (
-        <AutocommitStatusbar completed={!isAutocommitInProgress} />
+      {isAutocommitFeatureEnabled && isPollingAutocommit ? (
+        <AutocommitStatusbar completed={!isPollingAutocommit} />
       ) : (
         quickActionButtons.map((button) => (
           <QuickActionButton key={button.tooltipText} {...button} />
