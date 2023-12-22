@@ -84,7 +84,7 @@ jobs:
       pr: 0
 
   ci-test:
-    needs: [setup]
+    needs: [setup, build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test
