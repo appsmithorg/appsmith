@@ -53,8 +53,9 @@
       "subtitle": "A list of messages for Assistant as instructions",
       "propertyName": "systemMessages",
       "isRequired": false,
-      "configProperty": "actionConfiguration.formData.systemMessages",
+      "configProperty": "actionConfiguration.formData.systemMessages.data",
       "controlType": "ARRAY_FIELD",
+      "alternateViewTypes": ["json"],
       "addMoreButtonLabel": "Add System Message",
       "customStyles": {
         "width": "40vw"
@@ -75,8 +76,9 @@
       "subtitle": "A list of user messages or images. You can pass a link to the image or the base64 encoded image directly in the request.",
       "propertyName": "userMessages",
       "isRequired": true,
-      "configProperty": "actionConfiguration.formData.userMessages",
+      "configProperty": "actionConfiguration.formData.userMessages.data",
       "controlType": "ARRAY_FIELD",
+      "alternateViewTypes": ["json"],
       "addMoreButtonLabel": "Add User message or Image",
       "schema": [
         {
