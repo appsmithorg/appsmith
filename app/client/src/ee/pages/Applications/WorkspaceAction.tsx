@@ -133,7 +133,7 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
           data-testid="t--workspace-action-create-app"
           disabled={!hasCreateNewApplicationPermission}
           onSelect={() => onCreateNewApplication(workspaceId)}
-          startIcon="apps-line"
+          startIcon="group-control"
         >
           {createMessage(NEW_APP)}
         </MenuItem>
