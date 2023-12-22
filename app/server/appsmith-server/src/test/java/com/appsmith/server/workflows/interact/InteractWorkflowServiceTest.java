@@ -403,6 +403,179 @@ class InteractWorkflowServiceTest {
     }
 
     @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    void testGenerateBearerTokenForWebhook_nonAdminUser() {
+        String testName = "testGenerateBearerTokenForWebhook";
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setWorkflowId(workflow.getId());
+        actionDTO.setName(testName);
+        actionDTO.setDatasource(datasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionDTO.setActionConfiguration(actionConfiguration);
+        actionDTO.setWorkspaceId(workspace.getId());
+        actionDTO.setContextType(WORKFLOW);
+
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName(testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(WORKFLOW);
+        ActionDTO action1 = new ActionDTO();
+        action1.setName(testName);
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody(testName);
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollectionDTO workflowActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
+
+        String workflowBearerToken = interactWorkflowService
+                .generateBearerTokenForWebhook(workflow.getId())
+                .block();
+        String userEmail = workflowHelper.generateWorkflowBotUserEmail(workflow).toLowerCase();
+        User workflowBotUser =
+                userRepository.findByCaseInsensitiveEmail(userEmail).block();
+        assertThat(workflowBotUser).isNotNull();
+        List<PermissionGroup> workflowBotRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(workflow.getId(), Workflow.class.getSimpleName())
+                .collectList()
+                .block();
+        assertThat(workflowBotRoles).hasSize(1);
+        PermissionGroup workflowBotRole = workflowBotRoles.get(0);
+        assertThat(workflowBotRole.getName()).isEqualTo(workflowHelper.generateWorkflowBotRoleName(workflow));
+        assertThat(workflowBotRole.getAssignedToUserIds()).containsOnly(workflowBotUser.getId());
+
+        String actualWorkflowBearerToken = Arrays.stream(
+                        encryptionService.decryptString(workflowBearerToken).split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
+
+        List<UserApiKey> userApiKeys = apiKeyRepository
+                .getByUserIdWithoutPermission(workflowBotUser.getId())
+                .collectList()
+                .block();
+        assertThat(userApiKeys).hasSize(1);
+        assertThat(userApiKeys.get(0).getApiKey()).isEqualTo(actualWorkflowBearerToken);
+
+        Workflow workflowFromDB = workflowRepository.findById(workflow.getId()).block();
+        workflowFromDB.getPolicies().forEach(policy -> {
+            if (MANAGE_WORKFLOWS.getValue().equals(policy.getPermission())
+                    || READ_WORKFLOWS.getValue().equals(policy.getPermission())
+                    || PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())
+                    || DELETE_WORKFLOWS.getValue().equals(policy.getPermission())
+                    || EXPORT_WORKFLOWS.getValue().equals(policy.getPermission())
+                    || WORKFLOW_CREATE_ACTIONS.getValue().equals(policy.getPermission())
+                    || READ_HISTORY_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+            } else if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups().contains(workflowBotRole.getId()));
+            }
+        });
+
+        NewAction workflowActionFromDb =
+                newActionRepository.findById(workflowActionDTO.getId()).block();
+        workflowActionFromDb.getPolicies().forEach(policy -> {
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+            }
+        });
+
+        ActionCollection workflowActionCollectionFromDb = actionCollectionRepository
+                .findById(workflowActionCollectionDTO.getId())
+                .block();
+        workflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+            }
+        });
+
+        assertThat(workflowActionCollectionFromDb.getUnpublishedCollection().getDefaultToBranchedActionIdsMap())
+                .hasSize(1);
+
+        workflowActionCollectionFromDb
+                .getUnpublishedCollection()
+                .getDefaultToBranchedActionIdsMap()
+                .forEach((key, value) -> {
+                    NewAction jsActionInsideWorkflowActionCollectionFromDb =
+                            newActionRepository.findById(key).block();
+                    jsActionInsideWorkflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+                        if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                            assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+                        } else {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+                        }
+                    });
+                });
+
+        ActionCollection mainWorkflowActionCollectionFromDb = actionCollectionRepository
+                .findById(workflow.getMainJsObjectId())
+                .block();
+        mainWorkflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+            if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+            } else {
+                assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+            }
+        });
+
+        assertThat(mainWorkflowActionCollectionFromDb.getUnpublishedCollection().getDefaultToBranchedActionIdsMap())
+                .hasSize(1);
+
+        workflowActionCollectionFromDb
+                .getUnpublishedCollection()
+                .getDefaultToBranchedActionIdsMap()
+                .forEach((key, value) -> {
+                    NewAction jsActionInsideWorkflowActionCollectionFromDb =
+                            newActionRepository.findById(key).block();
+                    jsActionInsideWorkflowActionCollectionFromDb.getPolicies().forEach(policy -> {
+                        if (EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                            assertThat(policy.getPermissionGroups()).contains(workflowBotRole.getId());
+                        } else {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());
+                        }
+                    });
+                });
+
+        assertThat(workflowFromDB.getTokenGenerated()).isTrue();
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    void testArchiveBearerTokenForWebhook_nonAdminUser() {
+        interactWorkflowService.generateBearerTokenForWebhook(workflow.getId()).block();
+        String userEmail = workflowHelper.generateWorkflowBotUserEmail(workflow).toLowerCase();
+        User workflowBotUser =
+                userRepository.findByCaseInsensitiveEmail(userEmail).block();
+        Criteria userEmailCriteria = Criteria.where(fieldName(QUser.user.email)).is(userEmail);
+        Query userEmailQuery = Query.query(userEmailCriteria);
+
+        Boolean archived = interactWorkflowService
+                .archiveBearerTokenForWebhook(workflow.getId())
+                .block();
+        assertThat(archived).isTrue();
+        List<UserApiKey> workflowBearerTokens = apiKeyRepository
+                .getByUserIdWithoutPermission(workflowBotUser.getId())
+                .collectList()
+                .block();
+        assertThat(workflowBearerTokens).hasSize(0);
+        Workflow workflowPostArchivingToken =
+                workflowRepository.findById(workflow.getId()).block();
+        assertThat(workflowPostArchivingToken.getTokenGenerated()).isFalse();
+    }
+
+    @Test
     @WithUserDetails(value = "api_user")
     public void testPublishWorkflows() {
         String name = "testPublishWorkflows";

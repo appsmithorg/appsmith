@@ -58,12 +58,16 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create API Keys")))
                 .cache();
-        Mono<User> userMono = tenantMono
-                .then(userRepository
-                        .findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
-                        .switchIfEmpty(Mono.error(
-                                new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))))
-                .cache();
+        return tenantMono.then(generateApiKeyWithoutPermissionCheck(apiKeyRequestDto));
+    }
+
+    @Override
+    public Mono<String> generateApiKeyWithoutPermissionCheck(ApiKeyRequestDto apiKeyRequestDto) {
+        Mono<User> userMono = userRepository
+                .findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail())));
+
         return userMono.flatMap(user -> {
                     String generatedToken = generateToken(user.getId());
                     UserApiKey userApiKey = new UserApiKey();
