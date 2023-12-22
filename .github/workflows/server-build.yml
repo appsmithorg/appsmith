@@ -44,6 +44,33 @@ jobs:
       # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
+
+      - name: Put release build in cache
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        env:
+          cachetoken: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          pwd
+          touch server.jar
+          mkdir cacherepo
+          cd ./cacherepo
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          cd cibuildcache/
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd $repodir/release/server
+          cp ../../../../../server.jar ./
+          git lfs track "server.jar"
+          git add  server.jar
+          git commit -m "Update Latest Server.jar"
+          git push
+      
       - name: Check out merged commit from PR and base branch
         uses: actions/checkout@v3
         if: inputs.pr != 0
@@ -71,8 +98,8 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+      #- name: Setup upterm session
+      #  uses: lhotari/action-upterm@v1
 
 
       - name: Put release build in cache
