@@ -31,6 +31,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     helpTextClassName,
     includeNecessityIndicatorInAccessibilityName,
     isDisabled = false,
+    isReadOnly = false,
     isRequired,
     label,
     labelClassName,
@@ -40,6 +41,9 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     wrapperClassName,
     wrapperProps = {},
   } = props;
+
+  // Readonly has a higher priority than disabled.
+  const getDisabledState = () => Boolean(isDisabled) && !Boolean(isReadOnly);
 
   const hasHelpText =
     Boolean(description) ||
@@ -53,7 +57,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
         descriptionProps={descriptionProps}
         errorMessage={errorMessage}
         errorMessageProps={errorMessageProps}
-        isDisabled={isDisabled}
+        isDisabled={getDisabledState()}
         validationState={validationState}
       />
     );
@@ -84,9 +88,10 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     <div
       {...wrapperProps}
       className={wrapperClassName}
-      data-disabled={Boolean(isDisabled) ? "" : undefined}
+      data-disabled={getDisabledState() ? "" : undefined}
       data-field=""
       data-field-type={fieldType}
+      data-readonly={Boolean(isReadOnly) ? "" : undefined}
       ref={ref}
     >
       {labelAndContextualHelp}
