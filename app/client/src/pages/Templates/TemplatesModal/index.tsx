@@ -23,6 +23,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 const ModalContentWrapper = styled(ModalContent)`
   width: 100%;
   overflow-y: hidden;
+  background-color: var(--ads-v2-color-gray-50);
 `;
 const ModalBodyWrapper = styled(ModalBody)`
   width: 100%;
