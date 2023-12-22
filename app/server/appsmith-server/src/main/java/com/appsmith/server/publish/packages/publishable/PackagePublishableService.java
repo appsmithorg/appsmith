@@ -1,4 +1,4 @@
-package com.appsmith.server.publish.publishable;
+package com.appsmith.server.publish.packages.publishable;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.PublishingMetaDTO;

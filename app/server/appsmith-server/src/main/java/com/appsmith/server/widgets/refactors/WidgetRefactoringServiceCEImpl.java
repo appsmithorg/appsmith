@@ -109,7 +109,8 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         return newPageService
                 // fetch the unpublished page
                 .findPageById(contextId, pagePermission.getReadPermission(), false)

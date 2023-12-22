@@ -10,7 +10,7 @@ import com.appsmith.server.dtos.PublishingMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.publish.publishable.PackagePublishableService;
+import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.solutions.ActionPermission;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
