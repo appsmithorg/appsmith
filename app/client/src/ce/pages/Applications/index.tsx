@@ -1031,7 +1031,10 @@ export const mapStateToProps = (state: AppState) => ({
 
 export const mapDispatchToProps = (dispatch: any) => ({
   getAllWorkspaces: () => {
-    dispatch({ type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT });
+    dispatch({
+      type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+      payload: { fetchApplications: true },
+    });
   },
   resetEditor: () => {
     dispatch(resetEditorRequest());
