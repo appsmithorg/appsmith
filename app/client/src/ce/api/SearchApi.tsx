@@ -30,13 +30,10 @@ export class SearchApi extends Api {
 
   static async searchAllEntities(params: {
     keyword: string;
-    page?: number;
     limit?: number;
   }): Promise<AxiosPromise<MockedSearchApiResponse>> {
-    const { keyword, limit = 10, page = 0 } = params;
-    return Api.get(
-      `${SearchApi.searchURL}?keyword=${keyword}&page=${page}&size=${limit}&entities=Application,Workspace`,
-    );
+    const { keyword, limit = 10 } = params;
+    return Api.get(`${SearchApi.searchURL}?keyword=${keyword}&size=${limit}`);
   }
 }
 
