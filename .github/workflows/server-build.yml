@@ -75,8 +75,13 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      #- name: Setup upterm session
-      #  uses: lhotari/action-upterm@v1
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        env:
+          cachetoken: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         
 
 
