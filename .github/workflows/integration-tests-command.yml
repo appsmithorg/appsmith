@@ -6,7 +6,7 @@ on:
     types: [ok-to-test-command]
 
 jobs:
-  command-check:
+  tag-check:
     runs-on: ubuntu-latest
     outputs:
       tags: ${{ steps.checkAll.outputs.tags }}
@@ -56,7 +56,7 @@ jobs:
             Tags: `${{ steps.checkAll.outputs.tags }}`.
 
   server-build:
-    needs: [command-check]
+    needs: [tag-check]
     if: success()
     name: server-build
     uses: ./.github/workflows/server-build.yml
@@ -66,7 +66,7 @@ jobs:
       skip-tests: true
 
   client-build:
-    needs: [command-check]
+    needs: [tag-check]
     if: success()
     name: client-build
     uses: ./.github/workflows/client-build.yml
@@ -76,7 +76,7 @@ jobs:
       check-test-files: "true"
 
   rts-build:
-    needs: [command-check]
+    needs: [tag-check]
     if: success()
     name: rts-build
     uses: ./.github/workflows/rts-build.yml
@@ -85,7 +85,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   test-appsmithctl:
-    needs: [command-check]
+    needs: [tag-check]
     if: success()
     name: appsmithctl
     uses: ./.github/workflows/appsmithctl.yml
@@ -94,7 +94,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   build-docker-image:
-    needs: [command-check, client-build, server-build, rts-build]
+    needs: [tag-check, client-build, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -104,7 +104,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   ci-test:
-    needs: [command-check, build-docker-image]
+    needs: [tag-check, build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test
@@ -112,8 +112,8 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
-      tags: ${{ needs.command-check.outputs.tags }}
-      matrix: ${{ needs.command-check.outputs.matrix }}
+      tags: ${{ needs.tag-check.outputs.tags }}
+      matrix: ${{ needs.tag-check.outputs.matrix }}
 
 
   ci-test-result:
