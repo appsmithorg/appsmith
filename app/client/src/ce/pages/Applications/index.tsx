@@ -950,7 +950,10 @@ export interface ApplicationProps {
   createApplicationError?: string;
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
-  getAllWorkspaces: () => void;
+  getAllWorkspaces: (params: {
+    fetchApplications: boolean;
+    workspaceId: string;
+  }) => void;
   workspaces: any;
   currentUser?: User;
   searchKeyword: string | undefined;
@@ -986,7 +989,11 @@ export class Applications<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllWorkspaces();
+    const urlHash = window?.location?.hash?.slice(1);
+    this.props.getAllWorkspaces({
+      workspaceId: urlHash,
+      fetchApplications: true,
+    });
     this.props.setHeaderMetaData(true, true);
 
     // Whenever we go back to home page from application page,
@@ -1030,10 +1037,16 @@ export const mapStateToProps = (state: AppState) => ({
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
-  getAllWorkspaces: () => {
+  getAllWorkspaces: ({
+    fetchApplications,
+    workspaceId,
+  }: {
+    fetchApplications: boolean;
+    workspaceId: string;
+  }) => {
     dispatch({
       type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
-      payload: { fetchApplications: true },
+      payload: { workspaceId, fetchApplications },
     });
   },
   resetEditor: () => {
