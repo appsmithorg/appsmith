@@ -45,6 +45,7 @@ describe(
               newWorkspaceName =
                 createWorkspaceInterception.response.body.data.name;
               homePage.RenameWorkspace(newWorkspaceName, workspaceId);
+              cy.get(homePageLocators.createNew).click({ force: true });
               cy.get(homePageLocators.workspaceImportAppOption).click({
                 force: true,
               });
