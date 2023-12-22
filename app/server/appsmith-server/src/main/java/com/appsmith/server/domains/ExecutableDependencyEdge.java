@@ -42,6 +42,12 @@ public class ExecutableDependencyEdge {
             return new EqualsBuilder()
                     .append(sourceNode.getReferenceString(), executableDependencyEdge.sourceNode.getReferenceString())
                     .append(targetNode.getReferenceString(), executableDependencyEdge.targetNode.getReferenceString())
+                    .append(
+                            sourceNode.getEntityReferenceType(),
+                            executableDependencyEdge.sourceNode.getEntityReferenceType())
+                    .append(
+                            targetNode.getEntityReferenceType(),
+                            executableDependencyEdge.targetNode.getEntityReferenceType())
                     .isEquals();
         } else {
             return false;
