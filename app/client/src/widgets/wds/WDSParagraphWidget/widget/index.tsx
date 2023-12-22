@@ -10,7 +10,7 @@ import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
-  static type = "WDS_TEXT_WIDGET";
+  static type = "WDS_PARAGRAPH_WIDGET";
 
   static getConfig() {
     return config.metaConfig;
@@ -73,6 +73,9 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         isBold={this.props?.fontStyle?.includes("bold")}
         isItalic={this.props?.fontStyle?.includes("italic")}
         lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
+        style={{
+          paddingBottom: "0.5rem",
+        }}
         textAlign={this.props.textAlign}
         title={this.props.lineClamp ? this.props.text : undefined}
         variant={this.props.fontSize}
