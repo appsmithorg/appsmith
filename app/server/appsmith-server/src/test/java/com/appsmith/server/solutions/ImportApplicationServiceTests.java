@@ -77,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -264,6 +265,10 @@ public class ImportApplicationServiceTests {
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+
+        Application.ThemeSetting themeSettings = getThemeSetting();
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -806,6 +811,40 @@ public class ImportApplicationServiceTests {
                     assertThat(exportedApp.getPages()).hasSize(1);
                     assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
                     assertThat(exportedApp.getGitApplicationMetadata()).isNull();
+
+                    assertThat(exportedApp.getApplicationDetail()).isNotNull();
+                    assertThat(exportedApp.getApplicationDetail().getThemeSetting())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getAccentColor())
+                            .isEqualTo("#FFFFFF");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getColorMode())
+                            .isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getDensity())
+                            .isEqualTo(1);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getFontFamily())
+                            .isEqualTo("#000000");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isEqualTo(1);
 
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
@@ -2404,9 +2443,9 @@ public class ImportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void discardChange_addNavigationSettingAfterImport_addedNavigationSettingRemoved() {
-        Mono<ApplicationJson> applicationJsonMono =
-                createAppJson("test_assets/ImportExportServiceTest/valid-application-without-navigation-setting.json");
+    public void discardChange_addNavigationAndThemeSettingAfterImport_addedNavigationAndThemeSettingRemoved() {
+        Mono<ApplicationJson> applicationJsonMono = createAppJson(
+                "test_assets/ImportExportServiceTest/valid-application-without-navigation-theme-setting.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
@@ -2419,6 +2458,10 @@ public class ImportApplicationServiceTests {
                     Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
                     navigationSetting.setOrientation("top");
                     applicationDetail.setNavigationSetting(navigationSetting);
+
+                    Application.ThemeSetting themeSettings = getThemeSetting();
+                    applicationDetail.setThemeSetting(themeSettings);
+
                     application.setUnpublishedApplicationDetail(applicationDetail);
                     application.setPublishedApplicationDetail(applicationDetail);
                     return applicationService.save(application);
@@ -2449,6 +2492,15 @@ public class ImportApplicationServiceTests {
                                     .getNavigationSetting()
                                     .getOrientation())
                             .isEqualTo("top");
+
+                    Application.ThemeSetting themes =
+                            initialApplication.getApplicationDetail().getThemeSetting();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
                 })
                 .verifyComplete();
         // Import the same application again
@@ -2474,6 +2526,17 @@ public class ImportApplicationServiceTests {
                     assertThat(application.getPublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @NotNull private static Application.ThemeSetting getThemeSetting() {
+        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+        themeSettings.setSizing(1);
+        themeSettings.setDensity(1);
+        themeSettings.setBorderRadius("#000000");
+        themeSettings.setAccentColor("#FFFFFF");
+        themeSettings.setFontFamily("#000000");
+        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        return themeSettings;
     }
 
     /**

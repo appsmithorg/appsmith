@@ -32,6 +32,7 @@ import {
   getJSCollectionFromName,
   getCurrentJSCollections,
   getQueryModuleInstances,
+  getJSModuleInstancesData,
 } from "@appsmith/selectors/entitiesSelector";
 import {
   getModalDropdownList,
@@ -390,8 +391,8 @@ export function useModalDropdownList(handleClose: () => void) {
   return finalList;
 }
 
-export const getQueryInstanceIcon = (type: MODULE_TYPE): ReactNode => {
-  if (type === MODULE_TYPE.QUERY) {
+export const getModuleInstanceIcon = (type: MODULE_TYPE): ReactNode => {
+  if (type === MODULE_TYPE.QUERY || type === MODULE_TYPE.JS) {
     return (
       <EntityIcon>
         <Icon name="module" />
@@ -408,6 +409,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   dispatch: any,
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
+  jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
 ) {
   // this function gets a list of all the queries/apis and attaches it to actionList
   getApiAndQueryOptions(
@@ -419,7 +421,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   );
 
   // this function gets a list of all the JS Objects and attaches it to actionList
-  getJSOptions(pageId, jsActions, dispatch);
+  getJSOptions(pageId, jsActions, dispatch, jsModuleInstances);
 
   return actionList;
 }
@@ -498,7 +500,7 @@ function getApiAndQueryOptions(
         id: instance.config.id,
         value: instance.config.name,
         type: queryOptions.value,
-        icon: getQueryInstanceIcon(instance.config.type),
+        icon: getModuleInstanceIcon(instance.config.type),
       } as TreeDropdownOption);
     });
   }
@@ -508,6 +510,7 @@ export function getJSOptions(
   pageId: string,
   jsActions: Array<JSCollectionData>,
   dispatch: any,
+  jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
 ) {
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
@@ -568,6 +571,52 @@ export function getJSOptions(
         }
       }
     });
+
+    jsModuleInstances.forEach((jsModuleInstance) => {
+      if (!jsModuleInstance) return;
+      if (
+        jsModuleInstance.config.actions &&
+        jsModuleInstance.config.actions.length > 0
+      ) {
+        const jsObject = {
+          label: jsModuleInstance.name,
+          id: jsModuleInstance.config.id,
+          value: jsModuleInstance.name,
+          type: jsOption.value,
+          icon: getModuleInstanceIcon(MODULE_TYPE.JS),
+        } as unknown as TreeDropdownOption;
+
+        (jsOption.children as unknown as TreeDropdownOption[]).push(jsObject);
+
+        if (jsObject) {
+          jsObject.children = [];
+
+          jsModuleInstance.config.actions.forEach((js: JSAction) => {
+            const jsArguments = js.actionConfiguration.jsArguments;
+            const argValue: Array<any> = [];
+
+            if (jsArguments && jsArguments.length) {
+              jsArguments.forEach((arg: Variable) => {
+                argValue.push(arg.value);
+              });
+            }
+
+            const jsFunction = {
+              label: js.name,
+              id: js.id,
+              value: jsModuleInstance.config.name + "." + js.name,
+              type: jsOption.value,
+              icon: <Icon name="js-function" size="md" />,
+              args: argValue,
+            };
+            (jsObject.children as TreeDropdownOption[]).push(
+              jsFunction as unknown as TreeDropdownOption,
+            );
+          });
+          jsObject.children.sort((a, b) => a.label?.localeCompare(b.label));
+        }
+      }
+    });
   }
 }
 
@@ -583,6 +632,7 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const queryModuleInstances = useSelector(
     getQueryModuleInstances,
   ) as unknown as ModuleInstanceDataState;
+  const jsModuleInstancesData = useSelector(getJSModuleInstancesData);
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
@@ -593,5 +643,6 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     dispatch,
     handleClose,
     queryModuleInstances,
+    jsModuleInstancesData,
   );
 }
