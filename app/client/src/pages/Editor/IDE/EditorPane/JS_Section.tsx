@@ -57,27 +57,21 @@ const JSSection = () => {
     <JSContainer
       className="ide-pages-pane__content-js"
       flexDirection="column"
-      gap="spaces-3"
       overflow="hidden"
-      padding="spaces-3"
     >
-      {JSObjects && JSObjects.length > 0 && canCreateActions && (
-        <Button
-          kind={"secondary"}
-          onClick={addButtonClickHandler}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
-          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
-        </Button>
-      )}
       <FilesContextProvider
         canCreateActions={canCreateActions}
         editorId={applicationId}
         parentEntityId={pageId}
         parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
       >
-        <Flex flex="1" flexDirection="column" gap="spaces-2" overflow="scroll">
+        <Flex
+          flex="1"
+          flexDirection="column"
+          gap="spaces-2"
+          overflow="scroll"
+          padding="spaces-3"
+        >
           {JSObjects &&
             JSObjects.map((JSobject) => {
               return (
@@ -107,6 +101,16 @@ const JSSection = () => {
           icon={"js-square-v3"}
           onClick={canCreateActions ? addButtonClickHandler : undefined}
         />
+      )}
+      {JSObjects && JSObjects.length > 0 && canCreateActions && (
+        <Button
+          kind={"secondary"}
+          onClick={addButtonClickHandler}
+          size={"sm"}
+          startIcon={"add-line"}
+        >
+          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
+        </Button>
       )}
     </JSContainer>
   );
