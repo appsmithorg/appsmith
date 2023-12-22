@@ -1,4 +1,4 @@
-package com.appsmith.server.packages.publish;
+package com.appsmith.server.publish.packages.internal;
 
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;

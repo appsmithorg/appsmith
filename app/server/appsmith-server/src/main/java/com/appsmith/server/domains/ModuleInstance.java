@@ -22,9 +22,10 @@ public class ModuleInstance extends BranchAwareDomain {
     @JsonView(Views.Export.class)
     String moduleUUID; // this refers to the `moduleUUID` field of the Module domain
 
-    // TODO: Figure out if we really need `sourceModuleId`
+    // This is the id of the original published module from where it is derived
+    // This will change from version to version
     @JsonView(Views.Public.class)
-    String sourceModuleId; // this is the id of the original module from where it's derived
+    String sourceModuleId;
 
     @JsonView(Views.Public.class)
     ModuleType type;
@@ -33,10 +34,20 @@ public class ModuleInstance extends BranchAwareDomain {
     String applicationId;
 
     // TODO: Identify if there is any use case of workspaceId. If there is any use case found then we should add
-    // `workspaceId` field here otherwise we should remove `workspaceId` from other entities too to achieve uniformity
+    //  `workspaceId` field here otherwise we should remove `workspaceId` from other entities too to achieve uniformity
 
     @JsonView(Views.Public.class)
     String rootModuleInstanceId;
+
+    // Every root module instance will point to a module that it was sources from.
+    // This is what allows us to trace every instance back to its source
+    @JsonView(Views.Internal.class)
+    String originModuleId;
+
+    // This field is only applicable for composite module instances
+    // This is what allows us to trace every composite instance back to its source
+    @JsonView(Views.Internal.class)
+    String originModuleInstanceId;
 
     @JsonView(Views.Public.class)
     ModuleInstanceDTO unpublishedModuleInstance;
@@ -48,6 +59,8 @@ public class ModuleInstance extends BranchAwareDomain {
     public void sanitiseToExportDBObject() {
         this.setApplicationId(null);
         this.setSourceModuleId(null);
+        this.setOriginModuleId(null);
+        this.setOriginModuleInstanceId(null);
         ModuleInstanceDTO unpublishedModuleInstance = this.getUnpublishedModuleInstance();
         if (unpublishedModuleInstance != null) {
             unpublishedModuleInstance.sanitiseForExport();

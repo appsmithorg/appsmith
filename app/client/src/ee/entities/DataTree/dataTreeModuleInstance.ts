@@ -164,7 +164,10 @@ export const generateJSModuleInstance = (
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      bindingPaths[`${action.name}.data`] =
+        EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
+      dynamicBindingPathList.push({ key: `${action.name}.data` });
       actionsData[action.name] = {
         data: `{{${publicJSObject.config.name}.${action.name}.data}}`,
       };

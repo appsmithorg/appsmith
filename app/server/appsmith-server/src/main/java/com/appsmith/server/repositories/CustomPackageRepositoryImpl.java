@@ -42,7 +42,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                         return Flux.empty();
                     }
                     List<Criteria> allCriteria = allTuple2s.stream()
-                            .map(tuple2 -> Criteria.where(fieldName(QPackage.package$.srcPackageId))
+                            .map(tuple2 -> Criteria.where(fieldName(QPackage.package$.sourcePackageId))
                                     .is(tuple2.getT1())
                                     .and(fieldName(QPackage.package$.version))
                                     .is(tuple2.getT2()))
@@ -55,7 +55,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     }
 
     @NotNull private Flux<Package> findAllSourcePackages(String workspaceId, Optional<AclPermission> permission) {
-        Criteria sourcePackageCriteria = Criteria.where(fieldName(QPackage.package$.srcPackageId))
+        Criteria sourcePackageCriteria = Criteria.where(fieldName(QPackage.package$.sourcePackageId))
                 .is(null)
                 .and(fieldName(QPackage.package$.lastPublishedAt))
                 .ne(null)

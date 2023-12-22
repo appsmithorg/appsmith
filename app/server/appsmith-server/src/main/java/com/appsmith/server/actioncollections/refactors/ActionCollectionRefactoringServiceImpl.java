@@ -48,7 +48,7 @@ public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefa
     @Override
     public Flux<RefactorEntityNameDTO> getRefactorDTOsForExistingEntityNames(
             String contextId, CreatorContextType contextType, String layoutId) {
-        return this.getExistingEntities(contextId, contextType, layoutId)
+        return this.getExistingEntities(contextId, contextType, layoutId, true)
                 .map(actionCollectionDTO -> {
                     RefactorEntityNameDTO dto = new RefactorEntityNameDTO();
                     dto.setOldName(actionCollectionDTO.getName());
@@ -64,15 +64,15 @@ public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefa
     // TODO: This should be coming from CE regardless of the contextType
     @Override
     protected Flux<ActionCollectionDTO> getExistingEntities(
-            String contextId, CreatorContextType contextType, String layoutId) {
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         if (isModuleContext(contextType)) {
             return actionCollectionService
                     .findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
-                            contextId, contextType, AclPermission.MANAGE_ACTIONS, false)
+                            contextId, contextType, AclPermission.MANAGE_ACTIONS, viewMode)
                     .flatMap(actionCollection ->
-                            actionCollectionService.generateActionCollectionByViewMode(actionCollection, false));
+                            actionCollectionService.generateActionCollectionByViewMode(actionCollection, viewMode));
         } else {
-            return super.getExistingEntities(contextId, contextType, layoutId);
+            return super.getExistingEntities(contextId, contextType, layoutId, viewMode);
         }
     }
 }

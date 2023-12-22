@@ -42,8 +42,8 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
-import com.appsmith.server.packages.publish.PublishPackageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
@@ -451,7 +451,7 @@ public class RefactoringServiceEETest {
 
         Mockito.doReturn(Flux.just("testModuleInstance"))
                 .when(moduleInstanceRefactoringService)
-                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.eq(false));
 
         Mono<Boolean> nameAllowedMono = refactoringService.isNameAllowed(
                 pageDTO.getId(),

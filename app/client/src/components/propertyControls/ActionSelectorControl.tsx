@@ -16,7 +16,8 @@ import {
 import { canTranslateToUI, getActionBlocks } from "@shared/ast";
 import {
   getActions,
-  getJSCollections,
+  getAllJSCollections,
+  getJSModuleInstancesData,
   getModuleInstances,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
@@ -97,20 +98,19 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     return "ACTION_SELECTOR";
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+  static canDisplayValueInUI(_: ControlData, value: any): boolean {
     const state = store.getState();
     const actions = getActions(state);
-    const jsActions = getJSCollections(state);
+    const jsCollections = getAllJSCollections(state);
     const codeFromProperty = getCodeFromMoustache(value?.trim() || "");
     const evaluationVersion = selectEvaluationVersion(state);
     const moduleInstances = getModuleInstances(state);
     const queryModuleInstances = [] as ModuleInstanceDataState;
+    const jsModuleInstances = getJSModuleInstancesData(state);
 
     if (!!moduleInstances) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const [key, value] of Object.entries(moduleInstances)) {
-        const instance = value as ModuleInstance;
+      for (const moduleInstance of Object.values(moduleInstances)) {
+        const instance = moduleInstance as ModuleInstance;
         if (instance.type === MODULE_TYPE.QUERY) {
           queryModuleInstances.push({
             config: instance,
@@ -130,9 +130,9 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       actionsArray.push(action.config.name + ".clear");
     });
 
-    jsActions.forEach((jsAction) =>
-      jsAction.config.actions.forEach((action) => {
-        jsActionsArray.push(jsAction.config.name + "." + action.name);
+    jsCollections.forEach((jsCollection) =>
+      jsCollection.config.actions.forEach((action) => {
+        jsActionsArray.push(jsCollection.config.name + "." + action.name);
       }),
     );
 
@@ -156,7 +156,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       pageId,
       pluginGroups,
       actions,
-      jsActions,
+      jsCollections,
       () => {
         return;
       },
@@ -164,6 +164,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
         return;
       },
       queryModuleInstances,
+      jsModuleInstances,
     );
 
     try {

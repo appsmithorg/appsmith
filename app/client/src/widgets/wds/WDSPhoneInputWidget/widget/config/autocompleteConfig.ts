@@ -17,6 +17,7 @@ export const autocompleteConfig = {
   isValid: "bool",
   isVisible: DefaultAutocompleteDefinitions.isVisible,
   isDisabled: "bool",
+  isReadOnly: "bool",
   countryCode: {
     "!type": "string",
     "!doc": "Selected country code for Phone Number",

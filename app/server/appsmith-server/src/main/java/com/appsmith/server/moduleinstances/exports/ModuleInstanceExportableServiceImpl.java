@@ -65,10 +65,10 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
         Flux<ModuleInstance> moduleInstanceFlux =
                 crudModuleInstanceService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
 
-        final Set<String> sourceModuleIdsSet = ConcurrentHashMap.newKeySet();
+        final Set<String> refModuleIdsSet = ConcurrentHashMap.newKeySet();
 
         Mono<Void> updateModulesListMono = crudModuleService
-                .findUniqueReferencesByIds(sourceModuleIdsSet, Optional.empty())
+                .findUniqueReferencesByIds(refModuleIdsSet, Optional.empty())
                 .map(ExportableModule::new)
                 .collectList()
                 .doOnNext(modules -> {
@@ -79,7 +79,7 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                 .then();
 
         return moduleInstanceFlux
-                .doOnNext(moduleInstance -> sourceModuleIdsSet.add(moduleInstance.getSourceModuleId()))
+                .doOnNext(moduleInstance -> refModuleIdsSet.add(moduleInstance.getSourceModuleId()))
                 .collectList()
                 .map(moduleInstanceList -> {
                     mapNameToIdForExportableEntities(mappedExportableResourcesDTO, moduleInstanceList);

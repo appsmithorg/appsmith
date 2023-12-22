@@ -2385,8 +2385,8 @@ public class ImportExportApplicationServiceGACTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void discardChange_addNavigationSettingAfterImport_addedNavigationSettingRemoved() {
-        Mono<ApplicationJson> applicationJsonMono =
-                createAppJson("test_assets/ImportExportServiceTest/valid-application-without-navigation-setting.json");
+        Mono<ApplicationJson> applicationJsonMono = createAppJson(
+                "test_assets/ImportExportServiceTest/valid-application-without-navigation-theme-setting.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {

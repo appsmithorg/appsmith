@@ -107,7 +107,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Flux<ActionCollection> findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission) {
-        return repository.findAllByRootModuleInstanceIds(List.of(rootModuleInstanceId), Optional.of(permission));
+        return repository.findAllByRootModuleInstanceIds(
+                List.of(rootModuleInstanceId), Optional.ofNullable(permission));
     }
 
     @Override

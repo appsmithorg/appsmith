@@ -99,14 +99,14 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
 
     private Criteria getModuleInstanceNonExistenceCriterion() {
         Criteria nonModuleInstanceCollectionCriterion = where(
-                        fieldName(QActionCollection.actionCollection.moduleInstanceId))
+                        fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
                 .exists(false);
         return nonModuleInstanceCollectionCriterion;
     }
 
     private Criteria getModuleInstanceExistenceCriterion() {
         Criteria moduleInstanceCollectionCriterion = where(
-                        fieldName(QActionCollection.actionCollection.moduleInstanceId))
+                        fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
                 .exists(true);
         return moduleInstanceCollectionCriterion;
     }
@@ -220,6 +220,11 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         Criteria contextIdAndContextTypeCriterion =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         criteria.add(contextIdAndContextTypeCriterion);
+
+        Criteria deletedCriterion = where(
+                        completeFieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+                .is(null);
+        criteria.add(deletedCriterion);
 
         return queryAll(criteria, optionalPermission);
     }

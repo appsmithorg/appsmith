@@ -149,7 +149,7 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
 
     @Override
     public Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
-            String contextId, CreatorContextType contextType, String rootModuleInstanceId, AclPermission permission) {
-        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.of(permission));
+            String rootModuleInstanceId, AclPermission permission) {
+        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.ofNullable(permission));
     }
 }

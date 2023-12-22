@@ -243,6 +243,8 @@ describe("generateModuleInstance", () => {
         myVar2: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        "myFun1.data": "SMART_SUBSTITUTE",
+        "myFun2.data": "SMART_SUBSTITUTE",
       },
       reactivePaths: {
         "inputs.email": "TEMPLATE",
@@ -251,6 +253,8 @@ describe("generateModuleInstance", () => {
         myVar2: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        "myFun1.data": "SMART_SUBSTITUTE",
+        "myFun2.data": "SMART_SUBSTITUTE",
       },
       publicEntityName: "JSModule1_JSObject1",
       variables: ["myVar1", "myVar2"],
@@ -268,7 +272,13 @@ describe("generateModuleInstance", () => {
           key: "myFun2",
         },
         {
+          key: "myFun2.data",
+        },
+        {
           key: "myFun1",
+        },
+        {
+          key: "myFun1.data",
         },
       ],
       dependencyMap: {

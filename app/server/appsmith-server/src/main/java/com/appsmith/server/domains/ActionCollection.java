@@ -31,4 +31,7 @@ public class ActionCollection extends ActionCollectionCE {
 
     @JsonView(Views.Public.class)
     String workflowId;
+
+    @JsonView(Views.Internal.class)
+    String originActionCollectionId;
 }

@@ -14,13 +14,12 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class JsLibInstantiatingServiceImpl implements ModuleInstantiatingService<CustomJSLib> {
+public class JsLibInstantiatingServiceImpl implements ModuleInstantiatingService<CustomJSLib, CustomJSLib> {
     private final CustomJSLibService customJSLibService;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
-        Mono<List<CustomJSLib>> sourceLibsListMono = customJSLibService.getAllJSLibsInContext(
-                moduleInstantiatingMetaDTO.getSourcePackageId(), CreatorContextType.PACKAGE, null, true);
+        Mono<List<CustomJSLib>> sourceLibsListMono = generateInstantiatedEntities(moduleInstantiatingMetaDTO);
 
         return sourceLibsListMono
                 .flatMap(toBeInstantiatedCustomJsLibs -> customJSLibService.addHiddenJSLibsToContext(
@@ -30,5 +29,11 @@ public class JsLibInstantiatingServiceImpl implements ModuleInstantiatingService
                         null,
                         false))
                 .then();
+    }
+
+    @Override
+    public Mono<List<CustomJSLib>> generateInstantiatedEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+        return customJSLibService.getAllJSLibsInContext(
+                moduleInstantiatingMetaDTO.getSourcePackageId(), CreatorContextType.PACKAGE, null, true);
     }
 }

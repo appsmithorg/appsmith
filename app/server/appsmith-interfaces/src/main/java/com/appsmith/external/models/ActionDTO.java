@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
+import java.util.Set;
 import java.util.regex.Matcher;
 
 @Getter
@@ -31,19 +32,50 @@ public class ActionDTO extends ActionCE_DTO implements Reusable {
     @JsonView(Views.Public.class)
     String moduleInstanceId;
 
+    @Transient
+    @JsonView(Views.Public.class)
+    String rootModuleInstanceId;
+
     @JsonView(Views.Public.class)
     String workflowId;
 
     @Override
-    public String getExecutableName() {
-        String executableName = super.getExecutableName();
-        if (executableName == null || !Boolean.TRUE.equals(this.isPublic)) {
-            return executableName;
+    public Set<String> getExecutableNames() {
+        Set<String> executableNames = super.getExecutableNames();
+        if (executableNames.isEmpty() || !Boolean.TRUE.equals(this.isPublic)) {
+            return executableNames;
         }
-        Matcher matcher = PatternUtils.COMPOSITE_ENTITY_PARENT_NAME_PATTERN.matcher(executableName);
+        String alternateExecutableName;
+        Matcher matcher = PatternUtils.COMPOSITE_ENTITY_PARENT_NAME_PATTERN.matcher(this.getValidName());
         if (matcher.find()) {
-            executableName = matcher.group(1);
+            alternateExecutableName = matcher.group(1);
+            if (matcher.group(3) != null) {
+                alternateExecutableName += matcher.group(3);
+            }
+            executableNames.add(alternateExecutableName);
         }
-        return executableName;
+        return executableNames;
+    }
+
+    @Override
+    public String getUserExecutableName() {
+        String userExecutableName = super.getUserExecutableName();
+        if (userExecutableName == null || !Boolean.TRUE.equals(this.isPublic)) {
+            return userExecutableName;
+        }
+
+        Matcher matcher = PatternUtils.COMPOSITE_ENTITY_PARENT_NAME_PATTERN.matcher(userExecutableName);
+        if (matcher.find()) {
+            userExecutableName = matcher.group(1);
+            if (matcher.group(3) != null) {
+                userExecutableName += matcher.group(3);
+            }
+        }
+        return userExecutableName;
+    }
+
+    @Override
+    public Boolean isOnLoadMessageAllowed() {
+        return this.getIsPublic() == null || Boolean.TRUE.equals(this.getIsPublic());
     }
 }

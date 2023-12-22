@@ -19,10 +19,7 @@ public interface LayoutModuleInstanceCECompatibleService extends BaseModuleInsta
             String branchName, String defaultModuleInstanceId, AclPermission permission);
 
     Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
-            String pageId,
-            CreatorContextType creatorContextType,
-            String rootModuleInstanceId,
-            AclPermission editPermission);
+            String rootModuleInstanceId, AclPermission editPermission);
 
     Mono<ModuleInstanceDTO> updateUnpublishedModuleInstance(
             ModuleInstanceDTO moduleInstanceDTO, String moduleInstanceId, String branchName, boolean isRefactor);
