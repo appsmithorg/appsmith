@@ -80,7 +80,7 @@ function* updateAndSaveAnvilLayoutSaga(
         updatedWidgets = {
           ...updatedWidgets,
           [each.widgetId]: {
-            ...each,
+            ...updatedWidgets[each.widgetId],
             zoneCount: each.children?.length,
           },
         };
