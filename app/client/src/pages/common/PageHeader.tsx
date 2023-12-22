@@ -26,6 +26,7 @@ import Fuse from "fuse.js";
 import {
   resetSearchEntity,
   searchEntities,
+  setFetchingApplications,
 } from "@appsmith/actions/applicationActions";
 import MainSearchBar from "./SearchBar/MainSearchBar";
 import MobileSearchBar from "./SearchBar/MobileSearchBar";
@@ -115,15 +116,6 @@ export function PageHeader(props: PageHeaderProps) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
-  const handleSearchDebounced = useCallback(
-    debounce((text: string) => {
-      if (text.trim().length !== 0) {
-        dispatch(searchEntities(text));
-      }
-    }, 1000),
-    [],
-  );
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [noSearchResults, setNoSearchResults] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -170,8 +162,19 @@ export function PageHeader(props: PageHeaderProps) {
     window.location.href = `${viewURL}`;
   }
 
+  const handleSearchDebounced = useCallback(
+    debounce((text: string) => {
+      if (text.trim().length !== 0) {
+        dispatch(searchEntities(text));
+      }
+    }, 1000),
+    [],
+  );
+
   function handleSearchInput(text: string) {
     setSearchInput(text);
+    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
+    else dispatch(setFetchingApplications(false));
     handleSearchDebounced(text);
     setSearchedPackages(fuzzy.search(text));
     setIsDropdownOpen(true);
@@ -180,6 +183,7 @@ export function PageHeader(props: PageHeaderProps) {
   function handleInputClicked() {
     if (searchInput?.trim()?.length || !noSearchResults) {
       setIsDropdownOpen(false);
+      dispatch(setFetchingApplications(false));
     }
   }
 
