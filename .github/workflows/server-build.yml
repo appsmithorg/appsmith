@@ -45,6 +45,29 @@ jobs:
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
 
+      
+      
+      - name: Check out merged commit from PR and base branch
+        uses: actions/checkout@v3
+        if: inputs.pr != 0
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+  
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Check out the head commit of the branch
+        uses: actions/checkout@v3
+        if: inputs.pr == 0 && inputs.branch == ''
+        with:
+          fetch-depth: 0
+
       - name: Put release build in cache
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
@@ -70,27 +93,6 @@ jobs:
           git add  server.jar
           git commit -m "Update Latest Server.jar"
           git push
-      
-      - name: Check out merged commit from PR and base branch
-        uses: actions/checkout@v3
-        if: inputs.pr != 0
-        with:
-          fetch-depth: 0
-          ref: refs/pull/${{ inputs.pr }}/merge
-
-      # Check out the specified branch in case this workflow is called by another workflow
-      - name: Checkout the specified branch
-        if: inputs.pr == 0 && inputs.branch != ''
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ inputs.branch }}
-  
-      # Checkout the code in the current branch in case the workflow is called because of a branch push event
-      - name: Check out the head commit of the branch
-        uses: actions/checkout@v3
-        if: inputs.pr == 0 && inputs.branch == ''
-        with:
-          fetch-depth: 0
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
