@@ -59,6 +59,6 @@ module.exports = {
     "@tag.Workspace",
     "@tag.Sanity",
     "@tag.Templates",
-    "@tag.Authentication"
+    "@tag.Authentication",
   ],
 };
