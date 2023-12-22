@@ -39,13 +39,14 @@ const ListQuery = () => {
   }, [pageId]);
 
   return (
-    <Flex
-      flexDirection="column"
-      gap="spaces-3"
-      overflow="hidden"
-      padding="spaces-3"
-    >
-      <Flex flex="1" flexDirection={"column"} gap="spaces-3" overflow="scroll">
+    <Flex flexDirection="column" overflow="hidden">
+      <Flex
+        flex="1"
+        flexDirection={"column"}
+        gap="spaces-3"
+        overflow="scroll"
+        padding="spaces-3"
+      >
         {Object.keys(files).map((key) => {
           return (
             <Flex flexDirection={"column"} gap="spaces-2" key={key}>
@@ -94,14 +95,16 @@ const ListQuery = () => {
         </Flex>
       )}
       {canCreateActions && (
-        <Button
-          kind={"secondary"}
-          onClick={addButtonClickHandler}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
-          {createMessage(PAGES_PANE_TEXTS.query_add_button)}
-        </Button>
+        <Flex flexDirection="column" padding="spaces-3">
+          <Button
+            kind={"secondary"}
+            onClick={addButtonClickHandler}
+            size={"sm"}
+            startIcon={"add-line"}
+          >
+            {createMessage(PAGES_PANE_TEXTS.query_add_button)}
+          </Button>
+        </Flex>
       )}
     </Flex>
   );

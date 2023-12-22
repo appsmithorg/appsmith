@@ -66,7 +66,7 @@ const GlobalAdd = () => {
     dispatch(createNewJSCollection(pageId, "ADD_PANE"));
   }, [pageId]);
   return (
-    <Flex width={"256px"}>
+    <Flex flexDirection={"column"} width={"256px"}>
       <Flex
         border-bottom={"1px solid var(--ads-v2-color-border)"}
         flexDirection={"column"}
