@@ -289,6 +289,7 @@ export class HomePage {
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
+    this.agHelper.GetNClick(this._newButtonCreateApplication);
     this.AssertApplicationCreated();
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.agHelper.Sleep(2000);
