@@ -179,7 +179,8 @@ export function PageHeader(props: PageHeaderProps) {
 
   function handleInputClicked() {
     if (searchInput?.trim()?.length || !noSearchResults) {
-      setIsDropdownOpen(false);
+      dispatch(searchEntities(searchInput));
+      setIsDropdownOpen(true);
     }
   }
 
@@ -205,6 +206,23 @@ export function PageHeader(props: PageHeaderProps) {
     }
   }, [isDropdownOpen]);
 
+  const searchBarProps = {
+    applicationsList,
+    canShowSearchDropdown,
+    handleInputClicked,
+    handleSearchInput,
+    isDropdownOpen,
+    isFetchingApplications,
+    isFetchingEntities,
+    navigateToApplication,
+    noSearchResults,
+    searchListContainerRef,
+    searchedPackages,
+    setIsDropdownOpen,
+    setShowMobileSearchBar,
+    workspacesList,
+  };
+
   return (
     <>
       <Banner />
@@ -216,22 +234,7 @@ export function PageHeader(props: PageHeaderProps) {
           isMobile={isMobile}
           showSeparator={props.showSeparator || false}
         >
-          <MobileSearchBar
-            applicationsList={applicationsList}
-            canShowSearchDropdown={canShowSearchDropdown}
-            handleInputClicked={handleInputClicked}
-            handleSearchInput={handleSearchInput}
-            isDropdownOpen={isDropdownOpen}
-            isFetchingApplications={isFetchingApplications}
-            isFetchingEntities={isFetchingEntities}
-            navigateToApplication={navigateToApplication}
-            noSearchResults={noSearchResults}
-            searchListContainerRef={searchListContainerRef}
-            searchedPackages={searchedPackages}
-            setIsDropdownOpen={setIsDropdownOpen}
-            setShowMobileSearchBar={setShowMobileSearchBar}
-            workspacesList={workspacesList}
-          />
+          <MobileSearchBar {...searchBarProps} />
         </StyledPageHeader>
       ) : (
         <StyledPageHeader
@@ -242,23 +245,10 @@ export function PageHeader(props: PageHeaderProps) {
           showSeparator={props.showSeparator || false}
         >
           <MainSearchBar
-            applicationsList={applicationsList}
-            canShowSearchDropdown={canShowSearchDropdown}
-            handleInputClicked={handleInputClicked}
-            handleSearchInput={handleSearchInput}
-            isDropdownOpen={isDropdownOpen}
-            isFetchingApplications={isFetchingApplications}
-            isFetchingEntities={isFetchingEntities}
-            navigateToApplication={navigateToApplication}
-            noSearchResults={noSearchResults}
+            {...searchBarProps}
             searchInput={searchInput}
             searchInputRef={searchInputRef}
-            searchListContainerRef={searchListContainerRef}
-            searchedPackages={searchedPackages}
-            setIsDropdownOpen={setIsDropdownOpen}
-            setShowMobileSearchBar={setShowMobileSearchBar}
             user={user}
-            workspacesList={workspacesList}
           />
         </StyledPageHeader>
       )}
