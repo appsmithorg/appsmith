@@ -1484,9 +1484,9 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us about your primary skillset";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
-  "What are you planning to use Appsmith for?";
+  "What would you like to use Appsmith for?";
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
-  "How would you rate your development proficiency?";
+  "What is your general development proficiency?";
 
 export const WELCOME_FORM_ROLE_ERROR_MESSAGE = () => "Please enter a role";
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
@@ -1721,6 +1721,7 @@ export const COULDNT_FIND_TEMPLATE = () =>
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "Submit suggestions for templates you'd like to see or upvote requests raised by others and our team will work on it.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
+export const REQUEST_BUILDING_BLOCK = () => "Request a building block";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
@@ -2316,3 +2317,4 @@ export const PARTIAL_IMPORT_EXPORT = {
 };
 
 export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
+export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;

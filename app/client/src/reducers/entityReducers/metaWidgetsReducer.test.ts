@@ -1,5 +1,7 @@
 import type { MetaWidgetsReduxState } from "./metaWidgetsReducer";
-import reducer from "./metaWidgetsReducer";
+import reducer, {
+  initialState as reducerInitialState,
+} from "./metaWidgetsReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { metaWidgetState } from "utils/metaWidgetState";
 import { nestedMetaWidgetInitialState } from "./testData/metaWidgetReducer";
@@ -419,5 +421,28 @@ describe("meta widget reducer test", () => {
         },
       }),
     ).toEqual(modifiedState);
+  });
+
+  it("should reset to initial state on RESET_EDITOR_REQUEST", () => {
+    const initialState = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "orange",
+          games: {
+            ball: ["football"],
+          },
+        },
+      },
+    };
+
+    const result = reducer(initialState, {
+      type: ReduxActionTypes.RESET_EDITOR_REQUEST,
+      payload: undefined,
+    });
+
+    expect(result).toStrictEqual(reducerInitialState);
   });
 });
