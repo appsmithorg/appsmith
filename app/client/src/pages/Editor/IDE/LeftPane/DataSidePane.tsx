@@ -120,6 +120,7 @@ const DataSidePane = () => {
       <PaneBody>
         {datasources.length === 0 ? (
           <EmptyState
+            buttonClassName={"t--add-datasource-button-blank-screen"}
             buttonText={"Bring your data"}
             description={createMessage(DATASOURCE_LIST_BLANK_DESCRIPTION)}
             icon={"datasource-v3"}

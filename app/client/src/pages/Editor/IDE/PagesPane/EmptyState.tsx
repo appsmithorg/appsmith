@@ -6,9 +6,11 @@ interface EmptyStateProps {
   description: string;
   buttonText: string;
   onClick?: () => void;
+  buttonClassName?: string;
 }
 
 const EmptyState = ({
+  buttonClassName,
   buttonText,
   description,
   icon,
@@ -42,7 +44,12 @@ const EmptyState = ({
         {description}
       </Text>
       {onClick && (
-        <Button kind={"primary"} onClick={onClick} size={"sm"}>
+        <Button
+          className={buttonClassName}
+          kind={"primary"}
+          onClick={onClick}
+          size={"sm"}
+        >
           {buttonText}
         </Button>
       )}
