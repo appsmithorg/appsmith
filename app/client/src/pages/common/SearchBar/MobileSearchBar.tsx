@@ -6,6 +6,8 @@ import React from "react";
 import styled from "styled-components";
 import { getApplicationIcon } from "utils/AppsmithUtils";
 import { Size, type AppIconName, AppIcon } from "design-system-old";
+import history from "utils/history";
+import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 
 const SearchListContainer = styled.div`
   width: 100%;
@@ -174,7 +176,12 @@ function MobileSearchBar(props: any) {
                     Packages
                   </Text>
                   {searchedPackages.map((pkg: any) => (
-                    <SearchListItem key={pkg.id}>
+                    <SearchListItem
+                      key={pkg.id}
+                      onClick={() =>
+                        history.push(`${BASE_PACKAGE_EDITOR_PATH}/${pkg.id}`)
+                      }
+                    >
                       <Icon
                         className="!mr-2"
                         color="var(--ads-v2-color-fg)"

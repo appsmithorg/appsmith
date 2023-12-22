@@ -24,6 +24,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { get } from "lodash";
+import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 
 const HeaderSection = styled.div`
   display: flex;
@@ -272,7 +273,14 @@ function MainSearchBar(props: any) {
                           Packages
                         </Text>
                         {searchedPackages.map((pkg: any) => (
-                          <SearchListItem key={pkg.id}>
+                          <SearchListItem
+                            key={pkg.id}
+                            onClick={() =>
+                              history.push(
+                                `${BASE_PACKAGE_EDITOR_PATH}/${pkg.id}`,
+                              )
+                            }
+                          >
                             <Icon
                               className="!mr-2"
                               color="var(--ads-v2-color-fg)"
