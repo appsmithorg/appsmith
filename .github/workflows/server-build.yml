@@ -94,7 +94,7 @@ jobs:
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         run: |
           pwd
-          touch server.jar
+          touch server1.jar
           mkdir cacherepo
           cd ./cacherepo
           git config --global user.email "$gituseremail"
@@ -105,9 +105,9 @@ jobs:
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
           cd $repodir/release/server
-          cp ../../../../../server.jar ./
-          git lfs track "server.jar"
-          git add  server.jar
+          cp ../../../../../server1.jar ./
+          git lfs track "server1.jar"
+          git add  server1.jar
           git commit -m "Update Latest Server.jar"
           git push
 
