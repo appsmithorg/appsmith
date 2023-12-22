@@ -1,5 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import reducer from "./canvasWidgetsReducer";
+import reducer, {
+  initialState as reducerInitialState,
+} from "./canvasWidgetsReducer";
 
 describe("Canvas Widgets Reducer", () => {
   it("should return the initial state", () => {
@@ -143,5 +145,28 @@ describe("Canvas Widgets Reducer", () => {
 
     // Reference equality check using toBe
     expect(result).toBe(initialState.xyz123.someValue.games);
+  });
+
+  it("should reset to initial state on RESET_EDITOR_REQUEST", () => {
+    const initialState = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "orange",
+          games: {
+            ball: ["football"],
+          },
+        },
+      },
+    };
+
+    const result = reducer(initialState, {
+      type: ReduxActionTypes.RESET_EDITOR_REQUEST,
+      payload: undefined,
+    });
+
+    expect(result).toStrictEqual(reducerInitialState);
   });
 });

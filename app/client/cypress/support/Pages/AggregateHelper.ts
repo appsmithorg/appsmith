@@ -517,6 +517,13 @@ export class AggregateHelper {
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
   }
 
+  public WaitForCondition(conditionFn: any) {
+    cy.waitUntil(() => conditionFn, {
+      timeout: Cypress.config("pageLoadTimeout"),
+      interval: 1000,
+    });
+  }
+
   public AssertNetworkDataSuccess(aliasName: string, expectedRes = true) {
     cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
     cy.get(aliasName)
@@ -1570,10 +1577,11 @@ export class AggregateHelper {
     exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
+    let timeout = Cypress.config().pageLoadTimeout;
     if (selector) {
-      return cy.contains(selector, text).should(exists);
+      return cy.contains(selector, text, { timeout }).should(exists);
     }
-    return cy.contains(text).should(exists);
+    return cy.contains(text, { timeout }).should(exists);
   }
 
   public GetNAssertContains(

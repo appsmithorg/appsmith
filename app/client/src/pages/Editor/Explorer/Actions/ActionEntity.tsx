@@ -3,11 +3,9 @@ import { useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history, { NavigationMethod } from "utils/history";
-import { saveActionName } from "actions/pluginActionActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getAction,
   getDatasource,
@@ -26,9 +24,15 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
-const getUpdateActionNameReduxAction = (id: string, name: string) => {
-  return saveActionName({ id, name });
+const getUpdateActionNameReduxAction = (
+  id: string,
+  name: string,
+  parentEntityType: ActionParentEntityTypeInterface,
+) => {
+  return saveActionNameBasedOnParentEntity(id, name, parentEntityType);
 };
 
 interface ExplorerActionEntityProps {
@@ -37,10 +41,11 @@ interface ExplorerActionEntityProps {
   id: string;
   type: PluginType;
   isActive: boolean;
+  parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
 }
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
-  const pageId = useSelector(getCurrentPageId);
   const action = useSelector((state) => getAction(state, props.id)) as Action;
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -51,7 +56,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const config = getActionConfig(props.type);
   const url = config?.getURL(
-    pageId,
+    props.parentEntityId,
     action.id,
     action.pluginType,
     pluginGroups[action.pluginId],
@@ -99,7 +104,6 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       className={EntityClassNames.CONTEXT_MENU}
       id={action.id}
       name={action.name}
-      pageId={pageId}
     />
   );
   return (
@@ -115,7 +119,9 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       name={action.name}
       searchKeyword={props.searchKeyword}
       step={props.step}
-      updateEntityName={getUpdateActionNameReduxAction}
+      updateEntityName={(id, name) =>
+        getUpdateActionNameReduxAction(id, name, props.parentEntityType)
+      }
     />
   );
 });

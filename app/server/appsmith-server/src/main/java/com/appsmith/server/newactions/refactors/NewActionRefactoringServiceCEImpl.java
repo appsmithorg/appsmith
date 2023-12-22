@@ -39,7 +39,7 @@ import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_ACTION;
 @RequiredArgsConstructor
 public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServiceCE<NewAction> {
 
-    private final NewActionService newActionService;
+    protected final NewActionService newActionService;
     private final ActionPermission actionPermission;
     private final AstService astService;
     private final InstanceConfig instanceConfig;

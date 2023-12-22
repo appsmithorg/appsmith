@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.CommunityTemplateDTO;
+import com.appsmith.server.dtos.TemplateDTO;
 import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -81,16 +81,16 @@ public class ApplicationTemplateServiceTest {
         Workspace savedWorkspace = workspaceService.create(workspace).block();
 
         Application testApp = setUpTestApplicationForWorkspace(savedWorkspace.getId());
-        CommunityTemplateDTO communityTemplateDTO = new CommunityTemplateDTO();
-        communityTemplateDTO.setApplicationId(testApp.getId());
-        communityTemplateDTO.setWorkspaceId(testApp.getWorkspaceId());
-        communityTemplateDTO.setTitle("Some title");
-        communityTemplateDTO.setHeadline("Some headline");
-        communityTemplateDTO.setDescription("Some description");
-        communityTemplateDTO.setUseCases(List.of("uc1", "uc2"));
-        communityTemplateDTO.setAuthorEmail("test@user.com");
+        TemplateDTO templateDTO = new TemplateDTO();
+        templateDTO.setApplicationId(testApp.getId());
+        templateDTO.setWorkspaceId(testApp.getWorkspaceId());
+        templateDTO.setTitle("Some title");
+        templateDTO.setHeadline("Some headline");
+        templateDTO.setDescription("Some description");
+        templateDTO.setUseCases(List.of("uc1", "uc2"));
+        templateDTO.setAuthorEmail("test@user.com");
 
-        StepVerifier.create(applicationTemplateService.publishAsCommunityTemplate(communityTemplateDTO))
+        StepVerifier.create(applicationTemplateService.publishAsCommunityTemplate(templateDTO))
                 .assertNext(updatedApplication -> {
                     assertThat(updatedApplication.getIsCommunityTemplate()).isTrue();
                     assertThat(updatedApplication.getForkingEnabled()).isTrue();

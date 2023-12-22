@@ -6,7 +6,7 @@ export const defaultsConfig = {
   columns: 20,
   animateLoading: true,
   label: "Label",
-  labelPosition: "left",
+  labelPosition: "right",
   options: [
     { label: "Yes", value: "Y" },
     { label: "No", value: "N" },

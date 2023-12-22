@@ -16,7 +16,6 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
 import {
@@ -131,7 +130,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       flexShrink: isFillWidget ? 1 : 0,
       flexBasis: isFillWidget ? "0%" : "auto",
       height: "auto",
-      padding: WIDGET_PADDING + "px",
+      padding: "spacing-1",
       width: "auto",
     };
     if (props?.widgetSize) {

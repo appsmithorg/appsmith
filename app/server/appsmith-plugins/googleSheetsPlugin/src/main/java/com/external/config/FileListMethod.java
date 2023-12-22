@@ -40,7 +40,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(
                 this.BASE_DRIVE_API_URL,
-                "?q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse",
+                "?orderBy=name&q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse",
                 true);
 
         return webClient

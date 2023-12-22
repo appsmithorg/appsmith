@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
-describe("Tab widget test", function () {
+describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
   const tabname = "UpdatedTab";
   before(() => {
     agHelper.AddDsl("tabdsl");
