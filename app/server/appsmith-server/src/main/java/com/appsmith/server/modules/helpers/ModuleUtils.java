@@ -1,9 +1,12 @@
 package com.appsmith.server.modules.helpers;
 
+import com.appsmith.server.dtos.ModuleDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.Iterator;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ModuleUtils {
     public static final String MODULE_ENTITY_NAME_SEPARATOR_PREFIX = "_$";
@@ -40,5 +43,15 @@ public class ModuleUtils {
 
     public static String getValidName(String rootName, String currentFQN) {
         return MODULE_ENTITY_NAME_SEPARATOR_PREFIX + rootName + MODULE_ENTITY_NAME_SEPARATOR_SUFFIX + currentFQN;
+    }
+
+    public static Map<String, String> transformModuleInputsToModuleInstance(ModuleDTO moduleDTO) {
+        if (moduleDTO.getInputsForm() == null || moduleDTO.getInputsForm().isEmpty()) {
+            return Map.of();
+        }
+        return moduleDTO.getInputsForm().get(0).getChildren().stream()
+                .collect(Collectors.toMap(
+                        moduleInput -> moduleInput.getLabel(), // `label` is supposed to be unique
+                        moduleInput -> moduleInput.getDefaultValue()));
     }
 }

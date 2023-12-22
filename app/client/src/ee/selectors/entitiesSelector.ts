@@ -125,6 +125,7 @@ export const selectFilesForExplorer = createSelector(
           entity: {
             id: file.entity?.id,
             name: file.entity?.name,
+            isMainJSCollection: file.entity?.config?.isMainJSCollection,
           },
         });
         return acc;
@@ -261,6 +262,7 @@ export const selectFilesForPackageExplorer = createSelector(
           entity: {
             id: file.entity.config.id,
             name: file.entity.config.name,
+            isMainJSCollection: file.entity?.config?.isMainJSCollection,
           },
         });
         return acc;

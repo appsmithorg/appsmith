@@ -10,4 +10,5 @@ import java.util.List;
 public class PackageDetailsDTO {
     PackageDTO packageData;
     List<ModuleDTO> modules;
+    List<ModuleMetadata> modulesMetadata;
 }

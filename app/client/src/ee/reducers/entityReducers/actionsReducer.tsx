@@ -5,7 +5,6 @@ import { handlers as CE_handlers } from "ce/reducers/entityReducers/actionsReduc
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ActionDataState } from "ce/reducers/entityReducers/actionsReducer";
 import type { Action } from "entities/Action";
-import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
 import type { FetchModuleEntitiesResponse } from "@appsmith/api/ModuleApi";
 
@@ -25,19 +24,6 @@ const handlers = {
     });
 
     return result;
-  },
-  [ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS]: (
-    draftMetaState: ActionDataState,
-    action: ReduxAction<Module>,
-  ) => {
-    const { id, name } = action.payload;
-    draftMetaState.forEach((a) => {
-      if (a.config.moduleId === id && a.config.isPublic) {
-        a.config.name = name;
-      }
-    });
-
-    return draftMetaState;
   },
   [ReduxActionTypes.DELETE_QUERY_MODULE_SUCCESS]: (
     draftMetaState: ActionDataState,

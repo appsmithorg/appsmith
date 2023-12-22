@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
@@ -53,4 +54,11 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
     Mono<List<BulkWriteResult>> publishActionsForCollection(String actionCollectionId, AclPermission aclPermission);
 
     Flux<NewAction> findAllByCollectionIds(List<String> collectionIds, List<String> includeFields, boolean viewMode);
+
+    Flux<NewAction> findAllModuleInstanceEntitiesByContextAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            Optional<AclPermission> optionalPermission,
+            boolean viewMode,
+            boolean includeJs);
 }

@@ -1,6 +1,8 @@
 package com.appsmith.server.actioncollections.base;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
@@ -24,4 +26,9 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
     Mono<List<ActionCollection>> publishActionCollectionsForWorkflow(String workflowId, AclPermission aclPermission);
 
     Flux<ActionCollectionViewDTO> getActionCollectionsForViewModeForWorkflow(String workflowId, String branchName);
+
+    Flux<ActionCollection> getAllModuleInstanceCollectionsInContext(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
+
+    Mono<ActionCollectionDTO> getPublicActionCollection(String moduleId, ResourceModes resourceMode);
 }

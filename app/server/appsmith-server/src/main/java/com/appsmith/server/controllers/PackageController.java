@@ -7,7 +7,7 @@ import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.packages.crud.CrudPackageService;
-import com.appsmith.server.packages.publish.PublishPackageService;
+import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;

@@ -15,6 +15,8 @@ import type { PaginationField } from "api/ActionAPI";
 import { runAction } from "actions/pluginActionActions";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 import Loader from "./Loader";
+import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 interface ModuleApiEditorRouteParams {
   packageId: string;
@@ -44,18 +46,25 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
     );
   }, []);
 
-  const onSaveModuleName = useCallback(
+  const onSaveName = useCallback(
     ({ name }: SaveModuleNamePayload) => {
-      return saveModuleName({
-        id: module?.id || "",
-        name,
-      });
+      const isPublicEntity = action?.isPublic;
+      return isPublicEntity
+        ? saveModuleName({
+            id: moduleId,
+            name,
+          })
+        : saveActionNameBasedOnParentEntity(
+            apiId,
+            name,
+            ACTION_PARENT_ENTITY_TYPE.PACKAGE,
+          );
     },
-    [module?.id],
+    [moduleId, action?.isPublic, apiId],
   );
 
   const actionRightPaneAdditionSections = useMemo(() => {
-    if (!module?.inputsForm) {
+    if (!module?.inputsForm || !action?.isPublic) {
       return null;
     }
 
@@ -65,7 +74,7 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
         moduleId={module?.id}
       />
     );
-  }, [[module?.id, module?.inputsForm]]);
+  }, [[module?.id, module?.inputsForm, action?.isPublic]]);
 
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
@@ -84,7 +93,7 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
       handleDeleteClick={noop}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
-      saveActionName={onSaveModuleName}
+      saveActionName={onSaveName}
       settingsConfig={module?.settingsForm}
       showRightPaneTabbedSection={false}
     >

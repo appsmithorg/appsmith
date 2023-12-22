@@ -7,6 +7,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
@@ -14,6 +15,7 @@ import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.moduleinstantiation.JSActionType;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
+import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.solutions.ActionPermission;
@@ -33,15 +35,44 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleInstantiatingService<ActionCollection> {
+public class ActionCollectionModuleInstantiatingServiceImpl
+        implements ModuleInstantiatingService<ActionCollection, ActionCollection> {
     private final ActionCollectionRepository actionCollectionRepository;
-    private final ModuleInstantiatingService<JSActionType> jsActionInstantiatingService;
+    private final ModuleInstantiatingService<JSActionType, NewAction> jsActionInstantiatingService;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
     private final RefactoringService refactoringService;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+        return createCollectionsToInstantiate(moduleInstantiatingMetaDTO).flatMap(newCollectionIdToNewCollectionMap -> {
+            return jsActionInstantiatingService
+                    .instantiateEntities(moduleInstantiatingMetaDTO)
+                    .then(Mono.defer(() -> {
+                        // Update the `defaultToBranchedActionIdsMap` field for the instantiated
+                        // actionCollection
+                        for (Map.Entry<String, ActionCollection> entry : newCollectionIdToNewCollectionMap.entrySet()) {
+                            ActionCollection toBeInstantiatedActionCollection = entry.getValue();
+                            List<String> newActionIds = moduleInstantiatingMetaDTO
+                                    .getNewCollectionIdToNewActionIdsMap()
+                                    .getOrDefault(entry.getKey(), new ArrayList<>());
+
+                            Map<String, String> defaultToBranchedActionIdsMap = newActionIds.stream()
+                                    .collect(Collectors.toMap(newActionId -> newActionId, newActionId -> newActionId));
+                            toBeInstantiatedActionCollection
+                                    .getUnpublishedCollection()
+                                    .setDefaultToBranchedActionIdsMap(defaultToBranchedActionIdsMap);
+                        }
+                        return actionCollectionRepository
+                                .saveAll(newCollectionIdToNewCollectionMap.values())
+                                .collectList();
+                    }))
+                    .then();
+        });
+    }
+
+    private Mono<Map<String, ActionCollection>> createCollectionsToInstantiate(
+            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         Flux<ActionCollection> actionCollectionFlux =
                 actionCollectionRepository.findAllPublishedActionCollectionsByContextIdAndContextType(
                         moduleInstantiatingMetaDTO.getSourceModuleId(),
@@ -61,43 +92,58 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
                             sourceActionCollections)
                     .flatMap(sourceActionCollection -> {
                         sourceCollectionIds.add(sourceActionCollection.getId());
-                        return createActionCollectionAndCollectAsMap(
+                        return generateActionCollection(
                                 moduleInstantiatingMetaDTO, sourceActionCollection, oldToNewCollectionIdMap, policies);
                     })
                     .collect(Collectors.toMap(ActionCollection::getId, Function.identity()));
 
-            return newCollectionIdToNewCollectionMapMono.flatMap(newCollectionIdToNewCollectionMap -> {
+            return newCollectionIdToNewCollectionMapMono.map(newCollectionIdToNewCollectionMap -> {
                 moduleInstantiatingMetaDTO.setSourceCollectionIds(sourceCollectionIds);
                 moduleInstantiatingMetaDTO.setOldToNewCollectionIdMap(oldToNewCollectionIdMap);
-                return jsActionInstantiatingService
-                        .instantiateEntities(moduleInstantiatingMetaDTO)
-                        .then(Mono.defer(() -> {
-                            // Update the `defaultToBranchedActionIdsMap` field for the instantiated
-                            // actionCollection
-                            for (Map.Entry<String, ActionCollection> entry :
-                                    newCollectionIdToNewCollectionMap.entrySet()) {
-                                ActionCollection toBeInstantiatedActionCollection = entry.getValue();
-                                List<String> newActionIds = moduleInstantiatingMetaDTO
-                                        .getNewCollectionIdToNewActionsMap()
-                                        .getOrDefault(entry.getKey(), new ArrayList<>());
 
-                                Map<String, String> defaultToBranchedActionIdsMap = newActionIds.stream()
-                                        .collect(Collectors.toMap(
-                                                newActionId -> newActionId, newActionId -> newActionId));
-                                toBeInstantiatedActionCollection
-                                        .getUnpublishedCollection()
-                                        .setDefaultToBranchedActionIdsMap(defaultToBranchedActionIdsMap);
-                            }
-                            return actionCollectionRepository
-                                    .saveAll(newCollectionIdToNewCollectionMap.values())
-                                    .collectList();
-                        }))
-                        .then();
+                return newCollectionIdToNewCollectionMap;
             });
         });
     }
 
-    private Mono<ActionCollection> createActionCollectionAndCollectAsMap(
+    @Override
+    public Mono<List<ActionCollection>> generateInstantiatedEntities(
+            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+        return createCollectionsToInstantiate(moduleInstantiatingMetaDTO).flatMap(newCollectionIdToNewCollectionMap -> {
+            return jsActionInstantiatingService
+                    .generateInstantiatedEntities(moduleInstantiatingMetaDTO)
+                    .map(list -> list.stream()
+                            .collect(Collectors.toMap(
+                                    newAction ->
+                                            newAction.getUnpublishedAction().getCollectionId(),
+                                    newAction -> {
+                                        ArrayList<NewAction> actionList = new ArrayList<>();
+                                        actionList.add(newAction);
+                                        return actionList;
+                                    },
+                                    (a1, a2) -> {
+                                        a1.addAll(a2);
+                                        return a1;
+                                    })))
+                    .map(collectionIdToActionsMap -> {
+                        // Update the `defaultToBranchedActionIdsMap` field for the instantiated
+                        // actionCollection
+                        for (Map.Entry<String, ActionCollection> entry : newCollectionIdToNewCollectionMap.entrySet()) {
+                            ActionCollection toBeInstantiatedActionCollection = entry.getValue();
+                            Map<String, List<NewAction>> originCollectionIdToNewActionsMap =
+                                    moduleInstantiatingMetaDTO.getOriginCollectionIdToNewActionsMap();
+
+                            originCollectionIdToNewActionsMap.put(
+                                    toBeInstantiatedActionCollection.getOriginActionCollectionId(),
+                                    collectionIdToActionsMap.get(toBeInstantiatedActionCollection.getId()));
+                        }
+                        return newCollectionIdToNewCollectionMap.values().stream()
+                                .toList();
+                    });
+        });
+    }
+
+    private Mono<ActionCollection> generateActionCollection(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,
             ActionCollection sourceActionCollection,
             Map<String, String> oldToNewCollectionIdMap,
@@ -111,6 +157,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
         ActionCollectionDTO unpublishedActionCollectionDTO =
                 toBeInstantiatedActionCollection.getUnpublishedCollection();
 
+        setModifiedName(moduleInstantiatingMetaDTO, unpublishedActionCollectionDTO);
         setContextTypeAndContextId(toBeInstantiatedActionCollection, moduleInstantiatingMetaDTO);
 
         resetIsPublicAttributeForComposedModuleInstances(toBeInstantiatedActionCollection);
@@ -127,6 +174,12 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
                 moduleInstantiatingMetaDTO, unpublishedActionCollectionDTO, toBeInstantiatedActionCollection);
 
         return actionCollectionMono;
+    }
+
+    private void setModifiedName(
+            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionCollectionDTO actionCollectionDTO) {
+        actionCollectionDTO.setName(ModuleUtils.getValidName(
+                moduleInstantiatingMetaDTO.getRootModuleInstanceName(), actionCollectionDTO.getName()));
     }
 
     private void setUnpublishedAndPublishedData(

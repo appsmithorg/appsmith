@@ -52,14 +52,6 @@ const DEFAULT_ACTIONS = [
   },
 ] as unknown as Action[];
 
-const computeInitialState = (actions: Action[]) => {
-  return actions.map((action: Action) => ({
-    data: undefined,
-    isLoading: false,
-    config: action,
-  })) as unknown as ActionDataState;
-};
-
 describe("actionsReducer", () => {
   it("should return the initial state", () => {
     const initialState: ActionDataState = [];
@@ -117,40 +109,5 @@ describe("actionsReducer", () => {
     expect(
       updatedState.some((action) => action.config.id === additionalAction.id),
     ).toBe(true);
-  });
-
-  it("only update the name of public action with SAVE_MODULE_NAME_SUCCESS", () => {
-    const initialState: ActionDataState = computeInitialState(DEFAULT_ACTIONS);
-    const payload = {
-      id: "652519c44b7c8d700a102643",
-      name: "GetUsers",
-    };
-
-    const action = {
-      type: ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS,
-      payload,
-    };
-
-    const updatedState: ActionDataState = actionsReducer(initialState, action);
-
-    const updatedAction = updatedState.find(
-      (a) => a.config.moduleId === payload.id && a.config.isPublic,
-    );
-    // Other actions are is not the public action of the module.
-    // Private actions of current module and other actions are included.
-    const otherActions = updatedState.filter(
-      (a) => a.config.moduleId !== payload.id || !a.config.isPublic,
-    );
-
-    expect(updatedState.length).toBe(initialState.length);
-    expect(updatedAction?.config.name).toBe(payload.name);
-
-    otherActions.forEach((a) => {
-      const prevActionState = initialState.find(
-        (pa) => pa.config.id === a.config.id,
-      );
-
-      expect(a.config.name).toBe(prevActionState?.config.name);
-    });
   });
 });

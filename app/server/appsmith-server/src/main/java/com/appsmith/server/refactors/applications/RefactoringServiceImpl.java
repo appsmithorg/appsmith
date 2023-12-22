@@ -213,7 +213,7 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
                 super.getExistingEntityNamesFlux(contextId, layoutId, isFQN, contextType);
 
         Flux<String> existingModuleInstanceNamesFlux =
-                moduleInstanceEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
+                moduleInstanceEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId, false);
 
         ArrayList<Flux<String>> entityNamesFlux =
                 new ArrayList<>((Collection<Flux<String>>) existingEntityNamesFluxFromSuper);

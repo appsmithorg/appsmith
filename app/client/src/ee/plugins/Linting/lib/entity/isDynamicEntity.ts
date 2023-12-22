@@ -13,7 +13,8 @@ export function isDynamicEntity(
   entity: IEntity,
 ): entity is DynamicEntityType | ModuleInputsEntity {
   return (
-    [ENTITY_TYPE.MODULE_INPUT].includes(entity.getType()) ||
-    CE_isDynamicEntity(entity)
+    [ENTITY_TYPE.MODULE_INPUT, ENTITY_TYPE.MODULE_INSTANCE].includes(
+      entity.getType(),
+    ) || CE_isDynamicEntity(entity)
   );
 }

@@ -1,6 +1,7 @@
 package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
@@ -42,4 +43,11 @@ public interface NewActionService extends NewActionServiceCE {
 
     Mono<List<BulkWriteResult>> publishActionsForActionCollection(
             String actionCollectionId, AclPermission aclPermission);
+
+    Flux<NewAction> getAllModuleInstanceActionInContext(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs);
 }

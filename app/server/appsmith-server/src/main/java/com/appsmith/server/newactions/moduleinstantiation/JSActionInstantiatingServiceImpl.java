@@ -15,6 +15,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.moduleinstantiation.JSActionType;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
 import com.appsmith.server.modules.helpers.ModuleUtils;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +32,21 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingService<JSActionType> {
+public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingService<JSActionType, NewAction> {
     private final NewActionRepository newActionRepository;
+    private final NewActionService newActionService;
     private final PolicyGenerator policyGenerator;
     private final RefactoringService refactoringService;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+        return generateInstantiatedEntities(moduleInstantiatingMetaDTO)
+                .flatMapMany(newActionRepository::saveAll)
+                .then();
+    }
+
+    @Override
+    public Mono<List<NewAction>> generateInstantiatedEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         final Map<String, List<String>> newCollectionIdToNewActionsMap = new HashMap<>();
         return newActionRepository
                 .findAllByCollectionIds(moduleInstantiatingMetaDTO.getSourceCollectionIds(), null, true)
@@ -49,7 +58,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
                     ActionDTO unpublishedAction = toBeInstantiatedAction.getUnpublishedAction();
                     unpublishedAction.setCollectionId(newCollectionId);
 
-                    setFullyQualifiedName(moduleInstantiatingMetaDTO, unpublishedAction);
+                    setModifiedFullyQualifiedName(moduleInstantiatingMetaDTO, unpublishedAction);
                     setContextTypeAndContextId(moduleInstantiatingMetaDTO, toBeInstantiatedAction);
 
                     resetIsPublicAttributeForComposedModuleInstances(toBeInstantiatedAction);
@@ -66,22 +75,12 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
 
                     setPolicies(moduleInstantiatingMetaDTO, toBeInstantiatedAction);
 
-                    Mono<NewAction> newActionMono = refactorAndExtractJsonPathKeysForJSAction(
+                    return refactorAndExtractJsonPathKeysForJSAction(
                             moduleInstantiatingMetaDTO, toBeInstantiatedAction);
-
-                    return newActionMono;
                 })
                 .collectList()
-                .flatMap(toBeInstantiatedJSActions -> newActionRepository
-                        .saveAll(toBeInstantiatedJSActions)
-                        .collectList()
-                        .doOnSuccess(resultList -> {
-                            // Perform the set operation inside the then block
-                            moduleInstantiatingMetaDTO.setNewCollectionIdToNewActionsMap(
-                                    newCollectionIdToNewActionsMap);
-                            // You can add more operations here if needed
-                        }))
-                .then();
+                .doOnNext(toBeInstantiatedJSActions ->
+                        moduleInstantiatingMetaDTO.setNewCollectionIdToNewActionIdsMap(newCollectionIdToNewActionsMap));
     }
 
     private Mono<NewAction> refactorAndExtractJsonPathKeysForJSAction(
@@ -90,14 +89,20 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
                 moduleInstantiatingMetaDTO.getOldToNewModuleEntityRefactorDTOsMap();
 
         //  For each entity name, call refactor current entity
-        Mono<NewAction> newActionMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
-                .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
-                        toBeInstantiatedAction.getUnpublishedAction(),
-                        EntityType.JS_ACTION,
-                        refactorEntityNameDTO,
-                        moduleInstantiatingMetaDTO.getEvalVersionMono()))
-                .then(Mono.just(toBeInstantiatedAction));
-        return newActionMono;
+        return Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
+                .concatMap(refactorEntityNameDTO -> newActionService
+                        .generateActionByViewMode(toBeInstantiatedAction, false)
+                        .flatMap(actionDTO -> refactoringService.refactorCurrentEntity(
+                                actionDTO,
+                                EntityType.JS_ACTION,
+                                refactorEntityNameDTO,
+                                moduleInstantiatingMetaDTO.getEvalVersionMono())))
+                .then(Mono.defer(() -> {
+                    // After all refactors, call extractAndSetJsonPathKeys for the current entity
+                    return newActionService
+                            .extractAndSetJsonPathKeys(toBeInstantiatedAction)
+                            .map(actionWithJsonPathKeys -> toBeInstantiatedAction);
+                }));
     }
 
     private void setDefaultResources(
@@ -106,10 +111,12 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
             String newCollectionId) {
         DefaultResources defaultResources = new DefaultResources();
         defaultResources.setActionId(toBeInstantiatedAction.getId());
+        defaultResources.setModuleInstanceId(toBeInstantiatedAction.getModuleInstanceId());
         defaultResources.setCollectionId(newCollectionId);
         defaultResources.setPageId(moduleInstantiatingMetaDTO.getContextId());
         defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
         toBeInstantiatedAction.setDefaultResources(defaultResources);
+        toBeInstantiatedAction.getUnpublishedAction().setDefaultResources(defaultResources);
     }
 
     private void setRootModuleInstanceIdAndModuleInstanceId(
@@ -150,10 +157,10 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
         }
     }
 
-    private void setFullyQualifiedName(
+    private void setModifiedFullyQualifiedName(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionDTO unpublishedAction) {
         unpublishedAction.setFullyQualifiedName(ModuleUtils.getValidName(
-                moduleInstantiatingMetaDTO.getRootModuleInstanceName(), unpublishedAction.getName()));
+                moduleInstantiatingMetaDTO.getRootModuleInstanceName(), unpublishedAction.getFullyQualifiedName()));
     }
 
     private static void setUnpublishedAndPublishedData(NewAction sourceAction, NewAction toBeInstantiatedAction) {
@@ -170,10 +177,9 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
 
     private String extractNewCollectionId(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, NewAction sourceAction) {
-        String newCollectionId = moduleInstantiatingMetaDTO
+        return moduleInstantiatingMetaDTO
                 .getOldToNewCollectionIdMap()
                 .get(sourceAction.getPublishedAction().getCollectionId());
-        return newCollectionId;
     }
 
     private void setPolicies(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, NewAction toBeInstantiatedAction) {

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { noop } from "lodash";
 import type { RouteComponentProps } from "react-router";
@@ -8,7 +8,12 @@ import JsEditorForm from "pages/Editor/JSEditor/Form";
 import ModuleJSEditorContextMenu from "./ModuleJSEditorContextMenu";
 import { getIsPackageEditorInitialized } from "@appsmith/selectors/packageSelectors";
 import { getJSCollectionDataById } from "selectors/editorSelectors";
-import { saveJSObjectName } from "actions/jsActionActions";
+import {
+  type SaveModuleNamePayload,
+  saveModuleName,
+} from "@appsmith/actions/moduleActions";
+import { saveJSObjectNameBasedOnParentEntity } from "@appsmith/actions/helpers";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 interface ModuleJSEditorRouteParams {
   packageId: string;
@@ -39,6 +44,23 @@ function ModuleJSEditor(props: ModuleJSEditorProps) {
     );
   }, [jsCollection, moduleId]);
 
+  const onSaveName = useCallback(
+    ({ name }: SaveModuleNamePayload) => {
+      const isPublicEntity = jsCollectionData?.config.isPublic;
+      return isPublicEntity
+        ? saveModuleName({
+            id: moduleId,
+            name,
+          })
+        : saveJSObjectNameBasedOnParentEntity(
+            collectionId,
+            name,
+            ACTION_PARENT_ENTITY_TYPE.PACKAGE,
+          );
+    },
+    [moduleId, jsCollectionData?.config.isPublic, collectionId],
+  );
+
   if (!isPackageEditorInitialized || !jsCollection) {
     return <Loader />;
   }
@@ -48,7 +70,7 @@ function ModuleJSEditor(props: ModuleJSEditorProps) {
       contextMenu={contextMenu}
       jsCollectionData={jsCollectionData}
       onUpdateSettings={noop}
-      saveJSObjectName={saveJSObjectName}
+      saveJSObjectName={onSaveName}
       showSettings={false}
     />
   );

@@ -143,6 +143,12 @@ export const onboardingCheckListUrl = (props: URLBuilderParams): string =>
 export const builderURL = (props: URLBuilderParams): string => {
   return urlBuilder.build(props);
 };
+export const globalAddURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: "add",
+  });
+};
 
 export const widgetURL = (
   props: URLBuilderParams & { selectedWidgets: string[] },

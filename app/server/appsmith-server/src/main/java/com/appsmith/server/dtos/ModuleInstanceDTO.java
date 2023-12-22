@@ -66,6 +66,7 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Map<String, String> inputs;
 
+    @Transient
     @JsonView({Views.Export.class})
     PublicEntityDTO publicEntity;
 

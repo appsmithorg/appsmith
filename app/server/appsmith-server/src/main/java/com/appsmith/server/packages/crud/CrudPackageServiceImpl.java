@@ -1,5 +1,8 @@
 package com.appsmith.server.packages.crud;
 
+import com.appsmith.external.helpers.Reusable;
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -7,12 +10,17 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QPackage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.ModuleMetadata;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -21,6 +29,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ObjectUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
 import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.services.SessionUserService;
@@ -33,6 +42,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -58,6 +68,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     private final SessionUserService sessionUserService;
     private final TransactionalOperator transactionalOperator;
 
+    private final ModulePublicEntityService<NewAction> newActionModulePublicEntityService;
+    private final ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService;
+    private final DatasourceService datasourceService;
+
     public CrudPackageServiceImpl(
             PackageRepository repository,
             WorkspaceService workspaceService,
@@ -66,7 +80,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
             PackagePermission packagePermission,
             CrudModuleService crudModuleService,
             SessionUserService sessionUserService,
-            TransactionalOperator transactionalOperator) {
+            TransactionalOperator transactionalOperator,
+            ModulePublicEntityService<NewAction> newActionModulePublicEntityService,
+            ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService,
+            DatasourceService datasourceService) {
         super(repository);
         this.repository = repository;
         this.workspaceService = workspaceService;
@@ -76,6 +93,9 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         this.crudModuleService = crudModuleService;
         this.sessionUserService = sessionUserService;
         this.transactionalOperator = transactionalOperator;
+        this.newActionModulePublicEntityService = newActionModulePublicEntityService;
+        this.actionCollectionModulePublicEntityService = actionCollectionModulePublicEntityService;
+        this.datasourceService = datasourceService;
     }
 
     @Override
@@ -181,26 +201,76 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<PackageDetailsDTO> getPackageDetails(String packageId) {
-
+        // Retrieve package data with read permission
         Mono<PackageDTO> packageDataMono = repository
                 .findById(packageId, packagePermission.getReadPermission())
                 .flatMap(aPackage -> this.generatePackageByViewMode(aPackage, ResourceModes.EDIT))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)));
 
+        // Retrieve all module DTOs for the package in edit mode
         Mono<List<ModuleDTO>> modulesMono = crudModuleService.getAllModuleDTOs(packageId, ResourceModes.EDIT);
 
-        return packageDataMono.flatMap(packageDTO -> {
-            final PackageDetailsDTO packageDetailsDTO = new PackageDetailsDTO();
+        // Combine the results of the above Monos
+        return Mono.zip(packageDataMono, modulesMono).flatMap(tuple -> {
+            // Extract packageDTO and moduleDTOs from the tuple
+            PackageDTO packageDTO = tuple.getT1();
+            List<ModuleDTO> moduleDTOS = tuple.getT2();
 
+            // Create PackageDetailsDTO and set package data
+            PackageDetailsDTO packageDetailsDTO = new PackageDetailsDTO();
             packageDetailsDTO.setPackageData(packageDTO);
 
-            return modulesMono.flatMap(moduleDTOS -> {
-                packageDetailsDTO.setModules(moduleDTOS);
+            // Set modules data
+            packageDetailsDTO.setModules(moduleDTOS);
 
-                return Mono.just(packageDetailsDTO);
-            });
+            // Fetch metadata for each module and set in the PackageDetailsDTO
+            return Flux.fromIterable(moduleDTOS)
+                    .flatMap(moduleDTO -> fetchPublicEntity(moduleDTO).flatMap(publicEntity -> {
+                        final ModuleMetadata moduleMetadata = new ModuleMetadata();
+                        moduleMetadata.setModuleId(moduleDTO.getId());
+                        String dsName = FieldName.UNUSED_DATASOURCE;
+                        if (publicEntity instanceof ActionDTO) {
+                            ActionDTO actionDTO = (ActionDTO) publicEntity;
+                            moduleMetadata.setPluginType(actionDTO.getPluginType());
+                            moduleMetadata.setPluginId(actionDTO.getPluginId());
+                            dsName = actionDTO.getDatasource().getName();
+                        } else if (publicEntity instanceof ActionCollectionDTO) {
+                            ActionCollectionDTO collectionDTO = (ActionCollectionDTO) publicEntity;
+                            moduleMetadata.setPluginType(collectionDTO.getPluginType());
+                            moduleMetadata.setPluginId(collectionDTO.getPluginId());
+                            if (collectionDTO.getActions().size() > 0) {
+                                dsName = collectionDTO
+                                        .getActions()
+                                        .get(0)
+                                        .getDatasource()
+                                        .getName();
+                            }
+                        }
+
+                        return datasourceService
+                                .findByNameAndWorkspaceId(dsName, packageDTO.getWorkspaceId(), Optional.empty())
+                                .switchIfEmpty(Mono.defer(() -> Mono.just(new Datasource())))
+                                .map(dbDatasource -> {
+                                    moduleMetadata.setDatasourceId(dbDatasource.getId());
+                                    return moduleMetadata;
+                                });
+                    }))
+                    .collectList()
+                    .doOnNext(packageDetailsDTO::setModulesMetadata)
+                    .then(Mono.just(packageDetailsDTO));
         });
+    }
+
+    private Mono<Reusable> fetchPublicEntity(ModuleDTO moduleDTO) {
+        switch (moduleDTO.getType()) {
+            case QUERY_MODULE:
+                return newActionModulePublicEntityService.getPublicEntity(moduleDTO.getId());
+            case JS_MODULE:
+                return actionCollectionModulePublicEntityService.getPublicEntity(moduleDTO.getId());
+            default:
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+        }
     }
 
     @Override
@@ -294,6 +364,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         packageDTO.setModifiedAt(aPackage.getLastUpdateTime());
         packageDTO.setModifiedBy(aPackage.getModifiedBy());
         packageDTO.setLastPublishedAt(aPackage.getLastPublishedTime());
+        packageDTO.setPolicies(aPackage.getPolicies());
 
         return Mono.just(packageDTO);
     }

@@ -174,9 +174,12 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
                     ApiKeyRequestDto apiKeyRequestDto = ApiKeyRequestDto.builder()
                             .email(workflowBotUser.getUsername())
                             .build();
+                    // Note: generating and archiving the api keys without permission check, because we are fetching
+                    // the workflows using Edit permission.
+                    // GenerateApiKey & ArchiveAllApiKeysForUser uses Instance Admin role in order to archive keys.
                     return apiKeyService
-                            .archiveAllApiKeysForUser(workflowBotUser.getUsername())
-                            .then(apiKeyService.generateApiKey(apiKeyRequestDto));
+                            .archiveAllApiKeysForUserWithoutPermissionCheck(workflowBotUser.getUsername())
+                            .then(apiKeyService.generateApiKeyWithoutPermissionCheck(apiKeyRequestDto));
                 })
                 .cache();
 

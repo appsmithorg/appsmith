@@ -112,6 +112,10 @@ export function* saveModuleNameSaga(
         type: ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS,
         payload: response.data,
       });
+      yield call(fetchModuleEntitiesSaga, {
+        payload: { moduleId: id },
+        type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
+      });
     }
   } catch (error) {
     yield put({

@@ -1,5 +1,6 @@
 package com.appsmith.server.newactions.moduleentity;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.ResourceModes;
@@ -64,5 +65,12 @@ public class NewActionModulePublicEntityServiceImpl extends NewActionModulePubli
                 .map(pluginConfigMap -> {
                     return pluginConfigMap.getOrDefault("setting", List.of());
                 });
+    }
+
+    @Override
+    public Mono<Reusable> getPublicEntity(String moduleId) {
+        return newActionService
+                .findPublicActionByModuleId(moduleId, ResourceModes.EDIT)
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
     }
 }

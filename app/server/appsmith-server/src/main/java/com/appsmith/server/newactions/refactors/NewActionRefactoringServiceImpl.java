@@ -51,7 +51,7 @@ public class NewActionRefactoringServiceImpl extends NewActionRefactoringService
     @Override
     public Flux<RefactorEntityNameDTO> getRefactorDTOsForExistingEntityNames(
             String contextId, CreatorContextType contextType, String layoutId) {
-        return this.getExistingEntities(contextId, contextType, layoutId)
+        return this.getExistingEntities(contextId, contextType, layoutId, true)
                 .map(actionDTO -> {
                     RefactorEntityNameDTO dto = new RefactorEntityNameDTO();
                     dto.setOldName(actionDTO.getName());
@@ -70,14 +70,15 @@ public class NewActionRefactoringServiceImpl extends NewActionRefactoringService
     }
 
     @Override
-    protected Flux<ActionDTO> getExistingEntities(String contextId, CreatorContextType contextType, String layoutId) {
+    protected Flux<ActionDTO> getExistingEntities(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         if (isModuleContext(contextType)) {
             return newActionService
                     .findAllActionsByContextIdAndContextTypeAndViewMode(
-                            contextId, contextType, AclPermission.MANAGE_ACTIONS, false, false)
-                    .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                            contextId, contextType, AclPermission.MANAGE_ACTIONS, viewMode, true)
+                    .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, viewMode));
         } else {
-            return super.getExistingEntities(contextId, contextType, layoutId);
+            return super.getExistingEntities(contextId, contextType, layoutId, viewMode);
         }
     }
 }

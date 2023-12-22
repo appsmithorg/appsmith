@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -107,7 +108,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Flux<ActionCollection> findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission) {
-        return repository.findAllByRootModuleInstanceIds(List.of(rootModuleInstanceId), Optional.of(permission));
+        return repository.findAllByRootModuleInstanceIds(
+                List.of(rootModuleInstanceId), Optional.ofNullable(permission));
     }
 
     @Override
@@ -221,5 +223,22 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         } else {
             super.setGitSyncIdInActionCollection(collection);
         }
+    }
+
+    @Override
+    public Flux<ActionCollection> getAllModuleInstanceCollectionsInContext(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode) {
+        return repository.findAllModuleInstanceEntitiesByContextAndViewMode(
+                contextId, contextType, Optional.of(permission), viewMode);
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> getPublicActionCollection(String moduleId, ResourceModes resourceMode) {
+        return repository
+                .findPublicActionCollectionByModuleId(moduleId, resourceMode)
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(
+                                actionCollection, ResourceModes.VIEW == resourceMode)
+                        .flatMap(actionCollectionDTO -> populateActionCollectionByViewMode(
+                                actionCollectionDTO, ResourceModes.VIEW == resourceMode)));
     }
 }

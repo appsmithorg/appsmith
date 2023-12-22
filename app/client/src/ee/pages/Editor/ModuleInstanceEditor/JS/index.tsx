@@ -57,8 +57,6 @@ const StyledJSFunctionRunWrapper = styled.div`
   }
 `;
 
-const IS_RUN_ENABLED = false;
-
 const additionalHeadings = [
   {
     text: "Parameters",
@@ -213,26 +211,23 @@ function JSModuleInstanceEditor({
     <Container>
       <Header moduleInstance={moduleInstance}>
         {/* This is disabled on a temporary basis. Once the UX is finalized; this can be enabled */}
-        {IS_RUN_ENABLED && (
-          <StyledJSFunctionRunWrapper>
-            <JSFunctionRun
-              disabled={disableRunFunctionality || !isExecutePermitted}
-              isLoading={isExecutingCurrentJSAction}
-              jsCollection={publicJSCollection}
-              onButtonClick={(
-                event:
-                  | React.MouseEvent<HTMLElement, MouseEvent>
-                  | KeyboardEvent,
-              ) => {
-                handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
-              }}
-              onSelect={handleJSActionOptionSelection}
-              options={convertJSActionsToDropdownOptions(sortedJSactions)}
-              selected={selectedJSActionOption}
-              showTooltip={!selectedJSActionOption.data}
-            />
-          </StyledJSFunctionRunWrapper>
-        )}
+
+        <StyledJSFunctionRunWrapper>
+          <JSFunctionRun
+            disabled={disableRunFunctionality || !isExecutePermitted}
+            isLoading={isExecutingCurrentJSAction}
+            jsCollection={publicJSCollection}
+            onButtonClick={(
+              event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
+            ) => {
+              handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+            }}
+            onSelect={handleJSActionOptionSelection}
+            options={convertJSActionsToDropdownOptions(sortedJSactions)}
+            selected={selectedJSActionOption}
+            showTooltip={!selectedJSActionOption.data}
+          />
+        </StyledJSFunctionRunWrapper>
       </Header>
       <Body>
         <JSFunctionSettingsView

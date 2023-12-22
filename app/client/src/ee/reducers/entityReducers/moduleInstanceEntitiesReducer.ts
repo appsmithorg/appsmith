@@ -41,17 +41,23 @@ export const handlers = {
     action: ReduxAction<FetchModuleInstanceEntitiesResponse>,
   ) => {
     const actions = action.payload.actions.map((action) => {
+      const previousAction = draftState.actions.find(
+        (draftAction) => draftAction.config.id === action.id,
+      );
       return {
         isLoading: false,
         config: action,
-        data: undefined,
+        data: previousAction?.data || undefined,
       };
     });
     const jsCollections = action.payload.jsCollections.map((jsCollection) => {
+      const previousJSCollection = draftState.jsCollections.find(
+        (draftJSaction) => draftJSaction.config.id === jsCollection.id,
+      );
       return {
         isLoading: false,
         config: jsCollection,
-        data: undefined,
+        data: previousJSCollection?.data || undefined,
       };
     });
 

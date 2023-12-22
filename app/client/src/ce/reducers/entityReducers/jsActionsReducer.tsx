@@ -91,7 +91,13 @@ export const handlers = {
         return {
           ...jsCollection,
           isLoading: false,
-          config: action.payload.data,
+          config: action.payload.data.isPublic
+            ? {
+                ...action.payload.data,
+                isMainJSCollection: true,
+                displayName: "Main",
+              }
+            : action.payload.data,
           activeJSActionId:
             findIndex(jsCollection.config.actions, {
               id: jsCollection.activeJSActionId,

@@ -19,6 +19,9 @@ import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 interface ModuleQueryEditorRouteParams {
   pageId: string; // TODO: @ashit remove this and add generic key in the Editor
@@ -61,14 +64,21 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
     dispatch(changeQuery({ id: queryId, moduleId, packageId }));
   };
 
-  const onSaveModuleName = useCallback(
+  const onSaveName = useCallback(
     ({ name }: SaveModuleNamePayload) => {
-      return saveModuleName({
-        id: module?.id || "",
-        name,
-      });
+      const isPublicEntity = action?.isPublic;
+      return isPublicEntity
+        ? saveModuleName({
+            id: moduleId,
+            name,
+          })
+        : saveActionNameBasedOnParentEntity(
+            actionId,
+            name,
+            ACTION_PARENT_ENTITY_TYPE.PACKAGE,
+          );
     },
-    [module?.id],
+    [moduleId, action?.isPublic, actionId],
   );
 
   const onCreateDatasourceClick = () => {
@@ -91,7 +101,7 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
   }, []);
 
   const actionRightPaneAdditionSections = useMemo(() => {
-    if (!module?.inputsForm) {
+    if (!module?.inputsForm || !action?.isPublic) {
       return null;
     }
 
@@ -103,7 +113,7 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
         moduleId={module?.id}
       />
     );
-  }, [module?.id, module?.inputsForm]);
+  }, [module?.id, module?.inputsForm, action?.isPublic]);
 
   if (!isEditorInitialized) {
     return <Loader />;
@@ -116,7 +126,8 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
       moreActionsMenu={moreActionsMenu}
       onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={noop}
-      saveActionName={onSaveModuleName}
+      saveActionName={onSaveName}
+      showSuggestedWidgets={module?.type === MODULE_TYPE.UI}
     >
       <Editor
         {...props}

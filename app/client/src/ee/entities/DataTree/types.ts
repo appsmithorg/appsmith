@@ -15,18 +15,6 @@ import type { ModuleInstanceReducerState } from "@appsmith/reducers/entityReduce
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstanceEntitiesReducerState } from "@appsmith/reducers/entityReducers/moduleInstanceEntitiesReducer";
 
-export enum CreateNewActionKey {
-  PAGE = "pageId",
-  WORKFLOW = "workflowId",
-  MODULE = "moduleId",
-}
-
-export enum ActionContextType {
-  PAGE = "PAGE",
-  WORKFLOW = "WORKFLOW",
-  MODULE = "MODULE",
-}
-
 export const ENTITY_TYPE = {
   ...CE_ENTITY_TYPE,
   MODULE_INSTANCE: "MODULE_INSTANCE",
@@ -48,9 +36,9 @@ export interface ModuleInputsEntity {
   ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INPUT;
   [propName: string]: unknown;
 }
-export interface QueryModuleInstanceEntityConfig extends EntityConfig {
+export interface ModuleInstanceEntityConfig extends EntityConfig {
   ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
-  type: MODULE_TYPE.QUERY;
+  type: MODULE_TYPE;
   actionId: string;
   moduleId: string;
   moduleInstanceId: string;
@@ -61,49 +49,43 @@ export interface QueryModuleInstanceEntityConfig extends EntityConfig {
   reactivePaths: Record<string, EvaluationSubstitutionType>;
 }
 
-export interface JSModuleInstanceEntityConfig extends EntityConfig {
-  ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
+export interface QueryModuleInstanceEntityConfig
+  extends ModuleInstanceEntityConfig {
+  type: MODULE_TYPE.QUERY;
+}
+
+export interface JSModuleInstanceEntityConfig
+  extends ModuleInstanceEntityConfig {
   type: MODULE_TYPE.JS;
-  moduleId: string;
-  dynamicBindingPathList: DynamicPath[];
-  moduleInstanceId: string;
-  bindingPaths: Record<string, EvaluationSubstitutionType>;
-  reactivePaths: Record<string, EvaluationSubstitutionType>;
   variables: Array<string>;
-  dependencyMap: DependencyMap;
-  name: string;
-  actionId: string;
   publicEntityName: string;
   meta: Record<string, MetaArgs>;
 }
 
-export interface QueryModuleInstanceEntity {
+export interface ModuleInstanceEntity {
   ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
-  type: MODULE_TYPE.QUERY;
+  type: MODULE_TYPE;
   actionId: string;
   moduleId: string;
   moduleInstanceId: string;
+  inputs: Record<string, string>;
+}
+
+export interface QueryModuleInstanceEntity extends ModuleInstanceEntity {
+  type: MODULE_TYPE.QUERY;
   isLoading: boolean;
   data: unknown;
   run: ActionDispatcher | Record<string, unknown>;
   clear: ActionDispatcher | Record<string, unknown>;
-  inputs: Record<string, string>;
 }
 
-export interface JSModuleInstanceEntity {
+export interface JSModuleInstanceEntity extends ModuleInstanceEntity {
   ENTITY_TYPE: typeof ENTITY_TYPE.MODULE_INSTANCE;
   type: MODULE_TYPE.JS;
-  actionId: string;
-  moduleId: string;
-  moduleInstanceId: string;
   [propName: string]: any;
-  inputs: Record<string, string>;
 }
 
-export type EE_DataTreeEntityObject =
-  | ModuleInputsEntity
-  | QueryModuleInstanceEntity
-  | JSModuleInstanceEntity;
+export type EE_DataTreeEntityObject = ModuleInputsEntity | ModuleInstanceEntity;
 
 export type DataTreeEntityObject =
   | CE_DataTreeEntityObject
@@ -115,8 +97,7 @@ export type UnEvalTreeEntityObject =
 
 export type EE_DataTreeEntityConfig =
   | ModuleInputsConfig
-  | QueryModuleInstanceEntityConfig
-  | JSModuleInstanceEntityConfig;
+  | ModuleInstanceEntityConfig;
 
 export type DataTreeEntityConfig =
   | CE_DataTreeEntityConfig

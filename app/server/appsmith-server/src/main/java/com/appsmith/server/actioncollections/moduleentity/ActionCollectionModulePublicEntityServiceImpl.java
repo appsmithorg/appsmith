@@ -1,7 +1,10 @@
 package com.appsmith.server.actioncollections.moduleentity;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Module;
@@ -25,6 +28,7 @@ public class ActionCollectionModulePublicEntityServiceImpl extends ActionCollect
     private final ModulePermissionChecker modulePermissionChecker;
     private final PolicyGenerator policyGenerator;
     private final LayoutCollectionService layoutCollectionService;
+    private final ActionCollectionService actionCollectionService;
 
     @Override
     public Mono<ModuleConsumable> createPublicEntity(
@@ -58,5 +62,12 @@ public class ActionCollectionModulePublicEntityServiceImpl extends ActionCollect
     @Override
     public Mono<Object> getPublicEntitySettingsForm(String moduleId) {
         return Mono.just(List.of());
+    }
+
+    @Override
+    public Mono<Reusable> getPublicEntity(String moduleId) {
+        return actionCollectionService
+                .getPublicActionCollection(moduleId, ResourceModes.EDIT)
+                .map(actionCollectionDTO -> actionCollectionDTO);
     }
 }
