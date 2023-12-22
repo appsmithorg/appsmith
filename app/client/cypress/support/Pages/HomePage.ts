@@ -113,6 +113,7 @@ export class HomePage {
     "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']";
   _modeSwitchToggle = ".t--comment-mode-switch-toggle";
   _importFromGitBtn = "div.t--import-json-card + div";
+  _helpButton = ".t--help-menu-option";
   private signupUsername = "input[name='email']";
   _multipleSelectedApplication = ".t--application-card-selected";
   private _applicationEditedText = (applicationName: string) =>

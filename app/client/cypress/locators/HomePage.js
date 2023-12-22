@@ -101,4 +101,5 @@ export default {
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
   backtoHome: ".t--app-viewer-back-to-apps-button",
   newButtonCreateApplication: "[data-testid=t--workspace-action-create-app]",
+  helpButton:".t--help-menu-option"
 };

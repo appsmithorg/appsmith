@@ -34,6 +34,7 @@ describe(
       });
 
       //Start welcome tour
+      _.agHelper.GetNClick(_.homePage._helpButton);
       _.agHelper.GetNClick(_.homePage._welcomeTour);
       _.agHelper.WaitUntilEleAppear(_.homePage._welcomeTourBuildingButton);
       //Verify debugger is not present
