@@ -356,10 +356,20 @@ export class GitSync {
     toUseNewGuid = false,
     assertCreateBranch = true,
   ) {
+    this.agHelper.AssertElementVisibility(this._bottomBarPull);
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
-    this.agHelper.GetNClick(this._branchButton);
-    this.agHelper.Sleep(2000); //branch pop up to open
+    cy.waitUntil(
+      () => {
+        this.agHelper.GetNClick(this._branchButton, 0, true);
+        if (this.agHelper.IsElementVisible(this._branchSearchInput)) {
+          return true; //visible, return true to stop waiting
+        }
+        return false; //not visible, return false to continue waiting
+      },
+      { timeout: Cypress.config("pageLoadTimeout") },
+    );
+
     cy.get("@guid").then((uid) => {
       //using the same uid as generated during CreateNConnectToGit
       this.agHelper.TypeText(

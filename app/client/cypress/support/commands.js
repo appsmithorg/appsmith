@@ -1379,8 +1379,6 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
   });
 });
 
-//Generate CRUD page methods: <Aishwarya>
-
 Cypress.Commands.add("startInterceptRoutesForMySQL", () => {
   //All stubbing - updating app id to current app id for Delete app by api call to be successfull:
 
