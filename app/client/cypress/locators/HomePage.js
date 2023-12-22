@@ -100,4 +100,5 @@ export default {
   reconnectDatasourceModal: "[data-testid='reconnect-datasource-modal']",
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
   backtoHome: ".t--app-viewer-back-to-apps-button",
+  newButtonCreateApplication: "[data-testid=t--workspace-action-create-app]",
 };

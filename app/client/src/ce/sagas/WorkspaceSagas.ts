@@ -43,7 +43,9 @@ import {
 import { toast } from "design-system";
 import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
 
-export function* fetchAllWorkspacesSaga() {
+export function* fetchAllWorkspacesSaga(
+  action?: ReduxAction<{ fetchApplications: boolean }>,
+) {
   try {
     const response: FetchWorkspacesResponse = yield call(
       WorkspaceApi.fetchAllWorkspaces,
@@ -51,11 +53,14 @@ export function* fetchAllWorkspacesSaga() {
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaces: Workspace[] = response.data;
-
       yield put({
         type: ReduxActionTypes.FETCH_ALL_WORKSPACES_SUCCESS,
         payload: workspaces,
       });
+      if (action?.payload?.fetchApplications) {
+        const activeWorkspace: Workspace = workspaces[0];
+        yield put(fetchAllApplicationsOfWorkspace(activeWorkspace.id));
+      }
     }
   } catch (error) {
     yield put({

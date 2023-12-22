@@ -235,6 +235,8 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
+
+  cy.get(homePage.newButtonCreateApplication).click({ force: true });
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
