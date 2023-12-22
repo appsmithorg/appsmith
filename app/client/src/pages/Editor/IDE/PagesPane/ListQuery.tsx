@@ -17,7 +17,7 @@ import {
   selectQueriesForPagespane,
 } from "@appsmith/selectors/entitiesSelector";
 import { ADD_PATH } from "constants/routes";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
@@ -71,7 +71,7 @@ const ListQuery = () => {
                 canCreateActions={canCreateActions}
                 editorId={applicationId}
                 parentEntityId={pageId}
-                parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+                parentEntityType={ActionParentEntityType.PAGE}
               >
                 {files[key].map((file: any) => {
                   return (
@@ -80,7 +80,7 @@ const ListQuery = () => {
                       isActive={file.id === activeActionId}
                       key={file.id}
                       parentEntityId={pageId}
-                      parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+                      parentEntityType={ActionParentEntityType.PAGE}
                       searchKeyword={""}
                       step={1}
                       type={file.type}

@@ -8,7 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import type { RouteComponentProps } from "react-router";
+import { Redirect, type RouteComponentProps } from "react-router";
 import { INTEGRATION_TABS } from "constants/routes";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -16,6 +16,7 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 
 const Container = styled.div`
   height: 100%;
@@ -44,6 +45,7 @@ const DatasourceBlankState = (
     pageId: string;
   }>,
 ) => {
+  const firstDatasourceId = useSelector(getFirstDatasourceId);
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
@@ -54,6 +56,11 @@ const DatasourceBlankState = (
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
+  if (firstDatasourceId) {
+    return <Redirect to={`${location.pathname}/${firstDatasourceId}`} />;
+  }
+
   return (
     <Container className="t--data-blank-state">
       <Content>
