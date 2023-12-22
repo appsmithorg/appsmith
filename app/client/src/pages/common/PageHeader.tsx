@@ -26,6 +26,7 @@ import Fuse from "fuse.js";
 import {
   resetSearchEntity,
   searchEntities,
+  setFetchingApplications,
 } from "@appsmith/actions/applicationActions";
 import MainSearchBar from "./SearchBar/MainSearchBar";
 import MobileSearchBar from "./SearchBar/MobileSearchBar";
@@ -115,15 +116,6 @@ export function PageHeader(props: PageHeaderProps) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
-  const handleSearchDebounced = useCallback(
-    debounce((text: string) => {
-      if (text.trim().length !== 0) {
-        dispatch(searchEntities(text));
-      }
-    }, 1000),
-    [],
-  );
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [noSearchResults, setNoSearchResults] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -170,8 +162,19 @@ export function PageHeader(props: PageHeaderProps) {
     window.location.href = `${viewURL}`;
   }
 
+  const handleSearchDebounced = useCallback(
+    debounce((text: string) => {
+      if (text.trim().length !== 0) {
+        dispatch(searchEntities(text));
+      }
+    }, 1000),
+    [],
+  );
+
   function handleSearchInput(text: string) {
     setSearchInput(text);
+    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
+    else dispatch(setFetchingApplications(false));
     handleSearchDebounced(text);
     setSearchedPackages(fuzzy.search(text));
     setIsDropdownOpen(true);
@@ -179,8 +182,8 @@ export function PageHeader(props: PageHeaderProps) {
 
   function handleInputClicked() {
     if (searchInput?.trim()?.length || !noSearchResults) {
-      dispatch(searchEntities(searchInput));
-      setIsDropdownOpen(true);
+      setIsDropdownOpen(false);
+      dispatch(setFetchingApplications(false));
     }
   }
 
@@ -206,23 +209,6 @@ export function PageHeader(props: PageHeaderProps) {
     }
   }, [isDropdownOpen]);
 
-  const searchBarProps = {
-    applicationsList,
-    canShowSearchDropdown,
-    handleInputClicked,
-    handleSearchInput,
-    isDropdownOpen,
-    isFetchingApplications,
-    isFetchingEntities,
-    navigateToApplication,
-    noSearchResults,
-    searchListContainerRef,
-    searchedPackages,
-    setIsDropdownOpen,
-    setShowMobileSearchBar,
-    workspacesList,
-  };
-
   return (
     <>
       <Banner />
@@ -234,7 +220,22 @@ export function PageHeader(props: PageHeaderProps) {
           isMobile={isMobile}
           showSeparator={props.showSeparator || false}
         >
-          <MobileSearchBar {...searchBarProps} />
+          <MobileSearchBar
+            applicationsList={applicationsList}
+            canShowSearchDropdown={canShowSearchDropdown}
+            handleInputClicked={handleInputClicked}
+            handleSearchInput={handleSearchInput}
+            isDropdownOpen={isDropdownOpen}
+            isFetchingApplications={isFetchingApplications}
+            isFetchingEntities={isFetchingEntities}
+            navigateToApplication={navigateToApplication}
+            noSearchResults={noSearchResults}
+            searchListContainerRef={searchListContainerRef}
+            searchedPackages={searchedPackages}
+            setIsDropdownOpen={setIsDropdownOpen}
+            setShowMobileSearchBar={setShowMobileSearchBar}
+            workspacesList={workspacesList}
+          />
         </StyledPageHeader>
       ) : (
         <StyledPageHeader
@@ -245,10 +246,23 @@ export function PageHeader(props: PageHeaderProps) {
           showSeparator={props.showSeparator || false}
         >
           <MainSearchBar
-            {...searchBarProps}
+            applicationsList={applicationsList}
+            canShowSearchDropdown={canShowSearchDropdown}
+            handleInputClicked={handleInputClicked}
+            handleSearchInput={handleSearchInput}
+            isDropdownOpen={isDropdownOpen}
+            isFetchingApplications={isFetchingApplications}
+            isFetchingEntities={isFetchingEntities}
+            navigateToApplication={navigateToApplication}
+            noSearchResults={noSearchResults}
             searchInput={searchInput}
             searchInputRef={searchInputRef}
+            searchListContainerRef={searchListContainerRef}
+            searchedPackages={searchedPackages}
+            setIsDropdownOpen={setIsDropdownOpen}
+            setShowMobileSearchBar={setShowMobileSearchBar}
             user={user}
+            workspacesList={workspacesList}
           />
         </StyledPageHeader>
       )}
