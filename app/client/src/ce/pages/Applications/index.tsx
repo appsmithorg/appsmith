@@ -707,7 +707,7 @@ export function ApplicationsSection(props: any) {
       }
     };
 
-    return (
+    workspacesListComponent = (
       <React.Fragment key={activeWorkspace.id}>
         <WorkspaceSection className="t--workspace-section" isMobile={isMobile}>
           <WorkspaceDropDown isMobile={isMobile}>
