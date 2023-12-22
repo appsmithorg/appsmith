@@ -502,6 +502,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       backgroundColor={selectedColor}
       contextMenu={contextMenu}
       editedByText={editedByText}
+      hasEditPermission={hasEditPermission}
       hasReadPermission={hasReadPermission}
       icon={appIcon}
       isContextMenuOpen={isMenuOpen}
