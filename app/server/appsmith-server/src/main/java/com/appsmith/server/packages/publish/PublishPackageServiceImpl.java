@@ -23,7 +23,7 @@ import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.packages.permissions.PackagePermission;
-import com.appsmith.server.publish.publishable.PackagePublishableService;
+import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.services.LayoutActionService;
 import org.springframework.stereotype.Service;

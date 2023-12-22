@@ -25,7 +25,7 @@ import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.publish.PublishPackageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.publish.publishable.PackagePublishableService;
+import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;

@@ -9,7 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.permissions.ModulePermission;
-import com.appsmith.server.publish.publishable.PackagePublishableService;
+import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
