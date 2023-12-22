@@ -145,16 +145,17 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Flux<ModuleInstance> findAllUnpublishedByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
+    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleId(
+            String originModuleId, Optional<AclPermission> permission) {
         List<Criteria> criteria = new ArrayList<>();
-        Criteria moduleUUIDCriterion =
-                where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
+        Criteria originModuleIdCriterion =
+                where(fieldName(QModuleInstance.moduleInstance.originModuleId)).is(originModuleId);
 
         Criteria notDeletedCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
                         + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
                 .is(null);
 
-        criteria.add(moduleUUIDCriterion);
+        criteria.add(originModuleIdCriterion);
         criteria.add(notDeletedCriterion);
 
         return queryAll(criteria, permission);

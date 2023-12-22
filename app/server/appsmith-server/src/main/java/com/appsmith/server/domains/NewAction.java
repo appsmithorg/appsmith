@@ -33,6 +33,9 @@ public class NewAction extends NewActionCE {
     @JsonView(Views.Public.class)
     String workflowId;
 
+    @JsonView(Views.Public.class)
+    String originActionId;
+
     @Override
     public void sanitiseToExportDBObject() {
         super.sanitiseToExportDBObject();

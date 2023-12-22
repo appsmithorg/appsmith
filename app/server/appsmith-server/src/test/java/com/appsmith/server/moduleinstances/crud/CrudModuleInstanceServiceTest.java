@@ -16,7 +16,6 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ResourceModes;
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Layout;
@@ -29,12 +28,10 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
-import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
-import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -44,9 +41,8 @@ import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
-import com.appsmith.server.packages.publish.PublishPackageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ApplicationPageService;
@@ -58,14 +54,8 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.testhelpers.moduleinstances.ModuleInstanceTestHelper;
 import com.appsmith.server.testhelpers.moduleinstances.ModuleInstanceTestHelperDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import org.assertj.core.api.Assertions;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,7 +72,6 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,19 +88,16 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
-import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static java.lang.Boolean.TRUE;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class CrudModuleInstanceServiceTest {
-    @Autowired
-    private ActionCollectionRepository actionCollectionRepository;
+class CrudModuleInstanceServiceTest {
 
     @Autowired
     NewActionService newActionService;
@@ -190,7 +176,7 @@ public class CrudModuleInstanceServiceTest {
     ActionCollectionService actionCollectionService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         moduleInstanceTestHelper = new ModuleInstanceTestHelper(
                 crudPackageService,
                 publishPackageService,
@@ -216,7 +202,7 @@ public class CrudModuleInstanceServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testCreateModuleInstanceFromAPublishedModule() {
+    void testCreateModuleInstanceFromAPublishedModule() {
         CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
         ModuleInstanceDTO moduleInstanceDTO = createModuleInstanceResponseDTO.getModuleInstance();
@@ -241,7 +227,7 @@ public class CrudModuleInstanceServiceTest {
 
                     // Make sure application gets source module's js libs as hidden libs
                     assert customJSLibs != null;
-                    assertThat(customJSLibs.size()).isEqualTo(1);
+                    assertThat(customJSLibs).hasSize(1);
                     CustomJSLib customJSLib = customJSLibs.get(0);
                     assertThat(customJSLib.getIsHidden()).isTrue();
                     assertThat(customJSLib.getName()).isEqualTo("name1");
@@ -251,7 +237,7 @@ public class CrudModuleInstanceServiceTest {
                     Set<CustomJSLibContextDTO> hiddenJSLibs =
                             application.getUnpublishedApplicationDetail().getHiddenJSLibs();
                     assertThat(hiddenJSLibs).isNotNull();
-                    assertThat(hiddenJSLibs.size()).isEqualTo(1);
+                    assertThat(hiddenJSLibs).hasSize(1);
                     CustomJSLibContextDTO libContextDTO =
                             hiddenJSLibs.stream().findFirst().get();
                     assertThat(libContextDTO.getUidString()).isEqualTo("accessor_url");
@@ -261,7 +247,7 @@ public class CrudModuleInstanceServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testCreateModuleInstance_withExistingCustomJsLib_doesNotCreateHiddenLib() {
+    void testCreateModuleInstance_withExistingCustomJsLib_doesNotCreateHiddenLib() {
         String applicationId = moduleInstanceTestHelperDTO.getPageDTO().getApplicationId();
         // Create custom JS lib in app
         CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
@@ -274,7 +260,7 @@ public class CrudModuleInstanceServiceTest {
                 .block();
 
         // Make sure application originally had the same lib manually installed
-        assertThat(originalCustomLibs.size()).isEqualTo(1);
+        assertThat(originalCustomLibs).hasSize(1);
         CustomJSLib originalLib = originalCustomLibs.get(0);
         assertThat(originalLib.getIsHidden()).isNull();
         assertThat(originalLib.getName()).isEqualTo("name1");
@@ -283,14 +269,12 @@ public class CrudModuleInstanceServiceTest {
         assert originalApp != null;
         assertThat(originalApp.getUnpublishedApplicationDetail()).isNull();
         Set<CustomJSLibContextDTO> originalAppVisibleLibs = originalApp.getUnpublishedCustomJSLibs();
-        assertThat(originalAppVisibleLibs.size()).isEqualTo(1);
+        assertThat(originalAppVisibleLibs).hasSize(1);
         CustomJSLibContextDTO originalAppLibContextDTO =
                 originalAppVisibleLibs.stream().findFirst().get();
         assertThat(originalAppLibContextDTO.getUidString()).isEqualTo("accessor_url");
 
-        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
-                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
-        createModuleInstanceResponseDTO.getModuleInstance();
+        moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
 
         Mono<List<CustomJSLib>> customJSLibsMono =
                 customJSLibService.getAllJSLibsInContext(applicationId, CreatorContextType.APPLICATION, null, false);
@@ -300,7 +284,7 @@ public class CrudModuleInstanceServiceTest {
         StepVerifier.create(customJSLibsMono)
                 .assertNext(customJSLibs -> {
                     // Make sure that we only get one entry for the lib in app eventually
-                    assertThat(customJSLibs.size()).isEqualTo(1);
+                    assertThat(customJSLibs).hasSize(1);
                     CustomJSLib customJSLib = customJSLibs.get(0);
                     // And make sure that it is not hidden, as was the case originally
                     assertThat(customJSLib.getIsHidden()).isNull();
@@ -311,9 +295,9 @@ public class CrudModuleInstanceServiceTest {
                     assertThat(application.getUnpublishedApplicationDetail()).isNotNull();
                     Set<CustomJSLibContextDTO> hiddenJSLibs =
                             application.getUnpublishedApplicationDetail().getHiddenJSLibs();
-                    assertThat(hiddenJSLibs.size()).isEqualTo(0);
+                    assertThat(hiddenJSLibs).isEmpty();
                     Set<CustomJSLibContextDTO> visibleLibs = application.getUnpublishedCustomJSLibs();
-                    assertThat(visibleLibs.size()).isEqualTo(1);
+                    assertThat(visibleLibs).hasSize(1);
                     CustomJSLibContextDTO libContextDTO =
                             visibleLibs.stream().findFirst().get();
                     assertThat(libContextDTO.getUidString()).isEqualTo("accessor_url");
@@ -323,7 +307,7 @@ public class CrudModuleInstanceServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testInstantiateSameModuleTwiceOnSamePage() {
+    void testInstantiateSameModuleTwiceOnSamePage() {
         CreateModuleInstanceResponseDTO firstCreateModuleInstanceResponseDTO =
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
         ModuleInstanceDTO firstModuleInstanceDTO = firstCreateModuleInstanceResponseDTO.getModuleInstance();
@@ -335,24 +319,21 @@ public class CrudModuleInstanceServiceTest {
         Mono<List<NewAction>> secondDBActionsMono = getDBActions(secondCreateModuleInstanceResponseDTO);
 
         StepVerifier.create(firstDBActionsMono)
-                .assertNext(dbActions -> {
-                    doAllAssertions(dbActions, firstCreateModuleInstanceResponseDTO, firstModuleInstanceDTO);
-                })
+                .assertNext(dbActions ->
+                        doAllAssertions(dbActions, firstCreateModuleInstanceResponseDTO, firstModuleInstanceDTO))
                 .verifyComplete();
 
         StepVerifier.create(secondDBActionsMono)
-                .assertNext(dbActions -> {
-                    doAllAssertions(dbActions, secondCreateModuleInstanceResponseDTO, secondModuleInstanceDTO);
-                })
+                .assertNext(dbActions ->
+                        doAllAssertions(dbActions, secondCreateModuleInstanceResponseDTO, secondModuleInstanceDTO))
                 .verifyComplete();
     }
 
     private Mono<List<NewAction>> getDBActions(CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO) {
-        Mono<List<NewAction>> actionsMono = newActionService
+        return newActionService
                 .findAllUnpublishedComposedActionsByRootModuleInstanceId(
                         createModuleInstanceResponseDTO.getModuleInstance().getId(), EXECUTE_ACTIONS, false)
                 .collectList();
-        return actionsMono;
     }
 
     private void doAllAssertions(
@@ -369,8 +350,8 @@ public class CrudModuleInstanceServiceTest {
         assertThat(firstModuleInstanceDTO.getContextId())
                 .isEqualTo(moduleInstanceTestHelperDTO.getPageDTO().getId());
         assertThat(firstModuleInstanceDTO.getInputs()).isNotNull();
-        assertThat(firstModuleInstanceDTO.getInputs().size()).isEqualTo(1);
-        assertThat(firstModuleInstanceDTO.getUserPermissions().size()).isEqualTo(4);
+        assertThat(firstModuleInstanceDTO.getInputs()).hasSize(1);
+        assertThat(firstModuleInstanceDTO.getUserPermissions()).hasSize(4);
 
         List<ActionViewDTO> actions =
                 createModuleInstanceResponseDTO.getEntities().getActions();
@@ -383,28 +364,27 @@ public class CrudModuleInstanceServiceTest {
         assertThat(moduleInstancePublicActionViewDTO.getConfirmBeforeExecute()).isFalse();
         assertThat(moduleInstancePublicActionViewDTO.getJsonPathKeys()).isNotNull();
 
-        assertThat(dbActions.size()).isEqualTo(1);
+        assertThat(dbActions).hasSize(1);
         NewAction dbAction = dbActions.get(0);
         ActionDTO unpublishedDBAction = dbAction.getUnpublishedAction();
 
         // Assert dynamic binding references
         List<MustacheBindingToken> mustacheTokens = MustacheHelper.extractMustacheKeysInOrder(
                 unpublishedDBAction.getActionConfiguration().getBody());
-        assertThat(mustacheTokens.size()).isEqualTo(1);
+        assertThat(mustacheTokens).hasSize(1);
         assertThat(mustacheTokens.get(0).getValue())
                 .isEqualTo("accessor.func(" + moduleInstanceName + ".inputs.genderInput)");
 
         // Assert input references
-        assertThat(firstModuleInstanceDTO.getInputs().size()).isEqualTo(1);
-        assertThat(firstModuleInstanceDTO.getInputs().containsKey("genderInput"))
-                .isTrue();
+        assertThat(firstModuleInstanceDTO.getInputs()).hasSize(1);
+        assertThat(firstModuleInstanceDTO.getInputs()).containsKey("genderInput");
 
         // Assert jsonPathKeys
-        assertThat(firstModuleInstanceDTO.getJsonPathKeys().size()).isEqualTo(1);
+        assertThat(firstModuleInstanceDTO.getJsonPathKeys()).hasSize(1);
         assertThat(firstModuleInstanceDTO.getJsonPathKeys()).matches(keySet -> keySet.contains("\"female\""));
 
         NewAction modulePublicAction = moduleInstanceTestHelperDTO.getModulePublicAction();
-        // Assert that module level settings should remain the same in the instantiated public entity
+        // Assert that module level settings should remain the same in the instantiated entity
         assertThat(moduleInstancePublicActionViewDTO.getTimeoutInMillisecond())
                 .isEqualTo(modulePublicAction
                         .getPublishedAction()
@@ -423,7 +403,7 @@ public class CrudModuleInstanceServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testInstantiateModuleHavingTheSameNameAsAnotherQueryOnThePageShouldCoExist() {
+    void testInstantiateModuleHavingTheSameNameAsAnotherQueryOnThePageShouldCoExist() {
         ActionDTO action = new ActionDTO();
         action.setName("GetUsers");
         action.setActionConfiguration(new ActionConfiguration());
@@ -436,9 +416,8 @@ public class CrudModuleInstanceServiceTest {
         StepVerifier.create(createActionMono)
                 .assertNext(createdAction -> {
                     assertThat(createdAction.getName()).isEqualTo("GetUsers");
-                    assertThat(createdAction.getJsonPathKeys().size()).isEqualTo(1);
-                    assertThat(createdAction.getJsonPathKeys().contains("Input1.text"))
-                            .isTrue();
+                    assertThat(createdAction.getJsonPathKeys()).hasSize(1);
+                    assertThat(createdAction.getJsonPathKeys()).contains("Input1.text");
                 })
                 .verifyComplete();
 
@@ -449,15 +428,13 @@ public class CrudModuleInstanceServiceTest {
         Mono<List<NewAction>> actionsMono = getDBActions(createModuleInstanceResponseDTO);
 
         StepVerifier.create(actionsMono)
-                .assertNext(dbActions -> {
-                    doAllAssertions(dbActions, createModuleInstanceResponseDTO, moduleInstanceDTO);
-                })
+                .assertNext(dbActions -> doAllAssertions(dbActions, createModuleInstanceResponseDTO, moduleInstanceDTO))
                 .verifyComplete();
     }
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testDeleteModuleInstanceShouldDeleteAllReferences() {
+    void testDeleteModuleInstanceShouldDeleteAllReferences() {
         CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
         Mono<ModuleInstanceDTO> deletedModuleInstanceMono = crudModuleInstanceService
@@ -468,10 +445,7 @@ public class CrudModuleInstanceServiceTest {
         Mono<List<ModuleInstance>> moduleInstancesMono =
                 deletedModuleInstanceMono.flatMap(deletedModuleInstance -> layoutModuleInstanceService
                         .findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
-                                moduleInstanceTestHelperDTO.getPageDTO().getId(),
-                                CreatorContextType.PAGE,
-                                deletedModuleInstance.getId(),
-                                READ_MODULE_INSTANCES)
+                                deletedModuleInstance.getId(), READ_MODULE_INSTANCES)
                         .collectList());
 
         Mono<List<NewAction>> actionsMono = deletedModuleInstanceMono.flatMap(deletedModuleInstance -> newActionService
@@ -486,15 +460,15 @@ public class CrudModuleInstanceServiceTest {
                     List<NewAction> actions = tuple3.getT3();
                     assertThat(deletedModuleInstanceDTO).isNotNull();
 
-                    assertThat(moduleInstances.size()).isEqualTo(0);
-                    assertThat(actions.size()).isEqualTo(0);
+                    assertThat(moduleInstances).isEmpty();
+                    assertThat(actions).isEmpty();
                 })
                 .verifyComplete();
     }
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testDeleteModuleWhenModuleInstancesPresentShouldRestrictDeletion() {
+    void testDeleteModuleWhenModuleInstancesPresentShouldRestrictDeletion() {
         // Create a module instance to restrict deletion of the source module
         CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
@@ -514,7 +488,7 @@ public class CrudModuleInstanceServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testDeleteModuleWhenModuleInstancesAreDeletedShouldAllowModuleToDelete() {
+    void testDeleteModuleWhenModuleInstancesAreDeletedShouldAllowModuleToDelete() {
         // Create a module instance to restrict deletion of the source module
         CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
@@ -539,15 +513,13 @@ public class CrudModuleInstanceServiceTest {
 
         // Module can be deleted now as it has no reference exists
         StepVerifier.create(deleteModuleMono)
-                .assertNext(deletedModule -> {
-                    assertThat(deletedModule.getId()).isNotNull();
-                })
+                .assertNext(deletedModule -> assertThat(deletedModule.getId()).isNotNull())
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testAddingNewModuleInstance_inPublicApp_grantsPublicPermissionToRelevantEntities() {
+    void testAddingNewModuleInstance_inPublicApp_grantsPublicPermissionToRelevantEntities() {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceService
                 .getById(moduleInstanceTestHelperDTO.getWorkspaceId())
                 .flatMapMany(workspace -> {
@@ -639,175 +611,29 @@ public class CrudModuleInstanceServiceTest {
                                     publicAppPermissionGroup.getId()))
                             .build();
 
-                    // Check that the datasource used in the app contains public execute permission
-                    Assertions.assertThat(moduleInstanceFromDb.getPolicies())
+                    // Check that the datasource used in the app contains execute permission
+                    assertThat(moduleInstanceFromDb.getPolicies())
                             .containsAll(Set.of(
                                     manageModuleInstancePolicy,
                                     readModuleInstancePolicy,
                                     deleteModuleInstancePolicy,
                                     executeModuleInstancePolicy));
 
-                    // Check that the action used in the app contains public execute permission
-                    assertThat(actionsFromDb.size()).isEqualTo(1);
-                    Assertions.assertThat(actionsFromDb.get(0).getPolicies())
+                    // Check that the action used in the app contains execute permission
+                    assertThat(actionsFromDb).hasSize(1);
+                    assertThat(actionsFromDb.get(0).getPolicies())
                             .containsAll(Set.of(
                                     manageActionPolicy, readActionPolicy, deleteActionPolicy, executeActionPolicy));
 
                     // Assert that viewerPermissionGroup has been assigned to anonymous user.
-                    Assertions.assertThat(publicAppPermissionGroup.getAssignedToUserIds())
-                            .contains(anonymousUser.getId());
-                })
-                .verifyComplete();
-    }
-
-    /**
-     * Test case to verify that auto-upgrade retains previous input values set in the parent app for a module instance.
-     */
-    @WithUserDetails(value = "api_user")
-    @Test
-    public void testAutoUpgradeShouldDeleteOldEntitiesAndCreateNewOnesAndRetainPreviousValuesOfInputsSetInTheParentApp()
-            throws JsonProcessingException {
-        // Create a module
-        ModuleDTO moduleReqDTO = createModuleRequestDTO();
-        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
-
-        // Publish the package
-        publishPackageService.publishPackage(createdModule.getPackageId()).block();
-
-        // Fetch the published module DTO
-        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
-
-        // Create a module instance from the newly created and published module
-        ModuleInstanceDTO moduleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
-
-        // Create module instance and retrieve the response
-        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
-                .createModuleInstance(moduleInstanceReqDTO, null)
-                .block();
-
-        ModuleInstanceDTO moduleInstanceDTO = createdModuleInstanceResponseDTO.getModuleInstance();
-
-        updatePublicActionProperties(moduleInstanceDTO);
-
-        // Override the default value of the input in the parent app
-        Map<String, String> moduleInstanceInputs = moduleInstanceDTO.getInputs();
-        moduleInstanceInputs.put("genderInput", "{{appGenderInput.text}}");
-
-        // Update the module instance with the overridden input value
-        moduleInstanceDTO = layoutModuleInstanceService
-                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceDTO.getId(), null, false)
-                .block();
-
-        // Add another input in the module, setting a default value, and publish again
-        addAnotherInputFieldToExistingModule(createdModule);
-
-        // Update the module with the new input
-        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
-
-        // Publish the package again
-        publishPackageService
-                .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
-                .block();
-
-        // Verify that the old module instance was deleted as part of the auto-upgrade process
-        ModuleInstance oldModuleInstance =
-                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
-        assertThat(oldModuleInstance).isNull();
-
-        // Verify the new module instance has the correct input values
-        Mono<List<ModuleInstanceDTO>> moduleInstancesMono =
-                layoutModuleInstanceService.getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
-                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
-                        CreatorContextType.PAGE,
-                        ResourceModes.EDIT,
-                        null);
-
-        AtomicReference<String> moduleInstanceIdRef = new AtomicReference<>();
-
-        // Verify that properties of public action is retained
-        StepVerifier.create(moduleInstancesMono)
-                .assertNext(moduleInstanceDTOS -> {
-                    assertThat(moduleInstanceDTOS).isNotNull();
-                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
-                    ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
-
-                    assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(2);
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
-                            .isEqualTo("{{appGenderInput.text}}");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("limitInput"))
-                            .isEqualTo("7");
-                    moduleInstanceIdRef.set(moduleInstanceVerificationDTO.getId());
-                })
-                .verifyComplete();
-
-        StepVerifier.create(newActionService
-                        .findAllUnpublishedComposedActionsByRootModuleInstanceId(
-                                moduleInstanceIdRef.get(), READ_ACTIONS, false)
-                        .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                        .collectList())
-                .assertNext(actions -> {
-                    assertThat(actions).isNotNull();
-                    assertThat(actions.size()).isEqualTo(1);
-                    ActionDTO moduleActionDTO = actions.get(0);
-
-                    assertThat(moduleActionDTO.getConfirmBeforeExecute()).isTrue();
-                })
-                .verifyComplete();
-
-        // Verify that onPageLoad actions is recomputed based on the new action
-        NewAction recreatedAction = newActionService
-                .findPublicActionsByModuleInstanceId(moduleInstanceIdRef.get(), Optional.empty())
-                .collectList()
-                .block()
-                .get(0);
-
-        JSONObject parentDsl = new JSONObject(
-                objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
-
-        ArrayList children = (ArrayList) parentDsl.get("children");
-
-        JSONObject firstWidget = new JSONObject();
-        firstWidget.put("widgetName", "text1");
-        JSONArray temp = new JSONArray();
-        temp.add(new JSONObject(Map.of("key", "testField")));
-        firstWidget.put("dynamicBindingPathList", temp);
-        firstWidget.put("testField", "{{ GetFilteredUsers1.data }}");
-        children.add(firstWidget);
-
-        parentDsl.put("children", children);
-        PageDTO testPageDTO = moduleInstanceTestHelperDTO.getPageDTO();
-
-        Layout layout = testPageDTO.getLayouts().get(0);
-        layout.setDsl(parentDsl);
-
-        Mono<LayoutDTO> updateLayoutMono = updateLayoutService.updateLayout(
-                testPageDTO.getId(), testPageDTO.getApplicationId(), layout.getId(), layout);
-
-        StepVerifier.create(updateLayoutMono)
-                .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
-
-                    final Set<DslExecutableDTO> firstSet =
-                            updatedLayout.getLayoutOnLoadActions().get(0);
-                    Assertions.assertThat(firstSet).allMatch(actionDTO -> {
-                        assertThat(Set.of("_$GetFilteredUsers1$_GetFilteredUsers")
-                                        .contains(actionDTO.getName()))
-                                .isTrue();
-                        assertThat(actionDTO.getId()).isEqualTo(recreatedAction.getId());
-                        assertThat(actionDTO.getName())
-                                .isEqualTo(
-                                        recreatedAction.getUnpublishedAction().getName());
-                        return true;
-                    });
+                    assertThat(publicAppPermissionGroup.getAssignedToUserIds()).contains(anonymousUser.getId());
                 })
                 .verifyComplete();
     }
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testAutoUpgradeShouldUpgradeAnyOlderVersionsMissedInPreviousUpgrade() {
+    void testAutoUpgradeShouldUpgradeAnyOlderVersionsMissedInPreviousUpgrade() {
         // Create a module
         ModuleDTO moduleReqDTO = createModuleRequestDTO();
         ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
@@ -838,7 +664,8 @@ public class CrudModuleInstanceServiceTest {
                         .getModuleInstance()
                         .getId())
                 .block();
-        dbSecondModuleInstance.setModuleUUID("ModuleUUID changed to something else to keep it out of auto upgrade");
+        dbSecondModuleInstance.setOriginModuleId(
+                "originModuleId changed to something else to keep it out of auto upgrade");
         dbSecondModuleInstance =
                 moduleInstanceRepository.save(dbSecondModuleInstance).block();
 
@@ -847,12 +674,6 @@ public class CrudModuleInstanceServiceTest {
                 .publishPackage(
                         moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
                 .block();
-
-        // Verify that the old module instance was deleted as part of the auto-upgrade process
-        ModuleInstance oldFirstModuleInstance = moduleInstanceRepository
-                .findById(firstModuleInstanceDTO.getId())
-                .block();
-        assertThat(oldFirstModuleInstance).isNull();
 
         // But the old second module instances should remain as it is since we altered the moduleUUID to keep it out of
         // auto-upgrade scope
@@ -863,14 +684,14 @@ public class CrudModuleInstanceServiceTest {
 
         // Verify the new module instance has the correct input values
         Mono<List<ModuleInstance>> moduleInstancesMono = moduleInstanceRepository
-                .findAllUnpublishedByModuleUUID(sourceModuleDTO.getModuleUUID(), Optional.empty())
+                .findAllUnpublishedByOriginModuleId(createdModule.getId(), Optional.empty())
                 .collectList();
 
         // Verify that after publish package only one module instance is impacted
         StepVerifier.create(moduleInstancesMono)
                 .assertNext(moduleInstanceDTOS -> {
                     assertThat(moduleInstanceDTOS).isNotNull();
-                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
+                    assertThat(moduleInstanceDTOS).hasSize(1);
                     assertThat(moduleInstanceDTOS
                                     .get(0)
                                     .getUnpublishedModuleInstance()
@@ -879,13 +700,13 @@ public class CrudModuleInstanceServiceTest {
                 })
                 .verifyComplete();
 
-        // Retrieve the original moduleUUID for the second module instance
+        // Retrieve the originModuleId for the second module instance
         dbSecondModuleInstance = moduleInstanceRepository
                 .findById(secondCreatedModuleInstanceResponseDTO
                         .getModuleInstance()
                         .getId())
                 .block();
-        dbSecondModuleInstance.setModuleUUID(sourceModuleDTO.getModuleUUID());
+        dbSecondModuleInstance.setOriginModuleId(createdModule.getId());
         dbSecondModuleInstance =
                 moduleInstanceRepository.save(dbSecondModuleInstance).block();
 
@@ -897,14 +718,14 @@ public class CrudModuleInstanceServiceTest {
 
         // Fetch all module instances by moduleUUID after the package is published
         moduleInstancesMono = moduleInstanceRepository
-                .findAllUnpublishedByModuleUUID(sourceModuleDTO.getModuleUUID(), Optional.empty())
+                .findAllUnpublishedByOriginModuleId(createdModule.getId(), Optional.empty())
                 .collectList();
 
         // Verify that two module instances are impacted by the package-publish event
         StepVerifier.create(moduleInstancesMono)
                 .assertNext(moduleInstanceDTOS -> {
                     assertThat(moduleInstanceDTOS).isNotNull();
-                    assertThat(moduleInstanceDTOS.size()).isEqualTo(2);
+                    assertThat(moduleInstanceDTOS).hasSize(2);
                     assertThat(moduleInstanceDTOS
                                     .get(0)
                                     .getUnpublishedModuleInstance()
@@ -921,307 +742,7 @@ public class CrudModuleInstanceServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    public void testAutoUpgradeShouldDeleteAllPreviousModuleInstancesAndAssociatedEntities() {
-        // Create a module
-        ModuleDTO moduleReqDTO = createModuleRequestDTO();
-        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
-
-        // Publish the package
-        publishPackageService.publishPackage(createdModule.getPackageId()).block();
-
-        // Fetch the published module DTO
-        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
-
-        // Create a module instance from the newly created and published module
-        ModuleInstanceDTO moduleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
-
-        // Create module instance and retrieve the response
-        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
-                .createModuleInstance(moduleInstanceReqDTO, null)
-                .block();
-        ModuleInstanceDTO moduleInstanceDTO = createdModuleInstanceResponseDTO.getModuleInstance();
-
-        List<String> previousVersionActionIds = newActionService
-                .findAllUnpublishedComposedActionsByRootModuleInstanceId(moduleInstanceDTO.getId(), READ_ACTIONS, true)
-                .map(newAction -> newAction.getId())
-                .collectList()
-                .block();
-
-        List<String> previousActionCollectionIds = actionCollectionService
-                .findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
-                        moduleInstanceDTO.getId(), READ_ACTIONS)
-                .map(actionCollection -> actionCollection.getId())
-                .collectList()
-                .block();
-
-        // TODO: If the module is a JS module, this should not be empty. Take care of similar test case w.r.t. JS module
-        assertThat(previousActionCollectionIds.size()).isEqualTo(0);
-        assertThat(previousVersionActionIds.size()).isEqualTo(1);
-
-        // Publish the package again
-        publishPackageService
-                .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
-                .block();
-
-        // Verify that the old module instance was deleted as part of the auto-upgrade process
-        ModuleInstance oldFirstModuleInstance =
-                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
-        assertThat(oldFirstModuleInstance).isNull();
-
-        List<NewAction> previousActions = newActionService
-                .findAllById(previousVersionActionIds)
-                .collectList()
-                .block();
-
-        assertThat(previousActions.size()).isEqualTo(0);
-
-        List<ActionCollection> previousActionCollections = actionCollectionRepository
-                .findAllById(previousActionCollectionIds)
-                .collectList()
-                .block();
-        assertThat(previousActionCollections.size()).isEqualTo(0);
-    }
-
-    @WithUserDetails(value = "api_user")
-    @Test
-    public void testAutoUpgradeShouldRecomputeOnPageLoadWhenModuleInstanceIsMarkedToRunOnPageLoadExplicitly() {
-        // Create a module
-        ModuleDTO moduleReqDTO = createModuleRequestDTO();
-        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
-
-        // Publish the package
-        publishPackageService.publishPackage(createdModule.getPackageId()).block();
-
-        // Fetch the published module DTO
-        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
-
-        // Create a module instance from the newly created and published module
-        ModuleInstanceDTO moduleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
-
-        // Create module instance and retrieve the response
-        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
-                .createModuleInstance(moduleInstanceReqDTO, null)
-                .block();
-
-        ModuleInstanceDTO moduleInstanceDTO = createdModuleInstanceResponseDTO.getModuleInstance();
-
-        updatePublicActionProperties(moduleInstanceDTO);
-
-        // Override the default value of the input in the parent app
-        Map<String, String> moduleInstanceInputs = moduleInstanceDTO.getInputs();
-        moduleInstanceInputs.put("genderInput", "{{appGenderInput.text}}");
-
-        // Update the module instance with the overridden input value
-        moduleInstanceDTO = layoutModuleInstanceService
-                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceDTO.getId(), null, false)
-                .block();
-
-        List<NewAction> oldPublicActions = newActionService
-                .findPublicActionsByModuleInstanceId(moduleInstanceDTO.getId(), Optional.empty())
-                .collectList()
-                .block();
-        assertThat(oldPublicActions.size()).isEqualTo(1);
-
-        layoutActionService
-                .setExecuteOnLoad(oldPublicActions.get(0).getId(), null, true)
-                .block();
-
-        // Add another input in the module, setting a default value, and publish again
-        addAnotherInputFieldToExistingModule(createdModule);
-
-        // Update the module with the new input
-        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
-
-        // Publish the package again
-        publishPackageService
-                .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
-                .block();
-
-        // Verify that the old module instance was deleted as part of the auto-upgrade process
-        ModuleInstance oldModuleInstance =
-                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
-        assertThat(oldModuleInstance).isNull();
-
-        // Verify the new module instance has the correct input values
-        Mono<List<ModuleInstanceDTO>> moduleInstancesMono =
-                layoutModuleInstanceService.getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
-                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
-                        CreatorContextType.PAGE,
-                        ResourceModes.EDIT,
-                        null);
-
-        AtomicReference<String> moduleInstanceIdRef = new AtomicReference<>();
-
-        // Verify that properties of public action is retained
-        StepVerifier.create(moduleInstancesMono)
-                .assertNext(moduleInstanceDTOS -> {
-                    assertThat(moduleInstanceDTOS).isNotNull();
-                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
-                    ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
-
-                    assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(2);
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
-                            .isEqualTo("{{appGenderInput.text}}");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("limitInput"))
-                            .isEqualTo("7");
-                    moduleInstanceIdRef.set(moduleInstanceVerificationDTO.getId());
-                })
-                .verifyComplete();
-
-        AtomicReference<String> onPageLoadActionIdRef = new AtomicReference<>();
-
-        StepVerifier.create(newActionService
-                        .findAllUnpublishedComposedActionsByRootModuleInstanceId(
-                                moduleInstanceIdRef.get(), READ_ACTIONS, false)
-                        .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                        .collectList())
-                .assertNext(actions -> {
-                    assertThat(actions).isNotNull();
-                    assertThat(actions.size()).isEqualTo(1);
-                    ActionDTO moduleActionDTO = actions.get(0);
-
-                    assertThat(moduleActionDTO.getConfirmBeforeExecute()).isTrue();
-                    assertThat(moduleActionDTO.getExecuteOnLoad()).isTrue();
-                    onPageLoadActionIdRef.set(moduleActionDTO.getId());
-                })
-                .verifyComplete();
-
-        // Double-check the onPageLoad computation by fetching the page DSL
-
-        Layout pageLayout = newPageService
-                .findById(moduleInstanceTestHelperDTO.getPageDTO().getId(), Optional.empty())
-                .block()
-                .getUnpublishedPage()
-                .getLayouts()
-                .get(0);
-
-        final Set<DslExecutableDTO> firstSet =
-                pageLayout.getLayoutOnLoadActions().get(0);
-        Assertions.assertThat(firstSet).allMatch(actionDTO -> {
-            assertThat(Set.of("_$GetFilteredUsers1$_GetFilteredUsers").contains(actionDTO.getName()))
-                    .isTrue();
-            assertThat(actionDTO.getId()).isEqualTo(onPageLoadActionIdRef.get());
-            return true;
-        });
-    }
-
-    @WithUserDetails(value = "api_user")
-    @Test
-    public void testAutoUpgradeShouldRemoveDeletedInputsFromOlderVersionOfModuleInstances() {
-        // Create a module
-        ModuleDTO moduleReqDTO = createModuleRequestDTO();
-        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
-
-        // Publish the package
-        publishPackageService.publishPackage(createdModule.getPackageId()).block();
-
-        // Fetch the published module DTO
-        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
-
-        // Create a module instance from the newly created and published module
-        ModuleInstanceDTO moduleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
-
-        // Create module instance and retrieve the response
-        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
-                .createModuleInstance(moduleInstanceReqDTO, null)
-                .block();
-
-        ModuleInstanceDTO moduleInstanceDTO = createdModuleInstanceResponseDTO.getModuleInstance();
-
-        updatePublicActionProperties(moduleInstanceDTO);
-
-        // Override the default value of the input in the parent app
-        Map<String, String> moduleInstanceInputs = moduleInstanceDTO.getInputs();
-        moduleInstanceInputs.put("genderInput", "{{appGenderInput.text}}");
-
-        // Update the module instance with the overridden input value
-        moduleInstanceDTO = layoutModuleInstanceService
-                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceDTO.getId(), null, false)
-                .block();
-
-        List<NewAction> oldPublicActions = newActionService
-                .findPublicActionsByModuleInstanceId(moduleInstanceDTO.getId(), Optional.empty())
-                .collectList()
-                .block();
-        assertThat(oldPublicActions.size()).isEqualTo(1);
-
-        layoutActionService
-                .setExecuteOnLoad(oldPublicActions.get(0).getId(), null, true)
-                .block();
-
-        addAnotherInputFieldToExistingModule(createdModule);
-
-        // Update the module with the new input
-        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
-
-        // Publish the package again
-        publishPackageService
-                .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
-                .block();
-
-        // Verify that the old module instance was deleted as part of the auto-upgrade process
-        ModuleInstance oldModuleInstance =
-                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
-        assertThat(oldModuleInstance).isNull();
-
-        // Verify the new module instance has the correct input values
-        Mono<List<ModuleInstanceDTO>> moduleInstancesMono =
-                layoutModuleInstanceService.getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
-                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
-                        CreatorContextType.PAGE,
-                        ResourceModes.EDIT,
-                        null);
-
-        // Verify that properties of public action is retained
-        StepVerifier.create(moduleInstancesMono)
-                .assertNext(moduleInstanceDTOS -> {
-                    assertThat(moduleInstanceDTOS).isNotNull();
-                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
-                    ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
-
-                    assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(2);
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
-                            .isEqualTo("{{appGenderInput.text}}");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("limitInput"))
-                            .isEqualTo("7");
-                })
-                .verifyComplete();
-
-        // Remove an input field and publish the package
-        createdModule.getInputsForm().get(0).getChildren().remove(0);
-        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
-
-        // Publish the package again
-        publishPackageService
-                .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
-                .block();
-
-        // Verify that properties of public action is retained
-        StepVerifier.create(moduleInstancesMono)
-                .assertNext(moduleInstanceDTOS -> {
-                    assertThat(moduleInstanceDTOS).isNotNull();
-                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
-                    ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
-
-                    assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(1);
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
-                            .isNull();
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("limitInput"))
-                            .isEqualTo("7");
-                })
-                .verifyComplete();
-    }
-
-    @WithUserDetails(value = "api_user")
-    @Test
-    public void testGetModuleInstanceEntitiesShouldReturnRespectiveFieldsBasedOnViewMode() {
+    void testGetModuleInstanceEntitiesShouldReturnRespectiveFieldsBasedOnViewMode() {
         // Create a module
         ModuleDTO moduleReqDTO = createModuleRequestDTO();
         ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
@@ -1247,7 +768,7 @@ public class CrudModuleInstanceServiceTest {
         ModuleInstanceEntitiesDTO editModeModuleInstanceEntitiesDTO = crudModuleInstanceService
                 .getAllEntities(moduleInstanceTestHelperDTO.getPageDTO().getId(), CreatorContextType.PAGE, null, false)
                 .block();
-        assertThat(editModeModuleInstanceEntitiesDTO.getActions().size()).isEqualTo(1);
+        assertThat(editModeModuleInstanceEntitiesDTO.getActions()).hasSize(1);
         ActionViewDTO editModeActionViewDTO =
                 editModeModuleInstanceEntitiesDTO.getActions().get(0);
         assertThat(editModeActionViewDTO.getModuleInstanceId())
@@ -1259,7 +780,7 @@ public class CrudModuleInstanceServiceTest {
         ModuleInstanceEntitiesDTO viewModeModeModuleInstanceEntitiesDTO = crudModuleInstanceService
                 .getAllEntities(moduleInstanceTestHelperDTO.getPageDTO().getId(), CreatorContextType.PAGE, null, true)
                 .block();
-        assertThat(viewModeModeModuleInstanceEntitiesDTO.getActions().size()).isEqualTo(1);
+        assertThat(viewModeModeModuleInstanceEntitiesDTO.getActions()).hasSize(1);
         ActionViewDTO videModeActionViewDTO =
                 viewModeModeModuleInstanceEntitiesDTO.getActions().get(0);
         assertThat(videModeActionViewDTO.getModuleInstanceId())
@@ -1269,7 +790,7 @@ public class CrudModuleInstanceServiceTest {
         assertThat(videModeActionViewDTO.getIsPublic()).isTrue();
     }
 
-    @NotNull private ActionDTO createPageAction() {
+    private ActionDTO createPageAction() {
         ActionDTO pageActionDTO = new ActionDTO();
         pageActionDTO.setName("Query1");
         pageActionDTO.setActionConfiguration(new ActionConfiguration());
@@ -1283,28 +804,9 @@ public class CrudModuleInstanceServiceTest {
                 .block();
     }
 
-    private void addAnotherInputFieldToExistingModule(ModuleDTO moduleDTO) {
-        // Add another input in the module, setting a default value, and publish again
-        ModuleInput limitInput = new ModuleInput();
-        limitInput.setLabel("limitInput");
-        limitInput.setPropertyName("inputs.limitInput");
-        limitInput.setDefaultValue("7");
-        limitInput.setControlType("INPUT_TEXT");
-
-        ModuleInputForm limitInputForm = new ModuleInputForm();
-        limitInputForm.setId(UUID.randomUUID().toString());
-        limitInputForm.setSectionName("");
-        List<ModuleInput> inputChildren = new ArrayList<>();
-        inputChildren.add(limitInput);
-        limitInputForm.setChildren(inputChildren);
-
-        List<ModuleInputForm> moduleInputsForm = moduleDTO.getInputsForm();
-        moduleInputsForm.get(0).getChildren().add(limitInput);
-    }
-
     @WithUserDetails(value = "api_user")
     @Test
-    public void testAutoUpgradeShouldPassWhenModuleNameIsUpdatedAndModuleInstanceExistsForTheOlderVersion() {
+    void testAutoUpgradeShouldPassWhenModuleNameIsUpdatedAndModuleInstanceExistsForTheOlderVersion() {
         // Create a module
         ModuleDTO moduleReqDTO = createModuleRequestDTO();
         ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
@@ -1340,7 +842,7 @@ public class CrudModuleInstanceServiceTest {
                 .findPublicActionsByModuleInstanceId(moduleInstanceDTO.getId(), Optional.empty())
                 .collectList()
                 .block();
-        assertThat(oldPublicActions.size()).isEqualTo(1);
+        assertThat(oldPublicActions).hasSize(1);
 
         layoutActionService
                 .setExecuteOnLoad(oldPublicActions.get(0).getId(), null, true)
@@ -1358,11 +860,6 @@ public class CrudModuleInstanceServiceTest {
                         moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
                 .block();
 
-        // Verify that the old module instance was deleted as part of the auto-upgrade process
-        ModuleInstance oldModuleInstance =
-                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
-        assertThat(oldModuleInstance).isNull();
-
         // Verify the new module instance has the correct input values
         Mono<List<ModuleInstanceDTO>> moduleInstancesMono =
                 layoutModuleInstanceService.getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
@@ -1373,17 +870,17 @@ public class CrudModuleInstanceServiceTest {
 
         AtomicReference<String> moduleInstanceIdRef = new AtomicReference<>();
 
-        // Verify that properties of public action is retained
+        // Verify that properties of action is retained
         StepVerifier.create(moduleInstancesMono)
                 .assertNext(moduleInstanceDTOS -> {
                     assertThat(moduleInstanceDTOS).isNotNull();
-                    assertThat(moduleInstanceDTOS.size()).isEqualTo(1);
+                    assertThat(moduleInstanceDTOS).hasSize(1);
                     ModuleInstanceDTO moduleInstanceVerificationDTO = moduleInstanceDTOS.get(0);
 
                     assertThat(moduleInstanceVerificationDTO.getName()).isEqualTo("GetFilteredUsers1");
-                    assertThat(moduleInstanceVerificationDTO.getInputs().size()).isEqualTo(1);
-                    assertThat(moduleInstanceVerificationDTO.getInputs().get("genderInput"))
-                            .isEqualTo("{{appGenderInput.text}}");
+                    assertThat(moduleInstanceVerificationDTO.getInputs()).hasSize(1);
+                    assertThat(moduleInstanceVerificationDTO.getInputs())
+                            .containsEntry("genderInput", "{{appGenderInput.text}}");
                     moduleInstanceIdRef.set(moduleInstanceVerificationDTO.getId());
                 })
                 .verifyComplete();
@@ -1397,7 +894,7 @@ public class CrudModuleInstanceServiceTest {
                         .collectList())
                 .assertNext(actions -> {
                     assertThat(actions).isNotNull();
-                    assertThat(actions.size()).isEqualTo(1);
+                    assertThat(actions).hasSize(1);
                     ActionDTO moduleActionDTO = actions.get(0);
 
                     assertThat(moduleActionDTO.getConfirmBeforeExecute()).isTrue();
@@ -1417,10 +914,8 @@ public class CrudModuleInstanceServiceTest {
 
         final Set<DslExecutableDTO> firstSet =
                 pageLayout.getLayoutOnLoadActions().get(0);
-        Assertions.assertThat(firstSet).allMatch(actionDTO -> {
-            assertThat(Set.of("_$GetFilteredUsers1$_NameGotChangedInThisVersion")
-                            .contains(actionDTO.getName()))
-                    .isTrue();
+        assertThat(firstSet).isNotEmpty().allMatch(actionDTO -> {
+            assertThat(actionDTO.getName()).isEqualTo("_$GetFilteredUsers1$_NameGotChangedInThisVersion");
             assertThat(actionDTO.getId()).isEqualTo(onPageLoadActionIdRef.get());
             return true;
         });
@@ -1444,8 +939,7 @@ public class CrudModuleInstanceServiceTest {
                 .block();
 
         assertThat(actions).isNotNull();
-        assert actions != null;
-        assertThat(actions.size()).isEqualTo(1);
+        assertThat(actions).hasSize(1);
         ActionDTO moduleActionDTO = actions.get(0);
         moduleActionDTO.setConfirmBeforeExecute(true);
 

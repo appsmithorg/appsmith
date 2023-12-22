@@ -22,12 +22,13 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Service
 public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceServiceImpl
-        implements ModuleInstantiatingService<ModuleInstance> {
+        implements ModuleInstantiatingService<ModuleInstance, ModuleInstance> {
     private final ModuleInstanceRepository repository;
     private final ModuleInstancePermission moduleInstancePermission;
     private final PolicyGenerator policyGenerator;
@@ -47,6 +48,15 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+
+        return generateInstantiatedEntities(moduleInstantiatingMetaDTO)
+                .flatMap(toBeInstantiatedModuleInstances ->
+                        repository.saveAll(toBeInstantiatedModuleInstances).then());
+    }
+
+    @Override
+    public Mono<List<ModuleInstance>> generateInstantiatedEntities(
+            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         Flux<ModuleInstance> allModuleInstancesFlux = repository.findAllPublishedByContextIdAndContextType(
                 moduleInstantiatingMetaDTO.getSourceModuleId(),
                 CreatorContextType.MODULE,
@@ -80,17 +90,13 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
                     Map<String, RefactorEntityNameDTO> oldToNewModuleEntityRefactorDTOsMap =
                             moduleInstantiatingMetaDTO.getOldToNewModuleEntityRefactorDTOsMap();
 
-                    Mono<ModuleInstance> moduleInstanceMono = refactorAndExtractJsonPathKeysForModuleInstance(
+                    return refactorAndExtractJsonPathKeysForModuleInstance(
                             toBeInstantiatedModuleInstance,
                             unpublishedModuleInstance,
                             moduleInstantiatingMetaDTO,
                             oldToNewModuleEntityRefactorDTOsMap);
-
-                    return moduleInstanceMono;
                 })
-                .collectList()
-                .flatMap(toBeInstantiatedModuleInstances ->
-                        repository.saveAll(toBeInstantiatedModuleInstances).then());
+                .collectList();
     }
 
     private Mono<ModuleInstance> refactorAndExtractJsonPathKeysForModuleInstance(
@@ -100,7 +106,7 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
             Map<String, RefactorEntityNameDTO> oldToNewModuleEntityRefactorDTOsMap) {
 
         // For each entity name, call refactor current entity
-        Mono<ModuleInstance> moduleInstanceMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
+        return Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
                 .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
                         unpublishedModuleInstance,
                         EntityType.MODULE_INSTANCE,
@@ -111,8 +117,6 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
                     this.extractAndSetJsonPathKeys(toBeInstantiatedModuleInstance);
                     return Mono.just(toBeInstantiatedModuleInstance);
                 }));
-
-        return moduleInstanceMono;
     }
 
     private void setFullyQualifiedName(

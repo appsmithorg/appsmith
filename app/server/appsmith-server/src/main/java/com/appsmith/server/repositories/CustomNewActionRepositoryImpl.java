@@ -328,16 +328,16 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             default -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
         }
         String contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
-        Criteria contextIdAndContextTypeCriteria =
-                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        Criteria contextIdAndContextTypeCriteria = new Criteria();
+
+        contextIdAndContextTypeCriteria.andOperator(
+                Criteria.where(contextIdPath).is(contextId),
+                Criteria.where(contextTypePath).is(contextType));
 
         criteriaList.add(contextIdAndContextTypeCriteria);
 
-        Criteria jsInclusionOrExclusionCriteria;
-        if (includeJs) {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
-        } else {
+        Criteria jsInclusionOrExclusionCriteria = new Criteria();
+        if (!includeJs) {
             jsInclusionOrExclusionCriteria =
                     where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
         }

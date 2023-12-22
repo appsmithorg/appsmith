@@ -148,7 +148,6 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
             // TODO: Handle this scenario based on use case
             return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
-
         return newActionService.getUnpublishedActions(params).flatMap(actionDTO -> {
             /*
                This is unexpected. Every action inside a JS collection should have a collectionId.

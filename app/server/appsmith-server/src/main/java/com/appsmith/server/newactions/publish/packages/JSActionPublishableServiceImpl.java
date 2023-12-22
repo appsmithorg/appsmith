@@ -1,11 +1,11 @@
-package com.appsmith.server.newactions.publish.internal;
+package com.appsmith.server.newactions.publish.packages;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.dtos.PublishingMetaDTO;
+import com.appsmith.server.dtos.PackagePublishingMetaDTO;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import org.bson.types.ObjectId;
@@ -32,7 +32,7 @@ public class JSActionPublishableServiceImpl implements JSActionPublishableServic
 
     @Override
     public Mono<Map<String, List<String>>> createPublishableJSActions(
-            PublishingMetaDTO publishingMetaDTO,
+            PackagePublishingMetaDTO publishingMetaDTO,
             List<String> sourceCollectionIds,
             Map<String, String> oldToNewCollectionIdMap) {
         final Map<String, List<String>> newCollectionIdToNewActionsMap = new HashMap<>();
@@ -67,18 +67,20 @@ public class JSActionPublishableServiceImpl implements JSActionPublishableServic
     }
 
     @NotNull private NewAction getNewJSAction(
-            PublishingMetaDTO publishingMetaDTO, NewAction sourceNewAction, String newCollectionId) {
+            PackagePublishingMetaDTO publishingMetaDTO, NewAction sourceNewAction, String newCollectionId) {
         NewAction toBePublishedNewAction = new NewAction();
         AppsmithBeanUtils.copyNestedNonNullProperties(sourceNewAction, toBePublishedNewAction);
         toBePublishedNewAction.setId(new ObjectId().toString());
+        toBePublishedNewAction.setOriginActionId(sourceNewAction.getId());
         toBePublishedNewAction.setPublishedAction(sourceNewAction.getUnpublishedAction());
         toBePublishedNewAction.setUnpublishedAction(new ActionDTO());
         toBePublishedNewAction.getPublishedAction().setCollectionId(newCollectionId);
         toBePublishedNewAction
                 .getPublishedAction()
                 .setModuleId(publishingMetaDTO
-                        .getOldModuleIdToNewModuleIdMap()
-                        .get(sourceNewAction.getUnpublishedAction().getModuleId()));
+                        .getOriginModuleIdToPublishedModuleMap()
+                        .get(sourceNewAction.getUnpublishedAction().getModuleId())
+                        .getId());
 
         DefaultResources defaultResources = new DefaultResources();
         defaultResources.setActionId(toBePublishedNewAction.getId());

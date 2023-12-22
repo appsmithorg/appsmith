@@ -2,10 +2,12 @@ package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
+import com.appsmith.server.dtos.SimulatedModuleInstanceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.moduleinstances.base.BaseModuleInstanceServiceImpl;
@@ -27,6 +29,12 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     @Override
     public Mono<CreateModuleInstanceResponseDTO> createModuleInstance(
             ModuleInstanceDTO moduleInstanceDTO, String branchName) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<SimulatedModuleInstanceDTO> simulateCreateModuleInstance(
+            ModuleInstanceDTO moduleInstanceReqDTO, String branchName, Mono<Module> cachedModuleMono) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
@@ -53,7 +61,8 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     }
 
     @Override
-    public Flux<ModuleInstance> findAllUnpublishedByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
+    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleId(
+            String sourceModuleId, Optional<AclPermission> permission) {
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

@@ -24,12 +24,13 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingService<NewAction> {
+public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingService<NewAction, NewAction> {
     private final NewActionRepository newActionRepository;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
@@ -38,6 +39,13 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
+        return generateInstantiatedEntities(moduleInstantiatingMetaDTO)
+                .flatMapMany(newActionRepository::saveAll)
+                .then();
+    }
+
+    @Override
+    public Mono<List<NewAction>> generateInstantiatedEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         Flux<NewAction> sourceActionFlux = newActionRepository.findAllPublishedActionsByContextIdAndContextType(
                 moduleInstantiatingMetaDTO.getSourceModuleId(),
                 CreatorContextType.MODULE,
@@ -49,7 +57,7 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
                     setUnpublishedAndPublishedData(sourceAction, toBeInstantiatedAction);
 
                     ActionDTO unpublishedAction = toBeInstantiatedAction.getUnpublishedAction();
-                    setFullyQualifiedName(moduleInstantiatingMetaDTO, unpublishedAction);
+                    setModifiedName(moduleInstantiatingMetaDTO, unpublishedAction);
                     setContextTypeAndContextId(moduleInstantiatingMetaDTO, toBeInstantiatedAction);
 
                     resetIsPublicAttributeForComposedModuleInstances(toBeInstantiatedAction);
@@ -72,13 +80,10 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
 
                     return newActionMono;
                 })
-                .collectList()
-                .flatMap(toBeInstantiatedActions ->
-                        newActionRepository.saveAll(toBeInstantiatedActions).then());
+                .collectList();
     }
 
-    private void setFullyQualifiedName(
-            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionDTO unpublishedAction) {
+    private void setModifiedName(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionDTO unpublishedAction) {
         unpublishedAction.setName(ModuleUtils.getValidName(
                 moduleInstantiatingMetaDTO.getRootModuleInstanceName(), unpublishedAction.getName()));
     }
@@ -136,6 +141,7 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
                 moduleInstantiatingMetaDTO.getPage().getDefaultResources().getPageId());
 
         toBeInstantiatedAction.setDefaultResources(defaultResources);
+        toBeInstantiatedAction.getUnpublishedAction().setDefaultResources(defaultResources);
     }
 
     private void setRootModuleInstanceIdAndModuleInstanceId(

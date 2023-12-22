@@ -40,7 +40,7 @@ public class WidgetRefactoringServiceImpl extends WidgetRefactoringServiceCEImpl
     @Override
     public Flux<RefactorEntityNameDTO> getRefactorDTOsForExistingEntityNames(
             String contextId, CreatorContextType contextType, String layoutId) {
-        return this.getExistingEntityNames(contextId, contextType, layoutId)
+        return this.getExistingEntityNames(contextId, contextType, layoutId, true)
                 .map(widgetName -> {
                     RefactorEntityNameDTO dto = new RefactorEntityNameDTO();
                     dto.setOldName(widgetName);

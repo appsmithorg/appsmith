@@ -30,6 +30,9 @@ public class Module extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String moduleUUID; // `moduleUUID` is not globally unique but within the workspace
 
+    @JsonView(Views.Internal.class)
+    String originModuleId;
+
     // `unpublishedModule` will be empty in case of published version of the module document.
     @JsonView(Views.Public.class)
     ModuleDTO unpublishedModule;

@@ -3,7 +3,7 @@ package com.appsmith.server.moduleinstances.publish;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
-import com.appsmith.server.publish.publishable.ApplicationPublishableService;
+import com.appsmith.server.publish.applications.publishable.ApplicationPublishableService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ModuleInstancePublishableServiceImpl implements ApplicationPublishableService<ModuleInstance> {
+public class ModuleInstancePackagePublishableServiceImpl implements ApplicationPublishableService<ModuleInstance> {
     private final ModuleInstanceRepository repository;
     private final ModuleInstancePermission moduleInstancePermission;
 

@@ -197,17 +197,17 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
     @Override
     public Flux<ModuleInstance> getComposedModuleInstances(RefactorEntityNameDTO refactorEntityNameDTO) {
         return moduleInstanceService.findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
-                refactorEntityNameDTO.getPageId(),
-                CreatorContextType.PAGE, // Since refactor is only for pages for now
-                refactorEntityNameDTO.getModuleInstanceId(),
-                moduleInstancePermission.getEditPermission());
+                // Since refactor is only for pages for now
+                refactorEntityNameDTO.getModuleInstanceId(), moduleInstancePermission.getEditPermission());
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        ResourceModes resourceMode = viewMode ? ResourceModes.VIEW : ResourceModes.EDIT;
+
         return moduleInstanceService
-                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
-                        contextId, contextType, ResourceModes.EDIT, null)
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(contextId, contextType, resourceMode, null)
                 .flatMapMany(Flux::fromIterable)
                 .map(ModuleInstanceDTO::getName);
     }
@@ -230,7 +230,7 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
     @Override
     public Flux<RefactorEntityNameDTO> getRefactorDTOsForExistingEntityNames(
             String contextId, CreatorContextType contextType, String layoutId) {
-        return this.getExistingEntityNames(contextId, contextType, layoutId)
+        return this.getExistingEntityNames(contextId, contextType, layoutId, true)
                 .map(moduleInstanceName -> {
                     RefactorEntityNameDTO dto = new RefactorEntityNameDTO();
                     dto.setOldName(moduleInstanceName);

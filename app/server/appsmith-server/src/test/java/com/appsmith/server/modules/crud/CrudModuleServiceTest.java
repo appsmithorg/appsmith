@@ -1,4 +1,4 @@
-package com.appsmith.server.modules.services;
+package com.appsmith.server.modules.crud;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -25,7 +25,6 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
-import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
@@ -77,7 +76,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-class ModuleServiceTest {
+class CrudModuleServiceTest {
 
     @Autowired
     PackagePermissionChecker packagePermissionChecker;
@@ -755,7 +754,7 @@ class ModuleServiceTest {
                     assertThat(createdModuleAction).isNotNull();
                     assertThat(createdModuleAction.getContextType()).isEqualTo(CreatorContextType.MODULE);
                     assertThat(createdModuleAction.getModuleId()).isEqualTo(createdModule.getId());
-                    assertThat(createdModuleAction.getIsPublic()).isFalse();
+                    assertThat(createdModuleAction.isOnLoadMessageAllowed()).isFalse();
                 })
                 .verifyComplete();
     }

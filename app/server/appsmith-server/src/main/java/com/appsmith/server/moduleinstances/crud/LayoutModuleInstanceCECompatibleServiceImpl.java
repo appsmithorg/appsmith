@@ -34,10 +34,7 @@ public class LayoutModuleInstanceCECompatibleServiceImpl extends BaseModuleInsta
 
     @Override
     public Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
-            String pageId,
-            CreatorContextType creatorContextType,
-            String rootModuleInstanceId,
-            AclPermission editPermission) {
+            String rootModuleInstanceId, AclPermission editPermission) {
         return Flux.empty();
     }
 

@@ -4,10 +4,8 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.PublishingMetaDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.newactions.publish.internal.JSActionPublishableService;
+import com.appsmith.server.dtos.PackagePublishingMetaDTO;
+import com.appsmith.server.newactions.publish.packages.JSActionPublishableService;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import org.bson.types.ObjectId;
@@ -34,13 +32,13 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
     }
 
     @Override
-    public Mono<List<ActionCollection>> getPublishableEntities(PublishingMetaDTO publishingMetaDTO) {
+    public Mono<List<ActionCollection>> publishEntities(PackagePublishingMetaDTO publishingMetaDTO) {
         final List<String> sourceCollectionIds = new ArrayList<>();
 
         final Map<String, String> oldToNewCollectionIdMap = new HashMap<>();
 
         final List<String> sourceModuleIds = new ArrayList<>(
-                publishingMetaDTO.getOldModuleIdToNewModuleIdMap().keySet());
+                publishingMetaDTO.getOriginModuleIdToPublishedModuleMap().keySet());
 
         return actionCollectionRepository
                 .findAllByModuleIds(sourceModuleIds, Optional.empty())
@@ -54,7 +52,7 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
 
                                 setDefaultResources(sourceActionCollection, toBePublishedActionCollection);
 
-                                setNewSourceModuleId(
+                                setNewModuleId(
                                         publishingMetaDTO, sourceActionCollection, toBePublishedActionCollection);
 
                                 oldToNewCollectionIdMap.put(
@@ -64,8 +62,7 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
                                 return toBePublishedActionCollection;
                             })
                             .collect(Collectors.toMap(
-                                    newActionCollection -> newActionCollection.getId(),
-                                    newActionCollection -> newActionCollection));
+                                    ActionCollection::getId, newActionCollection -> newActionCollection));
 
                     return jsActionPublishableService
                             .createPublishableJSActions(publishingMetaDTO, sourceCollectionIds, oldToNewCollectionIdMap)
@@ -90,15 +87,16 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
                 });
     }
 
-    private void setNewSourceModuleId(
-            PublishingMetaDTO publishingMetaDTO,
+    private void setNewModuleId(
+            PackagePublishingMetaDTO publishingMetaDTO,
             ActionCollection sourceActionCollection,
             ActionCollection toBePublishedActionCollection) {
         toBePublishedActionCollection
                 .getPublishedCollection()
                 .setModuleId(publishingMetaDTO
-                        .getOldModuleIdToNewModuleIdMap()
-                        .get(sourceActionCollection.getUnpublishedCollection().getModuleId()));
+                        .getOriginModuleIdToPublishedModuleMap()
+                        .get(sourceActionCollection.getUnpublishedCollection().getModuleId())
+                        .getId());
     }
 
     private void setDefaultResources(
@@ -107,6 +105,7 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
         defaultResources.setCollectionId(toBePublishedActionCollection.getId());
 
         toBePublishedActionCollection.setDefaultResources(defaultResources);
+        toBePublishedActionCollection.getPublishedCollection().setDefaultResources(defaultResources);
     }
 
     private void setUnpublishedAndPublishedData(
@@ -119,11 +118,7 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
         ActionCollection toBePublishedActionCollection = new ActionCollection();
         AppsmithBeanUtils.copyNestedNonNullProperties(sourceActionCollection, toBePublishedActionCollection);
         toBePublishedActionCollection.setId(new ObjectId().toString());
+        toBePublishedActionCollection.setOriginActionCollectionId(sourceActionCollection.getId());
         return toBePublishedActionCollection;
-    }
-
-    @Override
-    public Mono<Void> updatePublishableEntities(PublishingMetaDTO publishingMetaDTO) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

@@ -488,6 +488,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         return super.generateActionByViewMode(newAction, viewMode).flatMap(actionDTO -> {
             actionDTO.setIsPublic(newAction.getIsPublic());
             actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
+            actionDTO.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
             return Mono.just(actionDTO);
         });
     }
@@ -583,6 +584,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         super.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
         if (isModuleContext(action.getContextType())) {
             newAction.setIsPublic(action.getIsPublic());
+            newAction.setRootModuleInstanceId(action.getRootModuleInstanceId());
         } else if (isWorkflowContext(action.getContextType())) {
             newAction.setWorkflowId(action.getWorkflowId());
         }
