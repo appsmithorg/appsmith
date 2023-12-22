@@ -41,7 +41,7 @@ public enum AppsmithErrorCode {
     API_KEY_NOT_MAPPED("AE-APP-4034", "Api Key not mapped. It may have already been disabled."),
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR("AE-APP-4038", "Remove last workspace admin error"),
     UNKNOWN_PLUGIN_REFERENCE("AE-APP-4052", "Unknown plugin reference"),
-    INVALID_LICENSE_KEY_ENTERED("AE-APP-4053", "Invalid license key"),
+    INVALID_LICENSE_KEY("AE-APP-4053", "Invalid license key"),
     LICENSE_UPGRADE_REQUIRED("AE-APP-4054", "License upgrade required."),
     HEALTHCHECK_TIMEOUT("AE-APP-4080", "Connection timeout during health check"),
     DUPLICATE_KEY("AE-APP-4091", "Duplicate key"),
@@ -160,6 +160,7 @@ public enum AppsmithErrorCode {
     WORKFLOW_NOT_TRIGGERED_WORKFLOW_NOT_PUBLISHED("AE-APP-5027", "Unable to trigger workflow. Workflow not published."),
     WORKFLOW_NOT_TRIGGERED_MAIN_JS_OBJECT_NOT_FOUND(
             "AE-APP-5028", "Unable to trigger workflow. Main JS Object not found."),
+    LICENSE_KEY_ACTIVATION_WARNING("AE-LIC-4001", "License activation warning."),
     ;
     private final String code;
     private final String description;
