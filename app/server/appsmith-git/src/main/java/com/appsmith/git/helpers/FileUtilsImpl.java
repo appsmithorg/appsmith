@@ -297,26 +297,27 @@ public class FileUtilsImpl implements FileInterface {
                     }
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
 
-                    // Save JS Libs
-                    Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
-                    Set<Map.Entry<String, Object>> jsLibEntries =
-                            applicationGitReference.getJsLibraries().entrySet();
-                    Set<String> validJsLibs = new HashSet<>();
-                    jsLibEntries.forEach(jsLibEntry -> {
-                        String uidString = jsLibEntry.getKey();
-                        Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))
-                                ? updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString)
-                                : Boolean.FALSE;
+                    // Save JS Libs if there's at least one change
+                    if (!CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))) {
+                        Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
+                        Set<Map.Entry<String, Object>> jsLibEntries =
+                                applicationGitReference.getJsLibraries().entrySet();
+                        Set<String> validJsLibs = new HashSet<>();
+                        jsLibEntries.forEach(jsLibEntry -> {
+                            String uidString = jsLibEntry.getKey();
+                            Boolean isResourceUpdated =
+                                    updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
 
-                        String fileNameWithExtension = getJsLibFileName(uidString) + CommonConstants.JSON_EXTENSION;
+                            String fileNameWithExtension = getJsLibFileName(uidString) + CommonConstants.JSON_EXTENSION;
 
-                        Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
-                        if (isResourceUpdated) {
-                            saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
-                        }
-                        validJsLibs.add(fileNameWithExtension);
-                    });
-                    scanAndDeleteFileForDeletedResources(validJsLibs, jsLibDirectory);
+                            Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
+                            if (isResourceUpdated) {
+                                saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
+                            }
+                            validJsLibs.add(fileNameWithExtension);
+                        });
+                        scanAndDeleteFileForDeletedResources(validJsLibs, jsLibDirectory);
+                    }
 
                     // Create HashMap for valid actions and actionCollections
                     HashMap<String, Set<String>> validActionsMap = new HashMap<>();
