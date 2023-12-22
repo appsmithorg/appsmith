@@ -5,21 +5,14 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Fork a template to an workspace",
-  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   () => {
     it("1. Fork a template to an workspace", () => {
       _.templates.SwitchToTemplatesTab();
-      cy.xpath(
-        "//h1[text()='Customer Support Dashboard']/parent::div//button[contains(@class, 't--fork-template')]",
-      )
-        .scrollIntoView()
-        .wait(500)
-        .click();
-      cy.get("body").then(($ele) => {
-        if ($ele.find(templateLocators.templateViewForkButton).length) {
-          cy.get(templateLocators.templateViewForkButton).click();
-        }
-      });
+
+      _.agHelper.GetNClick(templateLocators.templateCard);
+      _.agHelper.GetNClick(templateLocators.templateViewForkButton);
+
       _.agHelper.WaitUntilEleAppear(
         `div[role="dialog"]:has(` + templateLocators.dialogForkButton + `)`,
       );
@@ -65,17 +58,13 @@ describe(
       });
       cy.get(templateLocators.templatesTab).click();
       cy.wait(1000);
-      cy.xpath(
-        "//h1[text()='Customer Messaging Tool']/parent::div//button[contains(@class, 't--fork-template')]",
-      )
+
+      cy.xpath("//h1[text()='Customer Messaging Tool']")
         .scrollIntoView()
         .wait(500)
         .click();
-      cy.get("body").then(($ele) => {
-        if ($ele.find(templateLocators.templateViewForkButton).length) {
-          cy.get(templateLocators.templateViewForkButton).click();
-        }
-      });
+      _.agHelper.GetNClick(templateLocators.templateViewForkButton);
+
       cy.get(templateLocators.dialogForkButton).click();
       cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
       cy.get(reconnectDatasourceLocators.DatasourceList)
