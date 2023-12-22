@@ -23,6 +23,7 @@ describe(
         _.homePage.NavigateToHome();
       });
 
+      _.agHelper.GetNClick(_.homePage._helpButton);
       cy.get(guidedTourLocators.welcomeTour).click();
       cy.get(guidedTourLocators.startBuilding).should("be.visible");
       // Go back to applications page

@@ -104,6 +104,9 @@ describe(
           cy.get("@guid").then((uid) => {
             newWorkspaceName = uid;
             homePage.CreateNewWorkspace(newWorkspaceName);
+            homePage.NavigateToHome();
+            cy.get(homePageLocatores.createNew).first().click();
+
             cy.get(homePageLocatores.workspaceImportAppOption).click({
               force: true,
             });
