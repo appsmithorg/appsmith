@@ -114,7 +114,7 @@ describe("Tests for interval functions", () => {
     expect(showAlertMock).toBeCalledWith("Hello World");
   });
 
-  it("clearTimeout should remove only the mentioned interval, and not all the intervals", async () => {
+  it("clearInterval should remove only the mentioned interval, and not all the intervals", async () => {
     const callback = jest.fn();
     const interval1 = evalContext.setInterval(callback, 1000);
     evalContext.setInterval(callback, 1000, "intervalId1");
