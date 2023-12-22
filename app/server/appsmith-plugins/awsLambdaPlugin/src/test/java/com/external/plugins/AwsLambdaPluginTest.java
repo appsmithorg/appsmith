@@ -106,7 +106,7 @@ public class AwsLambdaPluginTest {
                 pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertEquals("\"Hello World\"", result.getBody().toString());
+                    assertEquals("Hello World", result.getBody().toString());
                 })
                 .verifyComplete();
     }

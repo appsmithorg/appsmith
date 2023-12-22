@@ -38,30 +38,6 @@
             </exclusions>
         </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>com.fasterxml.jackson.core</groupId>-->
-        <!--            <artifactId>jackson-databind</artifactId>-->
-        <!--            <version>${jackson-bom.version}</version>-->
-        <!--            <scope>provided</scope>-->
-        <!--        </dependency>-->
-
-        <!--        <dependency>-->
-        <!--            <groupId>com.fasterxml.jackson.datatype</groupId>-->
-        <!--            <artifactId>jackson-datatype-jdk8</artifactId>-->
-        <!--            <version>${jackson-bom.version}</version>-->
-        <!--        </dependency>-->
-
-        <!--        <dependency>-->
-        <!--            <groupId>com.fasterxml.jackson.datatype</groupId>-->
-        <!--            <artifactId>jackson-datatype-jsr310</artifactId>-->
-        <!--            <version>${jackson-bom.version}</version>-->
-        <!--        </dependency>-->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>32.0.1-jre</version>
-        </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>io.projectreactor</groupId>

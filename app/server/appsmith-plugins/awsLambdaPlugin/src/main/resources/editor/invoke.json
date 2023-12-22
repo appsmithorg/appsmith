@@ -10,12 +10,31 @@
       "label": "Details of lambda function",
       "children": [
         {
-          "label": "Name of function to invoke",
-          "configProperty": "actionConfiguration.formData.functionName.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
+          "label": "Function to invoke",
+          "tooltipText": "This is the name of the AWS lambda function that will be invoked.",
+          "subtitle": "",
           "isRequired": true,
-          "initialValue": ""
+          "propertyName": "function_name",
+          "configProperty": "actionConfiguration.formData.functionName.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "All function names will be fetched.",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION'}}",
+              "config": {
+                "params": {
+                  "requestType": "FUNCTION_NAMES",
+                  "displayType": "DROP_DOWN"
+                }
+              }
+            }
+          }
         },
         {
           "label": "Post body",

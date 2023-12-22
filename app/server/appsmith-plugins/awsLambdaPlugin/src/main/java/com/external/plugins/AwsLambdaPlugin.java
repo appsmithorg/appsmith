@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.model.AWSLambdaException;
@@ -9,6 +10,7 @@ import com.amazonaws.services.lambda.model.FunctionConfiguration;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.lambda.model.ListFunctionsResult;
+import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -16,12 +18,15 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.pf4j.util.StringUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -31,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -54,8 +61,6 @@ public class AwsLambdaPlugin extends BasePlugin {
             Map<String, Object> formData = actionConfiguration.getFormData();
             String command = getDataValueSafelyFromFormData(formData, "command", STRING_TYPE);
 
-            //            String query = actionConfiguration.getBody();
-
             return Mono.fromCallable(() -> {
                         ActionExecutionResult result = null;
                         switch (Objects.requireNonNull(command)) {
@@ -67,11 +72,38 @@ public class AwsLambdaPlugin extends BasePlugin {
                         return result;
                     })
                     .onErrorMap(
-                            Exception.class,
+                            IllegalArgumentException.class,
                             e -> new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR, "Unsupported command: " + command))
+                    .onErrorMap(
+                            ResourceNotFoundException.class,
+                            e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getErrorMessage()))
+                    .onErrorMap(
+                            Exception.class,
+                            e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()))
                     .map(obj -> obj)
                     .subscribeOn(Schedulers.boundedElastic());
+        }
+
+        @Override
+        public Mono<TriggerResultDTO> trigger(
+                AWSLambda connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            if (!StringUtils.hasText(request.getRequestType())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "request type is missing");
+            }
+            ActionExecutionResult actionExecutionResult = listFunctions(null, connection);
+            ArrayNode body = (ArrayNode) actionExecutionResult.getBody();
+            List<Map<String, String>> functionNames = StreamSupport.stream(body.spliterator(), false)
+                    .map(function -> function.get("functionName").asText())
+                    .sorted()
+                    .map(functionName -> Map.of("label", functionName, "value", functionName))
+                    .collect(Collectors.toList());
+
+            TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+            triggerResultDTO.setTrigger(functionNames);
+
+            return Mono.just(triggerResultDTO);
         }
 
         private ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, AWSLambda connection) {
@@ -83,8 +115,7 @@ public class AwsLambdaPlugin extends BasePlugin {
             InvokeResult invokeResult = connection.invoke(invokeRequest);
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(objectMapper.valueToTree(
-                    new String(invokeResult.getPayload().array(), StandardCharsets.UTF_8)));
+            result.setBody(new String(invokeResult.getPayload().array(), StandardCharsets.UTF_8));
             result.setIsExecutionSuccess(true);
             return result;
         }
@@ -113,7 +144,7 @@ public class AwsLambdaPlugin extends BasePlugin {
 
             AWSLambda awsLambda = AWSLambdaClientBuilder.standard()
                     .withCredentials(staticCredentials)
-                    //                .withRegion(Regions.fromName(region))
+                    .withRegion(Regions.fromName(region))
                     .build();
 
             return Mono.just(awsLambda);
@@ -160,11 +191,11 @@ public class AwsLambdaPlugin extends BasePlugin {
                 invalids.add("Missing AWS credentials");
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (StringUtils.isNullOrEmpty(authentication.getUsername())) {
+                if (!StringUtils.hasText(authentication.getUsername())) {
                     invalids.add("Missing AWS access key");
                 }
 
-                if (StringUtils.isNullOrEmpty(authentication.getPassword())) {
+                if (!StringUtils.hasText(authentication.getPassword())) {
                     invalids.add("Missing AWS secret key");
                 }
             }

@@ -29,7 +29,7 @@ public class Migration040AddAWSLambdaPlugin {
     public void addPluginToDbAndWorkspace() {
         Plugin plugin = new Plugin();
         plugin.setName(PluginConstants.PluginName.AWS_LAMBDA_PLUGIN_NAME);
-        plugin.setType(PluginType.DB);
+        plugin.setType(PluginType.REMOTE);
         plugin.setPluginName(PluginConstants.PluginName.AWS_LAMBDA_PLUGIN_NAME);
         plugin.setPackageName(PluginConstants.PackageName.AWS_LAMBDA_PLUGIN);
         plugin.setUiComponent("UQIDbEditorForm");
