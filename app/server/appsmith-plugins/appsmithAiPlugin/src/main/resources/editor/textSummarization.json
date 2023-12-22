@@ -7,11 +7,11 @@
   "children": [
     {
       "label": "Input",
-      "tooltipText": "Provide input for your use-case",
-      "Description": "For text summarization, provide input of what to summarize? summarise a report content maybe?",
-      "subtitle": "For text summarization, provide input of what to summarize? summarise a report content maybe?",
+      "tooltipText": "Provide some text for AI to summarise",
+      "Description": "Provide some text for AI to summarise",
+      "subtitle": "Provide some text for AI to summarise",
       "configProperty": "actionConfiguration.formData.input.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "controlType": "QUERY_DYNAMIC_TEXT",
       "initialValue": "",
       "isRequired": true
     }

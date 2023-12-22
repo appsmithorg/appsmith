@@ -10,22 +10,22 @@
           "configProperty": "actionConfiguration.formData.usecase.data",
           "controlType": "DROP_DOWN",
           "isRequired": true,
-          "initialValue": "TEXT_GENERATION",
+          "initialValue": "TEXT_GENERATE",
           "options": [
             {
-              "label": "Text Generation",
+              "label": "Generate text",
               "value": "TEXT_GENERATE"
             },
             {
-              "label": "Text Classification",
+              "label": "Classify text",
               "value": "TEXT_CLASSIFY"
             },
             {
-              "label": "Text Summarization",
+              "label": "Summarise text",
               "value": "TEXT_SUMMARY"
             },
             {
-              "label": "Text Entity Extraction",
+              "label": "Extract entities from text",
               "value": "TEXT_ENTITY_EXTRACT"
             }
           ]

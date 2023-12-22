@@ -7,12 +7,12 @@
   "children": [
     {
       "label": "Input",
-      "tooltipText": "Provide input for your use-case",
-      "Description": "For text generation, provide input of what to generate? generate a blog on AI maybe?",
-      "subtitle": "For text generation, provide input of what to generate? generate a blog on AI maybe?",
+      "tooltipText": "Provide an prompt for AI to generate text",
+      "Description": "Provide an prompt for AI to generate text",
+      "subtitle": "Provide an prompt for AI to generate text",
       "configProperty": "actionConfiguration.formData.input.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "initialValue": "",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "initialValue": "Write some text or use {{ }} to reference a dynamic text value",
       "isRequired": true
     }
   ]
