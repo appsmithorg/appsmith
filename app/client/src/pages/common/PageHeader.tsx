@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -115,11 +115,14 @@ export function PageHeader(props: PageHeaderProps) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
-  const handleSearchDebounced = debounce((text: string) => {
-    if (text.trim().length !== 0) {
-      dispatch(searchEntities(text));
-    }
-  }, 500);
+  const handleSearchDebounced = useCallback(
+    debounce((text: string) => {
+      if (text.trim().length !== 0) {
+        dispatch(searchEntities(text));
+      }
+    }, 1000),
+    [],
+  );
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [noSearchResults, setNoSearchResults] = useState(false);
