@@ -31,6 +31,7 @@ import type {
   ModuleInstanceDataState,
 } from "@appsmith/constants/ModuleInstanceConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { JSAction } from "entities/JSCollection";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -131,7 +132,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     });
 
     jsCollections.forEach((jsCollection) =>
-      jsCollection.config.actions.forEach((action) => {
+      jsCollection.config.actions.forEach((action: JSAction) => {
         jsActionsArray.push(jsCollection.config.name + "." + action.name);
       }),
     );
