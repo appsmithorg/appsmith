@@ -229,7 +229,8 @@ jobs:
           path: app/server/dist/
 
       - name: Put release build in cache
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        #if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: success()
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
           reponame: ${{ github.event.repository.name }}
