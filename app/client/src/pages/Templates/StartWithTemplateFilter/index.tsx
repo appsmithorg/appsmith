@@ -67,7 +67,9 @@ const FilterItem = ({
 
   return (
     <FilterItemWrapper onClick={onClick} selected={selectedFilter}>
-      <FilterItemText kind="body-m">{item.label}</FilterItemText>
+      <FilterItemText data-testid="t--templates-filter-item" kind="body-m">
+        {item.label}
+      </FilterItemText>
       {selectedFilter && (
         <Icon
           color="var(--ads-v2-color-bg-brand-secondary-emphasis-plus)"
