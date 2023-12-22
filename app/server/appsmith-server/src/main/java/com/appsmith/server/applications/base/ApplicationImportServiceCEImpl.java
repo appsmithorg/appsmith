@@ -57,7 +57,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
@@ -121,22 +120,24 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<Application> importContextInWorkspaceFromJson(
-            String workspaceId, ImportableContextJson applicationJson, Set<String> currentUserPermissionGroup) {
+            String workspaceId, ImportableContextJson applicationJson) {
 
-        ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                        applicationPermission,
-                        pagePermission,
-                        actionPermission,
-                        datasourcePermission,
-                        workspacePermission)
-                .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
-                .permissionRequiredToCreateDatasource(true)
-                .permissionRequiredToEditDatasource(true)
-                .currentUserPermissionGroups(currentUserPermissionGroup)
-                .build();
+        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
+            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+                            applicationPermission,
+                            pagePermission,
+                            actionPermission,
+                            datasourcePermission,
+                            workspacePermission)
+                    .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
+                    .permissionRequiredToCreateDatasource(true)
+                    .permissionRequiredToEditDatasource(true)
+                    .currentUserPermissionGroups(userPermissionGroups)
+                    .build();
 
-        return importApplicationInWorkspace(
-                workspaceId, (ApplicationJson) applicationJson, null, null, false, permissionProvider);
+            return importApplicationInWorkspace(
+                    workspaceId, (ApplicationJson) applicationJson, null, null, false, permissionProvider);
+        });
     }
 
     @Override

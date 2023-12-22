@@ -5,15 +5,12 @@ import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
-
 public interface ContextBasedImportServiceCE<
         T extends ImportableContext, U extends ImportableContextDTO, V extends ImportableContextJson> {
 
     V extractImportableContextJson(String jsonString);
 
-    Mono<T> importContextInWorkspaceFromJson(
-            String workspaceId, ImportableContextJson importableContextJson, Set<String> currentUserPermissionGroup);
+    Mono<T> importContextInWorkspaceFromJson(String workspaceId, ImportableContextJson importableContextJson);
 
     Mono<T> updateNonGitConnectedContextFromJson(
             String workspaceId, String importableContextId, ImportableContextJson importableContextJson);

@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.imports.importable.ImportServiceCE;
-import com.appsmith.server.repositories.PermissionGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -30,13 +29,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private static final String INVALID_JSON_FILE = "invalid json file";
     private final ApplicationImportService applicationImportService;
     private final Map<ImportableJsonType, ContextBasedImportService<?, ?, ?>> serviceFactory = new HashMap<>();
-    private final PermissionGroupRepository permissionGroupRepository;
 
-    public ImportServiceCEImpl(
-            ApplicationImportService applicationImportService, PermissionGroupRepository permissionGroupRepository) {
+    public ImportServiceCEImpl(ApplicationImportService applicationImportService) {
         this.applicationImportService = applicationImportService;
         serviceFactory.put(APPLICATION, applicationImportService);
-        this.permissionGroupRepository = permissionGroupRepository;
     }
 
     @Override
@@ -112,10 +108,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
-                .flatMap(userPermissionGroups -> getContextBasedImportService(contextJson)
-                        .importContextInWorkspaceFromJson(workspaceId, contextJson, userPermissionGroups));
+        return getContextBasedImportService(contextJson).importContextInWorkspaceFromJson(workspaceId, contextJson);
     }
 
     @Override
