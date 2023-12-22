@@ -8,8 +8,9 @@ export const Wrapper = styled.div<{ isModalLayout?: boolean }>`
   padding: 48px;
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
-  `}
   background-color: var(--ads-v2-color-bg);
+  `}
+
   margin-right: 24px;
   .grid {
     display: flex;

@@ -69,6 +69,7 @@ const StartWithTemplates = ({
     <>
       <TemplateContentWrapper>
         <StartWithTemplateContent
+          filterWithAllowPageImport={isModalLayout}
           isForkingEnabled={isForkingEnabled}
           isModalLayout={!!isModalLayout}
           onForkTemplateClick={onForkTemplateClick}
