@@ -21,7 +21,6 @@ const AddWidgets = () => {
         alignItems="center"
         borderBottom={"1px solid var(--ads-v2-color-border)"}
         justifyContent="space-between"
-        overflow="hidden"
         px="spaces-4"
         py="spaces-2"
       >
@@ -40,7 +39,7 @@ const AddWidgets = () => {
           startIcon={"close-line"}
         />
       </Flex>
-      <Flex flex="1" flexDirection="column" gap="spaces-3" overflow="scroll">
+      <Flex flexDirection="column" gap="spaces-3" height="calc(100vh - 310px)">
         <WidgetSidebarWithTags isActive />
       </Flex>
     </>

@@ -182,7 +182,7 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
         hidden: (props: InputWidgetProps) => {
-          //should be shown for only inputWidgetV2 and for email or password input types
+          //should be shown for only inputWidgetV3 and for email or password input types
           return !(
             isInputTypeEmailOrPassword(props?.inputType) &&
             props.type === "INPUT_WIDGET_V3"

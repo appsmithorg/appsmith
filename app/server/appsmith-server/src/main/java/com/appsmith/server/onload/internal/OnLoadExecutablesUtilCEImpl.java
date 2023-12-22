@@ -27,6 +27,7 @@ import org.jgrapht.traverse.BreadthFirstIterator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,15 +123,22 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Flux<Executable> allExecutablesByCreatorIdFlux = getAllExecutablesByCreatorIdFlux(creatorId, creatorType);
 
         Mono<Map<String, Executable>> executableNameToExecutableMapMono = allExecutablesByCreatorIdFlux
-                .collectMap(Executable::getExecutableName, executable -> executable)
+                .flatMapIterable(executable -> {
+                    Set<String> executableNames = executable.getExecutableNames();
+                    return executableNames.stream()
+                            .map(executableName -> Tuples.of(executableName, executable))
+                            .toList();
+                })
+                .collectMap(Tuple2::getT1, Tuple2::getT2)
                 .cache();
 
         Mono<Set<String>> executablesInCreatorContextMono = allExecutablesByCreatorIdFlux
-                .map(Executable::getExecutableName)
+                .flatMapIterable(Executable::getExecutableNames)
                 .collect(Collectors.toSet())
                 .cache();
 
         Set<EntityDependencyNode> executableBindingsInDslRef = new HashSet<>();
+
         Mono<Set<ExecutableDependencyEdge>> directlyReferencedExecutablesToGraphMono =
                 addDirectlyReferencedExecutablesToGraph(
                         edgesRef,
@@ -289,11 +297,11 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     // Extract names of existing page load actions and new page load actions for quick lookup.
                     Set<String> existingOnLoadExecutableNames = existingOnLoadExecutables.stream()
-                            .map(Executable::getExecutableName)
+                            .map(Executable::getUserExecutableName)
                             .collect(Collectors.toSet());
 
                     Set<String> newOnLoadExecutableNames = onLoadExecutables.stream()
-                            .map(Executable::getExecutableName)
+                            .map(Executable::getUserExecutableName)
                             .collect(Collectors.toSet());
 
                     // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
@@ -308,7 +316,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     for (Executable executable : creatorContextExecutables) {
 
-                        String executableName = executable.getExecutableName();
+                        String executableName = executable.getUserExecutableName();
                         // If a user has ever set execute on load, this field can not be changed automatically. It has
                         // to be explicitly changed by the user again. Add the executable to update only if this
                         // condition is false.
@@ -325,6 +333,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 executable.setExecuteOnLoad(TRUE);
                                 toUpdateExecutables.add(executable);
                             }
+
                         } else {
                             // Remove the executable name from either of the lists (if present) because this executable
                             // should not be updated
@@ -340,6 +349,14 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     // Add newly turned off page actions to report back to the caller
                     executableUpdatesRef.addAll(addExecutableUpdatesForExecutableNames(
                             creatorContextExecutables, turnedOffExecutableNames));
+
+                    for (Executable executable : creatorContextExecutables) {
+                        String executableName = executable.getUserExecutableName();
+                        if (Boolean.FALSE.equals(executable.isOnLoadMessageAllowed())) {
+                            turnedOffExecutableNames.remove(executableName);
+                            turnedOnExecutableNames.remove(executableName);
+                        }
+                    }
 
                     // Now add messagesRef that would eventually be displayed to the developer user informing them
                     // about the action setting change.
@@ -376,7 +393,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             List<Executable> executables, Set<String> updatedExecutableNames) {
 
         return executables.stream()
-                .filter(executable -> updatedExecutableNames.contains(executable.getExecutableName()))
+                .filter(executable -> updatedExecutableNames.contains(executable.getUserExecutableName()))
                 .map(Executable::createLayoutExecutableUpdateDTO)
                 .collect(Collectors.toList());
     }
@@ -489,8 +506,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                             if (executable != null) {
                                 // If it was, and had been identified as the same type of executable as what exists in
-                                // this
-                                // app,
+                                // this app,
                                 if (binding.getEntityReferenceType().equals(executable.getEntityReferenceType())) {
                                     // Copy over some data from the identified executable, this ensures that we do not
                                     // have
@@ -937,11 +953,11 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 .flatMap(executable -> {
                     EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
                             executable.getEntityReferenceType(),
-                            executable.getExecutableName(),
+                            executable.getUserExecutableName(),
                             null,
                             null,
                             executable);
-                    explicitUserSetOnLoadExecutables.add(executable.getExecutableName());
+                    explicitUserSetOnLoadExecutables.add(executable.getUserExecutableName());
                     return extractAndSetExecutableBindingsInGraphEdges(
                                     entityDependencyNode,
                                     edges,
