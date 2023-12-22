@@ -392,14 +392,7 @@ export function useModalDropdownList(handleClose: () => void) {
 }
 
 export const getModuleInstanceIcon = (type: MODULE_TYPE): ReactNode => {
-  if (type === MODULE_TYPE.QUERY) {
-    return (
-      <EntityIcon>
-        <Icon name="module" />
-      </EntityIcon>
-    );
-  }
-  if (type === MODULE_TYPE.JS) {
+  if (type === MODULE_TYPE.QUERY || type === MODULE_TYPE.JS) {
     return (
       <EntityIcon>
         <Icon name="module" />
