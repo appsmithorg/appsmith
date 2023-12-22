@@ -23,7 +23,7 @@ import {
   SearchWrapper,
   StyledFilterCategory,
 } from "./StyledComponents";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export interface Filter {
   label: string;

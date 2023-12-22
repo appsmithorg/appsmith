@@ -1,7 +1,7 @@
 import { setTemplateSearchQuery } from "actions/templateActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SEARCH_TEMPLATES } from "@appsmith/constants/messages";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { SearchInput } from "design-system";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { debounce } from "lodash";
