@@ -45,7 +45,10 @@ describe("excludeForAirgap", "Templates page filtering", () => {
 
       agHelper.GetNClick(templates.locators._templateCard);
       agHelper.GetNClick(templates.locators._templateViewGoBack);
-      agHelper.AssertElementLength(templates.locators._templateCard, filteredCardsCount);
+      agHelper.AssertElementLength(
+        templates.locators._templateCard,
+        filteredCardsCount,
+      );
     });
   });
 });
