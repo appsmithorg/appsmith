@@ -1,2 +1,2 @@
 export * from "./baseRoutes";
-export * from "./appRoutes";
+export * from "@appsmith/constants/routes/appRoutes";
