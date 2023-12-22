@@ -664,6 +664,8 @@ export class LightModeTheme implements ColorModeTheme {
 
     color.oklch.l = 0.2;
 
+    color.alpha = 0.35;
+
     return color;
   }
 
@@ -672,6 +674,8 @@ export class LightModeTheme implements ColorModeTheme {
 
     color.oklch.l += 0.05;
 
+    color.alpha = 0.3;
+
     return color;
   }
 
@@ -679,6 +683,8 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.shadowElevation2.clone();
 
     color.oklch.l += 0.05;
+
+    color.alpha = 0.25;
 
     return color;
   }
