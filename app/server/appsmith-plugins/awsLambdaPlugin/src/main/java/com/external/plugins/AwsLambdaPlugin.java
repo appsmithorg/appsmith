@@ -15,7 +15,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -143,7 +143,7 @@ public class AwsLambdaPlugin extends BasePlugin {
 
         @Override
         public Mono<AWSLambda> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             String accessKey = authentication.getUsername();
             String secretKey = authentication.getPassword();
             String authenticationType = authentication.getAuthenticationType();
@@ -216,7 +216,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                 return invalids;
             }
 
-            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if ("accessKey".equals(authentication.getAuthenticationType())) {
                 // Only check for access key and secret key if accessKey authentication is selected.
                 if (!StringUtils.hasText(authentication.getUsername())) {

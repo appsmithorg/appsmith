@@ -7,7 +7,6 @@ import com.amazonaws.services.lambda.model.ListFunctionsResult;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
@@ -131,7 +130,7 @@ public class AwsLambdaPluginTest {
     public void testValidateDatasource_missingAccessKey() {
         // Test case: Missing AWS access key
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        BasicAuth authentication = new BasicAuth();
+        DBAuth authentication = new DBAuth();
         authentication.setAuthenticationType("accessKey");
         authentication.setPassword("random_secret_key");
         datasourceConfiguration.setAuthentication(authentication);
@@ -146,7 +145,7 @@ public class AwsLambdaPluginTest {
 
         // Test case: Missing AWS secret key
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        BasicAuth authentication = new BasicAuth();
+        DBAuth authentication = new DBAuth();
         authentication.setAuthenticationType("accessKey");
         authentication.setUsername("random_access_key");
         authentication.setPassword(null);
@@ -160,9 +159,8 @@ public class AwsLambdaPluginTest {
     public void testValidateDatasource_validConfigurationForAccessKey() {
         AwsLambdaPlugin.AwsLambdaPluginExecutor pluginExecutor = new AwsLambdaPlugin.AwsLambdaPluginExecutor();
 
-        // Test case: Valid datasource configuration
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        BasicAuth authentication = new BasicAuth();
+        DBAuth authentication = new DBAuth();
         authentication.setAuthenticationType("accessKey");
         authentication.setUsername("random_access_key");
         authentication.setPassword("random_secret_key");
@@ -177,7 +175,7 @@ public class AwsLambdaPluginTest {
 
         // Test case: Valid datasource configuration
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        BasicAuth authentication = new BasicAuth();
+        DBAuth authentication = new DBAuth();
         authentication.setAuthenticationType("instanceRole");
         datasourceConfiguration.setAuthentication(authentication);
         Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
