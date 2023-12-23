@@ -8,6 +8,8 @@
           "label": "Authentication type",
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "DROP_DOWN",
+          "initialValue": "accessKey",
+          "setFirstOptionAsDefault": true,
           "options": [
             {
               "label": "AWS access key",

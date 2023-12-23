@@ -35,7 +35,7 @@ public class Migration040AddAWSLambdaPlugin {
         plugin.setUiComponent("UQIDbEditorForm");
         plugin.setDatasourceComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://assets.appsmith.com/aws-lambda-logo.png");
+        plugin.setIconLocation("https://assets.appsmith.com/aws-lambda-logo.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/connect-data/reference/aws-lambda");
         plugin.setDefaultInstall(true);
         try {

@@ -15,7 +15,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -143,7 +143,7 @@ public class AwsLambdaPlugin extends BasePlugin {
 
         @Override
         public Mono<AWSLambda> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
             String accessKey = authentication.getUsername();
             String secretKey = authentication.getPassword();
             String authenticationType = authentication.getAuthenticationType();
@@ -208,10 +208,17 @@ public class AwsLambdaPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
-            if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
-                invalids.add("Missing AWS credentials");
-            } else {
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (datasourceConfiguration == null
+                    || datasourceConfiguration.getAuthentication() == null
+                    || !StringUtils.hasText(
+                            datasourceConfiguration.getAuthentication().getAuthenticationType())) {
+                invalids.add("Invalid authentication mechanism provided. Please choose valid authentication type.");
+                return invalids;
+            }
+
+            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
+            if ("accessKey".equals(authentication.getAuthenticationType())) {
+                // Only check for access key and secret key if accessKey authentication is selected.
                 if (!StringUtils.hasText(authentication.getUsername())) {
                     invalids.add("Missing AWS access key");
                 }
@@ -220,6 +227,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                     invalids.add("Missing AWS secret key");
                 }
             }
+
             return invalids;
         }
     }
