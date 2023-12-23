@@ -10,7 +10,7 @@ docker build -f Dockerfile --tag ar ..
 declare -a args
 args+=(--hostname ar)
 
-if [[ "${CI-}" != 1 ]]; then
+if [[ "${CI-}" != true ]]; then
   args+=(--interactive --tty)
 fi
 
