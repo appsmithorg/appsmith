@@ -6,7 +6,7 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal focus", function () {
+describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
   const someInputText = "some text";
 
   function setupModalWithInputWidget() {

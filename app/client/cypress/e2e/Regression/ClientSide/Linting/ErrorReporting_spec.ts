@@ -14,7 +14,7 @@ import EditorNavigation, {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Lint error reporting", () => {
+describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
     table.AddSampleTableData();

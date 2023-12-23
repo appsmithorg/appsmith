@@ -264,6 +264,16 @@ public class Application extends BaseDomain {
                         application.getPublishedApplicationDetail().getNavigationSetting() == null
                                 ? null
                                 : new NavigationSetting());
+        this.getUnpublishedApplicationDetail()
+                .setThemeSetting(
+                        application.getUnpublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new ThemeSetting());
+        this.getPublishedApplicationDetail()
+                .setThemeSetting(
+                        application.getPublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new ThemeSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -422,6 +432,38 @@ public class Application extends BaseDomain {
             FIXED,
             AUTO,
             ANVIL
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class ThemeSetting {
+
+        @JsonView(Views.Public.class)
+        private String accentColor;
+
+        @JsonView(Views.Public.class)
+        private String borderRadius;
+
+        @JsonView(Views.Public.class)
+        private float sizing = 1;
+
+        @JsonView(Views.Public.class)
+        private float density = 1;
+
+        @JsonView(Views.Public.class)
+        private String fontFamily;
+
+        @JsonView(Views.Public.class)
+        Type colorMode;
+
+        public ThemeSetting(Type colorMode) {
+            this.colorMode = colorMode;
+        }
+
+        public enum Type {
+            LIGHT,
+            DARK
         }
     }
 }

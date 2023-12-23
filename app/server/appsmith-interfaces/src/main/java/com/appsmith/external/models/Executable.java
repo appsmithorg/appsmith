@@ -47,9 +47,21 @@ public interface Executable {
 
     String getValidName();
 
+    /**
+     * This method returns all types of names that this executable can be referred to with, inside dynamic bindings
+     * @return
+     */
     @JsonIgnore
     @Transient
-    String getExecutableName();
+    Set<String> getExecutableNames();
+
+    /**
+     * This method returns with the only valid kind of name that an end user can use for this executable in a binding
+     * @return
+     */
+    @JsonIgnore
+    @Transient
+    String getUserExecutableName();
 
     EntityReferenceType getEntityReferenceType();
 
@@ -67,4 +79,8 @@ public interface Executable {
     }
 
     void setExecuteOnLoad(Boolean isExecuteOnLoad);
+
+    @JsonIgnore
+    @Transient
+    Boolean isOnLoadMessageAllowed();
 }

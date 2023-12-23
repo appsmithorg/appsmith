@@ -343,6 +343,7 @@ jobs:
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           CYPRESS_SPECS: ${{ env.specs_to_run }}
           CYPRESS_RERUN: ${{steps.run_result.outputs.rerun}}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
@@ -351,6 +352,7 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
+          CYPRESS_STATIC_ALLOCATION: true
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false

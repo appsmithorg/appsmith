@@ -538,7 +538,11 @@ public class GitFileUtils {
 
         List<CustomJSLib> customJSLibList =
                 getApplicationResource(applicationReference.getJsLibraries(), CustomJSLib.class);
-        applicationJson.setCustomJSLibList(customJSLibList);
+
+        // remove the duplicate js libraries if there is any
+        List<CustomJSLib> customJSLibListWithoutDuplicates = new ArrayList<>(new HashSet<>(customJSLibList));
+
+        applicationJson.setCustomJSLibList(customJSLibListWithoutDuplicates);
 
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);

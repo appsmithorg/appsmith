@@ -423,7 +423,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                         if (requestAppPositioning != null) {
                             presetApplicationDetail.setAppPositioning(requestAppPositioning);
                         }
-
+                        Application.ThemeSetting requestThemeSettings =
+                                application.getUnpublishedApplicationDetail().getThemeSetting();
+                        if (requestThemeSettings != null) {
+                            presetApplicationDetail.setThemeSetting(requestThemeSettings);
+                        }
                         application.setUnpublishedApplicationDetail(presetApplicationDetail);
                     }
                     return this.update(branchedApplication.getId(), application);

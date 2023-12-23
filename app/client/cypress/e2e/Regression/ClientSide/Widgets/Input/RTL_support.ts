@@ -6,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Select Widget", () => {
+describe("Select Widget", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2);
   });

@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.http.HttpMethod;
+import reactor.netty.http.HttpProtocol;
 
 import java.util.HashSet;
 import java.util.List;
@@ -89,6 +90,8 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
     @JsonDeserialize(using = HttpMethodConverter.HttpMethodDeserializer.class)
     @JsonAdapter(HttpMethodConverter.class)
     HttpMethod httpMethod;
+
+    HttpProtocol httpVersion;
     // Paginated API fields
     String next;
     String prev;

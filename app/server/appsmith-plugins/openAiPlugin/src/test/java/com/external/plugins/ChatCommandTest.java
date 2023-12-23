@@ -48,7 +48,7 @@ public class ChatCommandTest {
 
         Object messages = List.of(
                 Map.of("role", "user", "content", "Hello"), Map.of("role", "assistant", "content", "Hi there!"));
-        formData.put("messages", messages);
+        formData.put("messages", Map.of("data", messages));
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(formData);
 

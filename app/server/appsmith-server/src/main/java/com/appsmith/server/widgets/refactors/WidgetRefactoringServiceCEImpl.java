@@ -108,10 +108,11 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         return newPageService
                 // fetch the unpublished page
-                .findPageById(contextId, pagePermission.getReadPermission(), false)
+                .findPageById(contextId, pagePermission.getReadPermission(), viewMode)
                 .flatMapMany(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {

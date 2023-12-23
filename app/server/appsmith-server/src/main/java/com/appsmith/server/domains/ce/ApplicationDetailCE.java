@@ -27,8 +27,13 @@ public class ApplicationDetailCE {
     @Column(columnDefinition = "jsonb")
     private Application.NavigationSetting navigationSetting;
 
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    Application.ThemeSetting themeSetting;
+
     public ApplicationDetailCE() {
         this.appPositioning = null;
         this.navigationSetting = null;
+        this.themeSetting = null;
     }
 }

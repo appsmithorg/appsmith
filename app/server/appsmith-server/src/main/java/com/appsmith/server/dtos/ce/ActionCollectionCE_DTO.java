@@ -71,10 +71,6 @@ public class ActionCollectionCE_DTO {
     @JsonView(Views.Public.class)
     Instant deletedAt;
 
-    // TODO can be used as template for new actions in collection,
-    //  or as default configuration for all actions in the collection
-    //    ActionDTO defaultAction;
-
     // This property is not shared with the client since the reference is only useful to server
     // Map<defaultActionId, branchedActionId>
     @JsonView(Views.Internal.class)

@@ -1,6 +1,5 @@
 import React, { createContext, useMemo } from "react";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 export enum ActionEntityContextMenuItemsEnum {
   EDIT_NAME = "Edit Name",
@@ -10,11 +9,22 @@ export enum ActionEntityContextMenuItemsEnum {
   DELETE = "Delete",
 }
 
+export const defaultMenuItems = [
+  ActionEntityContextMenuItemsEnum.EDIT_NAME,
+  ActionEntityContextMenuItemsEnum.DELETE,
+  ActionEntityContextMenuItemsEnum.SHOW_BINDING,
+  ActionEntityContextMenuItemsEnum.COPY,
+  ActionEntityContextMenuItemsEnum.MOVE,
+];
+
 interface FilesContextContextProps {
   canCreateActions: boolean;
   editorId: string; // applicationId, workflowId or packageId
+  menuItems?: ActionEntityContextMenuItemsEnum[];
   parentEntityId: string; // page, workflow or module
   parentEntityType: ActionParentEntityTypeInterface;
+  showModules?: boolean;
+  selectFilesForExplorer?: (state: any) => any;
 }
 
 type FilesContextProviderProps =
@@ -34,29 +44,31 @@ export const FilesContextProvider = ({
   canCreateActions,
   children,
   editorId,
+  menuItems,
   parentEntityId,
   parentEntityType,
+  selectFilesForExplorer,
+  showModules,
 }: FilesContextProviderProps) => {
-  const menuItems = [
-    ActionEntityContextMenuItemsEnum.EDIT_NAME,
-    ActionEntityContextMenuItemsEnum.DELETE,
-  ];
-  if (parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-    menuItems.push(
-      ActionEntityContextMenuItemsEnum.SHOW_BINDING,
-      ActionEntityContextMenuItemsEnum.COPY,
-      ActionEntityContextMenuItemsEnum.MOVE,
-    );
-  }
   const value = useMemo(() => {
     return {
       canCreateActions,
       editorId,
       parentEntityId,
       parentEntityType,
-      menuItems,
+      menuItems: menuItems || defaultMenuItems,
+      selectFilesForExplorer,
+      showModules,
     };
-  }, [canCreateActions, parentEntityId, parentEntityType]);
+  }, [
+    canCreateActions,
+    parentEntityId,
+    parentEntityType,
+    menuItems,
+    showModules,
+    selectFilesForExplorer,
+    editorId,
+  ]);
 
   return (
     <FilesContext.Provider value={value}>{children}</FilesContext.Provider>
