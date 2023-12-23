@@ -46,6 +46,7 @@ public class Migration040AddAWSLambdaPlugin {
 
         if (plugin.getId() == null) {
             log.error("Failed to insert the AWS Lambda plugin into the database.");
+            return;
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
