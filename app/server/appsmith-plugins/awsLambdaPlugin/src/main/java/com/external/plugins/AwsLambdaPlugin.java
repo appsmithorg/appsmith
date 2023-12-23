@@ -26,10 +26,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
@@ -106,21 +108,30 @@ public class AwsLambdaPlugin extends BasePlugin {
             return Mono.just(triggerResultDTO);
         }
 
-        private ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, AWSLambda connection) {
+        ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, AWSLambda connection) {
             InvokeRequest invokeRequest = new InvokeRequest();
             invokeRequest.setFunctionName(
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE));
             invokeRequest.setPayload(
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "body", STRING_TYPE));
+            invokeRequest.setInvocationType(
+                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "invocationType", STRING_TYPE));
             InvokeResult invokeResult = connection.invoke(invokeRequest);
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(new String(invokeResult.getPayload().array(), StandardCharsets.UTF_8));
-            result.setIsExecutionSuccess(true);
+            result.setStatusCode(String.valueOf(invokeResult.getStatusCode()));
+            Boolean isExecutionSuccess = (invokeResult.getFunctionError() == null);
+            result.setIsExecutionSuccess(isExecutionSuccess);
+            ByteBuffer responseBuffer = invokeResult.getPayload();
+            String responsePayload = ObjectUtils.isEmpty(responseBuffer)
+                    ? null
+                    : new String(responseBuffer.array(), StandardCharsets.UTF_8);
+            result.setBody(responsePayload);
+
             return result;
         }
 
-        private ActionExecutionResult listFunctions(ActionConfiguration actionConfiguration, AWSLambda connection) {
+        ActionExecutionResult listFunctions(ActionConfiguration actionConfiguration, AWSLambda connection) {
             ListFunctionsResult listFunctionsResult = connection.listFunctions();
             List<FunctionConfiguration> functions = listFunctionsResult.getFunctions();
 
@@ -135,18 +146,28 @@ public class AwsLambdaPlugin extends BasePlugin {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             String accessKey = authentication.getUsername();
             String secretKey = authentication.getPassword();
+            String authenticationType = authentication.getAuthenticationType();
             String region =
                     (String) datasourceConfiguration.getProperties().get(1).getValue();
 
-            BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
+            if (!StringUtils.hasText(region)) {
+                region = "us-east-1"; // Default region
+            }
 
-            AWSStaticCredentialsProvider staticCredentials = new AWSStaticCredentialsProvider(awsCreds);
+            AWSLambdaClientBuilder awsLambdaClientBuilder =
+                    AWSLambdaClientBuilder.standard().withRegion(Regions.fromName(region));
 
-            AWSLambda awsLambda = AWSLambdaClientBuilder.standard()
-                    .withCredentials(staticCredentials)
-                    .withRegion(Regions.fromName(region))
-                    .build();
+            // If access key and secret key are not provided, use the default credentials provider chain. That will
+            // pick up the instance role if running on an EC2 instance.
+            if ("accessKey".equals(authenticationType)) {
+                BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
 
+                AWSStaticCredentialsProvider staticCredentials = new AWSStaticCredentialsProvider(awsCreds);
+
+                awsLambdaClientBuilder = awsLambdaClientBuilder.withCredentials(staticCredentials);
+            }
+
+            AWSLambda awsLambda = awsLambdaClientBuilder.build();
             return Mono.just(awsLambda);
         }
 
@@ -159,7 +180,7 @@ public class AwsLambdaPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(AWSLambda connection) {
             return Mono.fromCallable(() -> {
                         /*
-                         * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
+                         * - Please note that as of 28 Jan 2021, the way Amazon client SDK works, creating a connection
                          *   object with wrong credentials does not throw any exception.
                          * - Hence, adding a listFunctions() method call to test the connection.
                          */
@@ -170,12 +191,12 @@ public class AwsLambdaPlugin extends BasePlugin {
                         if (error instanceof AWSLambdaException
                                 && "AccessDenied".equals(((AWSLambdaException) error).getErrorCode())) {
                             /**
-                             * Sometimes a valid account credential may not have permission to run listBuckets action
+                             * Sometimes a valid account credential may not have permission to run listFunctions action
                              * . In this case `AccessDenied` error is returned.
                              * That fact that the credentials caused `AccessDenied` error instead of invalid access key
                              * id or signature mismatch error means that the credentials are valid, we are able to
                              * establish a connection as well, but the account does not have permission to run
-                             * listBuckets.
+                             * listFunctions.
                              */
                             return Mono.just(new DatasourceTestResult());
                         }

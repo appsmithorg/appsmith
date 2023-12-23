@@ -36,7 +36,7 @@ public class Migration040AddAWSLambdaPlugin {
         plugin.setDatasourceComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://assets.appsmith.com/aws-lambda-logo.png");
-        //        plugin.setDocumentationLink("https://docs.appsmith.com/connect-data/reference/google-ai");
+        plugin.setDocumentationLink("https://docs.appsmith.com/connect-data/reference/aws-lambda");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);

@@ -22,7 +22,9 @@
           "placeholderText": "All function names will be fetched.",
           "fetchOptionsConditionally": true,
           "setFirstOptionAsDefault": true,
-          "alternateViewTypes": ["json"],
+          "alternateViewTypes": [
+            "json"
+          ],
           "conditionals": {
             "enable": "{{true}}",
             "fetchDynamicValues": {
@@ -35,6 +37,36 @@
               }
             }
           }
+        },
+        {
+          "label": "Type of invocation",
+          "tooltipText": "Should the invocation be synchronous or asynchronous?",
+          "subtitle": "",
+          "isRequired": true,
+          "propertyName": "invocation_type",
+          "configProperty": "actionConfiguration.formData.invocationType.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [
+            {
+              "label": "Synchronous",
+              "value": "RequestResponse"
+            },
+            {
+              "label": "Asynchronous",
+              "value": "Event"
+            },
+            {
+              "label": "Dry run",
+              "value": "DryRun"
+            }
+          ],
+          "placeholderText": "",
+          "fetchOptionsConditionally": false,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": [
+            "json"
+          ]
         },
         {
           "label": "Post body",

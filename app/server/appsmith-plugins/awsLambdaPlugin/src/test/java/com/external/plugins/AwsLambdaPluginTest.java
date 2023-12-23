@@ -4,11 +4,13 @@ import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.model.FunctionConfiguration;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.lambda.model.ListFunctionsResult;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,9 +23,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -106,8 +111,73 @@ public class AwsLambdaPluginTest {
                 pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
                     assertEquals("Hello World", result.getBody().toString());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasource_missingDatasourceConfiguration() {
+        // Test case: Missing datasource configuration
+        Set<String> invalids = pluginExecutor.validateDatasource(null);
+        assertEquals(1, invalids.size());
+        assertTrue(invalids.contains("Missing AWS credentials"));
+    }
+
+    @Test
+    public void testValidateDatasource_missingAccessKey() {
+        // Test case: Missing AWS access key
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DBAuth authentication = new DBAuth();
+        authentication.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authentication.setPassword("random_secret_key");
+        datasourceConfiguration.setAuthentication(authentication);
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+        assertEquals(1, invalids.size());
+        assertTrue(invalids.contains("Missing AWS access key"));
+    }
+
+    @Test
+    public void testValidateDatasource_missingSecretKey() {
+        AwsLambdaPlugin.AwsLambdaPluginExecutor pluginExecutor = new AwsLambdaPlugin.AwsLambdaPluginExecutor();
+
+        // Test case: Missing AWS secret key
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DBAuth authentication = new DBAuth();
+        authentication.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authentication.setUsername("random_access_key");
+        authentication.setPassword(null);
+        datasourceConfiguration.setAuthentication(authentication);
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+        assertEquals(1, invalids.size());
+        assertTrue(invalids.contains("Missing AWS secret key"));
+    }
+
+    @Test
+    public void testValidateDatasource_validConfiguration() {
+        AwsLambdaPlugin.AwsLambdaPluginExecutor pluginExecutor = new AwsLambdaPlugin.AwsLambdaPluginExecutor();
+
+        // Test case: Valid datasource configuration
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DBAuth authentication = new DBAuth();
+        authentication.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authentication.setUsername("random_access_key");
+        authentication.setPassword("random_secret_key");
+        datasourceConfiguration.setAuthentication(authentication);
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+        assertEquals(0, invalids.size());
+    }
+
+    @Test
+    public void testTrigger_missingRequestType() {
+        // Test case: Missing request type
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        TriggerRequestDTO request = new TriggerRequestDTO();
+
+        assertThrows(AppsmithPluginException.class, () -> {
+            pluginExecutor.trigger(mockLambda, datasourceConfiguration, request).block();
+        });
     }
 }
