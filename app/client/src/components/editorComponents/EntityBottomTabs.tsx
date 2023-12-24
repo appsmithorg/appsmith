@@ -13,6 +13,12 @@ const TabPanelWrapper = styled(TabPanel)`
   &.ads-v2-tabs__panel {
     overflow: auto;
   }
+  &.t--code-editor-wrapper.codeWrapper {
+    overflow-y: scroll;
+    &.CodeMirror-scroll {
+      padding-bottom: 0;
+    }
+  }
 `;
 
 const TabsListWrapper = styled(TabsList)`
