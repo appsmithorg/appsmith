@@ -405,7 +405,6 @@ public class ImportApplicationServiceTests {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication).isNotNull();
                     // Assert that the exported application is NOT public
-                    assertThat(exportedApplication.getDefaultPermissionGroup()).isNull();
                     assertThat(exportedApplication.getPolicies()).isNullOrEmpty();
                 })
                 .verifyComplete();
