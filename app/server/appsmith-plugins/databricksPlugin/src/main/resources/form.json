@@ -35,6 +35,22 @@
           "placeholderText": "/sql/1.0/warehouses/<id>"
         },
         {
+          "label": "Default catalog",
+          "configProperty": "datasourceConfiguration.properties[2].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "initialValue": "samples",
+          "placeholderText": "samples"
+        },
+        {
+          "label": "Default schema",
+          "configProperty": "datasourceConfiguration.properties[3].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "initialValue": "default",
+          "placeholderText": "default"
+        },
+        {
           "label": "Personal Access Token Key",
           "configProperty": "datasourceConfiguration.properties[1].key",
           "controlType": "INPUT_TEXT",
