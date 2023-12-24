@@ -23,6 +23,8 @@ public class Tenant extends BaseDomain {
     @Transient
     String instanceId;
 
+    PricingPlan pricingPlan;
+
     TenantConfiguration tenantConfiguration;
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration

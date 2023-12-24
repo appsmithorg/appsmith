@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
@@ -232,6 +233,7 @@ public class SeedMongoData {
         Tenant defaultTenant = new Tenant();
         defaultTenant.setDisplayName("Default");
         defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
 
         Mono<String> defaultTenantId = tenantRepository
                 .findBySlug("default")

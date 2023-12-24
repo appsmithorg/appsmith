@@ -21,6 +21,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -659,6 +660,7 @@ public class DatabaseChangelog2 {
         Tenant defaultTenant = new Tenant();
         defaultTenant.setDisplayName("Default");
         defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
 
         mongoTemplate.save(defaultTenant);
     }
