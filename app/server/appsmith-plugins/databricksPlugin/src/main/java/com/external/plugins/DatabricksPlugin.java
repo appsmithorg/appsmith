@@ -61,6 +61,9 @@ public class DatabricksPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class DatabricksPluginExecutor implements PluginExecutor<Connection> {
+        private static final int CATALOG_INDEX = 2;
+        private static final int SCHEMA_INDEX = 3;
+
         @Override
         public Mono<ActionExecutionResult> execute(
                 Connection connection,
@@ -145,11 +148,14 @@ public class DatabricksPlugin extends BasePlugin {
 
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+
+            // Ensure the databricks JDBC driver is loaded.
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
+
             Properties p = new Properties();
             p.put("UID", "token");
             p.put("PWD", datasourceConfiguration.getProperties().get(4).getValue());
@@ -181,7 +187,7 @@ public class DatabricksPlugin extends BasePlugin {
                         try (Statement statement = connection.createStatement(); ) {
                             String catalog = (String) datasourceConfiguration
                                     .getProperties()
-                                    .get(2)
+                                    .get(CATALOG_INDEX)
                                     .getValue();
                             if (!StringUtils.hasText(catalog)) {
                                 catalog = "samples";
@@ -198,7 +204,7 @@ public class DatabricksPlugin extends BasePlugin {
                         try (Statement statement = connection.createStatement(); ) {
                             String schema = (String) datasourceConfiguration
                                     .getProperties()
-                                    .get(3)
+                                    .get(SCHEMA_INDEX)
                                     .getValue();
                             if (!StringUtils.hasText(schema)) {
                                 schema = "default";
