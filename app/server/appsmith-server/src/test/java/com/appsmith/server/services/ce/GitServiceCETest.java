@@ -4570,4 +4570,46 @@ public class GitServiceCETest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_WhenLocalRepoDoesNotExist_RepoIsClonedFromRemote()
+            throws IOException, GitAPIException {
+        List<GitBranchDTO> branchList = List.of(
+                createGitBranchDTO("defaultBranch", false),
+                createGitBranchDTO("origin/defaultBranch", false),
+                createGitBranchDTO("origin/feature1", false));
+
+        Mockito.when(gitExecutor.listBranches(any(Path.class)))
+                .thenReturn(Mono.error(new RepositoryNotFoundException("repo not found"))) // throw exception first
+                .thenReturn(Mono.just(branchList)); // return list of branches later
+
+        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+
+        Mockito.when(gitExecutor.fetchRemote(
+                        any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("status"));
+
+        Application application1 = createApplicationConnectedToGit(
+                "listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
+
+        Mono<List<GitBranchDTO>> listMono =
+                gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+
+        StepVerifier.create(listMono)
+                .assertNext(listBranch -> {
+                    assertThat(listBranch.size()).isEqualTo(3);
+                })
+                .verifyComplete();
+    }
 }

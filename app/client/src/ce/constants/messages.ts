@@ -1059,6 +1059,10 @@ export const AUTOCOMMIT_CONFIRM_DISABLE_MESSAGE = () =>
   "Disabling auto-commit may result in uncommitted system changes after an Appsmith instance upgrade, requiring manual handling and potential discrepancies in Git versioning.";
 export const AUTOCOMMIT_IN_PROGRESS_MESSAGE = () =>
   "Auto-committing Appsmith upgrade changes...";
+export const AUTOCOMMIT_ENABLED_TOAST = () =>
+  "Auto-commit enabled successfully";
+export const AUTOCOMMIT_DISABLED_TOAST = () =>
+  "Auto-commit disabled successfully";
 export const NEED_EMPTY_REPO_MESSAGE = () =>
   "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
 export const GIT_IMPORT_WAITING = () =>
