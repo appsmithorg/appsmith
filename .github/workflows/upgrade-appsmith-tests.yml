@@ -1,4 +1,4 @@
-name: Upgrde Appsmith Test Workflow
+name: Upgrade Appsmith Test Workflow
 
 on:
   # This line enables manual triggering of this workflow.

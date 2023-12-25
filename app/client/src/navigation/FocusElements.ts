@@ -261,13 +261,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setFocusablePropertyPaneField,
       defaultValue: "",
     },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyPaneWidth,
-      selector: getPropertyPaneWidth,
-      setter: setPropertyPaneWidthAction,
-      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
-    },
   ],
   [FocusEntity.API]: [],
   [FocusEntity.DEBUGGER]: [
@@ -355,6 +348,13 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getCodeEditorHistory,
       setter: setCodeEditorHistory,
       defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyPaneWidth,
+      selector: getPropertyPaneWidth,
+      setter: setPropertyPaneWidthAction,
+      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
   ],
 };
