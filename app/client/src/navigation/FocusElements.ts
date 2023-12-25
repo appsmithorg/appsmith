@@ -147,6 +147,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.APP_STATE]: [],
   [FocusEntity.PAGE]: [],
   [FocusEntity.CANVAS]: [],
+  [FocusEntity.QUERY_ADD]: [],
+  [FocusEntity.API]: [],
+  [FocusEntity.LIBRARY]: [],
+  [FocusEntity.SETTINGS]: [],
+  [FocusEntity.DATASOURCE_CREATE]: [],
   [FocusEntity.DATASOURCE_LIST]: [
     {
       type: ConfigType.URL,
@@ -269,7 +274,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
   ],
-  [FocusEntity.API]: [],
   [FocusEntity.DEBUGGER]: [
     {
       type: ConfigType.Redux,
@@ -279,8 +283,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: DefaultDebuggerContext,
     },
   ],
-  [FocusEntity.LIBRARY]: [],
-  [FocusEntity.SETTINGS]: [],
   [FocusEntity.QUERY_LIST]: [
     {
       type: ConfigType.URL,
@@ -313,7 +315,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: getDefaultSelectedWidgetIds,
     },
   ],
-  [FocusEntity.QUERY_ADD]: [],
   [FocusEntity.EDITOR]: [
     {
       type: ConfigType.URL,
