@@ -93,12 +93,12 @@ describe(
       }
     });
 
-  it("6. Checks installation in exported/forked app", () => {
-    homePage.NavigateToHome();
-    homePage.ImportApp("library_export.json");
-    homePage.AssertImportToast(0);
-    agHelper.ValidateToastMessage("true");
-    agHelper.WaitUntilAllToastsDisappear();
+    it("6. Checks installation in exported/forked app", () => {
+      homePage.NavigateToHome();
+      homePage.ImportApp("library_export.json");
+      homePage.AssertImportToast(0);
+      agHelper.ValidateToastMessage("true");
+      agHelper.WaitUntilAllToastsDisappear();
 
       //Checks installation in forked app
       homePage.NavigateToHome();
