@@ -15,7 +15,6 @@ import {
   featuresConfig,
   metaConfig,
   propertyPaneContentConfig,
-  propertyPaneStyleConfig,
   settersConfig,
 } from "./../config";
 import { validateInput } from "./helpers";
@@ -60,7 +59,7 @@ class WDSCheckboxGroupWidget extends BaseWidget<
   }
 
   static getPropertyPaneStyleConfig() {
-    return propertyPaneStyleConfig;
+    return [];
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {

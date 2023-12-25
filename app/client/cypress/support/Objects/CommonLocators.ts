@@ -287,6 +287,7 @@ export class CommonLocators {
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
   _walkthrough_overlay = `.t--walkthrough-overlay`;
+  _autoHeightOverlay = "[data-testid='t--auto-height-overlay']";
   _autoHeightHandles = "[data-testid='t-auto-height-overlay-handles']";
   _autoHeightMin = "[data-testid='t--auto-height-overlay-handles-min']";
   _autoHeightMax = "[data-testid='t--auto-height-overlay-handles-max']";

@@ -13,7 +13,8 @@ export type EventLocation =
   | "JS_OBJECT_MAIN_RUN_BUTTON"
   | "JS_OBJECT_RESPONSE_RUN_BUTTON"
   | "ONE_CLICK_BINDING"
-  | "PAGES_PANE";
+  | "PAGES_PANE"
+  | "ADD_PANE";
 
 export type EventName =
   | "APP_CRASH"
@@ -192,6 +193,8 @@ export type EventName =
   | "GIT_DISCARD_WARNING"
   | "GIT_DISCARD_CANCEL"
   | "GIT_DISCARD"
+  | "GS_AUTO_COMMIT_DISABLED"
+  | "GS_AUTO_COMMIT_ENABLED"
   | "GS_OPEN_BRANCH_LIST_POPUP"
   | "GS_CREATE_NEW_BRANCH"
   | "GS_SYNC_BRANCHES"
