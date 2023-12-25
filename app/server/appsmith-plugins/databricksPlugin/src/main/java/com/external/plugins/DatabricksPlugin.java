@@ -46,6 +46,10 @@ public class DatabricksPlugin extends BasePlugin {
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
     private static final int INITIAL_ROWLIST_CAPACITY = 50;
 
+    private static final String FORM_PROPERTIES_CONFIGURATION = "FORM_PROPERTIES_CONFIGURATION";
+
+    private static final String JDBC_URL_CONFIGURATION = "JDBC_URL_CONFIGURATION";
+
     private static final String TABLES_QUERY =
             """
         SELECT TABLE_SCHEMA as schema_name, table_name,
@@ -160,11 +164,11 @@ public class DatabricksPlugin extends BasePlugin {
             p.put("UID", "token");
             p.put("PWD", datasourceConfiguration.getProperties().get(4).getValue());
             String url;
-            if ("JDBC_URL_CONFIGURATION"
-                    .equals(datasourceConfiguration.getProperties().get(0).getValue())) {
+            if (JDBC_URL_CONFIGURATION.equals(
+                    datasourceConfiguration.getProperties().get(0).getValue())) {
                 url = (String) datasourceConfiguration.getProperties().get(5).getValue();
-            } else if ("FORM_PROPERTIES_CONFIGURATION"
-                    .equals(datasourceConfiguration.getProperties().get(0).getValue())) {
+            } else if (FORM_PROPERTIES_CONFIGURATION.equals(
+                    datasourceConfiguration.getProperties().get(0).getValue())) {
                 // Set up the connection URL
                 StringBuilder urlBuilder = new StringBuilder("jdbc:databricks://");
 
@@ -184,22 +188,25 @@ public class DatabricksPlugin extends BasePlugin {
 
             return (Mono<Connection>) Mono.fromCallable(() -> {
                         Connection connection = DriverManager.getConnection(url, p);
-                        try (Statement statement = connection.createStatement(); ) {
-                            String catalog = (String) datasourceConfiguration
-                                    .getProperties()
-                                    .get(CATALOG_INDEX)
-                                    .getValue();
-                            if (!StringUtils.hasText(catalog)) {
-                                catalog = "samples";
+
+                        if (FORM_PROPERTIES_CONFIGURATION.equals(
+                                datasourceConfiguration.getProperties().get(0).getValue())) {
+                            try (Statement statement = connection.createStatement(); ) {
+                                String catalog = (String) datasourceConfiguration
+                                        .getProperties()
+                                        .get(CATALOG_INDEX)
+                                        .getValue();
+                                if (!StringUtils.hasText(catalog)) {
+                                    catalog = "samples";
+                                }
+                                String useCatalogQuery = "USE CATALOG " + catalog;
+                                statement.execute(useCatalogQuery);
+                            } catch (SQLException e) {
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                        "The Appsmith server has failed to change the catalog.",
+                                        e.getMessage()));
                             }
-                            String useCatalogQuery = "USE CATALOG " + catalog;
-                            statement.execute(useCatalogQuery);
-                        } catch (SQLException e) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "The Appsmith server has failed to change the catalog.",
-                                    e.getMessage()));
-                        }
 
                         try (Statement statement = connection.createStatement(); ) {
                             String schema = (String) datasourceConfiguration
@@ -208,14 +215,15 @@ public class DatabricksPlugin extends BasePlugin {
                                     .getValue();
                             if (!StringUtils.hasText(schema)) {
                                 schema = "default";
+                                }
+                                String useSchemaQuery = "USE SCHEMA " + schema;
+                                statement.execute(useSchemaQuery);
+                            } catch (SQLException e) {
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                        "The Appsmith server has failed to change the schema",
+                                        e.getMessage()));
                             }
-                            String useSchemaQuery = "USE SCHEMA " + schema;
-                            statement.execute(useSchemaQuery);
-                        } catch (SQLException e) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "The Appsmith server has failed to change the schema",
-                                    e.getMessage()));
                         }
 
                         return Mono.just(connection);
