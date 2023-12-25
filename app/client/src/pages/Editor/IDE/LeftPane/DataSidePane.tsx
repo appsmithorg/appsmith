@@ -25,13 +25,13 @@ import {
 } from "@appsmith/constants/messages";
 import PaneHeader from "./PaneHeader";
 import { useEditorType } from "@appsmith/hooks";
-import { EmptyState } from "../PagesPane/EmptyState";
 import { INTEGRATION_TABS } from "../../../../constants/routes";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { EmptyState } from "../EditorPane/EmptyState";
 
 const PaneContainer = styled.div`
   width: 300px;

@@ -83,20 +83,18 @@ const ListQuery = () => {
             </Flex>
           );
         })}
-      </Flex>
 
-      {Object.keys(files).length === 0 && (
-        <EmptyState
-          buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
-          description={createMessage(
-            PAGES_PANE_TEXTS.query_blank_state_description,
-          )}
-          icon={"queries-v3"}
-          onClick={canCreateActions ? addButtonClickHandler : undefined}
-        />
-      )}
-      {Object.keys(files).length > 0 && canCreateActions && (
-        <Flex flexDirection="column" padding="spaces-3">
+        {Object.keys(files).length === 0 && (
+          <EmptyState
+            buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
+            description={createMessage(
+              PAGES_PANE_TEXTS.query_blank_state_description,
+            )}
+            icon={"queries-v3"}
+            onClick={canCreateActions ? addButtonClickHandler : undefined}
+          />
+        )}
+        {Object.keys(files).length > 0 && canCreateActions && (
           <Button
             kind={"secondary"}
             onClick={addButtonClickHandler}
@@ -105,8 +103,8 @@ const ListQuery = () => {
           >
             {createMessage(PAGES_PANE_TEXTS.query_add_button)}
           </Button>
-        </Flex>
-      )}
+        )}
+      </Flex>
     </Flex>
   );
 };
