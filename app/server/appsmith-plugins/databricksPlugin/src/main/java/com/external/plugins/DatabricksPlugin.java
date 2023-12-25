@@ -1,5 +1,7 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -16,6 +18,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,11 +28,17 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_INVALID_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.external.plugins.exceptions.DatabricksErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG;
+import static com.external.plugins.exceptions.DatabricksPluginError.QUERY_EXECUTION_FAILED;
 
 public class DatabricksPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.databricks.client.jdbc.Driver";
+    private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
     public DatabricksPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -43,13 +52,41 @@ public class DatabricksPlugin extends BasePlugin {
                 Connection connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+
             String query = actionConfiguration.getBody();
 
             List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
 
-            return Mono.fromCallable(() -> {
+            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
                         try {
+
+                            // Check for connection validity :
+
+                            if (connection == null) {
+                                return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
+                            } else if (connection.isClosed()) {
+                                return Mono.error(new StaleConnectionException(CONNECTION_CLOSED_ERROR_MSG));
+                            } else if (!connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                                /**
+                                 * Not adding explicit `!sqlConnectionFromPool.isValid(VALIDITY_CHECK_TIMEOUT)`
+                                 * check here because this check may take few seconds to complete hence adding
+                                 * extra time delay.
+                                 */
+                                return Mono.error(new StaleConnectionException(CONNECTION_INVALID_ERROR_MSG));
+                            }
+
+                        } catch (SQLException error) {
+                            error.printStackTrace();
+                            // This should not happen ideally.
+                            System.out.println(
+                                    "Error checking validity of Databricks connection : " + error.getMessage());
+                        }
+
+                        try {
+
+                            // We can proceed since the connection is valid.
+
                             Statement statement = connection.createStatement();
                             ResultSet resultSet = statement.executeQuery(query);
 
@@ -76,8 +113,12 @@ public class DatabricksPlugin extends BasePlugin {
 
                                 rowsList.add(row);
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } catch (SQLException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    QUERY_EXECUTION_FAILED,
+                                    QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                    e.getMessage(),
+                                    "SQLSTATE: " + e.getSQLState()));
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
