@@ -1,3 +1,7 @@
+import {
+  ADD_PAGE_FROM_TEMPLATE_MODAL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
@@ -63,7 +67,9 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
     <Wrapper isModalLayout={props.isModalLayout}>
       {showBuildingBlocksSection && (
         <>
-          <SubheadingText kind="heading-m">Building blocks</SubheadingText>
+          <SubheadingText kind="heading-m">
+            {createMessage(ADD_PAGE_FROM_TEMPLATE_MODAL.buildingBlocksTitle)}
+          </SubheadingText>
 
           <TemplateGrid>
             {buildingBlocks.map((template) => (

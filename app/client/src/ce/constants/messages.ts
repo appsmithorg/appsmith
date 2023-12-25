@@ -2322,3 +2322,8 @@ export const PARTIAL_IMPORT_EXPORT = {
 
 export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
 export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
+
+export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
+  title: () => "Add page(s) from a template",
+  buildingBlocksTitle: () => "Building Blocks",
+};
