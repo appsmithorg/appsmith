@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -58,36 +57,6 @@ public class DatabricksPlugin extends BasePlugin {
                 Connection connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
-
-            try (Statement statement = connection.createStatement(); ) {
-                String catalog =
-                        (String) datasourceConfiguration.getProperties().get(2).getValue();
-                if (!StringUtils.hasText(catalog)) {
-                    catalog = "samples";
-                }
-                String useCatalogQuery = "USE CATALOG " + catalog;
-                statement.execute(useCatalogQuery);
-            } catch (SQLException e) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "The Appsmith server has failed to change the catalog.",
-                        e.getMessage()));
-            }
-
-            try (Statement statement = connection.createStatement(); ) {
-                String schema =
-                        (String) datasourceConfiguration.getProperties().get(3).getValue();
-                if (!StringUtils.hasText(schema)) {
-                    schema = "default";
-                }
-                String useSchemaQuery = "USE SCHEMA " + schema;
-                statement.execute(useSchemaQuery);
-            } catch (SQLException e) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "The Appsmith server has failed to change the schema",
-                        e.getMessage()));
-            }
 
             String query = actionConfiguration.getBody();
 
@@ -137,30 +106,36 @@ public class DatabricksPlugin extends BasePlugin {
 
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-
-            // Set up the connection URL
-            StringBuilder urlBuilder = new StringBuilder("jdbc:databricks://");
-
-            List<String> hosts = datasourceConfiguration.getEndpoints().stream()
-                    .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 443L))
-                    .collect(Collectors.toList());
-
-            urlBuilder.append(String.join(",", hosts)).append(";");
-
-            String url = urlBuilder.toString();
-
-            Properties p = new java.util.Properties();
-            p.put("httpPath", datasourceConfiguration.getProperties().get(0).getValue());
-            p.put("AuthMech", "3");
-            p.put("UID", "token");
-            p.put("PWD", datasourceConfiguration.getProperties().get(1).getValue());
-
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
+            Properties p = new Properties();
+            p.put("UID", "token");
+            p.put("PWD", datasourceConfiguration.getProperties().get(4).getValue());
+            String url;
+            if ("JDBC_URL_CONFIGURATION"
+                    .equals(datasourceConfiguration.getProperties().get(0).getValue())) {
+                url = (String) datasourceConfiguration.getProperties().get(5).getValue();
+            } else if ("FORM_PROPERTIES_CONFIGURATION"
+                    .equals(datasourceConfiguration.getProperties().get(0).getValue())) {
+                // Set up the connection URL
+                StringBuilder urlBuilder = new StringBuilder("jdbc:databricks://");
 
+                List<String> hosts = datasourceConfiguration.getEndpoints().stream()
+                        .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 443L))
+                        .collect(Collectors.toList());
+
+                urlBuilder.append(String.join(",", hosts)).append(";");
+
+                url = urlBuilder.toString();
+
+                p.put("httpPath", datasourceConfiguration.getProperties().get(1).getValue());
+                p.put("AuthMech", "3");
+            } else {
+                url = "";
+            }
             return Mono.fromCallable(() -> DriverManager.getConnection(url, p));
         }
 
