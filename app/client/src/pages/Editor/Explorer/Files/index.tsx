@@ -117,6 +117,7 @@ function Files() {
               isActive={entity.id === activeActionId}
               key={entity.id}
               parentEntityId={parentEntityId}
+              parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
               type={type}
@@ -129,6 +130,7 @@ function Files() {
               isActive={entity.id === activeActionId}
               key={entity.id}
               parentEntityId={parentEntityId}
+              parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
               type={type}

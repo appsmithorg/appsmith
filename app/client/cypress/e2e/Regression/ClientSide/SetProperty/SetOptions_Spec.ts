@@ -299,10 +299,16 @@ describe(
     }`);
       jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true, false); //for on page load execution, since sync function is updated to async
       deployMode.DeployApp();
-      agHelper.WaitUntilEleAppear(
-        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
-          " " +
-          locators._input,
+      agHelper.WaitForCondition(
+        agHelper
+          .GetElement(
+            locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+              " " +
+              locators._input,
+          )
+          .then(($ele) => {
+            return cy.wrap($ele).should("not.have.value", "[]");
+          }),
       );
       agHelper
         .GetText(
@@ -340,16 +346,15 @@ describe(
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Default value", "{{Select3.options}}");
       deployMode.DeployApp();
-      cy.waitUntil(() =>
+      agHelper.WaitForCondition(
         agHelper
-          .GetText(
+          .GetElement(
             locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
               " " +
               locators._input,
-            "val",
           )
-          .then(($inputText) => {
-            expect($inputText).not.to.be.empty;
+          .then(($ele) => {
+            return cy.wrap($ele).should("include.value", "monday");
           }),
       );
       agHelper
@@ -393,7 +398,7 @@ describe(
         });
       agHelper.ClickButton("Submit");
       agHelper.Sleep(); //settimeout timer, hence sleep needed here!
-      cy.waitUntil(() =>
+      agHelper.WaitForCondition(
         agHelper
           .GetText(
             locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
