@@ -298,14 +298,15 @@ public class FileUtilsImpl implements FileInterface {
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
 
                     // Save JS Libs if there's at least one change
-                    if (!CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))) {
+                    if (updatedResources != null
+                            && !CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))) {
                         Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
                         Set<Map.Entry<String, Object>> jsLibEntries =
                                 applicationGitReference.getJsLibraries().entrySet();
                         Set<String> validJsLibs = new HashSet<>();
                         jsLibEntries.forEach(jsLibEntry -> {
                             String uidString = jsLibEntry.getKey();
-                            Boolean isResourceUpdated =
+                            boolean isResourceUpdated =
                                     updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
 
                             String fileNameWithExtension = getJsLibFileName(uidString) + CommonConstants.JSON_EXTENSION;
