@@ -3,14 +3,22 @@
 set -o errexit
 set -o nounset
 
-loc="$(dirname "$0")"
-#docker build -f "$loc/Dockerfile" --tag ar "$loc/.."
+cd "$(dirname "$0")"
+
+docker build -f Dockerfile --tag ar ..
+
+declare -a args
+args+=(--hostname ar)
+
+if [[ "${CI-}" != true ]]; then
+  args+=(--interactive --tty)
+fi
+
 docker run \
   --name ar \
   --rm \
-  -it \
-  --hostname ar \
+  "${args[@]}" \
   -e OPEN_SHELL=${OPEN_SHELL-} \
-  --volume "$loc/../fs/opt/appsmith/caddy-reconfigure.mjs:/caddy-reconfigure.mjs:ro" \
-  --volume "$loc:/code:ro" \
+  --volume "$(dirname "$PWD")/fs/opt/appsmith/caddy-reconfigure.mjs:/caddy-reconfigure.mjs:ro" \
+  --volume ".:/code:ro" \
   ar
