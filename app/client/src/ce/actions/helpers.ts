@@ -62,3 +62,22 @@ export const saveJSObjectNameBasedOnParentEntity = (
 ) => {
   return saveJSObjectName({ id, name });
 };
+
+export const createNewApiActionBasedOnEditorType = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  editorType: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  editorId: string,
+  parentEntityId: string,
+  parentEntityType: ActionParentEntityTypeInterface,
+  apiType: string,
+): any => {
+  if (parentEntityId) {
+    return createNewAPIBasedOnParentEntity(
+      parentEntityId,
+      "API_PANE",
+      apiType,
+      parentEntityType,
+    );
+  }
+};
