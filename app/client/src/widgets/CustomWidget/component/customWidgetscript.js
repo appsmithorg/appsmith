@@ -79,6 +79,7 @@ export const createChannelToParent = () => {
   };
 
   return {
+    onMessageMap,
     postMessage: (type, data) => {
       try {
         // Check if the the passed object is postMessageable. if not fail
@@ -225,7 +226,7 @@ window.addEventListener("load", () => {
  * Function to create appsmith css variables for model and ui primitive values
  * variables get regenerated every time the model or ui changes.
  */
-const generateAppsmithCssVariables = (provider) => (source) => {
+export const generateAppsmithCssVariables = (provider) => (source) => {
   let cssTokens = document.getElementById(`appsmith-${provider}-css-tokens`);
   if (!cssTokens) {
     cssTokens = document.createElement("style");
