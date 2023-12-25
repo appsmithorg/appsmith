@@ -206,6 +206,9 @@ public class DatabricksPlugin extends BasePlugin {
                                 .get(HTTP_PATH_INDEX)
                                 .getValue());
                 p.put("AuthMech", "3");
+
+                // Always enable SSL for Databricks connections.
+                p.put("SSL", "1");
             } else {
                 url = "";
             }
