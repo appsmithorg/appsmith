@@ -27,6 +27,7 @@ const ModalContentWrapper = styled(ModalContent)`
 `;
 const ModalBodyWrapper = styled(ModalBody)`
   width: 100%;
+  overflow-y: hidden;
 `;
 function TemplatesModal() {
   const templatesModalInfo = useSelector(templateModalSelector);

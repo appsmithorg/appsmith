@@ -26,6 +26,8 @@ const FiltersWrapper = styled.div`
 const TemplateContentWrapper = styled.div`
   flex-grow: 1;
   overflow: auto;
+  height: 75vh;
+  padding-bottom: 24px;
 `;
 
 interface StartWithTemplatesProps {
