@@ -17,6 +17,8 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 
 class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static type = "CUSTOM_WIDGET";
@@ -52,9 +54,10 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
+    return (widget: CustomWidgetProps, extraDefsToDefine?: ExtraDef) => ({
       isVisible: DefaultAutocompleteDefinitions.isVisible,
-    };
+      model: generateTypeDef(widget.model, extraDefsToDefine),
+    });
   }
 
   static getSetterConfig(): SetterConfig {

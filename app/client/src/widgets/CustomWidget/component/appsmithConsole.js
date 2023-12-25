@@ -17,8 +17,11 @@
   const createProxy = (method) =>
     new Proxy(nativeConsole[method], {
       apply(target, _this, args) {
-        postMessage(method, args);
-        return Reflect.apply(target, _this, args);
+        try {
+          postMessage(method, args);
+        } finally {
+          return Reflect.apply(target, _this, args);
+        }
       },
     });
 
