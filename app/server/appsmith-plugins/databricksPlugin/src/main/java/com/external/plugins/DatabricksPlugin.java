@@ -1,12 +1,8 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -34,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
@@ -42,10 +39,6 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.external.plugins.exceptions.DatabricksErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG;
 import static com.external.plugins.exceptions.DatabricksPluginError.QUERY_EXECUTION_FAILED;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 
 public class DatabricksPlugin extends BasePlugin {
 
@@ -60,7 +53,6 @@ public class DatabricksPlugin extends BasePlugin {
         FROM system.INFORMATION_SCHEMA.COLUMNS where table_schema <> 'information_schema'
         """;
 
-
     public DatabricksPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -74,37 +66,6 @@ public class DatabricksPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            try (Statement statement = connection.createStatement(); ) {
-                String catalog =
-                        (String) datasourceConfiguration.getProperties().get(2).getValue();
-                if (!StringUtils.hasText(catalog)) {
-                    catalog = "samples";
-                }
-                String useCatalogQuery = "USE CATALOG " + catalog;
-                statement.execute(useCatalogQuery);
-            } catch (SQLException e) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "The Appsmith server has failed to change the catalog.",
-                        e.getMessage()));
-            }
-
-            try (Statement statement = connection.createStatement(); ) {
-                String schema =
-                        (String) datasourceConfiguration.getProperties().get(3).getValue();
-                if (!StringUtils.hasText(schema)) {
-                    schema = "default";
-                }
-                String useSchemaQuery = "USE SCHEMA " + schema;
-                statement.execute(useSchemaQuery);
-            } catch (SQLException e) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "The Appsmith server has failed to change the schema",
-                        e.getMessage()));
-            }
-
-
             String query = actionConfiguration.getBody();
 
             List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -114,7 +75,6 @@ public class DatabricksPlugin extends BasePlugin {
                         try {
 
                             // Check for connection validity :
-
                             if (connection == null) {
                                 return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
                             } else if (connection.isClosed()) {
@@ -138,7 +98,6 @@ public class DatabricksPlugin extends BasePlugin {
                         try {
 
                             // We can proceed since the connection is valid.
-
                             Statement statement = connection.createStatement();
                             ResultSet resultSet = statement.executeQuery(query);
 
@@ -172,7 +131,6 @@ public class DatabricksPlugin extends BasePlugin {
                                     QUERY_EXECUTION_FAILED_ERROR_MSG,
                                     e.getMessage(),
                                     "SQLSTATE: " + e.getSQLState()));
-
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -210,7 +168,46 @@ public class DatabricksPlugin extends BasePlugin {
                 throw new RuntimeException(e);
             }
 
-            return Mono.fromCallable(() -> DriverManager.getConnection(url, p));
+            return (Mono<Connection>) Mono.fromCallable(() -> {
+                        Connection connection = DriverManager.getConnection(url, p);
+                        try (Statement statement = connection.createStatement(); ) {
+                            String catalog = (String) datasourceConfiguration
+                                    .getProperties()
+                                    .get(2)
+                                    .getValue();
+                            if (!StringUtils.hasText(catalog)) {
+                                catalog = "samples";
+                            }
+                            String useCatalogQuery = "USE CATALOG " + catalog;
+                            statement.execute(useCatalogQuery);
+                        } catch (SQLException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "The Appsmith server has failed to change the catalog.",
+                                    e.getMessage()));
+                        }
+
+                        try (Statement statement = connection.createStatement(); ) {
+                            String schema = (String) datasourceConfiguration
+                                    .getProperties()
+                                    .get(3)
+                                    .getValue();
+                            if (!StringUtils.hasText(schema)) {
+                                schema = "default";
+                            }
+                            String useSchemaQuery = "USE SCHEMA " + schema;
+                            statement.execute(useSchemaQuery);
+                        } catch (SQLException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "The Appsmith server has failed to change the schema",
+                                    e.getMessage()));
+                        }
+
+                        return Mono.just(connection);
+                    })
+                    .flatMap(obj -> obj)
+                    .subscribeOn(Schedulers.boundedElastic());
         }
 
         @Override
