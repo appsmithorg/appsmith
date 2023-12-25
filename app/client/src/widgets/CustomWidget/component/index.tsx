@@ -141,7 +141,10 @@ function CustomComponent(props: CustomComponentProps) {
         <script type="text/javascript">${
           props.onConsole ? appsmithConsole : ""
         }</script>
-        <script type="module">${script}</script>
+        <script type="module">
+          ${script}
+          main();
+        </script>
         ${props.srcDoc.html}
         <script type="module">
           ${props.srcDoc.js}

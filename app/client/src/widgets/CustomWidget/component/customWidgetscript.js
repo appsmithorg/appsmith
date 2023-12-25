@@ -97,130 +97,169 @@ export const createChannelToParent = () => {
     onMessage,
   };
 };
-// Create a communication channel to the parent
-const channel = createChannelToParent();
+
 /*
- * Variables to hold the subscriber functions
+ * Function to initialize the script
+ * wrapping this inside a function to make it testable
  */
-const modelSubscribers = [];
-const uiSubscribers = [];
-/*
- * Variables to hold ready function and state
- */
-let onReady;
-let isReady = false;
-let isReadyCalled = false;
-// const heightObserver = new ResizeObserver((entries) => {
-//   const height = entries[0].contentRect.height;
-//   window.parent.postMessage(
-//     {
-//       type: "UPDATE_HEIGHT",
-//       data: {
-//         height,
-//       },
-//     },
-//     "*",
-//   );
-// });
-// Callback for when the READY_ACK message is received
-channel.onMessage(EVENTS.CUSTOM_WIDGET_READY_ACK, (event) => {
-  window.appsmith.model = event.model;
-  window.appsmith.ui = event.ui;
-  window.appsmith.mode = event.mode;
-  // heightObserver.observe(window.document.body);
+export function main() {
+  // Create a communication channel to the parent
+  const channel = createChannelToParent();
+  /*
+   * Variables to hold the subscriber functions
+   */
+  const modelSubscribers = [];
+  const uiSubscribers = [];
+  /*
+   * Variables to hold ready function and state
+   */
+  let onReady;
+  let isReady = false;
+  let isReadyCalled = false;
 
-  // Subscribe to model and UI changes
-  window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
-  window.appsmith.onUiChange(generateAppsmithCssVariables("ui"));
-
-  // Set the widget as ready
-  isReady = true;
-
-  if (!isReadyCalled && onReady) {
-    onReady();
-    isReadyCalled = true;
-  }
-});
-// Callback for when MODEL_CHANGE message is received
-channel.onMessage(EVENTS.CUSTOM_WIDGET_MODEL_CHANGE, (event) => {
-  if (event.model) {
+  // const heightObserver = new ResizeObserver((entries) => {
+  //   const height = entries[0].contentRect.height;
+  //   window.parent.postMessage(
+  //     {
+  //       type: "UPDATE_HEIGHT",
+  //       data: {
+  //         height,
+  //       },
+  //     },
+  //     "*",
+  //   );
+  // });
+  // Callback for when the READY_ACK message is received
+  channel.onMessage(EVENTS.CUSTOM_WIDGET_READY_ACK, (event) => {
     window.appsmith.model = event.model;
-    // Notify model subscribers
-    modelSubscribers.forEach((fn) => {
-      fn(event.model);
-    });
-  }
-});
-// Callback for when UI_CHANGE message is received
-channel.onMessage(EVENTS.CUSTOM_WIDGET_UI_CHANGE, (event) => {
-  if (event.ui) {
     window.appsmith.ui = event.ui;
-    // Notify UI subscribers
-    uiSubscribers.forEach((fn) => {
-      fn(event.ui);
+    window.appsmith.mode = event.mode;
+    // heightObserver.observe(window.document.body);
+
+    // Subscribe to model and UI changes
+    window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
+    window.appsmith.onUiChange(generateAppsmithCssVariables("ui"));
+
+    // Set the widget as ready
+    isReady = true;
+
+    if (!isReadyCalled && onReady) {
+      onReady();
+      isReadyCalled = true;
+    }
+  });
+  // Callback for when MODEL_CHANGE message is received
+  channel.onMessage(EVENTS.CUSTOM_WIDGET_MODEL_CHANGE, (event) => {
+    if (event.model) {
+      window.appsmith.model = event.model;
+
+      // Notify model subscribers
+      modelSubscribers.forEach((fn) => {
+        fn(event.model);
+      });
+    }
+  });
+  // Callback for when UI_CHANGE message is received
+  channel.onMessage(EVENTS.CUSTOM_WIDGET_UI_CHANGE, (event) => {
+    if (event.ui) {
+      window.appsmith.ui = event.ui;
+      // Notify UI subscribers
+      uiSubscribers.forEach((fn) => {
+        fn(event.ui);
+      });
+    }
+  });
+
+  if (!window.appsmith) {
+    // Define appsmith global object
+    Object.defineProperty(window, "appsmith", {
+      configurable: false,
+      writable: false,
+      value: {
+        mode: "",
+        onUiChange: (fn) => {
+          if (typeof fn !== "function") {
+            throw new Error("onUiChange expects a function as parameter");
+          }
+
+          uiSubscribers.push(fn);
+          fn(window.appsmith.ui);
+          return () => {
+            // Unsubscribe from UI changes
+            const index = uiSubscribers.indexOf(fn);
+            if (index > -1) {
+              uiSubscribers.splice(index, 1);
+            }
+          };
+        },
+        onModelChange: (fn) => {
+          if (typeof fn !== "function") {
+            throw new Error("onModelChange expects a function as parameter");
+          }
+
+          modelSubscribers.push(fn);
+          fn(window.appsmith.model);
+          return () => {
+            // Unsubscribe from model changes
+            const index = modelSubscribers.indexOf(fn);
+            if (index > -1) {
+              modelSubscribers.splice(index, 1);
+            }
+          };
+        },
+        updateModel: (obj) => {
+          if (!obj || typeof obj !== "object") {
+            throw new Error("updateModel expects an object as parameter");
+          }
+
+          appsmith.model = Object.assign(
+            Object.assign({}, appsmith.model),
+            obj,
+          );
+
+          // Send an update model message to the parent
+          channel.postMessage(EVENTS.CUSTOM_WIDGET_UPDATE_MODEL, obj);
+        },
+        triggerEvent: (eventName, contextObj) => {
+          if (typeof eventName !== "string") {
+            throw new Error("eventName should be a string");
+          } else if (typeof contextObj !== "object") {
+            throw new Error("contextObj should be an object");
+          }
+
+          // Send a trigger event message to the parent
+          channel.postMessage(EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT, {
+            eventName,
+            contextObj,
+          });
+        },
+        model: {},
+        ui: {},
+        onReady: (fn) => {
+          if (typeof fn !== "function") {
+            throw new Error("onReady expects a function as parameter");
+          }
+
+          onReady = fn;
+
+          if (isReady && !isReadyCalled && onReady) {
+            onReady();
+            isReadyCalled = true;
+          }
+        },
+        // observeHeight: (element) => {
+        //   heightObserver.disconnect();
+        //   heightObserver.observe(element);
+        // },
+      },
     });
   }
-});
-// Define appsmith global object
-Object.defineProperty(window, "appsmith", {
-  configurable: false,
-  writable: false,
-  value: {
-    mode: "",
-    onUiChange: (fn) => {
-      uiSubscribers.push(fn);
-      fn(window.appsmith.ui);
-      return () => {
-        // Unsubscribe from UI changes
-        const index = uiSubscribers.indexOf(fn);
-        if (index > -1) {
-          uiSubscribers.splice(index, 1);
-        }
-      };
-    },
-    onModelChange: (fn) => {
-      modelSubscribers.push(fn);
-      fn(window.appsmith.model);
-      return () => {
-        // Unsubscribe from model changes
-        const index = modelSubscribers.indexOf(fn);
-        if (index > -1) {
-          modelSubscribers.splice(index, 1);
-        }
-      };
-    },
-    updateModel: (obj) => {
-      // Send an update model message to the parent
-      channel.postMessage(EVENTS.CUSTOM_WIDGET_UPDATE_MODEL, obj);
-    },
-    triggerEvent: (eventName, contextObj) => {
-      // Send a trigger event message to the parent
-      channel.postMessage(EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT, {
-        eventName,
-        contextObj,
-      });
-    },
-    model: {},
-    ui: {},
-    onReady: (fn) => {
-      onReady = fn;
 
-      if (isReady && !isReadyCalled && onReady) {
-        onReady();
-        isReadyCalled = true;
-      }
-    },
-    // observeHeight: (element) => {
-    //   heightObserver.disconnect();
-    //   heightObserver.observe(element);
-    // },
-  },
-});
-
-// Listen for the 'load' event and send READY message to the parent
-window.addEventListener("load", () => {
-  channel.postMessage(EVENTS.CUSTOM_WIDGET_READY);
-});
+  // Listen for the 'load' event and send READY message to the parent
+  window.addEventListener("load", () => {
+    channel.postMessage(EVENTS.CUSTOM_WIDGET_READY);
+  });
+}
 
 /*
  * Function to create appsmith css variables for model and ui primitive values
