@@ -111,12 +111,12 @@ public class DatabricksPlugin extends BasePlugin {
 
                                 for (int i = 1; i <= colCount; i++) {
                                     Object value;
-                                    final String typeName = metaData.getColumnTypeName(i);
 
-                                    if (resultSet.getObject(i) == null) {
+                                    Object resultSetObject = resultSet.getObject(i);
+                                    if (resultSetObject == null) {
                                         value = null;
                                     } else {
-                                        value = resultSet.getObject(i);
+                                        value = resultSetObject;
                                     }
 
                                     row.put(metaData.getColumnName(i), value);
