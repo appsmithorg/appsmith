@@ -64,7 +64,7 @@ public class AwsLambdaPlugin extends BasePlugin {
             String command = getDataValueSafelyFromFormData(formData, "command", STRING_TYPE);
 
             return Mono.fromCallable(() -> {
-                        ActionExecutionResult result = null;
+                        ActionExecutionResult result;
                         switch (Objects.requireNonNull(command)) {
                             case "LIST_FUNCTIONS" -> result = listFunctions(actionConfiguration, connection);
                             case "INVOKE_FUNCTION" -> result = invokeFunction(actionConfiguration, connection);
@@ -190,7 +190,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         if (error instanceof AWSLambdaException
                                 && "AccessDenied".equals(((AWSLambdaException) error).getErrorCode())) {
-                            /**
+                            /*
                              * Sometimes a valid account credential may not have permission to run listFunctions action
                              * . In this case `AccessDenied` error is returned.
                              * That fact that the credentials caused `AccessDenied` error instead of invalid access key
@@ -217,14 +217,22 @@ public class AwsLambdaPlugin extends BasePlugin {
             }
 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if ("accessKey".equals(authentication.getAuthenticationType())) {
+
+            if ("instanceRole".equals(authentication.getAuthenticationType())
+                    && "true".equalsIgnoreCase(System.getenv("APPSMITH_CLOUD_HOSTING"))) {
+                // Instance role is not supported for cloud hosting. It's only supported for self-hosted environments.
+                // This is to prevent a security risk where a user can use the instance role to access resources in a
+                // hosted environment.
+                invalids.add(
+                        "Instance role is not supported for cloud hosting. Please choose a different authentication type.");
+            } else if ("accessKey".equals(authentication.getAuthenticationType())) {
                 // Only check for access key and secret key if accessKey authentication is selected.
                 if (!StringUtils.hasText(authentication.getUsername())) {
-                    invalids.add("Missing AWS access key");
+                    invalids.add("Unable to find an AWS access key. Please add a valid access key.");
                 }
 
                 if (!StringUtils.hasText(authentication.getPassword())) {
-                    invalids.add("Missing AWS secret key");
+                    invalids.add("Unable to find an AWS secret key. Please add a valid secret key.");
                 }
             }
 
