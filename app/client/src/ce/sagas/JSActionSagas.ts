@@ -24,6 +24,7 @@ import {
   moveJSCollectionSuccess,
 } from "actions/jsActionActions";
 import {
+  getCurrentJSCollections,
   getJSCollection,
   getPageNameByPageId,
 } from "@appsmith/selectors/entitiesSelector";
@@ -55,7 +56,11 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
-import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
+import {
+  builderURL,
+  jsCollectionIdURL,
+  jsCollectionListURL,
+} from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
@@ -65,6 +70,11 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "../../sagas/selectors";
 import { removeFocusHistoryRequest } from "../../actions/focusHistoryActions";
+import { selectFeatureFlagCheck } from "../selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "../entities/FeatureFlag";
+import { identifyEntityFromPath } from "../../navigation/FocusEntity";
+import { findIndex, sortBy } from "lodash";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -266,6 +276,43 @@ export const getIndexToBeRedirected = (
   return redirectIndex;
 };
 
+function* handleDeleteRedirect(deletedJSObjectId: string) {
+  const allJsObjects: JSCollectionDataState = yield select(
+    getCurrentJSCollections,
+  );
+  const sortedJSObjects = sortBy([...allJsObjects], "name");
+  const currentSelectedEntity = identifyEntityFromPath(
+    window.location.pathname,
+  );
+  const isSelectedJSDeleted = currentSelectedEntity.id === deletedJSObjectId;
+  if (!isSelectedJSDeleted) {
+    return;
+  }
+  const remainingJsObjects = allJsObjects.filter(
+    (js) => js.config.id !== deletedJSObjectId,
+  );
+  if (remainingJsObjects.length === 0) {
+    history.push(jsCollectionListURL({}));
+    return;
+  }
+  const deletedIndex = findIndex(
+    sortedJSObjects,
+    (js) => js.config.id === deletedJSObjectId,
+  );
+  const toRedirect: JSCollectionData =
+    deletedIndex === 0
+      ? sortedJSObjects[1]
+      : deletedIndex + 1 < sortedJSObjects.length
+      ? sortedJSObjects[deletedIndex - 1]
+      : deletedIndex + 1 === sortedJSObjects.length
+      ? sortedJSObjects[deletedIndex - 1]
+      : sortedJSObjects[deletedIndex + 1];
+
+  if (toRedirect) {
+    history.push(jsCollectionIdURL({ collectionId: toRedirect.config.id }));
+  }
+}
+
 export function* deleteJSCollectionSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
@@ -281,7 +328,16 @@ export function* deleteJSCollectionSaga(
         kind: "success",
       });
       const currentUrl = window.location.pathname;
-      history.push(builderURL({ pageId }));
+      const isPagePaneSegmentsEnabled: boolean = yield select(
+        selectFeatureFlagCheck,
+        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      );
+      if (isPagePaneSegmentsEnabled) {
+        yield call(handleDeleteRedirect, id);
+      } else {
+        history.push(builderURL({ pageId }));
+      }
+      yield put(removeFocusHistoryRequest(currentUrl));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS Object was deleted",
@@ -294,7 +350,6 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
-      yield put(removeFocusHistoryRequest(currentUrl));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
       yield put(

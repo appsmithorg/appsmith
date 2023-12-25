@@ -5,13 +5,13 @@ import { useSelector } from "react-redux";
 import {
   getActions,
   getDatasources,
+  getDatasourcesGroupedByPluginCategory,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "../../../../navigation/FocusSelectors";
-import { countBy, groupBy, keyBy } from "lodash";
-import { PluginType } from "entities/Action";
+import { countBy, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
 import {
@@ -58,23 +58,11 @@ const DataSidePane = () => {
     string | undefined
   >("");
   const datasources = useSelector(getDatasources);
+  const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
   const actions = useSelector(getActions);
   const actionCount = countBy(actions, "config.datasource.id");
-  const groupedDatasources = groupBy(datasources, (d) => {
-    const plugin = groupedPlugins[d.pluginId];
-    if (
-      plugin.type === PluginType.SAAS ||
-      plugin.type === PluginType.REMOTE ||
-      plugin.type === PluginType.AI
-    ) {
-      return "Integrations";
-    }
-    if (plugin.type === PluginType.DB) return "Databases";
-    if (plugin.type === PluginType.API) return "APIs";
-    return "Others";
-  });
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);

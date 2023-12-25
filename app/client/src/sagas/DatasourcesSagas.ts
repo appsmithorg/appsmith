@@ -33,11 +33,13 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import type { DatasourceGroupByPluginCategory } from "@appsmith/selectors/entitiesSelector";
 import {
   getDatasource,
   getDatasourceActionRouteInfo,
   getDatasourceDraft,
   getDatasources,
+  getDatasourcesGroupedByPluginCategory,
   getDatasourcesUsedInApplicationByActions,
   getEditorConfig,
   getEntityExplorerDatasources,
@@ -46,6 +48,7 @@ import {
   getPluginByPackageName,
   getPluginForm,
   getPluginPackageFromDatasourceId,
+  PluginCategory,
 } from "@appsmith/selectors/entitiesSelector";
 import type {
   executeDatasourceQueryReduxAction,
@@ -168,6 +171,9 @@ import {
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { identifyEntityFromPath } from "../navigation/FocusEntity";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -340,6 +346,52 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
   }
 }
 
+function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
+  const allDatasources: Datasource[] = yield select(getDatasources);
+
+  const currentSelectedEntity = identifyEntityFromPath(
+    window.location.pathname,
+  );
+  const isSelectedDatasourceDeleted =
+    currentSelectedEntity.id === deletedDatasourceId;
+
+  if (!isSelectedDatasourceDeleted) {
+    return;
+  }
+
+  const remainingDatasources = allDatasources.filter(
+    (d) => d.id !== deletedDatasourceId,
+  );
+  if (remainingDatasources.length === 0) {
+    history.push(integrationEditorURL({ selectedTab: INTEGRATION_TABS.NEW }));
+    return;
+  }
+  const groupedDatasources: DatasourceGroupByPluginCategory = yield select(
+    getDatasourcesGroupedByPluginCategory,
+  );
+  let deletedGroup: PluginCategory = PluginCategory.Others;
+  for (const [group, datasources] of Object.entries(groupedDatasources)) {
+    if (datasources.find((d) => d.id === deletedDatasourceId)) {
+      deletedGroup = group as PluginCategory;
+      break;
+    }
+  }
+
+  const groupDatasources = groupedDatasources[deletedGroup];
+  const remainingGroupDatasources = groupDatasources.filter(
+    (d) => d.id !== deletedDatasourceId,
+  );
+  if (remainingGroupDatasources.length === 0) {
+    history.push(
+      datasourcesEditorIdURL({ datasourceId: remainingDatasources[0].id }),
+    );
+  } else {
+    history.push(
+      datasourcesEditorIdURL({ datasourceId: remainingGroupDatasources[0].id }),
+    );
+  }
+}
+
 export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
@@ -372,10 +424,14 @@ export function* deleteDatasourceSaga(
           datasourceId: id,
         }),
       );
-
+      const isPagePaneSegmentsEnabled: boolean = yield select(
+        selectFeatureFlagCheck,
+        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      );
       const currentUrl = `${window.location.pathname}`;
-
-      if (
+      if (isPagePaneSegmentsEnabled) {
+        yield call(handleDatasourceDeleteRedirect, id);
+      } else if (
         currentUrl === datasourcePathWithoutQuery ||
         currentUrl === saasPathWithoutQuery
       ) {
