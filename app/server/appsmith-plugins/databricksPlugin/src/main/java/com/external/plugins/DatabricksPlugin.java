@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.BasePlugin;
@@ -46,9 +47,13 @@ public class DatabricksPlugin extends BasePlugin {
     private static final String JDBC_DRIVER = "com.databricks.client.jdbc.Driver";
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
     private static final int INITIAL_ROWLIST_CAPACITY = 50;
-
+    private static final int CATALOG_INDEX = 2;
+    private static final int SCHEMA_INDEX = 3;
+    private static final int CONFIGURATION_TYPE_INDEX = 0;
+    private static final int JDBC_URL_INDEX = 5;
+    private static final long DEFAULT_PORT = 443L;
+    private static final int HTTP_PATH_INDEX = 1;
     private static final String FORM_PROPERTIES_CONFIGURATION = "FORM_PROPERTIES_CONFIGURATION";
-
     private static final String JDBC_URL_CONFIGURATION = "JDBC_URL_CONFIGURATION";
 
     private static final String TABLES_QUERY =
@@ -66,13 +71,6 @@ public class DatabricksPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class DatabricksPluginExecutor implements PluginExecutor<Connection> {
-        private static final int CATALOG_INDEX = 2;
-        private static final int SCHEMA_INDEX = 3;
-        private static final int PERSONAL_ACCESS_TOKEN_INDEX = 4;
-        private static final int CONFIGURATION_TYPE_INDEX = 0;
-        private static final int JDBC_URL_INDEX = 5;
-        private static final long DEFAULT_PORT = 443L;
-        private static final int HTTP_PATH_INDEX = 1;
 
         @Override
         public Mono<ActionExecutionResult> execute(
@@ -166,14 +164,11 @@ public class DatabricksPlugin extends BasePlugin {
                 throw new RuntimeException(e);
             }
 
+            BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
+
             Properties p = new Properties();
             p.put("UID", "token");
-            p.put(
-                    "PWD",
-                    datasourceConfiguration
-                            .getProperties()
-                            .get(PERSONAL_ACCESS_TOKEN_INDEX)
-                            .getValue());
+            p.put("PWD", bearerTokenAuth.getBearerToken() == null ? "" : bearerTokenAuth.getBearerToken());
             String url;
             if (JDBC_URL_CONFIGURATION.equals(datasourceConfiguration
                     .getProperties()

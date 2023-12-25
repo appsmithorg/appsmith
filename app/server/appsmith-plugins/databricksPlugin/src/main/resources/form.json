@@ -98,11 +98,19 @@
           }
         },
         {
+          "label": "Authentication type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "INPUT_TEXT",
+          "initialValue" : "bearerToken",
+          "hidden" : true
+        },
+        {
           "label": "Personal access token",
-          "configProperty": "datasourceConfiguration.properties[4].value",
+          "configProperty": "datasourceConfiguration.authentication.bearerToken",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
           "initialValue": "",
+          "isRequired": true,
           "encrypted": true
         }
       ]
