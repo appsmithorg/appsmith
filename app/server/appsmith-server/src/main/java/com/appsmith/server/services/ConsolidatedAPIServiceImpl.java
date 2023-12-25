@@ -41,7 +41,18 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     private final ApplicationPageService applicationPageService;
     private final CustomJSLibService customJSLibService;
 
-    public ConsolidatedAPIServiceImpl(SessionUserService sessionUserService, UserService userService, UserDataService userDataService, TenantService tenantService, ProductAlertService productAlertService, NewPageService newPageService, NewActionService newActionService, ActionCollectionService actionCollectionService, ThemeService themeService, ApplicationPageService applicationPageService, CustomJSLibService customJSLibService) {
+    public ConsolidatedAPIServiceImpl(
+            SessionUserService sessionUserService,
+            UserService userService,
+            UserDataService userDataService,
+            TenantService tenantService,
+            ProductAlertService productAlertService,
+            NewPageService newPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
+            ThemeService themeService,
+            ApplicationPageService applicationPageService,
+            CustomJSLibService customJSLibService) {
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.userDataService = userDataService;
@@ -56,70 +67,73 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     }
 
     @Override
-    public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(String pageId, String applicationId, String branchName,
-                                                                           ApplicationMode mode, Boolean migrateDsl) {
+    public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
+            String pageId, String applicationId, String branchName, ApplicationMode mode, Boolean migrateDsl) {
 
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
         Mono<String> applicationIdMonoCache;
         if (isBlank(applicationId)) {
-            applicationIdMonoCache = applicationPageService.getPage(pageId, ApplicationMode.PUBLISHED.equals(mode))
-                .map(PageDTO::getApplicationId)
-                .cache();
-        }
-        else {
+            applicationIdMonoCache = applicationPageService
+                    .getPage(pageId, ApplicationMode.PUBLISHED.equals(mode))
+                    .map(PageDTO::getApplicationId)
+                    .cache();
+        } else {
             applicationIdMonoCache = Mono.just(applicationId).cache();
         }
 
-        Mono<UserProfileDTO> userProfileDTOMono = sessionUserService
-            .getCurrentUser()
-            .flatMap(userService::buildUserProfileDTO);
+        Mono<UserProfileDTO> userProfileDTOMono =
+                sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
 
-        Mono<Map<String, Boolean>> featureFlagsForCurrentUserMono = userDataService
-            .getFeatureFlagsForCurrentUser();
+        Mono<Map<String, Boolean>> featureFlagsForCurrentUserMono = userDataService.getFeatureFlagsForCurrentUser();
 
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
 
-        Mono<ProductAlertResponseDTO> productAlertResponseDTOMono =
-            productAlertService.getSingleApplicableMessage().map(messages -> {
-            if (!messages.isEmpty()) {
-                return messages.get(0);
-            }
+        Mono<ProductAlertResponseDTO> productAlertResponseDTOMono = productAlertService
+                .getSingleApplicableMessage()
+                .map(messages -> {
+                    if (!messages.isEmpty()) {
+                        return messages.get(0);
+                    }
 
-            return new ProductAlertResponseDTO();
-        });
+                    return new ProductAlertResponseDTO();
+                });
 
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationIdMonoCache
-            .flatMap(appId -> newPageService
-                .findApplicationPages(appId, pageId, branchName, mode));
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationIdMonoCache.flatMap(
+                appId -> newPageService.findApplicationPages(appId, pageId, branchName, mode));
 
-        Mono<Theme> applicationThemeMono = applicationIdMonoCache
-            .flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName));
-        Mono<List<Theme>> ThemesListMono = applicationIdMonoCache
-            .flatMap(appId -> themeService.getApplicationThemes(appId, branchName).collectList());
+        Mono<Theme> applicationThemeMono =
+                applicationIdMonoCache.flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName));
+        Mono<List<Theme>> ThemesListMono = applicationIdMonoCache.flatMap(
+                appId -> themeService.getApplicationThemes(appId, branchName).collectList());
 
         if (ApplicationMode.PUBLISHED.equals(mode)) {
-            Mono<List<ActionViewDTO>> listOfActionViewDTOs = applicationIdMonoCache
-                .flatMap(appId -> newActionService
-                .getActionsForViewMode(appId, branchName)
-                .collectList());
+            Mono<List<ActionViewDTO>> listOfActionViewDTOs = applicationIdMonoCache.flatMap(appId ->
+                    newActionService.getActionsForViewMode(appId, branchName).collectList());
 
-            Mono<List<ActionCollectionViewDTO>> listOfActionCollectionViewDTOs = applicationIdMonoCache
-                .flatMap(appId -> actionCollectionService
-                .getActionCollectionsForViewMode(appId, branchName)
-                .collectList());
+            Mono<List<ActionCollectionViewDTO>> listOfActionCollectionViewDTOs =
+                    applicationIdMonoCache.flatMap(appId -> actionCollectionService
+                            .getActionCollectionsForViewMode(appId, branchName)
+                            .collectList());
 
-            Mono<PageDTO> pageAndMigrateDslByBranchAndDefaultPageId = applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(pageId, branchName, true, migrateDsl);
+            Mono<PageDTO> pageAndMigrateDslByBranchAndDefaultPageId =
+                    applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                            pageId, branchName, true, migrateDsl);
 
-            Mono<List<CustomJSLib>> allJSLibsInContextDTO = applicationIdMonoCache
-                .flatMap(appId -> customJSLibService
-                .getAllJSLibsInContext(appId, CreatorContextType.APPLICATION, branchName, true));
+            Mono<List<CustomJSLib>> allJSLibsInContextDTO = applicationIdMonoCache.flatMap(appId ->
+                    customJSLibService.getAllJSLibsInContext(appId, CreatorContextType.APPLICATION, branchName, true));
 
-            List<Mono<?>> listOfMonosForPublishedApp = List.of(userProfileDTOMono, tenantMono,
-                featureFlagsForCurrentUserMono,
-                applicationPagesDTOMono,
-                applicationThemeMono, ThemesListMono, listOfActionViewDTOs, listOfActionCollectionViewDTOs,
-                pageAndMigrateDslByBranchAndDefaultPageId, allJSLibsInContextDTO, productAlertResponseDTOMono);
+            List<Mono<?>> listOfMonosForPublishedApp = List.of(
+                    userProfileDTOMono,
+                    tenantMono,
+                    featureFlagsForCurrentUserMono,
+                    applicationPagesDTOMono,
+                    applicationThemeMono,
+                    ThemesListMono,
+                    listOfActionViewDTOs,
+                    listOfActionCollectionViewDTOs,
+                    pageAndMigrateDslByBranchAndDefaultPageId,
+                    allJSLibsInContextDTO,
+                    productAlertResponseDTOMono);
 
             return Mono.zip(listOfMonosForPublishedApp, responseArray -> {
                 consolidatedAPIResponseDTO.setV1UsersMeResp((UserProfileDTO) responseArray[0]);
@@ -129,11 +143,12 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 consolidatedAPIResponseDTO.setV1ThemesApplicationCurrentModeResp((Theme) responseArray[4]);
                 consolidatedAPIResponseDTO.setV1ThemesResp((List<Theme>) responseArray[5]);
                 consolidatedAPIResponseDTO.setV1ActionsViewResp((List<ActionViewDTO>) responseArray[6]);
-                consolidatedAPIResponseDTO.setV1CollectionsActionsViewResp((List<ActionCollectionViewDTO>) responseArray[7]);
+                consolidatedAPIResponseDTO.setV1CollectionsActionsViewResp(
+                        (List<ActionCollectionViewDTO>) responseArray[7]);
                 consolidatedAPIResponseDTO.setV1PublishedPageResp((PageDTO) responseArray[8]);
                 consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((List<CustomJSLib>) responseArray[9]);
                 consolidatedAPIResponseDTO.setV1ProductAlertResp((ProductAlertResponseDTO) responseArray[10]);
-                
+
                 return consolidatedAPIResponseDTO;
             });
         }

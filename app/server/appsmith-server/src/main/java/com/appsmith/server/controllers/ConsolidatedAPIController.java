@@ -30,20 +30,20 @@ public class ConsolidatedAPIController {
     @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllPages(
-        @RequestParam(required = false) String applicationId,
-        @RequestParam(required = false) String pageId,
-        @RequestParam(required = true, defaultValue = "EDIT") ApplicationMode mode,
-        @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl,
-        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestParam(required = false) String applicationId,
+            @RequestParam(required = false) String pageId,
+            @RequestParam(required = true) ApplicationMode mode,
+            @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
-            "Going to fetch consolidatedAPI response for applicationId: {}, pageId: {}, branchName: {}, mode: {}",
-            applicationId,
-            pageId,
-            branchName,
-            mode);
+                "Going to fetch consolidatedAPI response for applicationId: {}, pageId: {}, branchName: {}, mode: {}",
+                applicationId,
+                pageId,
+                branchName,
+                mode);
         return consolidatedAPIService
-            .getConsolidatedInfoForPageLoad(applicationId, pageId, branchName, mode, migrateDsl)
-            .map(consolidatedAPIResponseDTO -> new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
+                .getConsolidatedInfoForPageLoad(pageId, applicationId, branchName, mode, migrateDsl)
+                .map(consolidatedAPIResponseDTO ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
     }
-
 }

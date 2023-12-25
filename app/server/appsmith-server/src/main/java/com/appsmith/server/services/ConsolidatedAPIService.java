@@ -5,6 +5,6 @@ import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
 import reactor.core.publisher.Mono;
 
 public interface ConsolidatedAPIService {
-    Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(String pageId, String applicationId,
-                                                                    String branchName, ApplicationMode mode, Boolean migrateDsl);
+    Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
+            String pageId, String applicationId, String branchName, ApplicationMode mode, Boolean migrateDsl);
 }
