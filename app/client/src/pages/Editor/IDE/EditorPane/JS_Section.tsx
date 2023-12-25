@@ -69,7 +69,7 @@ const JSSection = () => {
           flex="1"
           flexDirection="column"
           gap="spaces-2"
-          overflow="scroll"
+          overflowY="auto"
           padding="spaces-3"
         >
           {JSObjects &&
@@ -103,14 +103,16 @@ const JSSection = () => {
         />
       )}
       {JSObjects && JSObjects.length > 0 && canCreateActions && (
-        <Button
-          kind={"secondary"}
-          onClick={addButtonClickHandler}
-          size={"sm"}
-          startIcon={"add-line"}
-        >
-          {createMessage(PAGES_PANE_TEXTS.js_add_button)}
-        </Button>
+        <Flex flexDirection="column" padding="spaces-3">
+          <Button
+            kind={"secondary"}
+            onClick={addButtonClickHandler}
+            size={"sm"}
+            startIcon={"add-line"}
+          >
+            {createMessage(PAGES_PANE_TEXTS.js_add_button)}
+          </Button>
+        </Flex>
       )}
     </JSContainer>
   );

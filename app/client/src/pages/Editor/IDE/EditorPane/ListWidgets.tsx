@@ -50,7 +50,7 @@ const ListWidgets = () => {
         flex="1"
         flexDirection={"column"}
         gap="spaces-3"
-        overflow="scroll"
+        overflowY="auto"
         padding="spaces-3"
       >
         {widgets?.children?.map((child) => (
@@ -81,14 +81,16 @@ const ListWidgets = () => {
         widgets.children &&
         widgets.children.length > 0 &&
         canManagePages && (
-          <Button
-            kind={"secondary"}
-            onClick={addButtonClickHandler}
-            size={"sm"}
-            startIcon={"add-line"}
-          >
-            {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
-          </Button>
+          <Flex flexDirection="column" padding="spaces-3">
+            <Button
+              kind={"secondary"}
+              onClick={addButtonClickHandler}
+              size={"sm"}
+              startIcon={"add-line"}
+            >
+              {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
+            </Button>
+          </Flex>
         )}
     </Flex>
   );

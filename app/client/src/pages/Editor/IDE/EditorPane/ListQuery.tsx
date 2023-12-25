@@ -40,14 +40,14 @@ const ListQuery = () => {
   }, [pageId]);
 
   return (
-    <Flex flexDirection="column" overflow="hidden">
-      <Flex
-        flex="1"
-        flexDirection={"column"}
-        gap="spaces-3"
-        overflow="scroll"
-        padding="spaces-3"
-      >
+    <Flex
+      flex="1"
+      flexDirection="column"
+      gap="spaces-3"
+      overflow="hidden"
+      padding="spaces-3"
+    >
+      <Flex flexDirection={"column"} gap="spaces-3" overflowY="auto">
         {Object.keys(files).map((key) => {
           return (
             <Flex flexDirection={"column"} gap="spaces-2" key={key}>
@@ -83,18 +83,10 @@ const ListQuery = () => {
             </Flex>
           );
         })}
+      </Flex>
 
-        {Object.keys(files).length === 0 && (
-          <EmptyState
-            buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
-            description={createMessage(
-              PAGES_PANE_TEXTS.query_blank_state_description,
-            )}
-            icon={"queries-v3"}
-            onClick={canCreateActions ? addButtonClickHandler : undefined}
-          />
-        )}
-        {Object.keys(files).length > 0 && canCreateActions && (
+      {Object.keys(files).length > 0 && canCreateActions && (
+        <Flex flexDirection={"column"} paddingBottom="spaces-3">
           <Button
             kind={"secondary"}
             onClick={addButtonClickHandler}
@@ -103,8 +95,19 @@ const ListQuery = () => {
           >
             {createMessage(PAGES_PANE_TEXTS.query_add_button)}
           </Button>
-        )}
-      </Flex>
+        </Flex>
+      )}
+
+      {Object.keys(files).length === 0 && (
+        <EmptyState
+          buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
+          description={createMessage(
+            PAGES_PANE_TEXTS.query_blank_state_description,
+          )}
+          icon={"queries-v3"}
+          onClick={canCreateActions ? addButtonClickHandler : undefined}
+        />
+      )}
     </Flex>
   );
 };
