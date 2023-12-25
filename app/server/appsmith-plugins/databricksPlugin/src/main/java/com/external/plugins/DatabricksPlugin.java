@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -31,11 +33,17 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_INVALID_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.external.plugins.exceptions.DatabricksErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG;
+import static com.external.plugins.exceptions.DatabricksPluginError.QUERY_EXECUTION_FAILED;
 
 public class DatabricksPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.databricks.client.jdbc.Driver";
+    private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
     private static final String TABLES_QUERY =
             """
@@ -63,8 +71,33 @@ public class DatabricksPlugin extends BasePlugin {
             List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
 
-            return Mono.fromCallable(() -> {
+            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
                         try {
+
+                            // Check for connection validity :
+                            if (connection == null) {
+                                return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
+                            } else if (connection.isClosed()) {
+                                return Mono.error(new StaleConnectionException(CONNECTION_CLOSED_ERROR_MSG));
+                            } else if (!connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
+                                /**
+                                 * Not adding explicit `!sqlConnectionFromPool.isValid(VALIDITY_CHECK_TIMEOUT)`
+                                 * check here because this check may take few seconds to complete hence adding
+                                 * extra time delay.
+                                 */
+                                return Mono.error(new StaleConnectionException(CONNECTION_INVALID_ERROR_MSG));
+                            }
+
+                        } catch (SQLException error) {
+                            error.printStackTrace();
+                            // This should not happen ideally.
+                            System.out.println(
+                                    "Error checking validity of Databricks connection : " + error.getMessage());
+                        }
+
+                        try {
+
+                            // We can proceed since the connection is valid.
                             Statement statement = connection.createStatement();
                             ResultSet resultSet = statement.executeQuery(query);
 
@@ -78,12 +111,12 @@ public class DatabricksPlugin extends BasePlugin {
 
                                 for (int i = 1; i <= colCount; i++) {
                                     Object value;
-                                    final String typeName = metaData.getColumnTypeName(i);
 
-                                    if (resultSet.getObject(i) == null) {
+                                    Object resultSetObject = resultSet.getObject(i);
+                                    if (resultSetObject == null) {
                                         value = null;
                                     } else {
-                                        value = resultSet.getObject(i);
+                                        value = resultSetObject;
                                     }
 
                                     row.put(metaData.getColumnName(i), value);
@@ -91,8 +124,13 @@ public class DatabricksPlugin extends BasePlugin {
 
                                 rowsList.add(row);
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+
+                        } catch (SQLException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    QUERY_EXECUTION_FAILED,
+                                    QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                    e.getMessage(),
+                                    "SQLSTATE: " + e.getSQLState()));
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -136,7 +174,47 @@ public class DatabricksPlugin extends BasePlugin {
             } else {
                 url = "";
             }
-            return Mono.fromCallable(() -> DriverManager.getConnection(url, p));
+
+            return (Mono<Connection>) Mono.fromCallable(() -> {
+                        Connection connection = DriverManager.getConnection(url, p);
+                        try (Statement statement = connection.createStatement(); ) {
+                            String catalog = (String) datasourceConfiguration
+                                    .getProperties()
+                                    .get(2)
+                                    .getValue();
+                            if (!StringUtils.hasText(catalog)) {
+                                catalog = "samples";
+                            }
+                            String useCatalogQuery = "USE CATALOG " + catalog;
+                            statement.execute(useCatalogQuery);
+                        } catch (SQLException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "The Appsmith server has failed to change the catalog.",
+                                    e.getMessage()));
+                        }
+
+                        try (Statement statement = connection.createStatement(); ) {
+                            String schema = (String) datasourceConfiguration
+                                    .getProperties()
+                                    .get(3)
+                                    .getValue();
+                            if (!StringUtils.hasText(schema)) {
+                                schema = "default";
+                            }
+                            String useSchemaQuery = "USE SCHEMA " + schema;
+                            statement.execute(useSchemaQuery);
+                        } catch (SQLException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "The Appsmith server has failed to change the schema",
+                                    e.getMessage()));
+                        }
+
+                        return Mono.just(connection);
+                    })
+                    .flatMap(obj -> obj)
+                    .subscribeOn(Schedulers.boundedElastic());
         }
 
         @Override

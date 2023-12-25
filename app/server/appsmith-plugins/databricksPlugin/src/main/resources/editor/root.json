@@ -8,7 +8,7 @@
           "label": "",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "evaluationSubstitutionType": "PARAMETER"
+          "evaluationSubstitutionType": "TEMPLATE"
         }
       ]
     }
