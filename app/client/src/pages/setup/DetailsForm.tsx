@@ -173,7 +173,7 @@ export default function DetailsForm(
               options={useCaseOptions}
               testid="t--user-use-case"
             />
-            <Space />
+            <Space style={{ marginBottom: "var(--ads-spaces-3)" }} />
             {!isAirgapped() && (
               <Checkbox defaultSelected name="signupForNewsletter" value="true">
                 {createMessage(PRODUCT_UPDATES_CONFIRMATION_LABEL)}
