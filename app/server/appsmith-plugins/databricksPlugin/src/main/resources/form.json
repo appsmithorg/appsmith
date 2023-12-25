@@ -5,12 +5,34 @@
       "id": 1,
       "children": [
         {
+          "label": "Configuration method",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "FORM_PROPERTIES_CONFIGURATION",
+          "options": [
+            {
+              "label": "Use JDBC URL",
+              "value": "JDBC_URL_CONFIGURATION"
+            },
+            {
+              "label": "Use form properties",
+              "value": "FORM_PROPERTIES_CONFIGURATION"
+            }
+          ]
+        },
+        {
           "label": "Host",
           "configProperty": "datasourceConfiguration.endpoints[0].host",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "placeholderText": "",
-          "initialValue": ""
+          "initialValue": "",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "FORM_PROPERTIES_CONFIGURATION"
+          }
         },
         {
           "label": "Port",
@@ -18,21 +40,24 @@
           "dataType": "NUMBER",
           "controlType": "INPUT_TEXT",
           "placeholderText": "443",
-          "initialValue" : "443"
-        },
-        {
-          "label": "HTTP Path Key",
-          "configProperty": "datasourceConfiguration.properties[0].key",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "HTTP path key",
-          "hidden": true
+          "initialValue" : "443",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "FORM_PROPERTIES_CONFIGURATION"
+          }
         },
         {
           "label": "HTTP Path",
-          "configProperty": "datasourceConfiguration.properties[0].value",
+          "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
-          "placeholderText": "/sql/1.0/warehouses/<id>"
+          "placeholderText": "/sql/1.0/warehouses/<id>",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "FORM_PROPERTIES_CONFIGURATION"
+          }
         },
         {
           "label": "Default catalog",
@@ -40,7 +65,12 @@
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "initialValue": "samples",
-          "placeholderText": "samples"
+          "placeholderText": "samples",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "FORM_PROPERTIES_CONFIGURATION"
+          }
         },
         {
           "label": "Default schema",
@@ -48,18 +78,28 @@
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "initialValue": "default",
-          "placeholderText": "default"
+          "placeholderText": "default",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "FORM_PROPERTIES_CONFIGURATION"
+          }
         },
         {
-          "label": "Personal Access Token Key",
-          "configProperty": "datasourceConfiguration.properties[1].key",
+          "label": "JDBC URL",
+          "configProperty": "datasourceConfiguration.properties[5].value",
           "controlType": "INPUT_TEXT",
-          "initialValue": "PAT key",
-          "hidden": true
+          "isRequired": false,
+          "placeholderText": "jdbc://<host>:<port>/<schema>",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "JDBC_URL_CONFIGURATION"
+          }
         },
         {
-          "label": "Personal Access Token",
-          "configProperty": "datasourceConfiguration.properties[1].value",
+          "label": "Personal access token",
+          "configProperty": "datasourceConfiguration.properties[4].value",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
           "initialValue": "",

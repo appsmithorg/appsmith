@@ -145,28 +145,35 @@ public class DatabricksPlugin extends BasePlugin {
 
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-
-            // Set up the connection URL
-            StringBuilder urlBuilder = new StringBuilder("jdbc:databricks://");
-
-            List<String> hosts = datasourceConfiguration.getEndpoints().stream()
-                    .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 443L))
-                    .collect(Collectors.toList());
-
-            urlBuilder.append(String.join(",", hosts)).append(";");
-
-            String url = urlBuilder.toString();
-
-            Properties p = new java.util.Properties();
-            p.put("httpPath", datasourceConfiguration.getProperties().get(0).getValue());
-            p.put("AuthMech", "3");
-            p.put("UID", "token");
-            p.put("PWD", datasourceConfiguration.getProperties().get(1).getValue());
-
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
+            }
+            Properties p = new Properties();
+            p.put("UID", "token");
+            p.put("PWD", datasourceConfiguration.getProperties().get(4).getValue());
+            String url;
+            if ("JDBC_URL_CONFIGURATION"
+                    .equals(datasourceConfiguration.getProperties().get(0).getValue())) {
+                url = (String) datasourceConfiguration.getProperties().get(5).getValue();
+            } else if ("FORM_PROPERTIES_CONFIGURATION"
+                    .equals(datasourceConfiguration.getProperties().get(0).getValue())) {
+                // Set up the connection URL
+                StringBuilder urlBuilder = new StringBuilder("jdbc:databricks://");
+
+                List<String> hosts = datasourceConfiguration.getEndpoints().stream()
+                        .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 443L))
+                        .collect(Collectors.toList());
+
+                urlBuilder.append(String.join(",", hosts)).append(";");
+
+                url = urlBuilder.toString();
+
+                p.put("httpPath", datasourceConfiguration.getProperties().get(1).getValue());
+                p.put("AuthMech", "3");
+            } else {
+                url = "";
             }
 
             return (Mono<Connection>) Mono.fromCallable(() -> {
