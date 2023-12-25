@@ -3,11 +3,14 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-#set -o xtrace
 
 new-spec() {
   echo "-----------" "$@" "-----------"
-  unset APPSMITH_CUSTOM_DOMAIN
+
+  # Unset influencing state
+  unset APPSMITH_CUSTOM_DOMAIN APPSMITH_ALLOWED_FRAME_ANCESTORS
+
+  # Clean custom certificates
   mkdir -p /appsmith-stacks/ssl
   find /appsmith-stacks/ssl -type f -delete
 }
@@ -46,21 +49,22 @@ echo -n 'index.html body' > "$WWW_PATH/index.html"
 mkcert -install
 
 # Start echo server
-(
-  export XDG_DATA_HOME="$TMP/echo-data"
-  export XDG_CONFIG_HOME="$TMP/echo-conf"
-  mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
-  caddy start --config echo.caddyfile --adapter caddyfile >> "$TMP/echo-caddy.log" 2>&1
-)
+XDG_DATA_HOME="$TMP/echo-data" \
+  XDG_CONFIG_HOME="$TMP/echo-conf" \
+  caddy start --config echo.caddyfile --adapter caddyfile \
+  >> "$TMP/echo-caddy.log" 2>&1
 
 # Start Caddy for use with our config to test
-echo localhost > "$TMP/Caddyfile"
-caddy start --config "$TMP/Caddyfile" >> "$TMP/caddy.log" 2>&1
+caddy start >> "$TMP/caddy.log" 2>&1
 
 sleep 1
 
+# Default values for Hurl variables
+export HURL_frame_ancestors="'self'"
 
-new-spec "Spec 1: With no custom domain"
+
+# Run tests, scenario by scenario
+new-spec "Spec 1: With no custom domain and no frame ancestors"
 node /caddy-reconfigure.mjs
 reload-caddy
 run-hurl common/*.hurl
@@ -72,7 +76,8 @@ node /caddy-reconfigure.mjs
 #sed -i '2i acme_ca https://acme-staging-v02.api.letsencrypt.org/directory' "$TMP/Caddyfile"
 sed -i '/https:\/\/'"$APPSMITH_CUSTOM_DOMAIN"' {$/a tls internal' "$TMP/Caddyfile"
 reload-caddy
-run-hurl common/*.hurl common-https/*.hurl spec-2/*.hurl
+run-hurl --variable ca_issuer="CN = Caddy Local Authority - ECC Intermediate" \
+  common/*.hurl common-https/*.hurl
 
 
 new-spec "Spec 3: With a custom domain, certs given in ssl folder"
@@ -80,4 +85,43 @@ export APPSMITH_CUSTOM_DOMAIN=custom-domain.com
 mkcert -cert-file "/appsmith-stacks/ssl/fullchain.pem" -key-file "/appsmith-stacks/ssl/privkey.pem" "$APPSMITH_CUSTOM_DOMAIN"
 node /caddy-reconfigure.mjs
 reload-caddy
-run-hurl common/*.hurl spec-3/*.hurl
+run-hurl --variable ca_issuer="O = mkcert development CA" \
+  common/*.hurl common-https/*.hurl
+
+
+new-spec "Spec 4: No custom domain, but certs present in ssl folder"
+mkcert -cert-file "/appsmith-stacks/ssl/fullchain.pem" -key-file "/appsmith-stacks/ssl/privkey.pem" random-domain.com
+node /caddy-reconfigure.mjs
+reload-caddy
+run-hurl common/*.hurl
+
+
+new-spec "Spec 5: Empty custom domain, but certs present in ssl folder"
+export APPSMITH_CUSTOM_DOMAIN=""
+mkcert -cert-file "/appsmith-stacks/ssl/fullchain.pem" -key-file "/appsmith-stacks/ssl/privkey.pem" random-domain.com
+node /caddy-reconfigure.mjs
+reload-caddy
+run-hurl common/*.hurl
+
+
+new-spec "Spec 6: Custom frame ancestors"
+export APPSMITH_ALLOWED_FRAME_ANCESTORS="something.com another.com"
+node /caddy-reconfigure.mjs
+reload-caddy
+run-hurl --variable frame_ancestors="something.com another.com" \
+  common/*.hurl
+
+
+new-spec "Spec 7: Empty frame ancestors"
+export APPSMITH_ALLOWED_FRAME_ANCESTORS=""
+node /caddy-reconfigure.mjs
+reload-caddy
+run-hurl common/*.hurl
+
+
+new-spec "Spec 7: Frame ancestors value with extra CSP directives"
+export APPSMITH_ALLOWED_FRAME_ANCESTORS="something.com; script-src something more not allowed"
+node /caddy-reconfigure.mjs
+reload-caddy
+run-hurl --variable frame_ancestors="something.com" \
+  common/*.hurl

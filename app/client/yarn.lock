@@ -3089,8 +3089,10 @@ __metadata:
     "@design-system/headless": "workspace:^"
     "@design-system/theming": "workspace:^"
     "@emotion/css": ^11.11.2
+    "@react-aria/actiongroup": ^3.7.0
     "@react-aria/utils": ^3.16.0
     "@react-aria/visually-hidden": ^3.8.0
+    "@react-types/actiongroup": ^3.4.6
     clsx: ^2.0.0
     colorjs.io: ^0.4.3
     eslint-plugin-storybook: ^0.6.10
@@ -6551,6 +6553,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-aria/actiongroup@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "@react-aria/actiongroup@npm:3.7.0"
+  dependencies:
+    "@react-aria/focus": ^3.15.0
+    "@react-aria/i18n": ^3.9.0
+    "@react-aria/interactions": ^3.20.0
+    "@react-aria/utils": ^3.22.0
+    "@react-stately/list": ^3.10.1
+    "@react-types/actiongroup": ^3.4.6
+    "@react-types/shared": ^3.22.0
+    "@swc/helpers": ^0.5.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: afd2ee4dda7d879504d69893347e726c403cbbac80fa097083c10600629825f77f29d321404b476d8ad9349e1cc3dddecd328ff1fedad855ae75fe856cb77dc3
+  languageName: node
+  linkType: hard
+
 "@react-aria/breadcrumbs@npm:^3.5.8":
   version: 3.5.8
   resolution: "@react-aria/breadcrumbs@npm:3.5.8"
@@ -7852,6 +7873,17 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   checksum: 7bf8f82e3837d3db6aac5c8a5b1d083a8754e4f8b999444b4841ced8b4d777ede9276014f512f7910b427a2698994d33ca204468b614b54dc53622256d5e0827
+  languageName: node
+  linkType: hard
+
+"@react-types/actiongroup@npm:^3.4.6":
+  version: 3.4.6
+  resolution: "@react-types/actiongroup@npm:3.4.6"
+  dependencies:
+    "@react-types/shared": ^3.22.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: 28ea0ad74f0d0ccac77efae179941b295fb3e6c468f3cd353e8a883a6f897e932f5fc594de8fe7b5bb968f89be699d05c96c891c0550fab3b52aaf5766f85391
   languageName: node
   linkType: hard
 
@@ -13294,7 +13326,7 @@ __metadata:
     craco-babel-loader: ^1.0.4
     cssnano: ^6.0.1
     cy-verify-downloads: ^0.0.5
-    cypress: 13.3.1
+    cypress: 13.6.1
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
@@ -16900,9 +16932,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:13.3.1":
-  version: 13.3.1
-  resolution: "cypress@npm:13.3.1"
+"cypress@npm:13.6.1":
+  version: 13.6.1
+  resolution: "cypress@npm:13.6.1"
   dependencies:
     "@cypress/request": ^3.0.0
     "@cypress/xvfb": ^1.2.4
@@ -16949,7 +16981,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 51798ecc6c5a33860012ecf39c428540911c3cf4df6ee63ea950cafea4a6c415d18da87951721f45b8601637e9731af4cf1464d37d62a36ce7243f8bfc8a59d2
+  checksum: b701d61f7aadb478fcbe12f114dcbf19657b762592d0feb94d65702862c5156b30686b01104bb6b82b3f48aa7635a5db8fa5b4ca4706515d38ffe655baf0939c
   languageName: node
   linkType: hard
 

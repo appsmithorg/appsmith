@@ -12,6 +12,10 @@ export const settersConfig = {
       path: "isRequired",
       type: "boolean",
     },
+    setReadOnly: {
+      path: "isReadOnly",
+      type: "boolean",
+    },
     setValue: {
       path: "defaultText",
       type: "string",

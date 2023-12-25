@@ -13,7 +13,6 @@ import {
   getResponseErrorMessage,
 } from "sagas/ErrorSagas";
 import type {
-  FetchWorkspaceRolesResponse,
   SaveWorkspaceRequest,
   FetchWorkspaceRequest,
   FetchWorkspaceResponse,
@@ -42,29 +41,6 @@ import {
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
 import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
-
-export function* fetchRolesSaga() {
-  try {
-    const response: FetchWorkspaceRolesResponse = yield call(
-      WorkspaceApi.fetchRoles,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_WORKSPACE_ROLES_SUCCESS,
-        payload: response.data,
-      });
-    }
-  } catch (error) {
-    log.error(error);
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_WORKSPACE_ROLES_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
 
 export function* fetchWorkspaceSaga(
   action: ReduxAction<FetchWorkspaceRequest>,
