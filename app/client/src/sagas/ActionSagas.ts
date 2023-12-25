@@ -130,6 +130,7 @@ import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 
 export function* createDefaultActionPayloadWithPluginDefaults(
   props: CreateActionDefaultsParams,
@@ -537,6 +538,7 @@ export function* deleteActionSaga(
         queryName: name,
       });
     }
+    const currentUrl = window.location.pathname;
 
     if (!!actionPayload.payload.onSuccess) {
       actionPayload.payload.onSuccess();
@@ -563,6 +565,7 @@ export function* deleteActionSaga(
     });
 
     yield put(deleteActionSuccess({ id }));
+    yield put(removeFocusHistoryRequest(currentUrl));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -616,8 +619,10 @@ function* moveActionSaga(
       // @ts-expect-error: response is of type unknown
       apiID: response.data.id,
     });
+    const currentUrl = window.location.pathname;
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
+    yield put(removeFocusHistoryRequest(currentUrl));
   } catch (e) {
     toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",

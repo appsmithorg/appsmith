@@ -167,6 +167,7 @@ import {
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -372,9 +373,11 @@ export function* deleteDatasourceSaga(
         }),
       );
 
+      const currentUrl = `${window.location.pathname}`;
+
       if (
-        window.location.pathname === datasourcePathWithoutQuery ||
-        window.location.pathname === saasPathWithoutQuery
+        currentUrl === datasourcePathWithoutQuery ||
+        currentUrl === saasPathWithoutQuery
       ) {
         history.push(
           integrationEditorURL({
@@ -391,6 +394,8 @@ export function* deleteDatasourceSaga(
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",
       });
+
+      yield put(removeFocusHistoryRequest(currentUrl));
 
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_SUCCESS,

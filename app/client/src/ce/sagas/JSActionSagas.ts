@@ -64,6 +64,7 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "../../sagas/selectors";
+import { removeFocusHistoryRequest } from "../../actions/focusHistoryActions";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -277,6 +278,7 @@ export function* deleteJSCollectionSaga(
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
+      const currentUrl = window.location.pathname;
       history.push(builderURL({ pageId }));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
@@ -290,6 +292,7 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
+      yield put(removeFocusHistoryRequest(currentUrl));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
       yield put(
