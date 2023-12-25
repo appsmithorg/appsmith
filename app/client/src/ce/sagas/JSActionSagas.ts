@@ -228,8 +228,10 @@ export function* moveJSCollectionSaga(
         },
       );
     }
+    const currentURL = window.location.pathname;
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
+    yield put(removeFocusHistoryRequest(currentURL));
   } catch (e) {
     toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
