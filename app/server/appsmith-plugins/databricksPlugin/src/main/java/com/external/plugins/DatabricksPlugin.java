@@ -45,7 +45,7 @@ import static com.external.plugins.exceptions.DatabricksPluginError.QUERY_EXECUT
 public class DatabricksPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.databricks.client.jdbc.Driver";
-    private static final int VALIDITY_CHECK_TIMEOUT = 5;
+    public static final int VALIDITY_CHECK_TIMEOUT = 5;
     private static final int INITIAL_ROWLIST_CAPACITY = 50;
     private static final int CATALOG_INDEX = 2;
     private static final int SCHEMA_INDEX = 3;
