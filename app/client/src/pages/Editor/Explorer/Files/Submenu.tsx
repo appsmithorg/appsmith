@@ -69,9 +69,12 @@ export function ExplorerMenuContent({
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
-  const onChange = useCallback((value) => {
-    setQuery(value);
-  }, []);
+  const onChange = useCallback(
+    (value) => {
+      setQuery(value);
+    },
+    [setQuery],
+  );
 
   return (
     <SubMenuContainer
