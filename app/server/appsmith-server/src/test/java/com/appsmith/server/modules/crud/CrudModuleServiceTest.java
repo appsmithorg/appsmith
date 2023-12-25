@@ -20,7 +20,9 @@ import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleEntitiesDTO;
+import com.appsmith.server.dtos.ModuleMetadata;
 import com.appsmith.server.dtos.PackageDTO;
+import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -298,6 +300,7 @@ class CrudModuleServiceTest {
         moduleDTO.setEntity(moduleActionCollectionDTO);
 
         Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        Mono<PackageDetailsDTO> packageDetailsMono = crudPackageService.getPackageDetails(packageId);
         AtomicReference<String> moduleIdRef = new AtomicReference<>();
 
         StepVerifier.create(moduleMono)
@@ -320,6 +323,18 @@ class CrudModuleServiceTest {
                         return permissionSet.contains(AclPermission.getPermissionByValue(permission, Module.class));
                     });
                     verifyJSModuleSettingsForCreator(createdModule);
+                })
+                .verifyComplete();
+
+        StepVerifier.create(packageDetailsMono)
+                .assertNext(packageDetailsDTO -> {
+                    assertThat(packageDetailsDTO.getModules()).hasSize(1);
+                    assertThat(packageDetailsDTO.getModulesMetadata()).hasSize(1);
+                    ModuleMetadata moduleMetadata =
+                            packageDetailsDTO.getModulesMetadata().get(0);
+                    assertThat(moduleMetadata.getModuleId()).isNotNull();
+                    assertThat(moduleMetadata.getPluginType()).isEqualTo(PluginType.JS);
+                    assertThat(moduleMetadata.getPluginId()).isNotNull();
                 })
                 .verifyComplete();
 
@@ -601,6 +616,7 @@ class CrudModuleServiceTest {
         anotherModuleDTO.setPackageId(packageId.get());
 
         ModuleActionDTO anotherModuleActionDTO = new ModuleActionDTO();
+        anotherModuleActionDTO.setDatasource(datasource);
 
         anotherModuleDTO.setEntity(anotherModuleActionDTO);
 
@@ -610,6 +626,14 @@ class CrudModuleServiceTest {
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
                     assertThat(createdModule.getName()).isEqualTo(anotherModuleDTO.getName());
+                })
+                .verifyComplete();
+
+        Mono<PackageDetailsDTO> packageDetailsMono = crudPackageService.getPackageDetails(packageId.get());
+        StepVerifier.create(packageDetailsMono)
+                .assertNext(packageDetailsDTO -> {
+                    assertThat(packageDetailsDTO.getModules()).hasSize(2);
+                    assertThat(packageDetailsDTO.getModulesMetadata()).hasSize(2);
                 })
                 .verifyComplete();
 

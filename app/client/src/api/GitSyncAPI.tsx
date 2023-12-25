@@ -216,6 +216,22 @@ class GitSyncAPI extends Api {
       { branchNames },
     );
   }
+
+  static async getGitMetadata(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/metadata/app/${applicationId}`);
+  }
+
+  static async toggleAutocommit(applicationId: string) {
+    return Api.patch(
+      `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${applicationId}`,
+    );
+  }
+
+  static async getAutocommitProgress(applicationId: string) {
+    return Api.get(
+      `${GitSyncAPI.baseURL}/auto-commit/progress/app/${applicationId}`,
+    );
+  }
 }
 
 export default GitSyncAPI;

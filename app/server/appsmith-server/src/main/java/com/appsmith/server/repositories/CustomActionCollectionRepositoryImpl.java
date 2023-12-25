@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QNewAction;
@@ -227,5 +228,25 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         criteria.add(deletedCriterion);
 
         return queryAll(criteria, optionalPermission);
+    }
+
+    @Override
+    public Mono<ActionCollection> findPublicActionCollectionByModuleId(String moduleId, ResourceModes resourceMode) {
+        List<Criteria> criteria = new ArrayList<>();
+
+        String moduleIdPath;
+        if (resourceMode == ResourceModes.EDIT) {
+            moduleIdPath = completeFieldName(QActionCollection.actionCollection.unpublishedCollection.moduleId);
+        } else {
+            moduleIdPath = completeFieldName(QActionCollection.actionCollection.publishedCollection.moduleId);
+        }
+        Criteria moduleIdCriteria = Criteria.where(moduleIdPath).is(moduleId);
+
+        Criteria isPublicCriteria =
+                where(fieldName(QActionCollection.actionCollection.isPublic)).is(Boolean.TRUE);
+
+        criteria.add(moduleIdCriteria);
+        criteria.add(isPublicCriteria);
+        return queryOne(criteria);
     }
 }

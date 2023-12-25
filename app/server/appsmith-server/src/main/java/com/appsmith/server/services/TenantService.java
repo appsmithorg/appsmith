@@ -28,10 +28,10 @@ public interface TenantService extends TenantServiceCE {
     /**
      * To update the default tenant's license key
      * Response will be status of update with 2xx
-     * @param licenseKey License key received from client
+     * @param updateLicenseKeyDTO  DTO for updating or refreshing the license key
      * @return Mono of Tenant
      */
-    Mono<Tenant> updateTenantLicenseKey(UpdateLicenseKeyDTO licenseKey);
+    Mono<Tenant> updateAndRefreshTenantLicenseKey(UpdateLicenseKeyDTO updateLicenseKeyDTO);
 
     /**
      * To refresh the current license status in the DB by making a license validation request to Cloud Services and

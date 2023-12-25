@@ -868,10 +868,10 @@ public enum AppsmithError {
             "Invalid user session",
             ErrorType.INTERNAL_ERROR,
             null),
-    INVALID_LICENSE_KEY_ENTERED(
+    INVALID_LICENSE_KEY(
             400,
-            AppsmithErrorCode.INVALID_LICENSE_KEY_ENTERED.getCode(),
-            "The license key entered is invalid. Please try again.",
+            AppsmithErrorCode.INVALID_LICENSE_KEY.getCode(),
+            "The license key is invalid. Kindly retry with a valid license key.",
             AppsmithErrorAction.DEFAULT,
             "Invalid license key",
             ErrorType.ARGUMENT_ERROR,
@@ -1214,6 +1214,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Unable to trigger workflow.",
             ErrorType.WORKFLOW_ERROR,
+            null),
+    LICENSE_KEY_ACTIVATION_WARNING(
+            422,
+            AppsmithErrorCode.LICENSE_KEY_ACTIVATION_WARNING.getCode(),
+            "Your current license key has expired. To prevent any service interruptions, please activate immediately. If you encounter any issues, feel free to contact Appsmith support for more details.",
+            AppsmithErrorAction.DEFAULT,
+            "License upgrade required.",
+            ErrorType.ARGUMENT_ERROR,
             null),
     ;
 

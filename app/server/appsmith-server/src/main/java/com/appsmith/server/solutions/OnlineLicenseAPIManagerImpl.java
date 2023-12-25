@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.codec.DecodingException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -77,12 +76,6 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
                                     .accept(MediaType.APPLICATION_JSON)
                                     .body(BodyInserters.fromValue(requestDTO))
                                     .retrieve()
-                                    .onStatus(
-                                            HttpStatusCode::isError,
-                                            response -> Mono.error(new AppsmithException(
-                                                    AppsmithError.CLOUD_SERVICES_ERROR,
-                                                    "unable to connect to cloud-services with error status ",
-                                                    response.statusCode())))
                                     .toEntity(new ParameterizedTypeReference<>() {});
 
                     return responseEntityMono.flatMap(entity -> {
@@ -94,6 +87,10 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
                         return Mono.just(Objects.requireNonNull(entity.getBody()));
                     });
                 })
+                .onErrorMap(
+                        // Only map errors if we haven't already wrapped them into an AppsmithException
+                        e -> !(e instanceof AppsmithException),
+                        e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()))
                 .map(ResponseDTO::getData)
                 .map(licenseValidationResponse -> {
                     log.debug(
