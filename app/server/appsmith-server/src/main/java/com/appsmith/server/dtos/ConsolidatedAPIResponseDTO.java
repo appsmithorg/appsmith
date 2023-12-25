@@ -24,4 +24,3 @@ public class ConsolidatedAPIResponseDTO {
     PageDTO v1PublishedPageResp;
     List<CustomJSLib> v1LibrariesApplicationResp;
 }
-
