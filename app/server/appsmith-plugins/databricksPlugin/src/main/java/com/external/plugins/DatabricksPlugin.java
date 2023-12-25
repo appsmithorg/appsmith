@@ -44,6 +44,7 @@ public class DatabricksPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.databricks.client.jdbc.Driver";
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
+    private static final int INITIAL_ROWLIST_CAPACITY = 50;
 
     private static final String TABLES_QUERY =
             """
@@ -68,7 +69,7 @@ public class DatabricksPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
 
-            List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            List<Map<String, Object>> rowsList = new ArrayList<>(INITIAL_ROWLIST_CAPACITY);
             final List<String> columnsList = new ArrayList<>();
 
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
