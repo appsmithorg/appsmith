@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,11 @@ public class DatabricksPlugin extends BasePlugin {
     public static class DatabricksPluginExecutor implements PluginExecutor<Connection> {
         private static final int CATALOG_INDEX = 2;
         private static final int SCHEMA_INDEX = 3;
+        private static final int PERSONAL_ACCESS_TOKEN_INDEX = 4;
+        private static final int CONFIGURATION_TYPE_INDEX = 0;
+        private static final int JDBC_URL_INDEX = 5;
+        private static final long DEFAULT_PORT = 443L;
+        private static final int HTTP_PATH_INDEX = 1;
 
         @Override
         public Mono<ActionExecutionResult> execute(
@@ -162,25 +168,43 @@ public class DatabricksPlugin extends BasePlugin {
 
             Properties p = new Properties();
             p.put("UID", "token");
-            p.put("PWD", datasourceConfiguration.getProperties().get(4).getValue());
+            p.put(
+                    "PWD",
+                    datasourceConfiguration
+                            .getProperties()
+                            .get(PERSONAL_ACCESS_TOKEN_INDEX)
+                            .getValue());
             String url;
-            if (JDBC_URL_CONFIGURATION.equals(
-                    datasourceConfiguration.getProperties().get(0).getValue())) {
-                url = (String) datasourceConfiguration.getProperties().get(5).getValue();
-            } else if (FORM_PROPERTIES_CONFIGURATION.equals(
-                    datasourceConfiguration.getProperties().get(0).getValue())) {
+            if (JDBC_URL_CONFIGURATION.equals(datasourceConfiguration
+                    .getProperties()
+                    .get(CONFIGURATION_TYPE_INDEX)
+                    .getValue())) {
+                url = (String) datasourceConfiguration
+                        .getProperties()
+                        .get(JDBC_URL_INDEX)
+                        .getValue();
+            } else if (FORM_PROPERTIES_CONFIGURATION.equals(datasourceConfiguration
+                    .getProperties()
+                    .get(CONFIGURATION_TYPE_INDEX)
+                    .getValue())) {
                 // Set up the connection URL
                 StringBuilder urlBuilder = new StringBuilder("jdbc:databricks://");
 
                 List<String> hosts = datasourceConfiguration.getEndpoints().stream()
-                        .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 443L))
+                        .map(endpoint ->
+                                endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT))
                         .collect(Collectors.toList());
 
                 urlBuilder.append(String.join(",", hosts)).append(";");
 
                 url = urlBuilder.toString();
 
-                p.put("httpPath", datasourceConfiguration.getProperties().get(1).getValue());
+                p.put(
+                        "httpPath",
+                        datasourceConfiguration
+                                .getProperties()
+                                .get(HTTP_PATH_INDEX)
+                                .getValue());
                 p.put("AuthMech", "3");
             } else {
                 url = "";
@@ -189,8 +213,11 @@ public class DatabricksPlugin extends BasePlugin {
             return (Mono<Connection>) Mono.fromCallable(() -> {
                         Connection connection = DriverManager.getConnection(url, p);
 
-                        if (FORM_PROPERTIES_CONFIGURATION.equals(
-                                datasourceConfiguration.getProperties().get(0).getValue())) {
+                        // Execute statements to default catalog and schema for all queries on this datasource.
+                        if (FORM_PROPERTIES_CONFIGURATION.equals(datasourceConfiguration
+                                .getProperties()
+                                .get(CONFIGURATION_TYPE_INDEX)
+                                .getValue())) {
                             try (Statement statement = connection.createStatement(); ) {
                                 String catalog = (String) datasourceConfiguration
                                         .getProperties()
@@ -208,13 +235,13 @@ public class DatabricksPlugin extends BasePlugin {
                                         e.getMessage()));
                             }
 
-                        try (Statement statement = connection.createStatement(); ) {
-                            String schema = (String) datasourceConfiguration
-                                    .getProperties()
-                                    .get(SCHEMA_INDEX)
-                                    .getValue();
-                            if (!StringUtils.hasText(schema)) {
-                                schema = "default";
+                            try (Statement statement = connection.createStatement(); ) {
+                                String schema = (String) datasourceConfiguration
+                                        .getProperties()
+                                        .get(SCHEMA_INDEX)
+                                        .getValue();
+                                if (!StringUtils.hasText(schema)) {
+                                    schema = "default";
                                 }
                                 String useSchemaQuery = "USE SCHEMA " + schema;
                                 statement.execute(useSchemaQuery);
@@ -233,11 +260,20 @@ public class DatabricksPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(Connection connection) {}
+        public void datasourceDestroy(Connection connection) {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                // This should not happen ideally.
+                System.out.println("Error closing Databricks connection : " + e.getMessage());
+            }
+        }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            return new HashSet<>();
         }
 
         @Override
