@@ -101,6 +101,11 @@ function StarterBuildingBlocks() {
 
   const onSeeMoreClick = () => {
     dispatch(showTemplatesModal({ isOpenFromCanvas: true }));
+    AnalyticsUtil.logEvent("STARTER_BUILDING_BLOCK_SEE_MORE_CLICK", {
+      applicationId: currentApplication?.id,
+      workspaceId: currentWorkSpace.id,
+      source: "canvas",
+    });
   };
 
   if (isImportingStarterBuildingBlockToApp) {
