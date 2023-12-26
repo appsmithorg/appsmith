@@ -207,7 +207,9 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --immutable
+        run: |
+          npm install -g yarn
+          yarn install --immutable
 
       # Type checking before starting the build
       - name: Run type check
