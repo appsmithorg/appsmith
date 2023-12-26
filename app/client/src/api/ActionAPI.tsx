@@ -10,7 +10,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { omit } from "lodash";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
-import type { ActionContextTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -148,7 +148,7 @@ export interface UpdateActionNameRequest {
   newName: string;
   oldName: string;
   moduleId?: string;
-  contextType?: ActionContextTypeInterface;
+  contextType?: ActionParentEntityTypeInterface;
 }
 
 export interface FetchActionsPayload {

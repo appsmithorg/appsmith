@@ -117,7 +117,13 @@ export const handlers = {
         return {
           ...a,
           isLoading: false,
-          config: action.payload.data,
+          config: action.payload.data.isPublic
+            ? {
+                ...action.payload.data,
+                isMainJSCollection: true,
+                displayName: "Main",
+              }
+            : action.payload.data,
         };
       return a;
     }),
@@ -139,7 +145,16 @@ export const handlers = {
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.data.id)
-        return { isLoading: false, config: action.payload.data };
+        return {
+          isLoading: false,
+          config: action.payload.data.isPublic
+            ? {
+                ...action.payload.data,
+                isMainJSCollection: true,
+                displayName: "Main",
+              }
+            : action.payload.data,
+        };
       return a;
     }),
   [ReduxActionTypes.COPY_JS_ACTION_INIT]: (
