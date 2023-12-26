@@ -13,7 +13,7 @@ export const defaultsConfig = {
   textColor: "neutral",
   rows: 4,
   columns: 16,
-  widgetName: "Text",
+  widgetName: "Paragraph",
   shouldTruncate: false,
   version: 1,
   animateLoading: true,
