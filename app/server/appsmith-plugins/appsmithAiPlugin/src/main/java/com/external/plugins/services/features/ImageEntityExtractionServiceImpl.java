@@ -14,7 +14,7 @@ import static com.external.plugins.constants.AppsmithAiConstants.ENTITIES;
 import static com.external.plugins.constants.AppsmithAiConstants.INPUT;
 import static com.external.plugins.utils.FieldValidationHelper.validateTextInputAndProperties;
 
-public class TextEntityExtractionServiceImpl implements AiFeatureService {
+public class ImageEntityExtractionServiceImpl implements AiFeatureService {
     @Override
     public Query createQuery(ActionConfiguration actionConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
@@ -24,7 +24,7 @@ public class TextEntityExtractionServiceImpl implements AiFeatureService {
         // labels string is comma-separated list of labels
         List<String> entitiesList =
                 Arrays.stream(entities.split(",")).map(String::trim).toList();
-        TextEntityExtractionQuery query = new TextEntityExtractionQuery();
+        Query query = new TextEntityExtractionQuery();
         query.setInput(input);
         query.setLabels(entitiesList);
         return query;

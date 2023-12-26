@@ -1,0 +1,27 @@
+{
+    "identifier": "IMAGE_ENTITY_EXTRACT",
+    "controlType": "SECTION",
+    "conditionals": {
+        "show": "{{actionConfiguration.formData.usecase.data === 'IMAGE_ENTITY_EXTRACT'}}"
+    },
+    "children": [
+        {
+            "label": "Input",
+            "Description": "Provide some text for AI to extract entities from",
+            "subtitle": "Provide some text for AI to extract entities from",
+            "configProperty": "actionConfiguration.formData.input.data",
+            "controlType": "QUERY_DYNAMIC_TEXT",
+            "initialValue": "",
+            "isRequired": true
+        },
+        {
+            "label": "Entities",
+            "Description": "For text extraction, provide entities to extract as comma-separated string input for extraction",
+            "subtitle": "For text extraction, provide entities to extract as comma-separated string input for extraction",
+            "configProperty": "actionConfiguration.formData.entities.data",
+            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+            "initialValue": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
+            "isRequired": true
+        }
+    ]
+}

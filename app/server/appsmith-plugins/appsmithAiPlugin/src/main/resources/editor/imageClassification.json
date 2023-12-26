@@ -1,8 +1,8 @@
 {
-  "identifier": "TEXT_ENTITY_EXTRACT",
+  "identifier": "IMAGE_CLASSIFY",
   "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_ENTITY_EXTRACT'}}"
+    "show": "{{actionConfiguration.formData.usecase.data === 'IMAGE_CLASSIFY'}}"
   },
   "children": [
     {
@@ -16,8 +16,8 @@
     },
     {
       "label": "Entities",
-      "Description": "For text extraction, provide entities to extract as comma-separated string input for extraction",
-      "subtitle": "For text extraction, provide entities to extract as comma-separated string input for extraction",
+      "Description": "For text classification, provide labels as comma-separated string input for classification",
+      "subtitle": "For text classification, provide labels as comma-separated string input for classification",
       "configProperty": "actionConfiguration.formData.entities.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "initialValue": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",

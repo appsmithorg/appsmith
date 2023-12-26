@@ -5,16 +5,15 @@
       "id": 1,
       "children": [
         {
-          "label": "File Key",
-          "configProperty": "datasourceConfiguration.properties[0].key",
+          "label": "Description",
+          "configProperty": "datasourceConfiguration.description",
           "controlType": "INPUT_TEXT",
-          "initialValue": "files",
-          "isRequired": true,
-          "hidden": true
+          "isRequired": false,
+          "hidden": false
         },
         {
-          "label": "Upload files for AI context if any",
-          "configProperty": "datasourceConfiguration.properties[0].value",
+          "label": "Files to upload",
+          "configProperty": "datasourceConfiguration.properties.files",
           "controlType": "FILE_PICKER",
           "isRequired": false
         },
@@ -29,5 +28,8 @@
       ]
     }
   ],
-  "formButton" : ["CANCEL", "SAVE"]
+  "formButton": [
+    "CANCEL",
+    "SAVE"
+  ]
 }

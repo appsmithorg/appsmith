@@ -1,14 +1,14 @@
 {
-  "identifier": "TEXT_SUMMARY",
+  "identifier": "IMAGE_GENERATE",
   "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_SUMMARY'}}"
+    "show": "{{actionConfiguration.formData.usecase.data === 'IMAGE_GENERATE'}}"
   },
   "children": [
     {
       "label": "Input",
-      "Description": "Provide some text for AI to summarise",
-      "subtitle": "Provide some text for AI to summarise",
+      "Description": "Provide some text for AI to generate image",
+      "subtitle": "Provide some text for AI to generate image",
       "configProperty": "actionConfiguration.formData.input.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
       "initialValue": "",

@@ -1,5 +1,5 @@
 {
-  "identifier": "TEXT_GENERATION",
+  "identifier": "TEXT_GENERATE",
   "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_GENERATE'}}"
@@ -7,7 +7,6 @@
   "children": [
     {
       "label": "Input",
-      "tooltipText": "Provide an prompt for AI to generate text",
       "Description": "Provide an prompt for AI to generate text",
       "subtitle": "Provide an prompt for AI to generate text",
       "configProperty": "actionConfiguration.formData.input.data",

@@ -27,6 +27,26 @@
             {
               "label": "Extract entities from text",
               "value": "TEXT_ENTITY_EXTRACT"
+            },
+            {
+              "label": "Generate Image",
+              "value": "IMAGE_GENERATE"
+            },
+            {
+              "label": "Classify Image",
+              "value": "IMAGE_CLASSIFY"
+            },
+            {
+              "label": "Caption Image",
+              "value": "IMAGE_CAPTION"
+            },
+            {
+              "label": "Extract entities from image",
+              "value": "IMAGE_ENTITY_EXTRACT"
+            },
+            {
+              "label": "Knowledge Retrieval",
+              "value": "KNOWLEDGE_RETRIEVAL"
             }
           ]
         }
@@ -37,6 +57,10 @@
     "textGeneration.json",
     "textClassification.json",
     "textSummarization.json",
-    "textEntityExtraction.json"
+    "textEntityExtraction.json",
+    "imageGeneration.json",
+    "imageClassification.json",
+    "imageCaptioning.json",
+    "imageEntityExtraction.json"
   ]
 }

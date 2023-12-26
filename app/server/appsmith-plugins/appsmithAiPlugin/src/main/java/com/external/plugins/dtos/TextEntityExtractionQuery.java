@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class TextEntityExtractionQuery extends Query {
-    private List<String> entities;
+    private List<String> labels;
 }
