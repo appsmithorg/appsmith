@@ -252,7 +252,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        if:  steps.changed-files-specific.outputs.any_changed == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: steps.changed-files-specific.outputs.any_changed == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/cache@v3
         with:
           path: |
