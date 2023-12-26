@@ -7,11 +7,45 @@ import {
 import { saveModuleName } from "@appsmith/actions/moduleActions";
 import { StyledEntity as Entity } from "pages/Editor/Explorer/Common/components";
 import history, { NavigationMethod } from "utils/history";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import ModuleEntityContextMenu from "./ModuleEntityContextMenu";
 import { moduleEditorURL } from "@appsmith/RouteBuilder";
-import { Icon } from "design-system";
+import { useSelector } from "react-redux";
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
+import type { Dictionary } from "lodash";
+import { keyBy } from "lodash";
+import { PluginType } from "entities/Action";
+import {
+  ENTITY_ICON_SIZE,
+  EntityIcon,
+  JsFileIconV2,
+  dbQueryIcon,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { ExtendedModule } from "../utils";
+
+function resolveQueryModuleIcon(plugin: Plugin) {
+  if (plugin && plugin.iconLocation)
+    return (
+      <EntityIcon
+        height={`${ENTITY_ICON_SIZE}px`}
+        width={`${ENTITY_ICON_SIZE}px`}
+      >
+        <img alt="entityIcon" src={getAssetUrl(plugin.iconLocation)} />
+      </EntityIcon>
+    );
+  else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
+}
+
+function resolveIcon(module: ExtendedModule, pluginGroups: Dictionary<Plugin>) {
+  if (module.type === MODULE_TYPE.JS) {
+    return JsFileIconV2(16, 16);
+  } else {
+    return resolveQueryModuleIcon(pluginGroups[module.pluginId]);
+  }
+}
 
 const ModuleEntity = ({
   currentModuleId,
@@ -19,14 +53,17 @@ const ModuleEntity = ({
   packageId,
 }: {
   currentModuleId: string;
-  module: Module;
+  module: ExtendedModule;
   packageId: string;
 }) => {
-  const icon = <Icon name="module" />;
   const isCurrentModule = currentModuleId === module.id;
   const modulePermissions = module.userPermissions;
   const canManageModule = hasManageModulePermission(modulePermissions);
   const canDeleteModule = hasDeleteModulePermission(modulePermissions);
+  const plugins = useSelector(getPlugins);
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const icon = resolveIcon(module, pluginGroups);
+
   const contextMenu = useMemo(
     () => (
       <ModuleEntityContextMenu

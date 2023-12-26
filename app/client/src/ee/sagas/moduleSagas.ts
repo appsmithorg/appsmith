@@ -279,7 +279,6 @@ export function* createJSModuleSaga(
       packageId,
       name: newModuleName,
       type: MODULE_TYPE.JS,
-      inputsForm: [generateDefaultInputSection()],
       entity: {
         type: MODULE_ENTITY_TYPE.JS_OBJECT,
         ...defaultJSObject,

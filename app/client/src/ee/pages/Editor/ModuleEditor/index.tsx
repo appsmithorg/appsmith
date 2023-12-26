@@ -20,18 +20,21 @@ import {
   MODULE_QUERY_EDITOR_PATH,
 } from "@appsmith/constants/routes/packageRoutes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import useLastVisitedModule from "../PackageEditor/PackageIDE/MainPane/useLastVisitedModule";
 
 interface RouteProps {
   moduleId: string;
+  packageId: string;
 }
 
 export type ModuleEditorProps = RouteComponentProps<RouteProps>;
 
 function ModuleEditor({ match }: ModuleEditorProps) {
-  const { moduleId } = match.params;
+  const { moduleId, packageId } = match.params;
   const dispatch = useDispatch();
   const isModuleFetchingEntities = useSelector(getIsModuleFetchingEntities);
   const module = useSelector((state) => getModuleById(state, moduleId));
+  const { logLastVisited } = useLastVisitedModule({ packageId });
 
   useEffect(() => {
     dispatch(setupModule({ moduleId }));
@@ -43,8 +46,9 @@ function ModuleEditor({ match }: ModuleEditorProps) {
     return () => {
       dispatch(setCurrentModule(undefined));
       urlBuilder.setCurrentModuleId(undefined);
+      logLastVisited({ moduleId });
     };
-  }, [moduleId]);
+  }, [moduleId, logLastVisited]);
 
   if (!module) return null;
 
