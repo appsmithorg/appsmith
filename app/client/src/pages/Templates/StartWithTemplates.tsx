@@ -21,6 +21,8 @@ const FiltersWrapper = styled.div`
   .filter-wrapper {
     height: 100%;
   }
+  padding-left: 12px;
+  padding-right: 12px;
 `;
 
 const TemplateContentWrapper = styled.div`
