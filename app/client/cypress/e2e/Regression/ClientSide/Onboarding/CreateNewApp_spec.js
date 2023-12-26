@@ -28,7 +28,9 @@ describe(
       cy.get(guidedTourLocators.startBuilding).should("be.visible");
       // Go back to applications page
       cy.get(commonlocators.homeIcon).click({ force: true });
-      cy.get(homePage.createNewAppButton).first().click();
+      cy.get(homePage.createNewAppButton).click();
+      cy.get(homePage.newButtonCreateApplication).click();
+      cy.wait(1000);
       // Check if explorer is visible, explorer is collapsed initialy in guided tour
       cy.get(explorerLocators.entityExplorer).should("be.visible");
     });
