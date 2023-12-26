@@ -21,6 +21,8 @@ import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -104,6 +106,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
         String defaultPageId, String applicationId, String branchName, @NotNull ApplicationMode mode) {
+        if (isBlank(applicationId) && isBlank(defaultPageId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "application id / page id"));
+        }
 
         /* This object will serve as a container to hold the response of this method*/
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
@@ -184,7 +189,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                             .collectList());
 
             /* This list contains the Mono objects corresponding to all the data points required for view mode. All
-             * the Mono objects in this list will be evaluated via Mono.zip operator
+             * the Mono objects in this list will be evaluated via Mono.zip operator.
              */
             List<Mono<?>> listOfMonosForPublishedApp = List.of(
                     userProfileDTOMono,
@@ -216,11 +221,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 return consolidatedAPIResponseDTO;
             });
         } else {
+            /* Get all actions in edit mode */
             Mono<List<ActionDTO>> listOfActionDTOs = applicationIdMonoCache.flatMap(appId -> {
                 MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                 params.add(APPLICATION_ID, appId);
                 return newActionService.getUnpublishedActions(params, branchName, false).collectList();});
 
+            /* Get all action collections in edit mode */
             Mono<List<ActionCollectionDTO>> listOfActionCollectionDTOs =
                 applicationIdMonoCache.flatMap(appId -> {
                     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -229,6 +236,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .getPopulatedActionCollectionsByViewMode(params, false, branchName)
                     .collectList();});
 
+            /* Get all pages in edit mode post apply migrate DSL changes */
             Mono<List<PageDTO>> listOfAllPageDTOMono = migrateDslMonoCache.flatMap(migrateDsl ->
                 applicationPagesDTOMono
                     .map(ApplicationPagesDTO::getPages)
@@ -238,9 +246,11 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .collect(Collectors.toList())
             );
 
+            /* Get all workspace id */
             Mono<String> workspaceIdMonoCache = applicationPagesDTOMono
                 .map(ApplicationPagesDTO::getWorkspaceId).cache();
 
+            /* Get all plugins in workspace */
             Mono<List<Plugin>> listOfPluginsMono = workspaceIdMonoCache
                 .flatMap(workspaceId -> {
                     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -248,6 +258,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     return pluginService.get(params).collectList();
                 });
 
+            /* Get all datasources in workspace */
             Mono<List<Datasource>> listOfDatasourcesMonoCache = workspaceIdMonoCache
                 .flatMap(workspaceId -> {
                     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -255,6 +266,11 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     return datasourceService.getAllWithStorages(params).collectList();
                 }).cache();
 
+            /* Get form config for all plugins such that:
+            *   (a) there is at least one datasource of the plugin type alive in the workspace
+            *   (b) there is at least one action of the plugin type defined in the application - this is useful in
+            * case the user has created a query without datasource e.g.REST API / GraphQL API
+            *  */
             Mono<Map<String, Map>> listOfFormConfigsMono = Mono.zip(listOfActionDTOs, listOfDatasourcesMonoCache)
                 .map(tuple2 -> {
                     Set<String> setOfAllPluginIdsUsedInApp = new HashSet<>();
@@ -283,10 +299,14 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     return pluginIdToFormConfigMap;
                 });
 
+            /* List of mock datasources available to the user */
             Mono<List<MockDataSet>> mockDataList = mockDataService
                 .getMockDataSet()
                 .map(MockDataDTO::getMockdbs);
 
+            /* This list contains the Mono objects corresponding to all the data points required for edit mode. All
+             * the Mono objects in this list will be evaluated via Mono.zip operator
+             */
             List<Mono<?>> listOfMonoForEditMode = List.of(
                 userProfileDTOMono,
                 tenantMono,
