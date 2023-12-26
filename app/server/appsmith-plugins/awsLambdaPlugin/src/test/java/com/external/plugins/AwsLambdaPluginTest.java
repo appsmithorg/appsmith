@@ -136,7 +136,7 @@ public class AwsLambdaPluginTest {
         datasourceConfiguration.setAuthentication(authentication);
         Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
         assertEquals(1, invalids.size());
-        assertTrue(invalids.contains("Missing AWS access key"));
+        assertTrue(invalids.contains("Unable to find an AWS access key. Please add a valid access key."));
     }
 
     @Test
@@ -152,7 +152,7 @@ public class AwsLambdaPluginTest {
         datasourceConfiguration.setAuthentication(authentication);
         Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
         assertEquals(1, invalids.size());
-        assertTrue(invalids.contains("Missing AWS secret key"));
+        assertTrue(invalids.contains("Unable to find an AWS secret key. Please add a valid secret key."));
     }
 
     @Test
