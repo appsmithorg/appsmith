@@ -49,6 +49,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
 @Service
 public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
+    private static final String FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED = "release_server_dsl_migrations_enabled";
+
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
@@ -94,32 +96,48 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         this.mockDataService = mockDataService;
     }
 
+    /**
+     * This method is meant to be used by the client application at the time of 1st page load. Client currently makes
+     * several API calls to fetch all the required data. This method consolidates all that data and returns them as
+     * response hence enabling the client to fetch the required data via a single API call only.
+     */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-        String pageId, String applicationId, String branchName, @NotNull ApplicationMode mode) {
+        String defaultPageId, String applicationId, String branchName, @NotNull ApplicationMode mode) {
 
+        /* This object will serve as a container to hold the response of this method*/
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
+
+        /* Get view mode - EDIT or PUBLISHED */
         boolean isViewMode = ApplicationMode.PUBLISHED.equals(mode);
+
+        /* Fetch application id if not provided */
         Mono<String> applicationIdMonoCache;
         if (isBlank(applicationId)) {
             applicationIdMonoCache = applicationPageService
-                    .getPage(pageId, isViewMode)
+                    .getPage(defaultPageId, isViewMode)
                     .map(PageDTO::getApplicationId)
                     .cache();
         } else {
             applicationIdMonoCache = Mono.just(applicationId).cache();
         }
 
+        /* Get user profile data */
         Mono<UserProfileDTO> userProfileDTOMono =
                 sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
 
+        /* Get all feature flags data */
         Mono<Map<String, Boolean>> featureFlagsForCurrentUserMono = userDataService.getFeatureFlagsForCurrentUser();
+
+        /* Check if release_server_dsl_migrations_enabled flag is true for the user */
         Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserMono
-            .map(flagsMap -> flagsMap.get("release_server_dsl_migrations_enabled") == null ? Boolean.FALSE :
+            .map(flagsMap -> flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED) == null ? Boolean.FALSE :
                 Boolean.TRUE).cache();
 
+        /* Get tenant config data */
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
 
+        /* Get any product alert info */
         Mono<ProductAlertResponseDTO> productAlertResponseDTOMono = productAlertService
                 .getSingleApplicableMessage()
                 .map(messages -> {
@@ -130,32 +148,44 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     return new ProductAlertResponseDTO();
                 });
 
+        /* Get all pages in application */
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationIdMonoCache.flatMap(
                 appId -> newPageService.findApplicationPages(appId, null, branchName, mode));
 
+        /* Get current theme */
         Mono<Theme> applicationThemeMono =
                 applicationIdMonoCache.flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName));
+
+        /* Get all themes */
         Mono<List<Theme>> ThemesListMono = applicationIdMonoCache.flatMap(
                 appId -> themeService.getApplicationThemes(appId, branchName).collectList());
 
+        /* Get all custom JS libraries installed in the application */
         Mono<List<CustomJSLib>> allJSLibsInContextDTO = applicationIdMonoCache.flatMap(appId ->
             customJSLibService.getAllJSLibsInContext(appId, CreatorContextType.APPLICATION, branchName,
                 isViewMode));
 
+        /* Get current page */
         Mono<PageDTO> currentPageDTOMono =
             migrateDslMonoCache.flatMap(migrateDsl ->
             applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                pageId, branchName, true, migrateDsl));
+                defaultPageId, branchName, true, migrateDsl));
 
+        /* Fetch view specific data */
         if (isViewMode) {
+            /* Get list of all actions in view mode */
             Mono<List<ActionViewDTO>> listOfActionViewDTOs = applicationIdMonoCache.flatMap(appId ->
                     newActionService.getActionsForViewMode(appId, branchName).collectList());
 
+            /* Get list of all action collections in view mode */
             Mono<List<ActionCollectionViewDTO>> listOfActionCollectionViewDTOs =
                     applicationIdMonoCache.flatMap(appId -> actionCollectionService
                             .getActionCollectionsForViewMode(appId, branchName)
                             .collectList());
 
+            /* This list contains the Mono objects corresponding to all the data points required for view mode. All
+             * the Mono objects in this list will be evaluated via Mono.zip operator
+             */
             List<Mono<?>> listOfMonosForPublishedApp = List.of(
                     userProfileDTOMono,
                     tenantMono,
