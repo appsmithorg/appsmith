@@ -98,7 +98,7 @@ jobs:
         id: changed-files-specific2
         uses: tj-actions/changed-files@v41
         with:
-          files: 'app/server/**'
+          files: 'app/client/**'
 
 
       - name: Run step if any file(s) in the client folder change
