@@ -83,7 +83,9 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .flatMap(mustacheKey -> {
                     Matcher matcher = oldNamePattern.matcher(mustacheKey.getValue());
                     if (matcher.find()) {
-                        return Mono.zip(Mono.just(mustacheKey), Mono.just(matcher.replaceAll(newName)));
+                        return Mono.zip(
+                                Mono.just(mustacheKey),
+                                Mono.just(matcher.replaceAll(Matcher.quoteReplacement(newName))));
                     }
                     return Mono.empty();
                 })

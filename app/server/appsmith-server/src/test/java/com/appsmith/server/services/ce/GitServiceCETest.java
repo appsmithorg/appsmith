@@ -2822,7 +2822,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createBranch_BranchHasCustomNavigationSettings_SrcBranchRemainsUnchanged()
+    public void createBranch_BranchHasCustomApplicationSettings_SrcBranchRemainsUnchanged()
             throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2856,6 +2856,15 @@ public class GitServiceCETest {
                     appNavigationSetting.setOrientation("top");
                     branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+
+                    Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+                    themeSettings.setSizing(1);
+                    themeSettings.setDensity(1);
+                    themeSettings.setBorderRadius("#000000");
+                    themeSettings.setAccentColor("#FFFFFF");
+                    themeSettings.setFontFamily("#000000");
+                    themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication -> applicationService.update(
@@ -2875,6 +2884,14 @@ public class GitServiceCETest {
                                     .getOrientation())
                             .isEqualTo("top");
                     assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
+                    Application.ThemeSetting themes =
+                            branchedApp.getApplicationDetail().getThemeSetting();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
@@ -4550,6 +4567,48 @@ public class GitServiceCETest {
                     assertThat(gitApplicationMetadata.getAutoCommitConfig()).isNotNull();
                     assertThat(gitApplicationMetadata.getAutoCommitConfig().getEnabled())
                             .isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_WhenLocalRepoDoesNotExist_RepoIsClonedFromRemote()
+            throws IOException, GitAPIException {
+        List<GitBranchDTO> branchList = List.of(
+                createGitBranchDTO("defaultBranch", false),
+                createGitBranchDTO("origin/defaultBranch", false),
+                createGitBranchDTO("origin/feature1", false));
+
+        Mockito.when(gitExecutor.listBranches(any(Path.class)))
+                .thenReturn(Mono.error(new RepositoryNotFoundException("repo not found"))) // throw exception first
+                .thenReturn(Mono.just(branchList)); // return list of branches later
+
+        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+
+        Mockito.when(gitExecutor.fetchRemote(
+                        any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("status"));
+
+        Application application1 = createApplicationConnectedToGit(
+                "listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
+
+        Mono<List<GitBranchDTO>> listMono =
+                gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+
+        StepVerifier.create(listMono)
+                .assertNext(listBranch -> {
+                    assertThat(listBranch.size()).isEqualTo(3);
                 })
                 .verifyComplete();
     }

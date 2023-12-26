@@ -16,7 +16,6 @@ public interface PluginConstants {
         String ANTHROPIC_PLUGIN = "anthropic-plugin";
         String GOOGLE_AI_PLUGIN = "googleai-plugin";
         String DATABRICKS_PLUGIN = "databricks-plugin";
-
         String AWS_LAMBDA_PLUGIN = "aws-lambda-plugin";
     }
 
@@ -45,7 +44,6 @@ public interface PluginConstants {
         public static final String ANTHROPIC_PLUGIN_NAME = "Anthropic";
         public static final String GOOGLE_AI_PLUGIN_NAME = "Google AI";
         public static final String DATABRICKS_PLUGIN_NAME = "Databricks";
-
         public static final String AWS_LAMBDA_PLUGIN_NAME = "AWS Lambda";
     }
 
