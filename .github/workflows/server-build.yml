@@ -82,7 +82,7 @@ jobs:
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         run: |
-          echo "One or more files in the docs folder has changed."
+          echo "One or more files in the server folder has changed."
           echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
