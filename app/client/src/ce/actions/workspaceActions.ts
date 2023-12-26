@@ -17,12 +17,6 @@ export const fetchWorkspace = (
   };
 };
 
-export const fetchAllWorkspacesAndAppsOfFirstWorkspace = () => {
-  return {
-    type: ReduxActionTypes.FETCH_ALL_WORKSPACES_AND_APPS_OF_FIRST_WORKSPACE,
-  };
-};
-
 export const resetCurrentWorkspace = () => {
   return {
     type: ReduxActionTypes.RESET_CURRENT_WORKSPACE,

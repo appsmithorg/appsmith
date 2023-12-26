@@ -119,7 +119,6 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import type { IconNames } from "design-system";
 import {
   defaultNavigationSetting,
@@ -207,8 +206,6 @@ export function* publishApplicationSaga(
 export function* fetchAllApplicationsOfWorkspaceSaga(
   action?: ReduxAction<string>,
 ) {
-  const isAirgappedInstance = isAirgapped();
-
   let activeWorkspaceId: string = "";
   if (!action?.payload) {
     activeWorkspaceId = yield select(getCurrentWorkspaceId);
@@ -252,9 +249,6 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: workspaces[0],
         });
-      }
-      if (!isAirgappedInstance) {
-        yield call(fetchReleases);
       }
     }
   } catch (error) {

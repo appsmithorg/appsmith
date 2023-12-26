@@ -130,6 +130,7 @@ import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
 import WorkflowCardList from "./WorkflowCardList";
 import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -850,6 +851,7 @@ export const ApplictionsMainPage = (props: any) => {
   const fetchedApplications = useSelector(getApplicationsOfWorkspace);
   const fetchedPackages = useSelector(getPackagesList);
   const fetchedWorkflows = useSelector(getWorkflowsList);
+  const fetchedWorkspaceId = useSelector(getCurrentWorkspaceId);
 
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
@@ -872,7 +874,11 @@ export const ApplictionsMainPage = (props: any) => {
   }, [location, fetchedWorkspaces]);
 
   useEffect(() => {
-    if (activeWorkspaceId) {
+    if (
+      activeWorkspaceId &&
+      fetchedWorkspaceId &&
+      fetchedWorkspaceId !== activeWorkspaceId
+    ) {
       const activeWorkspace: Workspace = workspaces.find(
         (workspace: Workspace) => workspace.id === activeWorkspaceId,
       );
@@ -885,7 +891,7 @@ export const ApplictionsMainPage = (props: any) => {
       dispatch(fetchAllApplicationsOfWorkspace(activeWorkspaceId));
       dispatch(fetchUsersForWorkspace(activeWorkspaceId));
     }
-  }, [activeWorkspaceId]);
+  }, [activeWorkspaceId, fetchedWorkspaceId]);
 
   const packagesOfWorkspace = activeWorkspaceId
     ? fetchedPackages.filter((pkg) => pkg.workspaceId === activeWorkspaceId)
@@ -951,7 +957,7 @@ export interface ApplicationProps {
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
   getAllWorkspaces: (params: {
-    fetchApplications: boolean;
+    fetchEntities: boolean;
     workspaceId: string;
   }) => void;
   workspaces: any;
@@ -966,6 +972,7 @@ export interface ApplicationProps {
   resetCurrentWorkspace: () => void;
   currentApplicationIdForCreateNewApp?: string;
   resetCurrentApplicationIdForCreateNewApp: () => void;
+  currentWorkspaceId: string;
 }
 
 export interface ApplicationState {
@@ -992,7 +999,7 @@ export class Applications<
     const urlHash = window?.location?.hash?.slice(1);
     this.props.getAllWorkspaces({
       workspaceId: urlHash,
-      fetchApplications: true,
+      fetchEntities: true,
     });
     this.props.setHeaderMetaData(true, true);
 
@@ -1008,12 +1015,16 @@ export class Applications<
 
   public render() {
     return this.props.currentApplicationIdForCreateNewApp ? (
-      <CreateNewAppsOption
-        currentApplicationIdForCreateNewApp={
-          this.props.currentApplicationIdForCreateNewApp
-        }
-        onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
-      />
+      // Workspace id condition is added to ensure that we have workspace id present before we show 3 options
+      // as workspace id is required to fetch plugins
+      !!this.props.currentWorkspaceId ? (
+        <CreateNewAppsOption
+          currentApplicationIdForCreateNewApp={
+            this.props.currentApplicationIdForCreateNewApp
+          }
+          onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
+        />
+      ) : null
     ) : (
       <ApplictionsMainPage
         searchApplications={this.props.searchApplications}
@@ -1034,19 +1045,20 @@ export const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
   currentApplicationIdForCreateNewApp:
     getCurrentApplicationIdForCreateNewApp(state),
+  currentWorkspaceId: getCurrentWorkspaceId(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
   getAllWorkspaces: ({
-    fetchApplications,
+    fetchEntities,
     workspaceId,
   }: {
-    fetchApplications: boolean;
+    fetchEntities: boolean;
     workspaceId: string;
   }) => {
     dispatch({
       type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
-      payload: { workspaceId, fetchApplications },
+      payload: { workspaceId, fetchEntities },
     });
   },
   resetEditor: () => {

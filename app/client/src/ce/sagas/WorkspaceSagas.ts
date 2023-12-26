@@ -42,10 +42,13 @@ import {
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
 import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { fetchReleases } from "./ApplicationSagas";
 
 export function* fetchAllWorkspacesSaga(
-  action?: ReduxAction<{ workspaceId: string; fetchApplications: boolean }>,
+  action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,
 ) {
+  const isAirgappedInstance = isAirgapped();
   try {
     const response: FetchWorkspacesResponse = yield call(
       WorkspaceApi.fetchAllWorkspaces,
@@ -57,28 +60,20 @@ export function* fetchAllWorkspacesSaga(
         type: ReduxActionTypes.FETCH_ALL_WORKSPACES_SUCCESS,
         payload: workspaces,
       });
-      if (action?.payload?.workspaceId || action?.payload?.fetchApplications) {
+      if (action?.payload?.workspaceId || action?.payload?.fetchEntities) {
         const workspaceId = action?.payload?.workspaceId || workspaces[0].id;
+        const activeWorkspace = workspaces.find(
+          (workspace) => workspace.id === workspaceId,
+        );
         yield put(fetchAllApplicationsOfWorkspace(workspaceId));
+        yield put({
+          type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+          payload: { ...activeWorkspace },
+        });
       }
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* fetchAllWorkspacesAndAppsOfFirstWorkspaceSaga() {
-  try {
-    yield call(fetchAllWorkspacesSaga);
-    const workspaces: Workspace[] = yield select(getFetchedWorkspaces);
-    if (workspaces?.length) {
-      const activeWorkspace: Workspace = workspaces[0];
-      yield put(fetchAllApplicationsOfWorkspace(activeWorkspace.id));
+      if (!isAirgappedInstance) {
+        yield call(fetchReleases);
+      }
     }
   } catch (error) {
     yield put({
