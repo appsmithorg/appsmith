@@ -84,9 +84,7 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.formloginButton).click();
       cy.wait(2000);
       // disable form signup
-      cy.get(adminSettings.formLoginDisabled)
-        .get("input")
-        .should("have.value", "on");
+      cy.get(adminSettings.formLoginDisabled).should("have.value", "on");
       cy.get(adminSettings.formLoginDisabled).click({ force: true });
       cy.wait(2000);
       // assert server is restarting
