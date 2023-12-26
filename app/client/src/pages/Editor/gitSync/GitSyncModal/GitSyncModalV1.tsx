@@ -29,6 +29,7 @@ import {
   IMPORT_FROM_GIT_REPOSITORY,
 } from "@appsmith/constants/messages";
 import { GitSyncModalTab } from "entities/GitSync";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
@@ -67,10 +68,11 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
   const isGitConnected = useSelector(getIsGitConnected);
 
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
+  const appId = useSelector(getCurrentApplicationId);
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport(""));
+    dispatch(setWorkspaceIdForImport("", appId));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const setActiveTabKey = useCallback(

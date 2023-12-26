@@ -42,6 +42,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -70,6 +71,7 @@ function ChooseGitProvider({
   onChange = noop,
   value = {},
 }: ChooseGitProviderProps) {
+  const appId = useSelector(getCurrentApplicationId);
   const workspace = useSelector(getCurrentAppWorkspace);
   const isMobile = useIsMobileDevice();
 
@@ -80,7 +82,7 @@ function ChooseGitProvider({
     dispatch({
       type: ReduxActionTypes.GIT_INFO_INIT,
     });
-    dispatch(setWorkspaceIdForImport(workspace.id));
+    dispatch(setWorkspaceIdForImport(workspace.id, appId));
 
     dispatch(
       setIsGitSyncModalOpen({

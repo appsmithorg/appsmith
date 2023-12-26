@@ -234,7 +234,13 @@ const CreateNewAppsOption = ({
     dispatch(fetchPlugins());
     dispatch(fetchMockDatasources());
     if (application?.workspaceId) {
-      dispatch(fetchingEnvironmentConfigs(application?.workspaceId, true));
+      dispatch(
+        fetchingEnvironmentConfigs(
+          application?.workspaceId,
+          application.id,
+          true,
+        ),
+      );
     }
     setUseType(START_WITH_TYPE.DATA);
   };

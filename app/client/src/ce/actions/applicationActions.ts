@@ -219,9 +219,15 @@ export const setIsReconnectingDatasourcesModalOpen = (payload: {
   payload,
 });
 
-export const setWorkspaceIdForImport = (workspaceId?: string) => ({
+export const setWorkspaceIdForImport = (
+  editorId: string = "",
+  workspaceId?: string,
+) => ({
   type: ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT,
-  payload: workspaceId,
+  payload: {
+    workspaceId,
+    editorId,
+  },
 });
 
 export const setPageIdForImport = (pageId?: string) => ({
