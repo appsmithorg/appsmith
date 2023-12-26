@@ -23,8 +23,6 @@ import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import { createNewApiAction } from "actions/apiPaneActions";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "design-system";
 import PlusLogo from "assets/images/Plus-logo.svg";
@@ -32,6 +30,8 @@ import {
   createMessage,
   CREATE_NEW_DATASOURCE_REST_API,
 } from "@appsmith/constants/messages";
+import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -115,7 +115,10 @@ const DatasourceContentWrapper = styled.div`
 `;
 
 interface DatasourceHomeScreenProps {
-  pageId: string;
+  editorType: string;
+  editorId: string;
+  parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
   location: {
     search: string;
   };
@@ -132,10 +135,12 @@ interface ReduxDispatchProps {
   initializeForm: (data: Record<string, any>) => void;
   createDatasource: (data: any) => void;
   createTempDatasource: (data: any) => void;
-  createNewApiAction: (
-    pageId: string,
-    from: EventLocation,
-    apiType?: string,
+  createNewApiActionBasedOnEditorType: (
+    editorType: string,
+    editorId: string,
+    parentEntityId: string,
+    parentEntityType: ActionParentEntityTypeInterface,
+    apiType: string,
   ) => void;
 }
 
@@ -200,16 +205,18 @@ class DatasourceHomeScreen extends React.Component<Props> {
   };
 
   handleOnClick = () => {
+    const { editorId, editorType, parentEntityId, parentEntityType } =
+      this.props;
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       source: API_ACTION.CREATE_NEW_API,
     });
-    if (this.props.pageId) {
-      this.props.createNewApiAction(
-        this.props.pageId,
-        "API_PANE",
-        PluginPackageName.REST_API,
-      );
-    }
+    this.props.createNewApiActionBasedOnEditorType(
+      editorType,
+      editorId,
+      parentEntityId,
+      parentEntityType,
+      PluginPackageName.REST_API,
+    );
   };
 
   render() {
@@ -300,11 +307,22 @@ const mapDispatchToProps = (dispatch: any) => {
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
     createTempDatasource: (data: any) =>
       dispatch(createTempDatasourceFromForm(data)),
-    createNewApiAction: (
-      pageId: string,
-      from: EventLocation,
-      apiType?: string,
-    ) => dispatch(createNewApiAction(pageId, from, apiType)),
+    createNewApiActionBasedOnEditorType: (
+      editorType: string,
+      editorId: string,
+      parentEntityId: string,
+      parentEntityType: ActionParentEntityTypeInterface,
+      apiType: string,
+    ) =>
+      dispatch(
+        createNewApiActionBasedOnEditorType(
+          editorType,
+          editorId,
+          parentEntityId,
+          parentEntityType,
+          apiType,
+        ),
+      ),
   };
 };
 
