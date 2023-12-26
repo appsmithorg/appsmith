@@ -14,6 +14,7 @@ import { matchPath } from "react-router";
 export const EditorNames = {
   ...CE_EditorNames,
   PACKAGE: "package",
+  WORKFLOW: "workflow",
 };
 
 export const editorType: EditorType = {

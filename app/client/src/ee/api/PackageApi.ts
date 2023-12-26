@@ -2,7 +2,10 @@ import Api from "api/Api";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import type {
+  Module,
+  ModuleMetadata,
+} from "@appsmith/constants/ModuleConstants";
 import type {
   DeletePackagePayload,
   PublishPackagePayload,
@@ -23,6 +26,7 @@ export interface FetchPackagePayload {
 export interface FetchPackageResponse {
   packageData: Package;
   modules: Module[];
+  modulesMetadata: ModuleMetadata[];
 }
 
 export interface FetchConsumablePackagesInWorkspaceResponse {

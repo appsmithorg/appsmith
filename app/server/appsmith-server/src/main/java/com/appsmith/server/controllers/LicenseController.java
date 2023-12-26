@@ -28,9 +28,10 @@ public class LicenseController {
     private final TenantService service;
 
     @PutMapping("")
-    public Mono<ResponseDTO<Tenant>> updateTenantLicenseKey(@RequestBody UpdateLicenseKeyDTO updateLicenseKeyDTO) {
+    public Mono<ResponseDTO<Tenant>> updateAndRefreshTenantLicenseKey(
+            @RequestBody UpdateLicenseKeyDTO updateLicenseKeyDTO) {
         log.debug("Going to update the license key for default tenant");
-        return service.updateTenantLicenseKey(updateLicenseKeyDTO)
+        return service.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO)
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 

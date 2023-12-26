@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
@@ -40,6 +40,11 @@ export function AppPage(props: AppPageProps) {
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
+  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
+
+  const width: string = useMemo(() => {
+    return isAnvilLayout ? "100%" : `${props.canvasWidth}px`;
+  }, [isAnvilLayout, props.canvasWidth]);
 
   useDynamicAppLayout();
 
@@ -64,14 +69,11 @@ export function AppPage(props: AppPageProps) {
         isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
       }
     >
-      <PageView className="t--app-viewer-page" width={props.canvasWidth}>
+      <PageView className="t--app-viewer-page" width={width}>
         {props.widgetsStructure.widgetId &&
           renderAppsmithCanvas({
             ...props.widgetsStructure,
-            classList:
-              layoutSystemType === LayoutSystemTypes.ANVIL
-                ? ["main-anvil-canvas"]
-                : [],
+            classList: isAnvilLayout ? ["main-anvil-canvas"] : [],
           } as WidgetProps)}
       </PageView>
     </PageViewWrapper>

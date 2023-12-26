@@ -24,7 +24,7 @@ export interface CreateModulePayload {
   packageId: string;
   type: MODULE_TYPE;
   name?: string;
-  inputsForm: Module["inputsForm"];
+  inputsForm?: Module["inputsForm"];
   entity: (Partial<Action> | CreateJSCollectionRequest) & {
     type: MODULE_ENTITY_TYPE;
   };

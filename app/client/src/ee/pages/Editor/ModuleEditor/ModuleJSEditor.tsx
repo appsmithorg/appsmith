@@ -13,7 +13,7 @@ import {
   saveModuleName,
 } from "@appsmith/actions/moduleActions";
 import { saveJSObjectNameBasedOnParentEntity } from "@appsmith/actions/helpers";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 interface ModuleJSEditorRouteParams {
   packageId: string;
@@ -55,7 +55,7 @@ function ModuleJSEditor(props: ModuleJSEditorProps) {
         : saveJSObjectNameBasedOnParentEntity(
             collectionId,
             name,
-            ACTION_PARENT_ENTITY_TYPE.PACKAGE,
+            ActionParentEntityType.MODULE,
           );
     },
     [moduleId, jsCollectionData?.config.isPublic, collectionId],

@@ -404,19 +404,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(SignupPageLocators.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(SignupPageLocators.roleDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(SignupPageLocators.useCaseDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(
-          SignupPageLocators.getStartedSubmit,
-          undefined,
-          true,
-        );
-      } else if (
-        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
-      ) {
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
         this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
         this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
         this.agHelper.GetNClick(

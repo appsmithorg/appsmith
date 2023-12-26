@@ -7,6 +7,7 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
@@ -420,7 +421,8 @@ public class DatabaseChangelogEE {
             license.setActive(true);
             license.setStatus(LicenseStatus.ACTIVE);
             license.setKey(licenseKey);
-            license.setOrigin(LicenseOrigin.ENTERPRISE);
+            license.setOrigin(LicenseOrigin.SALES);
+            license.setPlan(LicensePlan.ENTERPRISE);
             tenantConfiguration.setLicense(license);
             tenant.setTenantConfiguration(tenantConfiguration);
             mongoTemplate.save(tenant);

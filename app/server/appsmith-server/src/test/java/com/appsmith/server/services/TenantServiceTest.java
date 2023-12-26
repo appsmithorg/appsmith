@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.LicenseConfig;
@@ -73,7 +74,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
+import static com.appsmith.server.constants.FieldName.LICENSE;
+import static com.appsmith.server.constants.FieldName.LICENSE_KEY;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+import static com.appsmith.server.constants.ce.FieldNameCE.KEY;
 import static com.appsmith.server.constants.ce.FieldNameCE.TENANT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -227,7 +231,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void updateTenantLicenseKey_validLicenseKey_Success() {
+    public void updateAndRefreshTenantLicenseKey_validLicenseKey_Success() {
 
         String licenseKey = "sample-license-key";
         License license = new License();
@@ -243,8 +247,8 @@ public class TenantServiceTest {
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
-        StepVerifier.create(tenantService.updateTenantLicenseKey(updateLicenseKeyDTO))
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false, null);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     License savedLicense = tenantConfiguration.getLicense();
@@ -280,7 +284,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void updateTenantLicenseKey_licenseInGracePeriod_Success() {
+    public void updateAndRefreshTenantLicenseKey_licenseInGracePeriod_Success() {
 
         String licenseKey = UUID.randomUUID().toString();
         License license = new License();
@@ -296,8 +300,8 @@ public class TenantServiceTest {
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
-        StepVerifier.create(tenantService.updateTenantLicenseKey(updateLicenseKeyDTO))
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false, null);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     License savedLicense = tenantConfiguration.getLicense();
@@ -333,7 +337,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void updateTenantLicenseKey_Invalid_LicenseKey() {
+    public void updateAndRefreshTenantLicenseKey_Invalid_LicenseKey() {
 
         String licenseKey = UUID.randomUUID().toString();
         License license = new License();
@@ -343,11 +347,11 @@ public class TenantServiceTest {
         // Mock CS response to get invalid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
-        Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(updateLicenseKeyDTO);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false, null);
+        Mono<Tenant> addLicenseKeyMono = tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO);
         StepVerifier.create(addLicenseKeyMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_LICENSE_KEY_ENTERED.getMessage()))
+                        && throwable.getMessage().equals(AppsmithError.INVALID_LICENSE_KEY.getMessage()))
                 .verify();
 
         // Assert that `isActivated` does not get modified for invalid license
@@ -360,7 +364,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("usertest@usertest.com")
-    public void updateTenantLicenseKey_missingManageTenantPermission_throwsException() {
+    public void updateAndRefreshTenantLicenseKey_missingManageTenantPermission_throwsException() {
         String licenseKey = "SOME-INVALID-LICENSE-KEY";
         License license = new License();
         license.setActive(false);
@@ -369,13 +373,13 @@ public class TenantServiceTest {
         // Mock CS response to get invalid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
-        Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(updateLicenseKeyDTO);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false, null);
+        Mono<Tenant> addLicenseKeyMono = tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO);
         StepVerifier.create(addLicenseKeyMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.TENANT, DEFAULT)))
+                                .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.TENANT, DEFAULT)))
                 .verify();
     }
 
@@ -591,14 +595,15 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void updateTenantLicenseKey_invalidLicenseSignature_throwException() {
+    public void updateAndRefreshTenantLicenseKey_invalidLicenseSignature_throwException() {
 
         // Mock CS response to get invalid signature
         Mockito.when(licenseAPIManager.licenseCheck(any()))
                 .thenThrow(new AppsmithException(AppsmithError.INVALID_PARAMETER, CLOUD_SERVICES_SIGNATURE));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("invalid_signature_license_test", false);
-        StepVerifier.create(tenantService.updateTenantLicenseKey(updateLicenseKeyDTO))
+        UpdateLicenseKeyDTO updateLicenseKeyDTO =
+                new UpdateLicenseKeyDTO("invalid_signature_license_test", false, null);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
                 .expectErrorMatches(error -> error instanceof AppsmithException
                         && error.getMessage()
                                 .equals(AppsmithError.INVALID_PARAMETER.getMessage(CLOUD_SERVICES_SIGNATURE)))
@@ -1115,7 +1120,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void updateTenantLicenseKey_validLicenseKeyWithDryRun_dbStateIsUnchanged() {
+    public void updateAndRefreshTenantLicenseKey_validLicenseKeyWithDryRun_dbStateIsUnchanged() {
 
         String licenseKey = "sample-license-key";
         License license = new License();
@@ -1130,8 +1135,8 @@ public class TenantServiceTest {
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, true);
-        StepVerifier.create(tenantService.updateTenantLicenseKey(updateLicenseKeyDTO))
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, true, null);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     License savedLicense = tenantConfiguration.getLicense();
@@ -1188,9 +1193,9 @@ public class TenantServiceTest {
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false, null);
         // Check after force update if we get updated values for existing features
-        tenantService.updateTenantLicenseKey(updateLicenseKeyDTO).block();
+        tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO).block();
         Mono<CachedFeatures> updatedCacheMono = cacheableFeatureFlagHelper.fetchCachedTenantFeatures(defaultTenantId);
         // Assert if the cache entry is updated
         StepVerifier.create(updatedCacheMono)
@@ -1372,7 +1377,7 @@ public class TenantServiceTest {
         Mockito.when(licenseAPIManager.licenseCheck(any()))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, "")));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("invalid-license-key", false);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("invalid-license-key", false, null);
         Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, new HttpHeaders());
 
         StepVerifier.create(resultMono)
@@ -1402,7 +1407,7 @@ public class TenantServiceTest {
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("sample-license-key", false);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("sample-license-key", false, null);
         HttpHeaders headers = new HttpHeaders();
         headers.setOrigin("http://localhost");
         Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
@@ -1447,7 +1452,7 @@ public class TenantServiceTest {
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("sample-license-key", false);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("sample-license-key", false, null);
         HttpHeaders headers = new HttpHeaders();
         headers.setOrigin("http://localhost");
         Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
@@ -1476,7 +1481,7 @@ public class TenantServiceTest {
     @WithUserDetails(value = "api_user")
     public void activateTenantAndGetRedirectUrl_withoutLicenseKey_userWithManageTenantPermission_returnsRedirectUrl() {
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("", false);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("", false, null);
         HttpHeaders headers = new HttpHeaders();
         headers.setOrigin("http://localhost");
         Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
@@ -1507,7 +1512,7 @@ public class TenantServiceTest {
         application.setWorkspaceId(workspace.getId());
         application = applicationPageService.createApplication(application).block();
 
-        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("", false);
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("", false, null);
         HttpHeaders headers = new HttpHeaders();
         headers.setOrigin("http://localhost");
         Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
@@ -1531,5 +1536,106 @@ public class TenantServiceTest {
         applicationPageService.deleteApplication(application.getId()).block();
         workspaceService.archiveById(workspace.getId()).block();
         removeUserFromTenantAdmin();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void
+            updateAndRefreshTenantLicenseKey_keyIsNotProvided_licenseObjectIsNotPresentInDB_resourceNotFoundExceptionThrown() {
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(null, false, true);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage()).isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getMessage(LICENSE, KEY));
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void
+            updateAndRefreshTenantLicenseKey_nullRefreshLicenseCheck_licenseObjectIsNotPresentInDB_invalidParameterExceptionThrown() {
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(null, false, null);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage()).isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(LICENSE_KEY));
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void
+            updateAndRefreshTenantLicenseKey_keyIsNotProvided_validLicenseObjectIsPresentInDB_resourceNotFoundExceptionThrown() {
+
+        String licenseKey = UUID.randomUUID().toString();
+        License license = new License();
+        license.setActive(true);
+        license.setType(LicenseType.PAID);
+        license.setKey(licenseKey);
+        license.setStatus(LicenseStatus.valueOf("ACTIVE"));
+        license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
+
+        tenant.getTenantConfiguration().setLicense(license);
+        tenantService.save(tenant).block();
+        // Mock CS response to get valid license
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(null, false, true);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
+                .assertNext(clientPertinantTenant -> {
+                    TenantConfiguration tenantConfiguration = clientPertinantTenant.getTenantConfiguration();
+                    License savedLicense = tenantConfiguration.getLicense();
+                    assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
+                    assertThat(savedLicense.getActive()).isTrue();
+                    assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
+                    assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
+                    assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
+                    assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void
+            updateAndRefreshTenantLicenseKey_nullRefreshLicenseCheck_licenseObjectIsNotPresentInDB_invalidParameterExceptionThrown_test() {
+
+        String licenseKey = UUID.randomUUID().toString();
+        License license = new License();
+        license.setActive(true);
+        license.setType(LicenseType.PAID);
+        license.setKey(licenseKey);
+        license.setStatus(LicenseStatus.valueOf("ACTIVE"));
+        license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
+
+        tenant.getTenantConfiguration().setLicense(license);
+        tenant = tenantService.save(tenant).block();
+
+        // Mock CS response to get invalid license
+        License licenseFromCS = new License();
+        AppsmithBeanUtils.copyNestedNonNullProperties(license, licenseFromCS);
+        licenseFromCS.setActive(false);
+        // Mock CS response to get valid license
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(licenseFromCS));
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(null, null, true);
+        StepVerifier.create(tenantService.updateAndRefreshTenantLicenseKey(updateLicenseKeyDTO))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage())
+                            .isEqualTo(AppsmithError.LICENSE_KEY_ACTIVATION_WARNING.getMessage(LICENSE_KEY));
+                })
+                .verify();
     }
 }
