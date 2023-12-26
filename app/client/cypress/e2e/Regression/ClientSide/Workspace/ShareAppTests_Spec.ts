@@ -50,7 +50,7 @@ describe(
       featureFlagIntercept({ license_gac_enabled: true });
       agHelper.Sleep(3000);
 
-      homePage.FilterApplication(appid, workspaceId, false);
+      homePage.SelectWorkspace(workspaceId);
       // // eslint-disable-next-line cypress/no-unnecessary-waiting
       agHelper.Sleep(2000);
       agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
