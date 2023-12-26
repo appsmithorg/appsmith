@@ -1,4 +1,3 @@
-import { COLORS } from "@design-system/widgets";
 import { TYPOGRAPHY_VARIANTS } from "@design-system/theming";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -46,50 +45,6 @@ export const propertyPaneStyleConfig = [
           params: {
             allowedValues: Object.values(TYPOGRAPHY_VARIANTS),
             default: TYPOGRAPHY_VARIANTS.body,
-          },
-        },
-      },
-    ],
-  },
-  {
-    sectionName: "Color",
-    children: [
-      {
-        propertyName: "textColor",
-        label: "Text Color",
-        helpText: "Controls the color of the text displayed",
-        controlType: "DROP_DOWN",
-        defaultValue: "neutral",
-        options: [
-          {
-            label: "Accent",
-            value: "accent",
-          },
-          {
-            label: "Neutral",
-            value: "neutral",
-          },
-          {
-            label: "Positive",
-            value: "positive",
-          },
-          {
-            label: "Negative",
-            value: "negative",
-          },
-          {
-            label: "Warning",
-            value: "warning",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: Object.values(COLORS),
-            default: COLORS.neutral,
           },
         },
       },

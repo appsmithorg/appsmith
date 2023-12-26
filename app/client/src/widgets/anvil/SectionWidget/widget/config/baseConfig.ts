@@ -4,6 +4,7 @@ import IconSVG from "../../icon.svg";
 
 export const baseConfig: WidgetBaseConfiguration = {
   name: "Section",
+  hideCard: true,
   iconSVG: IconSVG,
   tags: [WIDGET_TAGS.LAYOUT],
   isCanvas: true,
