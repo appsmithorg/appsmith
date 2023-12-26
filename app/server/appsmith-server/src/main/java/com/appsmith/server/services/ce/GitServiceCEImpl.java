@@ -1651,6 +1651,71 @@ public class GitServiceCEImpl implements GitServiceCE {
                         }));
     }
 
+    private Mono<List<GitBranchDTO>> handleRepoNotFoundException(String defaultApplicationId) {
+
+        // clone application to the local filesystem again and update the defaultBranch for the application
+        // list branch and compare with branch applications and checkout if not exists
+
+        return getApplicationById(defaultApplicationId).flatMap(application -> {
+            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+            Path repoPath =
+                    Paths.get(application.getWorkspaceId(), application.getId(), gitApplicationMetadata.getRepoName());
+            GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
+            return gitExecutor
+                    .cloneApplication(
+                            repoPath,
+                            gitApplicationMetadata.getRemoteUrl(),
+                            gitAuth.getPrivateKey(),
+                            gitAuth.getPublicKey())
+                    .flatMap(defaultBranch -> gitExecutor.listBranches(repoPath))
+                    .flatMap(gitBranchDTOList -> {
+                        List<String> branchesToCheckout = new ArrayList<>();
+                        for (GitBranchDTO gitBranchDTO : gitBranchDTOList) {
+                            if (gitBranchDTO.getBranchName().startsWith("origin/")) {
+                                // remove origin/ prefix from the remote branch name
+                                String branchName = gitBranchDTO.getBranchName().replace("origin/", "");
+                                // The root application is always there, no need to check out it again
+                                if (!branchName.equals(gitApplicationMetadata.getBranchName())) {
+                                    branchesToCheckout.add(branchName);
+                                }
+                            } else if (gitBranchDTO
+                                    .getBranchName()
+                                    .equals(gitApplicationMetadata.getDefaultBranchName())) {
+                                /*
+                                 We just cloned from the remote default branch.
+                                 Update the isDefault flag If it's also set as default in DB
+                                */
+                                gitBranchDTO.setDefault(true);
+                            }
+                        }
+
+                        return Flux.fromIterable(branchesToCheckout)
+                                .flatMap(branchName -> applicationService
+                                        .findByBranchNameAndDefaultApplicationId(
+                                                branchName,
+                                                application.getId(),
+                                                applicationPermission.getReadPermission())
+                                        // checkout the branch locally
+                                        .flatMap(application1 -> {
+                                            // Add the locally checked out branch to the branchList
+                                            GitBranchDTO gitBranchDTO = new GitBranchDTO();
+                                            gitBranchDTO.setBranchName(branchName);
+                                            // set the default branch flag if there's a match.
+                                            // This can happen when user has changed the default branch other than
+                                            // remote
+                                            gitBranchDTO.setDefault(gitApplicationMetadata
+                                                    .getDefaultBranchName()
+                                                    .equals(branchName));
+                                            gitBranchDTOList.add(gitBranchDTO);
+                                            return gitExecutor.checkoutRemoteBranch(repoPath, branchName);
+                                        })
+                                        // Return empty mono when the branched application is not in db
+                                        .onErrorResume(throwable -> Mono.empty()))
+                                .then(Mono.just(gitBranchDTOList));
+                    });
+        });
+    }
+
     private Mono<String> syncDefaultBranchNameFromRemote(Path repoPath, Application rootApp) {
         GitApplicationMetadata metadata = rootApp.getGitApplicationMetadata();
         GitAuth gitAuth = metadata.getGitAuth();
@@ -1706,6 +1771,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Path repoPath = objects.getT3();
                     return getBranchListWithDefaultBranchName(
                             rootApplication, repoPath, defaultBranchName, currentBranch, pruneBranches);
+                })
+                .onErrorResume(throwable -> {
+                    if (throwable instanceof RepositoryNotFoundException) {
+                        // this will clone the repo again
+                        return handleRepoNotFoundException(defaultApplicationId);
+                    }
+                    return Mono.error(throwable);
                 });
 
         return Mono.create(sink -> branchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
