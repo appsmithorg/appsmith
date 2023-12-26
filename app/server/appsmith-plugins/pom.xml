@@ -66,6 +66,8 @@
 
         <module>googleAiPlugin</module>
 
+        <module>awsLambdaPlugin</module>
+
         <module>databricksPlugin</module>
 
     </modules>
