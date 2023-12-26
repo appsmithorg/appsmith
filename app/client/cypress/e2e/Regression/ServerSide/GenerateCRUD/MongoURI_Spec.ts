@@ -47,7 +47,7 @@ describe(
         );
 
         deployMode.NavigateBacktoEditor();
-        table.WaitUntilTableLoad();
+        table.WaitUntilTableLoad(0, 0, "v2");
         //Should not be able to delete ds until app is published again
         //coz if app is published & shared then deleting ds may cause issue, So!
         dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
@@ -195,7 +195,7 @@ describe(
       agHelper.ClickButton("Update");
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       PageList.AddNewPage();
       dataSources.CreateQueryForDS(dsName);
       dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");

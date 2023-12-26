@@ -721,7 +721,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ) {
           // Maintain original columnOrder and keep new columns at the end
           let newColumnOrder = _.intersection(columnOrder, newColumnIds);
-          newColumnOrder = _.union(newColumnIds, newColumnOrder);
+          newColumnOrder = _.union(newColumnOrder, newColumnIds);
 
           const compareColumns = (a: string, b: string) => {
             const aSticky = tableColumns[a].sticky || "none";

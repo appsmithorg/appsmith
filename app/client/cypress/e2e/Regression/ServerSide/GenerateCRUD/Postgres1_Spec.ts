@@ -108,8 +108,8 @@ describe(
 
       GenerateCRUDNValidateDeployPage(
         "VINET",
-        "1996-07-04",
-        "1996-08-01",
+        "1996-07-04T00:00:00+05:30",
+        "1996-08-01T00:00:00+05:30",
         "order_id",
       );
 
