@@ -276,6 +276,12 @@ export const getIndexToBeRedirected = (
   return redirectIndex;
 };
 
+/**
+ * Adds custom redirect logic to redirect after an item is deleted
+ * 1. Do not navigate if the deleted item is not selected
+ * 2. If it is the only item, navigate to a list url
+ * 3. If there are other items, navigate to an item close to the current one
+ * **/
 function* handleDeleteRedirect(deletedJSObjectId: string) {
   const allJsObjects: JSCollectionDataState = yield select(
     getCurrentJSCollections,
@@ -284,6 +290,7 @@ function* handleDeleteRedirect(deletedJSObjectId: string) {
   const currentSelectedEntity = identifyEntityFromPath(
     window.location.pathname,
   );
+  // Do not do any redirect if the deleted item is not currently selected
   const isSelectedJSDeleted = currentSelectedEntity.id === deletedJSObjectId;
   if (!isSelectedJSDeleted) {
     return;
@@ -291,6 +298,7 @@ function* handleDeleteRedirect(deletedJSObjectId: string) {
   const remainingJsObjects = allJsObjects.filter(
     (js) => js.config.id !== deletedJSObjectId,
   );
+  // If this was the only item, we navigate to the list url
   if (remainingJsObjects.length === 0) {
     history.push(jsCollectionListURL({}));
     return;
@@ -299,6 +307,8 @@ function* handleDeleteRedirect(deletedJSObjectId: string) {
     sortedJSObjects,
     (js) => js.config.id === deletedJSObjectId,
   );
+  // Go to the next item in case it is the first item in the list,
+  // or go to an item above
   const toRedirect: JSCollectionData =
     deletedIndex === 0 ? sortedJSObjects[1] : sortedJSObjects[deletedIndex - 1];
 

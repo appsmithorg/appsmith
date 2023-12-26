@@ -346,6 +346,12 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
   }
 }
 
+/**
+ * Adds custom redirect logic to redirect after an item is deleted
+ * 1. Do not navigate if the deleted item is not selected
+ * 2. If it is the only item, navigate to the add url
+ * 3. If there are other items, navigate to an item close to the current one
+ * **/
 function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
   const allDatasources: Datasource[] = yield select(getDatasources);
 
@@ -355,6 +361,7 @@ function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
   const isSelectedDatasourceDeleted =
     currentSelectedEntity.id === deletedDatasourceId;
 
+  // Don't do anything if current selection is not the deleted datasource
   if (!isSelectedDatasourceDeleted) {
     return;
   }
@@ -362,10 +369,14 @@ function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
   const remainingDatasources = allDatasources.filter(
     (d) => d.id !== deletedDatasourceId,
   );
+  // Go to the add datasource if the last item is deleted
   if (remainingDatasources.length === 0) {
     history.push(integrationEditorURL({ selectedTab: INTEGRATION_TABS.NEW }));
     return;
   }
+
+  // Try to find if any other item in the same group is present,
+  // if not, navigate to the first item on the list
   const groupedDatasources: DatasourceGroupByPluginCategory = yield select(
     getDatasourcesGroupedByPluginCategory,
   );

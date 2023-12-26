@@ -501,6 +501,12 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+/**
+ * Adds custom redirect logic to redirect after an item is deleted
+ * 1. Do not navigate if the deleted item is not selected
+ * 2. If it is the only item, navigate to a list url
+ * 3. If there are other items, navigate to an item close to the current one
+ * **/
 function* handleDeleteActionRedirect(deletedAction: Action) {
   const pageId: string = yield select(getCurrentPageId);
   const allActions: ActionData[] = yield select(getPageActions(pageId));
@@ -509,6 +515,7 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
   );
   const isSelectedActionDeleted = currentSelectedEntity.id === deletedAction.id;
 
+  // If deleted item is not currently selected, don't redirect
   if (!isSelectedActionDeleted) {
     return;
   }
@@ -516,11 +523,14 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
   const otherActions = allActions.filter(
     (a) => deletedAction.id !== a.config.id,
   );
+  // If no other action is remaining, navigate to the query add url
   if (otherActions.length === 0) {
     history.push(queryAddURL({ pageId }));
     return;
   }
 
+  // Check if another action is present in the group and redirect to it, orelse
+  // navigate to tht top of the list
   const currentSortedList: PagePaneData = yield select(
     selectQueriesForPagespane,
   );
