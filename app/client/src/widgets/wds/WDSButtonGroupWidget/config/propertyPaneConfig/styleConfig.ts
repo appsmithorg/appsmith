@@ -73,6 +73,16 @@ export const propertyPaneStyleConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      {
+        propertyName: "isCompact",
+        helpText: "Controls the density of the widget",
+        label: "Compact",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
     ],
   },
 ];
