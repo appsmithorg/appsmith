@@ -18,6 +18,7 @@ import type {
 import { getAllModuleInstances } from "@appsmith/selectors/moduleInstanceSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getPackages } from "@appsmith/selectors/packageSelectors";
+import { sortBy } from "lodash";
 
 export const createNewModuleInstanceName = (
   moduleInstances: Record<ModuleInstanceId, ModuleInstance>,
@@ -35,8 +36,9 @@ export const useModuleOptions = () => {
     getAllModuleInstances,
   );
   const modulePackageMap = getModuleIdPackageNameMap(modules, packages);
+  const sortedModules = sortBy(modules, (module) => module.name.toUpperCase());
 
-  const moduleOptions = modules.map((module) => {
+  const moduleOptions = sortedModules.map((module) => {
     return {
       title: `Add ${module.name}`,
       desc: `Create a ${module.name} instance`,

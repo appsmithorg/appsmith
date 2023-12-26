@@ -2,12 +2,20 @@ export * from "ce/hooks/datasourceEditorHooks";
 import type { HeaderActionProps } from "ce/hooks/datasourceEditorHooks";
 import { useHeaderActions as useHeaderActionsCE } from "ce/hooks/datasourceEditorHooks";
 import React from "react";
-import { EditorNames } from ".";
 import type { Datasource } from "entities/Datasource";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourceActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import NewReusableActionButton from "@appsmith/pages/Editor/PackageEditor/DataSourceEditor/NewReusableActionButton";
+import { EditorNames } from "@appsmith/hooks";
+import { useSelector } from "react-redux";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
+import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 export const useHeaderActions = (
   editorType: string,
@@ -49,4 +57,25 @@ export const useHeaderActions = (
   }
 
   return {};
+};
+
+export const useParentEntityInfo = (editorType: string) => {
+  const appId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+  const packageId = useSelector(getCurrentPackageId);
+  const moduleId = useSelector(getCurrentModuleId);
+
+  if (editorType === EditorNames.PACKAGE) {
+    return {
+      editorId: packageId || "",
+      parentEntityId: moduleId || "",
+      parentEntityType: ActionParentEntityType.MODULE,
+    };
+  } else {
+    return {
+      editorId: appId || "",
+      parentEntityId: pageId || "",
+      parentEntityType: ActionParentEntityType.PAGE,
+    };
+  }
 };
