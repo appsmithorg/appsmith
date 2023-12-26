@@ -12,11 +12,7 @@ export const CreateNewActionKey = {
   PAGE: "pageId",
 } as const;
 
-export const ActionContextType = {
-  PAGE: "PAGE",
-} as const;
-
-export const ACTION_PARENT_ENTITY_TYPE = {
+export const ActionParentEntityType = {
   PAGE: "PAGE",
 } as const;
 

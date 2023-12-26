@@ -33,7 +33,7 @@ import PerformanceTracker, {
 import type { FetchWorkflowActionsPayload } from "@appsmith/actions/workflowActions";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import {
-  ActionContextType,
+  ActionParentEntityType,
   CreateNewActionKey,
 } from "@appsmith/entities/Engine/actionHelpers";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
@@ -87,7 +87,7 @@ export function* createWorkflowQueryActionSaga(
     createActionRequest({
       ...createActionPayload,
       workflowId,
-      contextType: ActionContextType.WORKFLOW,
+      contextType: ActionParentEntityType.WORKFLOW,
     }),
   );
 }
@@ -132,7 +132,7 @@ export function* createWorkflowApiActionSaga(
       createActionRequest({
         ...createApiActionPayload,
         workflowId,
-        contextType: ActionContextType.WORKFLOW,
+        contextType: ActionParentEntityType.WORKFLOW,
       }), // We don't have recursive partial in typescript for now.
     );
   }
@@ -243,7 +243,7 @@ export function* createWorkflowJSActionSaga(
         request: {
           ...defaultJSObject,
           workflowId,
-          contextType: ActionContextType.WORKFLOW,
+          contextType: ActionParentEntityType.WORKFLOW,
         },
       }),
     );

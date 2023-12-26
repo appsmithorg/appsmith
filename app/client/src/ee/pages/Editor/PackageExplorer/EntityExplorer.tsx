@@ -10,7 +10,7 @@ import {
   ActionEntityContextMenuItemsEnum,
   FilesContextProvider,
 } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
 import { getCurrentModule } from "@appsmith/selectors/modulesSelector";
 import Files from "pages/Editor/Explorer/Files";
@@ -43,7 +43,7 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
             ActionEntityContextMenuItemsEnum.DELETE,
           ]}
           parentEntityId={module.id}
-          parentEntityType={ACTION_PARENT_ENTITY_TYPE.PACKAGE}
+          parentEntityType={ActionParentEntityType.MODULE}
           selectFilesForExplorer={selectFilesForPackageExplorer}
           showModules={false}
         >

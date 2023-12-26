@@ -36,7 +36,7 @@ import type { Datasource } from "entities/Datasource";
 import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
 import type { Plugin } from "api/PluginApi";
 import {
-  ActionContextType,
+  ActionParentEntityType,
   CreateNewActionKey,
 } from "@appsmith/entities/Engine/actionHelpers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
@@ -100,7 +100,7 @@ export function* createNewAPIActionForPackageSaga(
       createActionRequest({
         ...createApiActionPayload,
         moduleId,
-        contextType: ActionContextType.MODULE,
+        contextType: ActionParentEntityType.MODULE,
       }), // We don't have recursive partial in typescript for now.
     );
   }
@@ -140,7 +140,7 @@ export function* createNewQueryActionForPackageSaga(
     createActionRequest({
       ...createActionPayload,
       moduleId,
-      contextType: ActionContextType.MODULE,
+      contextType: ActionParentEntityType.MODULE,
     }),
   );
 }
@@ -179,7 +179,7 @@ export function* createNewSActionForPackageSaga(
         request: {
           ...defaultJSObject,
           moduleId,
-          contextType: ActionContextType.MODULE,
+          contextType: ActionParentEntityType.MODULE,
         },
       }),
     );
@@ -199,7 +199,7 @@ export function* refactorJSObjectName(
       oldName: oldName,
       newName: newName,
       moduleId,
-      contextType: ActionContextType.MODULE,
+      contextType: ActionParentEntityType.MODULE,
     });
 
   const isRefactorSuccessful: boolean =
@@ -246,7 +246,7 @@ export function* refactorActionNameForPackage(
     oldName: oldName,
     newName: newName,
     moduleId,
-    contextType: ActionContextType.MODULE,
+    contextType: ActionParentEntityType.MODULE,
   });
 
   const isRefactorSuccessful: boolean =
