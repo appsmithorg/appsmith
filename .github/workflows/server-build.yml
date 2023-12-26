@@ -122,12 +122,12 @@ jobs:
           echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
       # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
+      - if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
       - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/setup-java@v3
         with:
           distribution: "temurin"
@@ -135,7 +135,7 @@ jobs:
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
@@ -150,7 +150,7 @@ jobs:
       # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
       # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
       - name: Get the version to tag the Docker image
-        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         id: vars
         run: |
           # Since this is an unreleased build, we set the version to incremented version number with a
@@ -164,7 +164,7 @@ jobs:
 
       # Build the code
       - name: Build
-        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -184,7 +184,7 @@ jobs:
 
       # Test the code
       - name: Run only tests
-        if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -229,7 +229,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Fetch server build from cache
-        if: steps.changed-files-specific.outputs.any_changed == 'false' && success() 
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
           reponame: ${{ github.event.repository.name }}
@@ -253,7 +253,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/cache@v3
         with:
           path: |
