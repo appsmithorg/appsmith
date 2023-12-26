@@ -1,18 +1,23 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import com.appsmith.server.repositories.cakes.BaseCake;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.*;
+import com.appsmith.external.models.*;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.mongodb.core.query.*;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.querydsl.core.types.dsl.StringPath;
+
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,19 +34,16 @@ public class DatasourceRepositoryCake extends BaseCake<Datasource> {
     public Flux<Datasource> saveAll(Iterable<Datasource> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
-
     public Mono<Datasource> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
-        return Mono.defer(
-                () -> Mono.justOrEmpty(repository.findByNameAndWorkspaceId(name, workspaceId, aclPermission)));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByNameAndWorkspaceId(name, workspaceId, aclPermission)));
     }
 
-    public Mono<Datasource> findByNameAndWorkspaceId(
-            String name, String workspaceId, Optional<AclPermission> permission) {
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByNameAndWorkspaceId(name, workspaceId, permission)));
     }
 
@@ -85,8 +87,7 @@ public class DatasourceRepositoryCake extends BaseCake<Datasource> {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<Datasource> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<Datasource> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -113,4 +114,5 @@ public class DatasourceRepositoryCake extends BaseCake<Datasource> {
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
+
 }

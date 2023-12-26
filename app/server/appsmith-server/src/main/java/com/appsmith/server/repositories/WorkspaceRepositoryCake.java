@@ -1,18 +1,23 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import com.appsmith.server.repositories.cakes.BaseCake;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.*;
+import com.appsmith.external.models.*;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.mongodb.core.query.*;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.querydsl.core.types.dsl.StringPath;
+
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,7 +34,6 @@ public class WorkspaceRepositoryCake extends BaseCake<Workspace> {
     public Flux<Workspace> saveAll(Iterable<Workspace> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
-
     public Mono<Workspace> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
@@ -43,8 +47,7 @@ public class WorkspaceRepositoryCake extends BaseCake<Workspace> {
         return Flux.defer(() -> Flux.fromIterable(repository.findAllWorkspaces()));
     }
 
-    public Flux<Workspace> findByIdsIn(
-            Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
+    public Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.findByIdsIn(workspaceIds, tenantId, aclPermission, sort)));
     }
 
@@ -56,8 +59,7 @@ public class WorkspaceRepositoryCake extends BaseCake<Workspace> {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<Workspace> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<Workspace> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -112,4 +114,5 @@ public class WorkspaceRepositoryCake extends BaseCake<Workspace> {
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
+
 }

@@ -1,19 +1,23 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import com.appsmith.server.repositories.cakes.BaseCake;
-import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.*;
+import com.appsmith.external.models.*;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.mongodb.core.query.*;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.querydsl.core.types.dsl.StringPath;
+import com.mongodb.client.result.UpdateResult;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,22 +34,17 @@ public class PermissionGroupRepositoryCake extends BaseCake<PermissionGroup> {
     public Flux<PermissionGroup> saveAll(Iterable<PermissionGroup> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
-
     public Mono<PermissionGroup> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
-    public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
-            String userId, String workspaceId, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(
-                repository.findAllByAssignedToUserIdAndDefaultWorkspaceId(userId, workspaceId, permission)));
+    public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(String userId, String workspaceId, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllByAssignedToUserIdAndDefaultWorkspaceId(userId, workspaceId, permission)));
     }
 
-    public Flux<PermissionGroup> findAllByAssignedToUserIn(
-            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        return Flux.defer(
-                () -> Flux.fromIterable(repository.findAllByAssignedToUserIn(userIds, includeFields, permission)));
+    public Flux<PermissionGroup> findAllByAssignedToUserIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllByAssignedToUserIn(userIds, includeFields, permission)));
     }
 
     public Flux<PermissionGroup> findAllByIdIn(Set<String> ids) {
@@ -53,8 +52,7 @@ public class PermissionGroupRepositoryCake extends BaseCake<PermissionGroup> {
     }
 
     public Flux<PermissionGroup> findByDefaultDomainIdAndDefaultDomainType(String defaultDomainId, String domainType) {
-        return Flux.defer(() ->
-                Flux.fromIterable(repository.findByDefaultDomainIdAndDefaultDomainType(defaultDomainId, domainType)));
+        return Flux.defer(() -> Flux.fromIterable(repository.findByDefaultDomainIdAndDefaultDomainType(defaultDomainId, domainType)));
     }
 
     public Flux<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId) {
@@ -77,8 +75,7 @@ public class PermissionGroupRepositoryCake extends BaseCake<PermissionGroup> {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<PermissionGroup> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<PermissionGroup> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -133,4 +130,5 @@ public class PermissionGroupRepositoryCake extends BaseCake<PermissionGroup> {
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
+
 }

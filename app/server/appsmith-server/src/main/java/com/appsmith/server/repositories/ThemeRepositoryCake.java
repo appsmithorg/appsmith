@@ -1,18 +1,23 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import com.appsmith.server.repositories.cakes.BaseCake;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.*;
+import com.appsmith.external.models.*;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.mongodb.core.query.*;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.querydsl.core.types.dsl.StringPath;
+
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,7 +34,6 @@ public class ThemeRepositoryCake extends BaseCake<Theme> {
     public Flux<Theme> saveAll(Iterable<Theme> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
-
     public Mono<Theme> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
@@ -51,8 +55,7 @@ public class ThemeRepositoryCake extends BaseCake<Theme> {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<Theme> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<Theme> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -65,8 +68,7 @@ public class ThemeRepositoryCake extends BaseCake<Theme> {
     }
 
     public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        return Mono.defer(
-                () -> Mono.justOrEmpty(repository.archiveDraftThemesById(editModeThemeId, publishedModeThemeId)));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveDraftThemesById(editModeThemeId, publishedModeThemeId)));
     }
 
     public Mono<Theme> archive(Theme entity) {
@@ -100,4 +102,5 @@ public class ThemeRepositoryCake extends BaseCake<Theme> {
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
+
 }

@@ -5,6 +5,7 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomActionCollectionRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ActionCollectionRepositoryCE
         extends BaseRepository<ActionCollection, String>, CustomActionCollectionRepository {

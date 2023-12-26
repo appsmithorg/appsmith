@@ -1,19 +1,23 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import com.appsmith.server.repositories.cakes.BaseCake;
-import com.mongodb.bulk.BulkWriteResult;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.*;
+import com.appsmith.external.models.*;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.mongodb.core.query.*;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.querydsl.core.types.dsl.StringPath;
+
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,16 +34,13 @@ public class NewPageRepositoryCake extends BaseCake<NewPage> {
     public Flux<NewPage> saveAll(Iterable<NewPage> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
-
     public Mono<NewPage> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
-    public Flux<NewPage> findAllByApplicationIdsWithoutPermission(
-            List<String> applicationIds, List<String> includeFields) {
-        return Flux.defer(() ->
-                Flux.fromIterable(repository.findAllByApplicationIdsWithoutPermission(applicationIds, includeFields)));
+    public Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllByApplicationIdsWithoutPermission(applicationIds, includeFields)));
     }
 
     public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
@@ -59,8 +60,7 @@ public class NewPageRepositoryCake extends BaseCake<NewPage> {
     }
 
     public Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
-        return Flux.defer(() ->
-                Flux.fromIterable(repository.findByApplicationIdAndNonDeletedEditMode(applicationId, aclPermission)));
+        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationIdAndNonDeletedEditMode(applicationId, aclPermission)));
     }
 
     public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
@@ -75,8 +75,7 @@ public class NewPageRepositoryCake extends BaseCake<NewPage> {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<NewPage> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<NewPage> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -112,42 +111,32 @@ public class NewPageRepositoryCake extends BaseCake<NewPage> {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(
-                repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
     }
 
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(
-                repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
     }
 
     public Mono<NewPage> findById(String id, AclPermission permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
     }
 
-    public Mono<NewPage> findByIdAndLayoutsIdAndViewMode(
-            String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
-        return Mono.defer(() ->
-                Mono.justOrEmpty(repository.findByIdAndLayoutsIdAndViewMode(id, layoutId, aclPermission, viewMode)));
+    public Mono<NewPage> findByIdAndLayoutsIdAndViewMode(String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByIdAndLayoutsIdAndViewMode(id, layoutId, aclPermission, viewMode)));
     }
 
-    public Mono<NewPage> findByNameAndApplicationIdAndViewMode(
-            String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
-        return Mono.defer(() -> Mono.justOrEmpty(
-                repository.findByNameAndApplicationIdAndViewMode(name, applicationId, aclPermission, viewMode)));
+    public Mono<NewPage> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByNameAndApplicationIdAndViewMode(name, applicationId, aclPermission, viewMode)));
     }
 
     public Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByNameAndViewMode(name, aclPermission, viewMode)));
     }
 
-    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
-            String branchName, String defaultPageId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(
-                repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)));
+    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)));
     }
 
     public Mono<NewPage> retrieveById(String id) {
@@ -161,4 +150,5 @@ public class NewPageRepositoryCake extends BaseCake<NewPage> {
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
+
 }

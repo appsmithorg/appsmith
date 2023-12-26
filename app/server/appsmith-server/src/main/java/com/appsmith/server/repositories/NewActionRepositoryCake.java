@@ -1,76 +1,67 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.*;
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.*;
-import com.appsmith.server.dtos.*;
-import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.projections.*;
-import com.appsmith.server.repositories.cakes.BaseCake;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
+    import com.appsmith.server.acl.AclPermission;
+    import com.appsmith.server.domains.*;
+    import com.appsmith.server.dtos.*;
+    import com.appsmith.server.projections.*;
+    import com.appsmith.server.repositories.cakes.BaseCake;
+    import com.appsmith.external.models.*;
+    import org.springframework.stereotype.Component;
+    import org.springframework.data.domain.Sort;
+    import reactor.core.publisher.Flux;
+    import reactor.core.publisher.Mono;
+    import org.springframework.data.mongodb.core.query.*;
+    import com.mongodb.bulk.BulkWriteResult;
+    import com.mongodb.client.result.InsertManyResult;
+    import com.querydsl.core.types.dsl.StringPath;
+    import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.*;
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+    import java.util.List;
+    import java.util.Map;
+    import java.util.Optional;
+    import java.util.Set;
 
-@Component
-public class NewActionRepositoryCake extends BaseCake<NewAction> {
-    private final NewActionRepository repository;
+    @Component
+    public class NewActionRepositoryCake extends BaseCake<NewAction> {
+        private final NewActionRepository repository;
 
-    public NewActionRepositoryCake(NewActionRepository repository) {
-        super(repository);
-        this.repository = repository;
+        public NewActionRepositoryCake(NewActionRepository repository) {
+            super(repository);
+            this.repository = repository;
+        }
+
+        // From CrudRepository
+        public Flux<NewAction> saveAll(Iterable<NewAction> entities) {
+            return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
+        }
+        public Mono<NewAction> findById(String id) {
+            return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
+        }
+        // End from CrudRepository
+
+    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, aclPermission, sort)));
     }
 
-    // From CrudRepository
-    public Flux<NewAction> saveAll(Iterable<NewAction> entities) {
-        return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
-    }
-
-    public Mono<NewAction> findById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
-    }
-    // End from CrudRepository
-
-    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(
-                repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, aclPermission, sort)));
-    }
-
-    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
-            List<String> applicationIds, List<String> includeFields) {
-        return Flux.defer(() ->
-                Flux.fromIterable(repository.findAllByApplicationIdsWithoutPermission(applicationIds, includeFields)));
+    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllByApplicationIdsWithoutPermission(applicationIds, includeFields)));
     }
 
     public Flux<NewAction> findAllByIdIn(Iterable<String> ids) {
         return Flux.defer(() -> Flux.fromIterable(repository.findAllByIdIn(ids)));
     }
 
-    public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(
-                name, pageIds, viewMode, aclPermission, sort)));
+    public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, aclPermission, sort)));
     }
 
-    public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllPublishedActionsByContextIdAndContextType(
-                contextId, contextType, permission, includeJs)));
+    public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllPublishedActionsByContextIdAndContextType(contextId, contextType, permission, includeJs)));
     }
 
-    public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAllUnpublishedActionsByContextIdAndContextType(
-                contextId, contextType, permission, includeJs)));
+    public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findAllUnpublishedActionsByContextIdAndContextType(contextId, contextType, permission, includeJs)));
     }
 
     public Flux<NewAction> findByApplicationId(String applicationId) {
@@ -85,20 +76,16 @@ public class NewActionRepositoryCake extends BaseCake<NewAction> {
         return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId, aclPermission, sort)));
     }
 
-    public Flux<NewAction> findByApplicationId(
-            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
+    public Flux<NewAction> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId, aclPermission, sort)));
     }
 
-    public Flux<NewAction> findByApplicationIdAndViewMode(
-            String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        return Flux.defer(() ->
-                Flux.fromIterable(repository.findByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
+    public Flux<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
     }
 
     public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
-        return Flux.defer(
-                () -> Flux.fromIterable(repository.findByDefaultApplicationId(defaultApplicationId, permission)));
+        return Flux.defer(() -> Flux.fromIterable(repository.findByDefaultApplicationId(defaultApplicationId, permission)));
     }
 
     public Flux<NewAction> findByPageId(String pageId) {
@@ -125,34 +112,24 @@ public class NewActionRepositoryCake extends BaseCake<NewAction> {
         return Flux.defer(() -> Flux.fromIterable(repository.findByPageIds(pageIds, permission)));
     }
 
-    public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
-            String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        return Flux.defer(() -> Flux.fromIterable(
-                repository.findNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
+    public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode, aclPermission)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(
-            Set<String> names, String pageId, AclPermission permission) {
-        return Flux.defer(
-                () -> Flux.fromIterable(repository.findUnpublishedActionsByNameInAndPageId(names, pageId, permission)));
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsByNameInAndPageId(names, pageId, permission)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
-            Set<String> names, String pageId, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(
-                repository.findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId, permission)));
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(Set<String> names, String pageId, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId, permission)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
-            String pageId, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(
-                repository.findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, permission)));
+    public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(String pageId, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, permission)));
     }
 
-    public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
-            Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsForRestApiOnLoad(
-                names, pageId, httpMethod, userSetOnLoad, aclPermission)));
+    public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findUnpublishedActionsForRestApiOnLoad(names, pageId, httpMethod, userSetOnLoad, aclPermission)));
     }
 
     public Flux<NewAction> queryAll(List<Criteria> criterias, AclPermission permission) {
@@ -163,8 +140,7 @@ public class NewActionRepositoryCake extends BaseCake<NewAction> {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<NewAction> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<NewAction> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -212,22 +188,16 @@ public class NewActionRepositoryCake extends BaseCake<NewAction> {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(
-                repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)));
+    public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)));
     }
 
-    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(
-                repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
     }
 
-    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(
-                repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission)));
     }
 
     public Mono<NewAction> findById(String id, AclPermission permission) {
@@ -235,8 +205,7 @@ public class NewActionRepositoryCake extends BaseCake<NewAction> {
     }
 
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        return Mono.defer(
-                () -> Mono.justOrEmpty(repository.findByUnpublishedNameAndPageId(name, pageId, aclPermission)));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByUnpublishedNameAndPageId(name, pageId, aclPermission)));
     }
 
     public Mono<NewAction> retrieveById(String id) {
@@ -244,11 +213,11 @@ public class NewActionRepositoryCake extends BaseCake<NewAction> {
     }
 
     public Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
-        return Mono.defer(
-                () -> Mono.justOrEmpty(repository.archiveDeletedUnpublishedActions(applicationId, permission)));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveDeletedUnpublishedActions(applicationId, permission)));
     }
 
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
+
 }
