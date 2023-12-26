@@ -1,0 +1,18 @@
+{
+    "identifier": "IMAGE_CAPTION",
+    "controlType": "SECTION",
+    "conditionals": {
+        "show": "{{actionConfiguration.formData.usecase.data === 'IMAGE_CAPTION'}}"
+    },
+    "children": [
+        {
+            "label": "Input",
+            "Description": "Provide an image URL",
+            "subtitle": "Provide an image URL",
+            "configProperty": "actionConfiguration.formData.input.data",
+            "controlType": "QUERY_DYNAMIC_TEXT",
+            "initialValue": "",
+            "isRequired": true
+        }
+    ]
+}

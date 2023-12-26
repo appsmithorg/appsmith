@@ -7,8 +7,8 @@
     "children": [
         {
             "label": "Input",
-            "Description": "Provide some text for AI to extract entities from",
-            "subtitle": "Provide some text for AI to extract entities from",
+            "Description": "Provide an image URL for AI to extract entities from",
+            "subtitle": "Provide an image URL for AI to extract entities from",
             "configProperty": "actionConfiguration.formData.input.data",
             "controlType": "QUERY_DYNAMIC_TEXT",
             "initialValue": "",
