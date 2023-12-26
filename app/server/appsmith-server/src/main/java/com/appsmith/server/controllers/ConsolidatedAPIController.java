@@ -27,21 +27,27 @@ public class ConsolidatedAPIController {
         this.consolidatedAPIService = consolidatedAPIService;
     }
 
+    /**
+     * This endpoint is meant to be used by the client application at the time of 1st page load. Client currently makes
+     * several API calls to fetch all the required data. This endpoint consolidates all that data and returns them as
+     * response hence enabling the client to fetch the required data via a single API call only.
+     */
     @JsonView(Views.Public.class)
     @GetMapping
-    public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllPages(
+    public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoad(
             @RequestParam(required = false) String applicationId,
-            @RequestParam(required = false) String pageId,
+            @RequestParam(required = false) String defaultPageId,
             @RequestParam(required = true) ApplicationMode mode,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
-                "Going to fetch consolidatedAPI response for applicationId: {}, pageId: {}, branchName: {}, mode: {}",
+                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, " +
+                    "mode: {}",
                 applicationId,
-                pageId,
+            defaultPageId,
                 branchName,
                 mode);
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(pageId, applicationId, branchName, mode)
+                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, mode)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
     }
