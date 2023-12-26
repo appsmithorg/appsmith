@@ -25,7 +25,7 @@ defaults:
 
 jobs:
   server-unit-tests:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -71,9 +71,23 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
+      - name: Get changed files in the server folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v41
+        with:
+          files: 'app/server/**'
+
+      - name: Run step if any file(s) in the server folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+        run: |
+          echo "One or more files in the docs folder has changed."
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
+
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        if: inputs.skip-tests != 'true'
+        if: inputs.skip-tests != 'true' && steps.changed-files-specific.outputs.any_changed == 'true'
         id: cache-appsmith
         uses: actions/cache@v3
         with:
@@ -83,6 +97,7 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
+        if: inputs.skip-tests != 'true' && steps.changed-files-specific.outputs.any_changed == 'true'
         id: run_result
         run: |
           if [ -f ~/run_result ]; then
@@ -92,7 +107,7 @@ jobs:
           fi
 
       - name: Download the failed test artifact in case of rerun
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest' && steps.changed-files-specific.outputs.any_changed == 'true'
         uses: actions/download-artifact@v3
         with:
           name: failed-server-tests
@@ -100,19 +115,19 @@ jobs:
 
       - name: Extract the tests for rerun
         id: failed_tests
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest'  && steps.changed-files-specific.outputs.any_changed == 'true'
         run: |
           failed_tests=$(awk '$0 != "" && !seen[$0]++ {printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
           echo "$failed_tests"
           echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
       # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'
+      - if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
       - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
         uses: actions/setup-java@v3
         with:
           distribution: "temurin"
@@ -120,7 +135,7 @@ jobs:
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
         uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
@@ -135,7 +150,7 @@ jobs:
       # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
       # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
       - name: Get the version to tag the Docker image
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
         id: vars
         run: |
           # Since this is an unreleased build, we set the version to incremented version number with a
@@ -149,7 +164,7 @@ jobs:
 
       # Build the code
       - name: Build
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success'  && steps.changed-files-specific.outputs.any_changed == 'true'
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -169,7 +184,7 @@ jobs:
 
       # Test the code
       - name: Run only tests
-        if: inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest'
+        if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && steps.changed-files-specific.outputs.any_changed == 'true'
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -213,8 +228,32 @@ jobs:
           path: app/server/failed-server-tests.txt
           if-no-files-found: ignore
 
+      - name: Fetch server build from cache
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && success() 
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/server
+          git lfs pull ./server.jar          
+          mv ./server.jar ../../../../../server.jar
+          cd ../../../../../
+          tar -xzvf ./server.jar
+
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: actions/cache@v3
         with:
           path: |
