@@ -12,7 +12,6 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * This class serves as a DTO for the response data returned via the consolidated API endpoint call
  * (v1/consolidated-api) . Each identifier in the class represents the data returned from a unique endpoint. The

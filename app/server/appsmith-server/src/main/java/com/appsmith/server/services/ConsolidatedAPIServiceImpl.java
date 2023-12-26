@@ -51,7 +51,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
 @Service
 public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
-    private static final String FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED = "release_server_dsl_migrations_enabled";
+    private static final String FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED =
+            "release_server_dsl_migrations_enabled";
 
     private final SessionUserService sessionUserService;
     private final UserService userService;
@@ -70,17 +71,21 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     private final MockDataService mockDataService;
 
     public ConsolidatedAPIServiceImpl(
-        SessionUserService sessionUserService,
-        UserService userService,
-        UserDataService userDataService,
-        TenantService tenantService,
-        ProductAlertService productAlertService,
-        NewPageService newPageService,
-        NewActionService newActionService,
-        ActionCollectionService actionCollectionService,
-        ThemeService themeService,
-        ApplicationPageService applicationPageService,
-        CustomJSLibService customJSLibService, PluginService pluginService, ApplicationService applicationService, DatasourceService datasourceService, MockDataService mockDataService) {
+            SessionUserService sessionUserService,
+            UserService userService,
+            UserDataService userDataService,
+            TenantService tenantService,
+            ProductAlertService productAlertService,
+            NewPageService newPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
+            ThemeService themeService,
+            ApplicationPageService applicationPageService,
+            CustomJSLibService customJSLibService,
+            PluginService pluginService,
+            ApplicationService applicationService,
+            DatasourceService datasourceService,
+            MockDataService mockDataService) {
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.userDataService = userDataService;
@@ -105,7 +110,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
      */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-        String defaultPageId, String applicationId, String branchName, @NotNull ApplicationMode mode) {
+            String defaultPageId, String applicationId, String branchName, @NotNull ApplicationMode mode) {
         if (isBlank(applicationId) && isBlank(defaultPageId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "application id / page id"));
         }
@@ -136,8 +141,10 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
         /* Check if release_server_dsl_migrations_enabled flag is true for the user */
         Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserMono
-            .map(flagsMap -> flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED) == null ? Boolean.FALSE :
-                Boolean.TRUE).cache();
+                .map(flagsMap -> flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED) == null
+                        ? Boolean.FALSE
+                        : Boolean.TRUE)
+                .cache();
 
         /* Get tenant config data */
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
@@ -166,15 +173,14 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 appId -> themeService.getApplicationThemes(appId, branchName).collectList());
 
         /* Get all custom JS libraries installed in the application */
-        Mono<List<CustomJSLib>> allJSLibsInContextDTO = applicationIdMonoCache.flatMap(appId ->
-            customJSLibService.getAllJSLibsInContext(appId, CreatorContextType.APPLICATION, branchName,
-                isViewMode));
+        Mono<List<CustomJSLib>> allJSLibsInContextDTO =
+                applicationIdMonoCache.flatMap(appId -> customJSLibService.getAllJSLibsInContext(
+                        appId, CreatorContextType.APPLICATION, branchName, isViewMode));
 
         /* Get current page */
-        Mono<PageDTO> currentPageDTOMono =
-            migrateDslMonoCache.flatMap(migrateDsl ->
-            applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                defaultPageId, branchName, true, migrateDsl));
+        Mono<PageDTO> currentPageDTOMono = migrateDslMonoCache.flatMap(
+                migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                        defaultPageId, branchName, true, migrateDsl));
 
         /* Fetch view specific data */
         if (isViewMode) {
@@ -225,126 +231,127 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             Mono<List<ActionDTO>> listOfActionDTOs = applicationIdMonoCache.flatMap(appId -> {
                 MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                 params.add(APPLICATION_ID, appId);
-                return newActionService.getUnpublishedActions(params, branchName, false).collectList();});
+                return newActionService
+                        .getUnpublishedActions(params, branchName, false)
+                        .collectList();
+            });
 
             /* Get all action collections in edit mode */
-            Mono<List<ActionCollectionDTO>> listOfActionCollectionDTOs =
-                applicationIdMonoCache.flatMap(appId -> {
-                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                    params.add(APPLICATION_ID, appId);
-                    return actionCollectionService
-                    .getPopulatedActionCollectionsByViewMode(params, false, branchName)
-                    .collectList();});
+            Mono<List<ActionCollectionDTO>> listOfActionCollectionDTOs = applicationIdMonoCache.flatMap(appId -> {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                params.add(APPLICATION_ID, appId);
+                return actionCollectionService
+                        .getPopulatedActionCollectionsByViewMode(params, false, branchName)
+                        .collectList();
+            });
 
             /* Get all pages in edit mode post apply migrate DSL changes */
-            Mono<List<PageDTO>> listOfAllPageDTOMono = migrateDslMonoCache.flatMap(migrateDsl ->
-                applicationPagesDTOMono
+            Mono<List<PageDTO>> listOfAllPageDTOMono = migrateDslMonoCache.flatMap(migrateDsl -> applicationPagesDTOMono
                     .map(ApplicationPagesDTO::getPages)
                     .flatMapMany(Flux::fromIterable)
                     .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                        page.getDefaultPageId(), branchName, false, migrateDsl))
-                    .collect(Collectors.toList())
-            );
+                            page.getDefaultPageId(), branchName, false, migrateDsl))
+                    .collect(Collectors.toList()));
 
             /* Get all workspace id */
             Mono<String> workspaceIdMonoCache = applicationPagesDTOMono
-                .map(ApplicationPagesDTO::getWorkspaceId).cache();
+                    .map(ApplicationPagesDTO::getWorkspaceId)
+                    .cache();
 
             /* Get all plugins in workspace */
-            Mono<List<Plugin>> listOfPluginsMono = workspaceIdMonoCache
-                .flatMap(workspaceId -> {
-                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                    params.add(WORKSPACE_ID, workspaceId);
-                    return pluginService.get(params).collectList();
-                });
+            Mono<List<Plugin>> listOfPluginsMono = workspaceIdMonoCache.flatMap(workspaceId -> {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                params.add(WORKSPACE_ID, workspaceId);
+                return pluginService.get(params).collectList();
+            });
 
             /* Get all datasources in workspace */
             Mono<List<Datasource>> listOfDatasourcesMonoCache = workspaceIdMonoCache
-                .flatMap(workspaceId -> {
-                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                    params.add(WORKSPACE_ID, workspaceId);
-                    return datasourceService.getAllWithStorages(params).collectList();
-                }).cache();
+                    .flatMap(workspaceId -> {
+                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                        params.add(WORKSPACE_ID, workspaceId);
+                        return datasourceService.getAllWithStorages(params).collectList();
+                    })
+                    .cache();
 
             /* Get form config for all plugins such that:
-            *   (a) there is at least one datasource of the plugin type alive in the workspace
-            *   (b) there is at least one action of the plugin type defined in the application - this is useful in
-            * case the user has created a query without datasource e.g.REST API / GraphQL API
-            *  */
+             *   (a) there is at least one datasource of the plugin type alive in the workspace
+             *   (b) there is at least one action of the plugin type defined in the application - this is useful in
+             * case the user has created a query without datasource e.g.REST API / GraphQL API
+             *  */
             Mono<Map<String, Map>> listOfFormConfigsMono = Mono.zip(listOfActionDTOs, listOfDatasourcesMonoCache)
-                .map(tuple2 -> {
-                    Set<String> setOfAllPluginIdsUsedInApp = new HashSet<>();
-                    List<ActionDTO> actionDTOList = tuple2.getT1();
-                    List<Datasource> datasourcesList = tuple2.getT2();
-                    actionDTOList.stream().filter(actionDTO -> !isBlank(actionDTO.getPluginId()))
-                        .forEach(actionDTO -> setOfAllPluginIdsUsedInApp.add(actionDTO.getPluginId()));
-                    datasourcesList.stream().filter(datasource -> !isBlank(datasource.getPluginId()))
-                        .forEach(datasource -> setOfAllPluginIdsUsedInApp.add(datasource.getPluginId()));
+                    .map(tuple2 -> {
+                        Set<String> setOfAllPluginIdsUsedInApp = new HashSet<>();
+                        List<ActionDTO> actionDTOList = tuple2.getT1();
+                        List<Datasource> datasourcesList = tuple2.getT2();
+                        actionDTOList.stream()
+                                .filter(actionDTO -> !isBlank(actionDTO.getPluginId()))
+                                .forEach(actionDTO -> setOfAllPluginIdsUsedInApp.add(actionDTO.getPluginId()));
+                        datasourcesList.stream()
+                                .filter(datasource -> !isBlank(datasource.getPluginId()))
+                                .forEach(datasource -> setOfAllPluginIdsUsedInApp.add(datasource.getPluginId()));
 
-                    return setOfAllPluginIdsUsedInApp;
-                })
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(pluginId -> pluginService.getFormConfig(pluginId).map(formConfig -> Pair.of(pluginId,
-                    formConfig)))
-                .collectList()
-                .map(listOfFormConfig -> {
-                    Map<String, Map> pluginIdToFormConfigMap = new HashMap<>();
-                    listOfFormConfig.stream()
-                        .forEach(individualConfigMap -> {
+                        return setOfAllPluginIdsUsedInApp;
+                    })
+                    .flatMapMany(Flux::fromIterable)
+                    .flatMap(pluginId ->
+                            pluginService.getFormConfig(pluginId).map(formConfig -> Pair.of(pluginId, formConfig)))
+                    .collectList()
+                    .map(listOfFormConfig -> {
+                        Map<String, Map> pluginIdToFormConfigMap = new HashMap<>();
+                        listOfFormConfig.stream().forEach(individualConfigMap -> {
                             String pluginId = individualConfigMap.getFirst();
                             Map config = individualConfigMap.getSecond();
                             pluginIdToFormConfigMap.put(pluginId, config);
                         });
 
-                    return pluginIdToFormConfigMap;
-                });
+                        return pluginIdToFormConfigMap;
+                    });
 
             /* List of mock datasources available to the user */
-            Mono<List<MockDataSet>> mockDataList = mockDataService
-                .getMockDataSet()
-                .map(MockDataDTO::getMockdbs);
+            Mono<List<MockDataSet>> mockDataList =
+                    mockDataService.getMockDataSet().map(MockDataDTO::getMockdbs);
 
             /* This list contains the Mono objects corresponding to all the data points required for edit mode. All
              * the Mono objects in this list will be evaluated via Mono.zip operator
              */
             List<Mono<?>> listOfMonoForEditMode = List.of(
-                userProfileDTOMono,
-                tenantMono,
-                featureFlagsForCurrentUserMono,
-                applicationPagesDTOMono,
-                applicationThemeMono,
-                ThemesListMono,
-                currentPageDTOMono,
-                allJSLibsInContextDTO,
-                productAlertResponseDTOMono,
-                listOfActionDTOs,
-                listOfActionCollectionDTOs,
-                listOfAllPageDTOMono,
-                listOfPluginsMono,
-                listOfDatasourcesMonoCache,
-                listOfFormConfigsMono,
-                mockDataList
-            );
+                    userProfileDTOMono,
+                    tenantMono,
+                    featureFlagsForCurrentUserMono,
+                    applicationPagesDTOMono,
+                    applicationThemeMono,
+                    ThemesListMono,
+                    currentPageDTOMono,
+                    allJSLibsInContextDTO,
+                    productAlertResponseDTOMono,
+                    listOfActionDTOs,
+                    listOfActionCollectionDTOs,
+                    listOfAllPageDTOMono,
+                    listOfPluginsMono,
+                    listOfDatasourcesMonoCache,
+                    listOfFormConfigsMono,
+                    mockDataList);
 
             return Mono.zip(listOfMonoForEditMode, responseArray -> {
-               consolidatedAPIResponseDTO.setV1UsersMeResp((UserProfileDTO) responseArray[0]);
-               consolidatedAPIResponseDTO.setV1TenantsCurrentResp((Tenant) responseArray[1]);
-               consolidatedAPIResponseDTO.setV1UsersFeaturesResp((Map<String, Boolean>) responseArray[2]);
-               consolidatedAPIResponseDTO.setV1PagesResp((ApplicationPagesDTO) responseArray[3]);
-               consolidatedAPIResponseDTO.setV1ThemesApplicationCurrentModeResp((Theme) responseArray[4]);
-               consolidatedAPIResponseDTO.setV1ThemesResp((List<Theme>) responseArray[5]);
-               consolidatedAPIResponseDTO.setV1PageResp((PageDTO) responseArray[6]);
-               consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((List<CustomJSLib>) responseArray[7]);
-               consolidatedAPIResponseDTO.setV1ProductAlertResp((ProductAlertResponseDTO) responseArray[8]);
-               consolidatedAPIResponseDTO.setV1ActionsResp((List<ActionDTO>) responseArray[9]);
-               consolidatedAPIResponseDTO.setV1CollectionsActionsResp((List<ActionCollectionDTO>) responseArray[10]);
-               consolidatedAPIResponseDTO.setV1PageDSLs((List<PageDTO>) responseArray[11]);
-               consolidatedAPIResponseDTO.setV1PluginsResp((List<Plugin>) responseArray[12]);
-               consolidatedAPIResponseDTO.setV1DatasourcesResp((List<Datasource>) responseArray[13]);
-               consolidatedAPIResponseDTO.setV1PluginFormConfigsResp((Map<String, Map>) responseArray[14]);
-               consolidatedAPIResponseDTO.setV1DatasourcesMockResp((List<MockDataSet>) responseArray[15]);
+                consolidatedAPIResponseDTO.setV1UsersMeResp((UserProfileDTO) responseArray[0]);
+                consolidatedAPIResponseDTO.setV1TenantsCurrentResp((Tenant) responseArray[1]);
+                consolidatedAPIResponseDTO.setV1UsersFeaturesResp((Map<String, Boolean>) responseArray[2]);
+                consolidatedAPIResponseDTO.setV1PagesResp((ApplicationPagesDTO) responseArray[3]);
+                consolidatedAPIResponseDTO.setV1ThemesApplicationCurrentModeResp((Theme) responseArray[4]);
+                consolidatedAPIResponseDTO.setV1ThemesResp((List<Theme>) responseArray[5]);
+                consolidatedAPIResponseDTO.setV1PageResp((PageDTO) responseArray[6]);
+                consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((List<CustomJSLib>) responseArray[7]);
+                consolidatedAPIResponseDTO.setV1ProductAlertResp((ProductAlertResponseDTO) responseArray[8]);
+                consolidatedAPIResponseDTO.setV1ActionsResp((List<ActionDTO>) responseArray[9]);
+                consolidatedAPIResponseDTO.setV1CollectionsActionsResp((List<ActionCollectionDTO>) responseArray[10]);
+                consolidatedAPIResponseDTO.setV1PageDSLs((List<PageDTO>) responseArray[11]);
+                consolidatedAPIResponseDTO.setV1PluginsResp((List<Plugin>) responseArray[12]);
+                consolidatedAPIResponseDTO.setV1DatasourcesResp((List<Datasource>) responseArray[13]);
+                consolidatedAPIResponseDTO.setV1PluginFormConfigsResp((Map<String, Map>) responseArray[14]);
+                consolidatedAPIResponseDTO.setV1DatasourcesMockResp((List<MockDataSet>) responseArray[15]);
 
-               return consolidatedAPIResponseDTO;
+                return consolidatedAPIResponseDTO;
             });
         }
     }

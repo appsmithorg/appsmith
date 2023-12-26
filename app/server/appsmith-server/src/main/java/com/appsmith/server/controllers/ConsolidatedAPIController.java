@@ -40,10 +40,10 @@ public class ConsolidatedAPIController {
             @RequestParam(required = true) ApplicationMode mode,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
-                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, " +
-                    "mode: {}",
+                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, "
+                        + "mode: {}",
                 applicationId,
-            defaultPageId,
+                defaultPageId,
                 branchName,
                 mode);
         return consolidatedAPIService
