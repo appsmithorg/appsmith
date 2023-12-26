@@ -19,7 +19,7 @@ export const getResponsiveMinWidth = (
 ): Record<string, string> | undefined => {
   if (!config) {
     return isFillWidget
-      ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
+      ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "auto" }
       : undefined;
   }
   if (!isFillWidget) return config;
