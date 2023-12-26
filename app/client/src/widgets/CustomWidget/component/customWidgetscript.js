@@ -223,7 +223,7 @@ export function main() {
         triggerEvent: (eventName, contextObj) => {
           if (typeof eventName !== "string") {
             throw new Error("eventName should be a string");
-          } else if (typeof contextObj !== "object") {
+          } else if (contextObj && typeof contextObj !== "object") {
             throw new Error("contextObj should be an object");
           }
 

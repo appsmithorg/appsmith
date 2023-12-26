@@ -28,7 +28,7 @@ export default function Preview() {
         height:
           window.innerHeight -
           containerRef.current.getBoundingClientRect().top -
-          30,
+          31,
       });
     }
 
@@ -39,7 +39,7 @@ export default function Preview() {
           height:
             window.innerHeight -
             containerRef.current.getBoundingClientRect().top -
-            30,
+            31,
         });
       }
     };
