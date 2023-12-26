@@ -111,7 +111,7 @@ jobs:
 
 
       - name: Fetch release from cache
-        if: steps.changed-files-specific2.outputs.any_changed == 'false' && success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.changed-files-specific2.outputs.any_changed == 'false' && success() 
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
           reponame: ${{ github.event.repository.name }}
