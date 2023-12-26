@@ -53,7 +53,7 @@ export const FilterCategoryWrapper = styled.div`
 `;
 
 export const SearchWrapper = styled.div<{ sticky?: boolean }>`
-  /* max-width: 250px; */
+  margin-bottom: ${(props) => props.theme.spaces[11]}px;
   .templates-search {
     max-width: 250px;
   }

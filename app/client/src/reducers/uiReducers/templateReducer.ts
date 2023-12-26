@@ -15,9 +15,12 @@ const initialState: TemplatesReduxState = {
   gettingAllTemplates: false,
   gettingTemplate: false,
   activeTemplate: null,
+  activeLoadingTemplateId: null,
   templates: [],
   similarTemplates: [],
-  filters: {},
+  filters: {
+    functions: ["All"],
+  },
   allFilters: {
     functions: [],
   },
@@ -129,6 +132,15 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplateToApp: true,
     };
   },
+  [ReduxActionTypes.SET_ACTIVE_LOADING_TEMPLATE_ID]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      activeLoadingTemplateId: action.payload,
+    };
+  },
   [ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS]: (
     state: TemplatesReduxState,
   ) => {
@@ -143,6 +155,7 @@ const templateReducer = createReducer(initialState, {
     return {
       ...state,
       isImportingTemplateToApp: false,
+      activeLoadingTemplateId: null,
     };
   },
   [ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_APPLICATION_ERROR]: (
@@ -158,6 +171,7 @@ const templateReducer = createReducer(initialState, {
       return {
         ...state,
         isImportingTemplateToApp: false,
+        activeLoadingTemplateId: null,
       };
     },
   [ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT]: (
@@ -269,6 +283,7 @@ export interface TemplatesReduxState {
   gettingTemplate: boolean;
   templates: Template[];
   activeTemplate: Template | null;
+  activeLoadingTemplateId: string | null;
   similarTemplates: Template[];
   filters: Record<string, string[]>;
   templateSearchQuery: string;

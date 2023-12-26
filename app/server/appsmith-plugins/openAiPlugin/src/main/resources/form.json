@@ -10,12 +10,14 @@
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "DROP_DOWN",
           "initialValue" : "bearerToken",
+          "setFirstOptionAsDefault": true,
           "options": [
             {
               "label": "Bearer token",
               "value": "bearerToken"
             }
-          ]
+          ],
+          "hidden" : true
         },
         {
           "label": "API Key",

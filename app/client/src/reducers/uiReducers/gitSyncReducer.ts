@@ -44,6 +44,13 @@ const initialState: GitSyncReducerState = {
   protectedBranches: [],
 
   isUpdateProtectedBranchesLoading: false,
+
+  isAutocommitModalOpen: false,
+  togglingAutocommit: false,
+  pollingAutocommitStatus: false,
+
+  gitMetadata: null,
+  gitMetadataLoading: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -598,6 +605,53 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isUpdateProtectedBranchesLoading: false,
   }),
+  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN]: (
+    state,
+    action: ReduxAction<{ isAutocommitModalOpen: boolean }>,
+  ) => ({
+    ...state,
+    isAutocommitModalOpen: action.payload.isAutocommitModalOpen,
+  }),
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: (state) => ({
+    ...state,
+    togglingAutocommit: true,
+  }),
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS]: (state) => ({
+    ...state,
+    togglingAutocommit: false,
+  }),
+  [ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR]: (state) => ({
+    ...state,
+    togglingAutocommit: false,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: true,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
+  }),
+  [ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
+  }),
+  [ReduxActionTypes.GIT_GET_METADATA_INIT]: (state) => ({
+    ...state,
+    gitMetadataLoading: true,
+  }),
+  [ReduxActionTypes.GIT_GET_METADATA_SUCCESS]: (
+    state,
+    action: ReduxAction<{ gitMetadata: GitMetadata }>,
+  ) => ({
+    ...state,
+    gitMetadataLoading: false,
+    gitMetadata: action.payload.gitMetadata,
+  }),
+  [ReduxActionErrorTypes.GIT_GET_METADATA_ERROR]: (state) => ({
+    ...state,
+    gitMetadataLoading: false,
+  }),
 });
 
 export interface GitStatusData {
@@ -677,6 +731,21 @@ export interface GitDiscardResponse {
   modifiedAt: string;
 }
 
+export type GitMetadata = {
+  branchName: string;
+  defaultBranchName: string;
+  remoteUrl: string;
+  repoName: string;
+  browserSupportedUrl?: string;
+  isRepoPrivate?: boolean;
+  browserSupportedRemoteUrl: string;
+  defaultApplicationId: string;
+  isProtectedBranch: boolean;
+  autoCommitConfig: {
+    enabled: boolean;
+  };
+} | null;
+
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
@@ -737,6 +806,13 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   protectedBranches: string[];
   protectedBranchesLoading: boolean;
   isUpdateProtectedBranchesLoading: boolean;
+
+  isAutocommitModalOpen: boolean;
+  togglingAutocommit: boolean;
+  pollingAutocommitStatus: boolean;
+
+  gitMetadata: GitMetadata | null;
+  gitMetadataLoading: boolean;
 };
 
 export default gitSyncReducer;

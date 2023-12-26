@@ -6,9 +6,9 @@ import { INTEGRATION_TABS } from "constants/routes";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
-  builderURL,
   generateTemplateFormURL,
   integrationEditorURL,
+  widgetListURL,
 } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -52,7 +52,7 @@ function CloseEditor() {
     // else go back to BUILDER_PAGE
     const redirectURL = isGeneratePageInitiator
       ? generateTemplateFormURL({ pageId })
-      : builderURL({ pageId });
+      : widgetListURL({ pageId });
 
     const URL =
       redirectTo === "datasources"

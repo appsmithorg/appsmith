@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 
 export const APPSMITH_AI = "Appsmith AI";
 
@@ -17,7 +17,7 @@ export const getAIContext = ({
   cursorPosition,
   editor,
 }: {
-  entityType?: ENTITY_TYPE;
+  entityType?: EntityTypeValue;
   slashIndex?: number;
   currentLineValue?: string;
   cursorPosition: CodeMirror.Position;

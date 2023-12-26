@@ -141,7 +141,6 @@ export class HomePage {
     let oldName = "";
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
-    this.agHelper.Sleep(2000);
     cy.get("@createWorkspace").then((interception: any) => {
       localStorage.setItem("workspaceId", interception.response.body.data.id);
       localStorage.setItem(
@@ -410,19 +409,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(SignupPageLocators.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(SignupPageLocators.roleDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(SignupPageLocators.useCaseDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(
-          SignupPageLocators.getStartedSubmit,
-          undefined,
-          true,
-        );
-      } else if (
-        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
-      ) {
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
         this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
         this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
         this.agHelper.GetNClick(

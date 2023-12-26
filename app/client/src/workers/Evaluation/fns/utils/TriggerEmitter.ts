@@ -104,7 +104,7 @@ const defaultTriggerHandler = priorityBatchedActionHandler((batchedData) => {
 
 TriggerEmitter.on(BatchKey.process_batched_triggers, defaultTriggerHandler);
 
-const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
+const fnExecutionDataHandler = deferredBatchedActionHandler((data) => {
   const batchedData = data.reduce<{
     JSExecutionData: Record<string, any>;
     JSExecutionErrors: Record<string, any>;
