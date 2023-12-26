@@ -83,6 +83,23 @@ jobs:
       #    gituser: ${{ secrets.CACHE_GIT_USER }}
       #    gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
 
+
+      # Example 1
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`. e.g
+        # with:
+        #   since_last_remote_commit: true 
+
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          for file in "$ALL_CHANGED_FILES"; do
+            echo "$file was changed"
+          done
+
       - uses: technote-space/get-diff-action@v6
         with:
           PATTERNS: |
