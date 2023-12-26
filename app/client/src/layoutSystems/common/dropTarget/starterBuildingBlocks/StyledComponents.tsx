@@ -78,13 +78,6 @@ export const TemplateLayoutRowItemDescription = styled.p<{
   opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
 `;
 
-export const TemplateLayoutSeeMoreText = styled.p`
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  margin: 16px 0px;
-`;
-
 export const TemplateLayoutContentGrid = styled.div`
   display: flex;
   justify-content: center;

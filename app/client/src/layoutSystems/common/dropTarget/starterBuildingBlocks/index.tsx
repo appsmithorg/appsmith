@@ -34,7 +34,6 @@ import {
   TemplateLayoutHeaderText,
   TemplateLayoutRowItemDescription,
   TemplateLayoutRowItemTitle,
-  TemplateLayoutSeeMoreText,
 } from "./StyledComponents";
 
 function StarterBuildingBlocks() {
@@ -156,11 +155,15 @@ function StarterBuildingBlocks() {
             </TemplateLayoutContentItem>
           ))}
         </TemplateLayoutContentGrid>
-        <TemplateLayoutSeeMoreText onClick={onSeeMoreClick}>
-          <Button kind="tertiary" size="md">
-            {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.seeMoreText)}
-          </Button>
-        </TemplateLayoutSeeMoreText>
+
+        <Button
+          className="mt-4"
+          kind="tertiary"
+          onClick={onSeeMoreClick}
+          size="md"
+        >
+          {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.seeMoreText)}
+        </Button>
       </TemplateLayoutContainer>
     </TemplateLayoutFrame>
   );
