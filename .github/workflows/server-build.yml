@@ -75,45 +75,42 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      #- name: Setup upterm session
-      #  uses: lhotari/action-upterm@v1
-      #  env:
-      #    cachetoken: ${{ secrets.CACHETOKEN }}
-      #    reponame: ${{ github.event.repository.name }}
-      #    gituser: ${{ secrets.CACHE_GIT_USER }}
-      #    gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-
 
       - name: Get changed files in the server folder
-        id: server-files-changed
+        id: changed-files-specific
         uses: tj-actions/changed-files@v41
         with:
           files: 'app/server/**'
-          
 
-      - name: Run step if any file(s) in the docs folder change
-        if: steps.server-files-changed.any_changed == 'true'
+
+      - name: Run step if any file(s) in the server folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         env:
-          ALL_CHANGED_FILES: ${{ steps.server-files-changed.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         run: |
           echo "One or more files in the docs folder has changed."
           echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
 
-      - name: Get changed files in the server folder
-        id: client-files-changed
+
+
+      - name: Get changed files in the client folder
+        id: changed-files-specific2
         uses: tj-actions/changed-files@v41
         with:
-          files: 'app/client/**'
-          
+          files: 'app/server/**'
 
-      - name: Run step if any file(s) in the docs folder change
-        if: steps.client-files-changed.any_changed == 'true'
+
+      - name: Run step if any file(s) in the client folder change
+        if: steps.changed-files-specific2.outputs.any_changed == 'true'
         env:
-          ALL_CHANGED_FILES: ${{ steps.client-files-changed.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific2.outputs.all_changed_files }}
         run: |
           echo "One or more files in the docs folder has changed."
           echo "List all the files that have changed: $ALL_CHANGED_FILES"
+
+
+
 
  
 
