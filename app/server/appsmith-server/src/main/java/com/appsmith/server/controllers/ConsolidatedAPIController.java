@@ -33,7 +33,6 @@ public class ConsolidatedAPIController {
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String pageId,
             @RequestParam(required = true) ApplicationMode mode,
-            @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to fetch consolidatedAPI response for applicationId: {}, pageId: {}, branchName: {}, mode: {}",
@@ -42,7 +41,7 @@ public class ConsolidatedAPIController {
                 branchName,
                 mode);
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(pageId, applicationId, branchName, mode, migrateDsl)
+                .getConsolidatedInfoForPageLoad(pageId, applicationId, branchName, mode)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
     }
