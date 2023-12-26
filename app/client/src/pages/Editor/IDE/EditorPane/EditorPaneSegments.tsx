@@ -77,17 +77,17 @@ const EditorPaneSegments = () => {
     switch (value) {
       case EditorEntityTab.QUERIES:
         history.push(queryListURL({ pageId }), {
-          invokedBy: NavigationMethod.segmentControl,
+          invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.JS:
         history.push(jsCollectionListURL({ pageId }), {
-          invokedBy: NavigationMethod.segmentControl,
+          invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.UI:
         history.push(widgetListURL({ pageId }), {
-          invokedBy: NavigationMethod.segmentControl,
+          invokedBy: NavigationMethod.SegmentControl,
         });
         break;
     }
