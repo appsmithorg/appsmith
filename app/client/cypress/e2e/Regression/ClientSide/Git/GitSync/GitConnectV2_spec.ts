@@ -20,7 +20,7 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
       app1Name = "GCV2" + uid;
       _.homePage.CreateNewWorkspace(ws1Name, true);
       _.homePage.CreateNewWorkspace(ws2Name, true);
-      _.homePage.SelectWorkspace(ws1Name)
+      _.homePage.SelectWorkspace(ws1Name);
       _.homePage.CreateAppInWorkspace(ws1Name, app1Name);
     });
   });
