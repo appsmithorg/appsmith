@@ -1,9 +1,9 @@
 # If someone with write access comments "/ci-test-limit" on a pull request, emit a repository_dispatch event
 name: CI Test Limited Command
 
-on:
-  issue_comment:
-    types: [created]
+#on:
+#  issue_comment:
+#    types: [created]
 
 jobs:
   ci-test-limit:
