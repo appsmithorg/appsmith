@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -13,6 +13,7 @@ import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 //@ts-ignore
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
+import type { AppThemeProperties } from "entities/AppTheming";
 
 const StyledIframe = styled.iframe<{ width: number; height: number }>`
   width: ${(props) => props.width - 8}px;
@@ -35,6 +36,7 @@ const EVENTS = {
   CUSTOM_WIDGET_MODEL_CHANGE: "CUSTOM_WIDGET_MODEL_CHANGE",
   CUSTOM_WIDGET_UI_CHANGE: "CUSTOM_WIDGET_UI_CHANGE",
   CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
+  CUSTOM_WIDGET_THEME_UPDATE: "CUSTOM_WIDGET_THEME_UPDATE",
 };
 
 function CustomComponent(props: CustomComponentProps) {
@@ -43,6 +45,14 @@ function CustomComponent(props: CustomComponentProps) {
   const [loading, setLoading] = React.useState(true);
 
   const [isIframeReady, setIsIframeReady] = useState(false);
+
+  const theme = useMemo(() => {
+    return {
+      ...props.theme?.colors,
+      borderRadius: props.theme?.borderRadius?.appBorderRadius,
+      boxShadow: props.theme?.boxShadow?.appBoxShadow,
+    };
+  }, [props.theme]);
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -75,6 +85,7 @@ function CustomComponent(props: CustomComponentProps) {
                   height: props.height - 8,
                 },
                 mode: props.renderMode,
+                theme,
               },
               "*",
             );
@@ -131,6 +142,18 @@ function CustomComponent(props: CustomComponentProps) {
       );
     }
   }, [props.width, props.height]);
+
+  useEffect(() => {
+    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
+      iframe.current.contentWindow.postMessage(
+        {
+          type: EVENTS.CUSTOM_WIDGET_THEME_UPDATE,
+          theme,
+        },
+        "*",
+      );
+    }
+  }, [theme]);
 
   const srcDoc = `
     <html>
@@ -194,6 +217,7 @@ export interface CustomComponentProps {
   needsOverlay?: boolean;
   onConsole?: (type: string, message: string) => void;
   renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
+  theme: AppThemeProperties;
 }
 
 export default CustomComponent;

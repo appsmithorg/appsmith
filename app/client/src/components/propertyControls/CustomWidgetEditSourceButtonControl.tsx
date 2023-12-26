@@ -40,7 +40,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
           uncompiledSrcDoc: this.props.widgetProperties.uncompiledSrcDoc,
           model:
             this.props.widgetProperties.__evaluation__?.evaluatedValues
-              .defaultModel,
+              ?.defaultModel,
           events: this.props.widgetProperties.events.reduce(
             (prev: Record<string, string>, curr: string) => {
               prev[curr] = this.props.widgetProperties[curr];
@@ -49,6 +49,8 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
             },
             {},
           ),
+          theme:
+            this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme,
         });
       });
 
@@ -131,9 +133,11 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         this.props.widgetProperties.widgetName ||
         hasEventChanged ||
         prevProps.widgetProperties.__evaluation__?.evaluatedValues
-          .defaultModel !==
+          ?.defaultModel !==
           this.props.widgetProperties.__evaluation__?.evaluatedValues
-            .defaultModel)
+            ?.defaultModel ||
+        this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme !==
+          this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme)
     ) {
       const connection = CustomWidgetBuilderService.getConnection(
         this.props.widgetProperties.widgetId,
@@ -144,7 +148,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         name: this.props.widgetProperties.widgetName,
         model:
           this.props.widgetProperties.__evaluation__?.evaluatedValues
-            .defaultModel,
+            ?.defaultModel,
         events: this.props.widgetProperties.events.reduce(
           (prev: Record<string, string>, curr: string) => {
             prev[curr] = this.props.widgetProperties[curr];
@@ -153,6 +157,8 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
           },
           {},
         ),
+        theme:
+          this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme,
       });
     }
   }

@@ -158,6 +158,9 @@ describe("CustomWidgetScript", () => {
           height: 2,
         },
         mode: "test",
+        theme: {
+          color: "#fff",
+        },
       },
     });
 
@@ -270,6 +273,53 @@ describe("CustomWidgetScript", () => {
     expect(window.appsmith.ui).toEqual({
       width: 3,
       height: 4,
+    });
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("should check API functions - onThemeChange", () => {
+    const handler = jest.fn();
+
+    const unlisten = window.appsmith.onThemeChange(handler);
+
+    expect(handler).toHaveBeenCalledWith({
+      color: "#fff",
+    });
+
+    window.triggerEvent("message", {
+      source: window.parent,
+      data: {
+        type: EVENTS.CUSTOM_WIDGET_THEME_UPDATE,
+        theme: {
+          color: "#000",
+        },
+      },
+    });
+
+    expect(window.appsmith.theme).toEqual({
+      color: "#000",
+    });
+
+    expect(handler).toHaveBeenCalledWith({
+      color: "#000",
+    });
+
+    handler.mockClear();
+    unlisten();
+
+    window.triggerEvent("message", {
+      source: window.parent,
+      data: {
+        type: EVENTS.CUSTOM_WIDGET_THEME_UPDATE,
+        theme: {
+          color: "#f0f",
+        },
+      },
+    });
+
+    expect(window.appsmith.theme).toEqual({
+      color: "#f0f",
     });
 
     expect(handler).not.toHaveBeenCalled();

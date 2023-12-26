@@ -36,4 +36,5 @@ export const DEFAULT_CONTEXT_VALUE = {
   selectedLayout: "tabs",
   debuggerLogs: [],
   showConnectionLostMessage: false,
+  theme: {},
 };

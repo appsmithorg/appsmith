@@ -28,7 +28,14 @@ export function TitleControls() {
           .map(([key]) => {
             return `--appsmith-model-${key}`;
           })
-          .concat(["--appsmith-ui-width", "--appsmith-ui-height"])
+          .concat([
+            "--appsmith-ui-width",
+            "--appsmith-ui-height",
+            "--appsmith-theme-primaryColor",
+            "--appsmith-theme-backgroundColor",
+            "--appsmith-theme-borderRadius",
+            "--appsmith-theme-boxShadow",
+          ])
       : [];
   }, [model]);
 

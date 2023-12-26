@@ -8,6 +8,7 @@ export const EVENTS = {
   CUSTOM_WIDGET_UI_CHANGE: "CUSTOM_WIDGET_UI_CHANGE",
   CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
   CUSTOM_WIDGET_CONSOLE_EVENT: "CUSTOM_WIDGET_CONSOLE_EVENT",
+  CUSTOM_WIDGET_THEME_UPDATE: "CUSTOM_WIDGET_THEME_UPDATE",
 };
 
 // Function to create a communication channel to the parent
@@ -110,6 +111,7 @@ export function main() {
    */
   const modelSubscribers = [];
   const uiSubscribers = [];
+  const themeSubscribers = [];
   /*
    * Variables to hold ready function and state
    */
@@ -133,12 +135,14 @@ export function main() {
   channel.onMessage(EVENTS.CUSTOM_WIDGET_READY_ACK, (event) => {
     window.appsmith.model = event.model;
     window.appsmith.ui = event.ui;
+    window.appsmith.theme = event.theme;
     window.appsmith.mode = event.mode;
     // heightObserver.observe(window.document.body);
 
     // Subscribe to model and UI changes
     window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
     window.appsmith.onUiChange(generateAppsmithCssVariables("ui"));
+    window.appsmith.onThemeChange(generateAppsmithCssVariables("theme"));
 
     // Set the widget as ready
     isReady = true;
@@ -170,6 +174,16 @@ export function main() {
     }
   });
 
+  channel.onMessage(EVENTS.CUSTOM_WIDGET_THEME_UPDATE, (event) => {
+    if (event.theme) {
+      window.appsmith.theme = event.theme;
+      // Notify theme subscribers
+      themeSubscribers.forEach((fn) => {
+        fn(event.theme);
+      });
+    }
+  });
+
   if (!window.appsmith) {
     // Define appsmith global object
     Object.defineProperty(window, "appsmith", {
@@ -177,6 +191,24 @@ export function main() {
       writable: false,
       value: {
         mode: "",
+        theme: {},
+        onThemeChange: (fn) => {
+          if (typeof fn !== "function") {
+            throw new Error("onThemeChange expects a function as parameter");
+          }
+
+          themeSubscribers.push(fn);
+          fn(window.appsmith.theme);
+
+          return () => {
+            // Unsubscribe from theme changes
+            const index = themeSubscribers.indexOf(fn);
+
+            if (index > -1) {
+              themeSubscribers.splice(index, 1);
+            }
+          };
+        },
         onUiChange: (fn) => {
           if (typeof fn !== "function") {
             throw new Error("onUiChange expects a function as parameter");

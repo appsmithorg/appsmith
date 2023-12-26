@@ -193,6 +193,7 @@ export default function CustomWidgetBuilder() {
               initialSrcDoc: event.data.uncompiledSrcDoc,
               model: event.data.model,
               events: event.data.events,
+              theme: event.data.theme,
             };
           });
           setLoading(false);
@@ -204,6 +205,7 @@ export default function CustomWidgetBuilder() {
               name: event.data.name,
               model: event.data.model,
               events: event.data.events,
+              theme: event.data.theme,
             };
           });
           replay();

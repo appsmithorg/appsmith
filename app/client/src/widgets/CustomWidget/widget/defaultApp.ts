@@ -7,6 +7,8 @@ export default {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
+	border-radius: var(--appsmith-theme-borderRadius);
+	box-shadow: var(--appsmith-theme-boxShadow);
 }
 
 .tip-container {
@@ -35,11 +37,20 @@ export default {
 
 .button-container button {
   margin: 0 10px;
+}
+
+.button-container button.primary {
+	background: var(--appsmith-theme-primaryColor) !important;
+}
+
+.button-container button.reset {
+	color: var(--appsmith-theme-primaryColor) !important;
+	border-color: var(--appsmith-theme-primaryColor) !important;
 }`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
 import { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.11.1/+esm'
-import Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm'
+import Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm';
 
 function App() {
 	const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -64,7 +75,7 @@ function App() {
 			</div>
 			<div className="button-container">
 				<Button className="primary" onClick={handleNext} type="primary">Next Tip</Button>
-				<Button onClick={handleReset}>Reset</Button>
+				<Button className="reset" onClick={handleReset}>Reset</Button>
 			</div>
 	</Card>
 );
@@ -82,6 +93,8 @@ appsmith.onReady(() => {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
+	border-radius: var(--appsmith-theme-borderRadius);
+	box-shadow: var(--appsmith-theme-boxShadow);
 }
 
 .tip-container {
@@ -110,6 +123,15 @@ appsmith.onReady(() => {
 
 .button-container button {
   margin: 0 10px;
+}
+
+.button-container button.primary {
+	background: var(--appsmith-theme-primaryColor) !important;
+}
+
+.button-container button.reset {
+	color: var(--appsmith-theme-primaryColor) !important;
+	border-color: var(--appsmith-theme-primaryColor) !important;
 }`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm';
@@ -138,6 +160,7 @@ function App() {
     onClick: handleNext,
     type: "primary"
   }, "Next Tip"), /*#__PURE__*/React.createElement(Button, {
+	className: "reset",
     onClick: handleReset
   }, "Reset")));
 }

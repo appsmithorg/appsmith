@@ -1,3 +1,5 @@
+import type { AppThemeProperties } from "entities/AppTheming";
+
 export interface DebuggerLogItem {
   message: string | number | Record<string, unknown> | Array<unknown>;
   line?: number;
@@ -48,6 +50,8 @@ export interface CustomWidgetBuilderContextValueType {
 
   //Flag to indicatae that widget is not focus in main window
   showConnectionLostMessage: boolean;
+
+  theme: AppThemeProperties;
 }
 
 export interface CustomWidgetBuilderContextFunctionType {

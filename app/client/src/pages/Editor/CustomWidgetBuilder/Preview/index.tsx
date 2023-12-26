@@ -8,11 +8,11 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import type { AppThemeProperties } from "entities/AppTheming";
 
 export default function Preview() {
-  const { key, model, srcDoc, updateDebuggerLogs, updateModel } = useContext(
-    CustomWidgetBuilderContext,
-  );
+  const { key, model, srcDoc, theme, updateDebuggerLogs, updateModel } =
+    useContext(CustomWidgetBuilderContext);
 
   const [dimensions, setDimensions] = useState({
     width: 300,
@@ -85,6 +85,7 @@ export default function Preview() {
         }}
         renderMode="BUILDER"
         srcDoc={srcDoc || { html: "", js: "", css: "" }}
+        theme={theme as AppThemeProperties}
         update={(data) => {
           updateModel?.(data);
 

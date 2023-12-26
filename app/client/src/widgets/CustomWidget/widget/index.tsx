@@ -10,7 +10,7 @@ import CustomComponent from "../component";
 import IconSVG from "../icon.svg";
 import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig } from "entities/AppTheming";
+import type { AppThemeProperties, SetterConfig } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -50,6 +50,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       defaultModel: DEFAULT_MODEL,
       srcDoc: defaultApp.srcDoc,
       uncompiledSrcDoc: defaultApp.uncompiledSrcDoc,
+      theme: "{{appsmith.theme}}",
+      dynamicBindingPathList: [{ key: "theme" }],
     };
   }
 
@@ -84,7 +86,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
             dependencies: ["srcDoc", "events", "uncompiledSrcDoc"],
-            evaluatedDependencies: ["defaultModel"],
+            evaluatedDependencies: ["defaultModel", "theme"],
             dynamicDependencies: (widget: WidgetProps) => widget.events,
             helperText: (
               <div className="leading-5" style={{ marginTop: "10px" }}>
@@ -267,6 +269,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         }
         renderMode={this.getRenderMode()}
         srcDoc={this.props.srcDoc}
+        theme={this.props.theme}
         update={this.update}
         width={this.props.componentWidth}
       />
@@ -276,6 +279,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
 
 export interface CustomWidgetProps extends WidgetProps {
   events: string[];
+  theme: AppThemeProperties;
 }
 
 export default CustomWidget;
