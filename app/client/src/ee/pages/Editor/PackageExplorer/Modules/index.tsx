@@ -1,36 +1,38 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import QueryModuleExplorer from "./QueryModuleExplorer";
-import UIModuleExplorer from "./UIModuleExplorer";
-import JSModuleExplorer from "./JSModuleExplorer";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { EntityExplorerResizeHandler } from "pages/Editor/Explorer/Common/EntityExplorerResizeHandler";
-import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
+import {
+  getCurrentPackage,
+  getCurrentPackageId,
+} from "@appsmith/selectors/packageSelectors";
 import { useSelector } from "react-redux";
-import { RelativeContainer } from "pages/Editor/Explorer/Common/components";
+import {
+  RelativeContainer,
+  StyledEntity,
+} from "pages/Editor/Explorer/Common/components";
 import { getExplorerStatus, saveExplorerStatus } from "../../Explorer/helpers";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
-import styled from "styled-components";
-
-const Container = styled(RelativeContainer)`
-  overflow-y: auto;
-
-  & .group.cursor-ns-resize {
-    bottom: 0 !important;
-  }
-`;
-
-const DEFAULT_OPEN_STATE = {
-  [MODULE_TYPE.QUERY]: true,
-  [MODULE_TYPE.JS]: true,
-  [MODULE_TYPE.UI]: false,
-};
+import {
+  ADD_MODULE_TOOLTIP,
+  MODULES_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { hasCreateModulePermission } from "@appsmith/utils/permissionHelpers";
+import EntityAddButton from "pages/Editor/Explorer/Entity/AddButton";
+import CreateNewModuleMenu from "./CreateNewModuleMenu";
+import ModuleEntities from "./ModuleEntities";
 
 const Modules = () => {
-  const sectionOpenStates = useRef(DEFAULT_OPEN_STATE);
   const packageId = useSelector(getCurrentPackageId) || "";
   const isModulesOpen = getExplorerStatus(packageId, "packages");
   const moduleResizeRef = useRef<HTMLDivElement>(null);
   const storedHeightKey = "modulesContainerHeight_" + packageId;
   const storedHeight = localStorage.getItem(storedHeightKey);
+  const userPackagePermissions =
+    useSelector(getCurrentPackage)?.userPermissions ?? [];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const onModuleToggle = useCallback((isOpen: boolean) => {
+    saveExplorerStatus(packageId, "packages", isOpen);
+  }, []);
 
   useEffect(() => {
     if (
@@ -41,31 +43,47 @@ const Modules = () => {
     }
   }, [moduleResizeRef]);
 
-  const onUpdateOpenState = useCallback(
-    (moduleType: MODULE_TYPE, isOpen: boolean) => {
-      sectionOpenStates.current[moduleType] = isOpen;
+  const canCreateModules = hasCreateModulePermission(userPackagePermissions);
 
-      const isAnyOpen = Object.values(sectionOpenStates.current).some(Boolean);
-
-      saveExplorerStatus(packageId, "packages", isAnyOpen);
-    },
-    [saveExplorerStatus, sectionOpenStates],
-  );
+  const openMenu = () => setIsMenuOpen(true);
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <Container
-      className="border-b pb-1"
-      data-testid="t--module-explorer"
-      ref={moduleResizeRef}
-    >
-      <UIModuleExplorer />
-      <QueryModuleExplorer onUpdateOpenState={onUpdateOpenState} />
-      <JSModuleExplorer onUpdateOpenState={onUpdateOpenState} />
+    <RelativeContainer className="border-b pb-1">
+      <StyledEntity
+        addButtonHelptext={createMessage(ADD_MODULE_TOOLTIP)}
+        alwaysShowRightIcon
+        className="pb-0 group pages"
+        collapseRef={moduleResizeRef}
+        customAddButton={
+          <CreateNewModuleMenu
+            canCreate={canCreateModules}
+            closeMenu={closeMenu}
+            isOpen={isMenuOpen}
+            triggerElement={<EntityAddButton onClick={openMenu} />}
+          />
+        }
+        entityId="modules"
+        icon={""}
+        isDefaultExpanded
+        name={createMessage(MODULES_TITLE)}
+        onToggle={onModuleToggle}
+        searchKeyword={""}
+        showAddButton={canCreateModules}
+        step={0}
+      >
+        <ModuleEntities
+          canCreateModules={canCreateModules}
+          openCreateNewMenu={openMenu}
+          packageId={packageId}
+        />
+      </StyledEntity>
+
       <EntityExplorerResizeHandler
         resizeRef={moduleResizeRef}
         storedHeightKey={storedHeightKey}
       />
-    </Container>
+    </RelativeContainer>
   );
 };
 
