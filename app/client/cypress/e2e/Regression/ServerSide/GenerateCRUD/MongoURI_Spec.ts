@@ -68,7 +68,7 @@ describe(
         "mongomart Data",
       );
       //Validating loaded table
-      table.SelectTableRow(2);
+      table.SelectTableRow(2, 0, true, "v2");
       agHelper.AssertElementExist(dataSources._selectedRow);
       table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.be.empty;
@@ -80,7 +80,7 @@ describe(
         expect($cellData).to.eq("Apparel");
       });
 
-      table.SelectTableRow(8);
+      table.SelectTableRow(8, 0, true, "v2");
       deployMode.ClearJSONFieldValue("Slogan");
       deployMode.ClearJSONFieldValue("Category");
 
@@ -182,7 +182,7 @@ describe(
     });
 
     it("6. Suggested Widget - Table", () => {
-      table.SelectTableRow(8);
+      table.SelectTableRow(8, 0, true, "v2");
       agHelper.GetNClick(
         deployMode._jsonFormNumberFieldByName("Stars", "down"),
       ); //2
