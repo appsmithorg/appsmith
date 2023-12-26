@@ -6,7 +6,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Plugin;
@@ -35,6 +34,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -130,7 +130,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 });
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationIdMonoCache.flatMap(
-                appId -> newPageService.findApplicationPages(appId, pageId, branchName, mode));
+                appId -> newPageService.findApplicationPages(appId, null, branchName, mode));
 
         Mono<Theme> applicationThemeMono =
                 applicationIdMonoCache.flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName));
@@ -141,7 +141,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             customJSLibService.getAllJSLibsInContext(appId, CreatorContextType.APPLICATION, branchName,
                 isViewMode));
 
-        Mono<PageDTO> pageAndMigrateDslByBranchAndDefaultPageId =
+        Mono<PageDTO> currentPageDTOMono =
             migrateDslMonoCache.flatMap(migrateDsl ->
             applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
                 pageId, branchName, true, migrateDsl));
@@ -164,7 +164,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     ThemesListMono,
                     listOfActionViewDTOs,
                     listOfActionCollectionViewDTOs,
-                    pageAndMigrateDslByBranchAndDefaultPageId,
+                    currentPageDTOMono,
                     allJSLibsInContextDTO,
                     productAlertResponseDTOMono);
 
@@ -198,9 +198,17 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .getPopulatedActionCollectionsByViewMode(params, false, branchName)
                     .collectList();});
 
-            Mono<String> workspaceIdMonoCache = applicationIdMonoCache
-                .flatMap(applicationService::findById)
-                .map(Application::getWorkspaceId).cache();
+            Mono<List<PageDTO>> listOfAllPageDTOMono = migrateDslMonoCache.flatMap(migrateDsl ->
+                applicationPagesDTOMono
+                    .map(ApplicationPagesDTO::getPages)
+                    .flatMapMany(Flux::fromIterable)
+                    .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                        page.getDefaultPageId(), branchName, false, migrateDsl))
+                    .collect(Collectors.toList())
+            );
+
+            Mono<String> workspaceIdMonoCache = applicationPagesDTOMono
+                .map(ApplicationPagesDTO::getWorkspaceId).cache();
 
             Mono<List<Plugin>> listOfPluginsMono = workspaceIdMonoCache
                 .flatMap(workspaceId -> {
@@ -219,25 +227,32 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             boolean isRestAPIPluginFormFetched = false;
             boolean isGraphQLPluginFormFetched = false;
             ConcurrentHashMap<String, String> mapOfUniquePluginsFromDatasources = new ConcurrentHashMap<>();
-            Mono<List<Map>> listOfFormConfigsMono = listOfDatasourcesMonoCache
+            Mono<Map<String, Map>> listOfFormConfigsMono = listOfDatasourcesMonoCache
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(datasource -> {
-                    if (!mapOfUniquePluginsFromDatasources.containsKey(datasource.getPluginName())) {
+                    if (!isBlank(datasource.getPluginName()) && !mapOfUniquePluginsFromDatasources.containsKey(datasource.getPluginName())) {
                         mapOfUniquePluginsFromDatasources.put(datasource.getPluginName(), datasource.getPluginId());
-                        return pluginService.getFormConfig(datasource.getPluginId());
+                        return pluginService.getFormConfig(datasource.getPluginId())
+                            .map(formConfig -> Map.of(datasource.getPluginId(), formConfig));
                     }
 
                     return Mono.empty();
                 })
                 .collect(Collectors.toList())
-                .flatMap(listOfFormConfig -> {
+                .flatMap(formConfigMapList -> {
                     Mono<Map> restApiFormConfigMono = Mono.just(Map.of());
                     if (!isRestAPIPluginFormFetched) {
                         restApiFormConfigMono = listOfPluginsMono
                             .flatMapMany(Flux::fromIterable)
                             .filter(plugin -> "REST API".equals(plugin.getName()))
                             .next()
-                            .flatMap(plugin -> pluginService.getFormConfig(plugin.getId()));
+                            .flatMap(plugin -> Mono.zip(Mono.just(plugin.getId()),
+                                pluginService.getFormConfig(plugin.getId())))
+                            .map(tuple2 -> {
+                                String pluginId = tuple2.getT1();
+                                Map formConfig = tuple2.getT2();
+                                return Map.of(pluginId, formConfig);
+                            });
                     }
 
                     Mono<Map> graphqlFormConfigMono = Mono.just(Map.of());
@@ -246,13 +261,19 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                             .flatMapMany(Flux::fromIterable)
                             .filter(plugin -> "Authenticated GraphQL API".equals(plugin.getName()))
                             .next()
-                            .flatMap(plugin -> pluginService.getFormConfig(plugin.getId()));
+                            .flatMap(plugin -> Mono.zip(Mono.just(plugin.getId()),
+                                pluginService.getFormConfig(plugin.getId())))
+                            .map(tuple2 -> {
+                                String pluginId = tuple2.getT1();
+                                Map formConfig = tuple2.getT2();
+                                return Map.of(pluginId, formConfig);
+                            });
                     }
 
-                    return Mono.zip(Mono.just(listOfFormConfig), restApiFormConfigMono, graphqlFormConfigMono);
+                    return Mono.zip(Mono.just(formConfigMapList), restApiFormConfigMono, graphqlFormConfigMono);
                 })
                 .map(tuple3 -> {
-                    List<Map> listOfFormConfig = tuple3.getT1();
+                    List<Map<String, Map>> listOfFormConfig = tuple3.getT1();
                     Map restApiFormConfig = tuple3.getT2();
                     Map graphqlFormConfig = tuple3.getT3();
 
@@ -264,16 +285,60 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                         listOfFormConfig.add(graphqlFormConfig);
                     }
 
-                    return listOfFormConfig;
+                    Map<String, Map> pluginIdToFormConfigList = new HashMap<>();
+                    listOfFormConfig.stream()
+                        .forEach(individualConfigMap -> {
+                            String pluginId = individualConfigMap.keySet().stream().findFirst().get();
+                            Map config = individualConfigMap.values().stream().findFirst().get();
+                            pluginIdToFormConfigList.put(pluginId, config);
+                        });
+
+                    return pluginIdToFormConfigList;
                 });
 
             Mono<List<MockDataSet>> mockDataList = mockDataService
                 .getMockDataSet()
                 .map(MockDataDTO::getMockdbs);
 
+            List<Mono<?>> listOfMonoForEditMode = List.of(
+                userProfileDTOMono,
+                tenantMono,
+                featureFlagsForCurrentUserMono,
+                applicationPagesDTOMono,
+                applicationThemeMono,
+                ThemesListMono,
+                currentPageDTOMono,
+                allJSLibsInContextDTO,
+                productAlertResponseDTOMono,
+                listOfActionDTOs,
+                listOfActionCollectionDTOs,
+                listOfAllPageDTOMono,
+                listOfPluginsMono,
+                listOfDatasourcesMonoCache,
+                listOfFormConfigsMono,
+                mockDataList
+            );
 
+            return Mono.zip(listOfMonoForEditMode, responseArray -> {
+               consolidatedAPIResponseDTO.setV1UsersMeResp((UserProfileDTO) responseArray[0]);
+               consolidatedAPIResponseDTO.setV1TenantsCurrentResp((Tenant) responseArray[1]);
+               consolidatedAPIResponseDTO.setV1UsersFeaturesResp((Map<String, Boolean>) responseArray[2]);
+               consolidatedAPIResponseDTO.setV1PagesResp((ApplicationPagesDTO) responseArray[3]);
+               consolidatedAPIResponseDTO.setV1ThemesApplicationCurrentModeResp((Theme) responseArray[4]);
+               consolidatedAPIResponseDTO.setV1ThemesResp((List<Theme>) responseArray[5]);
+               consolidatedAPIResponseDTO.setV1PageResp((PageDTO) responseArray[6]);
+               consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((List<CustomJSLib>) responseArray[7]);
+               consolidatedAPIResponseDTO.setV1ProductAlertResp((ProductAlertResponseDTO) responseArray[8]);
+               consolidatedAPIResponseDTO.setV1ActionsResp((List<ActionDTO>) responseArray[9]);
+               consolidatedAPIResponseDTO.setV1CollectionsActionsResp((List<ActionCollectionDTO>) responseArray[10]);
+               consolidatedAPIResponseDTO.setV1PageDSLs((List<PageDTO>) responseArray[11]);
+               consolidatedAPIResponseDTO.setV1PluginsResp((List<Plugin>) responseArray[12]);
+               consolidatedAPIResponseDTO.setV1DatasourcesResp((List<Datasource>) responseArray[13]);
+               consolidatedAPIResponseDTO.setV1PluginFormConfigsResp((Map<String, Map>) responseArray[14]);
+               consolidatedAPIResponseDTO.setV1DatasourcesMockResp((List<MockDataSet>) responseArray[15]);
+
+               return consolidatedAPIResponseDTO;
+            });
         }
-
-        return Mono.just(consolidatedAPIResponseDTO);
     }
 }
