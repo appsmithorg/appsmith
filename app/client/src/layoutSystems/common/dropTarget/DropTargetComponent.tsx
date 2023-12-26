@@ -51,6 +51,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import useCurrentAppState from "pages/Editor/IDE/hooks";
 import { EditorState as IDEAppState } from "entities/IDE/constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -82,6 +83,7 @@ function Onboarding() {
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
+  const isAirgappedInstance = isAirgapped();
 
   const currentApplicationId = useSelector(
     (state: AppState) => state.ui.applications.currentApplication?.id,
@@ -91,8 +93,14 @@ function Onboarding() {
     () =>
       showStarterTemplatesInsteadofBlankCanvas &&
       !isMobileCanvas &&
+      isUsersFirstApp &&
+      !isAirgappedInstance,
+    [
+      isMobileCanvas,
       isUsersFirstApp,
-    [isMobileCanvas, isUsersFirstApp, showStarterTemplatesInsteadofBlankCanvas],
+      showStarterTemplatesInsteadofBlankCanvas,
+      isAirgappedInstance,
+    ],
   );
   useEffect(() => {
     (async () => {
