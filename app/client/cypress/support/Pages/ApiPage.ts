@@ -115,9 +115,11 @@ export class ApiPage {
     //         });
     // }); // to check if Api1 = Api1 when Create Api invoked
 
-    if (apiName) this.agHelper.RenameWithInPane(apiName);
+    if (apiName) {
+      this.agHelper.RenameWithInPane(apiName);
+      this.agHelper.GetNAssertContains(this._entityName, apiName);
+    }
     this.agHelper.AssertElementVisibility(this._resourceUrl);
-    this.agHelper.GetNAssertContains(this._entityName, apiName);
     if (apiVerb != "GET") this.SelectAPIVerb(apiVerb);
   }
 
