@@ -5,7 +5,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
-import type { ActionContextTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;
@@ -23,7 +23,7 @@ export interface UpdateJSObjectNameRequest {
   newName: string;
   oldName: string;
   moduleId?: string;
-  contextType?: ActionContextTypeInterface;
+  contextType?: ActionParentEntityTypeInterface;
 }
 
 export interface CreateJSCollectionRequest {
@@ -37,7 +37,7 @@ export interface CreateJSCollectionRequest {
   applicationId: string;
   pluginType: PluginType;
   workflowId?: string;
-  contextType?: ActionContextTypeInterface;
+  contextType?: ActionParentEntityTypeInterface;
   moduleId?: string;
 }
 

@@ -160,6 +160,7 @@ export const useFilteredAndSortedFileOperations = ({
       integrationEditorURL({
         pageId,
         selectedTab: INTEGRATION_TABS.NEW,
+        generateEditorPath: true,
       }),
     );
   };
