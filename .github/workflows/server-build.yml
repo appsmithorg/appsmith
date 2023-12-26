@@ -84,21 +84,20 @@ jobs:
       #    gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
 
 
-      # Example 1
-      - name: Get changed files
-        id: changed-files
+      - name: Get changed files in the docs folder
+        id: changed-files-specific
         uses: tj-actions/changed-files@v41
-        # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`. e.g
-        # with:
-        #   since_last_remote_commit: true 
+        with:
+          files: 'app/server/**'
+          
 
-      - name: List all changed files
+      - name: Run step if any file(s) in the docs folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         run: |
-          for file in "$ALL_CHANGED_FILES"; do
-            echo "$file was changed"
-          done
+          echo "One or more files in the docs folder has changed."
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
       - uses: technote-space/get-diff-action@v6
         with:
