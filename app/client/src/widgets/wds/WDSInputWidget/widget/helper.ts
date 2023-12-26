@@ -117,9 +117,9 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     }
   }
 
-  if (isDirty && "isValid" in props) {
+  if (isDirty && !isValid) {
     return {
-      validationStatus: isValid ? "valid" : "invalid",
+      validationStatus: "invalid",
       errorMessage: errorMessage,
     };
   }

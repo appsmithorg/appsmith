@@ -838,6 +838,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         ? { autoComplete: "off" }
         : {};
 
+    //inputText is a state value and value is a derived, if they're not same , we are rendering with stale value.
+    // so we can ignore the error state
+    if (this.props.inputText !== this.props.value) {
+      isInvalid = false;
+      conditionalProps.errorMessage = " ";
+    }
+
     return (
       <InputComponent
         accentColor={this.props.accentColor}
