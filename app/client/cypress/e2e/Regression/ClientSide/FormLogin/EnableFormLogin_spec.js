@@ -13,7 +13,6 @@ describe("Form Login test functionality", function () {
     cy.wait(2000);
     // disable form signup
     cy.get(adminSettings.formSignupDisabled)
-      .get("input")
       .should("have.value", "on");
     cy.get(adminSettings.formSignupDisabled).click({ force: true });
     cy.wait(2000);
