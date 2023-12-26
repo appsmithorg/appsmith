@@ -82,35 +82,21 @@ jobs:
       #    reponame: ${{ github.event.repository.name }}
       #    gituser: ${{ secrets.CACHE_GIT_USER }}
       #    gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+
+      - uses: technote-space/get-diff-action@v6
+        with:
+          PATTERNS: |
+            app/server/**/*
         
 
 
-      - name: Put release build in cache
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+      - name: check if changes in server
+        if: env.GIT_DIFF
         run: |
-          pwd
-          touch server1.jar
-          mkdir cacherepo
-          cd ./cacherepo
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          git lfs install
-          cd cibuildcache/
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd $repodir/release/server
-          cp ../../../../../server1.jar ./
-          git lfs track "server1.jar"
-          git add  server1.jar
-          git commit -m "Update Latest Server.jar"
-          git push
+          echo "server found"
 
+
+ 
 
 
 
