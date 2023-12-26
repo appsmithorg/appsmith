@@ -12,14 +12,14 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 @Slf4j
-@ChangeUnit(order = "040", id = "tag-workspaces-to-migrate-adding-git-permissions", author = " ")
-public class Migration040TagWorkspacesForGitOperationsPermissionMigration {
+@ChangeUnit(order = "041", id = "tag-workspaces-to-migrate-adding-git-permissions", author = " ")
+public class Migration041TagWorkspacesForGitOperationsPermissionMigration {
 
     private final MongoTemplate mongoTemplate;
 
     public static final String MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS = "tagWorkspacesWithoutGitPermissions";
 
-    public Migration040TagWorkspacesForGitOperationsPermissionMigration(MongoTemplate mongoTemplate) {
+    public Migration041TagWorkspacesForGitOperationsPermissionMigration(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import io.mongock.api.annotations.ChangeUnit;
@@ -18,6 +19,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -25,16 +27,21 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
-import static com.appsmith.server.migrations.db.ce.Migration040TagWorkspacesForGitOperationsPermissionMigration.MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS;
+import static com.appsmith.server.migrations.db.ce.Migration041TagWorkspacesForGitOperationsPermissionMigration.MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
-@ChangeUnit(order = "041", id = "add-permissions-for-git-operations", author = " ")
-public class Migration041AddPermissionsForGitOperations {
+@ChangeUnit(order = "042", id = "add-permissions-for-git-operations", author = " ")
+public class Migration042AddPermissionsForGitOperations {
 
     private final MongoTemplate mongoTemplate;
+    private static final String policiesFieldPath = fieldName(QBaseDomain.baseDomain.policies);
+    private static final String idFieldPath = fieldName(QBaseDomain.baseDomain.id);
+    private static final String workspaceIdFieldPath = fieldName(QApplication.application.workspaceId);
+    private static final String defaultPermissionGroupsFieldPath =
+            fieldName(QWorkspace.workspace.defaultPermissionGroups);
 
-    public Migration041AddPermissionsForGitOperations(MongoTemplate mongoTemplate) {
+    public Migration042AddPermissionsForGitOperations(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -57,71 +64,70 @@ public class Migration041AddPermissionsForGitOperations {
          4. Add the new policy for git permissions to set of application.policies and save application
          5. Unset the flag for the workspace and save when all the applications are migrated
         */
-        String policiesFieldPath = fieldName(QBaseDomain.baseDomain.policies);
-        String idFieldPath = fieldName(QBaseDomain.baseDomain.id);
-        String workspaceIdFieldPath = fieldName(QApplication.application.workspaceId);
-        String defaultPermissionGroupsFieldPath = fieldName(QWorkspace.workspace.defaultPermissionGroups);
 
-        int batchSize = 10000, updatedCount = 0, updatedCountInCurrentBatch;
+        int batchSize = 7;
+        List<Workspace> workspaceList;
 
         do {
             // get workspaces which are not deleted and are tagged for migration
             Criteria criteria = Criteria.where(MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS)
                     .exists(true);
             Query selectWorkspacesQuery = Query.query(criteria).limit(batchSize);
-            selectWorkspacesQuery.skip(updatedCount);
-            selectWorkspacesQuery.fields().include(defaultPermissionGroupsFieldPath); // we only need the policies
+            // we only need the default permission groups
+            selectWorkspacesQuery.fields().include(defaultPermissionGroupsFieldPath);
 
             // fetch the workspaes with the above criteria
-            List<Workspace> workspaceList = mongoTemplate.find(selectWorkspacesQuery, Workspace.class);
-            updatedCountInCurrentBatch = 0;
+            workspaceList = mongoTemplate.find(selectWorkspacesQuery, Workspace.class);
 
-            for (Workspace workspace : workspaceList) {
-                updatedCount++;
-                updatedCountInCurrentBatch++;
+            workspaceList.stream().parallel().forEach(this::migrateAppliationsInWorkspace);
+        } while (!CollectionUtils.isEmpty(workspaceList));
+    }
 
-                // get the default permission groups for this workspace
-                Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
-                Query permissionGroupsQuery =
-                        new Query(Criteria.where(idFieldPath).in(defaultPermissionGroups));
-                List<PermissionGroup> permissionGroups =
-                        mongoTemplate.find(permissionGroupsQuery, PermissionGroup.class);
+    private void migrateAppliationsInWorkspace(Workspace workspace) {
+        // get the default permission groups for this workspace
+        Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
+        Query permissionGroupsQuery = new Query(Criteria.where(idFieldPath).in(defaultPermissionGroups));
+        permissionGroupsQuery.fields().include(fieldName(QPermissionGroup.permissionGroup.name));
 
-                Set<String> adminAndDeveloperPermissionGroupIds = permissionGroups.stream()
-                        .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR)
-                                || permissionGroup.getName().startsWith(DEVELOPER))
-                        .map(BaseDomain::getId)
-                        .collect(Collectors.toSet());
+        List<PermissionGroup> permissionGroups = mongoTemplate.find(permissionGroupsQuery, PermissionGroup.class);
 
-                // fetch all the applications under this workspace
-                Query selectApplicationQuery = Query.query(Criteria.where(FieldName.DELETED_AT)
-                        .exists(false)
-                        .and(workspaceIdFieldPath)
-                        .is(workspace.getId()));
-                selectApplicationQuery.fields().include(policiesFieldPath); // we only need the policies
+        Set<String> adminAndDeveloperPermissionGroupIds = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR)
+                        || permissionGroup.getName().startsWith(DEVELOPER))
+                .map(BaseDomain::getId)
+                .collect(Collectors.toSet());
 
-                List<Application> applicationList = mongoTemplate.find(selectApplicationQuery, Application.class);
-                for (Application application : applicationList) {
-                    // add a new policy for git permissions and allow adminAndDeveloperPermissionGroupIds
-                    addGitPoliciesToPolicySet(application.getPolicies(), adminAndDeveloperPermissionGroupIds);
+        // fetch all the applications under this workspace
+        Query selectApplicationQuery = Query.query(Criteria.where(FieldName.DELETED_AT)
+                .exists(false)
+                .and(workspaceIdFieldPath)
+                .is(workspace.getId()));
+        selectApplicationQuery.fields().include(policiesFieldPath); // we only need the policies
 
-                    // update the application object
-                    Update update = new Update();
-                    update.set(policiesFieldPath, application.getPolicies());
+        List<Application> applicationList = mongoTemplate.find(selectApplicationQuery, Application.class);
 
-                    Query updateQuery = Query.query(Criteria.where(idFieldPath).is(application.getId()));
-                    mongoTemplate.updateFirst(updateQuery, update, Application.class);
-                }
+        applicationList.stream().parallel().forEach(application -> {
+            migrateApplication(application, adminAndDeveloperPermissionGroupIds);
+        });
 
-                // all the applications of this workspace have been migrated, unset the flag for this workspace
-                Update update = new Update();
-                update.unset(MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS);
+        // all the applications of this workspace have been migrated, unset the flag for this workspace
+        Update update = new Update();
+        update.unset(MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS);
 
-                Query updateWorkspaceQuery =
-                        Query.query(Criteria.where(idFieldPath).is(workspace.getId()));
-                mongoTemplate.updateFirst(updateWorkspaceQuery, update, Workspace.class);
-            }
-        } while (updatedCountInCurrentBatch == batchSize);
+        Query updateWorkspaceQuery = Query.query(Criteria.where(idFieldPath).is(workspace.getId()));
+        mongoTemplate.updateFirst(updateWorkspaceQuery, update, Workspace.class);
+    }
+
+    private void migrateApplication(Application application, Set<String> permissionGroupIds) {
+        // add a new policy for git permissions and allow adminAndDeveloperPermissionGroupIds
+        addGitPoliciesToPolicySet(application.getPolicies(), permissionGroupIds);
+
+        // update the application object
+        Update update = new Update();
+        update.set(policiesFieldPath, application.getPolicies());
+
+        Query updateQuery = Query.query(Criteria.where(idFieldPath).is(application.getId()));
+        mongoTemplate.updateFirst(updateQuery, update, Application.class);
     }
 
     private void addGitPoliciesToPolicySet(Set<Policy> policies, Set<String> permissionGroups) {
