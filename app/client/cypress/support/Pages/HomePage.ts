@@ -17,7 +17,7 @@ export class HomePage {
   private _workspaceName = ".t--workspace-name";
   private _workspaceNameText = ".t--workspace-name-text";
   private _optionsIcon = ".t--options-icon";
-  private _newIcon = ".createnew";
+  public _newIcon = ".createnew";
   private _renameWorkspaceContainer = ".editable-text-container";
   private _renameWorkspaceInput = ".t--workspace-rename-input input";
   private _workspaceList = (workspaceName: string) =>
@@ -712,17 +712,34 @@ export class HomePage {
     });
   }
 
-  public SelectMultipleApplicationToDelete(applicationName: string) {
+  public SelectMultipleApplicationToDelete(
+    applicationName: string,
+    position: Cypress.PositionType = "center",
+  ) {
     this.agHelper.GetNClick(
       this._applicationEditedText(applicationName),
       0,
-      false,
+      true,
       500,
       false,
       true,
+      position,
     );
   }
-
+  public SelectMultipleApplicationToDeleteByCard(
+    applicationName: string,
+    position: Cypress.PositionType = "center",
+  ) {
+    this.agHelper.GetNClick(
+      this._appCard(applicationName),
+      0,
+      true,
+      500,
+      false,
+      true,
+      position,
+    );
+  }
   public SelectWorkspace(workspaceName: string) {
     this.agHelper
       .GetElement(this._leftPanel)

@@ -192,7 +192,7 @@ describe(
         "Administrator",
         "Developer",
       );
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.OpenMembersPageForWorkspace(workspaceId);
       cy.get(_.homePage._usersEmailList).then(function ($list) {
         expect($list).to.have.length(3);
@@ -211,7 +211,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
       _.homePage.Signout();
     });
@@ -224,7 +224,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
       _.homePage.LogOutviaAPI();
     });
