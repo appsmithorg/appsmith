@@ -118,6 +118,11 @@ def generate_base_cake():
             public Mono<T> save(T entity) {{
                 return {MONO_WRAPPER % "repository.save(entity)"};
             }}
+
+            public Mono<T> findById(String id) {{
+                return {MONO_WRAPPER % "repository.findById(id)"};
+            }}
+
         }}
     """
 
@@ -240,9 +245,6 @@ def generate_cake_class(domain):
         // From CrudRepository
         public Flux<{domain}> saveAll(Iterable<{domain}> entities) {{
             return {FLUX_WRAPPER % "repository.saveAll(entities)"};
-        }}
-        public Mono<{domain}> findById(String id) {{
-            return {MONO_WRAPPER % "repository.findById(id)"};
         }}
         // End from CrudRepository
     """
