@@ -300,13 +300,7 @@ function* handleDeleteRedirect(deletedJSObjectId: string) {
     (js) => js.config.id === deletedJSObjectId,
   );
   const toRedirect: JSCollectionData =
-    deletedIndex === 0
-      ? sortedJSObjects[1]
-      : deletedIndex + 1 < sortedJSObjects.length
-      ? sortedJSObjects[deletedIndex - 1]
-      : deletedIndex + 1 === sortedJSObjects.length
-      ? sortedJSObjects[deletedIndex - 1]
-      : sortedJSObjects[deletedIndex + 1];
+    deletedIndex === 0 ? sortedJSObjects[1] : sortedJSObjects[deletedIndex - 1];
 
   if (toRedirect) {
     history.push(jsCollectionIdURL({ collectionId: toRedirect.config.id }));
