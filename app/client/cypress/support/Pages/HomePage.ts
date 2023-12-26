@@ -179,9 +179,7 @@ export class HomePage {
 
   //Maps to CheckShareIcon in command.js
   public CheckWorkspaceShareUsersCount(workspaceName: string, count: number) {
-    cy.get(this._workspaceList(workspaceName))
-      .scrollIntoView()
-      .should("be.visible");
+    this.SelectWorkspace(workspaceName);
     cy.get(this._workspaceShareUsersIcon(workspaceName)).should(
       "have.length",
       count,
@@ -194,6 +192,7 @@ export class HomePage {
     email: string,
     role: string,
   ) {
+    this.SelectWorkspace(workspaceName);
     const successMessage =
       CURRENT_REPO === REPO.CE
         ? "The user has been invited successfully"
@@ -727,6 +726,6 @@ export class HomePage {
     this.agHelper
       .GetElement(this._leftPanel)
       .contains("span", workspaceName)
-      .click();
+      .click({ force: true });
   }
 }
