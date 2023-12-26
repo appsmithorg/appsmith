@@ -120,7 +120,7 @@ jobs:
         run: |
           mkdir cacherepo
           cd ./cacherepo
-          git lfs insta
+          git lfs install
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
