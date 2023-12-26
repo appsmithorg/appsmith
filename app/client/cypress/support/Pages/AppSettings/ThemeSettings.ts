@@ -38,7 +38,7 @@ export class ThemeSettings {
       type == "Primary"
         ? this.locators._colorRingPrimary
         : this.locators._colorRingBackground;
-    this.agHelper.Sleep(200); //for themes to complete opening
+    this.agHelper.AssertContains("Theme settings");
     this.agHelper.GetNClick(colorType);
     if (typeof colorIndex == "number") {
       this.agHelper.GetNClick(this.locators._colorPickerV2Popover);
