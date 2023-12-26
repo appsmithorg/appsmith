@@ -3,31 +3,20 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.blasphemy.DBConnection;
 import com.appsmith.server.constants.FieldName;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
-import org.springframework.data.util.ParsingUtils;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -117,21 +106,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
-    public List<T> findAll() {
-        return Collections.emptyList(); /*
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMapMany(principal -> {
-                    Query query = new Query(notDeleted());
-                    return entityManager.find(
-                            query.cursorBatchSize(10000),
-                            entityInformation.getJavaType(),
-                            entityInformation.getCollectionName());
-                });*/
-    }
-
-    @Override
     public List<T> findAll(Example example, Sort sort) {
         return Collections.emptyList(); /*
         Assert.notNull(example, "Sample must not be null!");
@@ -169,132 +143,5 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
         Assert.notNull(example, "Example must not be null!");
         return findAll(example, Sort.unsorted());
-    }
-
-    public Update getForArchive() {
-        Update update = new Update();
-        update.set(FieldName.DELETED, true);
-        update.set(FieldName.DELETED_AT, Instant.now());
-        return update;
-    }
-
-    @Override
-    public <S extends T> S save(S entity) {
-        return entity; /*
-                       final boolean isInsert = entity.getId() == null;
-                       return super.save(entity).map(savedEntity -> {
-                           try {
-                               saveToPostgres(savedEntity, isInsert);
-                           } catch (SQLException | JsonProcessingException | IllegalAccessException e) {
-                               throw new RuntimeException(e);
-                           }
-                           return savedEntity;
-                       });*/
-    }
-
-    private <S extends T> void saveToPostgres(S entity, boolean isInsert)
-            throws SQLException, JsonProcessingException, IllegalAccessException {
-        final String tableName = toSnakeCase(entity.getClass().getSimpleName()) + "s"; // todo: pluralize better
-        dbConnection.execute(
-                "CREATE TABLE IF NOT EXISTS %s (id SERIAL PRIMARY KEY, oid TEXT UNIQUE)".formatted(tableName));
-
-        final Map<String, Object> valueMap = new LinkedHashMap<>();
-
-        for (Field field : getAllFields(entity)) {
-            final String columnName = toSnakeCase(field.getName());
-            if ("id".equals(columnName)) {
-                valueMap.put("oid", entity.getId());
-                continue;
-            }
-            final Object value = getValue(entity, field);
-            dbConnection.execute("ALTER TABLE %s ADD COLUMN IF NOT EXISTS %s %s"
-                    .formatted(tableName, columnName, getColumnType(field)));
-            valueMap.put(columnName, value);
-        }
-
-        if (isInsert) {
-            // insert new entry
-            final String sql = """
-                INSERT INTO %s (%s)
-                VALUES (%s)
-                """
-                    .formatted(
-                            tableName,
-                            StringUtils.join(valueMap.keySet(), ", "),
-                            StringUtils.repeat("?", ", ", valueMap.size()));
-            dbConnection.execute(sql, valueMap.values());
-
-        } else {
-            // update existing entry
-            final String sql =
-                    """
-                UPDATE %s SET (%s) = (%s)
-                WHERE oid = ?
-                """
-                            .formatted(
-                                    tableName,
-                                    StringUtils.join(valueMap.keySet(), ", "),
-                                    StringUtils.repeat("?", ", ", valueMap.size()));
-            final Collection<Object> values = new ArrayList<>(valueMap.values());
-            values.add(entity.getId());
-            dbConnection.execute(sql, values);
-        }
-    }
-
-    private String toSnakeCase(String name) {
-        return ParsingUtils.reconcatenateCamelCase(name, "_").replaceFirst("^_", "");
-    }
-
-    private Object getValue(Object entity, Field field) throws IllegalAccessException {
-        field.setAccessible(true);
-        return field.get(entity);
-    }
-
-    private String getColumnType(Field field) {
-        final Class<?> type = field.getType();
-
-        if (type.isEnum()) {
-            return "TEXT";
-        }
-
-        if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
-            return "JSONB";
-        }
-
-        // if (ApplicationDetail.class.equals(type)
-        // || Application.AppLayout.class.equals(type)
-        // || GitApplicationMetadata.class.equals(type)) {
-        //     return "JSONB";
-        // }
-
-        if (field.getType().getPackageName().startsWith("com.appsmith")) {
-            return "JSONB";
-        }
-
-        if (Instant.class.equals(type)) {
-            return "TIMESTAMP";
-        }
-
-        return switch (type.getSimpleName()) {
-            case "String" -> "TEXT";
-            case "Integer", "int", "long" -> "INTEGER";
-            case "Boolean", "boolean" -> "BOOLEAN";
-            default -> throw new RuntimeException("Unknown type: " + type.getSimpleName());
-        };
-    }
-
-    private List<Field> getAllFields(Object entity) {
-        final List<Field> fields = new ArrayList<>();
-        Class<?> cls = entity.getClass();
-
-        while (cls != null) {
-            fields.addAll(List.of(cls.getDeclaredFields()));
-            cls = cls.getSuperclass();
-        }
-
-        // This is too large a number for Postgres' `integer` type, and we don't really need this in the DB anyway.
-        fields.removeIf(f -> "serialVersionUID".equals(f.getName()));
-
-        return fields;
     }
 }

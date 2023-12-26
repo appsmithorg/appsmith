@@ -27,6 +27,10 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
     @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt is null and e.id = :id")
     Optional<T> findById(ID id);
 
+    @Override
+    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt is null")
+    Iterable<T> findAll();
+
     /**
      * This function sets the deleted flag to true and then saves the modified document.
      *
