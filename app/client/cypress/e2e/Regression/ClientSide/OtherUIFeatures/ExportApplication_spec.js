@@ -32,8 +32,10 @@ describe("Export application as a JSON file", function () {
           Cypress.env("TESTPASSWORD1"),
         );
         cy.wait(2000);
-        cy.log({ appid });
-        cy.get(homePageLocators.searchInput).type(appid);
+        // cy.log({ appid });
+        cy.get(homePageLocators.searchInput).type("exportApp" + uid);
+        cy.wait(5000);
+        cy.get(`[data-testid="${workspaceId}"]`).click({ force: true });
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(2000);
 
@@ -76,7 +78,9 @@ describe("Export application as a JSON file", function () {
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.wait(2000);
       cy.log({ appid });
-      cy.get(homePageLocators.searchInput).type(appid);
+      cy.get(homePageLocators.searchInput).type(workspaceId);
+      cy.wait(5000);
+      cy.get(`[data-testid="${workspaceId}"]`).click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
       cy.get(homePageLocators.appMoreIcon).first().click({ force: true });
@@ -116,7 +120,9 @@ describe("Export application as a JSON file", function () {
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.wait(2000);
       cy.log({ appid });
-      cy.get(homePageLocators.searchInput).type(appid);
+      cy.get(homePageLocators.searchInput).type(workspaceId);
+      cy.wait(5000);
+      cy.get(`[data-testid="${workspaceId}"]`).click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
 

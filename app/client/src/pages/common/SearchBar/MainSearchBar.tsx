@@ -216,6 +216,7 @@ function MainSearchBar(props: any) {
                         </Text>
                         {workspacesList.map((workspace: Workspace) => (
                           <SearchListItem
+                            data-testId={workspace.name}
                             key={workspace.id}
                             onClick={() => {
                               setIsDropdownOpen(false);
@@ -243,6 +244,7 @@ function MainSearchBar(props: any) {
                         {applicationsList.map(
                           (application: ApplicationPayload) => (
                             <SearchListItem
+                              data-testId={application.name}
                               key={application.id}
                               onClick={() =>
                                 navigateToApplication(application.id)
