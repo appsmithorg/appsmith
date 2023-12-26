@@ -199,19 +199,20 @@ def generate_cake_class(domain):
         imports.add("com.mongodb.client.result.UpdateResult")
     if "PluginTypeAndCountDTO" in content:
         imports.add("com.appsmith.server.dtos.PluginTypeAndCountDTO")
+    if "CustomJSLibContextDTO" in content:
+        imports.add("com.appsmith.server.dtos.CustomJSLibContextDTO")
 
-    imports_code = "\n".join(f"import {i};" for i in imports)
+    imports_code = "".join(f"import {i};" for i in imports)
 
     prefix = dedent(
         f"""
     package com.appsmith.server.repositories;
 
+    import com.appsmith.external.models.*;
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.*;
-    import com.appsmith.server.dtos.*;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.cakes.BaseCake;
-    import com.appsmith.external.models.*;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
@@ -365,6 +366,16 @@ def main():
     convert("Tenant")
     convert("ApiTemplate")
     convert("Collection")
+
+    # format
+    subprocess.check_call(
+        [
+            "mvn",
+            "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn",
+            "spotless:apply",
+        ],
+        cwd=server_root,
+    )
 
     # git add all cake classes
     subprocess.check_call(

@@ -1,23 +1,18 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
-import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import com.appsmith.server.repositories.cakes.BaseCake;
-import com.appsmith.external.models.*;
-import org.springframework.stereotype.Component;
+import com.querydsl.core.types.dsl.StringPath;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.*;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.data.mongodb.core.query.*;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
-import com.querydsl.core.types.dsl.StringPath;
-
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,6 +29,7 @@ public class UserRepositoryCake extends BaseCake<User> {
     public Flux<User> saveAll(Iterable<User> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
+
     public Mono<User> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
@@ -43,8 +39,15 @@ public class UserRepositoryCake extends BaseCake<User> {
         return Flux.defer(() -> Flux.fromIterable(repository.findAllByEmails(emails)));
     }
 
-    public Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection) {
-        return Flux.defer(() -> Flux.fromIterable(repository.getAllByEmails(emails, aclPermission, limit, skip, sortKey, sortDirection)));
+    public Flux<User> getAllByEmails(
+            Set<String> emails,
+            Optional<AclPermission> aclPermission,
+            int limit,
+            int skip,
+            StringPath sortKey,
+            Sort.Direction sortDirection) {
+        return Flux.defer(() -> Flux.fromIterable(
+                repository.getAllByEmails(emails, aclPermission, limit, skip, sortKey, sortDirection)));
     }
 
     public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission) {
@@ -55,7 +58,8 @@ public class UserRepositoryCake extends BaseCake<User> {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<User> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<User> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
@@ -68,7 +72,8 @@ public class UserRepositoryCake extends BaseCake<User> {
     }
 
     public Mono<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.countByDeletedAtIsNullAndIsSystemGeneratedIsNot(excludeSystemGenerated)));
+        return Mono.defer(() ->
+                Mono.justOrEmpty(repository.countByDeletedAtIsNullAndIsSystemGeneratedIsNot(excludeSystemGenerated)));
     }
 
     public Mono<Long> countByDeletedAtNull() {
@@ -118,5 +123,4 @@ public class UserRepositoryCake extends BaseCake<User> {
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
-
 }
