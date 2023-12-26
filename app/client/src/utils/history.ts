@@ -16,9 +16,7 @@ export enum NavigationMethod {
   ContextSwitching = "ContextSwitching",
   AppSidebar = "AppSidebar",
   PackageSidebar = "PackageSidebar",
-  segmentControlJS = "segment_control_JS",
-  segmentControlQueries = "segment_control_Queries",
-  segmentControlUI = "segment_control_UI",
+  segmentControl = "segmentControl",
 }
 
 export interface AppsmithLocationState {
