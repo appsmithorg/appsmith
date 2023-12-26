@@ -1,0 +1,306 @@
+name: Client Build Self host
+
+on:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
+      check-test-files:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
+      branch:
+        description: "This is the branch to be used for the build."
+        required: false
+        type: string
+      ads-compliant-check:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "true"
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/client
+
+jobs:
+  client-build:
+    runs-on: appsmith-self-hosted-deployment-runner-8cpu-16gb-ram
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' 
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # GitHub Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
+
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Checkout the merged commit from PR and base branch
+        if: inputs.pr != 0
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.branch }}
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0 && inputs.branch == ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      # get all the files changes in the cypress/e2e folder
+      - name: Get added files in cypress/e2e folder
+        if: inputs.pr != 0
+        id: files
+        uses: umani/changed-files@v4.1.0
+        with:
+          repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          pattern: "app/client/cypress/e2e/.*"
+          pr-number: ${{ inputs.pr }}
+
+      # Check all the newly added files are in ts
+      - name: Check the newly added files are written in ts
+        if: inputs.check-test-files == 'true' && inputs.pr != 0
+        id: check_files
+        run: |
+          files=(${{steps.files.outputs.files_created}})
+          non_ts_files=()
+          for file in "${files[@]}"; do
+            if [[ $file != *.ts ]]; then
+              non_ts_files+=("<li>$file")
+            fi
+          done
+          echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
+          echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
+
+      # Comment in PR if test files are not written in ts and fail the workflow
+      - name: Comment in PR if test files are not written in ts
+        if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ inputs.pr }}
+          body: |
+            <b>Below new test files are written in js 🔴 </b>
+            <b>Expected format ts. Please fix and retrigger ok-to-test:</b>
+            <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
+      - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
+        run: exit 1
+
+      - name: Get all the added or changed files in client/src folder
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        id: client_files
+        uses: umani/changed-files@v4.1.0
+        with:
+          repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          pattern: "app/client/src/.*"
+          pr-number: ${{ inputs.pr }}
+
+      # Check all the newly added files are in ts
+      - name: ADS compliant check
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        id: ads_check
+        run: |
+          comment_files=""
+          files=(${{steps.client_files.outputs.files_created}}${{steps.client_files.outputs.files_updated}})
+          for file in "${files[@]}"; do
+              while IFS= read -r line; do
+                if echo "$line" | grep -q -E '(color|Color).*#|border.*#|(color|Color).*"'; then
+                  comment_files+=("$file")
+                  break
+                fi
+              done < ${file#app/client/}
+          done
+          unique_files=$(echo "${comment_files[@]}" | sort -u | sed '/^[[:space:]]*$/d' | sed 's/ / <li>/g')
+          echo "ads_non_compliant_files=$unique_files" >> $GITHUB_OUTPUT
+          echo "ads_non_compliant_count=${#unique_files[@]}" >> $GITHUB_OUTPUT
+
+      # Comment in PR if test files are not written in ts and fail the workflow
+      - name: Comment in PR if test files are not written in ts
+        if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ inputs.pr }}
+          body: |
+            <b> 🔴 Below files are not compliant with ADS. Please fix and re-trigger ok-to-test </b>
+            <ol>${{steps.ads_check.outputs.ads_non_compliant_files}}</ol>
+      - if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        run: exit 1
+
+      # Create a run record exactly at the time of merge to release to
+      # ensure we compare run details with code at this point
+      - name: Create Perf Meta
+        continue-on-error: true
+        run: |
+          PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
+          -U aforce_admin -d perf-infra -c \
+          "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active)
+          VALUES ('${{github.repository}}', '${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-client
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # In case of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      - name: Use Node.js
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: app/client/package.json
+
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        id: cache-dependencies
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --immutable
+
+      # Type checking before starting the build
+      - name: Run type check
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run check-types
+
+      - name: Set the build environment based on the branch
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          set +o pipefail
+          echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
+          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+              echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
+          fi
+          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+              echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
+          fi
+          # Since this is an unreleased build, we set the version to incremented version number with
+          # a `-SNAPSHOT` suffix.
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+
+      # We burn React environment & the Segment analytics key into the build itself.
+      # This is to ensure that we don't need to configure it in each installation
+      - name: Create the bundle
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+          else
+            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
+          fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_AIRGAP_ENABLED=true
+          fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_VERSION_EDITION="Airgapped"
+          else
+            export REACT_APP_VERSION_EDITION="Business"
+          fi
+          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            yarn build
+
+      # Saving the cache to use it in subsequent runs
+      - name: Save Yarn cache
+        uses: actions/cache/save@v3
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+
+      # We may not need the client_build_dir env variable.
+      - name: Set the client build path env vars
+        run: |
+          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+           echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
+           echo 'client_build_dir=build_airgap' >> "$GITHUB_ENV"
+          else
+           echo 'client_build_name=client-build' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
+           echo 'client_build_dir=build' >> "$GITHUB_ENV"
+           fi
+
+      - name: Log the client build env vars
+        run: |
+          echo "client_build_name: ${{ env.client_build_name }}"
+          echo "client_build_path: ${{ env.client_build_path }}"
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.client_build_path }}
+          key: ${{ github.run_id }}-${{ github.job }}-client
+
+      - name: Pack the client build directory
+        run: |
+          tar -cvf ./build.tar -C ${{ env.client_build_dir }} .
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.client_build_name }}
+          path: app/client/build.tar
+
+      # Set status = success
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
