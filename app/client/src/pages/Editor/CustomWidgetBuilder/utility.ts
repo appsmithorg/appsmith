@@ -34,7 +34,7 @@ export const compileSrcDoc = (srcDoc: SrcDoc): CompiledResult => {
   return compiledResult;
 };
 
-interface BabelError {
+export interface BabelError {
   reasonCode: string;
   message: string;
   loc: {
@@ -45,8 +45,8 @@ interface BabelError {
 
 export const getBabelError = (e: BabelError): DebuggerLogItem => {
   return {
-    line: e.loc.line,
-    column: e.loc.column,
+    line: e?.loc?.line,
+    column: e?.loc?.column,
     message: e?.toString(),
   };
 };
