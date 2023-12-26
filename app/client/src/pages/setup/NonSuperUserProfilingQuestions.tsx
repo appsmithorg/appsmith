@@ -18,8 +18,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { InjectedFormProps } from "redux-form";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
-import { proficiencyOptions, useCaseOptionsForNonSuperUser } from "./constants";
-import SetupForm from "./SetupForm";
+import { proficiencyOptions, useCaseOptions } from "./constants";
 import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
 
 const ActionContainer = styled.div`
@@ -40,14 +39,6 @@ interface NonSuperUserFormData {
   useCase?: string;
 }
 
-export function SuperUserForm() {
-  return (
-    <ActionContainer>
-      <SetupForm />
-    </ActionContainer>
-  );
-}
-
 export const Space = styled.div`
   height: 40px;
 `;
@@ -66,7 +57,7 @@ const validate = (values: any) => {
   return errors;
 };
 
-function NonSuperUser(
+function NonSuperUserProfilingQuestions(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
   const onSubmit = (data: NonSuperUserFormData) => {
@@ -89,7 +80,7 @@ function NonSuperUser(
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
         name="useCase"
-        options={useCaseOptionsForNonSuperUser}
+        options={useCaseOptions}
         testid="t--user-use-case"
       />
       <ActionContainer>
@@ -119,5 +110,5 @@ export default connect((state: AppState) => {
     validate,
     form: WELCOME_NON_SUPER_FORM_NAME,
     touchOnBlur: true,
-  })(NonSuperUser),
+  })(NonSuperUserProfilingQuestions),
 );

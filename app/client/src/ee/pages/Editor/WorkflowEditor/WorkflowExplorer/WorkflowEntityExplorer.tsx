@@ -22,7 +22,7 @@ import { integrationEditorURL } from "ce/RouteBuilder";
 import { INTEGRATION_TABS } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
 import { hasCreateWorkflowActionsPermission } from "@appsmith/utils/permissionHelpers";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 function WorkflowEntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
@@ -81,7 +81,7 @@ function WorkflowEntityExplorer({ isActive }: { isActive: boolean }) {
           ActionEntityContextMenuItemsEnum.DELETE,
         ]}
         parentEntityId={workflowId}
-        parentEntityType={ACTION_PARENT_ENTITY_TYPE.WORKFLOW}
+        parentEntityType={ActionParentEntityType.WORKFLOW}
       >
         <Files />
       </FilesContextProvider>

@@ -20,7 +20,7 @@ import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 interface ModuleQueryEditorRouteParams {
@@ -75,7 +75,7 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
         : saveActionNameBasedOnParentEntity(
             actionId,
             name,
-            ACTION_PARENT_ENTITY_TYPE.PACKAGE,
+            ActionParentEntityType.MODULE,
           );
     },
     [moduleId, action?.isPublic, actionId],

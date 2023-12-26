@@ -5,6 +5,7 @@ import type {
   ModuleInput as CE_ModuleInput,
 } from "ce/constants/ModuleConstants";
 import type { ControlData } from "components/formControls/BaseControl";
+import type { PluginType } from "entities/Action";
 
 export enum MODULE_TYPE {
   QUERY = "QUERY_MODULE",
@@ -48,4 +49,17 @@ export interface Module extends CE_Module {
 export enum MODULE_ENTITY_TYPE {
   ACTION = "ACTION",
   JS_OBJECT = "JS_OBJECT",
+}
+
+export const ENTITY_EXPLORER_RENDER_ORDER = [
+  MODULE_TYPE.UI,
+  MODULE_TYPE.JS,
+  MODULE_TYPE.QUERY,
+];
+
+export interface ModuleMetadata {
+  moduleId: string;
+  datasourceId?: string;
+  pluginId: string;
+  pluginType: PluginType;
 }

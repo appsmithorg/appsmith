@@ -388,6 +388,10 @@ export const RESET_LOGO_TOOLTIP = () => "Reset logo";
 // Provisioning end
 
 // Modules start
+export const PACKAGE_EMPTY_STATE_MSG = () => "No modules in this package yet.";
+export const PACKAGE_EMPTY_STATE_HELP = () =>
+  "Learn more about Appsmith Reusability.";
+export const PACKAGE_EMPTY_STATE_CTA = () => "New Module";
 export const SEARCH_APPS_PACKAGES_AND_WORKFLOWS = () =>
   "Search for apps, packages or workflows";
 export const SEARCH_APPS_AND_PACKAGES = () => "Search for apps or packages";
@@ -399,15 +403,10 @@ export const EMPTY_PACKAGE_LIST = () =>
 export const FETCH_PACKAGES_ERROR = () => "Failed to fetch Packages";
 export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Package";
 export const CREATE_PACKAGE_ERROR = () => "Failed to create package";
-export const QUERY_MODULES_TITLE = () => "Queries";
-export const JS_MODULES_TITLE = () => "JS Modules";
-export const ADD_QUERY_MODULE_TOOLTIP = () => "Add a new query module";
-export const ADD_JS_MODULE_TOOLTIP = () => "Add a new JS module";
-export const CREATE_NEW_QUERY_MODULE = () => "New query";
-export const EMPTY_QUERY_MODULES_MSG = () => "No queries to show here.";
-export const EMPTY_JS_MODULES_MSG = () => "No js modules to show here.";
-export const NEW_QUERY_BUTTON = () => "New query";
-export const NEW_JS_MODULE_BUTTON = () => "New JS Module";
+export const MODULES_TITLE = () => "Modules";
+export const ADD_MODULE_TOOLTIP = () => "Add a new module";
+export const EMPTY_MODULES_MSG = () => "No modules to display.";
+export const NEW_MODULE_BUTTON = () => "New module";
 export const RENAME_PACKAGE_TOOLTIP = () => "Rename package";
 export const ADD_QUERY_BUTTON = () => "Add query";
 export const ADD_JS_BUTTON = () => "Add JS Module";
