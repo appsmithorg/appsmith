@@ -2,7 +2,6 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -11,43 +10,29 @@ import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
-import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QNewAction;
-import com.appsmith.server.domains.QNewPage;
-import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.QUser;
-import com.appsmith.server.domains.QUserData;
-import com.appsmith.server.domains.QWorkspace;
-import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -55,37 +40,26 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.solutions.UpdateSuperUserMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PolicySolution;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.data.redis.core.script.RedisScript;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -98,13 +72,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
@@ -122,9 +93,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.getUpdatedDynami
 import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
-import static com.appsmith.server.migrations.MigrationHelperMethods.fetchDomainObjectUsingId;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
-import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -156,106 +125,6 @@ public class DatabaseChangelog2 {
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
                 update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
                 Plugin.class);
-    }
-
-    @ChangeSet(order = "002", id = "deprecate-archivedAt-in-action", author = "")
-    public void deprecateArchivedAtForNewAction(MongoTemplate mongoTemplate) {
-        // Update actions
-        final Query actionQuery = query(
-                        where(fieldName(QNewAction.newAction.applicationId)).exists(true))
-                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.archivedAt))
-                        .exists(true));
-
-        actionQuery
-                .fields()
-                .include(fieldName(QNewAction.newAction.id))
-                .include(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
-
-        List<NewAction> actions = mongoTemplate.find(actionQuery, NewAction.class);
-
-        for (NewAction action : actions) {
-
-            final Update update = new Update();
-
-            ActionDTO unpublishedAction = action.getUnpublishedAction();
-            if (unpublishedAction != null) {
-                final Instant archivedAt = unpublishedAction.getArchivedAt();
-                update.set(
-                        fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.deletedAt),
-                        archivedAt);
-                update.unset(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
-            }
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QNewAction.newAction.id)).is(action.getId())), update, NewAction.class);
-        }
-    }
-
-    /**
-     * To be able to support form and raw mode in the UQI compatible plugins,
-     * we need to be migrating all existing data to the data and formData path.
-     * Anything that was already raw would not be within formData,
-     * so we can blindly switch the contents of formData into inner objects
-     * Example: formData.limit will transform to formData.limit.data and
-     * formData.limit.formData
-     *
-     * @param mongoTemplate
-     */
-    @ChangeSet(order = "003", id = "update-form-data-for-uqi-mode", author = "")
-    public void updateActionFormDataPath(MongoTemplate mongoTemplate) {
-
-        // Get all plugin references to Mongo, S3 and Firestore actions
-        List<Plugin> uqiPlugins = mongoTemplate.find(
-                query(where("packageName").in("mongo-plugin", "amazons3-plugin", "firestore-plugin")), Plugin.class);
-
-        final Map<String, String> pluginMap =
-                uqiPlugins.stream().collect(Collectors.toMap(Plugin::getId, Plugin::getPackageName));
-
-        final Set<String> pluginIds = pluginMap.keySet();
-
-        // Find all relevant actions
-        final Query actionQuery = query(where(fieldName(QNewAction.newAction.pluginId))
-                .in(pluginIds)
-                .and(fieldName(QNewAction.newAction.deleted))
-                .ne(true)); // setting `deleted` != `true`
-        actionQuery.fields().include(fieldName(QNewAction.newAction.id));
-
-        List<NewAction> uqiActions = mongoTemplate.find(actionQuery, NewAction.class);
-
-        // Retrieve the formData path for all actions
-        for (NewAction uqiActionWithId : uqiActions) {
-
-            // Fetch one action at a time to avoid OOM.
-            final NewAction uqiAction = mongoTemplate.findOne(
-                    query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())), NewAction.class);
-
-            assert uqiAction != null;
-            ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
-
-            /* No migrations required if action configuration does not exist. */
-            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
-                continue;
-            }
-
-            try {
-                if (pluginMap.get(uqiAction.getPluginId()).equals("firestore-plugin")) {
-                    migrateFirestoreActionsFormData(uqiAction);
-                } else if (pluginMap.get(uqiAction.getPluginId()).equals("amazons3-plugin")) {
-                    migrateAmazonS3ActionsFormData(uqiAction);
-                } else {
-                    migrateMongoActionsFormData(uqiAction);
-                }
-            } catch (AppsmithException e) {
-                // This action is already migrated, move on
-                log.error("Failed with error: {}", e.getMessage());
-                log.error("Failing action: {}", uqiAction.getId());
-                continue;
-            }
-            mongoTemplate.save(uqiAction);
-        }
     }
 
     public static void migrateFirestoreActionsFormData(NewAction uqiAction) {
@@ -729,84 +598,6 @@ public class DatabaseChangelog2 {
     }
 
     /**
-     * Insert isConfigured boolean to check if the datasource is correctly
-     * configured. This field will be used during
-     * the file or git import to maintain the datasource configuration state
-     *
-     * @param mongoTemplate
-     */
-    @ChangeSet(order = "004", id = "add-isConfigured-flag-for-all-datasources", author = "")
-    public void updateIsConfiguredFlagForAllTheExistingDatasources(MongoTemplate mongoTemplate) {
-        final Query datasourceQuery = query(
-                        where(fieldName(QDatasource.datasource.deleted)).ne(true))
-                .addCriteria(where(fieldName(QDatasource.datasource.invalids)).size(0));
-        datasourceQuery.fields().include(fieldName(QDatasource.datasource.id));
-
-        List<Datasource> datasources = mongoTemplate.find(datasourceQuery, Datasource.class);
-        for (Datasource datasource : datasources) {
-            final Update update = new Update();
-            update.set(fieldName(QDatasource.datasource.isConfigured), TRUE);
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-                    update,
-                    Datasource.class);
-        }
-    }
-
-    @ChangeSet(order = "005", id = "set-application-version", author = "")
-    public void setDefaultApplicationVersion(MongoTemplate mongoTemplate) {
-        mongoTemplate.updateMulti(
-                Query.query(where(fieldName(QApplication.application.deleted)).is(false)),
-                update(fieldName(QApplication.application.applicationVersion), ApplicationVersion.EARLIEST_VERSION),
-                Application.class);
-    }
-
-    @ChangeSet(order = "006", id = "delete-orphan-pages", author = "")
-    public void deleteOrphanPages(MongoTemplate mongoTemplate) {
-
-        final Query validPagesQuery =
-                query(where(fieldName(QApplication.application.deleted)).ne(true));
-        validPagesQuery.fields().include(fieldName(QApplication.application.pages));
-        validPagesQuery.fields().include(fieldName(QApplication.application.publishedPages));
-
-        final List<Application> applications = mongoTemplate.find(validPagesQuery, Application.class);
-
-        final Update deletionUpdates = new Update();
-        deletionUpdates.set(fieldName(QNewPage.newPage.deleted), true);
-        deletionUpdates.set(fieldName(QNewPage.newPage.deletedAt), Instant.now());
-
-        // Archive the pages which have the applicationId but the connection is missing from the application object.
-        for (Application application : applications) {
-            Set<String> validPageIds = new HashSet<>();
-            if (!CollectionUtils.isEmpty(application.getPages())) {
-                for (ApplicationPage applicationPage : application.getPages()) {
-                    validPageIds.add(applicationPage.getId());
-                }
-            }
-            if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
-                for (ApplicationPage applicationPublishedPage : application.getPublishedPages()) {
-                    validPageIds.add(applicationPublishedPage.getId());
-                }
-            }
-            final Query pageQuery =
-                    query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
-            pageQuery.addCriteria(
-                    where(fieldName(QNewPage.newPage.applicationId)).is(application.getId()));
-            pageQuery.fields().include(fieldName(QNewPage.newPage.applicationId));
-
-            final List<NewPage> pages = mongoTemplate.find(pageQuery, NewPage.class);
-            for (NewPage newPage : pages) {
-                if (!validPageIds.contains(newPage.getId())) {
-                    mongoTemplate.updateFirst(
-                            query(where(fieldName(QNewPage.newPage.id)).is(newPage.getId())),
-                            deletionUpdates,
-                            NewPage.class);
-                }
-            }
-        }
-    }
-
-    /**
      * This migration introduces indexes on newAction, actionCollection, newPage to improve the query performance for
      * queries like getResourceByDefaultAppIdAndGitSyncId which excludes the deleted entries.
      */
@@ -816,10 +607,6 @@ public class DatabaseChangelog2 {
     }
 
     public static void doAddIndexesForGit(MongoTemplate mongoTemplate) {
-
-        dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_compound_index");
-        dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_compound_index");
-
         String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(
                 mongoTemplate,
@@ -850,51 +637,6 @@ public class DatabaseChangelog2 {
     }
 
     /**
-     * We'll remove the unique index on organization slugs. We'll also regenerate the slugs for all organizations as
-     * most of them are outdated
-     *
-     * @param mongoTemplate MongoTemplate instance
-     */
-    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
-    public void updateOrganizationSlugs(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Organization.class, "slug");
-
-        // update organizations
-        final Query getAllOrganizationsQuery = query(where("deletedAt").is(null));
-        getAllOrganizationsQuery.fields().include(fieldName(QOrganization.organization.name));
-
-        List<Organization> organizations = mongoTemplate.find(getAllOrganizationsQuery, Organization.class);
-
-        for (Organization organization : organizations) {
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QOrganization.organization.id)).is(organization.getId())),
-                    new Update()
-                            .set(
-                                    fieldName(QOrganization.organization.slug),
-                                    TextUtils.makeSlug(organization.getName())),
-                    Organization.class);
-        }
-    }
-
-    @ChangeSet(order = "009", id = "copy-organization-to-workspaces", author = "")
-    public void copyOrganizationToWorkspaces(MongoTemplate mongoTemplate) {
-        // Drop the workspace collection in case it has been partially run, otherwise it has no effect
-        mongoTemplate.dropCollection(Workspace.class);
-        Gson gson = new Gson();
-        // Memory optimization note:
-        // Call stream instead of findAll to avoid out of memory if the collection is big
-        // stream implementation lazy loads the data using underlying cursor open on the collection
-        // the data is loaded as and when needed by the pipeline
-        try (Stream<Organization> stream =
-                mongoTemplate.stream(new Query().cursorBatchSize(10000), Organization.class)) {
-            stream.forEach((organization) -> {
-                Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
-                mongoTemplate.insert(workspace);
-            });
-        }
-    }
-
-    /**
      * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
      * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
      * the `Action.datasource` field.
@@ -902,19 +644,6 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, Workspace.class, makeIndex("createdAt"));
-    }
-
-    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "")
-    public void updateSequenceNamesFromOrganizationToWorkspace(MongoTemplate mongoTemplate) {
-        for (Sequence sequence : mongoTemplate.findAll(Sequence.class)) {
-            String oldName = sequence.getName();
-            String newName =
-                    oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
-            if (!newName.equals(oldName)) {
-                // Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
-                mongoTemplate.updateFirst(query(where("name").is(oldName)), update("name", newName), Sequence.class);
-            }
-        }
     }
 
     @ChangeSet(order = "012", id = "add-default-tenant", author = "")
@@ -937,154 +666,8 @@ public class DatabaseChangelog2 {
         mongoTemplate.save(defaultTenant);
     }
 
-    @ChangeSet(order = "013", id = "add-tenant-to-all-workspaces", author = "")
-    public void addTenantToWorkspaces(MongoTemplate mongoTemplate) {
-
-        Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
-        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
-        assert (defaultTenant != null);
-
-        // Set all the workspaces to be under the default tenant
-        mongoTemplate.updateMulti(new Query(), new Update().set("tenantId", defaultTenant.getId()), Workspace.class);
-    }
-
-    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
-    public void addTenantToUsersAndFlushRedis(
-            MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-
-        Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
-        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
-        assert (defaultTenant != null);
-
-        // Set all the users to be under the default tenant
-        mongoTemplate.updateMulti(new Query(), new Update().set("tenantId", defaultTenant.getId()), User.class);
-
-        // Now sign out all the existing users since this change impacts the user object.
-        final String script = "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))"
-                + " do redis.call('del',k) " + "end";
-        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
-
-        flushdb.subscribe();
-    }
-
-    @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
-    public void migrateOrganizationIdToWorkspaceIdInDomainObjects(
-            MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        // Datasource
-        if (mongoTemplate.findOne(new Query(), Datasource.class) == null) {
-            System.out.println("No datasource to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QDatasource.datasource.workspaceId))
-                            .toValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))),
-                    Datasource.class);
-        }
-
-        // ActionCollection
-        if (mongoTemplate.findOne(new Query(), ActionCollection.class) == null) {
-            System.out.println("No actionCollection to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QActionCollection.actionCollection.workspaceId))
-                            .toValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))),
-                    ActionCollection.class);
-        }
-
-        // Application
-        if (mongoTemplate.findOne(new Query(), Application.class) == null) {
-            System.out.println("No application to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QApplication.application.workspaceId))
-                            .toValueOf(Fields.field(fieldName(QApplication.application.organizationId))),
-                    Application.class);
-        }
-
-        // New Action
-        if (mongoTemplate.findOne(new Query(), NewAction.class) == null) {
-            System.out.println("No newAction to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QNewAction.newAction.workspaceId))
-                            .toValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))),
-                    NewAction.class);
-        }
-
-        // Theme
-        if (mongoTemplate.findOne(new Query(), Theme.class) == null) {
-            System.out.println("No theme to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QTheme.theme.workspaceId))
-                            .toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
-                    Theme.class);
-        }
-
-        // UserData
-        if (mongoTemplate.findOne(new Query(), UserData.class) == null) {
-            System.out.println("No userData to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds))
-                            .toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
-                    UserData.class);
-        }
-
-        // Workspace
-        if (mongoTemplate.findOne(new Query(), Workspace.class) == null) {
-            System.out.println("No workspace to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace))
-                            .toValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))),
-                    Workspace.class);
-        }
-
-        // User
-        if (mongoTemplate.findOne(new Query(), User.class) == null) {
-            System.out.println("No user to migrate.");
-        } else {
-            mongoTemplate.updateMulti(
-                    new Query(),
-                    AggregationUpdate.update()
-                            .set(fieldName(QUser.user.workspaceIds))
-                            .toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
-                            .set(fieldName(QUser.user.currentWorkspaceId))
-                            .toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
-                            .set(fieldName(QUser.user.examplesWorkspaceId))
-                            .toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
-                    User.class);
-        }
-
-        // Now sign out all the existing users since this change impacts the user object.
-        final String script = "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))"
-                + " do redis.call('del',k) " + "end";
-        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
-
-        flushdb.subscribe();
-    }
-
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
     public void organizationToWorkspaceIndexesRecreate(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_name_deleted_gitApplicationMetadata");
-        dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_deleted_compound_index");
-
         // If this migration is re-run
         dropIndexIfExists(mongoTemplate, Application.class, "workspace_app_deleted_gitApplicationMetadata");
         dropIndexIfExists(mongoTemplate, Datasource.class, "workspace_datasource_deleted_compound_index");
@@ -1109,125 +692,6 @@ public class DatabaseChangelog2 {
                                 fieldName(QDatasource.datasource.deletedAt))
                         .unique()
                         .named("workspace_datasource_deleted_compound_index"));
-    }
-
-    @ChangeSet(order = "017", id = "migrate-permission-in-user", author = "")
-    public void migratePermissionsInUser(MongoTemplate mongoTemplate) {
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("manage:userOrganization")),
-                new Update().set("policies.$.permission", "manage:userWorkspace"),
-                User.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
-                new Update().set("policies.$.permission", "read:userWorkspace"),
-                User.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
-                new Update().set("policies.$.permission", "read:userWorkspace"),
-                User.class);
-    }
-
-    @ChangeSet(order = "018", id = "migrate-permission-in-workspace", author = "")
-    public void migratePermissionsInWorkspace(MongoTemplate mongoTemplate) {
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("manage:organizations")),
-                new Update().set("policies.$.permission", "manage:workspaces"),
-                Workspace.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("read:organizations")),
-                new Update().set("policies.$.permission", "read:workspaces"),
-                Workspace.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("manage:orgApplications")),
-                new Update().set("policies.$.permission", "manage:workspaceApplications"),
-                Workspace.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("read:orgApplications")),
-                new Update().set("policies.$.permission", "read:workspaceApplications"),
-                Workspace.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("publish:orgApplications")),
-                new Update().set("policies.$.permission", "publish:workspaceApplications"),
-                Workspace.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("export:orgApplications")),
-                new Update().set("policies.$.permission", "export:workspaceApplications"),
-                Workspace.class);
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(where("policies.permission").is("inviteUsers:organization")),
-                new Update().set("policies.$.permission", "inviteUsers:workspace"),
-                Workspace.class);
-    }
-
-    @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction-datasource", author = "")
-    public void migrateOrganizationIdToWorkspaceIdInNewActionDatasource(
-            MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        if (mongoTemplate.findOne(new Query(), NewAction.class) == null) {
-            System.out.println("No newAction to migrate.");
-            return;
-        }
-        mongoTemplate.updateMulti(
-                new Query(Criteria.where("unpublishedAction.datasource.organizationId")
-                        .exists(true)),
-                AggregationUpdate.update()
-                        .set("unpublishedAction.datasource.workspaceId")
-                        .toValueOf(Fields.field("unpublishedAction.datasource.organizationId")),
-                NewAction.class);
-        mongoTemplate.updateMulti(
-                new Query(Criteria.where("publishedAction.datasource.organizationId")
-                        .exists(true)),
-                AggregationUpdate.update()
-                        .set("publishedAction.datasource.workspaceId")
-                        .toValueOf(Fields.field("publishedAction.datasource.organizationId")),
-                NewAction.class);
-    }
-
-    @ChangeSet(order = "020", id = "migrate-google-sheets-to-uqi", author = "")
-    public void migrateGoogleSheetsToUqi(MongoTemplate mongoTemplate) {
-
-        // Get plugin references to Google Sheets actions
-        Plugin uqiPlugin = mongoTemplate.findOne(query(where("packageName").in("google-sheets-plugin")), Plugin.class);
-        assert uqiPlugin != null;
-        uqiPlugin.setUiComponent("UQIDbEditorForm");
-
-        mongoTemplate.save(uqiPlugin);
-
-        final String pluginId = uqiPlugin.getId();
-
-        // Find all relevant actions
-        final Query actionQuery = query(where(fieldName(QNewAction.newAction.pluginId))
-                .is(pluginId)
-                .and(fieldName(QNewAction.newAction.deleted))
-                .ne(true)); // setting `deleted` != `true`
-        actionQuery.fields().include(fieldName(QNewAction.newAction.id));
-
-        List<NewAction> uqiActions = mongoTemplate.find(actionQuery, NewAction.class);
-
-        // Retrieve the formData path for all actions
-        for (NewAction uqiActionWithId : uqiActions) {
-
-            // Fetch one action at a time to avoid OOM.
-            final NewAction uqiAction = mongoTemplate.findOne(
-                    query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())), NewAction.class);
-
-            assert uqiAction != null;
-            ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
-
-            /* No migrations required if action configuration does not exist. */
-            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
-                continue;
-            }
-
-            try {
-                migrateGoogleSheetsToUqi(uqiAction);
-            } catch (AppsmithException e) {
-                // This action is already migrated, move on
-                log.error("Failed with error: {}", e.getMessage());
-                log.error("Failing action: {}", uqiAction.getId());
-                continue;
-            }
-            mongoTemplate.save(uqiAction);
-        }
     }
 
     public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
@@ -1526,97 +990,6 @@ public class DatabaseChangelog2 {
         DatabaseChangelog1.doClearRedisKeys(reactiveRedisOperations);
     }
 
-    private List<String> getCustomizedThemeIds(
-            String fieldName,
-            Function<Application, String> getThemeIdMethod,
-            List<String> systemThemeIds,
-            MongoTemplate mongoTemplate) {
-        // query to get application having a customized theme in the provided fieldName
-        Query getAppsWithCustomTheme = new Query(Criteria.where(
-                        fieldName(QApplication.application.gitApplicationMetadata))
-                .exists(true)
-                .and(fieldName(QApplication.application.deleted))
-                .is(false)
-                .andOperator(
-                        where(fieldName).nin(systemThemeIds), where(fieldName).exists(true)));
-
-        // we need the provided field "fieldName" only
-        getAppsWithCustomTheme.fields().include(fieldName);
-
-        List<Application> applications = mongoTemplate.find(getAppsWithCustomTheme, Application.class);
-        return applications.stream().map(getThemeIdMethod).collect(Collectors.toList());
-    }
-
-    @ChangeSet(order = "022", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
-    public void fixDeletedThemesWhenGitBranchDeleted(MongoTemplate mongoTemplate) {
-        Query getSystemThemesQuery =
-                new Query(Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(TRUE));
-        getSystemThemesQuery.fields().include(fieldName(QTheme.theme.id));
-        List<Theme> systemThemes = mongoTemplate.find(getSystemThemesQuery, Theme.class);
-        List<String> systemThemeIds =
-                systemThemes.stream().map(BaseDomain::getId).collect(Collectors.toList());
-
-        List<String> customizedEditModeThemeIds = getCustomizedThemeIds(
-                fieldName(QApplication.application.editModeThemeId),
-                Application::getEditModeThemeId,
-                systemThemeIds,
-                mongoTemplate);
-
-        List<String> customizedPublishedModeThemeIds = getCustomizedThemeIds(
-                fieldName(QApplication.application.publishedModeThemeId),
-                Application::getPublishedModeThemeId,
-                systemThemeIds,
-                mongoTemplate);
-
-        // combine the theme ids
-        Set<String> set = new HashSet<>();
-        set.addAll(customizedEditModeThemeIds);
-        set.addAll(customizedPublishedModeThemeIds);
-
-        Update update =
-                new Update().set(fieldName(QTheme.theme.deleted), false).unset(fieldName(QTheme.theme.deletedAt));
-        Criteria deletedCustomThemes = Criteria.where(fieldName(QTheme.theme.id))
-                .in(set)
-                .and(fieldName(QTheme.theme.deleted))
-                .is(true);
-
-        mongoTemplate.updateMulti(new Query(deletedCustomThemes), update, Theme.class);
-
-        for (String editModeThemeId : customizedEditModeThemeIds) {
-            Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId))
-                            .is(editModeThemeId))
-                    .addCriteria(
-                            where(fieldName(QApplication.application.deleted)).is(false))
-                    .addCriteria(where(fieldName(QApplication.application.gitApplicationMetadata))
-                            .exists(true));
-            query.fields().include(fieldName(QApplication.application.id));
-
-            List<Application> applicationList = mongoTemplate.find(query, Application.class);
-            if (applicationList.size() > 1) { // same custom theme is set to more than one application
-                // Remove one as we will create a  new theme for all the other branch apps
-                applicationList.remove(applicationList.size() - 1);
-
-                // clone the custom theme for each of these applications
-                Query themeQuery = new Query(
-                                Criteria.where(fieldName(QTheme.theme.id)).is(editModeThemeId))
-                        .addCriteria(where(fieldName(QTheme.theme.deleted)).is(false));
-                Theme theme = mongoTemplate.findOne(themeQuery, Theme.class);
-                for (Application application : applicationList) {
-                    Theme newTheme = new Theme();
-                    copyNestedNonNullProperties(theme, newTheme);
-                    newTheme.setId(null);
-                    newTheme.setSystemTheme(false);
-                    newTheme = mongoTemplate.insert(newTheme);
-                    mongoTemplate.updateFirst(
-                            new Query(Criteria.where(fieldName(QApplication.application.id))
-                                    .is(application.getId())),
-                            new Update().set(fieldName(QApplication.application.editModeThemeId), newTheme.getId()),
-                            Application.class);
-                }
-            }
-        }
-    }
-
     @ChangeSet(order = "023", id = "add-anonymousUser", author = "")
     public void addAnonymousUser(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
@@ -1640,660 +1013,6 @@ public class DatabaseChangelog2 {
 
             mongoTemplate.save(anonymousUser);
         }
-    }
-
-    private String getDefaultNameForGroupInWorkspace(String prefix, String workspaceName) {
-        return prefix + " - " + workspaceName;
-    }
-
-    private Set<PermissionGroup> generateDefaultPermissionGroupsWithoutPermissions(
-            MongoTemplate mongoTemplate, Workspace workspace) {
-        String workspaceName = workspace.getName();
-        String workspaceId = workspace.getId();
-        Set<Permission> permissions = new HashSet<>();
-        // Administrator permission group
-        PermissionGroup adminPermissionGroup = new PermissionGroup();
-        adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.ADMINISTRATOR, workspaceName));
-        adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
-        adminPermissionGroup.setTenantId(workspace.getTenantId());
-        adminPermissionGroup.setDescription(FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION);
-        adminPermissionGroup = mongoTemplate.save(adminPermissionGroup);
-        // This ensures that a user can leave a permission group
-        permissions = Set.of(new Permission(adminPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
-        adminPermissionGroup.setPermissions(permissions);
-        adminPermissionGroup = mongoTemplate.save(adminPermissionGroup);
-
-        // Developer permission group
-        PermissionGroup developerPermissionGroup = new PermissionGroup();
-        developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.DEVELOPER, workspaceName));
-        developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
-        developerPermissionGroup.setTenantId(workspace.getTenantId());
-        developerPermissionGroup.setDescription(FieldName.WORKSPACE_DEVELOPER_DESCRIPTION);
-        developerPermissionGroup = mongoTemplate.save(developerPermissionGroup);
-        // This ensures that a user can leave a permission group
-        permissions =
-                Set.of(new Permission(developerPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
-        developerPermissionGroup.setPermissions(permissions);
-        developerPermissionGroup = mongoTemplate.save(developerPermissionGroup);
-
-        // App viewer permission group
-        PermissionGroup viewerPermissionGroup = new PermissionGroup();
-        viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.VIEWER, workspaceName));
-        viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
-        viewerPermissionGroup.setTenantId(workspace.getTenantId());
-        viewerPermissionGroup.setDescription(FieldName.WORKSPACE_VIEWER_DESCRIPTION);
-        viewerPermissionGroup = mongoTemplate.save(viewerPermissionGroup);
-        // This ensures that a user can leave a permission group
-        permissions = Set.of(new Permission(viewerPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
-        viewerPermissionGroup.setPermissions(permissions);
-        viewerPermissionGroup = mongoTemplate.save(viewerPermissionGroup);
-
-        return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
-    }
-
-    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(
-            MongoTemplate mongoTemplate,
-            PolicySolution policySolution,
-            Set<PermissionGroup> permissionGroups,
-            Workspace workspace,
-            Map<String, String> userIdForEmail,
-            Set<String> validUserIds) {
-        PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup developerPermissionGroup = permissionGroups.stream()
-                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst()
-                .get();
-        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
-                .findFirst()
-                .get();
-
-        // Administrator permissions
-        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN.getPermissions().stream()
-                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup ->
-                        new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUP_MEMBERS))
-                .collect(Collectors.toSet());
-        Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup ->
-                        new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
-                .collect(Collectors.toSet());
-        Set<Permission> assignPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
-                .collect(Collectors.toSet());
-
-        List<UserRole> userRoles = workspace.getUserRoles().stream()
-                .map(userRole -> {
-                    // If userId is not valid populate it with the userId mapped to the email
-                    // This happens if user is deleted manually from database and re-added again
-                    if (!validUserIds.contains(userRole.getUserId())) {
-                        if (userIdForEmail.containsKey(userRole.getUsername())) {
-                            userRole.setUserId(userIdForEmail.get(userRole.getUsername()));
-                        } else {
-                            // Set userId to null if even email is not found
-                            userRole.setUserId(null);
-                        }
-                    }
-                    return userRole;
-                })
-                // filter out the users who are still not valid
-                .filter(userRole -> userRole.getUserId() != null)
-                // collect the user roles into a list
-                .collect(Collectors.toList());
-
-        Set<Permission> permissions = new HashSet<>(adminPermissionGroup.getPermissions());
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        permissions.addAll(unassignPermissionGroupPermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        adminPermissionGroup.setPermissions(permissions);
-
-        // Assign admin user ids to the administrator permission group
-        Set<String> adminUserIds = userRoles.stream()
-                .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN))
-                .map(UserRole::getUserId)
-                .collect(Collectors.toSet());
-
-        adminPermissionGroup.setAssignedToUserIds(adminUserIds);
-
-        // Developer Permissions
-        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER.getPermissions().stream()
-                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        // The developer should also be able to assign developer & viewer permission groups
-        assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
-                .collect(Collectors.toSet());
-        permissions = new HashSet<>(developerPermissionGroup.getPermissions());
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        developerPermissionGroup.setPermissions(permissions);
-
-        // Assign developer user ids to the developer permission group
-        Set<String> developerUserIds = userRoles.stream()
-                .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_DEVELOPER))
-                .map(UserRole::getUserId)
-                .collect(Collectors.toSet());
-
-        developerPermissionGroup.setAssignedToUserIds(developerUserIds);
-
-        // App Viewer Permissions
-        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER.getPermissions().stream()
-                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        // The app viewers should also be able to assign to viewer permission groups
-        assignPermissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
-                .collect(Collectors.toSet());
-        permissions = new HashSet<>(viewerPermissionGroup.getPermissions());
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        viewerPermissionGroup.setPermissions(permissions);
-
-        // Assign viewer user ids to the viewer permission group
-        Set<String> viewerUserIds = userRoles.stream()
-                .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_VIEWER))
-                .map(UserRole::getUserId)
-                .collect(Collectors.toSet());
-
-        viewerPermissionGroup.setAssignedToUserIds(viewerUserIds);
-
-        Set<PermissionGroup> savedPermissionGroups =
-                Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
-
-        // Apply the permissions to the permission groups
-        for (PermissionGroup permissionGroup : savedPermissionGroups) {
-            for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
-                Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(
-                        permissionGroup, nestedPermissionGroup.getId());
-                policySolution.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
-            }
-        }
-
-        // Save the permission groups
-        adminPermissionGroup = mongoTemplate.save(adminPermissionGroup);
-        developerPermissionGroup = mongoTemplate.save(developerPermissionGroup);
-        viewerPermissionGroup = mongoTemplate.save(viewerPermissionGroup);
-
-        return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
-    }
-
-    private void rollbackAddDefaultPermissionGroups(MongoTemplate mongoTemplate, Workspace workspace) {
-        // Delete the permission groups
-        mongoTemplate
-                .remove(PermissionGroup.class)
-                .matching(new Query(Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
-                        .is(workspace.getId())))
-                .all();
-    }
-
-    @ChangeSet(order = "024", id = "add-default-permission-groups", author = "")
-    public void addDefaultPermissionGroups(
-            MongoTemplate mongoTemplate,
-            WorkspaceService workspaceService,
-            @NonLockGuarded PolicySolution policySolution,
-            UserRepository userRepository) {
-
-        // Create a map of emails to userIds
-        Map<String, String> userIdForEmail = mongoTemplate.stream(new Query(), User.class)
-                .collect(Collectors.toMap(User::getEmail, User::getId, (value1, value2) -> value1, HashMap::new));
-
-        // Create a set of valid userIds
-        Set<String> validUserIds = userIdForEmail.values().stream().collect(Collectors.toCollection(HashSet::new));
-
-        // Rollback permission groups created on locked workspaces
-        mongoTemplate.stream(new Query(Criteria.where("locked").is(true)), Workspace.class)
-                .forEach(workspace -> {
-                    rollbackAddDefaultPermissionGroups(mongoTemplate, workspace);
-                    // unlock the workspace
-                    mongoTemplate
-                            .update(Workspace.class)
-                            .matching(new Criteria("_id").is(new ObjectId(workspace.getId())))
-                            .apply(new Update().unset("locked"))
-                            .first();
-                });
-
-        // Stream workspaces which does not have default permission groups
-        mongoTemplate.stream(
-                        new Query(Criteria.where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .is(null)),
-                        Workspace.class)
-                .forEach(workspace -> {
-                    if (workspace.getUserRoles() != null) {
-
-                        // lock the workspace
-                        mongoTemplate
-                                .update(Workspace.class)
-                                .matching(new Criteria("_id").is(new ObjectId(workspace.getId())))
-                                .apply(new Update().set("locked", true))
-                                .first();
-
-                        // Clear permission groups inside policies
-                        // This ensures that migration can run again if aborted in between
-                        workspace.getPolicies().forEach(policy -> {
-                            policy.setPermissionGroups(new HashSet<>());
-                        });
-                        Set<PermissionGroup> permissionGroups =
-                                generateDefaultPermissionGroupsWithoutPermissions(mongoTemplate, workspace);
-                        // Set default permission groups
-                        workspace.setDefaultPermissionGroups(permissionGroups.stream()
-                                .map(PermissionGroup::getId)
-                                .collect(Collectors.toSet()));
-                        // Generate permissions and policies for the default permission groups
-                        permissionGroups = generatePermissionsForDefaultPermissionGroups(
-                                mongoTemplate,
-                                policySolution,
-                                permissionGroups,
-                                workspace,
-                                userIdForEmail,
-                                validUserIds);
-                        // Apply the permissions to the workspace
-                        for (PermissionGroup permissionGroup : permissionGroups) {
-                            // Apply the permissions to the workspace
-                            Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(
-                                    permissionGroup, workspace.getId());
-                            workspace = policySolution.addPoliciesToExistingObject(policyMap, workspace);
-                        }
-                        // Save the workspace
-                        mongoTemplate.save(workspace);
-
-                        // unlock the workspace
-                        mongoTemplate
-                                .update(Workspace.class)
-                                .matching(new Criteria("_id").is(new ObjectId(workspace.getId())))
-                                .apply(new Update().unset("locked"))
-                                .first();
-                    }
-                });
-    }
-
-    @ChangeSet(order = "025", id = "mark-public-apps", author = "")
-    public void markPublicApps(MongoTemplate mongoTemplate) {
-        // Temporarily mark public applications
-        mongoTemplate.updateMulti(
-                new Query()
-                        .addCriteria(Criteria.where("policies")
-                                .elemMatch(Criteria.where("permission")
-                                        .is(AclPermission.READ_APPLICATIONS.getValue())
-                                        .and("users")
-                                        .is("anonymousUser"))),
-                new Update().set("makePublic", true),
-                Application.class);
-    }
-
-    @ChangeSet(order = "026", id = "mark-workspaces-for-inheritance", author = "")
-    public void markWorkspacesForInheritance(MongoTemplate mongoTemplate) {
-        // Temporarily mark all workspaces for processing of permissions inheritance
-        mongoTemplate.updateMulti(new Query(), new Update().set("inheritPermissions", true), Workspace.class);
-    }
-
-    @ChangeSet(order = "027", id = "inherit-policies-to-every-child-object", author = "")
-    public void inheritPoliciesToEveryChildObject(
-            MongoTemplate mongoTemplate, @NonLockGuarded PolicyGenerator policyGenerator) {
-
-        mongoTemplate.stream(new Query(Criteria.where("inheritPermissions").is(true)), Workspace.class)
-                .forEach(workspace -> {
-                    // Process applications
-                    Set<Policy> applicationPolicies = policyGenerator.getAllChildPolicies(
-                            workspace.getPolicies(), Workspace.class, Application.class);
-                    mongoTemplate.updateMulti(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId))
-                                            .is(workspace.getId())),
-                            new Update().set("policies", applicationPolicies),
-                            Application.class);
-
-                    // Process datasources
-                    Set<Policy> datasourcePolicies = policyGenerator.getAllChildPolicies(
-                            workspace.getPolicies(), Workspace.class, Datasource.class);
-                    mongoTemplate.updateMulti(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QDatasource.datasource.workspaceId))
-                                            .is(workspace.getId())),
-                            new Update().set("policies", datasourcePolicies),
-                            Datasource.class);
-
-                    // Get application ids
-                    Set<String> applicationIds = mongoTemplate.stream(
-                                    new Query()
-                                            .addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId))
-                                                    .is(workspace.getId())),
-                                    Application.class)
-                            .map(Application::getId)
-                            .collect(Collectors.toSet());
-
-                    // Update pages
-                    Set<Policy> pagePolicies =
-                            policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Page.class);
-                    mongoTemplate.updateMulti(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId))
-                                            .in(applicationIds)),
-                            new Update().set("policies", pagePolicies),
-                            NewPage.class);
-
-                    // Update NewActions
-                    Set<Policy> actionPolicies =
-                            policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
-                    mongoTemplate.updateMulti(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId))
-                                            .in(applicationIds)),
-                            new Update().set("policies", actionPolicies),
-                            NewAction.class);
-
-                    // Update ActionCollections
-                    mongoTemplate.updateMulti(
-                            new Query()
-                                    .addCriteria(
-                                            Criteria.where(fieldName(QActionCollection.actionCollection.applicationId))
-                                                    .in(applicationIds)),
-                            new Update().set("policies", actionPolicies),
-                            ActionCollection.class);
-
-                    // Update Themes
-                    // First update all the named themes with the new policies
-                    Set<Policy> themePolicies =
-                            policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
-                    mongoTemplate.updateMulti(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId))
-                                            .in(applicationIds)),
-                            new Update().set("policies", themePolicies),
-                            Theme.class);
-
-                    // Also update the non-named themes.
-                    // Get the theme ids to update
-                    Set<String> themeIdSet = mongoTemplate.stream(
-                                    new Query()
-                                            .addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId))
-                                                    .is(workspace.getId())),
-                                    Application.class)
-                            .flatMap(application -> {
-                                Set<String> themeIds = new HashSet<>();
-                                if (application.getEditModeThemeId() != null) {
-                                    themeIds.add(application.getEditModeThemeId());
-                                }
-                                if (application.getPublishedModeThemeId() != null) {
-                                    themeIds.add(application.getPublishedModeThemeId());
-                                }
-                                return themeIds.stream();
-                            })
-                            .collect(Collectors.toSet());
-
-                    Criteria nonSystemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme))
-                            .is(false);
-                    Criteria idCriteria =
-                            Criteria.where(fieldName(QTheme.theme.id)).in(themeIdSet);
-
-                    Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
-
-                    // Add the policies to the un-named themes as well.
-                    mongoTemplate.updateMulti(
-                            new Query(queryCriteria), new Update().set("policies", themePolicies), Theme.class);
-
-                    // Processed, remove temporary flag
-                    mongoTemplate
-                            .update(Workspace.class)
-                            .matching(new Criteria("_id").is(new ObjectId(workspace.getId())))
-                            .apply(new Update().unset("inheritPermissions"))
-                            .first();
-                });
-    }
-
-    private void makeApplicationPublic(
-            PolicySolution policySolution,
-            PolicyGenerator policyGenerator,
-            NewPageRepository newPageRepository,
-            Application application,
-            Workspace workspace,
-            MongoTemplate mongoTemplate,
-            User anonymousUser) {
-        PermissionGroup publicPermissionGroup = new PermissionGroup();
-        publicPermissionGroup.setName(application.getName() + " Public");
-        publicPermissionGroup.setTenantId(workspace.getTenantId());
-        publicPermissionGroup.setDescription("Default permissions generated for sharing an application for viewing.");
-        // Use this field to store the application id for rollback
-        publicPermissionGroup.setDefaultWorkspaceId(application.getId());
-
-        Set<Policy> applicationPolicies = application.getPolicies();
-        Policy makePublicPolicy = applicationPolicies.stream()
-                .filter(policy -> policy.getPermission().equals(AclPermission.MAKE_PUBLIC_APPLICATIONS.getValue()))
-                .findFirst()
-                .get();
-
-        // Let this newly created permission group be assignable by everyone who has permission for make public
-        // application
-        Policy assignPermissionGroup = Policy.builder()
-                .permission(AclPermission.ASSIGN_PERMISSION_GROUPS.getValue())
-                .permissionGroups(makePublicPolicy.getPermissionGroups())
-                .build();
-
-        // Let this newly created permission group be assignable by everyone who has permission for make public
-        // application
-        Policy unassignPermissionGroup = Policy.builder()
-                .permission(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue())
-                .permissionGroups(makePublicPolicy.getPermissionGroups())
-                .build();
-
-        publicPermissionGroup.setPolicies(new HashSet<>(Set.of(assignPermissionGroup, unassignPermissionGroup)));
-        publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUser.getId()));
-        publicPermissionGroup = mongoTemplate.save(publicPermissionGroup);
-
-        application.setDefaultPermissionGroup(publicPermissionGroup.getId());
-
-        String permissionGroupId = publicPermissionGroup.getId();
-
-        Map<String, Policy> applicationPolicyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
-                AclPermission.READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> datasourcePolicyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
-                AclPermission.EXECUTE_DATASOURCES, permissionGroupId);
-
-        Set<String> datasourceIds = new HashSet<>();
-
-        mongoTemplate.stream(
-                        new Query()
-                                .addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId))
-                                        .is(application.getId())),
-                        NewAction.class)
-                .forEach(newAction -> {
-                    ActionDTO unpublishedAction = newAction.getUnpublishedAction();
-                    ActionDTO publishedAction = newAction.getPublishedAction();
-
-                    if (unpublishedAction.getDatasource() != null
-                            && unpublishedAction.getDatasource().getId() != null) {
-                        datasourceIds.add(unpublishedAction.getDatasource().getId());
-                    }
-
-                    if (publishedAction != null
-                            && publishedAction.getDatasource() != null
-                            && publishedAction.getDatasource().getId() != null) {
-                        datasourceIds.add(publishedAction.getDatasource().getId());
-                    }
-                });
-
-        // Update and save application
-        application = policySolution.addPoliciesToExistingObject(applicationPolicyMap, application);
-        mongoTemplate.save(application);
-        applicationPolicies = application.getPolicies();
-
-        // Update datasources
-        mongoTemplate.stream(
-                        new Query()
-                                .addCriteria(Criteria.where(fieldName(QDatasource.datasource.id))
-                                        .in(datasourceIds)),
-                        Datasource.class)
-                .forEach(datasource -> {
-                    datasource = policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
-                    mongoTemplate.save(datasource);
-                });
-
-        // Update pages
-        Set<Policy> pagePolicies =
-                policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Page.class);
-        mongoTemplate.updateMulti(
-                new Query()
-                        .addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId))
-                                .is(application.getId())),
-                new Update().set("policies", pagePolicies),
-                NewPage.class);
-
-        // Update NewActions
-        Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
-        mongoTemplate.updateMulti(
-                new Query()
-                        .addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId))
-                                .is(application.getId())),
-                new Update().set("policies", actionPolicies),
-                NewAction.class);
-
-        // Update ActionCollections
-        mongoTemplate.updateMulti(
-                new Query()
-                        .addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId))
-                                .is(application.getId())),
-                new Update().set("policies", actionPolicies),
-                ActionCollection.class);
-
-        // Update Themes
-        Set<Policy> themePolicies =
-                policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
-        mongoTemplate.updateMulti(
-                new Query()
-                        .addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId))
-                                .is(application.getId())),
-                new Update().set("policies", themePolicies),
-                Theme.class);
-    }
-
-    private void rollbackMakeApplicationsPublic(Application application, MongoTemplate mongoTemplate) {
-        PermissionGroup publicPermissionGroup = mongoTemplate.stream(
-                        new Query()
-                                .addCriteria(
-                                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
-                                                .is(application.getId())),
-                        PermissionGroup.class)
-                .findFirst()
-                .orElse(null);
-
-        if (publicPermissionGroup != null) {
-
-            // Remove permission group from application policies
-            application.getPolicies().forEach(permissionGroup -> permissionGroup
-                    .getPermissionGroups()
-                    .remove(publicPermissionGroup.getId()));
-            mongoTemplate.save(application);
-
-            Set<String> datasourceIds = new HashSet<>();
-            mongoTemplate.stream(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId))
-                                            .is(application.getId())),
-                            NewAction.class)
-                    .forEach(newAction -> {
-                        ActionDTO unpublishedAction = newAction.getUnpublishedAction();
-                        ActionDTO publishedAction = newAction.getPublishedAction();
-
-                        if (unpublishedAction.getDatasource() != null
-                                && unpublishedAction.getDatasource().getId() != null) {
-                            datasourceIds.add(unpublishedAction.getDatasource().getId());
-                        }
-
-                        if (publishedAction != null
-                                && publishedAction.getDatasource() != null
-                                && publishedAction.getDatasource().getId() != null) {
-                            datasourceIds.add(publishedAction.getDatasource().getId());
-                        }
-                    });
-
-            // Remove permission group from datasources policies
-            mongoTemplate.stream(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QDatasource.datasource.id))
-                                            .in(datasourceIds)),
-                            Datasource.class)
-                    .forEach(datasource -> {
-                        datasource.getPolicies().forEach(permissionGroup -> permissionGroup
-                                .getPermissionGroups()
-                                .remove(publicPermissionGroup.getId()));
-                        mongoTemplate.save(datasource);
-                    });
-
-            // remove permission group
-            mongoTemplate.remove(publicPermissionGroup);
-        }
-    }
-
-    @ChangeSet(order = "028", id = "make-applications-public", author = "")
-    public void makeApplicationsPublic(
-            MongoTemplate mongoTemplate,
-            @NonLockGuarded PolicySolution policySolution,
-            @NonLockGuarded PolicyGenerator policyGenerator,
-            NewPageRepository newPageRepository) {
-        User anonymousUser = mongoTemplate.findOne(
-                new Query()
-                        .addCriteria(Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER)),
-                User.class);
-
-        // Rollback permission groups created on locked workspaces
-        mongoTemplate.stream(new Query(Criteria.where("locked").is(true)), Application.class)
-                .forEach(application -> {
-                    rollbackMakeApplicationsPublic(application, mongoTemplate);
-                    // unlock the workspace
-                    mongoTemplate
-                            .update(Application.class)
-                            .matching(new Criteria("_id").is(new ObjectId(application.getId())))
-                            .apply(new Update().unset("locked"))
-                            .first();
-                });
-
-        // Make all marked applications public
-        mongoTemplate.stream(
-                        new Query().addCriteria(Criteria.where("makePublic").is(true)), Application.class)
-                .forEach(application -> {
-                    // lock the application
-                    mongoTemplate
-                            .update(Application.class)
-                            .matching(new Criteria("_id").is(new ObjectId(application.getId())))
-                            .apply(new Update().set("locked", true))
-                            .first();
-
-                    Workspace workspace = mongoTemplate.findOne(
-                            new Query()
-                                    .addCriteria(Criteria.where(fieldName(QBaseDomain.baseDomain.id))
-                                            .is(application.getWorkspaceId())),
-                            Workspace.class);
-                    makeApplicationPublic(
-                            policySolution,
-                            policyGenerator,
-                            newPageRepository,
-                            application,
-                            workspace,
-                            mongoTemplate,
-                            anonymousUser);
-                    // Remove makePublic flag from application
-                    mongoTemplate.updateFirst(
-                            new Query().addCriteria(Criteria.where("_id").is(new ObjectId(application.getId()))),
-                            new Update().unset("makePublic"),
-                            Application.class);
-
-                    // unlock the application
-                    mongoTemplate
-                            .update(Application.class)
-                            .matching(new Criteria("_id").is(new ObjectId(application.getId())))
-                            .apply(new Update().unset("locked"))
-                            .first();
-                });
     }
 
     @ChangeSet(order = "029", id = "add-instance-config-object", author = "")
@@ -2351,11 +1070,6 @@ public class DatabaseChangelog2 {
 
         Policy assignPermissionGroupPolicy = Policy.builder()
                 .permission(ASSIGN_PERMISSION_GROUPS.getValue())
-                .permissionGroups(Set.of(savedPermissionGroup.getId()))
-                .build();
-
-        Policy readPermissionGroupPolicy = Policy.builder()
-                .permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
@@ -2444,9 +1158,6 @@ public class DatabaseChangelog2 {
                 .create()
                 .fromJson(themesJson, Theme[].class);
 
-        Theme legacyTheme = null;
-        boolean themeExists = false;
-
         // Make this theme accessible to anonymous users.
         Query anonymousUserPermissionConfig = new Query();
         anonymousUserPermissionConfig.addCriteria(
@@ -2482,7 +1193,6 @@ public class DatabaseChangelog2 {
             if (savedTheme == null) { // this theme does not exist, create it
                 savedTheme = mongoTemplate.save(theme);
             } else { // theme already found, update
-                themeExists = true;
                 savedTheme.setDisplayName(theme.getDisplayName());
                 savedTheme.setPolicies(theme.getPolicies());
                 savedTheme.setConfig(theme.getConfig());
@@ -2492,10 +1202,6 @@ public class DatabaseChangelog2 {
                     savedTheme.setCreatedAt(Instant.now());
                 }
                 mongoTemplate.save(savedTheme);
-            }
-
-            if (theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
-                legacyTheme = savedTheme;
             }
 
             // Add the access to this theme to the public permission group
@@ -2510,21 +1216,12 @@ public class DatabaseChangelog2 {
             }
         }
 
-        if (!themeExists) { // this is the first time we're running the migration
-            // migrate all applications and set legacy theme to them in both mode
-            Update update = new Update()
-                    .set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
-                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
-            mongoTemplate.updateMulti(
-                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class);
-        }
-
         // Finally save the role which gives access to all the system themes to the anonymous user.
         publicPermissionGroup.setPermissions(permissions);
         mongoTemplate.save(publicPermissionGroup);
     }
 
-    @ChangeSet(order = "32", id = "create-indices-on-permissions-for-performance", author = "")
+    @ChangeSet(order = "032", id = "create-indices-on-permissions-for-performance", author = "")
     public void addPermissionGroupIndex(MongoTemplate mongoTemplate) {
         doAddPermissionGroupIndex(mongoTemplate);
     }
@@ -2675,119 +1372,12 @@ public class DatabaseChangelog2 {
             @NonLockGuarded PolicySolution policySolution,
             @NonLockGuarded PolicyGenerator policyGenerator,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-
-        Query anonymousUserPermissionConfig = new Query();
-        anonymousUserPermissionConfig.addCriteria(
-                where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
-        Config publicPermissionGroupConfig = mongoTemplate.findOne(anonymousUserPermissionConfig, Config.class);
-
-        String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
-
         ConcurrentHashMap<String, Boolean> oldPermissionGroupMap = new ConcurrentHashMap<>();
         ConcurrentHashMap.KeySetView<Object, Boolean> oldPgIds = oldPermissionGroupMap.newKeySet();
         // Find all public apps
         Query publicAppQuery = new Query();
         publicAppQuery.addCriteria(where(fieldName(QApplication.application.defaultPermissionGroup))
                 .exists(true));
-
-        mongoTemplate.stream(publicAppQuery, Application.class).parallel().forEach(application -> {
-            String oldPermissionGroupId = application.getDefaultPermissionGroup();
-            // Store the existing permission group providing view access to the app for cleanup
-            oldPgIds.add(oldPermissionGroupId);
-            application.setDefaultPermissionGroup(null);
-
-            // Update the application policies to use the public permission group
-            application.getPolicies().stream()
-                    .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
-                    .forEach(policy -> {
-                        policy.getPermissionGroups().remove(oldPermissionGroupId);
-                        policy.getPermissionGroups().add(permissionGroupId);
-                    });
-            mongoTemplate.save(application);
-
-            Set<String> datasourceIds = new HashSet<>();
-            Query applicationActionsQuery = new Query()
-                    .addCriteria(
-                            where(fieldName(QNewAction.newAction.applicationId)).is(application.getId()));
-            // Only fetch the datasources that are used in the action
-            applicationActionsQuery
-                    .fields()
-                    .include(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.datasource))
-                    .include(fieldName(QNewAction.newAction.publishedAction) + "."
-                            + fieldName(QNewAction.newAction.publishedAction.datasource));
-
-            mongoTemplate.stream(applicationActionsQuery, NewAction.class).forEach(newAction -> {
-                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
-                ActionDTO publishedAction = newAction.getPublishedAction();
-
-                if (unpublishedAction.getDatasource() != null
-                        && unpublishedAction.getDatasource().getId() != null) {
-                    datasourceIds.add(unpublishedAction.getDatasource().getId());
-                }
-
-                if (publishedAction != null
-                        && publishedAction.getDatasource() != null
-                        && publishedAction.getDatasource().getId() != null) {
-                    datasourceIds.add(publishedAction.getDatasource().getId());
-                }
-            });
-
-            // Update datasources
-            Query datasourceQuery = new Query()
-                    .addCriteria(where(fieldName(QDatasource.datasource.id)).in(datasourceIds));
-            mongoTemplate.stream(datasourceQuery, Datasource.class).parallel().forEach(datasource -> {
-                // Update the datasource policies.
-                datasource.getPolicies().stream()
-                        .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
-                        .forEach(policy -> {
-                            policy.getPermissionGroups().remove(oldPermissionGroupId);
-                            policy.getPermissionGroups().add(permissionGroupId);
-                        });
-                mongoTemplate.save(datasource);
-            });
-
-            // Update pages
-            Set<Policy> pagePolicies =
-                    policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
-            mongoTemplate.updateMulti(
-                    new Query()
-                            .addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId))
-                                    .is(application.getId())),
-                    new Update().set(fieldName(QNewPage.newPage.policies), pagePolicies),
-                    NewPage.class);
-
-            // Update actions
-            Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
-            mongoTemplate.updateMulti(
-                    new Query()
-                            .addCriteria(where(fieldName(QNewAction.newAction.applicationId))
-                                    .is(application.getId())),
-                    new Update().set(fieldName(QNewAction.newAction.policies), actionPolicies),
-                    NewAction.class);
-
-            // Update js objects
-            mongoTemplate.updateMulti(
-                    new Query()
-                            .addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId))
-                                    .is(application.getId())),
-                    new Update().set(fieldName(QActionCollection.actionCollection.policies), actionPolicies),
-                    ActionCollection.class);
-
-            // Update application themes
-            Criteria nonSystemThemeCriteria =
-                    Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(false);
-            Criteria idCriteria = Criteria.where(fieldName(QTheme.theme.id))
-                    .in(application.getEditModeThemeId(), application.getPublishedModeThemeId());
-            Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
-            Set<Policy> themePolicies =
-                    policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
-            mongoTemplate.updateMulti(
-                    new Query().addCriteria(queryCriteria),
-                    new Update().set(fieldName(QTheme.theme.policies), themePolicies),
-                    Theme.class);
-        });
-        // All the applications have been migrated.
 
         // Clean up all the permission groups which were created to provide views to public apps
         mongoTemplate.findAllAndRemove(
@@ -2828,36 +1418,6 @@ public class DatabaseChangelog2 {
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
-    }
-
-    /**
-     * This method attempts to add GraphQL plugin to all workspaces once again since the last migration was
-     * interrupted due to issues on prod cluster. Hence, during the last migration the plugin could not be installed in
-     * few workspaces.The method installPluginToAllWorkspaces only installs the plugin in those workspaces where it is
-     * missing.
-     */
-    @ChangeSet(order = "037", id = "install-graphql-plugin-to-remaining-workspaces", author = "")
-    public void reInstallGraphQLPluginToWorkspaces(MongoTemplate mongoTemplate) {
-        Plugin graphQLPlugin = mongoTemplate.findOne(query(where("packageName").is("graphql-plugin")), Plugin.class);
-        installPluginToAllWorkspaces(mongoTemplate, graphQLPlugin.getId());
-    }
-
-    public void softDeletePlugin(MongoTemplate mongoTemplate, Plugin plugin) {
-        softDeleteAllPluginActions(plugin, mongoTemplate);
-        softDeleteAllPluginDatasources(plugin, mongoTemplate);
-        softDeletePluginFromAllWorkspaces(plugin, mongoTemplate);
-        softDeleteInPluginCollection(plugin, mongoTemplate);
-    }
-
-    @ChangeSet(order = "038", id = "delete-rapid-api-plugin-related-items", author = "")
-    public void deleteRapidApiPluginRelatedItems(MongoTemplate mongoTemplate) {
-        Plugin rapidApiPlugin = mongoTemplate.findOne(query(where("packageName").is("rapidapi-plugin")), Plugin.class);
-
-        if (rapidApiPlugin == null) {
-            return;
-        }
-
-        softDeletePlugin(mongoTemplate, rapidApiPlugin);
     }
 
     @ChangeSet(order = "035", id = "add-tenant-admin-permissions-instance-admin", author = "")
@@ -2923,78 +1483,10 @@ public class DatabaseChangelog2 {
         mongoTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
-    private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongoTemplate mongoTemplate) {
-        Query queryToGetNonDeletedWorkspaces = new Query();
-        queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
-        List<Workspace> workspaces = mongoTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
-        workspaces.stream()
-                .map(Workspace::getId)
-                .map(id -> fetchDomainObjectUsingId(id, mongoTemplate, QWorkspace.workspace.id, Workspace.class))
-                .forEachOrdered(workspace -> {
-                    workspace.getPlugins().stream()
-                            .filter(workspacePlugin -> workspacePlugin != null && workspacePlugin.getPluginId() != null)
-                            .filter(workspacePlugin ->
-                                    workspacePlugin.getPluginId().equals(plugin.getId()))
-                            .forEach(workspacePlugin -> {
-                                workspacePlugin.setDeleted(true);
-                                workspacePlugin.setDeletedAt(Instant.now());
-                            });
-                    mongoTemplate.save(workspace);
-                });
-    }
-
-    private void softDeleteInPluginCollection(Plugin plugin, MongoTemplate mongoTemplate) {
-        plugin.setDeleted(true);
-        plugin.setDeletedAt(Instant.now());
-        mongoTemplate.save(plugin);
-    }
-
-    private void softDeleteAllPluginDatasources(Plugin plugin, MongoTemplate mongoTemplate) {
-        /* Query to get all plugin datasources which are not deleted */
-        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(plugin);
-
-        /* Update the previous query to only include id field */
-        queryToGetDatasources.fields().include(fieldName(QDatasource.datasource.id));
-
-        /* Fetch plugin datasources using the previous query */
-        List<Datasource> datasources = mongoTemplate.find(queryToGetDatasources, Datasource.class);
-
-        /* Mark each selected datasource as deleted */
-        updateDeleteAndDeletedAtFieldsForEachDomainObject(
-                datasources, mongoTemplate, QDatasource.datasource.id, Datasource.class);
-    }
-
-    private void softDeleteAllPluginActions(Plugin plugin, MongoTemplate mongoTemplate) {
-        /* Query to get all plugin actions which are not deleted */
-        Query queryToGetActions = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(plugin);
-
-        /* Update the previous query to only include id field */
-        queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
-
-        /* Fetch plugin actions using the previous query */
-        List<NewAction> actions = mongoTemplate.find(queryToGetActions, NewAction.class);
-
-        /* Mark each selected action as deleted */
-        updateDeleteAndDeletedAtFieldsForEachDomainObject(
-                actions, mongoTemplate, QNewAction.newAction.id, NewAction.class);
-    }
-
     private Query getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(Plugin plugin) {
         Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
         Criteria isNotDeleted = where("deleted").ne(true);
         return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));
-    }
-
-    private <T extends BaseDomain> void updateDeleteAndDeletedAtFieldsForEachDomainObject(
-            List<? extends BaseDomain> domainObjects, MongoTemplate mongoTemplate, Path path, Class<T> type) {
-        domainObjects.stream()
-                .map(BaseDomain::getId) // iterate over id one by one
-                .map(id -> fetchDomainObjectUsingId(id, mongoTemplate, path, type)) // find object using id
-                .forEachOrdered(domainObject -> {
-                    domainObject.setDeleted(true);
-                    domainObject.setDeletedAt(Instant.now());
-                    mongoTemplate.save(domainObject);
-                });
     }
 
     @ChangeSet(order = "037", id = "indices-recommended-by-mongodb-cloud", author = "")
@@ -3016,21 +1508,9 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, CustomJSLib.class, uidStringUniqueness);
     }
 
-    /**
-     * Since MySQL plugin's underlying driver has been changed to MariaDB driver, the `ssl-mode=preferred` is no
-     * longer supported. Hence, any such usage is being updated to `ssl-mode=default` by this method.
-     */
-    @ChangeSet(order = "039", id = "remove-preferred-ssl-mode-from-mysql", author = "")
-    public void changeSSLModeFromPreferredToDefaultForMySQLPlugin(MongoTemplate mongoTemplate) {
-        Plugin mySQLPlugin = mongoTemplate.findOne(query(where("packageName").is("mysql-plugin")), Plugin.class);
-        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(mySQLPlugin);
-        queryToGetDatasources.addCriteria(Criteria.where("datasourceConfiguration.connection.ssl.authType")
-                .is("PREFERRED"));
-
-        Update update = new Update();
-        update.set("datasourceConfiguration.connection.ssl.authType", "DEFAULT");
-        mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
-    }
+    // ----------------------------------------------------
+    // v1.9.2 Checkpoint
+    // ----------------------------------------------------
 
     // Migration to drop usage pulse collection for Appsmith cloud as we will not be logging these pulses unless
     // multi-tenancy is introduced
