@@ -16,7 +16,7 @@ import { runAction } from "actions/pluginActionActions";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 import Loader from "./Loader";
 import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 interface ModuleApiEditorRouteParams {
   packageId: string;
@@ -57,7 +57,7 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
         : saveActionNameBasedOnParentEntity(
             apiId,
             name,
-            ACTION_PARENT_ENTITY_TYPE.PACKAGE,
+            ActionParentEntityType.MODULE,
           );
     },
     [moduleId, action?.isPublic, apiId],

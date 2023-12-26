@@ -111,7 +111,7 @@ const JSModuleExplorer = ({ onUpdateOpenState }: QueryModuleExplorerProps) => {
       customAddButton={addButton}
       entityId={entitySections.JSModules}
       icon={""}
-      isDefaultExpanded={false}
+      isDefaultExpanded
       name={createMessage(JS_MODULES_TITLE)}
       onClickPreRightIcon={onPin}
       onToggle={onModuleToggle}

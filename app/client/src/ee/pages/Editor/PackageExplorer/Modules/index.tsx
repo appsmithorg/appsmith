@@ -20,7 +20,7 @@ const Container = styled(RelativeContainer)`
 
 const DEFAULT_OPEN_STATE = {
   [MODULE_TYPE.QUERY]: true,
-  [MODULE_TYPE.JS]: false,
+  [MODULE_TYPE.JS]: true,
   [MODULE_TYPE.UI]: false,
 };
 

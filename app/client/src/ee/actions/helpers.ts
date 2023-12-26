@@ -1,7 +1,7 @@
 export * from "ce/actions/helpers";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import {
   createWorkflowAPIAction,
   createWorkflowJSCollection,
@@ -26,12 +26,12 @@ export const createNewQueryBasedOnParentEntity = (
   entityId: string,
   from: EventLocation,
   dsId: string,
-  parentEntityType: ActionParentEntityTypeInterface = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.WORKFLOW:
+    case ActionParentEntityType.WORKFLOW:
       return createWorkflowQueryAction(entityId, from, dsId);
-    case ACTION_PARENT_ENTITY_TYPE.PACKAGE:
+    case ActionParentEntityType.MODULE:
       return createNewQueryActionForPackage(entityId, from, dsId);
     default:
       return CE_createNewQueryBasedOnParentEntity(entityId, from, dsId);
@@ -42,12 +42,12 @@ export const createNewAPIBasedOnParentEntity = (
   entityId: string,
   from: EventLocation,
   apiType?: string,
-  parentEntityType: ActionParentEntityTypeInterface = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.WORKFLOW:
+    case ActionParentEntityType.WORKFLOW:
       return createWorkflowAPIAction(entityId, from, apiType);
-    case ACTION_PARENT_ENTITY_TYPE.PACKAGE:
+    case ActionParentEntityType.MODULE:
       return createNewAPIActionForPackage(entityId, from, apiType);
     default:
       return CE_createNewAPIBasedOnParentEntity(entityId, from, apiType);
@@ -57,12 +57,12 @@ export const createNewAPIBasedOnParentEntity = (
 export const createNewJSCollectionBasedOnParentEntity = (
   entityId: string,
   from: EventLocation,
-  parentEntityType: ActionParentEntityTypeInterface = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.WORKFLOW:
+    case ActionParentEntityType.WORKFLOW:
       return createWorkflowJSCollection(entityId, from);
-    case ACTION_PARENT_ENTITY_TYPE.PACKAGE:
+    case ActionParentEntityType.MODULE:
       return createNewJSCollectionForPackage(entityId, from);
     default:
       return CE_createNewJSCollectionBasedOnParentEntity(entityId, from);
@@ -72,10 +72,10 @@ export const createNewJSCollectionBasedOnParentEntity = (
 export const saveActionNameBasedOnParentEntity = (
   id: string,
   name: string,
-  parentEntityType: ActionParentEntityTypeInterface = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.PACKAGE:
+    case ActionParentEntityType.MODULE:
       return saveActionNameForPackage({ id, name });
     default:
       return CE_saveActionNameBasedOnParentEntity(id, name);
@@ -85,10 +85,10 @@ export const saveActionNameBasedOnParentEntity = (
 export const saveJSObjectNameBasedOnParentEntity = (
   id: string,
   name: string,
-  parentEntityType: ActionParentEntityTypeInterface = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   switch (parentEntityType) {
-    case ACTION_PARENT_ENTITY_TYPE.PACKAGE:
+    case ActionParentEntityType.MODULE:
       return saveJSObjectNameForPackage({ id, name });
     default:
       return CE_saveJSObjectNameBasedOnParentEntity(id, name);
