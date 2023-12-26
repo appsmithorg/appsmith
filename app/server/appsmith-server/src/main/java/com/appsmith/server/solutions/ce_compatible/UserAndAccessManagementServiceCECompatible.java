@@ -15,10 +15,6 @@ public interface UserAndAccessManagementServiceCECompatible extends UserAndAcces
 
     Mono<List<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams);
 
-    Mono<UserForManagementDTO> getUserById(String userId);
-
-    Mono<Boolean> deleteUser(String userId);
-
     Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO, String originHeader);
 
     Mono<Boolean> unAssignUsersAndGroupsFromAllAssociatedRoles(List<User> users, List<UserGroup> groups);

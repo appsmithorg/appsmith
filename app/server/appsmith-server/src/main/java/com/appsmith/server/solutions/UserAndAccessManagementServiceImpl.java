@@ -208,10 +208,10 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserForManagementDTO> getUserById(String userId) {
         return tenantService
                 .getDefaultTenantId()
+                // By design, this service layer is open only to instance administrators today.
                 .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_READ_ALL_USERS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(tenant -> userRepository.findById(userId, READ_USERS))
@@ -249,9 +249,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Boolean> deleteUser(String userId) {
 
+        // Only the instance admins and the user themselves can delete the user.
         return userRepository
                 .findById(userId, DELETE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))

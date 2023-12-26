@@ -64,26 +64,6 @@ class UserAndAccessManagementServiceCECompatibleTest {
     }
 
     @Test
-    public void testGetUserByIdCECompatible() {
-        // Feature assertion started
-        AppsmithException unsupportedException = assertThrows(
-                AppsmithException.class,
-                () -> userAndAccessManagementService.getUserById("random-id").block());
-        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
-        // Feature assertion finished
-    }
-
-    @Test
-    public void testDeleteUserCECompatible() {
-        // Feature assertion started
-        AppsmithException unsupportedException = assertThrows(
-                AppsmithException.class,
-                () -> userAndAccessManagementService.deleteUser("random-id").block());
-        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
-        // Feature assertion finished
-    }
-
-    @Test
     public void testChangeRoleAssociationsCECompatible() {
         // Feature assertion started
         AppsmithException unsupportedException =
