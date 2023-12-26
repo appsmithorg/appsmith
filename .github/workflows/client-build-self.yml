@@ -1,6 +1,7 @@
 name: Client Build Self host
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       pr:
