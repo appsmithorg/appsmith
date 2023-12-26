@@ -107,7 +107,6 @@ function TemplatesModal() {
           ) : (
             <TemplatesListLayoutSwitcher
               isStartWithTemplateFlow={templatesModalInfo.isOpenFromCanvas}
-              onClose={onClose}
               onTemplateClick={onTemplateClick}
             />
           )}
