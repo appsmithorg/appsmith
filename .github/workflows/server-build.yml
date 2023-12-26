@@ -142,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: server-build
-          path: /home/runner/work/appsmith/appsmith/app/server/cacherepo/cibuildcache/${{ github.event.repository.name }}/release/server/
+          path: '/home/runner/work/appsmith/appsmith/app/server/cacherepo/cibuildcache/${{ github.event.repository.name }}/release/server/'
           
 
 
