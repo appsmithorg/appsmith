@@ -33,7 +33,7 @@ public class Migration039AddCompoundIndexForDatasourceStorage {
     public void rollbackExecution() {}
 
     @Execution
-    public void addIndexInActionCollection() {
+    public void addIndexInDatasourceStorageCollection() {
 
         Index compoundIndex =
                 makeIndex(FieldName.ENVIRONMENT_ID, FieldName.DELETED).named(DATASOURCE_STORAGE_COMPOUND_INDEX);
