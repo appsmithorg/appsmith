@@ -11,3 +11,8 @@ export const getIsAppSidebarAnnouncementEnabled = createSelector(
   selectFeatureFlags,
   (flags) => !!flags?.release_show_new_sidebar_announcement_enabled,
 );
+
+export const getIsSideBySideEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => flags.release_side_by_side_ide_enabled,
+);
