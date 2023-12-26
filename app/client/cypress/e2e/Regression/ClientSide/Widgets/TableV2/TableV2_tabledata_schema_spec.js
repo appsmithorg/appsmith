@@ -7,6 +7,7 @@ describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
     _.homePage.NavigateToHome();
     cy.get(homePage.createNew).first().click({ force: true });
+    cy.get(homePage.newButtonCreateApplication).first().click({ force: true });
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
