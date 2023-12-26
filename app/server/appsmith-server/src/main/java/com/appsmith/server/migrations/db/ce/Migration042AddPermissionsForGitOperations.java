@@ -78,8 +78,7 @@ public class Migration042AddPermissionsForGitOperations {
 
             // fetch the workspaes with the above criteria
             workspaceList = mongoTemplate.find(selectWorkspacesQuery, Workspace.class);
-
-            workspaceList.stream().parallel().forEach(this::migrateAppliationsInWorkspace);
+            workspaceList.parallelStream().forEach(this::migrateAppliationsInWorkspace);
         } while (!CollectionUtils.isEmpty(workspaceList));
     }
 
@@ -106,7 +105,7 @@ public class Migration042AddPermissionsForGitOperations {
 
         List<Application> applicationList = mongoTemplate.find(selectApplicationQuery, Application.class);
 
-        applicationList.stream().parallel().forEach(application -> {
+        applicationList.parallelStream().forEach(application -> {
             migrateApplication(application, adminAndDeveloperPermissionGroupIds);
         });
 
