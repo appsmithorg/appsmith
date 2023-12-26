@@ -1735,6 +1735,7 @@ export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
+export const FILTER_SELECT_PAGE = () => "Add selected page";
 export const FILTER_SELECT_PAGES = () => "Add selected pages";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";

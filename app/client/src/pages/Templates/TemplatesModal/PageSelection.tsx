@@ -11,6 +11,7 @@ import {
   FILTER_SELECT_PAGES,
   PAGE,
   PAGES,
+  FILTER_SELECT_PAGE,
 } from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
@@ -153,7 +154,9 @@ function PageSelection(props: PageSelectionProps) {
           onClick={importPagesToApp}
           size="md"
         >
-          {createMessage(FILTER_SELECT_PAGES)}
+          {createMessage(
+            props.pages.length === 1 ? FILTER_SELECT_PAGE : FILTER_SELECT_PAGES,
+          )}
         </StyledButton>
       </Card>
     </Wrapper>
