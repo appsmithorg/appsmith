@@ -120,13 +120,16 @@ jobs:
         run: |
           mkdir cacherepo
           cd ./cacherepo
+          git lfs insta
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd $repodir/release/server
-          tar -xvzf server.jar
+          cd cibuildcache/$repodir/release/server
+          git lfs pull ./server.jar
+          tar -xzvf ./server.jar
 
 
       - name: Setup upterm session
