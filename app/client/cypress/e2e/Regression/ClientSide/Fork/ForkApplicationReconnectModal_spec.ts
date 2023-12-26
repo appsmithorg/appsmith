@@ -14,8 +14,8 @@ describe(
       // Create new workspace to create App in
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        currentWorkspace = "CurrentWorkspace " + uid;
-        currentAppName = "MongoQueryApp " + uid;
+        currentWorkspace = "Workspace" + uid;
+        currentAppName = "MongoApp" + uid;
         homePage.CreateNewWorkspace(currentWorkspace, true);
         homePage.CreateAppInWorkspace(currentWorkspace, currentAppName);
 
@@ -28,12 +28,10 @@ describe(
 
         agHelper.GenerateUUID();
         cy.get("@guid").then((uid) => {
-          forkWorkspaceName = "ForkApplication" + uid;
+          forkWorkspaceName = "ForkApp" + uid;
           homePage.CreateNewWorkspace(forkWorkspaceName, true);
-          homePage.FilterApplication(currentAppName);
-
-          agHelper.Sleep(500);
-
+          homePage.SelectWorkspace(currentWorkspace);
+          cy.reload()
           homePage.ForkApplication(currentAppName, forkWorkspaceName);
 
           dataSources.FillMongoDatasourceFormWithURI();
@@ -45,8 +43,10 @@ describe(
     after(() => {
       homePage.NavigateToHome();
       homePage.DeleteApplication(currentAppName);
+      homePage.SelectWorkspace(currentWorkspace);
       homePage.DeleteApplication(currentAppName);
       homePage.DeleteWorkspace(currentWorkspace);
+      homePage.SelectWorkspace(forkWorkspaceName);
       homePage.DeleteWorkspace(forkWorkspaceName);
     });
   },

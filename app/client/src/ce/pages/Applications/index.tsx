@@ -851,6 +851,7 @@ export const ApplictionsMainPage = (props: any) => {
   const fetchedApplications = useSelector(getApplicationsOfWorkspace);
   const fetchedPackages = useSelector(getPackagesList);
   const fetchedWorkflows = useSelector(getWorkflowsList);
+  const fetchedWorkspaceId = useSelector(getCurrentWorkspaceId);
 
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
@@ -873,7 +874,11 @@ export const ApplictionsMainPage = (props: any) => {
   }, [location, fetchedWorkspaces]);
 
   useEffect(() => {
-    if (activeWorkspaceId) {
+    if (
+      activeWorkspaceId &&
+      fetchedWorkspaceId &&
+      fetchedWorkspaceId !== activeWorkspaceId
+    ) {
       const activeWorkspace: Workspace = workspaces.find(
         (workspace: Workspace) => workspace.id === activeWorkspaceId,
       );
@@ -886,7 +891,7 @@ export const ApplictionsMainPage = (props: any) => {
       dispatch(fetchAllApplicationsOfWorkspace(activeWorkspaceId));
       dispatch(fetchUsersForWorkspace(activeWorkspaceId));
     }
-  }, [activeWorkspaceId]);
+  }, [activeWorkspaceId, fetchedWorkspaceId]);
 
   const packagesOfWorkspace = activeWorkspaceId
     ? fetchedPackages.filter((pkg) => pkg.workspaceId === activeWorkspaceId)
@@ -952,7 +957,7 @@ export interface ApplicationProps {
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
   getAllWorkspaces: (params: {
-    fetchApplications: boolean;
+    fetchEntities: boolean;
     workspaceId: string;
   }) => void;
   workspaces: any;
@@ -994,7 +999,7 @@ export class Applications<
     const urlHash = window?.location?.hash?.slice(1);
     this.props.getAllWorkspaces({
       workspaceId: urlHash,
-      fetchApplications: true,
+      fetchEntities: true,
     });
     this.props.setHeaderMetaData(true, true);
 
@@ -1045,15 +1050,15 @@ export const mapStateToProps = (state: AppState) => ({
 
 export const mapDispatchToProps = (dispatch: any) => ({
   getAllWorkspaces: ({
-    fetchApplications,
+    fetchEntities,
     workspaceId,
   }: {
-    fetchApplications: boolean;
+    fetchEntities: boolean;
     workspaceId: string;
   }) => {
     dispatch({
       type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
-      payload: { workspaceId, fetchApplications },
+      payload: { workspaceId, fetchEntities },
     });
   },
   resetEditor: () => {

@@ -8,18 +8,12 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 const timestamp = Date.now();
 
-const MultipleDeleteFirstWorkspace = {
-  workspaceName: `workspace_${timestamp}_1`,
-  applicationName: `app_${timestamp}_1`,
-};
-
-const MultipleDeleteSecondWorkspace = {
-  workspaceName: `workspace_${timestamp}_2`,
-  applicationName: `app_${timestamp}_2`,
-};
+const workspaceName = `w_${timestamp}`;
+const firstApplicationName = `app_${timestamp}_1`;
+const secondApplicationName = `app_${timestamp}_2`;
 
 const UnableToDeleteWorkspace = {
-  workspaceName: `workspace_${timestamp}_3`,
+  workspaceName: `w_${timestamp}_3`,
   applicationName: `app_${timestamp}_3`,
 };
 
@@ -28,80 +22,46 @@ describe(
   { tags: ["@tag.Workspace"] },
   function () {
     before(() => {
-      homePage.CreateNewWorkspace(
-        MultipleDeleteFirstWorkspace.workspaceName,
-        true,
-      );
-      homePage.CreateAppInWorkspace(
-        MultipleDeleteFirstWorkspace.workspaceName,
-        MultipleDeleteFirstWorkspace.applicationName,
-      );
-
-      homePage.CreateNewWorkspace(
-        MultipleDeleteSecondWorkspace.workspaceName,
-        true,
-      );
-      homePage.CreateAppInWorkspace(
-        MultipleDeleteSecondWorkspace.workspaceName,
-        MultipleDeleteSecondWorkspace.applicationName,
-      );
+      homePage.CreateNewWorkspace(workspaceName, true);
+      homePage.CreateAppInWorkspace(workspaceName, firstApplicationName);
+      homePage.NavigateToHome();
+      homePage.CreateAppInWorkspace(workspaceName, secondApplicationName);
     });
 
     it("1. Should select & cancel delete multiple applications in different workspace & other action items should not be visible when selection mode is on", function () {
       homePage.NavigateToHome();
-      homePage.SelectMultipleApplicationToDelete(
-        MultipleDeleteFirstWorkspace.applicationName,
-      );
-      homePage.SelectMultipleApplicationToDelete(
-        MultipleDeleteSecondWorkspace.applicationName,
-      );
+      homePage.SelectWorkspace(workspaceName);
+
+      homePage.SelectMultipleApplicationToDelete(firstApplicationName);
+      homePage.SelectMultipleApplicationToDelete(secondApplicationName);
 
       // Asserting all the other share & create new app button not visible
-      agHelper.AssertElementVisibility(
-        homePage._shareWorkspace(MultipleDeleteFirstWorkspace.workspaceName),
-        false,
-      );
+      agHelper.AssertElementVisibility(homePage._newIcon, false);
 
-      agHelper.AssertElementVisibility(
-        homePage._existingWorkspaceCreateNewApp(
-          MultipleDeleteFirstWorkspace.workspaceName,
-        ),
-        false,
-      );
+      agHelper.AssertElementAbsence(homePage._newButtonCreateApplication);
 
       agHelper.ClickButton("Cancel");
       agHelper.AssertElementAbsence(homePage._multipleSelectedApplication);
-      agHelper.AssertElementExist(
-        homePage._appCard(MultipleDeleteFirstWorkspace.applicationName),
-      );
-      agHelper.AssertElementExist(
-        homePage._appCard(MultipleDeleteSecondWorkspace.applicationName),
-      );
+      agHelper.AssertElementExist(homePage._appCard(firstApplicationName));
+      agHelper.AssertElementExist(homePage._appCard(secondApplicationName));
     });
 
     it("2. Should select & delete multiple applications in different workspace", function () {
-      homePage.SelectMultipleApplicationToDelete(
-        MultipleDeleteFirstWorkspace.applicationName,
-      );
-      homePage.SelectMultipleApplicationToDelete(
-        MultipleDeleteSecondWorkspace.applicationName,
-      );
+      homePage.SelectMultipleApplicationToDelete(firstApplicationName);
+      homePage.SelectMultipleApplicationToDelete(secondApplicationName);
       agHelper.ClickButton("Delete");
       agHelper.ClickButton("Yes");
       assertHelper.WaitForNetworkCall("@deleteMultipleApp").then((response) => {
         expect(response?.body?.data?.length).to.be.equal(2);
-        agHelper.AssertElementAbsence(
-          homePage._appCard(MultipleDeleteFirstWorkspace.applicationName),
-        );
-        agHelper.AssertElementAbsence(
-          homePage._appCard(MultipleDeleteSecondWorkspace.applicationName),
-        );
+        agHelper.AssertElementAbsence(homePage._appCard(firstApplicationName));
+        agHelper.AssertElementAbsence(homePage._appCard(secondApplicationName));
       });
     });
 
     it("3. Unable to select to multiple delete if not enough permissions to delete", function () {
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       homePage.CreateNewWorkspace(UnableToDeleteWorkspace.workspaceName);
       homePage.CreateAppInWorkspace(
         UnableToDeleteWorkspace.workspaceName,
@@ -121,8 +81,11 @@ describe(
         "App Viewer",
       );
 
-      homePage.SelectMultipleApplicationToDelete(
+      homePage.SelectWorkspace(UnableToDeleteWorkspace.workspaceName);
+
+      homePage.SelectMultipleApplicationToDeleteByCard(
         UnableToDeleteWorkspace.applicationName,
+        "topLeft",
       );
       agHelper.ValidateToastMessage(
         "You don't have permission to delete this application",

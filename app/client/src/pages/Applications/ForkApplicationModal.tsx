@@ -23,7 +23,6 @@ import {
 } from "@appsmith/constants/messages";
 import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { fetchAllWorkspacesAndAppsOfFirstWorkspace } from "@appsmith/actions/workspaceActions";
 
 interface ForkApplicationModalProps {
   applicationId: string;
@@ -114,7 +113,10 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
 
   const getApplicationsListAndOpenModal = () => {
     !workspaceList.length &&
-      dispatch(fetchAllWorkspacesAndAppsOfFirstWorkspace());
+      dispatch({
+        type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+        payload: { fetchEntities: true },
+      });
     handleOpen && handleOpen();
   };
 

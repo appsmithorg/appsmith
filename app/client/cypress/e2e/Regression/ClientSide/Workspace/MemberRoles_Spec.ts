@@ -37,7 +37,7 @@ describe(
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
       _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage users"));
       cy.get(".search-highlight").should("not.exist");
@@ -59,7 +59,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       cy.get(_.homePage._appHoverIcon("edit")).should("not.exist");
       // verify only viewer role is visible
@@ -80,7 +80,7 @@ describe(
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
@@ -98,7 +98,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
 
@@ -128,7 +128,7 @@ describe(
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
@@ -153,7 +153,7 @@ describe(
       );
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.agHelper.Sleep();
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
 
@@ -185,14 +185,14 @@ describe(
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Administrator",
         "Developer",
       );
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.OpenMembersPageForWorkspace(workspaceId);
       cy.get(_.homePage._usersEmailList).then(function ($list) {
         expect($list).to.have.length(3);
@@ -211,7 +211,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
       _.homePage.Signout();
     });
@@ -224,7 +224,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
       _.homePage.LogOutviaAPI();
     });

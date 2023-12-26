@@ -15,11 +15,12 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      ws1Name = "GitConnectV2-1" + uid;
-      ws2Name = "GitConnectV2-2" + uid;
-      app1Name = "GitConnectV2" + uid;
+      ws1Name = "GCV2-1" + uid;
+      ws2Name = "GCV2-2" + uid;
+      app1Name = "GCV2" + uid;
       _.homePage.CreateNewWorkspace(ws1Name, true);
       _.homePage.CreateNewWorkspace(ws2Name, true);
+      _.homePage.SelectWorkspace(ws1Name);
       _.homePage.CreateAppInWorkspace(ws1Name, app1Name);
     });
   });
