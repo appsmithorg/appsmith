@@ -59,6 +59,8 @@ export class DataSources {
   }; //Container KeyValuePair
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
   public _addNewDataSource = ".t--add-datasource-button";
+  public _addNewDatasourceFromBlankScreen =
+    ".t--add-datasource-button-blank-screen";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -446,7 +448,17 @@ export class DataSources {
   public NavigateToDSCreateNew() {
     AppSidebar.navigate(AppSidebarButton.Data);
     Cypress._.times(2, () => {
-      this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+      cy.get("body").then(($body) => {
+        if ($body.find(this._addNewDataSource).length) {
+          this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+        } else {
+          this.agHelper.GetNClick(
+            this._addNewDatasourceFromBlankScreen,
+            0,
+            true,
+          );
+        }
+      });
       this.agHelper.Sleep();
     });
     cy.get(this._newDatabases).should("be.visible");
