@@ -87,7 +87,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        if: inputs.skip-tests != 'true' && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         id: cache-appsmith
         uses: actions/cache@v3
         with:
@@ -97,7 +97,7 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
-        if: inputs.skip-tests != 'true' && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         id: run_result
         run: |
           if [ -f ~/run_result ]; then
@@ -107,7 +107,7 @@ jobs:
           fi
 
       - name: Download the failed test artifact in case of rerun
-        if: steps.run_result.outputs.run_result == 'failedtest' && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.run_result.outputs.run_result == 'failedtest' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/download-artifact@v3
         with:
           name: failed-server-tests
