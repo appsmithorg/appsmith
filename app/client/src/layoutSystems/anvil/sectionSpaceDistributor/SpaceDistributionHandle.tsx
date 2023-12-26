@@ -63,6 +63,7 @@ export const SpaceDistributionHandle = ({
 }: SpaceDistributionNodeProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
+  const shrinkablePixels = 10;
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
   const isCurrentHandleDistributingSpace = useRef(false);
   const leftPositionOfHandle =
@@ -70,7 +71,7 @@ export const SpaceDistributionHandle = ({
   const [leftZone, rightZone] = parentZones;
   const columnWidth = spaceToWorkWith / SectionColumns;
   const minSpacePerBlock = ZoneMinColumnWidth;
-  const minLimitBounceBackThreshold = 10 / columnWidth;
+  const minLimitBounceBackThreshold = shrinkablePixels / columnWidth;
   const minimumShrinkableSpacePerBlock =
     minSpacePerBlock - minLimitBounceBackThreshold;
   const columnIndicatorDivRef = useRef<HTMLDivElement>();
@@ -203,8 +204,10 @@ export const SpaceDistributionHandle = ({
       // Reposition the column indicator based on mouse movement
       const repositionColumnIndicator = (e: MouseEvent) => {
         if (columnIndicatorDivRef.current) {
-          columnIndicatorDivRef.current.style.left = e.clientX + 10 + "px";
-          columnIndicatorDivRef.current.style.top = e.clientY - 10 + "px";
+          columnIndicatorDivRef.current.style.left =
+            e.clientX + shrinkablePixels + "px";
+          columnIndicatorDivRef.current.style.top =
+            e.clientY - shrinkablePixels + "px";
         }
       };
 
@@ -334,11 +337,11 @@ export const SpaceDistributionHandle = ({
               // adjust the zones flex grow property to the minimum shrinkable space
               leftZoneDom.style.flexGrow = Math.max(
                 leftZoneComputedColumns,
-                minSpacePerBlock,
+                minimumShrinkableSpacePerBlock,
               ).toString();
               rightZoneDom.style.flexGrow = Math.max(
                 rightZoneComputedColumns,
-                minSpacePerBlock,
+                minimumShrinkableSpacePerBlock,
               ).toString();
               // note down the new growth factor for the zones
               currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
@@ -360,8 +363,9 @@ export const SpaceDistributionHandle = ({
               // If one or both zones don't have enough space, set them to the minimum shrinkable space
               if (leftZoneComputedColumns < minimumShrinkableSpacePerBlock) {
                 leftZoneDom.style.flexGrow = `${minimumShrinkableSpacePerBlock}`;
-                rightZoneDom.style.flexGrow =
-                  spaceForTheZoneOtherThanShrunkenZone.toString();
+                rightZoneDom.style.flexGrow = (
+                  totalSpace - minimumShrinkableSpacePerBlock
+                ).toString();
                 currentGrowthFactor.leftZone = minSpacePerBlock;
                 currentGrowthFactor.rightZone =
                   spaceForTheZoneOtherThanShrunkenZone;
@@ -369,8 +373,9 @@ export const SpaceDistributionHandle = ({
                 rightZoneComputedColumns < minimumShrinkableSpacePerBlock
               ) {
                 rightZoneDom.style.flexGrow = `${minimumShrinkableSpacePerBlock}`;
-                leftZoneDom.style.flexGrow =
-                  spaceForTheZoneOtherThanShrunkenZone.toString();
+                leftZoneDom.style.flexGrow = (
+                  totalSpace - minimumShrinkableSpacePerBlock
+                ).toString();
                 currentGrowthFactor.leftZone =
                   spaceForTheZoneOtherThanShrunkenZone;
                 currentGrowthFactor.rightZone = minSpacePerBlock;
