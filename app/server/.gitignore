@@ -15,3 +15,4 @@ container-volumes
 *.env
 dependency-reduced-pom.xml
 appsmith-server/failedServerTests.txt
+*Cake.java

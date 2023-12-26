@@ -5,7 +5,10 @@ set -o errexit
 psql -d postgres -c 'delete from "user_data" where id = (select id from "user" where email = '\''shrikant@appsmith.com'\'')'
 psql -d postgres -c 'delete from "user" where email = '\''shrikant@appsmith.com'\'
 
-curl -v --fail --silent --show-error \
+session=/tmp/signup-ses
+rm -f "$session"
+
+curl -v --fail --silent --show-error -c "$session" \
           --header 'Origin: http://localhost' \
           --data-urlencode firstName="$(git config user.name | awk '{print $1}')" \
           --data-urlencode lastName="$(git config user.name | awk '{print $NF}')" \
@@ -16,3 +19,5 @@ curl -v --fail --silent --show-error \
           --data-urlencode useCase="just+exploring" \
           --data-urlencode allowCollectingAnonymousData="false" \
           "localhost:8080/api/v1/users/super"
+
+curl -ib "$session" "localhost:8080/api/v1/users/me"

@@ -325,9 +325,6 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     Mono<Long> allSecondaryFunctions = Mono.when(
                                     userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
-                            .onErrorResume(error -> {
-                                return Mono.error(error);
-                            })
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {
