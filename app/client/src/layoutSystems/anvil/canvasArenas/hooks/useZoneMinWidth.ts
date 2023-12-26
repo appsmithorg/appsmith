@@ -24,6 +24,7 @@ export function useZoneMinWidth() {
       const sizeConfig: SizeConfig = getWidgetSizeConfiguration(
         childrenMap[curr].type,
         childrenMap[curr],
+        isPreviewMode,
       );
       if (!sizeConfig.minWidth || !sizeConfig.minWidth["base"]) return acc;
 
