@@ -7,13 +7,16 @@ import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { debounce } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import type { AnvilDnDStates } from "./useAnvilDnDStates";
+import type { AnvilCanvasActivationStates } from "./useCanvasActivationStates";
+import { canActivateCanvasForDraggedWidget } from "../utils";
 
+// Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {
   activated: Indices.Layer10.toString(),
   deactivated: "",
 };
 
+// Function to check if mouse position is inside a block
 const checkIfMousePositionIsInsideBlock = (
   e: MouseEvent,
   mainCanvasRect: DOMRect,
@@ -29,57 +32,63 @@ const checkIfMousePositionIsInsideBlock = (
   );
 };
 
+// Buffer value for the main canvas
+// This buffer will make sure main canvas is not deactivated
+// until its about the below pixel distance from the main canvas border.
 const MAIN_CANVAS_BUFFER = 20;
 
-export const useCanvasActivation = (
-  anvilDragStates: AnvilDnDStates,
-  layoutId: string,
-) => {
-  const {
-    activateOverlayWidgetDrop,
-    dragDetails,
-    isDragging,
-    isNewWidget,
-    layoutElementPositions,
-    mainCanvasLayoutId,
-  } = anvilDragStates;
+export const useCanvasActivation = ({
+  activateOverlayWidgetDrop,
+  dragDetails,
+  draggedWidgetTypes,
+  isDragging,
+  isNewWidget,
+  layoutElementPositions,
+  mainCanvasLayoutId,
+  selectedWidgets,
+}: AnvilCanvasActivationStates) => {
+  // Getting the main canvas DOM node
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
+
+  // Destructuring hook functions for drag and resize functionality
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
-  const draggedWidgetPositions = anvilDragStates.selectedWidgets.map((each) => {
+
+  // Mapping selected widget positions
+  const draggedWidgetPositions = selectedWidgets.map((each) => {
     return layoutElementPositions[each];
   });
-  const debouncedSetDraggingCanvas = debounce(setDraggingCanvas);
+
   /**
    * boolean ref that indicates if the mouse position is outside of main canvas while dragging
    * this is being tracked in order to activate/deactivate canvas.
    */
   const isMouseOutOfMainCanvas = useRef(false);
+
+  // Function to handle mouse leaving the canvas while dragging
   const mouseOutOfCanvasArtBoard = () => {
     isMouseOutOfMainCanvas.current = true;
     setDraggingCanvas();
   };
+
+  // Debouncing functions for smoother transitions
+  const debouncedSetDraggingCanvas = debounce(setDraggingCanvas);
   const debouncedMouseOutOfCanvasArtBoard = debounce(mouseOutOfCanvasArtBoard);
 
-  /**
-   * all layouts registered on the position observer.
-   */
-  const allLayouts: any =
-    layoutId === mainCanvasLayoutId && isDragging
-      ? positionObserver.getRegisteredLayouts()
-      : {};
+  // All layouts registered on the position observer
+  const allLayouts: any = isDragging
+    ? positionObserver.getRegisteredLayouts()
+    : {};
 
-  /**
-   * all domIds of layouts on the page.
-   */
+  // All layout IDs on the page
   const allLayoutIds = Object.keys(allLayouts);
-  /**
-   * domId of main canvas layout
-   */
+
+  // DOM ID of the main canvas layout
   const mainCanvasLayoutDomId = getAnvilLayoutDOMId(
     MAIN_CONTAINER_WIDGET_ID,
     mainCanvasLayoutId,
   );
+
   /**
    * layoutIds that are supported to drop while dragging.
    * when dragging an AnvilOverlayWidgetTypes widget only the main canvas is supported for dropping.
@@ -87,19 +96,22 @@ export const useCanvasActivation = (
   const filteredLayoutIds: string[] = activateOverlayWidgetDrop
     ? allLayoutIds.filter((each) => each === mainCanvasLayoutDomId)
     : allLayoutIds;
-  /**
-   * all layoutIds where widgets can be dropped.
-   */
+  // All droppable layout IDs
   const allDroppableLayoutIds = filteredLayoutIds
     .filter((each) => {
       const layoutInfo = allLayouts[each];
       const currentPositions = layoutElementPositions[layoutInfo.layoutId];
-      return currentPositions && !!layoutInfo.isDropTarget;
+      const canActivate = canActivateCanvasForDraggedWidget(
+        draggedWidgetTypes,
+        mainCanvasLayoutId,
+        layoutInfo.layoutType,
+        layoutInfo.layoutId,
+      );
+      return canActivate && currentPositions && !!layoutInfo.isDropTarget;
     })
     .map((each) => allLayouts[each].layoutId);
-
   /**
-   * layoutIds sorted by area of each layout in ascending order.
+   * Droppable layout IDs sorted by area in ascending order
    * This is done because a point can be inside multiple canvas areas, but only the smallest of them is the immediate parent.
    */
   const smallToLargeSortedDroppableLayoutIds = allDroppableLayoutIds.sort(
@@ -126,12 +138,17 @@ export const useCanvasActivation = (
       mainContainerDOMNode &&
       smallToLargeSortedDroppableLayoutIds.length > 0
     ) {
+      // Getting the main canvas bounding rect
       const mainCanvasRect = mainContainerDOMNode.getBoundingClientRect();
+
+      // Checking if the mouse position is outside of dragging widgets
       const isMousePositionOutsideOfDraggingWidgets =
         !isNewWidget &&
         draggedWidgetPositions.find((each) => {
           return checkIfMousePositionIsInsideBlock(e, mainCanvasRect, each);
         });
+
+      // Finding the layout under the mouse position
       const hoveredCanvas = isMousePositionOutsideOfDraggingWidgets
         ? dragDetails.dragGroupActualParent
         : smallToLargeSortedDroppableLayoutIds.find((each) => {
@@ -150,6 +167,8 @@ export const useCanvasActivation = (
               );
             }
           });
+
+      // Handling canvas activation and deactivation
       if (dragDetails.draggedOn !== hoveredCanvas) {
         if (hoveredCanvas) {
           isMouseOutOfMainCanvas.current = false;
@@ -161,9 +180,7 @@ export const useCanvasActivation = (
     }
   };
 
-  /**
-   * callback function to process mouse up events and reset dragging state.
-   */
+  // Callback function to handle mouse up events and reset dragging state
   const onMouseUp = () => {
     if (isDragging) {
       if (isNewWidget) {
@@ -175,11 +192,15 @@ export const useCanvasActivation = (
       }
     }
   };
+
   useEffect(() => {
-    if (isDragging && layoutId === mainCanvasLayoutId) {
+    if (isDragging) {
+      // Adding event listeners for mouse move and mouse up events
       document?.addEventListener("mousemove", onMouseMoveWhileDragging);
       document.body.addEventListener("mouseup", onMouseUp, false);
       window.addEventListener("mouseup", onMouseUp, false);
+
+      // Removing event listeners when the component unmounts or when dragging ends
       return () => {
         document?.removeEventListener("mousemove", onMouseMoveWhileDragging);
         document.body.removeEventListener("mouseup", onMouseUp);
