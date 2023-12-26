@@ -28,6 +28,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.themes.base.ThemeService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -35,15 +36,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 @Service
@@ -224,76 +225,32 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     return datasourceService.getAllWithStorages(params).collectList();
                 }).cache();
 
-            boolean isRestAPIPluginFormFetched = false;
-            boolean isGraphQLPluginFormFetched = false;
-            ConcurrentHashMap<String, String> mapOfUniquePluginsFromDatasources = new ConcurrentHashMap<>();
-            Mono<Map<String, Map>> listOfFormConfigsMono = listOfDatasourcesMonoCache
+            Mono<Map<String, Map>> listOfFormConfigsMono = Mono.zip(listOfActionDTOs, listOfDatasourcesMonoCache)
+                .map(tuple2 -> {
+                    Set<String> setOfAllPluginIdsUsedInApp = new HashSet<>();
+                    List<ActionDTO> actionDTOList = tuple2.getT1();
+                    List<Datasource> datasourcesList = tuple2.getT2();
+                    actionDTOList.stream().filter(actionDTO -> !isBlank(actionDTO.getPluginId()))
+                        .forEach(actionDTO -> setOfAllPluginIdsUsedInApp.add(actionDTO.getPluginId()));
+                    datasourcesList.stream().filter(datasource -> !isBlank(datasource.getPluginId()))
+                        .forEach(datasource -> setOfAllPluginIdsUsedInApp.add(datasource.getPluginId()));
+
+                    return setOfAllPluginIdsUsedInApp;
+                })
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(datasource -> {
-                    if (!isBlank(datasource.getPluginName()) && !mapOfUniquePluginsFromDatasources.containsKey(datasource.getPluginName())) {
-                        mapOfUniquePluginsFromDatasources.put(datasource.getPluginName(), datasource.getPluginId());
-                        return pluginService.getFormConfig(datasource.getPluginId())
-                            .map(formConfig -> Map.of(datasource.getPluginId(), formConfig));
-                    }
-
-                    return Mono.empty();
-                })
-                .collect(Collectors.toList())
-                .flatMap(formConfigMapList -> {
-                    Mono<Map> restApiFormConfigMono = Mono.just(Map.of());
-                    if (!isRestAPIPluginFormFetched) {
-                        restApiFormConfigMono = listOfPluginsMono
-                            .flatMapMany(Flux::fromIterable)
-                            .filter(plugin -> "REST API".equals(plugin.getName()))
-                            .next()
-                            .flatMap(plugin -> Mono.zip(Mono.just(plugin.getId()),
-                                pluginService.getFormConfig(plugin.getId())))
-                            .map(tuple2 -> {
-                                String pluginId = tuple2.getT1();
-                                Map formConfig = tuple2.getT2();
-                                return Map.of(pluginId, formConfig);
-                            });
-                    }
-
-                    Mono<Map> graphqlFormConfigMono = Mono.just(Map.of());
-                    if (!isGraphQLPluginFormFetched) {
-                        graphqlFormConfigMono = listOfPluginsMono
-                            .flatMapMany(Flux::fromIterable)
-                            .filter(plugin -> "Authenticated GraphQL API".equals(plugin.getName()))
-                            .next()
-                            .flatMap(plugin -> Mono.zip(Mono.just(plugin.getId()),
-                                pluginService.getFormConfig(plugin.getId())))
-                            .map(tuple2 -> {
-                                String pluginId = tuple2.getT1();
-                                Map formConfig = tuple2.getT2();
-                                return Map.of(pluginId, formConfig);
-                            });
-                    }
-
-                    return Mono.zip(Mono.just(formConfigMapList), restApiFormConfigMono, graphqlFormConfigMono);
-                })
-                .map(tuple3 -> {
-                    List<Map<String, Map>> listOfFormConfig = tuple3.getT1();
-                    Map restApiFormConfig = tuple3.getT2();
-                    Map graphqlFormConfig = tuple3.getT3();
-
-                    if (!isEmpty(restApiFormConfig)) {
-                        listOfFormConfig.add(restApiFormConfig);
-                    }
-
-                    if (!isEmpty(graphqlFormConfig)) {
-                        listOfFormConfig.add(graphqlFormConfig);
-                    }
-
-                    Map<String, Map> pluginIdToFormConfigList = new HashMap<>();
+                .flatMap(pluginId -> pluginService.getFormConfig(pluginId).map(formConfig -> Pair.of(pluginId,
+                    formConfig)))
+                .collectList()
+                .map(listOfFormConfig -> {
+                    Map<String, Map> pluginIdToFormConfigMap = new HashMap<>();
                     listOfFormConfig.stream()
                         .forEach(individualConfigMap -> {
-                            String pluginId = individualConfigMap.keySet().stream().findFirst().get();
-                            Map config = individualConfigMap.values().stream().findFirst().get();
-                            pluginIdToFormConfigList.put(pluginId, config);
+                            String pluginId = individualConfigMap.getFirst();
+                            Map config = individualConfigMap.getSecond();
+                            pluginIdToFormConfigMap.put(pluginId, config);
                         });
 
-                    return pluginIdToFormConfigList;
+                    return pluginIdToFormConfigMap;
                 });
 
             Mono<List<MockDataSet>> mockDataList = mockDataService
