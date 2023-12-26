@@ -321,13 +321,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.submitBtn).click();
   cy.wait(1000);
   cy.get("body").then(($body) => {
-    if ($body.find(signupPage.roleDropdown).length > 0) {
-      cy.get(signupPage.roleDropdown).click();
-      cy.get(signupPage.dropdownOption).click();
-      cy.get(signupPage.useCaseDropdown).click();
-      cy.get(signupPage.dropdownOption).click();
-      cy.get(signupPage.getStartedSubmit).click({ force: true });
-    } else if ($body.find(signupPage.proficiencyGroupButton).length > 0) {
+    if ($body.find(signupPage.proficiencyGroupButton).length > 0) {
       cy.get(signupPage.proficiencyGroupButton).first().click();
       cy.get(signupPage.useCaseGroupButton).first().click();
       cy.get(signupPage.getStartedSubmit).click({ force: true });
@@ -1320,12 +1314,11 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.continueButton).should("not.be.disabled");
   cy.get(welcomePage.continueButton).click();
 
-  cy.get(welcomePage.roleDropdown).click();
-  cy.get(welcomePage.roleDropdownOption).eq(1).click();
+  cy.get(welcomePage.proficiencyGroupButton).eq(0).click();
   cy.get(welcomePage.submitButton).should("be.disabled");
-  cy.get(welcomePage.useCaseDropdown).click();
-  cy.get(welcomePage.useCaseDropdownOption).eq(1).click();
+  cy.get(welcomePage.useCaseGroupButton).eq(0).click();
   cy.get(welcomePage.submitButton).should("not.be.disabled");
+
   cy.get(welcomePage.submitButton).click();
   //in case of airgapped both anonymous data and newsletter are disabled
   if (Cypress.env("AIRGAPPED")) {
@@ -1376,8 +1369,6 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     cy.log(response.body);
   });
 });
-
-//Generate CRUD page methods: <Aishwarya>
 
 Cypress.Commands.add("startInterceptRoutesForMySQL", () => {
   //All stubbing - updating app id to current app id for Delete app by api call to be successfull:

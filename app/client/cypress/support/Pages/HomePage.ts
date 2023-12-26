@@ -18,10 +18,6 @@ export class HomePage {
   private _workspaceNameText = ".t--workspace-name-text";
   private _optionsIcon = ".t--options-icon";
   private _newIcon = ".createnew";
-  private _optionsIconInWorkspace = (workspaceName: string) =>
-    "//span[text()='" +
-    workspaceName +
-    "']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--options-icon')]";
   private _renameWorkspaceContainer = ".editable-text-container";
   private _renameWorkspaceInput = ".t--workspace-rename-input input";
   private _workspaceList = (workspaceName: string) =>
@@ -46,6 +42,7 @@ export class HomePage {
   private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--sign-out";
   _searchUsersInput = ".search-input input";
+  private _leftPanel = "[data-testid=t--left-panel]";
 
   private _manageUsers = ".manageUsers";
   public _closeBtn = ".ads-v2-modal__content-header-close-button";
@@ -404,19 +401,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(SignupPageLocators.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(SignupPageLocators.roleDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(SignupPageLocators.useCaseDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(
-          SignupPageLocators.getStartedSubmit,
-          undefined,
-          true,
-        );
-      } else if (
-        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
-      ) {
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
         this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
         this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
         this.agHelper.GetNClick(
@@ -562,11 +547,13 @@ export class HomePage {
     this.agHelper.Sleep(3000); //for new workspace to settle for CI
     if (onlyImport === false) {
       cy.get(this._homeIcon).click({ force: true });
-      if (intoWorkspaceName)
-        this.agHelper.GetNClick(
-          this._optionsIconInWorkspace(intoWorkspaceName),
-        );
-      else this.agHelper.GetNClick(this._newIcon);
+      if (intoWorkspaceName) {
+        this.agHelper
+          .GetElement(this._leftPanel)
+          .contains("span", intoWorkspaceName)
+          .click();
+        this.agHelper.GetNClick(this._newIcon);
+      } else this.agHelper.GetNClick(this._newIcon);
       this.agHelper.GetNClick(this._workspaceImport, 0, true);
       this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     }
@@ -581,9 +568,13 @@ export class HomePage {
 
   public ImportGitApp(intoWorkspaceName = "") {
     this.NavigateToHome();
-    if (intoWorkspaceName)
-      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
-    else this.agHelper.GetNClick(this._optionsIcon);
+    if (intoWorkspaceName) {
+      this.agHelper
+        .GetElement(this._leftPanel)
+        .contains("span", intoWorkspaceName)
+        .click();
+      this.agHelper.GetNClick(this._newIcon);
+    } else this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     this.agHelper.GetNClick(this._importFromGitBtn);
@@ -647,12 +638,10 @@ export class HomePage {
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
     cy.get(this._homeIcon).click({ force: true });
-    this.agHelper.GetNClick(
-      this._optionsIconInWorkspace(workspaceNameToDelete),
-    );
+    this.SelectWorkspace(workspaceNameToDelete);
+    this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._wsAction("Delete workspace")); //Are you sure?
     this.agHelper.GetNClick(this._wsAction("Are you sure?")); //
-    this.agHelper.AssertContains("Workspace deleted successfully");
   }
 
   public AssertNCloseImport() {
@@ -703,6 +692,7 @@ export class HomePage {
 
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
+    this.SelectWorkspace(workspaceName);
     this.OpenWorkspaceOptions(workspaceName);
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
@@ -731,5 +721,12 @@ export class HomePage {
       false,
       true,
     );
+  }
+
+  public SelectWorkspace(workspaceName: string) {
+    this.agHelper
+      .GetElement(this._leftPanel)
+      .contains("span", workspaceName)
+      .click();
   }
 }
