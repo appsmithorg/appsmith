@@ -18,7 +18,9 @@ const initialState: TemplatesReduxState = {
   activeLoadingTemplateId: null,
   templates: [],
   similarTemplates: [],
-  filters: {},
+  filters: {
+    functions: ["All"],
+  },
   allFilters: {
     functions: [],
   },
