@@ -147,7 +147,6 @@ export class ApiPage {
       inputFieldName: "",
       apiOrQuery: "api",
     });
-    //this.agHelper.Sleep();
     if (evaluatedValue) {
       this.agHelper.VerifyEvaluatedValue(evaluatedValue);
     }
