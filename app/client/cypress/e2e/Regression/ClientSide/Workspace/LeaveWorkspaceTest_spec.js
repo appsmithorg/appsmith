@@ -12,9 +12,10 @@ describe(
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        newWorkspaceName = "LeaveWorkspace" + uid;
+        newWorkspaceName = "LeaveWs" + uid;
         homePage.CreateNewWorkspace(newWorkspaceName);
         cy.get(homePage._homeIcon).click({ force: true });
+        homePage.SelectWorkspace(newWorkspaceName);
         homePage.OpenWorkspaceOptions(newWorkspaceName);
         // verify leave workspace is visible
         cy.contains("Leave workspace").click();
@@ -30,9 +31,11 @@ describe(
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.LogOutviaAPI();
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        newWorkspaceName = "LeaveWorkspace" + uid;
+        newWorkspaceName = "LeaveW" + uid;
         homePage.CreateNewWorkspace(newWorkspaceName);
         homePage.InviteUserToWorkspace(
           newWorkspaceName,
@@ -46,6 +49,7 @@ describe(
           "App Viewer",
         );
         agHelper.VisitNAssert("/applications", "getReleaseItems");
+        homePage.SelectWorkspace(newWorkspaceName);
         homePage.LeaveWorkspace(newWorkspaceName);
       });
     });

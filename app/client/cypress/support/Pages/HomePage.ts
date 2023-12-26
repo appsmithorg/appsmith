@@ -638,10 +638,7 @@ export class HomePage {
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
     cy.get(this._homeIcon).click({ force: true });
-    this.agHelper
-      .GetElement(this._leftPanel)
-      .contains("span", workspaceNameToDelete)
-      .click();
+    this.SelectWorkspace(workspaceNameToDelete);
     this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._wsAction("Delete workspace")); //Are you sure?
     this.agHelper.GetNClick(this._wsAction("Are you sure?")); //
@@ -695,6 +692,7 @@ export class HomePage {
 
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
+    this.SelectWorkspace(workspaceName);
     this.OpenWorkspaceOptions(workspaceName);
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
@@ -723,5 +721,12 @@ export class HomePage {
       false,
       true,
     );
+  }
+
+  public SelectWorkspace(workspaceName: string) {
+    this.agHelper
+      .GetElement(this._leftPanel)
+      .contains("span", workspaceName)
+      .click();
   }
 }
