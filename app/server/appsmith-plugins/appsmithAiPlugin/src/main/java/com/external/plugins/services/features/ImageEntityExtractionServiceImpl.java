@@ -10,17 +10,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.constants.AppsmithAiConstants.ENTITIES;
 import static com.external.plugins.constants.AppsmithAiConstants.INPUT;
+import static com.external.plugins.constants.AppsmithAiConstants.LABELS;
 import static com.external.plugins.utils.FieldValidationHelper.validateTextInputAndProperties;
 
 public class ImageEntityExtractionServiceImpl implements AiFeatureService {
     @Override
     public Query createQuery(ActionConfiguration actionConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
-        validateTextInputAndProperties(formData, List.of(ENTITIES));
+        validateTextInputAndProperties(formData, List.of(LABELS));
         String input = RequestUtils.extractDataFromFormData(formData, INPUT);
-        String entities = RequestUtils.extractDataFromFormData(formData, ENTITIES);
+        String entities = RequestUtils.extractDataFromFormData(formData, LABELS);
         // labels string is comma-separated list of labels
         List<String> entitiesList =
                 Arrays.stream(entities.split(",")).map(String::trim).toList();
