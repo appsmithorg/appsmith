@@ -5,26 +5,28 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
+import com.appsmith.server.repositories.cakes.BaseCake;
 import com.mongodb.client.result.UpdateResult;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Component
-@RequiredArgsConstructor
-public class UserDataRepositoryCake {
+public class UserDataRepositoryCake extends BaseCake<UserData> {
     private final UserDataRepository repository;
 
-    // From CrudRepository
-    public Mono<UserData> save(UserData entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
+    public UserDataRepositoryCake(UserDataRepository repository) {
+        super(repository);
+        this.repository = repository;
     }
 
+    // From CrudRepository
     public Flux<UserData> saveAll(Iterable<UserData> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
@@ -34,8 +36,16 @@ public class UserDataRepositoryCake {
     }
     // End from CrudRepository
 
+    public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findPhotoAssetsByUserIds(userId)));
+    }
+
     public Flux<UserData> queryAll(List<Criteria> criterias, AclPermission permission) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Flux<UserData> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
     public Flux<UserData> queryAll(
@@ -43,48 +53,12 @@ public class UserDataRepositoryCake {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
-    public Mono<UserData> setUserPermissionsInObject(UserData obj) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
-    }
-
-    public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.saveReleaseNotesViewedVersion(userId, version)));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<UserData> archive(UserData entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
     public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.fetchMostRecentlyUsedWorkspaceId(userId)));
-    }
-
-    public Flux<UserData> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
-    }
-
-    public Mono<UserData> setUserPermissionsInObject(UserData obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
-    }
-
-    public Mono<UserData> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
-    }
-
-    public Mono<UserData> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
-    public Mono<UserData> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
-    }
-
-    public Mono<UserData> findByUserId(String userId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByUserId(userId)));
     }
 
     public Mono<UpdateResult> removeIdFromRecentlyUsedList(
@@ -93,11 +67,39 @@ public class UserDataRepositoryCake {
                 () -> Mono.justOrEmpty(repository.removeIdFromRecentlyUsedList(userId, workspaceId, applicationIds)));
     }
 
-    public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findPhotoAssetsByUserIds(userId)));
+    public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.saveReleaseNotesViewedVersion(userId, version)));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    public Mono<UserData> archive(UserData entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
+    public Mono<UserData> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public Mono<UserData> findByUserId(String userId) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findByUserId(userId)));
+    }
+
+    public Mono<UserData> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
+    public Mono<UserData> setUserPermissionsInObject(UserData obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
+    }
+
+    public Mono<UserData> setUserPermissionsInObject(UserData obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Mono<UserData> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

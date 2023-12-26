@@ -102,6 +102,32 @@ def switch_repo_types(domain):
         update_file(full_path, content)
 
 
+def generate_base_cake():
+    base_cake_cls = f"""\
+        package com.appsmith.server.repositories.cakes;
+
+        import com.appsmith.external.models.BaseDomain;
+        import lombok.RequiredArgsConstructor;
+        import org.springframework.data.repository.CrudRepository;
+        import reactor.core.publisher.Mono;
+
+        @RequiredArgsConstructor
+        public abstract class BaseCake<T extends BaseDomain> {{
+            private final CrudRepository<T, String> repository;
+
+            public Mono<T> save(T entity) {{
+                return {MONO_WRAPPER % "repository.save(entity)"};
+            }}
+        }}
+    """
+
+    update_file(
+        server_root
+        / "appsmith-server/src/main/java/com/appsmith/server/repositories/cakes/BaseCake.java",
+        dedent(base_cake_cls),
+    )
+
+
 def generate_cake_class(domain):
     methods = set()
     reactor_methods = []
@@ -138,7 +164,7 @@ def generate_cake_class(domain):
             )
         )
 
-    for method in methods:
+    for method in sorted(methods):
         ret_type, signature = method.split(None, 1)
 
         if ret_type.startswith("Optional"):
@@ -184,8 +210,8 @@ def generate_cake_class(domain):
     import com.appsmith.server.domains.*;
     import com.appsmith.server.dtos.*;
     import com.appsmith.server.projections.*;
+    import com.appsmith.server.repositories.cakes.BaseCake;
     import com.appsmith.external.models.*;
-    import lombok.RequiredArgsConstructor;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
@@ -196,17 +222,21 @@ def generate_cake_class(domain):
     import com.querydsl.core.types.dsl.StringPath;
     {imports_code}
 
-    import java.util.*;
+    import java.util.List;
+    import java.util.Map;
+    import java.util.Optional;
+    import java.util.Set;
 
     @Component
-    @RequiredArgsConstructor
-    public class {domain}RepositoryCake {{
+    public class {domain}RepositoryCake extends BaseCake<{domain}> {{
         private final {domain}Repository repository;
 
-        // From CrudRepository
-        public Mono<{domain}> save({domain} entity) {{
-            return {MONO_WRAPPER % "repository.save(entity)"};
+        public {domain}RepositoryCake({domain}Repository repository) {{
+            super(repository);
+            this.repository = repository;
         }}
+
+        // From CrudRepository
         public Flux<{domain}> saveAll(Iterable<{domain}> entities) {{
             return {FLUX_WRAPPER % "repository.saveAll(entities)"};
         }}
@@ -287,6 +317,7 @@ def read_file(path: Path):
 
 def update_file(path: Path, content: str):
     if not path.exists() or path.read_text() != content:
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content)
         FILE_CONTENTS_CACHE[path] = content
 
@@ -309,7 +340,7 @@ def main():
     apply(root / "app/server/appsmith-interfaces/pom.xml", add_postgres_dep)
     apply(root / "app/server/appsmith-plugins/postgresPlugin/pom.xml", del_postgres_dep)
 
-    to_entity("GitConfig")
+    generate_base_cake()
 
     convert("ActionCollection")
     convert("Application")
@@ -319,7 +350,6 @@ def main():
     convert("DatasourceStorageStructure")
     convert("NewPage")
     convert("Plugin")
-    convert("Group")
     convert("NewAction")
     convert("PermissionGroup")
     convert("ApplicationSnapshot")
@@ -333,6 +363,8 @@ def main():
     convert("PasswordResetToken")
     convert("DatasourceStorage")
     convert("Tenant")
+    convert("ApiTemplate")
+    convert("Collection")
 
     # git add all cake classes
     subprocess.check_call(

@@ -272,12 +272,13 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .flatMap(user -> {
                     final UserData userData = new UserData();
+                    userData.setUserId(user.getId());
                     userData.setRole(userFromRequest.getRole());
                     userData.setProficiency(userFromRequest.getProficiency());
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     Mono<UserData> userDataMono = userDataService
-                            .updateForUser(user, userData)
+                            .create(userData)
                             .elapsed()
                             .map(pair -> {
                                 log.debug(
@@ -324,6 +325,9 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     Mono<Long> allSecondaryFunctions = Mono.when(
                                     userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
+                            .onErrorResume(error -> {
+                                return Mono.error(error);
+                            })
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {

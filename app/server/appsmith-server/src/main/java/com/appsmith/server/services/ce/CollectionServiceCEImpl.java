@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.repositories.CollectionRepository;
+import com.appsmith.server.repositories.CollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
@@ -16,7 +16,7 @@ import reactor.core.scheduler.Scheduler;
 import java.util.List;
 
 @Slf4j
-public class CollectionServiceCEImpl extends BaseService<CollectionRepository, Collection, String>
+public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCake, Collection, String>
         implements CollectionServiceCE {
 
     public CollectionServiceCEImpl(
@@ -24,20 +24,20 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            CollectionRepository repository,
+            CollectionRepositoryCake repository,
             AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 
     @Override
     public Mono<Collection> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return repository.findById(id);
     }
 
     @Override
     public Mono<Collection> addActionsToCollection(Collection collection, List<NewAction> actions) {
         collection.setActions(actions);
-        return Mono.justOrEmpty(repository.save(collection));
+        return repository.save(collection);
     }
 
     @Override

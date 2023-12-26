@@ -4,25 +4,23 @@ import com.appsmith.external.models.*;
 import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
+import com.appsmith.server.repositories.cakes.BaseCake;
 import com.mongodb.client.result.UpdateResult;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
-
 @Component
-@RequiredArgsConstructor
-public class DatasourceStorageStructureRepositoryCake {
+public class DatasourceStorageStructureRepositoryCake extends BaseCake<DatasourceStorageStructure> {
     private final DatasourceStorageStructureRepository repository;
 
-    // From CrudRepository
-    public Mono<DatasourceStorageStructure> save(DatasourceStorageStructure entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.save(entity)));
+    public DatasourceStorageStructureRepositoryCake(DatasourceStorageStructureRepository repository) {
+        super(repository);
+        this.repository = repository;
     }
 
+    // From CrudRepository
     public Flux<DatasourceStorageStructure> saveAll(Iterable<DatasourceStorageStructure> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
@@ -32,13 +30,12 @@ public class DatasourceStorageStructureRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<UpdateResult> updateStructure(
-            String datasourceId, String environmentId, DatasourceStructure structure) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateStructure(datasourceId, environmentId, structure)));
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
+    public Mono<DatasourceStorageStructure> archive(DatasourceStorageStructure entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
     public Mono<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
@@ -47,15 +44,16 @@ public class DatasourceStorageStructureRepositoryCake {
                 () -> Mono.justOrEmpty(repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId)));
     }
 
-    public Mono<DatasourceStorageStructure> archive(DatasourceStorageStructure entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
-    }
-
     public Mono<DatasourceStorageStructure> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    public Mono<UpdateResult> updateStructure(
+            String datasourceId, String environmentId, DatasourceStructure structure) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateStructure(datasourceId, environmentId, structure)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

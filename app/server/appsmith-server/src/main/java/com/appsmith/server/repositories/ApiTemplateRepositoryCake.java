@@ -17,75 +17,63 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class ApplicationSnapshotRepositoryCake extends BaseCake<ApplicationSnapshot> {
-    private final ApplicationSnapshotRepository repository;
+public class ApiTemplateRepositoryCake extends BaseCake<ApiTemplate> {
+    private final ApiTemplateRepository repository;
 
-    public ApplicationSnapshotRepositoryCake(ApplicationSnapshotRepository repository) {
+    public ApiTemplateRepositoryCake(ApiTemplateRepository repository) {
         super(repository);
         this.repository = repository;
     }
 
     // From CrudRepository
-    public Flux<ApplicationSnapshot> saveAll(Iterable<ApplicationSnapshot> entities) {
+    public Flux<ApiTemplate> saveAll(Iterable<ApiTemplate> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
-    public Mono<ApplicationSnapshot> findById(String id) {
+    public Mono<ApiTemplate> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
-    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj) {
+    public Mono<ApiTemplate> setUserPermissionsInObject(ApiTemplate obj) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
 
-    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj, Set<String> permissionGroups) {
+    public Mono<ApiTemplate> setUserPermissionsInObject(ApiTemplate obj, Set<String> permissionGroups) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
     }
 
-    public Mono<ApplicationSnapshot> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+    public Mono<ApiTemplate> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
     }
 
-    public Flux<ApplicationSnapshot> findByApplicationId(String applicationId) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId)));
-    }
-
-    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission) {
+    public Flux<ApiTemplate> queryAll(List<Criteria> criterias, AclPermission permission) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
     }
 
-    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+    public Flux<ApiTemplate> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Flux<ApplicationSnapshot> queryAll(
+    public Flux<ApiTemplate> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
-    public Mono<ApplicationSnapshot> archive(ApplicationSnapshot entity) {
+    public Mono<ApiTemplate> archive(ApiTemplate entity) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<ApplicationSnapshot> findById(String id, AclPermission permission) {
+    public Mono<ApiTemplate> findById(String id, AclPermission permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
     }
 
-    public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findWithoutData(applicationId)));
-    }
-
-    public Mono<ApplicationSnapshot> retrieveById(String id) {
+    public Mono<ApiTemplate> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<Void> deleteAllByApplicationId(String applicationId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.deleteAllByApplicationId(applicationId)));
     }
 
     public boolean archiveById(String id) {

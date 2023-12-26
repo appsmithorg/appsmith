@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.CollectionRepository;
+import com.appsmith.server.repositories.CollectionRepositoryCake;
 import com.appsmith.server.services.ce.CollectionServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class CollectionServiceImpl extends CollectionServiceCEImpl implements Co
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            CollectionRepository repository,
+            CollectionRepositoryCake repository,
             AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);

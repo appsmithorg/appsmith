@@ -11,38 +11,26 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class EmailVerificationTokenRepositoryCake extends BaseCake<EmailVerificationToken> {
-    private final EmailVerificationTokenRepository repository;
+public class CollectionRepositoryCake extends BaseCake<Collection> {
+    private final CollectionRepository repository;
 
-    public EmailVerificationTokenRepositoryCake(EmailVerificationTokenRepository repository) {
+    public CollectionRepositoryCake(CollectionRepository repository) {
         super(repository);
         this.repository = repository;
     }
 
     // From CrudRepository
-    public Flux<EmailVerificationToken> saveAll(Iterable<EmailVerificationToken> entities) {
+    public Flux<Collection> saveAll(Iterable<Collection> entities) {
         return Flux.defer(() -> Flux.fromIterable(repository.saveAll(entities)));
     }
 
-    public Mono<EmailVerificationToken> findById(String id) {
+    public Mono<Collection> findById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id)));
     }
     // End from CrudRepository
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<EmailVerificationToken> archive(EmailVerificationToken entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
-    }
-
-    public Mono<EmailVerificationToken> findByEmail(String email) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
-    }
-
-    public Mono<EmailVerificationToken> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
     public boolean archiveById(String id) {

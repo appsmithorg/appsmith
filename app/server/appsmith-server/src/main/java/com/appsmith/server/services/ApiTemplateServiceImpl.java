@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ApiTemplateRepository;
+import com.appsmith.server.repositories.ApiTemplateRepositoryCake;
 import com.appsmith.server.services.ce.ApiTemplateServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class ApiTemplateServiceImpl extends ApiTemplateServiceCEImpl implements 
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            ApiTemplateRepository repository,
+            ApiTemplateRepositoryCake repository,
             AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);

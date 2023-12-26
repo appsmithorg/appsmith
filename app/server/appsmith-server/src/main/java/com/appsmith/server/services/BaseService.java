@@ -5,6 +5,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.cakes.BaseCake;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import jakarta.validation.Validator;
@@ -28,7 +29,8 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
-public abstract class BaseService<R, T extends BaseDomain, ID extends Serializable> implements CrudService<T, ID> {
+public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, ID extends Serializable>
+        implements CrudService<T, ID> {
 
     final Scheduler scheduler;
 
@@ -132,12 +134,10 @@ public abstract class BaseService<R, T extends BaseDomain, ID extends Serializab
 
     @Override
     public Mono<T> create(T object) {
-        return Mono.empty(); /*
-        return Mono.just(object)
-                .flatMap(this::validateObject)
+        return validateObject(object)
                 .flatMap(repository::save)
                 .flatMap(savedResource ->
-                        analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));*/
+                        analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     protected DBObject getDbObject(Object o) {
