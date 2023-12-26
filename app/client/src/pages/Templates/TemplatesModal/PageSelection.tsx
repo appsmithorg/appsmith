@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { Button, Checkbox, Divider, Icon, Text } from "design-system";
-import { useDispatch } from "react-redux";
-import { importTemplateIntoApplication } from "actions/templateActions";
-import type { Template } from "api/TemplatesApi";
 import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
 import {
-  createMessage,
   FILTER_SELECTALL,
+  FILTER_SELECT_PAGE,
   FILTER_SELECT_PAGES,
   PAGE,
   PAGES,
-  FILTER_SELECT_PAGE,
+  createMessage,
 } from "@appsmith/constants/messages";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { importTemplateIntoApplication } from "actions/templateActions";
+import type { Template } from "api/TemplatesApi";
+import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
+import { Button, Checkbox, Divider, Icon, Text } from "design-system";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   width: 280px;
@@ -61,6 +65,7 @@ const StyledButton = styled(Button)`
 `;
 
 interface PageSelectionProps {
+  isStartWithTemplateFlow: boolean;
   pages: ApplicationPagePayload[];
   template: Template;
   onPageSelection: (pageId: string) => void;
@@ -75,6 +80,8 @@ function PageSelection(props: PageSelectionProps) {
     props.pages.length > 1 || props.pages.length === 0
       ? createMessage(PAGES)
       : createMessage(PAGE);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const currentWorkSpace = useSelector(getCurrentAppWorkspace);
 
   useEffect(() => {
     setSelectedPages(props.pages.map((page) => page.name));
@@ -108,6 +115,17 @@ function PageSelection(props: PageSelectionProps) {
         selectedPages,
       ),
     );
+    if (props.isStartWithTemplateFlow) {
+      AnalyticsUtil.logEvent("fork_APPLICATIONTEMPLATE", {
+        applicationId: applicationId,
+        workspaceId: currentWorkSpace.id,
+        source: "canvas",
+        eventData: {
+          templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+          selectedPages,
+        },
+      });
+    }
   };
 
   return (

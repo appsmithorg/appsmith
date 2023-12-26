@@ -100,6 +100,7 @@ function TemplatesModal() {
         <ModalBodyWrapper>
           {!!showTemplateDetails ? (
             <TemplateDetailedView
+              isStartWithTemplateFlow={templatesModalInfo.isOpenFromCanvas}
               onBackPress={() => setShowTemplateDetails("")}
               onClose={() => onClose(false)}
               templateId={showTemplateDetails}
