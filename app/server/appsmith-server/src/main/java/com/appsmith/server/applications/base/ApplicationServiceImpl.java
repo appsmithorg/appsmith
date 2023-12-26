@@ -1,8 +1,8 @@
 package com.appsmith.server.applications.base;
 
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;

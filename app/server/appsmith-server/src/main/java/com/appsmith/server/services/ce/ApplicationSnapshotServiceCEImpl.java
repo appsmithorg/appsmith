@@ -11,7 +11,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
-import com.appsmith.server.repositories.ApplicationSnapshotRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;

@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
-import com.appsmith.server.repositories.CustomJSLibRepositoryCake;
+import com.appsmith.server.repositories.cakes.CustomJSLibRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;

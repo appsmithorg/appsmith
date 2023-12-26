@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ConfigRepositoryCake;
+import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;

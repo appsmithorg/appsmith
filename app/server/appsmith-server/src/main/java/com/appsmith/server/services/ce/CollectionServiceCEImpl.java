@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.repositories.CollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.CollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;

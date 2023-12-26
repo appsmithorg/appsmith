@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
-import com.appsmith.server.repositories.TenantRepositoryCake;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;

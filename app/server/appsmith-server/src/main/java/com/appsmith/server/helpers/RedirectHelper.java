@@ -4,7 +4,7 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.repositories.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

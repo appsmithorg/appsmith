@@ -1,10 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
-import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.PluginRepositoryCake;
-import com.appsmith.server.repositories.WorkspaceRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;

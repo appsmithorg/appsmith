@@ -1,6 +1,6 @@
 package com.appsmith.server.plugins.base;
 
-import com.appsmith.server.repositories.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;

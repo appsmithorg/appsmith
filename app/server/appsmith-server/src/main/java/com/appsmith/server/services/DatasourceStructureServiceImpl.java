@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.DatasourceStorageStructureRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceStorageStructureRepositoryCake;
 import com.appsmith.server.services.ce.DatasourceStructureServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

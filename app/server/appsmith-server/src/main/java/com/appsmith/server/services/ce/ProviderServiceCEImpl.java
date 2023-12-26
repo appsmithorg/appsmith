@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Provider;
-import com.appsmith.server.repositories.ProviderRepositoryCake;
+import com.appsmith.server.repositories.cakes.ProviderRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;

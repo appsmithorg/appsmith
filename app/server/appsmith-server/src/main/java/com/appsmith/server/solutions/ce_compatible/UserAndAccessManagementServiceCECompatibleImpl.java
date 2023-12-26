@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;

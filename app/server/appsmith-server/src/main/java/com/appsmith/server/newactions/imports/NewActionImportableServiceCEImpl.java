@@ -20,7 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.StringUtils;

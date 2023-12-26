@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ProviderRepositoryCake;
+import com.appsmith.server.repositories.cakes.ProviderRepositoryCake;
 import com.appsmith.server.services.ce.ProviderServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;

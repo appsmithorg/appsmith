@@ -210,14 +210,14 @@ def generate_cake_class(domain):
     imports_code = "".join(f"import {i};" for i in imports)
 
     prefix = dedent(
-        f"""
-    package com.appsmith.server.repositories;
+        f"""\
+    package com.appsmith.server.repositories.cakes;
 
     import com.appsmith.external.models.*;
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.*;
     import com.appsmith.server.projections.*;
-    import com.appsmith.server.repositories.cakes.BaseCake;
+    import com.appsmith.server.repositories.*;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
@@ -259,7 +259,7 @@ def generate_cake_class(domain):
         return
 
     update_file(
-        repo_class_path.parent / (domain + "RepositoryCake.java"),
+        repo_class_path.parent / f"cakes/{domain}RepositoryCake.java",
         gen_src,
     )
 
@@ -278,6 +278,11 @@ def use_cake(domain):
         server_root.glob("**/com/appsmith/server/helpers/ce/*.java"),
     ):
         out = re.sub(rf"\b({domain}Repository)\b", r"\1Cake", read_file(path))
+        out = re.sub(
+            r"(import com\.appsmith\.server\.repositories\.)(\w+?Cake;)",
+            r"\1cakes.\2",
+            out,
+        )
         update_file(path, out)
 
 

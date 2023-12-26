@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.UserDataRepositoryCake;
-import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.ce.UserWorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;

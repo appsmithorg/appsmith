@@ -12,7 +12,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.ExchangeUtils;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.repositories.UserDataRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.segment.analytics.Analytics;

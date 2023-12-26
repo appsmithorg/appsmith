@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.server.repositories.DatasourceStorageStructureRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceStorageStructureRepositoryCake;
 import com.mongodb.client.result.UpdateResult;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -4,7 +4,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import org.springframework.stereotype.Service;
 
 @Service

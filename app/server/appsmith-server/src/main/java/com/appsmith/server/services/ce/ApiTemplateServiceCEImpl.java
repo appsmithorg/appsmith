@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.repositories.ApiTemplateRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApiTemplateRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;

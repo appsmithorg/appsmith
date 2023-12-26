@@ -2,7 +2,7 @@ package com.appsmith.server.jslibs.base;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
-import com.appsmith.server.repositories.CustomJSLibRepositoryCake;
+import com.appsmith.server.repositories.cakes.CustomJSLibRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;

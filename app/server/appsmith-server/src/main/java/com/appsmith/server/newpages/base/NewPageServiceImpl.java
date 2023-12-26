@@ -2,8 +2,8 @@ package com.appsmith.server.newpages.base;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.repositories.ApplicationSnapshotRepositoryCake;
-import com.appsmith.server.repositories.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;

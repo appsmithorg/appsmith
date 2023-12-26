@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.UserDataRepositoryCake;
-import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.ce.UserDataServiceCEImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import jakarta.validation.Validator;
