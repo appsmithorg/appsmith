@@ -110,6 +110,33 @@ jobs:
           echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
 
+      - name: Fetch release from cache
+        if: steps.changed-files-specific2.outputs.any_changed == 'false' && success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd $repodir/release/server
+          tar -xvzf server.jar
+
+
+      - name: Upload server build bundle
+        if: steps.changed-files-specific2.outputs.any_changed == 'false'
+        uses: actions/upload-artifact@v3
+        with:
+          name: server-build
+          path: cacherepo/cibuildcache/${{ github.event.repository.name }}/release/server/dist/
+          
+
 
 
  
