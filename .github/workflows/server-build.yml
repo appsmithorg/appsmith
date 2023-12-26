@@ -132,9 +132,9 @@ jobs:
           tar -xzvf ./server.jar
 
 
-      - name: Setup upterm session
-        if: always()
-        uses: lhotari/action-upterm@v1
+      #- name: Setup upterm session
+      #  if: always()
+      #  uses: lhotari/action-upterm@v1
 
 
       - name: Upload server build bundle
@@ -142,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: server-build
-          path: app/server/cacherepo/cibuildcache/${{ github.event.repository.name }}/release/server/dist/
+          path: /home/runner/work/appsmith/appsmith/app/server/cacherepo/cibuildcache/${{ github.event.repository.name }}/release/server/dist/
           
 
 
