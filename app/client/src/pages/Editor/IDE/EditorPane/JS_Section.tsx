@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Flex, Text } from "design-system";
+import { Button, Flex } from "design-system";
 import styled from "styled-components";
 
 import { selectJSForPagespane } from "@appsmith/selectors/entitiesSelector";
@@ -17,7 +17,8 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { EmptyState } from "./EmptyState";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 
 const JSContainer = styled(Flex)`
@@ -62,13 +63,13 @@ const JSSection = () => {
         canCreateActions={canCreateActions}
         editorId={applicationId}
         parentEntityId={pageId}
-        parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+        parentEntityType={ActionParentEntityType.PAGE}
       >
         <Flex
           flex="1"
           flexDirection="column"
           gap="spaces-2"
-          overflow="scroll"
+          overflowY="auto"
           padding="spaces-3"
         >
           {JSObjects &&
@@ -80,7 +81,7 @@ const JSSection = () => {
                     isActive={JSobject.id === activeActionId}
                     key={JSobject.id}
                     parentEntityId={pageId}
-                    parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+                    parentEntityType={ActionParentEntityType.PAGE}
                     searchKeyword={""}
                     step={2}
                     type={JSobject.type as PluginType}
@@ -91,18 +92,17 @@ const JSSection = () => {
         </Flex>
       </FilesContextProvider>
 
-      {!JSObjects ||
-        (JSObjects.length === 0 && (
-          <Flex px="spaces-3">
-            <Text
-              className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-              kind="heading-xs"
-            >
-              No JS objects to display
-            </Text>
-          </Flex>
-        ))}
-      {canCreateActions && (
+      {(!JSObjects || JSObjects.length === 0) && (
+        <EmptyState
+          buttonText={createMessage(PAGES_PANE_TEXTS.js_add_button)}
+          description={createMessage(
+            PAGES_PANE_TEXTS.js_blank_state_description,
+          )}
+          icon={"js-square-v3"}
+          onClick={canCreateActions ? addButtonClickHandler : undefined}
+        />
+      )}
+      {JSObjects && JSObjects.length > 0 && canCreateActions && (
         <Flex flexDirection="column" padding="spaces-3">
           <Button
             kind={"secondary"}
