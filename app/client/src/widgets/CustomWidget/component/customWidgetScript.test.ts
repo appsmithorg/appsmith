@@ -201,9 +201,14 @@ describe("CustomWidgetScript", () => {
       test: 2,
     });
 
-    expect(handler).toHaveBeenCalledWith({
-      test: 2,
-    });
+    expect(handler).toHaveBeenCalledWith(
+      {
+        test: 2,
+      },
+      {
+        test: 1,
+      },
+    );
 
     handler.mockClear();
     unlisten();
@@ -251,10 +256,16 @@ describe("CustomWidgetScript", () => {
       height: 3,
     });
 
-    expect(handler).toHaveBeenCalledWith({
-      width: 2,
-      height: 3,
-    });
+    expect(handler).toHaveBeenCalledWith(
+      {
+        width: 2,
+        height: 3,
+      },
+      {
+        width: 1,
+        height: 2,
+      },
+    );
 
     handler.mockClear();
     unlisten();
@@ -301,9 +312,14 @@ describe("CustomWidgetScript", () => {
       color: "#000",
     });
 
-    expect(handler).toHaveBeenCalledWith({
-      color: "#000",
-    });
+    expect(handler).toHaveBeenCalledWith(
+      {
+        color: "#000",
+      },
+      {
+        color: "#fff",
+      },
+    );
 
     handler.mockClear();
     unlisten();
