@@ -14,7 +14,6 @@ import {
 } from "@appsmith/selectors/rampSelectors";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
-import { useLocation } from "react-router";
 import {
   RAMP_NAME,
   RampFeature,
@@ -48,6 +47,8 @@ const StyledIcon = styled(Icon)`
 
 interface Props {
   viewMode?: boolean;
+  editorId: string;
+  onChangeEnv?: () => void;
 }
 
 interface EnvironmentType {
@@ -83,14 +84,14 @@ export default function SwitchEnvironment({}: Props) {
     feature: RampFeature.MultipleEnv,
   });
   const rampLink = useSelector(rampLinkSelector);
-  const location = useLocation();
+
   //listen to url change and disable switch environment if datasource page is open
   useEffect(() => {
     setDiableSwitchEnvironment(
       !!matchDatasourcePath(window.location.pathname) ||
         !!matchSAASGsheetsPath(window.location.pathname),
     );
-  }, [location.pathname]);
+  }, [window.location.pathname]);
   //URL for datasource edit and review page is same
   //this parameter helps us to differentiate between the two.
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
