@@ -20,7 +20,7 @@ import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import BaseWidget from "widgets/BaseWidget";
 import type { ReactNode } from "react";
 import React from "react";
-import ContainerComponent from "widgets/ContainerWidget/component";
+import ContainerComponent from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { anvilWidgets } from "widgets/anvil/constants";
 
