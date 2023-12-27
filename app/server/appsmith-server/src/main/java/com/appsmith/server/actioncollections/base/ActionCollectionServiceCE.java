@@ -62,6 +62,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
+    Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission);
+
     Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
 

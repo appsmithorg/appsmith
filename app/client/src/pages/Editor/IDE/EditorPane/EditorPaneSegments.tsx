@@ -21,7 +21,7 @@ import { WidgetsSection } from "./WidgetsSection";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import {
   jsCollectionListURL,
   queryListURL,
@@ -76,18 +76,24 @@ const EditorPaneSegments = () => {
   const onSegmentChange = (value: string) => {
     switch (value) {
       case EditorEntityTab.QUERIES:
-        history.push(queryListURL({ pageId }));
+        history.push(queryListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
         break;
       case EditorEntityTab.JS:
-        history.push(jsCollectionListURL({ pageId }));
+        history.push(jsCollectionListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
         break;
       case EditorEntityTab.UI:
-        history.push(widgetListURL({ pageId }));
+        history.push(widgetListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
         break;
     }
   };
   return (
-    <Flex flexDirection="column" gap="spacing-2" height={"calc(100vh - 225px)"}>
+    <Flex flexDirection="column" gap="spacing-2" overflow="hidden">
       <Flex
         alignItems="center"
         className="ide-pages-pane__header"

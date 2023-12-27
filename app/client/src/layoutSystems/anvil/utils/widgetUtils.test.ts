@@ -13,12 +13,12 @@ describe("WidgetUtils tests", () => {
     });
     it("should set base as 100% for Fill widgets if minWidth config is undefined", () => {
       const result = getResponsiveMinWidth(undefined, true);
-      expect(result).toEqual({ base: "100%", "480px": "" });
+      expect(result).toEqual({ base: "100%", "480px": "auto" });
     });
     it("should set base as 100% for Fill widgets if minWidth config is defined as assign given minWidth at 480px", () => {
       const config = { base: "100px" };
       const result = getResponsiveMinWidth(config, true);
-      expect(result).toEqual({ base: "100%", "480px": "100px" });
+      expect(result).toEqual({ base: "max(100%, 100px)", "480px": "100px" });
     });
   });
 });

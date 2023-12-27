@@ -14,6 +14,7 @@ import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/per
 import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
 import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "./EmptyState";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getSelectedWidgets } from "selectors/ui";
@@ -45,11 +46,26 @@ const ListWidgets = () => {
 
   return (
     <Flex flexDirection="column" overflow="hidden">
+      {widgets &&
+        widgets.children &&
+        widgets.children.length > 0 &&
+        canManagePages && (
+          <Flex flexDirection="column" padding="spaces-3">
+            <Button
+              kind={"secondary"}
+              onClick={addButtonClickHandler}
+              size={"sm"}
+              startIcon={"add-line"}
+            >
+              {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
+            </Button>
+          </Flex>
+        )}
       <Flex
         flex="1"
         flexDirection={"column"}
         gap="spaces-3"
-        overflow="scroll"
+        overflowY="auto"
         padding="spaces-3"
       >
         {widgets?.children?.map((child) => (
@@ -66,17 +82,15 @@ const ListWidgets = () => {
           />
         ))}
       </Flex>
-      {canManagePages && (
-        <Flex flexDirection="column" padding="spaces-3">
-          <Button
-            kind={"secondary"}
-            onClick={addButtonClickHandler}
-            size={"sm"}
-            startIcon={"add-line"}
-          >
-            {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
-          </Button>
-        </Flex>
+      {(!widgets || !widgets.children || widgets?.children?.length === 0) && (
+        <EmptyState
+          buttonText={createMessage(PAGES_PANE_TEXTS.widget_add_button)}
+          description={createMessage(
+            PAGES_PANE_TEXTS.widget_blank_state_description,
+          )}
+          icon={"widgets-v3"}
+          onClick={canManagePages ? addButtonClickHandler : undefined}
+        />
       )}
     </Flex>
   );
