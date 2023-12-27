@@ -58,16 +58,6 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
     }
 
     @Override
-    public Mono<UserForManagementDTO> getUserById(String userId) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<Boolean> deleteUser(String userId) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
     public Mono<Boolean> changeRoleAssociations(
             UpdateRoleAssociationDTO updateRoleAssociationDTO, String originHeader) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
