@@ -233,8 +233,6 @@ jobs:
               ../../scripts/generate_info_json.sh
             fi
           fi
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
           echo version=$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json) >> $GITHUB_OUTPUT
 
       # We burn React environment & the Segment analytics key into the build itself.
