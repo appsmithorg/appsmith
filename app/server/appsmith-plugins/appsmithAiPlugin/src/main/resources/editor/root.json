@@ -46,7 +46,7 @@
             },
             {
               "label": "Knowledge Retrieval",
-              "value": "KNOWLEDGE_RETRIEVAL"
+              "value": "KNOWLEDGE_RETRIEVE"
             }
           ]
         }

@@ -6,10 +6,18 @@
       "children": [
         {
           "label": "Description",
-          "configProperty": "datasourceConfiguration.description",
+          "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": false
+        },
+        {
+          "label": "Description",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "description"
         },
         {
           "label": "",
@@ -20,7 +28,7 @@
           "initialValue": "files"
         },
         {
-          "label": "Files to upload",
+          "label": "Files to upload for knowledge retrieval (PDF, MD) - Optional",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "FILE_PICKER",
           "isRequired": false
