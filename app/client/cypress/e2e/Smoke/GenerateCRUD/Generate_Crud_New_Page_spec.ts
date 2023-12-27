@@ -6,8 +6,8 @@ describe(
   { tags: ["@tag.Datasource"] },
   () => {
     it(
-      "excludeForAirgap",
       "1. Generated CRUD app should work when there are no entities in the page & when there are entities in the current page",
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         _.dataSources.GeneratePageWithMockDB();
         //when there are entities in the current page
