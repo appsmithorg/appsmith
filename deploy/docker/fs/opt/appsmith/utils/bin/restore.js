@@ -7,6 +7,7 @@ const shell = require('shelljs');
 
 const utils = require('./utils');
 const Constants = require('./constants');
+const command_args = process.argv.slice(3);
 const {getCurrentAppsmithVersion} = require("./utils")
 
 async function getBackupFileName() {
@@ -38,6 +39,20 @@ async function getBackupFileName() {
 
 }
 
+async function decryptArchive(encryptedFilePath, backupFilePath){
+  console.log('Enter the password to decrypt the backup archive:')
+  for (const _ of [1, 2, 3]) {
+    const decryptionPwd = readlineSync.question('', { hideEchoBack: true });
+    try{
+      await utils.execCommandSilent(['openssl', 'enc', '-d', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', encryptedFilePath, '-out', backupFilePath, '-k', decryptionPwd])
+      return true
+    } catch (error) {
+      console.log('Invalid password. Please try again:');
+    }
+  }
+  return false
+}
+
 async function extractArchive(backupFilePath, restoreRootPath) {
   console.log('Extracting the Appsmith backup archive at ' + backupFilePath);
   await utils.execCommand(['tar', '-C', restoreRootPath, '-xf', backupFilePath]);
@@ -46,24 +61,39 @@ async function extractArchive(backupFilePath, restoreRootPath) {
 
 async function restoreDatabase(restoreContentsPath) {
   console.log('Restoring database  ....');
-  await utils.execCommand(['mongorestore', `--uri=${process.env.APPSMITH_MONGODB_URI}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--gzip']);
+  backup_db_name = await getBackupDatabaseName(restoreContentsPath);
+  new_db_name = utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_MONGODB_URI);
+  console.log('Backup DB: ' + backup_db_name);
+  await utils.execCommand(['mongorestore', `--uri=${process.env.APPSMITH_MONGODB_URI}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--nsInclude="*"',  `--nsFrom="${backup_db_name}.*"`,  `--nsTo="${new_db_name}.*"`,'--gzip']);
   console.log('Restoring database completed');
 }
 
-async function restoreDockerEnvFile(restoreContentsPath, backupName) {
+async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEncryptionKeys) {
   console.log('Restoring docker environment file');
   const dockerEnvFile = '/appsmith-stacks/configuration/docker.env';
   var encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
   var encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
   await utils.execCommand(['mv', dockerEnvFile, dockerEnvFile + '.' + backupName]);
   await utils.execCommand(['cp', restoreContentsPath + '/docker.env', dockerEnvFile]);
-
-  if (encryptionPwd && encryptionSalt) {
-    const input = readlineSync.question('If you are restoring to the same Appsmith deployment which generated the backup archive, you can use the existing encryption keys on the instance.\n\
-    Press Enter to continue with existing encryption keys\n\
-    Or Type "n"/"No" to provide encryption key & password corresponding to the original Appsmith instance that is being restored.\n');
-    const answer = input && input.toLocaleUpperCase();
-    if (answer === 'N' || answer === 'NO') {
+  if (overwriteEncryptionKeys){
+    if (encryptionPwd && encryptionSalt) {
+      const input = readlineSync.question('If you are restoring to the same Appsmith deployment which generated the backup archive, you can use the existing encryption keys on the instance.\n\
+      Press Enter to continue with existing encryption keys\n\
+      Or Type "n"/"No" to provide encryption key & password corresponding to the original Appsmith instance that is being restored.\n');
+      const answer = input && input.toLocaleUpperCase();
+      if (answer === 'N' || answer === 'NO') {
+        encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
+          hideEchoBack: true
+        });
+        encryptionSalt = readlineSync.question('Enter the APPSMITH_ENCRYPTION_SALT: ', {
+          hideEchoBack: true
+        });
+      }
+      else {
+        console.log('Restoring docker environment file with existing encryption password & salt');
+      }
+    }
+    else {
       encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
         hideEchoBack: true
       });
@@ -71,24 +101,13 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName) {
         hideEchoBack: true
       });
     }
-    else {
-      console.log('Restoring docker environment file with existing encryption password & salt');
-    }
-  }
-  else {
-    encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
-      hideEchoBack: true
-    });
-    encryptionSalt = readlineSync.question('Enter the APPSMITH_ENCRYPTION_SALT: ', {
-      hideEchoBack: true
-    });
-  }
-
-  await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
-    '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd + '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
-
-  console.log('Restoring docker environment file completed');
+    } else {
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
+    }
+    console.log('Restoring docker environment file completed');
 }
 
 async function restoreGitStorageArchive(restoreContentsPath, backupName) {
@@ -124,8 +143,31 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
   }
 }
 
+async function getBackupDatabaseName(restoreContentsPath) {
+  let db_name = "appsmith"
+  if (command_args.includes('--backup-db-name')) {
+    for (let i = 0; i < command_args.length; i++) {
+      if (command_args[i].startsWith('--backup-db-name')) {
+        db_name = command_args[i].split("=")[1];
+      }
+    }
+  }
+  else {
+    const manifest_data = await fsPromises.readFile(restoreContentsPath + '/manifest.json', { encoding: 'utf8' });
+    const manifest_json = JSON.parse(manifest_data);
+    if ("dbName" in manifest_json){
+      db_name = manifest_json["dbName"];
+    }
+  }
+
+  console.log('Backup Database Name: ' + db_name);
+  return db_name
+}
+
 async function run() {
   let errorCode = 0;
+  let cleanupArchive = false;
+  let overwriteEncryptionKeys = true;
   try {
     check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
     shell.exec(check_supervisord_status_cmd, function (code) {
@@ -135,11 +177,24 @@ async function run() {
       }
     });
 
-    const backupFileName = await getBackupFileName();
+    let backupFileName = await getBackupFileName();
     if (backupFileName == null) {
       process.exit(errorCode);
     } else {
-      const backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
+      backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
+      if (isArchiveEncrypted(backupFileName)){
+        const encryptedBackupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);;
+        backupFileName = backupFileName.replace('.enc', '');
+        backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
+        cleanupArchive = true;
+        overwriteEncryptionKeys = false;
+        const decryptSuccess = await decryptArchive(encryptedBackupFilePath, backupFilePath);
+        if (!decryptSuccess){
+          console.log('You have entered the incorrect password multiple times. Aborting the restore process.')
+          await fsPromises.rm(backupFilePath, { force: true });
+          process.exit(errorCode)
+        }
+      }
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
       const restoreContentsPath = path.join(restoreRootPath, backupName);
@@ -151,7 +206,7 @@ async function run() {
       console.log('Restoring Appsmith instance from the backup at ' + backupFilePath);
       utils.stop(['backend', 'rts']);
       await restoreDatabase(restoreContentsPath);
-      await restoreDockerEnvFile(restoreContentsPath, backupName);
+      await restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEncryptionKeys);
       await restoreGitStorageArchive(restoreContentsPath, backupName);
       console.log('Appsmith instance successfully restored.');
       await fsPromises.rm(restoreRootPath, { recursive: true, force: true });
@@ -161,12 +216,18 @@ async function run() {
     errorCode = 1;
 
   } finally {
+    if (cleanupArchive){
+      await fsPromises.rm(backupFilePath, { force: true });
+    }
     utils.start(['backend', 'rts']);
     process.exit(errorCode);
 
   }
 }
 
+function isArchiveEncrypted(backupFilePath){
+  return backupFilePath.endsWith('.enc');
+}
 
 module.exports = {
   run,

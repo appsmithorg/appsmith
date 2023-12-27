@@ -71,7 +71,7 @@ async function listLocalBackupFiles() {
     .readdir(Constants.BACKUP_PATH)
     .then((filenames) => {
       for (let filename of filenames) {
-        if (filename.match(/^appsmith-backup-.*\.tar\.gz$/)) {
+        if (filename.match(/^appsmith-backup-.*\.tar\.gz(\.enc)?$/)) {
           backupFiles.push(filename);
         }
       }
@@ -129,6 +129,41 @@ function preprocessMongoDBURI(uri /* string */) {
 
   return cs.toString();
 }
+function execCommandSilent(cmd, options) {
+  return new Promise((resolve, reject) => {
+    let isPromiseDone = false;
+
+    const p = childProcess.spawn(cmd[0], cmd.slice(1), {
+      ...options,
+    });
+
+    p.on("exit", (code) => {
+      if (isPromiseDone) {
+        return;
+      }
+      isPromiseDone = true;
+      if (code === 0) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
+
+    p.on("error", (err) => {
+      if (isPromiseDone) {
+        return;
+      }
+      isPromiseDone = true;
+      console.error("Error running command", err);
+      reject();
+    });
+  });
+}
+
+function getDatabaseNameFromMongoURI(uri) {
+  const uriParts = uri.split("/");
+  return uriParts[uriParts.length - 1].split("?")[0];
+}
 
 module.exports = {
   showHelp,
@@ -140,4 +175,6 @@ module.exports = {
   getLastBackupErrorMailSentInMilliSec,
   getCurrentAppsmithVersion,
   preprocessMongoDBURI,
+  execCommandSilent,
+  getDatabaseNameFromMongoURI,
 };
