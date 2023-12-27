@@ -19,7 +19,7 @@ import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { CUSTOM_WIDGET_DOC_URL } from "pages/Editor/CustomWidgetBuilder/contants";
+import { CUSTOM_WIDGET_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
 import { Link } from "design-system";
 import styled from "styled-components";
 

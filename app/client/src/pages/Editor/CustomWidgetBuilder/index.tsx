@@ -7,7 +7,7 @@ import {
   DEFAULT_CONTEXT_VALUE,
   LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN,
   LOCAL_STORAGE_KEYS_SELECTED_LAYOUT,
-} from "./contants";
+} from "./constants";
 import { Spinner } from "design-system";
 import history from "utils/history";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";

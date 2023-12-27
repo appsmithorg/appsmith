@@ -5,7 +5,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { CUSTOM_WIDGET_DOC_URL } from "../../contants";
+import { CUSTOM_WIDGET_DOC_URL } from "../../constants";
 
 export default function Help() {
   return (
