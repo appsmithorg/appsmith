@@ -161,29 +161,30 @@ describe(
     it("6. Verify Delete row from Deploy page - on Stores - existing record", () => {
       table.SelectTableRow(5, 0, true, "v2");
       dataSources.AssertJSONFormHeader(5, 0, "store_id");
-      agHelper.ClickButton("Delete", 5);
+      agHelper.ClickButton("Delete", { index: 5, type: "invoke" });
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
         dataSources._visibleTextSpan(
           "Are you sure you want to delete this item?",
         ),
       );
-      agHelper.ClickButton("Cancel");
+      agHelper.ClickButton("Cancel", { type: "invoke" });
       dataSources.AssertJSONFormHeader(5, 0, "store_id");
-      agHelper.ClickButton("Delete", 5);
+      agHelper.ClickButton("Delete", { index: 5, type: "invoke" });
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
         dataSources._visibleTextSpan(
           "Are you sure you want to delete this item?",
         ),
       );
-      agHelper.ClickButton("Confirm");
+      agHelper.ClickButton("Confirm", { type: "invoke" });
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.Sleep(2500); // for delete to take effect!
 
       // Row is not getting highlighted in table v2, hence commenting this line
       // table.AssertSelectedRow(0); //Control going back to 1st row in table
+      table.SelectTableRow(0, 0, true, "v2");
       dataSources.AssertJSONFormHeader(0, 0, "store_id");
     });
 
@@ -329,14 +330,14 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
 
       dataSources.AssertJSONFormHeader(0, 0, "store_id", "2105");
-      agHelper.ClickButton("Delete", 0);
+      agHelper.ClickButton("Delete", { index: 0, type: "invoke" });
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
         dataSources._visibleTextSpan(
           "Are you sure you want to delete this item?",
         ),
       );
-      agHelper.ClickButton("Confirm");
+      agHelper.ClickButton("Confirm", { type: "invoke" });
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.Sleep(3000); //for Delete to reflect!
@@ -344,6 +345,7 @@ describe(
       // Row is not getting highlighted in table v2, hence commenting this line
       // table.AssertSelectedRow(0); //Control going back to 1st row in table
 
+      table.SelectTableRow(0, 0, true, "v2");
       table.ReadTableRowColumnData(0, 0, "v2", 200).then(($cellData) => {
         expect($cellData).not.eq("2105"); //Deleted record Store_ID
       });
