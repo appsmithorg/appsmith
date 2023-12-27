@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -87,7 +88,11 @@ public class AiServerServiceImpl implements AiServerService {
                     }
 
                     Object body;
-                    body = new String(responseEntity.getBody());
+                    try {
+                        body = this.objectMapper.readValue(responseEntity.getBody(), Object.class);
+                    } catch (IOException exception) {
+                        body = new String(responseEntity.getBody());
+                    }
                     if (!statusCode.is2xxSuccessful()) {
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, body));
