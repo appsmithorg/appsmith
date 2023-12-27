@@ -45,8 +45,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         this.newActionService = newActionService;
     }
 
-    // Updates pageNametoIdMap and pageNameMap in importable resources.
-    // Also directly updates required information in DB
+    // Updates pageNameToIdMap and pageNameMap in importable resources.
+    // Also, directly updates required information in DB
     @Override
     public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,

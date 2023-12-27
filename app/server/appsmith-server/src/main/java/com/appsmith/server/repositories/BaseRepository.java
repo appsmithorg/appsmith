@@ -14,15 +14,6 @@ import java.util.Optional;
 public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
         extends CrudRepository<T, ID> /*, QuerydslPredicateExecutor<T>*/ {
 
-    /**
-     * This function should be used to get an object from the DB without applying any ACL rules
-     *
-     * @param id The identifier for this type
-     * @return Optional<T>
-     */
-    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt is null and e.id = :id")
-    Optional<T> retrieveById(ID id);
-
     @Override
     @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt is null and e.id = :id")
     Optional<T> findById(ID id);

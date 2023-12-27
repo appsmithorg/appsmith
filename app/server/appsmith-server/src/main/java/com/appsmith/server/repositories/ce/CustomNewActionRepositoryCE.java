@@ -6,7 +6,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 
@@ -71,8 +70,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
-
-    Optional<List<InsertManyResult>> bulkInsert(List<NewAction> newActions);
 
     Optional<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions);
 

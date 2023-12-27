@@ -365,7 +365,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(toDelete -> {
                     Mono<ActionCollection> modifiedActionCollectionMono;
 
-                    if (toDelete.getPublishedCollection() != null) {
+                    if (toDelete.getPublishedCollection() != null
+                            && toDelete.getPublishedCollection().getName() != null) {
                         toDelete.getUnpublishedCollection().setDeletedAt(Instant.now());
                         modifiedActionCollectionMono = Flux.fromIterable(toDelete.getUnpublishedCollection()
                                         .getDefaultToBranchedActionIdsMap()
@@ -486,6 +487,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        return repository.findByPageIds(pageIds, permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission) {
         return repository.findByPageIds(pageIds, permission);
     }
 

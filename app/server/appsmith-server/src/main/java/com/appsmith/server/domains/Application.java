@@ -47,7 +47,7 @@ public class Application extends BaseDomain {
     private Workspace workspace;
 
     @Column(name = "workspace_id")
-    private String workspaceId;
+    String workspaceId;
 
     @OneToMany
     @JsonView(Views.Public.class)
@@ -214,10 +214,6 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     String forkedFromTemplateTitle;
 
-    @JsonView(Views.Internal.class)
-    @Deprecated
-    String defaultPermissionGroup;
-
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
@@ -302,7 +298,6 @@ public class Application extends BaseDomain {
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
-        this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
         this.setExportWithConfiguration(null);
         this.setForkWithConfiguration(null);
@@ -344,18 +339,6 @@ public class Application extends BaseDomain {
     public static class AppLayout implements Serializable {
         @JsonView(Views.Public.class)
         Type type;
-
-        /**
-         * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
-         * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
-         */
-        @JsonView(Views.Internal.class)
-        @Deprecated(forRemoval = true)
-        Integer width = null;
-
-        public AppLayout(Type type) {
-            this.type = type;
-        }
 
         public enum Type {
             DESKTOP,

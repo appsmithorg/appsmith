@@ -7,6 +7,11 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -231,28 +236,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
                 .in(pageIds);
         return queryAll(List.of(pageIdCriteria), permission);*/
-    }
-
-    @Override
-    public Optional<List<InsertManyResult>> bulkInsert(List<ActionCollection> actionCollectionList) {
-        return Optional.empty(); /*
-        if (CollectionUtils.isEmpty(actionCollectionList)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of action collections to a list of DBObjects
-        List<Document> dbObjects = actionCollectionList.stream()
-                .map(actionCollection -> {
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(actionCollection, document);
-                    return document;
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(ActionCollection.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .collectList();*/
     }
 
     @Override

@@ -227,7 +227,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
-                                .then(repository.retrieveById(tenant.getId()))
+                                .then(repository.findById(tenant.getId()))
                                 .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
                     }
                     return Mono.error(
@@ -240,7 +240,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
         if (!StringUtils.hasLength(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return repository.retrieveById(id);
+        return repository.findById(id);
     }
 
     /**

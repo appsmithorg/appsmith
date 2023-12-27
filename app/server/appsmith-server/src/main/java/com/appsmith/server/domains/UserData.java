@@ -86,13 +86,6 @@ public class UserData extends BaseDomain {
     @Column(columnDefinition = "jsonb")
     Map<String, Object> userClaims;
 
-    // list of template ids that were recently forked by the user
-    @Deprecated
-    @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
-    @Column(columnDefinition = "jsonb")
-    private List<String> recentlyUsedTemplateIds;
-
     // Status of user's consent on sharing email for Intercom communications
     @JsonView(Views.Internal.class)
     private boolean isIntercomConsentGiven;

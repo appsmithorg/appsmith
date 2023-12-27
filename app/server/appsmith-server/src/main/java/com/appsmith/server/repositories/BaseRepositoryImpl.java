@@ -91,18 +91,14 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     public Optional<T> findById(ID id) {
         return Optional.empty(); /*
         Assert.notNull(id, "The given id must not be null!");
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-                    return mongoOperations
-                            .query(entityInformation.getJavaType())
-                            .inCollection(entityInformation.getCollectionName())
-                            .matching(query)
-                            .one();
-                });*/
+        Query query = new Query(getIdCriteria(id));
+        query.addCriteria(notDeleted());
+
+        return mongoOperations
+                .query(entityInformation.getJavaType())
+                .inCollection(entityInformation.getCollectionName())
+                .matching(query)
+                .one();*/
     }
 
     @Override
@@ -136,12 +132,5 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
                     return entityManager.find(query, example.getProbeType(), entityInformation.getCollectionName());
                 });*/
-    }
-
-    @Override
-    public List<T> findAll(Example example) {
-
-        Assert.notNull(example, "Example must not be null!");
-        return findAll(example, Sort.unsorted());
     }
 }

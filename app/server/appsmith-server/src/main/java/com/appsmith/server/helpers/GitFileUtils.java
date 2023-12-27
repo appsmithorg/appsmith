@@ -498,8 +498,7 @@ public class GitFileUtils {
 
     private void removeUnwantedFieldFromAction(NewAction action) {
         // As we are publishing the app and then committing to git we expect the published and unpublished ActionDTO
-        // will
-        // be same, so we only commit unpublished ActionDTO.
+        // will be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
         removeUnwantedFieldsFromBaseDomain(action);
     }

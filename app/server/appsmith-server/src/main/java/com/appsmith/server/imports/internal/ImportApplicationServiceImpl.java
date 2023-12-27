@@ -14,6 +14,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -31,7 +32,6 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Service
 @Primary
 public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl implements ImportApplicationService {
-
     public ImportApplicationServiceImpl(
             DatasourceService datasourceService,
             SessionUserService sessionUserService,
@@ -54,7 +54,8 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
             ImportableService<CustomJSLib> customJSLibImportableService,
             ImportableService<Datasource> datasourceImportableService,
             ImportableService<NewAction> newActionImportableService,
-            ImportableService<ActionCollection> actionCollectionImportableService) {
+            ImportableService<ActionCollection> actionCollectionImportableService,
+            PermissionGroupService permissionGroupService) {
         super(
                 datasourceService,
                 sessionUserService,
@@ -77,6 +78,7 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
                 customJSLibImportableService,
                 datasourceImportableService,
                 newActionImportableService,
-                actionCollectionImportableService);
+                actionCollectionImportableService,
+                permissionGroupService);
     }
 }

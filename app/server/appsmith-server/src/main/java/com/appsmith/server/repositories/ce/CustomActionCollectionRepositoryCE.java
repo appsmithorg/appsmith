@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -47,8 +46,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
 
     List<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
-
-    Optional<List<InsertManyResult>> bulkInsert(List<ActionCollection> newActions);
 
     Optional<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections);
 

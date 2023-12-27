@@ -157,7 +157,8 @@ public class MongoConfig {
             "migrate-permission-in-user",
             "migrate-google-sheets-to-uqi",
             "add-tenant-to-all-users-and-flush-redis",
-            "fix-deleted-themes-when-git-branch-deleted");
+            "fix-deleted-themes-when-git-branch-deleted",
+            "migrate-public-apps-single-pg");
 
     /*
         Changing this froom ApplicationRunner to InitializingBeanRunner

@@ -39,10 +39,6 @@ public class Layout {
     @JsonView(Views.Internal.class)
     JSONObject publishedDsl;
 
-    @Deprecated
-    @JsonView({Views.Public.class, Views.Export.class})
-    Set<DslExecutableDTO> layoutActions;
-
     @JsonView({Views.Public.class, Views.Export.class})
     List<Set<DslExecutableDTO>> layoutOnLoadActions;
 
@@ -51,10 +47,6 @@ public class Layout {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView({Views.Public.class, Views.Export.class})
     List<ErrorDTO> layoutOnLoadActionErrors;
-
-    @Deprecated
-    @JsonView(Views.Internal.class)
-    Set<DslExecutableDTO> publishedLayoutActions;
 
     @JsonView(Views.Internal.class)
     List<Set<DslExecutableDTO>> publishedLayoutOnLoadActions;
@@ -84,12 +76,6 @@ public class Layout {
     @JsonView({Views.Public.class, Views.Export.class})
     public JSONObject getDsl() {
         return viewMode ? publishedDsl : dsl;
-    }
-
-    @Deprecated
-    @JsonView({Views.Public.class, Views.Export.class})
-    public Set<DslExecutableDTO> getLayoutActions() {
-        return viewMode ? publishedLayoutActions : layoutActions;
     }
 
     @JsonView({Views.Public.class, Views.Export.class})
