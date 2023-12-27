@@ -18,6 +18,8 @@ public class ExecuteActionDTO {
 
     String actionId;
 
+    String datasourceId;
+
     List<Param> params;
 
     PaginationField paginationField;

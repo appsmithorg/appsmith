@@ -8,4 +8,5 @@ import java.util.List;
 public class Query {
     String input;
     List<String> labels;
+    String id;
 }

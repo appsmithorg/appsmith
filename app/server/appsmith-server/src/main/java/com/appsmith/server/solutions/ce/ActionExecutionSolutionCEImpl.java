@@ -332,6 +332,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 })
                 .flatMap(executeActionDTO -> {
                     dto.setActionId(executeActionDTO.getActionId());
+                    dto.setDatasourceId(executeActionDTO.getDatasourceId());
                     dto.setViewMode(executeActionDTO.getViewMode());
                     dto.setParamProperties(executeActionDTO.getParamProperties());
                     dto.setPaginationField(executeActionDTO.getPaginationField());

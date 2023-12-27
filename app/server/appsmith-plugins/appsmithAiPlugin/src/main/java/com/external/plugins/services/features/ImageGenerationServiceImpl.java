@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.dtos.Query;
 import com.external.plugins.services.AiFeatureService;
@@ -12,7 +13,7 @@ import static com.external.plugins.utils.FieldValidationHelper.validateTextInput
 
 public class ImageGenerationServiceImpl implements AiFeatureService {
     @Override
-    public Query createQuery(ActionConfiguration actionConfiguration) {
+    public Query createQuery(ActionConfiguration actionConfiguration, ExecuteActionDTO executeActionDTO) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         validateTextInput(formData);
         String input = RequestUtils.extractDataFromFormData(formData, INPUT);

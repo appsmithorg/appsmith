@@ -1344,6 +1344,7 @@ function* executePluginActionSaga(
 
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,
+    datasourceId: pluginAction.datasource.id as string,
     viewMode: appMode === APP_MODE.PUBLISHED,
     paramProperties: {},
     analyticsProperties: {
