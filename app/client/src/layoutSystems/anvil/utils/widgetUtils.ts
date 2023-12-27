@@ -57,6 +57,7 @@ export const defaultSizeConfig: SizeConfig = {
 export const getWidgetSizeConfiguration = (
   type: string,
   props: BaseWidgetProps,
+  isPreviewMode: boolean,
 ): SizeConfig => {
   let res: SizeConfig = defaultSizeConfig;
 
@@ -65,7 +66,7 @@ export const getWidgetSizeConfiguration = (
   if (!widgetSize) return res;
 
   if (isFunction(widgetSize)) {
-    res = widgetSize(props);
+    res = widgetSize(props, isPreviewMode);
   } else if (Object.keys(widgetSize).length) {
     res = widgetSize;
   }
