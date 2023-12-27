@@ -138,7 +138,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
         /* Get all feature flags data */
         Mono<Map<String, Boolean>> featureFlagsForCurrentUserMonoCache =
-            userDataService.getFeatureFlagsForCurrentUser().cache();
+                userDataService.getFeatureFlagsForCurrentUser().cache();
 
         /* Check if release_server_dsl_migrations_enabled flag is true for the user */
         Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserMonoCache
@@ -166,8 +166,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 });
 
         /* Get all pages in application */
-        Mono<ApplicationPagesDTO> applicationPagesDTOMonoCache = applicationIdMonoCache.flatMap(
-                appId -> newPageService.findApplicationPages(appId, null, branchName, mode)).cache();
+        Mono<ApplicationPagesDTO> applicationPagesDTOMonoCache = applicationIdMonoCache
+                .flatMap(appId -> newPageService.findApplicationPages(appId, null, branchName, mode))
+                .cache();
 
         /* Get current theme */
         Mono<Theme> applicationThemeMono =
@@ -251,12 +252,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             });
 
             /* Get all pages in edit mode post apply migrate DSL changes */
-            Mono<List<PageDTO>> listOfAllPageDTOMono = migrateDslMonoCache.flatMap(migrateDsl -> applicationPagesDTOMonoCache
-                    .map(ApplicationPagesDTO::getPages)
-                    .flatMapMany(Flux::fromIterable)
-                    .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                            page.getDefaultPageId(), branchName, false, migrateDsl))
-                    .collect(Collectors.toList()));
+            Mono<List<PageDTO>> listOfAllPageDTOMono =
+                    migrateDslMonoCache.flatMap(migrateDsl -> applicationPagesDTOMonoCache
+                            .map(ApplicationPagesDTO::getPages)
+                            .flatMapMany(Flux::fromIterable)
+                            .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                                    page.getDefaultPageId(), branchName, false, migrateDsl))
+                            .collect(Collectors.toList()));
 
             /* Get all workspace id */
             Mono<String> workspaceIdMonoCache = applicationPagesDTOMonoCache
