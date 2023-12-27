@@ -11,9 +11,11 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -32,11 +34,13 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -721,5 +725,25 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
             return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
         });
+    }
+
+    public Mono<List<InsertManyResult>> bulkInsert(List<T> domainList) {
+        if (CollectionUtils.isEmpty(domainList)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        // convert the list of domains to a list of DBObjects
+        List<Document> dbObjects = domainList.stream()
+                .map(domain -> {
+                    Document document = new Document();
+                    mongoOperations.getConverter().write(domain, document);
+                    return document;
+                })
+                .collect(Collectors.toList());
+
+        return mongoOperations
+                .getCollection(mongoOperations.getCollectionName(genericDomain))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
+                .collectList();
     }
 }

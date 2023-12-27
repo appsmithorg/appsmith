@@ -113,7 +113,7 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   if (!showCanvasTopSection || isPreview) return null;
 
   const showTemplatesModal = () => {
-    dispatch(showTemplatesModalAction(true));
+    dispatch(showTemplatesModalAction({ isOpenFromCanvas: false }));
     AnalyticsUtil.logEvent("CANVAS_BLANK_PAGE_CTA_CLICK", {
       item: "ADD_PAGE_FROM_TEMPLATE",
     });

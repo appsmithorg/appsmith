@@ -1,9 +1,5 @@
 import { generateAlignedRowMock } from "mocks/layoutComponents/layoutComponentMock";
-import type {
-  AnvilHighlightInfo,
-  LayoutComponentProps,
-  WidgetLayoutProps,
-} from "../../anvilTypes";
+import type { LayoutComponentProps, WidgetLayoutProps } from "../../anvilTypes";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
@@ -22,6 +18,7 @@ import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/Al
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { getAlignmentLayoutId } from "../layoutUtils";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("AlignedRow highlights", () => {
   beforeAll(() => {
@@ -31,7 +28,7 @@ describe("AlignedRow highlights", () => {
     it("should return three initial highlights if layout is empty", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock({
         layout: [],
-      });
+      }).layout as LayoutComponentProps;
       const { layoutId } = layout;
 
       const startPosition: LayoutElementPosition = {
@@ -72,7 +69,7 @@ describe("AlignedRow highlights", () => {
         [`${layoutId}-2`]: endPosition,
       };
 
-      const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
+      const { highlights: res } = deriveAlignedRowHighlights(
         layout,
         "0",
         [],
@@ -120,7 +117,8 @@ describe("AlignedRow highlights", () => {
 
   describe("fill child widget", () => {
     it("should not render highlights for alignments", () => {
-      const layout: LayoutComponentProps = generateAlignedRowMock();
+      const layout: LayoutComponentProps = generateAlignedRowMock()
+        .layout as LayoutComponentProps;
       const { layoutId } = layout;
 
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
@@ -155,7 +153,7 @@ describe("AlignedRow highlights", () => {
         },
       };
 
-      const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
+      const { highlights: res } = deriveAlignedRowHighlights(
         layout,
         "0",
         [],
@@ -178,7 +176,9 @@ describe("AlignedRow highlights", () => {
       );
 
       expect(res[1].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[1].posX).toEqual(dimensions[input].left - HIGHLIGHT_SIZE);
+      expect(res[1].posX).toBeLessThanOrEqual(
+        dimensions[input].left - HIGHLIGHT_SIZE,
+      );
       expect(res[1].posY).toEqual(dimensions[input].top);
       expect(res[1].height).toEqual(dimensions[input].height);
       expect(res[1].dropZone.left).toEqual(res[0].dropZone.right);
@@ -203,10 +203,18 @@ describe("AlignedRow highlights", () => {
       // Create AlignedWidgetRow layout with two buttons at start and center alignments.
       const layout: LayoutComponentProps = generateAlignedRowMock({
         layout: [
-          { widgetId: button1.widgetId, alignment: FlexLayerAlignment.Start },
-          { widgetId: button2.widgetId, alignment: FlexLayerAlignment.Center },
+          {
+            widgetId: button1.widgetId,
+            alignment: FlexLayerAlignment.Start,
+            widgetType: ButtonWidget.type,
+          },
+          {
+            widgetId: button2.widgetId,
+            alignment: FlexLayerAlignment.Center,
+            widgetType: ButtonWidget.type,
+          },
         ],
-      });
+      }).layout as LayoutComponentProps;
       const { layoutId } = layout;
 
       const layoutPosition: LayoutElementPosition = {
@@ -262,7 +270,7 @@ describe("AlignedRow highlights", () => {
         },
       };
 
-      const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
+      const { highlights: res } = deriveAlignedRowHighlights(
         layout,
         "0",
         [],

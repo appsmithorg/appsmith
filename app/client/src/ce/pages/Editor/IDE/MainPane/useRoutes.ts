@@ -124,7 +124,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "JSEditorList",
       component: JSBlankState,
       exact: true,
-      path: `${path}${JS_COLLECTION_EDITOR_PATH}`,
+      path: [
+        `${path}${JS_COLLECTION_EDITOR_PATH}`,
+        `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
+      ],
     },
     {
       key: "JSEditor File",
