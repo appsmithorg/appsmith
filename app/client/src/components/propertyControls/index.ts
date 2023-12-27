@@ -66,6 +66,8 @@ import WrappedCodeEditorControl from "./WrappedCodeEditorControl";
 import DynamicPropertiesControl from "./HTMLDocumentBuilderControl";
 import CustomWidgetEditSourceButtonControl from "./CustomWidgetEditSourceButtonControl";
 import CustomWidgetAddEventButtonControl from "./CustomWidgetAddEventButtonControl";
+import type { ZoneStepperControlProps } from "./ZoneStepperControl";
+import ZoneStepperControl from "./ZoneStepperControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -113,6 +115,7 @@ export const PropertyControls = {
   DynamicPropertiesControl,
   CustomWidgetEditSourceButtonControl,
   CustomWidgetAddEventButtonControl,
+  ZoneStepperControl,
 };
 
 export type PropertyControlPropsType =
@@ -138,7 +141,8 @@ export type PropertyControlPropsType =
   | TableInlineEditValidationControlProps
   | ListComputeControlProps
   | OneClickBindingControlProps
-  | WrappedCodeEditorControlProps;
+  | WrappedCodeEditorControlProps
+  | ZoneStepperControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

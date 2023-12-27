@@ -39,6 +39,8 @@ import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
 } from "@appsmith/selectors/applicationSelectors";
+import { useEditorType } from "@appsmith/hooks";
+import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -124,10 +126,12 @@ function CreateNewDatasource({
   active,
   history,
   isCreating,
-  pageId,
   showMostPopularPlugins,
   showUnsupportedPluginDialog,
 }: any) {
+  const editorType = useEditorType(location.pathname);
+  const { editorId, parentEntityId, parentEntityType } =
+    useParentEntityInfo(editorType);
   const newDatasourceRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (active && newDatasourceRef.current) {
@@ -148,10 +152,13 @@ function CreateNewDatasource({
           : createMessage(CREATE_NEW_DATASOURCE_DATABASE_HEADER)}
       </Text>
       <NewQueryScreen
+        editorId={editorId}
+        editorType={editorType}
         history={history}
         isCreating={isCreating}
         location={location}
-        pageId={pageId}
+        parentEntityId={parentEntityId}
+        parentEntityType={parentEntityType}
         showMostPopularPlugins={showMostPopularPlugins}
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />

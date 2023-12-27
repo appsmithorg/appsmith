@@ -193,7 +193,7 @@ export class AutoLayout {
     this.agHelper.GetWidth(this._buttonWidgetSelector);
     cy.get("@eleWidth").then(($initialWidth) => {
       this.propPane.UpdatePropertyFieldValue("Label", "Lengthy Button Label");
-      this.agHelper.Sleep(); //to allow time for widget to resize itself before checking width again!
+      this.agHelper.Sleep(2000); //to allow time for widget to resize itself before checking width again!
       this.agHelper.GetWidth(this._buttonWidgetSelector);
       cy.get("@eleWidth").then((width: any) => {
         //cy.get<number>("@initialWidth").then((initialWidth) => {
@@ -211,8 +211,8 @@ export class AutoLayout {
     // Decrease the length of button label & verify if the component shrinks
     this.agHelper.GetWidth(this._buttonWidgetSelector);
     cy.get("@eleWidth").then(($initialWidth) => {
-      this.propPane.UpdatePropertyFieldValue("Label", "Label");
-      this.agHelper.Sleep(); //to allow time for widget to resize itself before checking width again!
+      this.propPane.UpdatePropertyFieldValue("Label", "Short");
+      this.agHelper.Sleep(2000); //to allow time for widget to resize itself before checking width again!
       this.agHelper.GetWidth(this._buttonWidgetSelector);
       cy.get("@eleWidth").then((width: any) => {
         expect(width).to.be.lessThan(Number($initialWidth));

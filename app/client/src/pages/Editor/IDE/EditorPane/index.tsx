@@ -34,7 +34,8 @@ const EditorPane = ({
       className="ide-pages-pane"
       flexDirection="column"
       gap="spacing-2"
-      height="calc(100vh - 77px)"
+      height="100%"
+      overflow="hidden"
       width="256px"
     >
       <Pages />

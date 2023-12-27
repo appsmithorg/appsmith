@@ -28,10 +28,13 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
         isDropTarget: true,
         isPermanent: true,
         childTemplate: {
-          layoutId: "",
-          layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
-          layout: [],
           insertChild: true,
+          isDropTarget: false,
+          isPermanent: false,
+          layout: [],
+          layoutId: "",
+          layoutType: LayoutComponentTypes.WIDGET_ROW,
+          maxChildLimit: 1,
         },
       },
     ];
