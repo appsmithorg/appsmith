@@ -157,7 +157,7 @@ jobs:
               ../../scripts/generate_info_json.sh
             fi
           fi
-          echo "::set-output name=version::$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json)"
+          echo version=$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json) >> $GITHUB_OUTPUT
 
       # Build the code
       - name: Build

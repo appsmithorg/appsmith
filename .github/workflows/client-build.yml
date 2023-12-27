@@ -233,7 +233,9 @@ jobs:
               ../../scripts/generate_info_json.sh
             fi
           fi
-          echo "::set-output name=version::$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json)"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo version=$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json) >> $GITHUB_OUTPUT
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
