@@ -129,7 +129,7 @@ export const defaultNavigationSetting = {
     NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
 };
 
-export const defaultThemeSettings: ThemeSetting = {
+export const defaultThemeSetting: ThemeSetting = {
   fontFamily: "System Default",
   accentColor: "#553DE9",
   colorMode: "LIGHT",

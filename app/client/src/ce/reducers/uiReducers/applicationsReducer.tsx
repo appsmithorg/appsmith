@@ -27,7 +27,7 @@ import type { IconNames } from "design-system";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import {
   defaultNavigationSetting,
-  defaultThemeSettings,
+  defaultThemeSetting,
 } from "constants/AppConstants";
 import produce from "immer";
 import { groupBy, isEmpty } from "lodash";
@@ -249,7 +249,7 @@ export const handlers = {
       currentApplication: {
         applicationDetail: {
           navigationSetting: defaultNavigationSetting,
-          themeSetting: defaultThemeSettings,
+          themeSetting: defaultThemeSetting,
         },
         ...action.payload,
       },
@@ -722,7 +722,7 @@ export const handlers = {
         applicationDetail: {
           ...state.currentApplication?.applicationDetail,
           themeSetting: {
-            ...defaultThemeSettings,
+            ...defaultThemeSetting,
             ...action.payload,
           },
         },
