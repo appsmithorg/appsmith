@@ -10,7 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 import {
   setDisconnectingGitApplication,
-  setIsAutocommitEnabled,
+  toggleAutocommitEnabledInit,
   setIsAutocommitModalOpen,
   setIsDisconnectGitModalOpen,
   setIsGitSyncModalOpen,
@@ -20,7 +20,11 @@ import { Button, Divider, Text } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import { getIsAutocommitEnabled } from "selectors/gitSyncSelectors";
+import {
+  getAutocommitEnabledSelector,
+  getGitMetadataLoadingSelector,
+  getIsAutocommitToggling,
+} from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -64,7 +68,9 @@ function GitDisconnect() {
   const isAutocommitFeatureEnabled = useFeatureFlag(
     FEATURE_FLAG.release_git_autocommit_feature_enabled,
   );
-  const isAutocommitEnabled = useSelector(getIsAutocommitEnabled);
+  const isAutocommitToggling = useSelector(getIsAutocommitToggling);
+  const isAutocommitEnabled = useSelector(getAutocommitEnabledSelector);
+  const gitMetadataLoading = useSelector(getGitMetadataLoadingSelector);
 
   const dispatch = useDispatch();
 
@@ -89,7 +95,8 @@ function GitDisconnect() {
       dispatch(setIsGitSyncModalOpen({ isOpen: false }));
       dispatch(setIsAutocommitModalOpen(true));
     } else {
-      dispatch(setIsAutocommitEnabled(true));
+      dispatch(toggleAutocommitEnabledInit());
+      AnalyticsUtil.logEvent("GS_AUTO_COMMIT_ENABLED");
     }
   };
 
@@ -112,6 +119,7 @@ function GitDisconnect() {
               </BodyInnerContainer>
               <Button
                 data-testid="t--git-disconnect-btn"
+                isLoading={isAutocommitToggling || gitMetadataLoading}
                 kind={isAutocommitEnabled ? "error" : "secondary"}
                 onClick={handleToggleAutocommit}
                 size="md"
