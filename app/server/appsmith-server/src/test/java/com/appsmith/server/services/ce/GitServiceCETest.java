@@ -4370,9 +4370,6 @@ public class GitServiceCETest {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
                         assertThat(metadata.getDefaultBranchName()).isEqualTo("master");
-                        // only the master branch should be protected
-                        assertThat(metadata.getBranchName().equals("master"))
-                                .isEqualTo(metadata.getIsProtectedBranch());
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the protected branch list
                             assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
@@ -4398,7 +4395,6 @@ public class GitServiceCETest {
                 .assertNext(applicationList -> {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the empty protected branch list
                             assertThat(metadata.getBranchProtectionRules()).isEmpty();
@@ -4439,7 +4435,6 @@ public class GitServiceCETest {
         StepVerifier.create(applicationService.findById(defaultAppId))
                 .assertNext(application -> {
                     GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                    assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                     // the default app should have the empty protected branch list
                     assertThat(metadata.getBranchProtectionRules()).isNullOrEmpty();
                 })

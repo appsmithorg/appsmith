@@ -339,7 +339,6 @@ public class SeedMongoData {
                     userRole.setUsername(API_USER_EMAIL);
                     userRole.setRoleName(roleName);
                     userRoles.add(userRole);
-                    workspace.setUserRoles(userRoles);
 
                     log.debug("In the workspaceFlux. Create Workspace: {}", workspace);
                     return workspace;

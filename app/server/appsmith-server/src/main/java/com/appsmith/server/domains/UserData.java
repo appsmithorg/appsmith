@@ -52,11 +52,6 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private String releaseNotesViewedVersion;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private List<String> recentlyUsedOrgIds;
-
     // list of workspace ids that were recently accessed by the user
     @Deprecated
     @JsonView(Views.Public.class)
@@ -88,11 +83,6 @@ public class UserData extends BaseDomain {
 
     @JsonView(Views.Public.class)
     String rawIdToken;
-
-    // list of template ids that were recently forked by the user
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private List<String> recentlyUsedTemplateIds;
 
     // Status of user's consent on sharing email for Intercom communications
     @JsonView(Views.Internal.class)

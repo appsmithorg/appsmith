@@ -162,13 +162,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
-    public Flux<T> findAll(Example example) {
-
-        Assert.notNull(example, "Example must not be null!");
-        return findAll(example, Sort.unsorted());
-    }
-
-    @Override
     public Mono<T> archive(T entity) {
         Assert.notNull(entity, "The given entity must not be null!");
         Assert.notNull(entity.getId(), "The given entity's id must not be null!");
