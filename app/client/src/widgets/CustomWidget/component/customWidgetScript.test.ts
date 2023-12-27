@@ -3,7 +3,7 @@ import {
   generateAppsmithCssVariables,
   EVENTS,
   main,
-} from "./customWidgetscript"; // Replace 'yourFile' with the actual file path
+} from "./customWidgetscript";
 
 jest.mock("queue-microtask", () => ({
   queueMicrotask: jest.fn().mockImplementationOnce((fn) => fn()),
