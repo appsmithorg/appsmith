@@ -36,5 +36,19 @@ export const DEFAULT_CONTEXT_VALUE = {
   selectedLayout: "tabs",
   debuggerLogs: [],
   showConnectionLostMessage: false,
-  theme: {},
+  theme: {
+    colors: {
+      primaryColor: "",
+      backgroundColor: "",
+    },
+    borderRadius: {
+      appBorderRadius: "",
+    },
+    boxShadow: {
+      appBoxShadow: "",
+    },
+    fontFamily: {
+      appFontFamily: "",
+    },
+  },
 };
