@@ -53,7 +53,8 @@ export default function HelpDropdown(props: DebuggerLog) {
                 args[0] &&
                   window.open(
                     `https://stackoverflow.com/search?q=${
-                      "[javascript] " + errorMessage
+                      "[javascript] " +
+                      encodeURIComponent(errorMessage as string)
                     }}`,
                     "_blank",
                   );
