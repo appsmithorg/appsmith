@@ -117,6 +117,8 @@ export class HomePage {
     this._appCard(applicationName) +
     "//div[contains(@class, 't--application-edited-text')]";
 
+  private _backToEditor = ".t--back-to-editor";
+
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
   }
@@ -437,7 +439,7 @@ export class HomePage {
   public SearchAndOpenApp(appName: string) {
     this.agHelper.TypeText(this._searchInput, appName);
     this.agHelper.Sleep(2000);
-    this.EditAppFromAppHover(appName);
+    this.EditAppFromSearch(appName);
   }
 
   //Maps to launchApp in command.js
@@ -445,6 +447,13 @@ export class HomePage {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
+  }
+
+  public EditAppFromSearch(appName: string) {
+    this.agHelper.GetNClick(`[data-testid="${appName}"]`);
+    this.agHelper.GetNClick(this._backToEditor);
+    this.agHelper.AssertElementAbsence(this.locator._loading);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   public EditAppFromAppHover(appName = "") {
