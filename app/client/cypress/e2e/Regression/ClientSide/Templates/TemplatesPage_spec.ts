@@ -5,7 +5,7 @@ describe(
   { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
     it("1. Templates tab should have no impact of 'allowPageImport:true'", () => {
-        cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
+      cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
         cy.intercept(
           {
             method: "GET",
@@ -17,7 +17,7 @@ describe(
           },
         ).as("fetchAllTemplates");
         templates.SwitchToTemplatesTab();
-      agHelper.RefreshPage(); //is important for below intercept to go thru!
+        agHelper.RefreshPage(); //is important for below intercept to go thru!
         cy.wait("@fetchAllTemplates").then(({ request, response }) => {
           if (response) {
             // in the fixture data we are sending some tempaltes with `allowPageImport: false`
