@@ -11,7 +11,6 @@
             "subtitle": "Provide an image URL",
             "configProperty": "actionConfiguration.formData.input.data",
             "controlType": "QUERY_DYNAMIC_TEXT",
-            "initialValue": "",
             "isRequired": true
         }
     ]

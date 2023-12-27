@@ -11,7 +11,6 @@
       "subtitle": "Provide some text for AI to generate image",
       "configProperty": "actionConfiguration.formData.input.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": "",
       "isRequired": true
     }
   ]
