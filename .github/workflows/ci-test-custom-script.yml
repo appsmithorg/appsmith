@@ -207,6 +207,17 @@ jobs:
         run: |
           yarn install --immutable
 
+      - name: Set cypress tags to exclude
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+            echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
+            echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
+        
+      - name: Print the tags
+        run: |
+          echo "tags_to_exclude: ${{ env.tags_to_exclude }}"
+          echo "_grepTags: ${{ env.CYPRESS_grepTags }}"
+
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
@@ -307,7 +318,7 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_EXCLUDE_TAGS: ${{ env.tags_to_exclude }}
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
@@ -329,7 +340,7 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-          CYPRESS_grepTags: ${{ inputs.tags }} # This is a comma separated list of tags to run a subset of the suite
+          CYPRESS_grepTags: ${{ env.CYPRESS_grepTags }} # This is a comma separated list of tags to run a subset of the suite
           CYPRESS_SKIP_FLAKY: true
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep

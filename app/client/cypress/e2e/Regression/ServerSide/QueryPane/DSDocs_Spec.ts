@@ -93,8 +93,8 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "7. Verify Airtable documentation opens",
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         CreateDummyDSNSave(DataSourceKVP["Airtable"]);
         cy.get("@dsName").then(($dsName) => {
