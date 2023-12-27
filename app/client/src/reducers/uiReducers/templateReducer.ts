@@ -26,7 +26,10 @@ const initialState: TemplatesReduxState = {
   },
   templateSearchQuery: "",
   templateNotificationSeen: null,
-  showTemplatesModal: false,
+  templatesModal: {
+    isOpen: false,
+    isOpenFromCanvas: false,
+  },
 };
 
 const templateReducer = createReducer(initialState, {
@@ -242,11 +245,23 @@ const templateReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SHOW_TEMPLATES_MODAL]: (
     state: TemplatesReduxState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<{ isOpenFromCanvas: boolean }>,
   ) => {
     return {
       ...state,
-      showTemplatesModal: action.payload,
+      templatesModal: {
+        isOpen: true,
+        isOpenFromCanvas: action.payload.isOpenFromCanvas,
+      },
+    };
+  },
+  [ReduxActionTypes.HIDE_TEMPLATES_MODAL]: (state: TemplatesReduxState) => {
+    return {
+      ...state,
+      templatesModal: {
+        isOpen: false,
+        isOpenFromCanvas: false,
+      },
     };
   },
   [ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT]: (
@@ -293,7 +308,10 @@ export interface TemplatesReduxState {
   starterBuildingBlockDatasourcePrompt: boolean;
   buildingBlockSourcePageId?: string;
   templateNotificationSeen: boolean | null;
-  showTemplatesModal: boolean;
+  templatesModal: {
+    isOpen: boolean;
+    isOpenFromCanvas: boolean;
+  };
   loadingFilters: boolean;
 }
 

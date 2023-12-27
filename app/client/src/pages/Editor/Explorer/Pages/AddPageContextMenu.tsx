@@ -85,7 +85,8 @@ function AddPageContextMenu({
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: "layout-2-line",
-        onClick: () => dispatch(showTemplatesModal(true)),
+        onClick: () =>
+          dispatch(showTemplatesModal({ isOpenFromCanvas: false })),
         "data-testid": "add-page-from-template",
         key: "ADD_PAGE_FROM_TEMPLATE",
       });
