@@ -137,13 +137,18 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
 
         /* Get all feature flags data */
-        Mono<Map<String, Boolean>> featureFlagsForCurrentUserMono = userDataService.getFeatureFlagsForCurrentUser();
+        Mono<Map<String, Boolean>> featureFlagsForCurrentUserMonoCache =
+            userDataService.getFeatureFlagsForCurrentUser().cache();
 
         /* Check if release_server_dsl_migrations_enabled flag is true for the user */
-        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserMono
-                .map(flagsMap -> flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED) == null
-                        ? Boolean.FALSE
-                        : Boolean.TRUE)
+        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserMonoCache
+                .map(flagsMap -> {
+                    if (!flagsMap.containsKey(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED)) {
+                        return false;
+                    }
+
+                    return flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED);
+                })
                 .cache();
 
         /* Get tenant config data */
@@ -161,8 +166,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 });
 
         /* Get all pages in application */
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationIdMonoCache.flatMap(
-                appId -> newPageService.findApplicationPages(appId, null, branchName, mode));
+        Mono<ApplicationPagesDTO> applicationPagesDTOMonoCache = applicationIdMonoCache.flatMap(
+                appId -> newPageService.findApplicationPages(appId, null, branchName, mode)).cache();
 
         /* Get current theme */
         Mono<Theme> applicationThemeMono =
@@ -200,8 +205,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             List<Mono<?>> listOfMonosForPublishedApp = List.of(
                     userProfileDTOMono,
                     tenantMono,
-                    featureFlagsForCurrentUserMono,
-                    applicationPagesDTOMono,
+                    featureFlagsForCurrentUserMonoCache,
+                    applicationPagesDTOMonoCache,
                     applicationThemeMono,
                     ThemesListMono,
                     listOfActionViewDTOs,
@@ -246,7 +251,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             });
 
             /* Get all pages in edit mode post apply migrate DSL changes */
-            Mono<List<PageDTO>> listOfAllPageDTOMono = migrateDslMonoCache.flatMap(migrateDsl -> applicationPagesDTOMono
+            Mono<List<PageDTO>> listOfAllPageDTOMono = migrateDslMonoCache.flatMap(migrateDsl -> applicationPagesDTOMonoCache
                     .map(ApplicationPagesDTO::getPages)
                     .flatMapMany(Flux::fromIterable)
                     .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
@@ -254,7 +259,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .collect(Collectors.toList()));
 
             /* Get all workspace id */
-            Mono<String> workspaceIdMonoCache = applicationPagesDTOMono
+            Mono<String> workspaceIdMonoCache = applicationPagesDTOMonoCache
                     .map(ApplicationPagesDTO::getWorkspaceId)
                     .cache();
 
@@ -318,8 +323,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             List<Mono<?>> listOfMonoForEditMode = List.of(
                     userProfileDTOMono,
                     tenantMono,
-                    featureFlagsForCurrentUserMono,
-                    applicationPagesDTOMono,
+                    featureFlagsForCurrentUserMonoCache,
+                    applicationPagesDTOMonoCache,
                     applicationThemeMono,
                     ThemesListMono,
                     currentPageDTOMono,
