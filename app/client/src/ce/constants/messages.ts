@@ -1748,6 +1748,7 @@ export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
+export const FILTER_SELECT_PAGE = () => "Add selected page";
 export const FILTER_SELECT_PAGES = () => "Add selected pages";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";
@@ -2265,6 +2266,7 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   or: () => "or",
   dragAndDrop: () => "Drag and Drop Widgets",
   importLoadingText: () => "Importing template",
+  seeMoreText: () => "See more",
 };
 
 // Create New Apps Intermediary step
@@ -2329,3 +2331,8 @@ export const PARTIAL_IMPORT_EXPORT = {
 
 export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
 export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
+
+export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
+  title: () => "Add page(s) from a template",
+  buildingBlocksTitle: () => "Building Blocks",
+};

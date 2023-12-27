@@ -43,6 +43,7 @@ interface FilterCategoryProps {
 }
 
 interface FilterWrapperProps {
+  initialFilters?: Record<string, string[]>;
   stickySearchBar?: boolean;
 }
 
@@ -210,8 +211,14 @@ const StartWithTemplateFilters = (props: FilterWrapperProps) => {
 
   // Set default filter to "All" on mount
   useEffect(() => {
-    dispatch(filterTemplates("functions", ["All"]));
-  }, []);
+    if (props.initialFilters) {
+      Object.keys(props.initialFilters).forEach((filter) => {
+        dispatch(filterTemplates(filter, props.initialFilters![filter]));
+      });
+    } else {
+      dispatch(filterTemplates("functions", ["All"]));
+    }
+  }, [props.initialFilters]);
 
   return (
     <FilterWrapper className="filter-wrapper">
