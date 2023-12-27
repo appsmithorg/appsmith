@@ -41,7 +41,7 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch' ||
-      github.event_name == 'schedule' 
+      github.event_name == 'schedule'
     defaults:
       run:
         working-directory: app/client
@@ -223,11 +223,20 @@ jobs:
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
-          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
-          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+                - name: Get the version to tag the Docker image
+
+      - name: Get the version to tag the Docker image
+        id: extract-build-version
+        run: |
+          if [[ -f /opt/appsmith/info.json ]]; then
+            echo "info.json already exists. Skipping generation."
+          else
+            echo "info.json does not exist. Generating..."
+            if [[ -f scripts/generate_info_json.sh ]]; then
+              scripts/generate_info_json.sh
+            fi
+          fi
+          echo "::set-output name=version::$(jq -r .version /opt/appsmith/info.json)"
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
@@ -241,7 +250,7 @@ jobs:
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_ID=${{ steps.extract-build-version.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_VERSION_EDITION="Community" \
             yarn build

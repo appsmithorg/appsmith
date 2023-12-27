@@ -17,6 +17,11 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
+      build-version:
+        description: "This is the semantic version to be used for the build."
+        required: false
+        default: "UNKNOWN"
+        type: string
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -153,14 +158,15 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
         run: |
-          # Since this is an unreleased build, we set the version to incremented version number with a
-          # `-SNAPSHOT` suffix.
-          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
-          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
-          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
+          if [[ -f /opt/appsmith/info.json ]]; then
+            echo "info.json already exists. Skipping generation."
+          else
+            echo "info.json does not exist. Generating..."
+            if [[ -f scripts/generate_info_json.sh ]]; then
+              scripts/generate_info_json.sh
+            fi
+          fi
+          echo "::set-output name=version::$(jq -r .version /opt/appsmith/info.json)"
 
       # Build the code
       - name: Build
@@ -246,7 +252,7 @@ jobs:
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
           cd cibuildcache/$repodir/release/server
-          git lfs pull ./server.jar          
+          git lfs pull ./server.jar
           mv ./server.jar ../../../../../server.jar
           cd ../../../../../
           tar -xzvf ./server.jar
