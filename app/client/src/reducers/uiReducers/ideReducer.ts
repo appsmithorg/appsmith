@@ -10,7 +10,7 @@ const initialState: IDEState = {
 const ideReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_IDE_EDITOR_VIEW_MODE]: (
     state: IDEState,
-    action: ReduxAction<{ payload: { view: EditorViewMode } }>,
+    action: ReduxAction<{ view: EditorViewMode }>,
   ) => ({ ...state, view: action.payload.view }),
 });
 
