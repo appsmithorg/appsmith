@@ -217,8 +217,8 @@ export const getForkableWorkspaces = createSelector(
   },
 );
 
-export const templateModalOpenSelector = (state: AppState) =>
-  state.ui.templates.showTemplatesModal;
+export const templateModalSelector = (state: AppState) =>
+  state.ui.templates.templatesModal;
 
 export const templatesCountSelector = (state: AppState) =>
   state.ui.templates.templates.length;

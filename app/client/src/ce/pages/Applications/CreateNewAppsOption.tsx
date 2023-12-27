@@ -11,8 +11,6 @@ import {
   START_WITH_DATA_CONNECT_SUBHEADING,
   START_WITH_DATA_SUBTITLE,
   START_WITH_DATA_TITLE,
-  START_WITH_TEMPLATE_CONNECT_HEADING,
-  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
 } from "@appsmith/constants/messages";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
@@ -36,7 +34,6 @@ import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { TemplateView } from "pages/Templates/TemplateView";
-import StartWithTemplates from "pages/Templates/StartWithTemplates";
 import { default as React, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -57,6 +54,7 @@ import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
+import StartWithTemplatesWrapper from "./StartWithTemplatesWrapper";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -83,12 +81,6 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   z-index: 1;
   margin-left: -4px;
   ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
-`;
-
-const TemplateWrapper = styled.div`
-  display: flex;
-  flex-grow: 1;
-  overflow: hidden;
 `;
 
 const OptionWrapper = styled.div`
@@ -442,20 +434,12 @@ const CreateNewAppsOption = ({
             templateId={selectedTemplate}
           />
         ) : (
-          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-            <Header
-              subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
-              title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
-            />
-            <TemplateWrapper>
-              <StartWithTemplates
-                currentApplicationIdForCreateNewApp={
-                  currentApplicationIdForCreateNewApp
-                }
-                setSelectedTemplate={setSelectedTemplate}
-              />
-            </TemplateWrapper>
-          </Flex>
+          <StartWithTemplatesWrapper
+            currentApplicationIdForCreateNewApp={
+              currentApplicationIdForCreateNewApp
+            }
+            setSelectedTemplate={setSelectedTemplate}
+          />
         )
       ) : useType === START_WITH_TYPE.DATA ? (
         <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">

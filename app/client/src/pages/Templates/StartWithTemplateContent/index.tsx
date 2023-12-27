@@ -1,3 +1,7 @@
+import {
+  ADD_PAGE_FROM_TEMPLATE_MODAL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -24,6 +28,7 @@ import {
 
 interface StartWithTemplateListProps {
   isForkingEnabled: boolean;
+  isModalLayout?: boolean;
   templates: TemplateInterface[];
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
@@ -59,10 +64,12 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
   );
 
   return (
-    <Wrapper>
+    <Wrapper isModalLayout={props.isModalLayout}>
       {showBuildingBlocksSection && (
         <>
-          <SubheadingText kind="heading-m">Building blocks</SubheadingText>
+          <SubheadingText kind="heading-m">
+            {createMessage(ADD_PAGE_FROM_TEMPLATE_MODAL.buildingBlocksTitle)}
+          </SubheadingText>
 
           <TemplateGrid>
             {buildingBlocks.map((template) => (
@@ -104,6 +111,7 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
 }
 
 interface StartWithTemplateContentProps {
+  isModalLayout?: boolean;
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
   stickySearchBar?: boolean;
@@ -128,6 +136,7 @@ export function StartWithTemplateContent(props: StartWithTemplateContentProps) {
   return (
     <StartWithTemplateList
       isForkingEnabled={props.isForkingEnabled}
+      isModalLayout={props.isModalLayout}
       onForkTemplateClick={props.onForkTemplateClick}
       onTemplateClick={props.onTemplateClick}
       templates={templates}
