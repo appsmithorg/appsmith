@@ -5,7 +5,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import styled from "styled-components";
-import { LIST_HEADER_HEIGHT } from "./Debugger/DebuggerLogs";
+import { LIST_HEADER_HEIGHT, FOOTER_MARGIN } from "./Debugger/DebuggerLogs";
 
 const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;
@@ -14,9 +14,9 @@ const TabPanelWrapper = styled(TabPanel)`
     overflow: auto;
   }
   & .t--code-editor-wrapper.codeWrapper {
-    overflow-y: scroll;
+    height: calc(100% - ${FOOTER_MARGIN});
     & .CodeMirror-scroll {
-      padding-bottom: 0;
+      box-sizing: border-box;
     }
   }
 `;
