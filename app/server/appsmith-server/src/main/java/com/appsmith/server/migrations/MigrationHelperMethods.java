@@ -247,7 +247,7 @@ public class MigrationHelperMethods {
     public static Criteria notDeleted() {
         return new Criteria()
                 .andOperator(
-                        // Older check for deleted
+                        // Older check for deleted, to be removed soon
                         new Criteria()
                                 .orOperator(
                                         where(FieldName.DELETED).exists(false),

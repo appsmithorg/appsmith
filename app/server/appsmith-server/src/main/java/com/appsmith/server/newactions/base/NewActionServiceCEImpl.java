@@ -1642,7 +1642,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .getUnpublishedAction()
                 .setDeletedAt(branchedAction.getUnpublishedAction().getDeletedAt());
         newAction.setDeletedAt(branchedAction.getDeletedAt());
-        newAction.setDeleted(branchedAction.getDeleted());
         // Set policies from existing branch object
         newAction.setPolicies(branchedAction.getPolicies());
     }
