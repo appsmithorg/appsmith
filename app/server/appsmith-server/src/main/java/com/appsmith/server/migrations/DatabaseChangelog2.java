@@ -71,7 +71,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1364,39 +1363,6 @@ public class DatabaseChangelog2 {
                 }
             }
         });
-    }
-
-    @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
-    public void migratePublicAppsSinglePg(
-            MongoTemplate mongoTemplate,
-            @NonLockGuarded PolicySolution policySolution,
-            @NonLockGuarded PolicyGenerator policyGenerator,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        ConcurrentHashMap<String, Boolean> oldPermissionGroupMap = new ConcurrentHashMap<>();
-        ConcurrentHashMap.KeySetView<Object, Boolean> oldPgIds = oldPermissionGroupMap.newKeySet();
-        // Find all public apps
-        Query publicAppQuery = new Query();
-        publicAppQuery.addCriteria(where(fieldName(QApplication.application.defaultPermissionGroup))
-                .exists(true));
-
-        // Clean up all the permission groups which were created to provide views to public apps
-        mongoTemplate.findAllAndRemove(
-                new Query()
-                        .addCriteria(Criteria.where(fieldName(QPermissionGroup.permissionGroup.id))
-                                .in(oldPgIds)),
-                PermissionGroup.class);
-
-        // Finally evict the anonymous user cache entry so that it gets recomputed on next use.
-        Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
-        Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
-
-        Query userQuery = new Query();
-        userQuery
-                .addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
-        User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
-        evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongoTemplate, cacheableRepositoryHelper);
     }
 
     @ChangeSet(order = "036", id = "add-graphql-plugin", author = "")

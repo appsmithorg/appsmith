@@ -21,6 +21,17 @@ export enum EditorEntityTab {
   UI = "ui",
 }
 
+export enum EditorEntityTabState {
+  List = "List",
+  Edit = "Edit",
+  Add = "Add",
+}
+
+export enum EditorViewMode {
+  FullScreen = "FullScreen",
+  HalfScreen = "HalfScreen",
+}
+
 export interface SidebarButton {
   state: EditorState;
   icon: string;

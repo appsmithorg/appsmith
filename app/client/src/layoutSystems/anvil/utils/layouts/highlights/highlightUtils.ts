@@ -6,13 +6,76 @@ import type {
   GetInitialHighlights,
   GetLayoutHighlights,
   GetWidgetHighlights,
+  HighlightPayload,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { HIGHLIGHT_SIZE } from "../../constants";
+import { HIGHLIGHT_SIZE, defaultHighlightPayload } from "../../constants";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import { areWidgetsWhitelisted } from "../whitelistUtils";
+
+/**
+ * Check if highlights need to be calculated.
+ * There are a few scenarios where it is not required
+ * and we can get by with returning empty list.
+ * @param layoutProps | LayoutProps
+ * @param positions | LayoutElementPositions
+ * @param draggedWidgets | DraggedWidget[]
+ * @returns HighlightPayload | undefined : Return empty list of highlights or undefined. Undefined will cause the logic to proceed and calculate highlights.
+ */
+export function performInitialChecks(
+  layoutProps: LayoutProps,
+  positions: LayoutElementPositions,
+  draggedWidgets: DraggedWidget[],
+): HighlightPayload | undefined {
+  /**
+   * Step 1: If there are no dragged widgets, return empty highlights.
+   */
+  if (
+    !layoutProps ||
+    !positions ||
+    !positions[layoutProps.layoutId] ||
+    !draggedWidgets.length
+  )
+    return defaultHighlightPayload;
+
+  const { allowedWidgetTypes, layout, maxChildLimit } = layoutProps;
+
+  /**
+   * Step 2: Check if draggedWidgets will exceed the maxChildLimit of the layout.
+   */
+  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+    layoutProps.layoutType,
+  );
+  // Extract child widget ids of the layout.
+  const childWidgetIds: string[] = Comp.extractChildWidgetIds(layoutProps);
+  // Extract child widgets that are being dragged currently.
+  const commonWidgets: DraggedWidget[] = draggedWidgets.filter(
+    (each: DraggedWidget) => childWidgetIds.includes(each.widgetId),
+  );
+  if (
+    maxChildLimit &&
+    layout?.length + draggedWidgets.length - commonWidgets.length * 2 >
+      maxChildLimit
+  ) {
+    return defaultHighlightPayload;
+  }
+
+  /**
+   * Step 3: Check if dragged widgets are allowed by this layout.
+   */
+  if (allowedWidgetTypes && allowedWidgetTypes.length) {
+    const draggedTypes: string[] = draggedWidgets.map(
+      (each: DraggedWidget) => each.type,
+    );
+    if (!areWidgetsWhitelisted(draggedTypes, allowedWidgetTypes)) {
+      return defaultHighlightPayload;
+    }
+  }
+}
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
@@ -27,7 +90,7 @@ import { getRelativeDimensions } from "./dimensionUtils";
  * @param getHighlightsForWidgets | GetWidgetHighlights : method to generate highlights for child widgets.
  * @param hasAlignments: boolean | whether the layout is aligned.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
- * @returns AnvilHighlightInfo[]
+ * @returns HighlightPayload
  */
 export function deriveHighlights(
   layoutProps: LayoutProps,
@@ -42,7 +105,15 @@ export function deriveHighlights(
   getHighlightsForWidgets: GetWidgetHighlights,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
+  const res: HighlightPayload | undefined = performInitialChecks(
+    layoutProps,
+    widgetPositions,
+    draggedWidgets,
+  );
+
+  if (res) return res;
+
   const getDimensions: GetDimensions = getRelativeDimensions(widgetPositions);
   // If layout is empty, return an initial set of highlights to demarcate the starting position.
   if (!layoutProps.layout?.length) {
