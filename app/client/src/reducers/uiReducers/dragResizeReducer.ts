@@ -16,6 +16,7 @@ const initialState: WidgetDragResizeState = {
   selectedWidgetAncestry: [],
   entityExplorerAncestry: [],
   isAutoCanvasResizing: false,
+  isDistributingSpace: false,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -135,6 +136,7 @@ export interface WidgetDragResizeState {
   entityExplorerAncestry: string[];
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
+  isDistributingSpace: boolean;
 }
 
 export default widgetDraggingReducer;

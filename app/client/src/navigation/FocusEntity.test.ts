@@ -76,7 +76,7 @@ describe("identifyEntityFromPath", () => {
       },
     },
     {
-      path: "/applications/myAppId/pages/myPageId/edit/datasources/myDatasourceId",
+      path: "/applications/myAppId/pages/myPageId/edit/datasource/myDatasourceId",
       expected: {
         entity: FocusEntity.DATASOURCE,
         id: "myDatasourceId",
@@ -159,7 +159,7 @@ describe("identifyEntityFromPath", () => {
       },
     },
     {
-      path: "/app/eval/page1-myPageId/edit/datasources/myDatasourceId",
+      path: "/app/eval/page1-myPageId/edit/datasource/myDatasourceId",
       expected: {
         entity: FocusEntity.DATASOURCE,
         id: "myDatasourceId",
@@ -242,7 +242,7 @@ describe("identifyEntityFromPath", () => {
       },
     },
     {
-      path: "/app/myCustomSlug-myPageId/edit/datasources/myDatasourceId",
+      path: "/app/myCustomSlug-myPageId/edit/datasource/myDatasourceId",
       expected: {
         entity: FocusEntity.DATASOURCE,
         id: "myDatasourceId",
