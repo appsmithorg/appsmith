@@ -27,7 +27,8 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            SessionUserService sessionUserService) {
         super(
                 cloudServicesConfig,
                 releaseNotesService,
@@ -38,6 +39,7 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                objectMapper);
+                objectMapper,
+                sessionUserService);
     }
 }

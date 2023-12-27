@@ -18,7 +18,6 @@ public class UrlCE {
     public static final String APPLICATION_URL = BASE_URL + VERSION + "/" + Entity.APPLICATIONS;
     public static final String PAGE_URL = BASE_URL + VERSION + "/" + Entity.PAGES;
     public static final String CONFIG_URL = BASE_URL + VERSION + "/configs";
-    public static final String GROUP_URL = BASE_URL + VERSION + "/groups";
     public static final String COLLECTION_URL = BASE_URL + VERSION + "/collections";
     public static final String ACTION_COLLECTION_URL = COLLECTION_URL + "/actions";
     public static final String IMPORT_URL = BASE_URL + VERSION + "/import";

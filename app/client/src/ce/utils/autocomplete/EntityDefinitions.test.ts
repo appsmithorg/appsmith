@@ -1,5 +1,5 @@
 import { PluginType } from "entities/Action";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { getPropsForJSActionEntity } from "@appsmith/utils/autocomplete/EntityDefinitions";
 
 const jsObject: JSCollectionData = {

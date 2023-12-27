@@ -10,6 +10,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { omit } from "lodash";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -141,11 +142,18 @@ export interface CopyActionRequest {
 }
 
 export interface UpdateActionNameRequest {
-  pageId: string;
+  pageId?: string;
   actionId: string;
-  layoutId: string;
+  layoutId?: string;
   newName: string;
   oldName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
+}
+
+export interface FetchActionsPayload {
+  applicationId?: string;
+  workflowId?: string;
 }
 class ActionAPI extends API {
   static url = "v1/actions";
@@ -160,9 +168,9 @@ class ActionAPI extends API {
   }
 
   static async fetchActions(
-    applicationId: string,
+    payload: FetchActionsPayload,
   ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
-    return API.get(ActionAPI.url, { applicationId });
+    return API.get(ActionAPI.url, payload);
   }
 
   static async fetchActionsForViewMode(

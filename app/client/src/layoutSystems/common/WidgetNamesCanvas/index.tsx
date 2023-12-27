@@ -32,6 +32,7 @@ import {
 import {
   getDragStartHandler,
   getMouseMoveHandler,
+  getMouseOverHandler,
   getScrollEndHandler,
   getScrollHandler,
 } from "./eventHandlers";
@@ -147,12 +148,21 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       widgetNamePositions,
     );
 
+    const mouseOverHandler = (e: MouseEvent) =>
+      getMouseOverHandler(
+        e,
+        widgetNamePositions.current,
+        canvasPositions.current,
+      );
+
+    scrollParent.addEventListener("mouseover", mouseOverHandler);
     scrollParent.addEventListener("mousemove", mouseMoveHandler);
     scrollParent.addEventListener("scroll", scrollHandler);
     scrollParent.addEventListener("scrollend", scrollEndHandler);
     wrapper.addEventListener("mousemove", mouseMoveHandler);
 
     return () => {
+      scrollParent.removeEventListener("mouseover", mouseOverHandler);
       scrollParent.removeEventListener("mousemove", mouseMoveHandler);
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);

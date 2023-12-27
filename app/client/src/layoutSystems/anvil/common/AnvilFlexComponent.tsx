@@ -16,7 +16,6 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
 import {
@@ -51,9 +50,6 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-  const isCanvasResizing: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
 
   /** POSITIONS OBSERVER LOGIC */
@@ -127,11 +123,11 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const flexProps: FlexProps = useMemo(() => {
     const data: FlexProps = {
       alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
-      flexGrow: isFillWidget ? 1 : 0,
+      flexGrow: props.flexGrow ? props.flexGrow : isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
       flexBasis: isFillWidget ? "0%" : "auto",
       height: "auto",
-      padding: WIDGET_PADDING + "px",
+      padding: "spacing-1",
       width: "auto",
     };
     if (props?.widgetSize) {
@@ -154,7 +150,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       }
     }
     return data;
-  }, [isFillWidget, props.widgetSize, verticalAlignment]);
+  }, [isFillWidget, props.widgetSize, verticalAlignment, props.flexGrow]);
 
   const borderStyles = useWidgetBorderStyles(props.widgetId);
 
@@ -169,7 +165,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       },
       ...borderStyles,
     };
-  }, [borderStyles, isDragging, isSelected, onHoverZIndex, isCanvasResizing]);
+  }, [borderStyles, isDragging, isSelected, onHoverZIndex]);
 
   return (
     <Flex

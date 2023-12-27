@@ -14,7 +14,7 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context Property Pane", function () {
+describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
 
@@ -58,8 +58,8 @@ describe("Canvas context Property Pane", function () {
   });
 
   it(
-    "excludeForAirgap",
     "3. Code Editor should have focus while switching between widgets, pages and Editor Panes",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       // TODO: Since google recaptcha is not possible in airgap mode, skipping this test for now for airgapped version.
       //Will modify the dsl to have maybe phone input widget to have a dropdown property control - Sangeeth

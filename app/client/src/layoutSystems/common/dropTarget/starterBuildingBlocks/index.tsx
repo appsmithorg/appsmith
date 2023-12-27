@@ -7,11 +7,15 @@ import {
 import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { importStarterBuildingBlockIntoApplication } from "actions/templateActions";
+import {
+  importStarterBuildingBlockIntoApplication,
+  showTemplatesModal,
+} from "actions/templateActions";
 import {
   STARTER_BUILDING_BLOCKS,
   STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
 } from "constants/TemplatesConstants";
+import { Button } from "design-system";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -26,10 +30,8 @@ import {
   TemplateLayoutContentGrid,
   TemplateLayoutContentItem,
   TemplateLayoutContentItemContent,
-  TemplateLayoutDragAndDropText,
   TemplateLayoutFrame,
   TemplateLayoutHeaderText,
-  TemplateLayoutOrText,
   TemplateLayoutRowItemDescription,
   TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
@@ -41,6 +43,7 @@ function StarterBuildingBlocks() {
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
   ); // manage template background screenshot image
+
   const currentApplication = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
   const currentWorkSpace = useSelector(getCurrentAppWorkspace);
@@ -83,7 +86,7 @@ function StarterBuildingBlocks() {
       ),
     );
 
-    AnalyticsUtil.logEvent("fork_APLICATIONTEMPLATE", {
+    AnalyticsUtil.logEvent("fork_APPLICATIONTEMPLATE", {
       applicationId: currentApplication?.id,
       workspaceId: currentWorkSpace.id,
       source: "canvas",
@@ -93,6 +96,15 @@ function StarterBuildingBlocks() {
         templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
         templatePageName,
       },
+    });
+  };
+
+  const onSeeMoreClick = () => {
+    dispatch(showTemplatesModal({ isOpenFromCanvas: true }));
+    AnalyticsUtil.logEvent("STARTER_BUILDING_BLOCK_SEE_MORE_CLICK", {
+      applicationId: currentApplication?.id,
+      workspaceId: currentWorkSpace.id,
+      source: "canvas",
     });
   };
 
@@ -148,15 +160,16 @@ function StarterBuildingBlocks() {
             </TemplateLayoutContentItem>
           ))}
         </TemplateLayoutContentGrid>
+
+        <Button
+          className="mt-4"
+          kind="tertiary"
+          onClick={onSeeMoreClick}
+          size="md"
+        >
+          {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.seeMoreText)}
+        </Button>
       </TemplateLayoutContainer>
-
-      <TemplateLayoutOrText layoutActive={layoutActive}>
-        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.or)}
-      </TemplateLayoutOrText>
-
-      <TemplateLayoutDragAndDropText layoutActive={layoutActive}>
-        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.dragAndDrop)}
-      </TemplateLayoutDragAndDropText>
     </TemplateLayoutFrame>
   );
 }

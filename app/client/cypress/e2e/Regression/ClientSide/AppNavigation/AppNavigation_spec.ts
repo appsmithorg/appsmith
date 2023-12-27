@@ -37,7 +37,6 @@ describe(
         0,
         true,
       );
-      agHelper.Sleep(1000);
       agHelper.AssertElementVisibility(locators._backToEditor);
       agHelper.AssertElementVisibility(appSettings.locators._modal);
       agHelper.GetNClick(appSettings.locators._modalClose);
@@ -52,7 +51,6 @@ describe(
       assertHelper
         .WaitForNetworkCall("@importNewApplication")
         .then((response) => {
-          agHelper.Sleep();
           const { isPartialImport } = response.body.data;
           if (isPartialImport) {
             homePage.AssertNCloseImport();

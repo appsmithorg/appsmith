@@ -11,7 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Rest Bugs tests", function () {
+describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

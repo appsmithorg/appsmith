@@ -9,7 +9,7 @@ const fontFamilyCss = (fontFamily?: FontFamily) => {
   const fontFamilyCss =
     fontFamily && fontFamily !== "System Default"
       ? `${fontFamily}, sans-serif`
-      : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu'";
+      : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu', sans-serif";
 
   return `font-family: ${fontFamilyCss}; --font-family: ${fontFamilyCss}`;
 };

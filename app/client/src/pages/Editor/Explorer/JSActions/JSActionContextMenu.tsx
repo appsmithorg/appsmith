@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   moveJSCollectionRequest,
@@ -9,7 +9,7 @@ import noop from "lodash/noop";
 import { getJSEntityName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -24,17 +24,25 @@ import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import {
+  ActionEntityContextMenuItemsEnum,
+  FilesContext,
+} from "../Files/FilesContextProvider";
 
 interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
-  pageId: string;
-  canManage?: boolean;
-  canDelete?: boolean;
+  canManage: boolean;
+  canDelete: boolean;
+  hideMenuItems: boolean;
 }
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
-  const { canDelete = false, canManage = false } = props;
+  // Import the context
+  const context = useContext(FilesContext);
+  const { menuItems, parentEntityId } = context;
+
+  const { canDelete, canManage } = props;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
 
@@ -45,7 +53,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         payload: {
           entityId: actionId,
           entityName: actionName,
-          entityType: ENTITY_TYPE_VALUE.JSACTION,
+          entityType: ENTITY_TYPE.JSACTION,
           show: true,
         },
       }),
@@ -76,7 +84,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         }),
       );
     },
-    [dispatch, props.pageId],
+    [dispatch, parentEntityId],
   );
   const deleteJSCollectionFromPage = useCallback(
     (actionId: string, actionName: string) =>
@@ -91,67 +99,72 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   );
 
   const optionsTree = [
-    canManage && {
-      value: "rename",
-      onSelect: editJSCollectionName,
-      label: createMessage(CONTEXT_EDIT_NAME),
-    },
-    {
+    menuItems.includes(ActionEntityContextMenuItemsEnum.EDIT_NAME) &&
+      canManage && {
+        value: "rename",
+        onSelect: editJSCollectionName,
+        label: createMessage(CONTEXT_EDIT_NAME),
+      },
+    menuItems.includes(ActionEntityContextMenuItemsEnum.SHOW_BINDING) && {
       value: "showBinding",
       onSelect: () => showBinding(props.id, props.name),
       label: createMessage(CONTEXT_SHOW_BINDING),
     },
-    canManage && {
-      value: "copy",
-      onSelect: noop,
-      label: createMessage(CONTEXT_COPY),
-      children: menuPages.map((page) => {
-        return {
-          ...page,
-          onSelect: () => copyJSCollectionToPage(props.id, props.name, page.id),
-        };
-      }),
-    },
-    canManage && {
-      value: "move",
-      onSelect: noop,
-      label: createMessage(CONTEXT_MOVE),
-      children:
-        menuPages.length > 1
-          ? menuPages
-              .filter((page) => page.id !== props.pageId) // Remove current page from the list
-              .map((page) => {
-                return {
-                  ...page,
-                  onSelect: () =>
-                    moveJSCollectionToPage(props.id, props.name, page.id),
-                };
-              })
-          : [
-              {
-                value: "No Pages",
-                onSelect: noop,
-                label: createMessage(CONTEXT_NO_PAGE),
-              },
-            ],
-    },
-    canDelete && {
-      confirmDelete: confirmDelete,
-      className: "t--apiFormDeleteBtn single-select",
-      value: "delete",
-      onSelect: () => {
-        confirmDelete
-          ? deleteJSCollectionFromPage(props.id, props.name)
-          : setConfirmDelete(true);
+    menuItems.includes(ActionEntityContextMenuItemsEnum.COPY) &&
+      canManage && {
+        value: "copy",
+        onSelect: noop,
+        label: createMessage(CONTEXT_COPY),
+        children: menuPages.map((page) => {
+          return {
+            ...page,
+            onSelect: () =>
+              copyJSCollectionToPage(props.id, props.name, page.id),
+          };
+        }),
       },
-      label: confirmDelete
-        ? createMessage(CONFIRM_CONTEXT_DELETE)
-        : createMessage(CONTEXT_DELETE),
-      intent: "danger",
-    },
+    menuItems.includes(ActionEntityContextMenuItemsEnum.MOVE) &&
+      canManage && {
+        value: "move",
+        onSelect: noop,
+        label: createMessage(CONTEXT_MOVE),
+        children:
+          menuPages.length > 1
+            ? menuPages
+                .filter((page) => page.id !== parentEntityId) // Remove current page from the list
+                .map((page) => {
+                  return {
+                    ...page,
+                    onSelect: () =>
+                      moveJSCollectionToPage(props.id, props.name, page.id),
+                  };
+                })
+            : [
+                {
+                  value: "No Pages",
+                  onSelect: noop,
+                  label: createMessage(CONTEXT_NO_PAGE),
+                },
+              ],
+      },
+    menuItems.includes(ActionEntityContextMenuItemsEnum.DELETE) &&
+      canDelete && {
+        confirmDelete: confirmDelete,
+        className: "t--apiFormDeleteBtn single-select",
+        value: "delete",
+        onSelect: () => {
+          confirmDelete
+            ? deleteJSCollectionFromPage(props.id, props.name)
+            : setConfirmDelete(true);
+        },
+        label: confirmDelete
+          ? createMessage(CONFIRM_CONTEXT_DELETE)
+          : createMessage(CONTEXT_DELETE),
+        intent: "danger",
+      },
   ].filter(Boolean);
 
-  return optionsTree.length > 0 ? (
+  return !props.hideMenuItems && optionsTree.length > 0 ? (
     <ContextMenu
       className={props.className}
       optionTree={optionsTree as TreeDropdownOption[]}

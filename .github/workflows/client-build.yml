@@ -34,13 +34,14 @@ defaults:
 
 jobs:
   client-build:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: appsmith-self-hosted-deployment-runner-8cpu-16gb-ram
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' 
     defaults:
       run:
         working-directory: app/client
@@ -199,7 +200,9 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --immutable
+        run: |
+          npm install -g yarn
+          yarn install --immutable
 
       # Type checking before starting the build
       - name: Run type check

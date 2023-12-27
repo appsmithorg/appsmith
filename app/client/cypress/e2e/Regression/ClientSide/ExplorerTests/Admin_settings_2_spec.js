@@ -21,7 +21,7 @@ const routes = {
   VERSION: "/settings/version",
 };
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   it("1. should test that configure link redirects to google maps setup doc", () => {
     cy.visit(routes.DEVELOPER_SETTINGS, { timeout: 60000 });
     cy.get(adminsSettings.readMoreLink).within(() => {
@@ -69,8 +69,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "3. should test that configure link redirects to google signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -89,8 +89,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "4. should test that configure link redirects to github signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -109,8 +109,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "5. should test that read more on version opens up release notes",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();

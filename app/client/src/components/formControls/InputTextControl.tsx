@@ -19,10 +19,13 @@ export const StyledInfo = styled.span`
   margin-left: 1px;
 `;
 
-const FieldWrapper = styled.div`
+const FieldWrapper = styled.div<{
+  width: string;
+}>`
   position: relative;
-  min-width: 380px;
+  min-width: ${(props) => (props?.width ? props.width : "380px")};
   max-width: 545px;
+  width: ${(props) => (props?.width ? props.width : "")};
 `;
 
 const SecretDisplayIndicator = styled.input`
@@ -132,10 +135,15 @@ class InputTextControl extends BaseControl<InputControlProps> {
       subtitle,
       validationMessage,
       validator,
+      width,
     } = this.props;
 
     return (
-      <FieldWrapper data-testid={configProperty} style={customStyles || {}}>
+      <FieldWrapper
+        data-testid={configProperty}
+        style={customStyles || {}}
+        width={width || ""}
+      >
         {this.state.secretDisplayVisible && (
           <SecretDisplayIndicator
             onClick={this.onClickSecretDisplayIndicator}
@@ -193,6 +201,7 @@ export interface InputControlProps extends ControlProps {
   disabled?: boolean;
   validator?: (value: string) => { isValid: boolean; message: string };
   isSecretExistsData?: boolean;
+  width?: string;
 }
 
 const mapStateToProps = (state: AppState, props: InputControlProps) => {

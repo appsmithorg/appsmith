@@ -485,3 +485,24 @@ export const updateGitProtectedBranchesInit = (payload: {
     payload,
   };
 };
+
+export const toggleAutocommitEnabledInit = () => ({
+  type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT,
+});
+
+export const setIsAutocommitModalOpen = (isAutocommitModalOpen: boolean) => ({
+  type: ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN,
+  payload: { isAutocommitModalOpen },
+});
+
+export const startAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING,
+});
+
+export const stopAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+});
+
+export const getGitMetadataInitAction = () => ({
+  type: ReduxActionTypes.GIT_GET_METADATA_INIT,
+});
