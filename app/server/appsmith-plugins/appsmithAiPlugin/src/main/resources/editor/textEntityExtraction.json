@@ -19,9 +19,9 @@
       "label": "Entities",
       "Description": "Provide a comma separated list of entities to extract from the Input",
       "subtitle": "Provide a comma separated list of entities to extract from the Input",
+      "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
       "configProperty": "actionConfiguration.formData.labels.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "initialValue": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
       "isRequired": true
     }
   ]

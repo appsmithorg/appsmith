@@ -10,6 +10,7 @@
       "Description": "Provide an image URL for AI to extract entities from",
       "subtitle": "Provide an image URL for AI to extract entities from",
       "configProperty": "actionConfiguration.formData.input.data",
+      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
       "controlType": "QUERY_DYNAMIC_TEXT",
       "initialValue": "",
       "isRequired": true
@@ -17,10 +18,10 @@
     {
       "label": "Entities",
       "Description": "Provide labels as comma-separated string input for classification",
-      "subtitle": "Provide labels as comma-separated string input for classification",
+      "subtitle": "Provide a comma separated list of labels to classify the Input on",
       "configProperty": "actionConfiguration.formData.labels.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "initialValue": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
+      "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
       "isRequired": true
     }
   ]
