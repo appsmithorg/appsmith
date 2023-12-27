@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Flex, SegmentedControl } from "design-system";
+import { Button, Flex, SegmentedControl } from "design-system";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 import { Switch, useLocation, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
@@ -23,6 +23,7 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import history, { NavigationMethod } from "utils/history";
 import {
+  globalAddURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
@@ -92,11 +93,17 @@ const EditorPaneSegments = () => {
         break;
     }
   };
+
+  const onAddButtonClick = () => {
+    history.push(globalAddURL({ pageId }));
+  };
+
   return (
     <Flex flexDirection="column" gap="spacing-2" overflow="hidden">
       <Flex
         alignItems="center"
         className="ide-pages-pane__header"
+        gap="spaces-2"
         justifyContent="space-between"
         padding="spaces-2"
       >
@@ -118,6 +125,14 @@ const EditorPaneSegments = () => {
             },
           ]}
           value={selected}
+        />
+        <Button
+          className={"t--add-editor-button"}
+          isIconButton
+          kind="primary"
+          onClick={onAddButtonClick}
+          size="sm"
+          startIcon="add-line"
         />
       </Flex>
       <EntityProperties />
