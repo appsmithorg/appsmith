@@ -12,6 +12,7 @@ export const featureFlagIntercept = (
     data: {
       ...flags,
       release_app_sidebar_enabled: true,
+      release_show_new_sidebar_pages_pane_enabled: true,
     },
     errorDisplay: "",
   };
