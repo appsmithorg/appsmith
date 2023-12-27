@@ -50,7 +50,15 @@ describe(
       ],
       Buttons: ["Button", "Button Group", "Icon button", "Menu button"],
       Select: ["Multi TreeSelect", "MultiSelect", "Select", "TreeSelect"],
-      Display: ["Chart", "Iframe", "List", "Map Chart", "Stats Box", "Table"],
+      Display: [
+        "Chart",
+        "Custom",
+        "Iframe",
+        "List",
+        "Map Chart",
+        "Stats Box",
+        "Table",
+      ],
       Layout: ["Container", "Divider", "Form", "JSON Form", "Modal", "Tabs"],
       Media: ["Audio", "Document Viewer", "Image", "Video"],
       Toggles: [
