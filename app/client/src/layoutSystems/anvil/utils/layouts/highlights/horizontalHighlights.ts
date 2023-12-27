@@ -4,6 +4,7 @@ import type {
   DeriveHighlightsFn,
   DraggedWidget,
   GetDimensions,
+  HighlightPayload,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
@@ -24,7 +25,7 @@ import type { DropZone } from "layoutSystems/common/utils/types";
  * @param getDimensions | GetDimensions : method of getting dimensions of a widget.
  * @param hasAlignments | boolean | whether the layout is aligned.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
- * @returns AnvilHighlightInfo[] : List of highlights.
+ * @returns HighlightPayload.
  */
 export function getHighlightsForWidgets(
   layoutProps: LayoutProps,
@@ -33,7 +34,7 @@ export function getHighlightsForWidgets(
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget = false,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   let highlights: AnvilHighlightInfo[] = [];
 
   // Extract list of child widgets
@@ -65,6 +66,8 @@ export function getHighlightsForWidgets(
       index === layout.length - 1
         ? undefined
         : getDimensions(layout[index + 1]?.widgetId);
+    const prevWidgetDimension: LayoutElementPosition | undefined =
+      index === 0 ? undefined : getDimensions(layout[index - 1]?.widgetId);
 
     // If the widget is dragged, don't add a highlight for it.
     if (!isDraggedWidget) {
@@ -74,6 +77,7 @@ export function getHighlightsForWidgets(
         layoutDimensions,
         currentWidgetDimension,
         nextWidgetDimension,
+        prevWidgetDimension,
         index - draggedChildCount,
         false,
         hasAlignments,
@@ -91,6 +95,7 @@ export function getHighlightsForWidgets(
         layoutDimensions,
         currentWidgetDimension,
         nextWidgetDimension,
+        prevWidgetDimension,
         index - draggedChildCount,
         true,
         hasAlignments,
@@ -99,7 +104,7 @@ export function getHighlightsForWidgets(
     }
   }
 
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 /**
@@ -113,7 +118,7 @@ export function getHighlightsForWidgets(
  * @param getDimensions | GetDimensions : method to get dimensions of a widget.
  * @param hasAlignments | boolean | whether the layout is aligned.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
- * @returns AnvilHighlightInfo[] : list of highlights.
+ * @returns HighlightPayload
  */
 export function getHighlightsForLayouts(
   layoutProps: LayoutProps,
@@ -126,7 +131,7 @@ export function getHighlightsForLayouts(
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget = false,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   let highlights: AnvilHighlightInfo[] = [];
   // Extract list of child layouts.
   const layouts: LayoutProps[] = layoutProps.layout as LayoutProps[];
@@ -150,20 +155,30 @@ export function getHighlightsForLayouts(
       index === layouts.length - 1
         ? undefined
         : getDimensions(layouts[index + 1]?.layoutId);
+    const prevLayoutDimensions: LayoutElementPosition | undefined =
+      index === 0 ? undefined : getDimensions(layouts[index - 1]?.layoutId);
 
     // Get the deriveHighlights function for the child layout.
     const deriveHighlightsFn: DeriveHighlightsFn =
       LayoutFactory.getDeriveHighlightsFn(layoutType);
 
     // Calculate highlights for the layout component.
-    const layoutHighlights: AnvilHighlightInfo[] = deriveHighlightsFn(
-      layouts[index],
-      canvasId,
-      [...layoutOrder, layouts[index].layoutId],
-      parentDropTargetId,
-    )(widgetPositions, draggedWidgets);
+    const { highlights: layoutHighlights, skipEntity }: HighlightPayload =
+      deriveHighlightsFn(
+        layouts[index],
+        canvasId,
+        [...layoutOrder, layouts[index].layoutId],
+        parentDropTargetId,
+      )(widgetPositions, draggedWidgets);
 
-    if (layoutHighlights.length) {
+    if (skipEntity) {
+      /**
+       * Layout is discarded from child count only if skipEntity is true.
+       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
+       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
+       */
+      discardedLayouts += 1;
+    } else {
       /**
        * Add a highlight for the drop zone above the child layout.
        * This is done only if the child layout has highlights.
@@ -176,6 +191,7 @@ export function getHighlightsForLayouts(
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         index - discardedLayouts,
         false,
         hasAlignments,
@@ -186,10 +202,10 @@ export function getHighlightsForLayouts(
        * Add highlights of the child layout if it is not a drop target.
        * because if it is, then it can handle its own drag behavior.
        */
-      if (!isDropTarget) {
+      if (!isDropTarget && layoutHighlights.length) {
         highlights.push(...layoutHighlights);
       }
-    } else discardedLayouts += 1;
+    }
 
     index += 1;
 
@@ -201,6 +217,7 @@ export function getHighlightsForLayouts(
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         index - discardedLayouts,
         true,
         hasAlignments,
@@ -209,7 +226,7 @@ export function getHighlightsForLayouts(
     }
   }
 
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 /**
@@ -218,7 +235,7 @@ export function getHighlightsForLayouts(
  * @param getDimensions | GetDimensions : method of getting dimensions of a widget.
  * @param hasAlignments | boolean : whether the layout is aligned.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
- * @returns AnvilHighlightInfo[] : list of highlights.
+ * @returns HighlightPayload : list of highlights.
  */
 export function getInitialHighlights(
   layoutProps: LayoutProps,
@@ -227,7 +244,7 @@ export function getInitialHighlights(
   isDropTarget: boolean,
   hasAlignments: boolean,
   hasFillWidget = false,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   const { layoutId } = layoutProps;
   const layoutDimension: LayoutElementPosition = getDimensions(layoutId);
 
@@ -236,17 +253,21 @@ export function getInitialHighlights(
     layoutDimension.top +
     getStartPosition(baseHighlight.alignment, layoutDimension.height);
 
-  return updateHighlights(
-    [],
-    baseHighlight,
-    layoutDimension,
-    { ...layoutDimension, height: HIGHLIGHT_SIZE, top: posY },
-    undefined,
-    0,
-    true,
-    hasAlignments,
-    hasFillWidget,
-  );
+  return {
+    highlights: updateHighlights(
+      [],
+      baseHighlight,
+      layoutDimension,
+      { ...layoutDimension, height: HIGHLIGHT_SIZE, top: posY },
+      undefined,
+      undefined,
+      0,
+      true,
+      hasAlignments,
+      hasFillWidget,
+    ),
+    skipEntity: false,
+  };
 }
 
 /**
@@ -268,6 +289,7 @@ export function updateHighlights(
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasAlignments: boolean,
@@ -297,6 +319,7 @@ export function updateHighlights(
     layoutDimension,
     currDimension,
     nextDimension,
+    prevDimension,
     rowIndex,
     isLastHighlight,
     hasAlignments,
@@ -329,6 +352,7 @@ export function generateHighlights(
   layoutDimension: LayoutElementPosition,
   currentDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasAlignments: boolean,
@@ -361,17 +385,25 @@ export function generateHighlights(
       // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
       posY = Math.max(currentDimension.top - layoutDimension.top, 0);
     } else {
-      posY = Math.min(
+      const gap: number =
+        layoutDimension.top +
+        layoutDimension.height -
         currentDimension.top -
-          layoutDimension.top +
-          currentDimension.height +
+        currentDimension.height;
+      posY = Math.min(
+        currentDimension.top + currentDimension.height,
+        layoutDimension.top +
+          layoutDimension.height -
+          gap / 2 -
           HIGHLIGHT_SIZE / 2,
-        layoutDimension.height - HIGHLIGHT_SIZE,
       );
     }
   } else {
+    const gap: number = prevDimension
+      ? currentDimension.top - (prevDimension.top + prevDimension.height)
+      : HIGHLIGHT_SIZE;
     posY = Math.max(
-      currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+      currentDimension.top - gap / 2 - HIGHLIGHT_SIZE / 2,
       HIGHLIGHT_SIZE / 2,
     );
   }

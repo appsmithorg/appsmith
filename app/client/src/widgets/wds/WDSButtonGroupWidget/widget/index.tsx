@@ -9,11 +9,13 @@ import {
   propertyPaneContentConfig,
   propertyPaneStyleConfig,
   settersConfig,
+  anvilConfig,
 } from "./../config";
 import type { ButtonGroupWidgetProps } from "./types";
 import { ButtonGroupComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -51,6 +53,10 @@ class WDSButtonGroupWidget extends BaseWidget<
 
   static getSetterConfig(): SetterConfig {
     return settersConfig;
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return anvilConfig;
   }
 
   onButtonClick = (

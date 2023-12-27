@@ -100,8 +100,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             }))
                             .cache();
 
-                    ImportingMetaDTO importingMetaDTO =
-                            new ImportingMetaDTO(workspaceId, applicationId, branchName, false, permissionProvider);
+                    ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
+                            workspaceId, applicationId, branchName, false, permissionProvider, null);
 
                     // Get the Application from DB
                     Mono<Application> importedApplicationMono = applicationService
