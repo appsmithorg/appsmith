@@ -88,11 +88,9 @@ const SectionSpaceDistributorHandles = (
         <SpaceDistributionHandle
           columnPosition={each.columnPosition}
           key={index}
-          layoutElementPositions={layoutElementPositions}
           left={each.position.left}
           parentZones={each.parentZones}
           sectionLayoutId={props.sectionLayoutId}
-          spaceBetweenZones={each.spaceBetweenZones}
           spaceDistributed={spaceDistributed}
           spaceToWorkWith={spaceToWorkWith}
         />
