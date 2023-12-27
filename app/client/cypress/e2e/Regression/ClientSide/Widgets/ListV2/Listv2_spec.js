@@ -60,8 +60,8 @@ describe(
     ];
 
     it(
-      "excludeForAirgap",
       "should validate that all widgets can be added to List",
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         PageLeftPane.switchSegment(PagePaneSegment.Widgets);
         allowed.forEach((widget) => {
