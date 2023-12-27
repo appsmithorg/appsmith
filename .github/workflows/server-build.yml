@@ -149,13 +149,13 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
         run: |
-          ls -l
-          if [[ -f /opt/appsmith/info.json ]]; then
+          find ../.. -ls | grep generate_info_json.sh
+          if [[ -f ../../deploy/docker/fs/opt/appsmith/info.json ]]; then
             echo "info.json already exists. Skipping generation."
           else
             echo "info.json does not exist. Generating..."
-            if [[ -f scripts/generate_info_json.sh ]]; then
-              scripts/generate_info_json.sh
+            if [[ -f ../../scripts/generate_info_json.sh ]]; then
+              ../../scripts/generate_info_json.sh
             fi
           fi
           ls -l
