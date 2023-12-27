@@ -9,7 +9,7 @@ export const propertyPaneStyle = [
         label: "Background",
         controlType: "SWITCH",
         fullWidth: true,
-        helpText: "Sets the semantic elevated background of the zone",
+        helpText: "Sets the semantic elevated background of the section",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
