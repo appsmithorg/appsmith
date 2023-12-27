@@ -163,7 +163,6 @@ export default function CustomWidgetBuilder() {
       setIsReferenceOpen,
       isReferenceOpen,
       setSelectedLayout,
-      selectedLayout,
     ],
   );
 

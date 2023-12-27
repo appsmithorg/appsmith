@@ -105,6 +105,12 @@ export interface PropertyPaneControlConfig {
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
   ) => boolean;
+
+  /**
+   * `controlConfig` is a generic record that can be used to pass additional configuration
+   * options to the property control. The specific structure and contents of this record
+   * will depend on the control type and its individual requirements.
+   */
   controlConfig?: Record<string, unknown>;
 }
 

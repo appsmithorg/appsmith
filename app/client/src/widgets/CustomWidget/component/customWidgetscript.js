@@ -83,8 +83,8 @@ export const createChannelToParent = () => {
     onMessageMap,
     postMessage: (type, data) => {
       try {
-        // Check if the the passed object is postMessageable. if not fail
-        // and exit
+        // Try block to catch non clonealbe data error while postmessaging
+        // throw error if the data is not cloneable
         postMessageQueue.push({
           type,
           data,
@@ -155,31 +155,37 @@ export function main() {
   // Callback for when MODEL_CHANGE message is received
   channel.onMessage(EVENTS.CUSTOM_WIDGET_MODEL_CHANGE, (event) => {
     if (event.model) {
+      const prevModel = window.appsmith.model;
+
       window.appsmith.model = event.model;
 
       // Notify model subscribers
       modelSubscribers.forEach((fn) => {
-        fn(event.model);
+        fn(event.model, prevModel);
       });
     }
   });
   // Callback for when UI_CHANGE message is received
   channel.onMessage(EVENTS.CUSTOM_WIDGET_UI_CHANGE, (event) => {
     if (event.ui) {
+      const prevUi = window.appsmith.ui;
+
       window.appsmith.ui = event.ui;
       // Notify UI subscribers
       uiSubscribers.forEach((fn) => {
-        fn(event.ui);
+        fn(event.ui, prevUi);
       });
     }
   });
 
   channel.onMessage(EVENTS.CUSTOM_WIDGET_THEME_UPDATE, (event) => {
     if (event.theme) {
+      const prevTheme = window.appsmith.theme;
+
       window.appsmith.theme = event.theme;
       // Notify theme subscribers
       themeSubscribers.forEach((fn) => {
-        fn(event.theme);
+        fn(event.theme, prevTheme);
       });
     }
   });

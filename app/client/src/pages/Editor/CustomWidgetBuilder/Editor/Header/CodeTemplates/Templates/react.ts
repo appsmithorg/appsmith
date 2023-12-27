@@ -9,18 +9,12 @@ export default {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
 <div id="root"></div>
 `,
-    css: `#root {
-	display: flex;
+    css: `.app {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
-	align-items: center;
-}
-
-.app {
-	justify-content: center;
-  margin: 20px;
-	padding: 5px;
+	border-radius: var(--appsmith-theme-borderRadius);
+	box-shadow: var(--appsmith-theme-boxShadow);
 }
 
 .tip-container {
@@ -49,6 +43,15 @@ export default {
 
 .button-container button {
   margin: 0 10px;
+}
+
+.button-container button.primary {
+	background: var(--appsmith-theme-primaryColor) !important;
+}
+
+.button-container button.reset {
+	color: var(--appsmith-theme-primaryColor) !important;
+	border-color: var(--appsmith-theme-primaryColor) !important;
 }`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
@@ -96,18 +99,12 @@ appsmith.onReady(() => {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
 <div id="root"></div>
 `,
-    css: `#root {
-	display: flex;
+    css: `.app {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
-	align-items: center;
-}
-
-.app {
-	justify-content: center;
-  margin: 20px;
-	padding: 5px;
+	border-radius: var(--appsmith-theme-borderRadius);
+	box-shadow: var(--appsmith-theme-boxShadow);
 }
 
 .tip-container {
@@ -136,6 +133,15 @@ appsmith.onReady(() => {
 
 .button-container button {
   margin: 0 10px;
+}
+
+.button-container button.primary {
+	background: var(--appsmith-theme-primaryColor) !important;
+}
+
+.button-container button.reset {
+	color: var(--appsmith-theme-primaryColor) !important;
+	border-color: var(--appsmith-theme-primaryColor) !important;
 }`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm';

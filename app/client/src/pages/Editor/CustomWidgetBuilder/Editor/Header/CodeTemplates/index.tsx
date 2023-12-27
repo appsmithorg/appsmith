@@ -82,7 +82,13 @@ export function CodeTemplates() {
     <div className={styles.templateMenu}>
       <Menu>
         <MenuTrigger>
-          <StyledButton kind="secondary" size="sm" startIcon="query" style={{}}>
+          <StyledButton
+            className="t--custom-widget-template-trigger"
+            kind="secondary"
+            size="sm"
+            startIcon="query"
+            style={{}}
+          >
             {createMessage(CUSTOM_WIDGET_FEATURE.template.buttonCTA)}
           </StyledButton>
         </MenuTrigger>

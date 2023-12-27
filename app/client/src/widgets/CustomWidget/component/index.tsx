@@ -39,6 +39,9 @@ const EVENTS = {
   CUSTOM_WIDGET_THEME_UPDATE: "CUSTOM_WIDGET_THEME_UPDATE",
 };
 
+// this is the padding set by the canvas
+const WIDGET_PADDING = 8;
+
 function CustomComponent(props: CustomComponentProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
 
@@ -81,8 +84,8 @@ function CustomComponent(props: CustomComponentProps) {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
                 ui: {
-                  width: props.width - 8,
-                  height: props.height - 8,
+                  width: props.width - WIDGET_PADDING,
+                  height: props.height - WIDGET_PADDING,
                 },
                 mode: props.renderMode,
                 theme,

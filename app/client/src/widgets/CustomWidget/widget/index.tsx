@@ -19,6 +19,16 @@ import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import { CUSTOM_WIDGET_DOC_URL } from "pages/Editor/CustomWidgetBuilder/contants";
+import { Link } from "design-system";
+import styled from "styled-components";
+
+const StyledLink = styled(Link)`
+  display: inline-block;
+  span {
+    font-size: 12px;
+  }
+`;
 
 class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static type = "CUSTOM_WIDGET";
@@ -91,14 +101,14 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             helperText: (
               <div className="leading-5" style={{ marginTop: "10px" }}>
                 The source editor lets you add your own HTML, CSS and JS.{" "}
-                <a
-                  className="decoration-solid underline"
-                  href="https://docs.appsmith.com/core-concepts/dynamic-data"
+                <StyledLink
+                  kind="secondary"
                   rel="noopener noreferrer"
                   target="_blank"
+                  to={CUSTOM_WIDGET_DOC_URL}
                 >
                   Read more
-                </a>
+                </StyledLink>
               </div>
             ),
           },
@@ -112,14 +122,14 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             helperText: (
               <div className="leading-5" style={{ marginTop: "10px" }}>
                 This model exposes Appsmith data to the widget editor.{" "}
-                <a
-                  className="decoration-solid underline"
-                  href="https://docs.appsmith.com/core-concepts/dynamic-data"
+                <StyledLink
+                  kind="secondary"
                   rel="noopener noreferrer"
                   target="_blank"
+                  to={CUSTOM_WIDGET_DOC_URL}
                 >
                   Read more
-                </a>
+                </StyledLink>
               </div>
             ),
             label: "",
@@ -262,7 +272,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       <CustomComponent
         execute={this.execute}
         height={this.props.componentHeight}
-        model={this.props.model}
+        model={this.props.model || {}}
         needsOverlay={
           this.props.renderMode === RenderModes.CANVAS &&
           !this.props.isWidgetSelected

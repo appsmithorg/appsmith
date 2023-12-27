@@ -54,7 +54,7 @@ export default function Preview() {
   return (
     <div className={styles.contentLeft} ref={containerRef}>
       <CustomComponent
-        execute={(name, contextObjec) => {
+        execute={(name, contextObject) => {
           toast.show(
             `${createMessage(
               CUSTOM_WIDGET_FEATURE.preview.eventFired,
@@ -70,7 +70,7 @@ export default function Preview() {
                   CUSTOM_WIDGET_FEATURE.preview.eventFired,
                 )} '${name}'`,
               },
-              { message: contextObjec },
+              { message: contextObject },
             ],
           });
         }}

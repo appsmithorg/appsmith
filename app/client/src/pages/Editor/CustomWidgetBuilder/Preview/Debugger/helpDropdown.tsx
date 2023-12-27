@@ -13,6 +13,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_DOC_URL } from "../../contants";
 
 export default function HelpDropdown(props: DebuggerLog) {
   const { args } = props;
@@ -27,15 +28,15 @@ export default function HelpDropdown(props: DebuggerLog) {
       <PopoverContent className={styles.consoleItemHelpContent}>
         <List
           items={[
-            // {
-            //   startIcon: <Icon name="book" size="md" />,
-            //   title: "Documentation",
-            //   onClick: () => {
-            //     window.open(`https://docs.appsmith.com/`, "_blank");
-            //   },
-            //   description: "",
-            //   descriptionType: "inline",
-            // },
+            {
+              startIcon: <Icon name="book" size="md" />,
+              title: "Documentation",
+              onClick: () => {
+                window.open(CUSTOM_WIDGET_DOC_URL, "_blank");
+              },
+              description: "",
+              descriptionType: "inline",
+            },
             // {
             //   startIcon: <Icon name="wand" size="md" />,
             //   title: "Troubleshoot with AI",

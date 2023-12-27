@@ -863,6 +863,7 @@ const PropertyControl = memo((props: Props) => {
                   )}
                   onChange={(e) => {
                     const value = e.target.value;
+                    // Non-word characters are replaced with underscores for valid property naming
                     setEditedName(value.split(/\W+/).join("_"));
                   }}
                   onKeyDown={(e) => {

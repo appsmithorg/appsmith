@@ -52,3 +52,6 @@ export const DEFAULT_CONTEXT_VALUE = {
     },
   },
 };
+
+export const CUSTOM_WIDGET_DOC_URL =
+  "https://docs.appsmith.com/reference/widgets/custom";

@@ -5,6 +5,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_DOC_URL } from "../../contants";
 
 export default function Help() {
   return (
@@ -20,9 +21,12 @@ export default function Help() {
       </Text>
       <Button
         className={styles.marginTop}
+        href={CUSTOM_WIDGET_DOC_URL}
         kind="secondary"
+        renderAs="a"
         size="md"
         startIcon="book"
+        target="_blank"
       >
         {createMessage(CUSTOM_WIDGET_FEATURE.referrences.help.buttonCTA)}
       </Button>

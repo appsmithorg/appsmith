@@ -9,10 +9,15 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import CustomWidgetBuilderService from "utils/CustomWidgetBuilderService";
+import styled from "styled-components";
 
 interface ButtonControlState {
   isSourceEditorOpen: boolean;
 }
+
+const StyledButton = styled(Button)`
+  width: 100%;
+`;
 
 class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   state: ButtonControlState = {
@@ -165,13 +170,11 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
 
   render() {
     return (
-      <Button
+      <StyledButton
+        className="t--edit-custom-widget-source"
         kind="secondary"
         onClick={this.onCTAClick}
         size="md"
-        style={{
-          width: "100%",
-        }}
       >
         {this.state.isSourceEditorOpen ||
         CustomWidgetBuilderService.isConnected(
@@ -181,7 +184,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
           : createMessage(CUSTOM_WIDGET_FEATURE.editSource.editSourceCTA)}
         &nbsp;
         <Icon name="share-box-line" size="sm" />
-      </Button>
+      </StyledButton>
     );
   }
 
