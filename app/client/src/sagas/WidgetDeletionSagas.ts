@@ -55,6 +55,8 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { saveAnvilLayout } from "layoutSystems/anvil/integrations/actions/saveLayoutActions";
+import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import { widgetURL } from "@appsmith/RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -291,6 +293,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           widgetType: widget.type,
           templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
+        const currentUrl = window.location.pathname;
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
@@ -299,6 +302,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
+        yield put(removeFocusHistoryRequest(currentUrl));
       }
     }
   } catch (error) {
@@ -426,6 +430,11 @@ function* deleteAllSelectedWidgetsSaga(
           });
         });
       }
+    }
+    for (const widget of selectedWidgets) {
+      yield put(
+        removeFocusHistoryRequest(widgetURL({ selectedWidgets: [widget] })),
+      );
     }
   } catch (error) {
     yield put({
