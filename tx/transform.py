@@ -8,8 +8,13 @@ root = Path("~/work/appsmith-ce").expanduser()
 server_root = root / "app/server"
 FILE_CONTENTS_CACHE = {}
 
-MONO_WRAPPER = "Mono.defer(() -> Mono.justOrEmpty(%s))"
-FLUX_WRAPPER = "Flux.defer(() -> Flux.fromIterable(%s))"
+MONO_WRAPPER = (
+    "Mono.fromSupplier(() -> %s.orElse(null)).subscribeOn(Schedulers.boundedElastic())"
+)
+MONO_WRAPPER_NON_OPTIONAL = (
+    "Mono.fromSupplier(() -> %s).subscribeOn(Schedulers.boundedElastic())"
+)
+FLUX_WRAPPER = "Mono.fromSupplier(() -> %s).flatMapIterable(o -> o).subscribeOn(Schedulers.boundedElastic())"
 
 
 def apply(p, tx):
@@ -175,12 +180,12 @@ def generate_cake_class(domain):
         if ret_type.startswith("Optional"):
             ret_type = ret_type.replace("Optional", "Mono")
             wrapper = MONO_WRAPPER
-        elif ret_type.startswith("List"):
-            ret_type = ret_type.replace("List", "Flux")
+        elif ret_type.startswith(("List", "Iterable")):
+            ret_type = ret_type.replace("List", "Flux").replace("Iterable", "Flux")
             wrapper = FLUX_WRAPPER
         elif not ret_type.islower():
             ret_type = "Mono<" + ret_type + ">"
-            wrapper = MONO_WRAPPER
+            wrapper = MONO_WRAPPER_NON_OPTIONAL
         else:
             wrapper = "%s"
 
@@ -226,6 +231,7 @@ def generate_cake_class(domain):
     import com.mongodb.bulk.BulkWriteResult;
     import com.mongodb.client.result.InsertManyResult;
     import com.querydsl.core.types.dsl.StringPath;
+    import reactor.core.scheduler.Schedulers;
     {imports_code}
 
     import java.util.List;
@@ -331,6 +337,7 @@ def update_file(path: Path, content: str):
 
 
 def convert(domain):
+    print("Bake", domain)
     domain_class_content = read_file(next(root.glob(f"app/server/**/{domain}.java")))
     if (
         "@Entity\n" not in domain_class_content
@@ -374,22 +381,23 @@ def main():
     convert("ApiTemplate")
     convert("Collection")
 
-    # format
+    print("Format cakes")
     subprocess.check_call(
         [
             "mvn",
             "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn",
             "spotless:apply",
+            # r"-DspotlessFiles=appsmith-server/src/main/java/com/appsmith/server/repositories/cakes/.*\.java",
         ],
         cwd=server_root,
     )
 
-    # git add all cake classes
+    print("Add cakes to git")
     subprocess.check_call(
         [
             "git",
             "add",
-            "appsmith-server/src/main/java/com/appsmith/server/repositories",
+            "appsmith-server/src/main/java/com/appsmith/server/repositories/cakes",
         ],
         cwd=server_root,
     )
