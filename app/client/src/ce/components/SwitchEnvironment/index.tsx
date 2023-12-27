@@ -75,7 +75,8 @@ const TooltipLink = styled(Link)`
 `;
 
 export default function SwitchEnvironment({}: Props) {
-  const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
+  const [disableSwitchEnvironment, setDisableSwitchEnvironment] =
+    useState(false);
   // Fetching feature flags from the store and checking if the feature is enabled
   const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);
@@ -87,7 +88,7 @@ export default function SwitchEnvironment({}: Props) {
 
   //listen to url change and disable switch environment if datasource page is open
   useEffect(() => {
-    setDiableSwitchEnvironment(
+    setDisableSwitchEnvironment(
       !!matchDatasourcePath(window.location.pathname) ||
         !!matchSAASGsheetsPath(window.location.pathname),
     );
@@ -126,7 +127,7 @@ export default function SwitchEnvironment({}: Props) {
 
   return (
     <Wrapper
-      aria-disabled={diableSwitchEnvironment && !isDatasourceViewMode}
+      aria-disabled={disableSwitchEnvironment && !isDatasourceViewMode}
       data-testid="t--switch-env"
     >
       <Select
@@ -134,7 +135,7 @@ export default function SwitchEnvironment({}: Props) {
         dropdownClassName="select_environemnt_dropdown"
         getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
         isDisabled={
-          (diableSwitchEnvironment && !isDatasourceViewMode) ||
+          (disableSwitchEnvironment && !isDatasourceViewMode) ||
           environmentList.length === 1
         }
         listHeight={400}
