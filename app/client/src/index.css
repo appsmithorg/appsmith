@@ -23,6 +23,11 @@ body {
   color: var(--ads-v2-color-fg);
 }
 
+.aligned-widget-row:has(.anvil-widget-wrapper [data-field-label-wrapper])
+  .anvil-widget-wrapper:not(:has([data-field-label-wrapper])) {
+  margin-top: calc(var(--inner-spacing-2) + var(--sizing-3));
+}
+
 body.dragging * {
   cursor: grabbing !important;
 }

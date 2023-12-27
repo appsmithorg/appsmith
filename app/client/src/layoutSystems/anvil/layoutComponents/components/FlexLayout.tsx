@@ -18,23 +18,10 @@ import type {
 } from "layoutSystems/anvil/utils/types";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { type RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
 import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
-import styled from "styled-components";
-import { generateReactKey } from "widgets/WidgetUtils";
 
 export const FLEX_LAYOUT_PADDING = 4;
-
-const StyledFlex = styled(Flex)<{ $key: string }>`
-  color: ${(props) => `#${props.$key}`};
-  ${(props) =>
-    props.direction === "row"
-      ? `&:has(.anvil-widget-wrapper [data-field-label-wrapper])
-    .anvil-widget-wrapper:not(:has([data-field-label-wrapper])) {
-    margin-top: calc(var(--inner-spacing-2) + var(--sizing-3));`
-      : ``}
-  }
-`;
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -67,6 +54,7 @@ export interface FlexLayoutProps
   rowGap?: Responsive<SpacingDimension>;
   padding?: Responsive<SpacingDimension>;
   width?: Responsive<SizingDimension>;
+  className?: string;
 }
 
 export const FlexLayout = React.memo((props: FlexLayoutProps) => {
@@ -75,6 +63,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     border,
     canvasId,
     children,
+    className,
     columnGap,
     direction,
     flexBasis,
@@ -131,10 +120,11 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       maxWidth: maxWidth || "none",
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
-      padding: padding || (isDropTarget ? `var(--inner-spacing-1)` : "0px"),
+      padding: padding || (isDropTarget ? `spacing-0` : "0px"),
       rowGap: rowGap || "0px",
       width: width || "auto",
       wrap: wrap || "nowrap",
+      className: className || "",
     };
   }, [
     alignSelf,
@@ -159,31 +149,25 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
     return {
-      border:
-        border ||
-        (isDropTarget && renderMode === RenderModes.CANVAS
-          ? "1px dashed #979797"
-          : "none"),
       position: position || "relative",
     };
   }, [border, isDropTarget, position, renderMode]);
 
-  const className = useMemo(() => {
-    return `layout-${layoutId} layout-index-${layoutIndex} ${
+  const _className = useMemo(() => {
+    return `${className} layout-${layoutId} layout-index-${layoutIndex} ${
       isContainer ? "make-container" : ""
     }`;
   }, [isContainer, layoutId, layoutIndex]);
 
   return (
-    <StyledFlex
+    <Flex
       {...flexProps}
-      $key={generateReactKey()}
-      className={className}
+      className={_className}
       id={getAnvilLayoutDOMId(canvasId, layoutId)}
       ref={ref}
       style={styleProps}
     >
       {children}
-    </StyledFlex>
+    </Flex>
   );
 });

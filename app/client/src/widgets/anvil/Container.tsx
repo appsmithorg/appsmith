@@ -7,14 +7,14 @@ import type {
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import fastdom from "fastdom";
-import { generateClassName, getCanvasClassName } from "utils/generators";
+import { generateClassName } from "utils/generators";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetType } from "WidgetProvider/factory";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { Elevations } from "./constants";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -27,18 +27,15 @@ const StyledContainerComponent = styled.div<
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
 
   ${(props) =>
-    props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
-
-  ${(props) =>
     props.elevatedBackground
       ? `background: var(--color-bg-elevation-${props.elevation}); box-shadow: var(--box-shadow-${props.elevation});`
       : ""}
     
   border-radius: var(--border-radius-1);
-  padding-block: var(--outer-spacing-2);
-  padding-inline: var(--outer-spacing-2);
+  padding-block: var(--outer-spacing-1);
+  padding-inline: var(--outer-spacing-1);
   ${(props) =>
-    props.elevation === "1"
+    props.elevation === Elevations.SECTION_ELEVATION
       ? `padding-block: var(--outer-spacing-0); padding-inline: var(--outer-spacing-0);`
       : ""}
 
@@ -49,13 +46,11 @@ interface ContainerWrapperProps {
   onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
   resizeDisabled?: boolean;
-  shouldScrollContents?: boolean;
   backgroundColor?: string;
   widgetId: string;
   type: WidgetType;
   dropDisabled?: boolean;
-  $noScroll: boolean;
-  elevation: string;
+  elevation: Elevations;
   elevatedBackground: boolean;
 }
 function ContainerComponentWrapper(
@@ -65,21 +60,19 @@ function ContainerComponentWrapper(
   const layoutSystemType = useSelector(getLayoutSystemType);
 
   useEffect(() => {
-    if (!props.shouldScrollContents) {
-      const supportsNativeSmoothScroll =
-        "scrollBehavior" in document.documentElement.style;
+    const supportsNativeSmoothScroll =
+      "scrollBehavior" in document.documentElement.style;
 
-      fastdom.mutate(() => {
-        if (supportsNativeSmoothScroll) {
-          containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-        } else {
-          if (containerRef.current) {
-            containerRef.current.scrollTop = 0;
-          }
+    fastdom.mutate(() => {
+      if (supportsNativeSmoothScroll) {
+        containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = 0;
         }
-      });
-    }
-  }, [props.shouldScrollContents]);
+      }
+    });
+  }, []);
 
   /**
    * This is for all the container widgets that have the onClickCapture method.
@@ -127,11 +120,10 @@ function ContainerComponentWrapper(
     <StyledContainerComponent
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
       // getCanvasClassName is used to add a scrollable parent.
-      $noScroll={props.$noScroll}
       backgroundColor={props.backgroundColor}
-      className={`${
-        props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)} container-with-scrollbar ${
+      className={`${generateClassName(
+        props.widgetId,
+      )} container-with-scrollbar ${
         layoutSystemType === LayoutSystemTypes.AUTO &&
         props.widgetId === MAIN_CONTAINER_WIDGET_ID
           ? "auto-layout"
@@ -145,8 +137,7 @@ function ContainerComponentWrapper(
       onMouseOver={onMouseOver}
       ref={containerRef}
       resizeDisabled={props.resizeDisabled}
-      shouldScrollContents={!!props.shouldScrollContents}
-      tabIndex={props.shouldScrollContents ? undefined : 0}
+      tabIndex={0}
       type={props.type}
     >
       {props.children}
@@ -158,17 +149,12 @@ function ContainerComponent(props: ContainerComponentProps) {
   if (props.detachFromLayout) {
     return (
       <ContainerComponentWrapper
-        $noScroll={!!props.noScroll}
         dropDisabled={props.dropDisabled}
         elevatedBackground={props.elevatedBackground}
         elevation={props.elevation}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
-        shouldScrollContents={
-          props.shouldScrollContents &&
-          props.layoutSystemType === LayoutSystemTypes.FIXED
-        }
         type={props.type}
         widgetId={props.widgetId}
       >
@@ -178,7 +164,6 @@ function ContainerComponent(props: ContainerComponentProps) {
   }
   return (
     <ContainerComponentWrapper
-      $noScroll={!!props.noScroll}
       backgroundColor={props.backgroundColor}
       dropDisabled={props.dropDisabled}
       elevatedBackground={props.elevatedBackground}
@@ -186,13 +171,6 @@ function ContainerComponent(props: ContainerComponentProps) {
       onClick={props.onClick}
       onClickCapture={props.onClickCapture}
       resizeDisabled={props.resizeDisabled}
-      shouldScrollContents={
-        props.shouldScrollContents &&
-        // Disable scrollbar on auto-layout canvas as it meddles with canvas drag and highlight position.
-        (props.layoutSystemType === LayoutSystemTypes.FIXED ||
-          // We need to allow scrollbars for list items as they don't have auto-height
-          props.isListItemContainer)
-      }
       type={props.type}
       widgetId={props.widgetId}
     >
@@ -222,7 +200,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   dropDisabled?: boolean;
   layoutSystemType?: LayoutSystemTypes;
   isListItemContainer?: boolean;
-  elevation: string;
+  elevation: Elevations;
   elevatedBackground: boolean;
 }
 
