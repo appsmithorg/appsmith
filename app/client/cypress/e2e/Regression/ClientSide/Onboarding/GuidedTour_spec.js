@@ -23,7 +23,9 @@ describe("excludeForAirgap", "Guided Tour", function () {
     });
     cy.get(onboardingLocators.editorWelcomeTourBtn).should("be.visible");
     cy.get(onboardingLocators.editorWelcomeTourBtn).click();
-    cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
+    cy.reload();
+    agHelper.GetNClick(homePage._helpButton)
+    cy.get(homePage._welcomeTour).should("be.visible");
   });
 
   it("2. Guided Tour", function () {

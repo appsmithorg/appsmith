@@ -133,7 +133,7 @@ const HomepageHeaderAction = ({
                   {createMessage(TRY_GUIDED_TOUR)}
                 </MenuItem>
                 <MenuItem
-                  className="t--welcome-tour"
+                  className="t--documentation-button"
                   onClick={() => {
                     window.open(DOCS_BASE_URL, "_blank");
                   }}
