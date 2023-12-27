@@ -15,7 +15,7 @@ import type { Action } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
-import { find, get, sortBy } from "lodash";
+import { find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -58,6 +58,41 @@ export const getEntities = (state: AppState): AppState["entities"] =>
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
+
+export const getPlugins = (state: AppState) => state.entities.plugins.list;
+
+export enum PluginCategory {
+  Integrations = "Integrations",
+  Databases = "Databases",
+  APIs = "APIs",
+  Others = "Others",
+}
+
+export type DatasourceGroupByPluginCategory = Record<
+  PluginCategory,
+  Datasource[]
+>;
+
+export const getDatasourcesGroupedByPluginCategory = createSelector(
+  getDatasources,
+  getPlugins,
+  (datasources, plugins): DatasourceGroupByPluginCategory => {
+    const groupedPlugins = keyBy(plugins, "id");
+    return <DatasourceGroupByPluginCategory>groupBy(datasources, (d) => {
+      const plugin = groupedPlugins[d.pluginId];
+      if (
+        plugin.type === PluginType.SAAS ||
+        plugin.type === PluginType.REMOTE ||
+        plugin.type === PluginType.AI
+      ) {
+        return PluginCategory.Integrations;
+      }
+      if (plugin.type === PluginType.DB) return PluginCategory.Databases;
+      if (plugin.type === PluginType.API) return PluginCategory.APIs;
+      return PluginCategory.Others;
+    });
+  },
+);
 
 // Returns non temp datasources
 export const getSavedDatasources = (state: AppState): Datasource[] => {
@@ -377,8 +412,6 @@ export const getDatasourcesByPluginId = (
 ): Datasource[] => {
   return state.entities.datasources.list.filter((d) => d.pluginId === id);
 };
-
-export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
 export const getPluginByPackageName = (state: AppState, name: string) =>
   state.entities.plugins.list.find((p) => p.packageName === name);
@@ -1363,8 +1396,8 @@ export const getModuleInstanceEntities = () => {
   return null;
 };
 
-interface PagePaneData {
-  [key: string]: { id: string; name: string; type: string }[];
+export interface PagePaneData {
+  [key: string]: { id: string; name: string; type: PluginType }[];
 }
 
 const GroupAndSortPagePaneData = (
