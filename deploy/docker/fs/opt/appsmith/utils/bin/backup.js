@@ -6,8 +6,6 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
-const tty = require('tty');
-const readlineSync = require('readline-sync');
 
 const command_args = process.argv.slice(3);
 
@@ -31,15 +29,7 @@ async function run() {
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
-    if (!command_args.includes('--non-interactive') && (tty.isatty(process.stdout.fd))){
-      encryptionPassword = getEncryptionPasswordFromUser();
-      if (encryptionPassword == -1){
-        throw new Error('Backup process aborted because a valid enctyption password could not be obtained from the user');
-      }
-      encryptArchive = true;
-    }
-
-    backupRootPath = await generateBackupRootPath();
+    const backupRootPath = await generateBackupRootPath();
     const backupContentsPath = getBackupContentsPath(backupRootPath, timestamp);
 
     await fsPromises.mkdir(backupContentsPath);
@@ -49,9 +39,17 @@ async function run() {
     await createGitStorageArchive(backupContentsPath);
 
     await createManifestFile(backupContentsPath);
+
+    if (!command_args.includes('--non-interactive') && (tty.isatty(process.stdout.fd))){
+      encryptionPassword = getEncryptionPasswordFromUser();
+      if (encryptionPassword == -1){
+        throw new Error('Backup process aborted because a valid enctyption password could not be obtained from the user');
+      }
+      encryptArchive = true;
+    }
     await exportDockerEnvFile(backupContentsPath, encryptArchive);
 
-    archivePath = await createFinalArchive(backupRootPath, timestamp);
+    const archivePath = await createFinalArchive(backupRootPath, timestamp);
     // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
     if (encryptArchive){
         const encryptedArchivePath = await encryptBackupArchive(archivePath,encryptionPassword);
@@ -64,6 +62,10 @@ async function run() {
       console.log('*** These values are not included in the backup export.                                                                           **');
       console.log('************************************************************************************************************************************');
     }
+
+    await fsPromises.rm(backupRootPath, { recursive: true, force: true });
+
+    logger.backup_info('Finished taking a backup at' + archivePath);
 
   } catch (err) {
     errorCode = 1;
@@ -86,6 +88,7 @@ async function run() {
     process.exit(errorCode);
   }
 }
+
 async function encryptBackupArchive(archivePath, encryptionPassword){
   const encryptedArchivePath = archivePath + '.enc';
   await utils.execCommand(['openssl', 'enc', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', archivePath, '-out', encryptedArchivePath, '-k', encryptionPassword ])
@@ -141,9 +144,12 @@ async function exportDockerEnvFile(destFolder, encryptArchive) {
     cleaned_content += '\nAPPSMITH_ENCRYPTION_SALT=' + process.env.APPSMITH_ENCRYPTION_SALT +
     '\nAPPSMITH_ENCRYPTION_PASSWORD=' + process.env.APPSMITH_ENCRYPTION_PASSWORD
   }
-
+  const cleaned_content = removeSensitiveEnvData(content)
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
+  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! Important !!!!!!!!!!!!!!!!!!!!!!!!!!');
+  console.log('!!! Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
+  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 }
 
 async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
@@ -197,7 +203,7 @@ function removeSensitiveEnvData(content) {
   const output_lines = []
   content.split(/\r?\n/).forEach(line => {
     if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB")) {
-      output_lines.push(line)
+      output_lines.push(line);
     }
   });
   return output_lines.join('\n')
@@ -230,6 +236,8 @@ function checkAvailableBackupSpace(availSpaceInBytes) {
     throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 2GB to backup successfully.');
   }
 }
+
+
 
 module.exports = {
   run,

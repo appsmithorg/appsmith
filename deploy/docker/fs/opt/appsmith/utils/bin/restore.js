@@ -38,6 +38,7 @@ async function getBackupFileName() {
   }
 
 }
+
 async function decryptArchive(encryptedFilePath, backupFilePath){
   console.log('Enter the password to decrypt the backup archive:')
   for (const _ of [1, 2, 3]) {
@@ -51,6 +52,7 @@ async function decryptArchive(encryptedFilePath, backupFilePath){
   }
   return false
 }
+
 async function extractArchive(backupFilePath, restoreRootPath) {
   console.log('Extracting the Appsmith backup archive at ' + backupFilePath);
   await utils.execCommand(['tar', '-C', restoreRootPath, '-xf', backupFilePath]);
@@ -99,18 +101,13 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEn
         hideEchoBack: true
       });
     }
-    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
-    '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd + '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
-
-  } else {
+    } else {
     await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
-  }
-
-
-
-  console.log('Restoring docker environment file completed');
+    }
+    console.log('Restoring docker environment file completed');
 }
 
 async function restoreGitStorageArchive(restoreContentsPath, backupName) {
@@ -145,6 +142,7 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
     }
   }
 }
+
 async function getBackupDatabaseName(restoreContentsPath) {
   let db_name = "appsmith"
   if (command_args.includes('--backup-db-name')) {
@@ -166,7 +164,6 @@ async function getBackupDatabaseName(restoreContentsPath) {
   return db_name
 }
 
-
 async function run() {
   let errorCode = 0;
   let cleanupArchive = false;
@@ -179,6 +176,7 @@ async function run() {
         shell.exec('/usr/bin/supervisord');
       }
     });
+
     let backupFileName = await getBackupFileName();
     if (backupFileName == null) {
       process.exit(errorCode);
