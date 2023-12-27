@@ -21,7 +21,6 @@ import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
-import com.appsmith.server.repositories.NewActionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;

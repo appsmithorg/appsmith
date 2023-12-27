@@ -115,13 +115,16 @@ def generate_base_cake():
         import lombok.RequiredArgsConstructor;
         import org.springframework.data.repository.CrudRepository;
         import reactor.core.publisher.Mono;
+        import reactor.core.scheduler.Schedulers;
+
+        import java.util.Optional;
 
         @RequiredArgsConstructor
         public abstract class BaseCake<T extends BaseDomain> {{
             private final CrudRepository<T, String> repository;
 
             public Mono<T> save(T entity) {{
-                return {MONO_WRAPPER % "repository.save(entity)"};
+                return {MONO_WRAPPER % "Optional.of(repository.save(entity))"};
             }}
 
             public Mono<T> findById(String id) {{
@@ -162,9 +165,8 @@ def generate_cake_class(domain):
         if domain not in full_path.name:
             content = re.sub(r"\bT\b", domain, content)
             content = re.sub(r"\bID\b", "String", content)
-        content = re.sub(
-            r"\bCollection\b", "java.util.Collection", content
-        )  # because of unambiguous error for this class with the one in `domains` package.
+        # because of unambiguous error for this class with the one in `domains` package.
+        content = re.sub(r"\bCollection<", "java.util.Collection<", content)
         methods.update(
             re.sub(r"\s+", " ", m.strip().replace("default ", "")).replace("( ", "(")
             for m in re.findall(

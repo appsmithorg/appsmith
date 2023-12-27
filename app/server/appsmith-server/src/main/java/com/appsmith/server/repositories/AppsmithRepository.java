@@ -28,8 +28,6 @@ public interface AppsmithRepository<T> {
 
     T setUserPermissionsInObject(T obj);
 
-    T setUserPermissionsInObject(T obj);
-
     T updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission);
 
     /**
@@ -45,5 +43,5 @@ public interface AppsmithRepository<T> {
      * @param domainList List of domains that'll be saved in bulk
      * @return List of actions that were passed in the method
      */
-    Mono<List<InsertManyResult>> bulkInsert(List<T> domainList);
+    Optional<List<InsertManyResult>> bulkInsert(List<T> domainList);
 }

@@ -14,7 +14,6 @@ import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -746,7 +744,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                      */
     }
 
-    public Mono<List<InsertManyResult>> bulkInsert(List<T> domainList) {
+    public Optional<List<InsertManyResult>> bulkInsert(List<T> domainList) {
+        return Optional.empty(); /*
         if (CollectionUtils.isEmpty(domainList)) {
             return Mono.just(Collections.emptyList());
         }
@@ -763,6 +762,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .collectList();
+                .collectList();*/
     }
 }

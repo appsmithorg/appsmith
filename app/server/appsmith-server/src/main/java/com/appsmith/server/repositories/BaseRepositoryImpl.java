@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
-import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.util.Collections;
