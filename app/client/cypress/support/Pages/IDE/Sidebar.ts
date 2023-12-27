@@ -14,7 +14,12 @@ export class Sidebar {
     cy.get(this.locators.sidebar)
       .find(this.locators.sidebarButton(button))
       .click({ force: true })
-      .should("have.attr", "data-selected", willFail ? "false" : "true");
+      .as("naviagteBtn");
+    cy.get("@naviagteBtn").should(
+      "have.attr",
+      "data-selected",
+      willFail ? "false" : "true",
+    );
   }
 
   assertVisible() {
