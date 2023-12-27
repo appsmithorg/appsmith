@@ -163,7 +163,7 @@ describe(
 
       table.OpenNFilterTable("title", "contains", "USB");
       for (let i = 0; i < 3; i++) {
-        table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
+        table.ReadTableRowColumnData(i, 5, "v2").then(($cellData) => {
           expect($cellData).contains("USB");
         });
       }
