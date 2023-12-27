@@ -59,6 +59,18 @@ const JSSection = () => {
       flexDirection="column"
       overflow="hidden"
     >
+      {JSObjects && JSObjects.length > 0 && canCreateActions && (
+        <Flex flexDirection="column" padding="spaces-3">
+          <Button
+            kind={"secondary"}
+            onClick={addButtonClickHandler}
+            size={"sm"}
+            startIcon={"add-line"}
+          >
+            {createMessage(PAGES_PANE_TEXTS.js_add_button)}
+          </Button>
+        </Flex>
+      )}
       <FilesContextProvider
         canCreateActions={canCreateActions}
         editorId={applicationId}
@@ -101,18 +113,6 @@ const JSSection = () => {
           icon={"js-square-v3"}
           onClick={canCreateActions ? addButtonClickHandler : undefined}
         />
-      )}
-      {JSObjects && JSObjects.length > 0 && canCreateActions && (
-        <Flex flexDirection="column" padding="spaces-3">
-          <Button
-            kind={"secondary"}
-            onClick={addButtonClickHandler}
-            size={"sm"}
-            startIcon={"add-line"}
-          >
-            {createMessage(PAGES_PANE_TEXTS.js_add_button)}
-          </Button>
-        </Flex>
       )}
     </JSContainer>
   );

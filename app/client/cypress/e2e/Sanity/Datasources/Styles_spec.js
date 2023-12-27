@@ -2,9 +2,8 @@ import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 let dsName;
 describe(
-  "excludeForAirgap",
   "Validate Datasource Panel Styles",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.excludeForAirgap"] },
   function () {
     const backgroundColorGray700 = "rgb(76, 86, 100)";
     const backgroundColorGray1 = "rgb(241, 245, 249)";
