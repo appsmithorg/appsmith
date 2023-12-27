@@ -84,7 +84,7 @@ public class AppsmithAiPlugin extends BasePlugin {
             UploadedFile file = objectMapper.convertValue(properties.get(0).getValue(), UploadedFile.class);
             files.add(file.getBase64Content());
             return aiServerService
-                    .createDatasource(datasourceStorage.getId(), files)
+                    .createDatasource(datasourceStorage.getDatasourceId(), files)
                     .then(Mono.just(datasourceStorage));
         }
 
