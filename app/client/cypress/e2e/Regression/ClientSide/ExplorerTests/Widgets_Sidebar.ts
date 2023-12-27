@@ -193,7 +193,8 @@ describe(
       agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
       agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
-      agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
+      agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
+      agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
 
