@@ -38,7 +38,7 @@ const LeftPane = () => {
     return <WidgetsEditorEntityExplorer />;
   }
   return (
-    <LeftPaneContainer>
+    <LeftPaneContainer id={"sidebar"}>
       <Switch>
         <SentryRoute
           component={DataSidePane}
