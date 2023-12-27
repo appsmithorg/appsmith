@@ -9,6 +9,7 @@
       "label": "Input",
       "Description": "Provide some text for AI to classify",
       "subtitle": "Provide some text for AI to classify",
+      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
       "configProperty": "actionConfiguration.formData.input.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
       "initialValue": "",
@@ -16,8 +17,8 @@
     },
     {
       "label": "Labels",
-      "Description": "Provide labels as comma-separated string input for classification",
-      "subtitle": "Provide labels as comma-separated string input for classification",
+      "Description": "Provide a comma separated list of labels to classify the Input on",
+      "subtitle": "Provide a comma separated list of labels to classify the Input on",
       "configProperty": "actionConfiguration.formData.labels.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "initialValue": "",

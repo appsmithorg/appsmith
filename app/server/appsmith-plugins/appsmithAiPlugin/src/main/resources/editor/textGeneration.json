@@ -11,7 +11,7 @@
       "subtitle": "Provide an prompt for AI to generate text",
       "configProperty": "actionConfiguration.formData.input.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": "Write some text or use {{ }} to reference a dynamic text value",
+      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
       "isRequired": true
     }
   ]
