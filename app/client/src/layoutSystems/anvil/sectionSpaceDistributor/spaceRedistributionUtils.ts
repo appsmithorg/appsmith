@@ -282,6 +282,105 @@ const LARGE_SMALL_ZONE_THRESHOLD = 0.7;
 // Threshold used to determine the minimum column width for a "large" zone relative to the largest zone
 const LARGE_SMALL_ZONE_SHRINK_THRESHOLD = 0.7;
 
+function roundOffSpaceDistributedArray(
+  spaceDistributedArray: number[],
+  positionIndex: number,
+) {
+  // Adjust for rounding errors
+  const roundingError =
+    SectionColumns -
+    spaceDistributedArray.reduce((sum, value) => sum + value, 0);
+
+  // Calculate the rounding error distribution among the zones
+  const roundOffForBiggestSpace =
+    roundingError !== 0
+      ? roundingError % (spaceDistributedArray.length - 1)
+      : 0;
+  const evenDistributionSpaceWithRoundingError =
+    (roundingError - roundOffForBiggestSpace) /
+    (spaceDistributedArray.length - 1);
+
+  // Distribute the rounding error among zones based on index position
+  if (evenDistributionSpaceWithRoundingError > 0) {
+    for (let i = 0; i < spaceDistributedArray.length; i++) {
+      if (i !== positionIndex) {
+        spaceDistributedArray[i] += evenDistributionSpaceWithRoundingError;
+      }
+    }
+  }
+
+  // Find the index of the zone with the biggest space
+  const biggestSpaceIndex = spaceDistributedArray.indexOf(
+    Math.max(...spaceDistributedArray),
+  );
+
+  // Adjust the space at the specified index for the remaining rounding error
+  spaceDistributedArray[biggestSpaceIndex] += roundOffForBiggestSpace;
+}
+
+function getZoneChangeAndRelativeSize(
+  spaceDistributedArray: number[],
+  zoneChangeFactor: number,
+): {
+  zoneChange: any;
+  isSmallestZoneLargeRelatively: any;
+  largestZoneSpace: any;
+} {
+  // Constants for determining zone sizes and thresholds
+  const largestZoneThreshold =
+    RELATIVELY_LARGE_ZONE_THRESHOLD *
+    (SectionColumns / spaceDistributedArray.length);
+
+  // Find the index of the largest zone
+  const largestZoneIndex = spaceDistributedArray.findIndex(
+    (each: number) =>
+      each === Math.max(...spaceDistributedArray) &&
+      each >= largestZoneThreshold,
+  );
+  const largestZoneSpace = spaceDistributedArray[largestZoneIndex];
+
+  // Calculate the maximum space that can be added or removed without violating the minimum column width
+  const smallestZone = Math.min(...spaceDistributedArray);
+  const isSmallestZoneLargeRelatively =
+    smallestZone > LARGE_SMALL_ZONE_THRESHOLD * largestZoneSpace;
+  const spaceWelcomed = isSmallestZoneLargeRelatively
+    ? Math.max(smallestZone - 2, ZoneMinColumnWidth)
+    : SectionColumns - ZoneMinColumnWidth * spaceDistributedArray.length;
+  const zoneChange =
+    zoneChangeFactor >= spaceWelcomed && zoneChangeFactor > 0
+      ? spaceWelcomed
+      : zoneChangeFactor;
+  return { zoneChange, isSmallestZoneLargeRelatively, largestZoneSpace };
+}
+
+function adjustZoneSpaces(
+  spaceDistributedArray: number[],
+  zoneChangeFactor: number,
+  isSmallestZoneLargeRelatively: boolean,
+  largestZoneSpace: number,
+  newlyAdjustedValues: number[],
+): number[] {
+  for (let i = 0; i < spaceDistributedArray.length; i++) {
+    const minColumns =
+      zoneChangeFactor > 0 &&
+      isSmallestZoneLargeRelatively &&
+      spaceDistributedArray[i] >= LARGE_SMALL_ZONE_THRESHOLD * largestZoneSpace
+        ? Math.round(
+            LARGE_SMALL_ZONE_SHRINK_THRESHOLD * spaceDistributedArray[i],
+          )
+        : ZoneMinColumnWidth;
+
+    const adjustedSpace = Math.max(
+      Math.round(newlyAdjustedValues[i]),
+      minColumns,
+    );
+
+    spaceDistributedArray[i] = adjustedSpace;
+  }
+
+  return spaceDistributedArray;
+}
+
 /**
  * Redistributes space within a section while preserving zone ratios and minimum column width.
  *
@@ -322,30 +421,8 @@ export const redistributeSpaceWithDynamicMinWidth = (
   if (Math.abs(zoneChangeFactor) < ZoneMinColumnWidth)
     return spaceDistributedArray;
 
-  // Constants for determining zone sizes and thresholds
-  const largestZoneThreshold =
-    RELATIVELY_LARGE_ZONE_THRESHOLD *
-    (SectionColumns / spaceDistributedArray.length);
-
-  // Find the index of the largest zone
-  const largestZoneIndex = spaceDistributedArray.findIndex(
-    (each: number) =>
-      each === Math.max(...spaceDistributedArray) &&
-      each >= largestZoneThreshold,
-  );
-  const largestZoneSpace = spaceDistributedArray[largestZoneIndex];
-
-  // Calculate the maximum space that can be added or removed without violating the minimum column width
-  const smallestZone = Math.min(...spaceDistributedArray);
-  const isSmallestZoneLargeRelatively =
-    smallestZone > LARGE_SMALL_ZONE_THRESHOLD * largestZoneSpace;
-  const spaceWelcomed = isSmallestZoneLargeRelatively
-    ? Math.max(smallestZone - 2, ZoneMinColumnWidth)
-    : SectionColumns - ZoneMinColumnWidth * spaceDistributedArray.length;
-  const zoneChange =
-    zoneChangeFactor >= spaceWelcomed && zoneChangeFactor > 0
-      ? spaceWelcomed
-      : zoneChangeFactor;
+  const { isSmallestZoneLargeRelatively, largestZoneSpace, zoneChange } =
+    getZoneChangeAndRelativeSize(spaceDistributedArray, zoneChangeFactor);
 
   // Calculate the space that would result in an even distribution
   const evenDistributionSpace = SectionColumns / spaceDistributedArray.length;
@@ -389,54 +466,14 @@ export const redistributeSpaceWithDynamicMinWidth = (
   const newlyAdjustedValues = spaceDistributedArray.map(
     (value) => value * adjustmentRatio,
   );
-
-  // Iterate over each zone and ensure each number is not less than ZoneMinColumnWidth
-  for (let i = 0; i < spaceDistributedArray.length; i++) {
-    const minColumns =
-      zoneChangeFactor > 0 &&
-      isSmallestZoneLargeRelatively &&
-      spaceDistributedArray[i] >= LARGE_SMALL_ZONE_THRESHOLD * largestZoneSpace
-        ? Math.round(
-            LARGE_SMALL_ZONE_SHRINK_THRESHOLD * spaceDistributedArray[i],
-          )
-        : ZoneMinColumnWidth;
-    const adjustedSpace = Math.max(
-      Math.round(newlyAdjustedValues[i]),
-      minColumns,
-    );
-    spaceDistributedArray[i] = adjustedSpace;
-  }
-
-  // Adjust for rounding errors
-  const roundingError =
-    SectionColumns -
-    spaceDistributedArray.reduce((sum, value) => sum + value, 0);
-
-  // Calculate the rounding error distribution among the zones
-  const roundOffForBiggestSpace =
-    roundingError !== 0
-      ? roundingError % (spaceDistributedArray.length - 1)
-      : 0;
-  const evenDistributionSpaceWithRoundingError =
-    (roundingError - roundOffForBiggestSpace) /
-    (spaceDistributedArray.length - 1);
-
-  // Distribute the rounding error among zones based on index position
-  if (evenDistributionSpaceWithRoundingError > 0) {
-    for (let i = 0; i < spaceDistributedArray.length; i++) {
-      if (i !== index) {
-        spaceDistributedArray[i] += evenDistributionSpaceWithRoundingError;
-      }
-    }
-  }
-
-  // Find the index of the zone with the biggest space
-  const biggestSpaceIndex = spaceDistributedArray.indexOf(
-    Math.max(...spaceDistributedArray),
+  adjustZoneSpaces(
+    spaceDistributedArray,
+    zoneChangeFactor,
+    isSmallestZoneLargeRelatively,
+    largestZoneSpace,
+    newlyAdjustedValues,
   );
-
-  // Adjust the space at the specified index for the remaining rounding error
-  spaceDistributedArray[biggestSpaceIndex] += roundOffForBiggestSpace;
+  roundOffSpaceDistributedArray(spaceDistributedArray, index);
 
   // Return the resulting array after redistribution
   return spaceDistributedArray;
