@@ -51,9 +51,6 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const isCanvasResizing: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  );
 
   /** POSITIONS OBSERVER LOGIC */
   // Create a ref so that this DOM node can be
@@ -126,7 +123,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const flexProps: FlexProps = useMemo(() => {
     const data: FlexProps = {
       alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
-      flexGrow: isFillWidget ? 1 : 0,
+      flexGrow: props.flexGrow ? props.flexGrow : isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
       flexBasis: isFillWidget ? "0%" : "auto",
       height: "auto",
@@ -153,7 +150,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       }
     }
     return data;
-  }, [isFillWidget, props.widgetSize, verticalAlignment]);
+  }, [isFillWidget, props.widgetSize, verticalAlignment, props.flexGrow]);
 
   const borderStyles = useWidgetBorderStyles(props.widgetId);
 
@@ -168,7 +165,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       },
       ...borderStyles,
     };
-  }, [borderStyles, isDragging, isSelected, onHoverZIndex, isCanvasResizing]);
+  }, [borderStyles, isDragging, isSelected, onHoverZIndex]);
 
   return (
     <Flex

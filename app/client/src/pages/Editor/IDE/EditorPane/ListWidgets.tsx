@@ -46,6 +46,21 @@ const ListWidgets = () => {
 
   return (
     <Flex flexDirection="column" overflow="hidden">
+      {widgets &&
+        widgets.children &&
+        widgets.children.length > 0 &&
+        canManagePages && (
+          <Flex flexDirection="column" padding="spaces-3">
+            <Button
+              kind={"secondary"}
+              onClick={addButtonClickHandler}
+              size={"sm"}
+              startIcon={"add-line"}
+            >
+              {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
+            </Button>
+          </Flex>
+        )}
       <Flex
         flex="1"
         flexDirection={"column"}
@@ -77,21 +92,6 @@ const ListWidgets = () => {
           onClick={canManagePages ? addButtonClickHandler : undefined}
         />
       )}
-      {widgets &&
-        widgets.children &&
-        widgets.children.length > 0 &&
-        canManagePages && (
-          <Flex flexDirection="column" padding="spaces-3">
-            <Button
-              kind={"secondary"}
-              onClick={addButtonClickHandler}
-              size={"sm"}
-              startIcon={"add-line"}
-            >
-              {createMessage(PAGES_PANE_TEXTS.widget_add_button)}
-            </Button>
-          </Flex>
-        )}
     </Flex>
   );
 };

@@ -14,6 +14,8 @@ import LayoutColumn from "layoutSystems/anvil/layoutComponents/components/Layout
 import LayoutRow from "layoutSystems/anvil/layoutComponents/components/LayoutRow";
 import WidgetColumn from "layoutSystems/anvil/layoutComponents/components/WidgetColumn";
 import WidgetRow from "layoutSystems/anvil/layoutComponents/components/WidgetRow";
+import Section from "layoutSystems/anvil/layoutComponents/components/section";
+import Zone from "layoutSystems/anvil/layoutComponents/components/zone";
 
 const layoutComponents = [
   AlignedLayoutColumn,
@@ -21,8 +23,10 @@ const layoutComponents = [
   AlignedWidgetRow,
   LayoutColumn,
   LayoutRow,
+  Section,
   WidgetColumn,
   WidgetRow,
+  Zone,
 ];
 
 export function registerLayoutComponents() {
