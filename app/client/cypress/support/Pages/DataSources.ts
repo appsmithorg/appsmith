@@ -454,8 +454,7 @@ export class DataSources {
         this.agHelper.GetNClick(this._addNewDatasourceFromBlankScreen, 0, true);
       }
     });
-    this.agHelper.Sleep();
-    cy.get(this._newDatabases).should("be.visible");
+    this.agHelper.AssertElementVisibility(this._newDatabases);
   }
 
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
