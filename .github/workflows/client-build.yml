@@ -221,9 +221,6 @@ jobs:
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
               echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
           fi
-          # Since this is an unreleased build, we set the version to incremented version number with
-          # a `-SNAPSHOT` suffix.
-                - name: Get the version to tag the Docker image
 
       - name: Get the version to tag the Docker image
         id: extract-build-version

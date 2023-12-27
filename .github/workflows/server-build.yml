@@ -17,11 +17,6 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
-      build-version:
-        description: "This is the semantic version to be used for the build."
-        required: false
-        default: "UNKNOWN"
-        type: string
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -150,10 +145,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-      # first 11 characters. This can be used to build images for several branches
-      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
-      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
       - name: Get the version to tag the Docker image
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
