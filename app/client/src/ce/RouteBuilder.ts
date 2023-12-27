@@ -190,6 +190,13 @@ export const jsCollectionListURL = (props: URLBuilderParams): string => {
   });
 };
 
+export const jsCollectionAddURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: "jsObjects/add",
+  });
+};
+
 export const queryListURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,

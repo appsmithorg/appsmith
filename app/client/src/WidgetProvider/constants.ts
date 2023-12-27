@@ -65,7 +65,9 @@ export interface SizeConfig {
 export interface AnvilConfig {
   isLargeWidget: boolean;
   // min/max sizes for the widget
-  widgetSize?: SizeConfig | ((props: any) => SizeConfig);
+  widgetSize?:
+    | SizeConfig
+    | ((props: any, isPreviewMode: boolean) => SizeConfig);
 }
 
 export interface WidgetBaseConfiguration {

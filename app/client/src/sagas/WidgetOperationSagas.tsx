@@ -186,6 +186,7 @@ import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
+import { saveAnvilLayout } from "layoutSystems/anvil/integrations/actions/saveLayoutActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1923,7 +1924,7 @@ function* pasteWidgetSaga(
       ),
       reflowedWidgets,
     );
-    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(saveAnvilLayout(updatedWidgets));
 
     const pageId: string = yield select(getCurrentPageId);
 
