@@ -35,7 +35,7 @@ describe("Export application as a JSON file", function () {
         // cy.log({ appid });
         cy.get(homePageLocators.searchInput).type("exportApp" + uid);
         cy.wait(5000);
-        cy.get(`[data-testid="${workspaceId}"]`).click({ force: true });
+        cy.get(`[data-testid="${"exportApp" + uid}"]`).click({ force: true });
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(2000);
 
