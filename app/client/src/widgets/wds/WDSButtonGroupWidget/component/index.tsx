@@ -44,14 +44,16 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
     const clickedItemIndex = sortedButtons.findIndex((item) => item.id === key);
 
     if (clickedItemIndex > -1) {
-      setLoadingButtonIds([
-        ...loadingButtonIds,
-        sortedButtons[clickedItemIndex].id,
-      ]);
+      if (props.buttonsList[clickedItemIndex].onClick) {
+        setLoadingButtonIds([
+          ...loadingButtonIds,
+          sortedButtons[clickedItemIndex].id,
+        ]);
 
-      props.onButtonClick(sortedButtons[clickedItemIndex].onClick, () =>
-        onActionComplete(sortedButtons[clickedItemIndex]),
-      );
+        props.onButtonClick(sortedButtons[clickedItemIndex].onClick, () =>
+          onActionComplete(sortedButtons[clickedItemIndex]),
+        );
+      }
     }
   };
 
