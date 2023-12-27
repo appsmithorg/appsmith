@@ -249,7 +249,7 @@ export const handlers = {
       currentApplication: {
         applicationDetail: {
           navigationSetting: defaultNavigationSetting,
-          themeSettings: defaultThemeSettings,
+          themeSetting: defaultThemeSettings,
         },
         ...action.payload,
       },
@@ -721,7 +721,7 @@ export const handlers = {
         ...state.currentApplication,
         applicationDetail: {
           ...state.currentApplication?.applicationDetail,
-          themeSettings: {
+          themeSetting: {
             ...defaultThemeSettings,
             ...action.payload,
           },

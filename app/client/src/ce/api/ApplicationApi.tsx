@@ -119,7 +119,7 @@ export interface UpdateApplicationPayload {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
-    themeSettings?: ThemeSetting;
+    themeSetting?: ThemeSetting;
     appPositioning?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;

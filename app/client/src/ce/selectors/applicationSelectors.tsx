@@ -336,6 +336,6 @@ export const getAppThemeSettings = (state: AppState) => {
   return {
     ...defaultThemeSettings,
     ...state.ui.applications.currentApplication?.applicationDetail
-      ?.themeSettings,
+      ?.themeSetting,
   };
 };

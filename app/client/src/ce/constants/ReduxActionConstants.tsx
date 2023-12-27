@@ -1257,7 +1257,7 @@ export interface ApplicationPayload {
   applicationDetail?: {
     appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
-    themeSettings?: ThemeSetting;
+    themeSetting?: ThemeSetting;
   };
   collapseInvisibleWidgets?: boolean;
   evaluationVersion?: EvaluationVersion;
