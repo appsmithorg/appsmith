@@ -27,7 +27,7 @@ export enum EditorEntityTabState {
   Add = "Add",
 }
 
-export enum EditorMode {
+export enum EditorViewMode {
   FullScreen = "FullScreen",
   HalfScreen = "HalfScreen",
 }

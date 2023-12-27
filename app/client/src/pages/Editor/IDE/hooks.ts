@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-  EditorMode,
   EditorState,
 } from "entities/IDE/constants";
 import { useLocation } from "react-router";
@@ -20,17 +19,13 @@ export const useCurrentAppState = () => {
 };
 
 export const useCurrentEditorState = () => {
-  const [selectedSegment, setSelectedSegment] = useState<
-    EditorEntityTab | undefined
-  >(undefined);
+  const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
+    EditorEntityTab.UI,
+  );
   const [selectedSegmentState, setSelectedSegmentState] =
     useState<EditorEntityTabState>(EditorEntityTabState.Edit);
 
   const location = useLocation();
-
-  const [editorMode, setEditorMode] = useState<EditorMode>(
-    EditorMode.FullScreen,
-  );
 
   /**
    * useEffect to identify the entity from the path
@@ -78,7 +73,5 @@ export const useCurrentEditorState = () => {
   return {
     segment: selectedSegment,
     segmentMode: selectedSegmentState,
-    editorMode,
-    setEditorMode,
   };
 };
