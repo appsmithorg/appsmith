@@ -6,3 +6,7 @@ export function getDropTargetLayoutId(state: AppState, canvasId: string) {
   const layout: LayoutProps[] = state.entities.canvasWidgets[canvasId].layout;
   return layout[0].layoutId;
 }
+
+export function getAnvilSpaceDistributionStatus(state: AppState) {
+  return state.ui.widgetDragResize.anvil.isDistributingSpace;
+}
