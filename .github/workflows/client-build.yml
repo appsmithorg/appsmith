@@ -228,12 +228,12 @@ jobs:
           info_json_path = "../../deploy/docker/fs/opt/appsmith/info.json"
           generate_info_json_path = "../../scripts/generate_info_json.sh"
 
-          if [[ -f $info_json_path ]]; then
+          if [[ -f "$info_json_path" ]]; then
             echo "info.json already exists. Skipping generation."
-          elif [[ -f $generate_info_json_path ]]; then
-            $generate_info_json_path
+          elif [[ -f "$generate_info_json_path" ]]; then
+            "$generate_info_json_path"
           fi
-          echo version=$(jq -r .version $info_json_path) >> $GITHUB_OUTPUT
+          echo version=$(jq -r .version "$info_json_path") >> $GITHUB_OUTPUT
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
