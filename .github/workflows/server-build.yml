@@ -149,7 +149,6 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
         run: |
-          find ../.. -ls | grep generate_info_json.sh
           if [[ -f ../../deploy/docker/fs/opt/appsmith/info.json ]]; then
             echo "info.json already exists. Skipping generation."
           else
@@ -158,8 +157,7 @@ jobs:
               ../../scripts/generate_info_json.sh
             fi
           fi
-          ls -l
-          echo "::set-output name=version::$(jq -r .version /opt/appsmith/info.json)"
+          echo "::set-output name=version::$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json)"
 
       # Build the code
       - name: Build

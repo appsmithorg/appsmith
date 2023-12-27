@@ -225,15 +225,15 @@ jobs:
       - name: Get the version to tag the Docker image
         id: extract-build-version
         run: |
-          if [[ -f /opt/appsmith/info.json ]]; then
+          if [[ -f ../../deploy/docker/fs/opt/appsmith/info.json ]]; then
             echo "info.json already exists. Skipping generation."
           else
             echo "info.json does not exist. Generating..."
-            if [[ -f scripts/generate_info_json.sh ]]; then
-              scripts/generate_info_json.sh
+            if [[ -f ../../scripts/generate_info_json.sh ]]; then
+              ../../scripts/generate_info_json.sh
             fi
           fi
-          echo "::set-output name=version::$(jq -r .version /opt/appsmith/info.json)"
+          echo "::set-output name=version::$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json)"
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
