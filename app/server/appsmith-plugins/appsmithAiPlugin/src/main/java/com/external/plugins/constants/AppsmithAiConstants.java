@@ -45,6 +45,8 @@ public class AppsmithAiConstants {
     public static final String TEXT_TYPE = "text";
     public static final String IMAGE_TYPE = "image_url";
     public static final String CONTENT = "content";
+    public static final String INSTRUCTIONS = "instructions";
+    public static final String IMAGE_FORMAT = "imageFormat";
 
     // Other constants
     public static final String BODY = "body";

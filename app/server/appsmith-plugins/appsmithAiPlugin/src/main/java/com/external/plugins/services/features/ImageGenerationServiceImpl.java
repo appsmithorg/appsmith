@@ -8,6 +8,7 @@ import com.external.plugins.utils.RequestUtils;
 
 import java.util.Map;
 
+import static com.external.plugins.constants.AppsmithAiConstants.IMAGE_FORMAT;
 import static com.external.plugins.constants.AppsmithAiConstants.INPUT;
 import static com.external.plugins.utils.FieldValidationHelper.validateTextInput;
 
@@ -17,8 +18,11 @@ public class ImageGenerationServiceImpl implements AiFeatureService {
         Map<String, Object> formData = actionConfiguration.getFormData();
         validateTextInput(formData);
         String input = RequestUtils.extractDataFromFormData(formData, INPUT);
+        String imageFormat = RequestUtils.extractDataFromFormData(formData, IMAGE_FORMAT);
         Query query = new Query();
         query.setInput(input);
+        query.setImageFormat(imageFormat);
+
         return query;
     }
 }

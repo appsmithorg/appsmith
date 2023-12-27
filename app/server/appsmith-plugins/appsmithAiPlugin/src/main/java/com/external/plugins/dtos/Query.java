@@ -9,4 +9,6 @@ public class Query {
     String input;
     List<String> labels;
     String id;
+    String instructions;
+    String imageFormat;
 }

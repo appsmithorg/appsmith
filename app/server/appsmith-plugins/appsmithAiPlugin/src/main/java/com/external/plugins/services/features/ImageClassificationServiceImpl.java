@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.external.plugins.constants.AppsmithAiConstants.INPUT;
+import static com.external.plugins.constants.AppsmithAiConstants.INSTRUCTIONS;
 import static com.external.plugins.constants.AppsmithAiConstants.LABELS;
 import static com.external.plugins.utils.FieldValidationHelper.validateTextInputAndProperties;
 
@@ -22,12 +23,14 @@ public class ImageClassificationServiceImpl implements AiFeatureService {
         validateTextInputAndProperties(formData, List.of(LABELS));
         String input = RequestUtils.extractDataFromFormData(formData, INPUT);
         String labels = RequestUtils.extractDataFromFormData(formData, LABELS);
+        String instructions = RequestUtils.extractDataFromFormData(formData, INSTRUCTIONS);
         // labels string is comma-separated list of labels
         List<String> labelsList =
                 Arrays.stream(labels.split(",")).map(String::trim).toList();
         TextClassificationQuery query = new TextClassificationQuery();
         query.setInput(input);
         query.setLabels(labelsList);
+        query.setInstructions(instructions);
         return query;
     }
 }

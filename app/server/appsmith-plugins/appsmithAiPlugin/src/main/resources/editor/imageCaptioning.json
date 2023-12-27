@@ -7,11 +7,15 @@
     "children": [
         {
             "label": "Input",
-            "Description": "Provide an image URL",
-            "subtitle": "Provide an image URL",
+            "Description": "Provide an image URL or the base64 encoded image",
+            "subtitle": "Provide an image URL or the base64 encoded image",
             "configProperty": "actionConfiguration.formData.input.data",
-            "controlType": "QUERY_DYNAMIC_TEXT",
-            "isRequired": true
+            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+            "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+            "isRequired": true,
+            "customStyles": {
+                "width": "700px"
+            }
         }
     ]
 }

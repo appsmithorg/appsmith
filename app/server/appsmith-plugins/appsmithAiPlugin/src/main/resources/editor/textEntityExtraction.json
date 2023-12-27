@@ -21,7 +21,10 @@
       "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
       "configProperty": "actionConfiguration.formData.labels.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "isRequired": true
+      "isRequired": true,
+      "customStyles": {
+        "width": "872px"
+      }
     }
   ]
 }
