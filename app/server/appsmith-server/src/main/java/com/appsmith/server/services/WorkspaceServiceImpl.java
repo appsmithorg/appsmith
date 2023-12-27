@@ -81,7 +81,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     @Override
     public Mono<Workspace> retrieveById(String workspaceId) {
-        return repository.retrieveById(workspaceId);
+        return repository.findById(workspaceId);
     }
 
     @Override

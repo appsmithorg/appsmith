@@ -289,7 +289,7 @@ public class SeedMongoData {
                                    is no logged in user. Hence, we use retrieveById which simply queries the DB to fetch
                                    non-deleted object with the given ID parameter.
                                 */
-                                return permissionGroupRepository.retrieveById(defaultPermissionGroup);
+                                return permissionGroupRepository.findById(defaultPermissionGroup);
                             })
                             .flatMap(defaultPermissionGroup -> {
                                 Set<String> userIds =

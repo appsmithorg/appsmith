@@ -696,7 +696,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
             Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
-                    .retrieveById(targetWorkspaceId)
+                    .findById(targetWorkspaceId)
                     .flatMap(workspaceRepository::setUserPermissionsInObject));
 
             Mono<Set<String>> permissionGroupIdsMono =
