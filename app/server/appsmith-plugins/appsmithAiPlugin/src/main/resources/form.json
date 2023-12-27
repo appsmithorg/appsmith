@@ -12,8 +12,16 @@
           "hidden": false
         },
         {
+          "label": "",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "controlType": "FILE_PICKER",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "files"
+        },
+        {
           "label": "Files to upload",
-          "configProperty": "datasourceConfiguration.properties.files",
+          "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "FILE_PICKER",
           "isRequired": false
         },

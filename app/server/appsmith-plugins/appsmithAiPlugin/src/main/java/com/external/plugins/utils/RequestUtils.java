@@ -2,13 +2,11 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.ActionConfiguration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -22,7 +20,6 @@ import java.util.Map;
 import static com.external.plugins.constants.AppsmithAiConstants.AI_SERVER_HOST;
 import static com.external.plugins.constants.AppsmithAiConstants.CHAT;
 import static com.external.plugins.constants.AppsmithAiConstants.CHAT_ENDPOINT;
-import static com.external.plugins.constants.AppsmithAiConstants.COMMAND;
 import static com.external.plugins.constants.AppsmithAiConstants.DATA;
 import static com.external.plugins.constants.AppsmithAiConstants.EMBEDDINGS;
 import static com.external.plugins.constants.AppsmithAiConstants.EMBEDDINGS_ENDPOINT;
@@ -45,18 +42,12 @@ public class RequestUtils {
         return (String) formData.get(key);
     }
 
-    public static URI createUri(ActionConfiguration actionConfiguration) {
-        Map<String, Object> formData = actionConfiguration.getFormData();
-        if (CollectionUtils.isEmpty(formData)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
-        }
-
-        String command = extractDataFromFormData(formData, COMMAND);
-        return createUriFromCommand(command);
-    }
-
     public static URI createQueryUri() {
         return URI.create(AI_SERVER_HOST + QUERY_PATH);
+    }
+
+    public static URI createUploadURI() {
+        return URI.create(AI_SERVER_HOST + "/assistant/upload");
     }
 
     public static URI createUriFromCommand(String command) {

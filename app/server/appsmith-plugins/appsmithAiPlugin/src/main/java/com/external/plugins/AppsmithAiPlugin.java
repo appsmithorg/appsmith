@@ -12,7 +12,10 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
@@ -24,6 +27,7 @@ import com.external.plugins.services.AiFeatureServiceFactory;
 import com.external.plugins.services.AiServerService;
 import com.external.plugins.services.AiServerServiceImpl;
 import com.external.plugins.utils.RequestUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
@@ -69,6 +73,19 @@ public class AppsmithAiPlugin extends BasePlugin {
             apiKeyAuth.setValue("test-key");
             return ApiKeyAuthentication.create(apiKeyAuth)
                     .flatMap(apiKeyAuthentication -> Mono.just((APIConnection) apiKeyAuthentication));
+        }
+
+        @Override
+        public Mono<DatasourceStorage> postUpdateHook(DatasourceStorage datasourceStorage) {
+            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+            List<Property> properties = datasourceConfiguration.getProperties();
+            ArrayList<String> files = new ArrayList<String>();
+            ObjectMapper objectMapper = new ObjectMapper();
+            UploadedFile file = objectMapper.convertValue(properties.get(0).getValue(), UploadedFile.class);
+            files.add(file.getBase64Content());
+            return aiServerService
+                    .createDatasource(datasourceStorage.getId(), files)
+                    .then(Mono.just(datasourceStorage));
         }
 
         @Override

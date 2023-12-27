@@ -61,6 +61,7 @@
     "imageGeneration.json",
     "imageClassification.json",
     "imageCaptioning.json",
-    "imageEntityExtraction.json"
+    "imageEntityExtraction.json",
+    "knowledgeRetrieval.json"
   ]
 }

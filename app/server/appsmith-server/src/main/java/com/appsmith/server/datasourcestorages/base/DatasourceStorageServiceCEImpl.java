@@ -59,6 +59,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     public Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage) {
         return this.checkDuplicateDatasourceStorage(datasourceStorage)
                 .then(this.validateAndSaveDatasourceStorageToRepository(datasourceStorage))
+                .flatMap(this::executePostSaveActions)
                 .flatMap(this::populateHintMessages) // For REST API datasource create flow.
                 .flatMap(savedDatasourceStorage -> analyticsService.sendCreateEvent(
                         savedDatasourceStorage, getAnalyticsProperties(savedDatasourceStorage)));
@@ -144,6 +145,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     return dbStorage;
                 })
                 .flatMap(this::validateAndSaveDatasourceStorageToRepository)
+                .flatMap(this::executePostSaveActions)
                 .flatMap(savedDatasourceStorage -> {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasourceStorage);
                     Boolean isUserInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
@@ -152,6 +154,18 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     return analyticsService.sendUpdateEvent(savedDatasourceStorage, analyticsProperties);
                 })
                 .flatMap(this::populateHintMessages);
+    }
+
+    public Mono<DatasourceStorage> executePostSaveActions(DatasourceStorage datasourceStorage) {
+        Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
+                .getPluginExecutor(pluginMono)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
+
+        return pluginExecutorMono.flatMap(pluginExecutor -> {
+            return pluginExecutor.postUpdateHook(datasourceStorage);
+        });
     }
 
     @Override
