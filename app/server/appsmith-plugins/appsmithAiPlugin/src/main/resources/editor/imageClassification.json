@@ -15,7 +15,7 @@
       "isRequired": true
     },
     {
-      "label": "Entities",
+      "label": "Labels",
       "Description": "Provide labels as comma-separated string input for classification",
       "subtitle": "Provide a comma separated list of labels to classify the Input on",
       "configProperty": "actionConfiguration.formData.labels.data",

@@ -37,7 +37,7 @@
               "value": "IMAGE_CLASSIFY"
             },
             {
-              "label": "Caption Image",
+              "label": "Describe Image",
               "value": "IMAGE_CAPTION"
             },
             {
