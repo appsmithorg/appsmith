@@ -1,4 +1,4 @@
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import {
   type ReduxAction,
@@ -12,6 +12,10 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { anvilWidgets } from "widgets/anvil/constants";
+import {
+  updateSectionWithDefaultSpaceDistribution,
+  updateSectionsDistributedSpace,
+} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
 
 function* updateAndSaveAnvilLayoutSaga(
   action: ReduxAction<{
@@ -63,6 +67,12 @@ function* updateAndSaveAnvilLayoutSaga(
           );
         }
       } else if (each.zoneCount !== each.children?.length) {
+        // update the section with the new space distribution
+        updatedWidgets = yield call(
+          updateSectionsDistributedSpace,
+          updatedWidgets,
+          each,
+        );
         /**
          * If section's zone count doesn't match it's child count,
          * => update the zone count.
@@ -70,10 +80,17 @@ function* updateAndSaveAnvilLayoutSaga(
         updatedWidgets = {
           ...updatedWidgets,
           [each.widgetId]: {
-            ...each,
+            ...updatedWidgets[each.widgetId],
             zoneCount: each.children?.length,
           },
         };
+      } else if (!each.spaceDistributed) {
+        // update the section with the default space distribution
+        updatedWidgets = yield call(
+          updateSectionWithDefaultSpaceDistribution,
+          updatedWidgets,
+          each,
+        );
       }
     }
 
