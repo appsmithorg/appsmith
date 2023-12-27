@@ -4,43 +4,51 @@ import {
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
 
-let workspaceId: string;
+let sourceWorkspaceId: string;
+let targetWorkspaceId: string;
 
 describe(
   "Fork application with multiple datasources",
   { tags: ["@tag.Fork"] },
   function () {
-    before("Creating all Datasources", () => {
-      // Create Mongo DS and respective query
-      dataSources.CreateDataSource("Mongo");
-      dataSources.CreateQueryAfterDSSaved();
-      // Create PostgreSQL DS and respective query
-      dataSources.CreateDataSource("Postgres");
-      dataSources.CreateQueryAfterDSSaved();
-      // Create Mysql DS and respective query
-      dataSources.CreateDataSource("MySql");
-      dataSources.CreateQueryAfterDSSaved();
-      // Create S3 DS
-      dataSources.CreateDataSource("S3");
-      dataSources.CreateQueryAfterDSSaved();
-      dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
-      agHelper.EnterValue("assets-test.appsmith.com", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Bucket name",
-      });
-    });
-
     it("1. Bug Id: 24708  - fork and test the forked application", function () {
       // Create a new workspace and fork application
+      homePage.NavigateToHome();
+      agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        sourceWorkspaceId = "source-" + uid;
+        homePage.CreateNewWorkspace(sourceWorkspaceId, true);
+        agHelper.PressEscape();
+        homePage.CreateAppInWorkspace(sourceWorkspaceId)
+        // Create Mongo DS and respective query
+        dataSources.CreateDataSource("Mongo");
+        dataSources.CreateQueryAfterDSSaved();
+        // Create PostgreSQL DS and respective query
+        dataSources.CreateDataSource("Postgres");
+        dataSources.CreateQueryAfterDSSaved();
+        // Create Mysql DS and respective query
+        dataSources.CreateDataSource("MySql");
+        dataSources.CreateQueryAfterDSSaved();
+        // Create S3 DS
+        dataSources.CreateDataSource("S3");
+        dataSources.CreateQueryAfterDSSaved();
+        dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+        agHelper.EnterValue("assets-test.appsmith.com", {
+          propFieldName: "",
+          directInput: false,
+          inputFieldName: "Bucket name",
+        });
+      });
+      homePage.NavigateToHome();
       const appname: string = localStorage.getItem("appName") || "randomApp";
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        workspaceId = "forkApp" + uid;
-        homePage.CreateNewWorkspace(workspaceId, true);
+        targetWorkspaceId = "forkApp" + uid;
+        homePage.CreateNewWorkspace(targetWorkspaceId, true);
         agHelper.PressEscape();
-        cy.log("------------------" + workspaceId);
-        homePage.ForkApplication(appname, workspaceId);
+        homePage.SelectWorkspace(sourceWorkspaceId);
+        cy.reload();
+        homePage.ForkApplication(appname, targetWorkspaceId);
       });
       // In the forked application, reconnect all datasources
       dataSources.ReconnectDSbyType("MongoDBUri");
