@@ -41,6 +41,7 @@ export enum FocusEntity {
   WIDGET_LIST = "WIDGET_LIST",
   EDITOR = "EDITOR",
   QUERY_ADD = "QUERY_ADD",
+  DATASOURCE_CREATE = "DATASOURCE_CREATE",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
@@ -160,7 +161,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   }
   if (match.params.selectedTab) {
     return {
-      entity: FocusEntity.DATASOURCE,
+      entity: FocusEntity.DATASOURCE_CREATE,
       id: match.params.selectedTab,
       pageId: match.params.pageId,
       appState: EditorState.DATA,

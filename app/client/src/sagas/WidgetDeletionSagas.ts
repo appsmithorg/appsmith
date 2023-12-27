@@ -2,7 +2,6 @@ import type {
   MultipleWidgetDeletePayload,
   WidgetDelete,
 } from "actions/pageActions";
-import { updateAndSaveLayout } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type {
@@ -55,6 +54,9 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { saveAnvilLayout } from "layoutSystems/anvil/integrations/actions/saveLayoutActions";
+import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import { widgetURL } from "@appsmith/RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -93,6 +95,7 @@ function* deleteTabChildSaga(
       },
       {},
     );
+    const widgetType: string = allWidgets[widgetId].type;
     const updatedDslObj: UpdatedDSLPostDelete = yield call(
       getUpdatedDslAfterDeletingWidget,
       widgetId,
@@ -129,9 +132,10 @@ function* deleteTabChildSaga(
           finalData,
           tabWidget.parentId,
           widgetId,
+          widgetType,
         );
       }
-      yield put(updateAndSaveLayout(finalData));
+      yield put(saveAnvilLayout(finalData));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -271,9 +275,10 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             finalData,
             parentId,
             widgetId,
+            widget.type,
           );
         }
-        yield put(updateAndSaveLayout(finalData));
+        yield put(saveAnvilLayout(finalData));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
 
         const currentApplication: ApplicationPayload = yield select(
@@ -288,6 +293,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           widgetType: widget.type,
           templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
+        const currentUrl = window.location.pathname;
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
@@ -296,6 +302,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
+        yield put(removeFocusHistoryRequest(currentUrl));
       }
     }
   } catch (error) {
@@ -372,6 +379,7 @@ function* deleteAllSelectedWidgetsSaga(
             finalData,
             parentId,
             widgetId,
+            widgets[widgetId].type,
           );
         }
       }
@@ -396,7 +404,7 @@ function* deleteAllSelectedWidgetsSaga(
     //   );
     // }
 
-    yield put(updateAndSaveLayout(finalData));
+    yield put(saveAnvilLayout(finalData));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));
@@ -422,6 +430,11 @@ function* deleteAllSelectedWidgetsSaga(
           });
         });
       }
+    }
+    for (const widget of selectedWidgets) {
+      yield put(
+        removeFocusHistoryRequest(widgetURL({ selectedWidgets: [widget] })),
+      );
     }
   } catch (error) {
     yield put({

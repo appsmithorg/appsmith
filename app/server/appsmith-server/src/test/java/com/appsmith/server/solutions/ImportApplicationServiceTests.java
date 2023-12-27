@@ -314,9 +314,6 @@ public class ImportApplicationServiceTests {
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
         isSetupDone = true;
-
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
-                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
     }
 
     private Flux<ActionDTO> getActionsInApplication(Application application) {
@@ -405,7 +402,6 @@ public class ImportApplicationServiceTests {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication).isNotNull();
                     // Assert that the exported application is NOT public
-                    assertThat(exportedApplication.getDefaultPermissionGroup()).isNull();
                     assertThat(exportedApplication.getPolicies()).isNullOrEmpty();
                 })
                 .verifyComplete();
@@ -3710,6 +3706,8 @@ public class ImportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");

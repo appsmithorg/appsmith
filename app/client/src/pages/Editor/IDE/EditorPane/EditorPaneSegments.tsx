@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Flex, SegmentedControl } from "design-system";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { Switch, useLocation, useRouteMatch } from "react-router";
+import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
 import { QueriesSection } from "./QueriesSection";
 import {
@@ -20,8 +20,7 @@ import { JSSection } from "./JS_Section";
 import { WidgetsSection } from "./WidgetsSection";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import {
   jsCollectionListURL,
   queryListURL,
@@ -29,43 +28,12 @@ import {
 } from "@appsmith/RouteBuilder";
 import { EditorEntityTab } from "entities/IDE/constants";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
+import { useCurrentEditorState } from "../hooks";
 
 const EditorPaneSegments = () => {
-  const location = useLocation();
-  const [selected, setSelected] = useState<EditorEntityTab | undefined>(
-    undefined,
-  );
   const pageId = useSelector(getCurrentPageId);
   const { path } = useRouteMatch();
-
-  /**
-   * useEffect to identify the entity from the path
-   *
-   */
-  useEffect(() => {
-    const entity: FocusEntity = identifyEntityFromPath(
-      location.pathname,
-    ).entity;
-    switch (entity) {
-      case FocusEntity.QUERY:
-      case FocusEntity.QUERY_LIST:
-      case FocusEntity.QUERY_ADD:
-      case FocusEntity.API:
-        setSelected(EditorEntityTab.QUERIES);
-        break;
-      case FocusEntity.JS_OBJECT:
-      case FocusEntity.JS_OBJECT_LIST:
-        setSelected(EditorEntityTab.JS);
-        break;
-      case FocusEntity.CANVAS:
-      case FocusEntity.NONE:
-      case FocusEntity.PROPERTY_PANE:
-      case FocusEntity.WIDGET_LIST:
-        setSelected(EditorEntityTab.UI);
-        break;
-    }
-  }, [location.pathname]);
-
+  const { segment } = useCurrentEditorState();
   /**
    * Callback to handle the segment change
    *
@@ -76,18 +44,24 @@ const EditorPaneSegments = () => {
   const onSegmentChange = (value: string) => {
     switch (value) {
       case EditorEntityTab.QUERIES:
-        history.push(queryListURL({ pageId }));
+        history.push(queryListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
         break;
       case EditorEntityTab.JS:
-        history.push(jsCollectionListURL({ pageId }));
+        history.push(jsCollectionListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
         break;
       case EditorEntityTab.UI:
-        history.push(widgetListURL({ pageId }));
+        history.push(widgetListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
         break;
     }
   };
   return (
-    <Flex flexDirection="column" gap="spacing-2" height={"calc(100vh - 225px)"}>
+    <Flex flexDirection="column" gap="spacing-2" overflow="hidden">
       <Flex
         alignItems="center"
         className="ide-pages-pane__header"
@@ -111,7 +85,7 @@ const EditorPaneSegments = () => {
               value: EditorEntityTab.UI,
             },
           ]}
-          value={selected}
+          value={segment}
         />
       </Flex>
       <EntityProperties />

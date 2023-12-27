@@ -17,9 +17,10 @@ import {
   selectQueriesForPagespane,
 } from "@appsmith/selectors/entitiesSelector";
 import { ADD_PATH } from "constants/routes";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "./EmptyState";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -39,12 +40,23 @@ const ListQuery = () => {
   }, [pageId]);
 
   return (
-    <Flex flexDirection="column" overflow="hidden">
+    <Flex flex="1" flexDirection="column" overflow="hidden">
+      {Object.keys(files).length > 0 && canCreateActions && (
+        <Flex flexDirection={"column"} padding="spaces-3">
+          <Button
+            kind={"secondary"}
+            onClick={addButtonClickHandler}
+            size={"sm"}
+            startIcon={"add-line"}
+          >
+            {createMessage(PAGES_PANE_TEXTS.query_add_button)}
+          </Button>
+        </Flex>
+      )}
       <Flex
-        flex="1"
         flexDirection={"column"}
         gap="spaces-3"
-        overflow="scroll"
+        overflowY="auto"
         padding="spaces-3"
       >
         {Object.keys(files).map((key) => {
@@ -62,7 +74,7 @@ const ListQuery = () => {
                 canCreateActions={canCreateActions}
                 editorId={applicationId}
                 parentEntityId={pageId}
-                parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+                parentEntityType={ActionParentEntityType.PAGE}
               >
                 {files[key].map((file: any) => {
                   return (
@@ -71,7 +83,7 @@ const ListQuery = () => {
                       isActive={file.id === activeActionId}
                       key={file.id}
                       parentEntityId={pageId}
-                      parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+                      parentEntityType={ActionParentEntityType.PAGE}
                       searchKeyword={""}
                       step={1}
                       type={file.type}
@@ -85,26 +97,14 @@ const ListQuery = () => {
       </Flex>
 
       {Object.keys(files).length === 0 && (
-        <Flex px="spaces-3">
-          <Text
-            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-            kind="heading-xs"
-          >
-            No queries to display
-          </Text>
-        </Flex>
-      )}
-      {canCreateActions && (
-        <Flex flexDirection="column" padding="spaces-3">
-          <Button
-            kind={"secondary"}
-            onClick={addButtonClickHandler}
-            size={"sm"}
-            startIcon={"add-line"}
-          >
-            {createMessage(PAGES_PANE_TEXTS.query_add_button)}
-          </Button>
-        </Flex>
+        <EmptyState
+          buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
+          description={createMessage(
+            PAGES_PANE_TEXTS.query_blank_state_description,
+          )}
+          icon={"queries-v3"}
+          onClick={canCreateActions ? addButtonClickHandler : undefined}
+        />
       )}
     </Flex>
   );

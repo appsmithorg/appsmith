@@ -14,9 +14,13 @@ import {
 } from "navigation/FocusEntity";
 import type { Config } from "navigation/FocusElements";
 import { ConfigType, FocusElementsConfig } from "navigation/FocusElements";
-import { storeFocusHistory } from "actions/focusHistoryActions";
+import {
+  removeFocusHistory,
+  storeFocusHistory,
+} from "actions/focusHistoryActions";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
@@ -219,10 +223,15 @@ function* getEntitiesForStore(previousPath: string) {
     });
   }
 
-  entities.push({
-    entityInfo: prevFocusEntityInfo,
-    key: `${previousPath}#${branch}`,
-  });
+  // Do not store focus of parents based on url change
+  if (
+    !Object.values(FocusStoreHierarchy).includes(prevFocusEntityInfo.entity)
+  ) {
+    entities.push({
+      entityInfo: prevFocusEntityInfo,
+      key: `${previousPath}#${branch}`,
+    });
+  }
 
   return entities.filter(
     (entity) => entity.entityInfo.entity !== FocusEntity.NONE,
@@ -278,5 +287,23 @@ function* setState(config: Config, value: unknown): unknown {
     yield put(config.setter(value));
   } else if (config.type === ConfigType.URL) {
     config.setter(value);
+  }
+}
+
+export function* handleRemoveFocusHistory(
+  action: ReduxAction<{ url: string }>,
+) {
+  const { url } = action.payload;
+  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const removeKeys: string[] = [];
+  const entity = identifyEntityFromPath(url);
+  removeKeys.push(`${url}#${branch}`);
+  const parentElement = FocusStoreHierarchy[entity.entity];
+  if (parentElement) {
+    const parentPath = getEntityParentUrl(entity, parentElement);
+    removeKeys.push(`${parentPath}#${branch}`);
+  }
+  for (const key of removeKeys) {
+    yield put(removeFocusHistory(key));
   }
 }
