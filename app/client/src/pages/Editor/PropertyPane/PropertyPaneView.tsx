@@ -1,6 +1,11 @@
 import type { ReactElement } from "react";
-import { useContext } from "react";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
@@ -9,7 +14,7 @@ import type { IPanelProps } from "@blueprintjs/core";
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -21,7 +26,7 @@ import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
 import WidgetFactory from "WidgetProvider/factory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import { useSearchText, renderWidgetCallouts } from "./helpers";
+import { renderWidgetCallouts, useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
@@ -40,6 +45,8 @@ import {
 } from "@appsmith/constants/messages";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -58,6 +65,7 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET_V2",
   "TABLE_WIDGET_V2",
   "BUTTON_WIDGET_V2",
+  "JSON_FORM_WIDGET",
 ];
 
 function PropertyPaneView(
@@ -83,6 +91,7 @@ function PropertyPaneView(
   const { searchText, setSearchText } = useSearchText("");
   const { pushFeature } = useContext(WalkthroughContext) || {};
   const widgets = useSelector(getWidgets);
+  const { selectWidget } = useWidgetSelection();
 
   const showWalkthroughIfWidgetIdSet = async () => {
     const widgetId: string | null = await localStorage.getItem(
@@ -129,7 +138,12 @@ function PropertyPaneView(
             `#${CSS.escape(widgetId)}`,
             `#${PROPERTY_PANE_ID}`,
           ],
-          delay: 5000,
+          delay: 2500,
+          runBeforeWalkthrough: () => {
+            try {
+              selectWidget(SelectionRequestType.One, [widgetId]);
+            } catch {}
+          },
         });
       }
     } else {
@@ -237,6 +251,7 @@ function PropertyPaneView(
   const isContentConfigAvailable =
     WidgetFactory.getWidgetPropertyPaneContentConfig(
       widgetProperties.type,
+      widgetProperties,
     ).length;
 
   const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
@@ -288,6 +303,7 @@ function PropertyPaneView(
               <PropertyControlsGenerator
                 config={WidgetFactory.getWidgetPropertyPaneSearchConfig(
                   widgetProperties.type,
+                  widgetProperties,
                 )}
                 id={widgetProperties.widgetId}
                 panel={panel}
@@ -302,6 +318,7 @@ function PropertyPaneView(
                     <PropertyControlsGenerator
                       config={WidgetFactory.getWidgetPropertyPaneContentConfig(
                         widgetProperties.type,
+                        widgetProperties,
                       )}
                       id={widgetProperties.widgetId}
                       panel={panel}
@@ -330,6 +347,7 @@ function PropertyPaneView(
           <PropertyControlsGenerator
             config={WidgetFactory.getWidgetPropertyPaneConfig(
               widgetProperties.type,
+              widgetProperties,
             )}
             id={widgetProperties.widgetId}
             panel={panel}

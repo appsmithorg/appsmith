@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -36,7 +37,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -75,6 +76,10 @@ public class UserDataServiceTest {
     private GitService gitService;
 
     private Mono<User> userMono;
+
+    private static final int MAX_RECENT_WORKSPACES_LIMIT = 10;
+
+    private static final int MAX_RECENT_APPLICATIONS_LIMIT = 20;
 
     @BeforeEach
     public void setup() {
@@ -239,6 +244,7 @@ public class UserDataServiceTest {
                 .flatMap(userData -> {
                     // set recently used org ids to null
                     userData.setRecentlyUsedWorkspaceIds(null);
+                    userData.setRecentlyUsedEntityIds(null);
                     return userDataRepository.save(userData);
                 })
                 .then(userDataService.updateLastUsedAppAndWorkspaceList(application));
@@ -249,6 +255,10 @@ public class UserDataServiceTest {
                     assertEquals(
                             sampleWorkspaceId,
                             userData.getRecentlyUsedWorkspaceIds().get(0));
+
+                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(1);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
+                            .isEqualTo(sampleWorkspaceId);
                 })
                 .verifyComplete();
     }
@@ -260,7 +270,15 @@ public class UserDataServiceTest {
                 .getForCurrentUser()
                 .flatMap(userData -> {
                     // Set an initial list of org ids to the current user.
-                    userData.setRecentlyUsedWorkspaceIds(Arrays.asList("123", "456"));
+                    List<String> recentlyUsedWorkspaceIds = List.of("123", "456");
+                    userData.setRecentlyUsedWorkspaceIds(recentlyUsedWorkspaceIds);
+                    List<RecentlyUsedEntityDTO> recentlyUsedEntityIds = new ArrayList<>();
+                    recentlyUsedWorkspaceIds.forEach(workspaceId -> {
+                        RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
+                        recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
+                        recentlyUsedEntityIds.add(recentlyUsedEntityDTO);
+                    });
+                    userData.setRecentlyUsedEntityIds(recentlyUsedEntityIds);
                     return userDataRepository.save(userData);
                 })
                 .flatMap(userData -> {
@@ -268,6 +286,7 @@ public class UserDataServiceTest {
                     String sampleWorkspaceId = "sample-org-id";
                     Application application = new Application();
                     application.setWorkspaceId(sampleWorkspaceId);
+                    application.setId("sample-app-id");
                     return userDataService.updateLastUsedAppAndWorkspaceList(application);
                 });
 
@@ -277,6 +296,15 @@ public class UserDataServiceTest {
                     assertEquals(
                             "sample-org-id",
                             userData.getRecentlyUsedWorkspaceIds().get(0));
+
+                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(3);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
+                            .isEqualTo("sample-org-id");
+                    assertThat(userData.getRecentlyUsedEntityIds()
+                                    .get(0)
+                                    .getApplicationIds()
+                                    .get(0))
+                            .isEqualTo("sample-app-id");
                 })
                 .verifyComplete();
     }
@@ -290,16 +318,24 @@ public class UserDataServiceTest {
                 .getForCurrentUser()
                 .flatMap(userData -> {
                     // Set an initial list of 12 org ids to the current user
-                    userData.setRecentlyUsedWorkspaceIds(new ArrayList<>());
+                    List<String> workspaceIds = new ArrayList<>();
+                    List<RecentlyUsedEntityDTO> recentlyUsedEntityIds = new ArrayList<>();
                     for (int i = 1; i <= 12; i++) {
-                        userData.getRecentlyUsedWorkspaceIds().add("org-" + i);
+                        workspaceIds.add("org-" + i);
+                        RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
+                        recentlyUsedEntityDTO.setWorkspaceId("org-" + i);
+                        recentlyUsedEntityIds.add(recentlyUsedEntityDTO);
                     }
+                    userData.setRecentlyUsedWorkspaceIds(workspaceIds);
+                    userData.setRecentlyUsedEntityIds(recentlyUsedEntityIds);
 
                     // Set an initial list of 22 app ids to the current user.
-                    userData.setRecentlyUsedAppIds(new ArrayList<>());
+                    List<String> applicationIds = new ArrayList<>();
                     for (int i = 1; i <= 22; i++) {
-                        userData.getRecentlyUsedAppIds().add("app-" + i);
+                        applicationIds.add("app-" + i);
                     }
+                    userData.setRecentlyUsedAppIds(applicationIds);
+                    recentlyUsedEntityIds.get(0).setApplicationIds(applicationIds);
                     return userDataRepository.save(userData);
                 })
                 .flatMap(userData -> {
@@ -308,94 +344,71 @@ public class UserDataServiceTest {
                     application.setId(sampleAppId);
                     application.setWorkspaceId(sampleWorkspaceId);
                     return userDataService.updateLastUsedAppAndWorkspaceList(application);
-                });
+                })
+                .cache();
 
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
-                    // org id list should be truncated to 10
-                    assertThat(userData.getRecentlyUsedWorkspaceIds().size()).isEqualTo(10);
+                    assertThat(userData.getRecentlyUsedWorkspaceIds().size()).isEqualTo(MAX_RECENT_WORKSPACES_LIMIT);
                     assertThat(userData.getRecentlyUsedWorkspaceIds().get(0)).isEqualTo(sampleWorkspaceId);
                     assertThat(userData.getRecentlyUsedWorkspaceIds().get(9)).isEqualTo("org-9");
 
-                    // app id list should be truncated to 20
-                    assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(20);
+                    assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(MAX_RECENT_APPLICATIONS_LIMIT);
                     assertThat(userData.getRecentlyUsedAppIds().get(0)).isEqualTo(sampleAppId);
                     assertThat(userData.getRecentlyUsedAppIds().get(19)).isEqualTo("app-19");
+
+                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(MAX_RECENT_WORKSPACES_LIMIT);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
+                            .isEqualTo(sampleWorkspaceId);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(9).getWorkspaceId())
+                            .isEqualTo("org-9");
+                    assertThat(userData.getRecentlyUsedEntityIds()
+                                    .get(0)
+                                    .getApplicationIds()
+                                    .get(0))
+                            .isEqualTo(sampleAppId);
+                    assertThat(userData.getRecentlyUsedEntityIds()
+                                    .get(0)
+                                    .getApplicationIds()
+                                    .size())
+                            .isEqualTo(1);
+                    // Truncation will be applied only after the specific entry for recently used entities goes through
+                    // the workflow
+                    assertThat(userData.getRecentlyUsedEntityIds().get(1).getWorkspaceId())
+                            .isEqualTo("org-1");
+                    assertThat(userData.getRecentlyUsedEntityIds()
+                                    .get(1)
+                                    .getApplicationIds()
+                                    .size())
+                            .isEqualTo(22);
                 })
                 .verifyComplete();
-    }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void addTemplateIdToLastUsedList_WhenListIsEmpty_templateIdPrepended() {
-        final Mono<UserData> saveMono = userDataService
-                .getForCurrentUser()
-                .flatMap(userData -> {
-                    // set recently used template ids to null
-                    userData.setRecentlyUsedTemplateIds(null);
-                    return userDataRepository.save(userData);
-                })
-                .then(userDataService.addTemplateIdToLastUsedList("123456"));
+        // 1. Test the re-ordering of existing workspaces and apps
+        // 2. Check if the application list truncation is working correctly for applications that are already present in
+        // the list
+        final Mono<UserData> updateRecentlyUsedEntitiesMono = resultMono.flatMap(userData -> {
+            Application application = new Application();
+            application.setId(sampleAppId);
+            application.setWorkspaceId("org-1");
+            return userDataService.updateLastUsedAppAndWorkspaceList(application);
+        });
 
-        StepVerifier.create(saveMono)
+        StepVerifier.create(updateRecentlyUsedEntitiesMono)
                 .assertNext(userData -> {
-                    assertEquals(1, userData.getRecentlyUsedTemplateIds().size());
-                    assertEquals("123456", userData.getRecentlyUsedTemplateIds().get(0));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void addTemplateIdToLastUsedList_WhenListIsNotEmpty_templateIdPrepended() {
-        final Mono<UserData> resultMono = userDataService
-                .getForCurrentUser()
-                .flatMap(userData -> {
-                    // Set an initial list of template ids to the current user.
-                    userData.setRecentlyUsedTemplateIds(Arrays.asList("123", "456"));
-                    return userDataRepository.save(userData);
-                })
-                .flatMap(userData -> {
-                    // Now check whether a new template id is put at first.
-                    String newTemplateId = "456";
-                    return userDataService.addTemplateIdToLastUsedList(newTemplateId);
-                });
-
-        StepVerifier.create(resultMono)
-                .assertNext(userData -> {
-                    assertEquals(2, userData.getRecentlyUsedTemplateIds().size());
-                    assertEquals("456", userData.getRecentlyUsedTemplateIds().get(0));
-                    assertEquals("123", userData.getRecentlyUsedTemplateIds().get(1));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void addTemplateIdToLastUsedList_TooManyRecentIds_ListsAreTruncated() {
-        String newTemplateId = "new-template-id";
-
-        final Mono<UserData> resultMono = userDataService
-                .getForCurrentUser()
-                .flatMap(userData -> {
-                    // Set an initial list of 12 template ids to the current user
-                    userData.setRecentlyUsedTemplateIds(new ArrayList<>());
-                    for (int i = 1; i <= 12; i++) {
-                        userData.getRecentlyUsedTemplateIds().add("template-" + i);
-                    }
-                    return userDataRepository.save(userData);
-                })
-                .flatMap(userData -> {
-                    // Now check whether a new template id is put at first.
-                    return userDataService.addTemplateIdToLastUsedList(newTemplateId);
-                });
-
-        StepVerifier.create(resultMono)
-                .assertNext(userData -> {
-                    // org id list should be truncated to 10
-                    assertThat(userData.getRecentlyUsedTemplateIds().size()).isEqualTo(5);
-                    assertThat(userData.getRecentlyUsedTemplateIds().get(0)).isEqualTo(newTemplateId);
-                    assertThat(userData.getRecentlyUsedTemplateIds().get(4)).isEqualTo("template-4");
+                    // Check whether a new org id is put at first.
+                    assertThat(userData.getRecentlyUsedEntityIds()
+                                    .get(0)
+                                    .getApplicationIds()
+                                    .size())
+                            .isEqualTo(MAX_RECENT_APPLICATIONS_LIMIT);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
+                            .isEqualTo("org-1");
+                    assertThat(userData.getRecentlyUsedEntityIds()
+                                    .get(0)
+                                    .getApplicationIds()
+                                    .get(0))
+                            .isEqualTo(sampleAppId);
                 })
                 .verifyComplete();
     }

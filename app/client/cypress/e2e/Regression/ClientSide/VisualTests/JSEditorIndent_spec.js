@@ -1,16 +1,22 @@
 import {
   agHelper,
   debuggerHelper,
-  entityExplorer,
   homePage,
   jsEditor,
   apiPage,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
-describe("JSEditor Indendation - Visual tests", () => {
+describe("JSEditor Indendation - Visual tests", { tags: ["@tag.JS"] }, () => {
   it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
-    const appname = localStorage.getItem("AppName");
+    const appName = localStorage.getItem("appName");
+    const workspaceName = localStorage.getItem("workspaceName");
+
     jsEditor.CreateJSObject(
       `export default {
 myFun1: () => {
@@ -61,9 +67,10 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
     homePage.NavigateToHome();
-    homePage.ForkApplication(appname);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    homePage.FilterApplication(workspaceName);
+    homePage.ForkApplication(appName);
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
 
@@ -118,9 +125,9 @@ myFun2: async () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
-    entityExplorer.ClonePage("Page1");
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    PageList.ClonePage("Page1");
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.Sleep(3000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
   });
@@ -357,7 +364,7 @@ myFun2: async () => {
         {
           "title": this.params.title,
               "due": this.params.due,
-                  assignee: this.params.assignee 
+                  assignee: this.params.assignee
                   }
       }}`,
     );

@@ -18,7 +18,7 @@ import {
   EntityClassNames,
   entityTooltipCSS,
 } from "pages/Editor/Explorer/Entity";
-import { useCloseMenuOnScroll } from "./hooks";
+import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 
 export type TreeDropdownOption = DropdownOption & {
@@ -32,7 +32,7 @@ export type TreeDropdownOption = DropdownOption & {
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 
-type TreeDropdownProps = {
+interface TreeDropdownProps {
   optionTree: TreeDropdownOption[];
   selectedValue: string;
   getDefaults?: (value: any) => any;
@@ -52,7 +52,7 @@ type TreeDropdownProps = {
   icon?: React.ReactNode;
   editorPage?: boolean;
   menuWidth?: number;
-};
+}
 
 export const StyledPopover = styled(Popover)<{
   children?: React.ReactNode;

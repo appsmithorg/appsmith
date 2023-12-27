@@ -151,7 +151,7 @@ function PageTabContainer({
   return <div ref={tabContainerRef}>{children}</div>;
 }
 
-type Props = {
+interface Props {
   tabs: Array<{
     id: string;
     label: string;
@@ -165,7 +165,7 @@ type Props = {
   selectedTabWidgetId: string;
   backgroundColor?: string;
   accentColor?: string;
-};
+}
 
 export function PageTabs(props: Props) {
   const { tabChange, tabs } = props;

@@ -5,6 +5,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.CrudService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,7 +45,12 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> archiveById(String s);
 
-    Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace);
-
     Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission);
+
+    Flux<Workspace> filterByEntityFields(
+            List<String> searchableEntityFields,
+            String searchString,
+            Pageable pageable,
+            Sort sort,
+            AclPermission permission);
 }

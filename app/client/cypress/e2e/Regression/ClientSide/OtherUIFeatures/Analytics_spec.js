@@ -1,9 +1,8 @@
-let appId;
 import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Checks for analytics for enableTelemtry",
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     before(() => {
       homePage.NavigateToHome();
@@ -40,11 +39,7 @@ describe(
         req.continue();
       });
       cy.get(".t--new-button").should("be.visible");
-      cy.generateUUID().then((id) => {
-        appId = id;
-        cy.CreateAppInFirstListedWorkspace(id);
-        localStorage.setItem("AppName", appId);
-      });
+      homePage.CreateNewApplication();
       cy.wait(3000);
       cy.window().then(() => {
         cy.wrap(interceptFlag).should("eq", false);
@@ -63,11 +58,8 @@ describe(
         interceptFlag = true;
         req.continue();
       });
-      cy.generateUUID().then((id) => {
-        appId = id;
-        cy.CreateAppInFirstListedWorkspace(id);
-        localStorage.setItem("AppName", appId);
-      });
+
+      homePage.CreateNewApplication();
       cy.wait(3000);
       cy.window().then(() => {
         cy.wrap(interceptFlag).should("eq", false);
@@ -86,11 +78,7 @@ describe(
         interceptFlag = true;
         req.continue();
       });
-      cy.generateUUID().then((id) => {
-        appId = id;
-        cy.CreateAppInFirstListedWorkspace(id);
-        localStorage.setItem("AppName", appId);
-      });
+      homePage.CreateNewApplication();
       cy.wait(3000);
       cy.window().then(() => {
         cy.wrap(interceptFlag).should("eq", false);

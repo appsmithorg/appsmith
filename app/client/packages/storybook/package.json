@@ -5,6 +5,7 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
+    "lint": "yarn g:lint",
     "storybook": "storybook dev -p 6006",
     "build": "storybook build",
     "chromatic": "CHROMATIC=1 storybook dev -p 6006"
@@ -29,15 +30,13 @@
     "chromatic": "^6.20.0",
     "postcss": "*",
     "postcss-at-rules-variables": "*",
-    "postcss-conditionals": "*",
     "postcss-each": "*",
-    "postcss-for": "*",
     "postcss-import": "*",
     "postcss-loader": "*",
     "postcss-modules-values": "*",
     "react-docgen-typescript": "^2.2.2",
     "storybook": "^7.3.1",
-    "vite": "^4.4.9",
+    "vite": "^4.4.12",
     "vite-plugin-svgr": "^3.2.0"
   },
   "dependencies": {

@@ -168,7 +168,7 @@ export const updateColumnStyles = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const { primaryColumns, derivedColumns = {} } = props;
+  const { derivedColumns = {}, primaryColumns } = props;
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: any;

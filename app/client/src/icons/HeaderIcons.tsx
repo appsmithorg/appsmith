@@ -5,19 +5,19 @@ import { IconWrapper } from "constants/IconConstants";
 import { importRemixIcon } from "design-system-old";
 
 const ShareIcon = importRemixIcon(
-  () => import("remixicon-react/ShareBoxFillIcon"),
+  async () => import("remixicon-react/ShareBoxFillIcon"),
 );
 const DeployIcon = importRemixIcon(
-  () => import("remixicon-react/Rocket2FillIcon"),
+  async () => import("remixicon-react/Rocket2FillIcon"),
 );
 const FeedbackIcon = importRemixIcon(
-  () => import("remixicon-react/FeedbackFillIcon"),
+  async () => import("remixicon-react/FeedbackFillIcon"),
 );
 const SaveFailureIcon = importRemixIcon(
-  () => import("remixicon-react/ErrorWarningFillIcon"),
+  async () => import("remixicon-react/ErrorWarningFillIcon"),
 );
 const SaveSuccessIcon = importRemixIcon(
-  () => import("remixicon-react/CheckboxCircleFillIcon"),
+  async () => import("remixicon-react/CheckboxCircleFillIcon"),
 );
 /* eslint-disable react/display-name */
 

@@ -8,530 +8,600 @@ import Spinner from "../Spinner";
 import { ControlIcons } from "../ControlIcons";
 import { importRemixIcon, importSvg } from "../utils/icon-loadables";
 const ClearInterval = importSvg(
-  () => import("../assets/icons/action/clearInterval.svg"),
+  async () => import("../assets/icons/action/clearInterval.svg"),
 );
 const ClearStore = importSvg(
-  () => import("../assets/icons/action/clearStore.svg"),
+  async () => import("../assets/icons/action/clearStore.svg"),
 );
 const CopyToClipboard = importSvg(
-  () => import("../assets/icons/action/copyToClipboard.svg"),
+  async () => import("../assets/icons/action/copyToClipboard.svg"),
 );
 const DownloadAction = importSvg(
-  () => import("../assets/icons/action/download.svg"),
+  async () => import("../assets/icons/action/download.svg"),
 );
 const ExecuteJs = importSvg(
-  () => import("../assets/icons/action/executeJs.svg"),
+  async () => import("../assets/icons/action/executeJs.svg"),
 );
 const ExecuteQuery = importSvg(
-  () => import("../assets/icons/action/executeQuery.svg"),
+  async () => import("../assets/icons/action/executeQuery.svg"),
 );
 const GetGeolocation = importSvg(
-  () => import("../assets/icons/action/getGeolocation.svg"),
+  async () => import("../assets/icons/action/getGeolocation.svg"),
 );
-const Modal = importSvg(() => import("../assets/icons/action/modal.svg"));
+const Modal = importSvg(async () => import("../assets/icons/action/modal.svg"));
 const NavigateTo = importSvg(
-  () => import("../assets/icons/action/navigateTo.svg"),
+  async () => import("../assets/icons/action/navigateTo.svg"),
 );
 const RemoveStore = importSvg(
-  () => import("../assets/icons/action/removeStore.svg"),
+  async () => import("../assets/icons/action/removeStore.svg"),
 );
 const ResetWidget = importSvg(
-  () => import("../assets/icons/action/resetWidget.svg"),
+  async () => import("../assets/icons/action/resetWidget.svg"),
 );
 const SetInterval = importSvg(
-  () => import("../assets/icons/action/setInterval.svg"),
+  async () => import("../assets/icons/action/setInterval.svg"),
 );
 const ShowAlert = importSvg(
-  () => import("../assets/icons/action/showAlert.svg"),
+  async () => import("../assets/icons/action/showAlert.svg"),
 );
 const StopWatchGeolocation = importSvg(
-  () => import("../assets/icons/action/stopWatchGeolocation.svg"),
+  async () => import("../assets/icons/action/stopWatchGeolocation.svg"),
 );
 const StoreValue = importSvg(
-  () => import("../assets/icons/action/storeValue.svg"),
+  async () => import("../assets/icons/action/storeValue.svg"),
 );
 const WatchGeolocation = importSvg(
-  () => import("../assets/icons/action/watchGeolocation.svg"),
+  async () => import("../assets/icons/action/watchGeolocation.svg"),
 );
-const RunAPI = importSvg(() => import("../assets/icons/action/runApi.svg"));
+const RunAPI = importSvg(
+  async () => import("../assets/icons/action/runApi.svg"),
+);
 const PostMessage = importSvg(
-  () => import("../assets/icons/action/postMessage.svg"),
+  async () => import("../assets/icons/action/postMessage.svg"),
 );
-const NoAction = importSvg(() => import("../assets/icons/action/noAction.svg"));
+const NoAction = importSvg(
+  async () => import("../assets/icons/action/noAction.svg"),
+);
 const BookLineIcon = importSvg(
-  () => import("../assets/icons/ads/book-open-line.svg"),
+  async () => import("../assets/icons/ads/book-open-line.svg"),
 );
-const BugIcon = importSvg(() => import("../assets/icons/ads/bug.svg"));
-const CancelIcon = importSvg(() => import("../assets/icons/ads/cancel.svg"));
-const CrossIcon = importSvg(() => import("../assets/icons/ads/cross.svg"));
-const Fork2Icon = importSvg(() => import("../assets/icons/ads/fork-2.svg"));
-const OpenIcon = importSvg(() => import("../assets/icons/ads/open.svg"));
-const UserIcon = importSvg(() => import("../assets/icons/ads/user.svg"));
-const GeneralIcon = importSvg(() => import("../assets/icons/ads/general.svg"));
-const BillingIcon = importSvg(() => import("../assets/icons/ads/billing.svg"));
-const ErrorIcon = importSvg(() => import("../assets/icons/ads/error.svg"));
-const ShineIcon = importSvg(() => import("../assets/icons/ads/shine.svg"));
-const SuccessIcon = importSvg(() => import("../assets/icons/ads/success.svg"));
-const CloseIcon = importSvg(() => import("../assets/icons/ads/close.svg"));
+const BugIcon = importSvg(async () => import("../assets/icons/ads/bug.svg"));
+const CancelIcon = importSvg(
+  async () => import("../assets/icons/ads/cancel.svg"),
+);
+const CrossIcon = importSvg(
+  async () => import("../assets/icons/ads/cross.svg"),
+);
+const Fork2Icon = importSvg(
+  async () => import("../assets/icons/ads/fork-2.svg"),
+);
+const OpenIcon = importSvg(async () => import("../assets/icons/ads/open.svg"));
+const UserIcon = importSvg(async () => import("../assets/icons/ads/user.svg"));
+const GeneralIcon = importSvg(
+  async () => import("../assets/icons/ads/general.svg"),
+);
+const BillingIcon = importSvg(
+  async () => import("../assets/icons/ads/billing.svg"),
+);
+const ErrorIcon = importSvg(
+  async () => import("../assets/icons/ads/error.svg"),
+);
+const ShineIcon = importSvg(
+  async () => import("../assets/icons/ads/shine.svg"),
+);
+const SuccessIcon = importSvg(
+  async () => import("../assets/icons/ads/success.svg"),
+);
+const CloseIcon = importSvg(
+  async () => import("../assets/icons/ads/close.svg"),
+);
 const WarningTriangleIcon = importSvg(
-  () => import("../assets/icons/ads/warning-triangle.svg"),
+  async () => import("../assets/icons/ads/warning-triangle.svg"),
 );
-const ShareIcon2 = importSvg(() => import("../assets/icons/ads/share-2.svg"));
+const ShareIcon2 = importSvg(
+  async () => import("../assets/icons/ads/share-2.svg"),
+);
 const InviteUserIcon = importSvg(
-  () => import("../assets/icons/ads/invite-users.svg"),
+  async () => import("../assets/icons/ads/invite-users.svg"),
 );
-const ManageIcon = importSvg(() => import("../assets/icons/ads/manage.svg"));
-const ArrowLeft = importSvg(() => import("../assets/icons/ads/arrow-left.svg"));
+const ManageIcon = importSvg(
+  async () => import("../assets/icons/ads/manage.svg"),
+);
+const ArrowLeft = importSvg(
+  async () => import("../assets/icons/ads/arrow-left.svg"),
+);
 const ChevronLeft = importSvg(
-  () => import("../assets/icons/ads/chevron_left.svg"),
+  async () => import("../assets/icons/ads/chevron_left.svg"),
 );
-const LinkIcon = importSvg(() => import("../assets/icons/ads/link.svg"));
+const LinkIcon = importSvg(async () => import("../assets/icons/ads/link.svg"));
 const NoResponseIcon = importSvg(
-  () => import("../assets/icons/ads/no-response.svg"),
+  async () => import("../assets/icons/ads/no-response.svg"),
 );
 const LightningIcon = importSvg(
-  () => import("../assets/icons/ads/lightning.svg"),
+  async () => import("../assets/icons/ads/lightning.svg"),
 );
 const TrendingFlat = importSvg(
-  () => import("../assets/icons/ads/trending-flat.svg"),
+  async () => import("../assets/icons/ads/trending-flat.svg"),
 );
-const PlayIcon = importSvg(() => import("../assets/icons/ads/play.svg"));
-const DesktopIcon = importSvg(() => import("../assets/icons/ads/desktop.svg"));
-const WandIcon = importSvg(() => import("../assets/icons/ads/wand.svg"));
-const MobileIcon = importSvg(() => import("../assets/icons/ads/mobile.svg"));
-const TabletIcon = importSvg(() => import("../assets/icons/ads/tablet.svg"));
+const PlayIcon = importSvg(async () => import("../assets/icons/ads/play.svg"));
+const DesktopIcon = importSvg(
+  async () => import("../assets/icons/ads/desktop.svg"),
+);
+const WandIcon = importSvg(async () => import("../assets/icons/ads/wand.svg"));
+const MobileIcon = importSvg(
+  async () => import("../assets/icons/ads/mobile.svg"),
+);
+const TabletIcon = importSvg(
+  async () => import("../assets/icons/ads/tablet.svg"),
+);
 const TabletLandscapeIcon = importSvg(
-  () => import("../assets/icons/ads/tablet-landscape.svg"),
+  async () => import("../assets/icons/ads/tablet-landscape.svg"),
 );
-const FluidIcon = importSvg(() => import("../assets/icons/ads/fluid.svg"));
+const FluidIcon = importSvg(
+  async () => import("../assets/icons/ads/fluid.svg"),
+);
 const CardContextMenu = importSvg(
-  () => import("../assets/icons/ads/card-context-menu.svg"),
+  async () => import("../assets/icons/ads/card-context-menu.svg"),
 );
 const SendButton = importSvg(
-  () => import("../assets/icons/comments/send-button.svg"),
+  async () => import("../assets/icons/comments/send-button.svg"),
 );
-const Pin = importSvg(() => import("../assets/icons/comments/pin.svg"));
-const TrashOutline = importSvg(() => import("../assets/icons/form/trash.svg"));
+const Pin = importSvg(async () => import("../assets/icons/comments/pin.svg"));
+const TrashOutline = importSvg(
+  async () => import("../assets/icons/form/trash.svg"),
+);
 const ReadPin = importSvg(
-  () => import("../assets/icons/comments/read-pin.svg"),
+  async () => import("../assets/icons/comments/read-pin.svg"),
 );
 const UnreadPin = importSvg(
-  () => import("../assets/icons/comments/unread-pin.svg"),
+  async () => import("../assets/icons/comments/unread-pin.svg"),
 );
-const Chat = importSvg(() => import("../assets/icons/comments/chat.svg"));
-const Unpin = importSvg(() => import("../assets/icons/comments/unpinIcon.svg"));
+const Chat = importSvg(async () => import("../assets/icons/comments/chat.svg"));
+const Unpin = importSvg(
+  async () => import("../assets/icons/comments/unpinIcon.svg"),
+);
 const Reaction = importSvg(
-  () => import("../assets/icons/comments/reaction.svg"),
+  async () => import("../assets/icons/comments/reaction.svg"),
 );
 const Reaction2 = importSvg(
-  () => import("../assets/icons/comments/reaction-2.svg"),
+  async () => import("../assets/icons/comments/reaction-2.svg"),
 );
-const Upload = importSvg(() => import("../assets/icons/ads/upload.svg"));
+const Upload = importSvg(async () => import("../assets/icons/ads/upload.svg"));
 const ArrowForwardIcon = importSvg(
-  () => import("../assets/icons/control/arrow_forward.svg"),
+  async () => import("../assets/icons/control/arrow_forward.svg"),
 );
 const DoubleArrowRightIcon = importSvg(
-  () => import("../assets/icons/ads/double-arrow-right.svg"),
+  async () => import("../assets/icons/ads/double-arrow-right.svg"),
 );
 const CapSolidIcon = importSvg(
-  () => import("../assets/icons/control/cap_solid.svg"),
+  async () => import("../assets/icons/control/cap_solid.svg"),
 );
 const CapDotIcon = importSvg(
-  () => import("../assets/icons/control/cap_dot.svg"),
+  async () => import("../assets/icons/control/cap_dot.svg"),
 );
 const LineDottedIcon = importSvg(
-  () => import("../assets/icons/control/line_dotted.svg"),
+  async () => import("../assets/icons/control/line_dotted.svg"),
 );
 const LineDashedIcon = importSvg(
-  () => import("../assets/icons/control/line_dashed.svg"),
+  async () => import("../assets/icons/control/line_dashed.svg"),
 );
-const TableIcon = importSvg(() => import("../assets/icons/ads/tables.svg"));
-const ColumnIcon = importSvg(() => import("../assets/icons/ads/column.svg"));
-const GearIcon = importSvg(() => import("../assets/icons/ads/gear.svg"));
-const UserV2Icon = importSvg(() => import("../assets/icons/ads/user-v2.svg"));
-const SupportIcon = importSvg(() => import("../assets/icons/ads/support.svg"));
-const Snippet = importSvg(() => import("../assets/icons/ads/snippet.svg"));
+const TableIcon = importSvg(
+  async () => import("../assets/icons/ads/tables.svg"),
+);
+const ColumnIcon = importSvg(
+  async () => import("../assets/icons/ads/column.svg"),
+);
+const GearIcon = importSvg(async () => import("../assets/icons/ads/gear.svg"));
+const UserV2Icon = importSvg(
+  async () => import("../assets/icons/ads/user-v2.svg"),
+);
+const SupportIcon = importSvg(
+  async () => import("../assets/icons/ads/support.svg"),
+);
+const Snippet = importSvg(
+  async () => import("../assets/icons/ads/snippet.svg"),
+);
 const WorkspaceIcon = importSvg(
-  () => import("../assets/icons/ads/workspaceIcon.svg"),
+  async () => import("../assets/icons/ads/workspaceIcon.svg"),
 );
 const SettingIcon = importSvg(
-  () => import("../assets/icons/control/settings.svg"),
+  async () => import("../assets/icons/control/settings.svg"),
 );
 const DropdownIcon = importSvg(
-  () => import("../assets/icons/ads/dropdown.svg"),
+  async () => import("../assets/icons/ads/dropdown.svg"),
 );
 const ChatIcon = importSvg(
-  () => import("../assets/icons/ads/app-icons/chat.svg"),
+  async () => import("../assets/icons/ads/app-icons/chat.svg"),
 );
-const JsIcon = importSvg(() => import("../assets/icons/ads/js.svg"));
-const ExecuteIcon = importSvg(() => import("../assets/icons/ads/execute.svg"));
-const PackageIcon = importSvg(() => import("../assets/icons/ads/package.svg"));
+const JsIcon = importSvg(async () => import("../assets/icons/ads/js.svg"));
+const ExecuteIcon = importSvg(
+  async () => import("../assets/icons/ads/execute.svg"),
+);
+const PackageIcon = importSvg(
+  async () => import("../assets/icons/ads/package.svg"),
+);
 
-const DevicesIcon = importSvg(() => import("../assets/icons/ads/devices.svg"));
-const GridIcon = importSvg(() => import("../assets/icons/ads/grid.svg"));
+const DevicesIcon = importSvg(
+  async () => import("../assets/icons/ads/devices.svg"),
+);
+const GridIcon = importSvg(async () => import("../assets/icons/ads/grid.svg"));
 const HistoryLineIcon = importSvg(
-  () => import("../assets/icons/ads/history-line.svg"),
+  async () => import("../assets/icons/ads/history-line.svg"),
 );
 const SuccessLineIcon = importSvg(
-  () => import("../assets/icons/ads/success-line.svg"),
+  async () => import("../assets/icons/ads/success-line.svg"),
 );
 const ErrorLineIcon = importSvg(
-  () => import("../assets/icons/ads/error-line.svg"),
+  async () => import("../assets/icons/ads/error-line.svg"),
 );
 
 // remix icons
 const AddMoreIcon = importRemixIcon(
-  () => import("remixicon-react/AddCircleLineIcon"),
+  async () => import("remixicon-react/AddCircleLineIcon"),
 );
 const AddMoreFillIcon = importRemixIcon(
-  () => import("remixicon-react/AddCircleFillIcon"),
+  async () => import("remixicon-react/AddCircleFillIcon"),
 );
 const ArrowLeftRightIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowLeftRightLineIcon"),
+  async () => import("remixicon-react/ArrowLeftRightLineIcon"),
 );
 const ArrowDownLineIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowDownLineIcon"),
+  async () => import("remixicon-react/ArrowDownLineIcon"),
 );
 const BookIcon = importRemixIcon(
-  () => import("remixicon-react/BookOpenLineIcon"),
+  async () => import("remixicon-react/BookOpenLineIcon"),
 );
 const BugLineIcon = importRemixIcon(
-  () => import("remixicon-react/BugLineIcon"),
+  async () => import("remixicon-react/BugLineIcon"),
 );
 const ChevronRight = importRemixIcon(
-  () => import("remixicon-react/ArrowRightSFillIcon"),
+  async () => import("remixicon-react/ArrowRightSFillIcon"),
 );
 const CheckLineIcon = importRemixIcon(
-  () => import("remixicon-react/CheckLineIcon"),
+  async () => import("remixicon-react/CheckLineIcon"),
 );
 const CloseLineIcon = importRemixIcon(
-  () => import("remixicon-react/CloseLineIcon"),
+  async () => import("remixicon-react/CloseLineIcon"),
 );
 const CloseCircleIcon = importRemixIcon(
-  () => import("remixicon-react/CloseCircleFillIcon"),
+  async () => import("remixicon-react/CloseCircleFillIcon"),
 );
 const CloseCircleLineIcon = importRemixIcon(
-  () => import("remixicon-react/CloseCircleLineIcon"),
+  async () => import("remixicon-react/CloseCircleLineIcon"),
 );
 const CloudOfflineIcon = importRemixIcon(
-  () => import("remixicon-react/CloudOffLineIcon"),
+  async () => import("remixicon-react/CloudOffLineIcon"),
 );
 const CommentContextMenu = importRemixIcon(
-  () => import("remixicon-react/More2FillIcon"),
+  async () => import("remixicon-react/More2FillIcon"),
 );
 const More2FillIcon = importRemixIcon(
-  () => import("remixicon-react/More2FillIcon"),
+  async () => import("remixicon-react/More2FillIcon"),
 );
 const CompassesLine = importRemixIcon(
-  () => import("remixicon-react/CompassesLineIcon"),
+  async () => import("remixicon-react/CompassesLineIcon"),
 );
 const ContextMenuIcon = importRemixIcon(
-  () => import("remixicon-react/MoreFillIcon"),
+  async () => import("remixicon-react/MoreFillIcon"),
 );
 const CreateNewIcon = importRemixIcon(
-  () => import("remixicon-react/AddLineIcon"),
+  async () => import("remixicon-react/AddLineIcon"),
 );
 const Database2Line = importRemixIcon(
-  () => import("remixicon-react/Database2LineIcon"),
+  async () => import("remixicon-react/Database2LineIcon"),
 );
 const DatasourceIcon = importRemixIcon(
-  () => import("remixicon-react/CloudFillIcon"),
+  async () => import("remixicon-react/CloudFillIcon"),
 );
 const DeleteBin7 = importRemixIcon(
-  () => import("remixicon-react/DeleteBin7LineIcon"),
+  async () => import("remixicon-react/DeleteBin7LineIcon"),
 );
 const DiscordIcon = importRemixIcon(
-  () => import("remixicon-react/DiscordLineIcon"),
+  async () => import("remixicon-react/DiscordLineIcon"),
 );
 const DownArrow = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSFillIcon"),
+  async () => import("remixicon-react/ArrowDownSFillIcon"),
 );
 const Download = importRemixIcon(
-  () => import("remixicon-react/DownloadCloud2LineIcon"),
+  async () => import("remixicon-react/DownloadCloud2LineIcon"),
 );
 const DuplicateIcon = importRemixIcon(
-  () => import("remixicon-react/FileCopyLineIcon"),
+  async () => import("remixicon-react/FileCopyLineIcon"),
 );
 const EditIcon = importRemixIcon(
-  () => import("remixicon-react/PencilFillIcon"),
+  async () => import("remixicon-react/PencilFillIcon"),
 );
 const EditLineIcon = importRemixIcon(
-  () => import("remixicon-react/EditLineIcon"),
+  async () => import("remixicon-react/EditLineIcon"),
 );
 const EditUnderlineIcon = importRemixIcon(
-  () => import("remixicon-react/EditLineIcon"),
+  async () => import("remixicon-react/EditLineIcon"),
 );
-const Emoji = importRemixIcon(() => import("remixicon-react/EmotionLineIcon"));
+const Emoji = importRemixIcon(
+  async () => import("remixicon-react/EmotionLineIcon"),
+);
 const ExpandMore = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSLineIcon"),
+  async () => import("remixicon-react/ArrowDownSLineIcon"),
 );
 const DownArrowIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSLineIcon"),
+  async () => import("remixicon-react/ArrowDownSLineIcon"),
 );
 const ExpandLess = importRemixIcon(
-  () => import("remixicon-react/ArrowUpSLineIcon"),
+  async () => import("remixicon-react/ArrowUpSLineIcon"),
 );
-const EyeOn = importRemixIcon(() => import("remixicon-react/EyeLineIcon"));
-const EyeOff = importRemixIcon(() => import("remixicon-react/EyeOffLineIcon"));
+const EyeOn = importRemixIcon(
+  async () => import("remixicon-react/EyeLineIcon"),
+);
+const EyeOff = importRemixIcon(
+  async () => import("remixicon-react/EyeOffLineIcon"),
+);
 const FileTransfer = importRemixIcon(
-  () => import("remixicon-react/FileTransferLineIcon"),
+  async () => import("remixicon-react/FileTransferLineIcon"),
 );
-const FileLine = importRemixIcon(() => import("remixicon-react/FileLineIcon"));
-const Filter = importRemixIcon(() => import("remixicon-react/Filter2FillIcon"));
+const FileLine = importRemixIcon(
+  async () => import("remixicon-react/FileLineIcon"),
+);
+const Filter = importRemixIcon(
+  async () => import("remixicon-react/Filter2FillIcon"),
+);
 const ForbidLineIcon = importRemixIcon(
-  () => import("remixicon-react/ForbidLineIcon"),
+  async () => import("remixicon-react/ForbidLineIcon"),
 );
 const GitMerge = importRemixIcon(
-  () => import("remixicon-react/GitMergeLineIcon"),
+  async () => import("remixicon-react/GitMergeLineIcon"),
 );
 const GitCommit = importRemixIcon(
-  () => import("remixicon-react/GitCommitLineIcon"),
+  async () => import("remixicon-react/GitCommitLineIcon"),
 );
 const GitPullRequst = importRemixIcon(
-  () => import("remixicon-react/GitPullRequestLineIcon"),
+  async () => import("remixicon-react/GitPullRequestLineIcon"),
 );
 const GlobalLineIcon = importRemixIcon(
-  () => import("remixicon-react/GlobalLineIcon"),
+  async () => import("remixicon-react/GlobalLineIcon"),
 );
 const GuideIcon = importRemixIcon(
-  () => import("remixicon-react/GuideFillIcon"),
+  async () => import("remixicon-react/GuideFillIcon"),
 );
 const HelpIcon = importRemixIcon(
-  () => import("remixicon-react/QuestionMarkIcon"),
+  async () => import("remixicon-react/QuestionMarkIcon"),
 );
 const LightbulbFlashLine = importRemixIcon(
-  () => import("remixicon-react/LightbulbFlashLineIcon"),
+  async () => import("remixicon-react/LightbulbFlashLineIcon"),
 );
 const LinksLineIcon = importRemixIcon(
-  () => import("remixicon-react/LinksLineIcon"),
+  async () => import("remixicon-react/LinksLineIcon"),
 );
 const InfoIcon = importRemixIcon(
-  () => import("remixicon-react/InformationLineIcon"),
+  async () => import("remixicon-react/InformationLineIcon"),
 );
-const KeyIcon = importRemixIcon(() => import("remixicon-react/Key2LineIcon"));
+const KeyIcon = importRemixIcon(
+  async () => import("remixicon-react/Key2LineIcon"),
+);
 const LeftArrowIcon2 = importRemixIcon(
-  () => import("remixicon-react/ArrowLeftSLineIcon"),
+  async () => import("remixicon-react/ArrowLeftSLineIcon"),
 );
-const Link2 = importRemixIcon(() => import("remixicon-react/LinkIcon"));
+const Link2 = importRemixIcon(async () => import("remixicon-react/LinkIcon"));
 const LeftArrowIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowLeftLineIcon"),
+  async () => import("remixicon-react/ArrowLeftLineIcon"),
 );
 const NewsPaperLine = importRemixIcon(
-  () => import("remixicon-react/NewspaperLineIcon"),
+  async () => import("remixicon-react/NewspaperLineIcon"),
 );
 const OvalCheck = importRemixIcon(
-  () => import("remixicon-react/CheckboxCircleLineIcon"),
+  async () => import("remixicon-react/CheckboxCircleLineIcon"),
 );
 const OvalCheckFill = importRemixIcon(
-  () => import("remixicon-react/CheckboxCircleFillIcon"),
+  async () => import("remixicon-react/CheckboxCircleFillIcon"),
 );
-const Pin3 = importRemixIcon(() => import("remixicon-react/Pushpin2FillIcon"));
+const Pin3 = importRemixIcon(
+  async () => import("remixicon-react/Pushpin2FillIcon"),
+);
 const PlayCircleLineIcon = importRemixIcon(
-  () => import("remixicon-react/PlayCircleLineIcon"),
+  async () => import("remixicon-react/PlayCircleLineIcon"),
 );
 const QueryIcon = importRemixIcon(
-  () => import("remixicon-react/CodeSSlashLineIcon"),
+  async () => import("remixicon-react/CodeSSlashLineIcon"),
 );
 const RemoveIcon = importRemixIcon(
-  () => import("remixicon-react/SubtractLineIcon"),
+  async () => import("remixicon-react/SubtractLineIcon"),
 );
 const RightArrowIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowRightLineIcon"),
+  async () => import("remixicon-react/ArrowRightLineIcon"),
 );
 const RightArrowIcon2 = importRemixIcon(
-  () => import("remixicon-react/ArrowRightSLineIcon"),
+  async () => import("remixicon-react/ArrowRightSLineIcon"),
 );
 const RocketIcon = importRemixIcon(
-  () => import("remixicon-react/RocketLineIcon"),
+  async () => import("remixicon-react/RocketLineIcon"),
 );
 const SearchIcon = importRemixIcon(
-  () => import("remixicon-react/SearchLineIcon"),
+  async () => import("remixicon-react/SearchLineIcon"),
 );
 const SortAscIcon = importRemixIcon(
-  () => import("remixicon-react/SortAscIcon"),
+  async () => import("remixicon-react/SortAscIcon"),
 );
 const SortDescIcon = importRemixIcon(
-  () => import("remixicon-react/SortDescIcon"),
+  async () => import("remixicon-react/SortDescIcon"),
 );
 const ShareBoxLineIcon = importRemixIcon(
-  () => import("remixicon-react/ShareBoxLineIcon"),
+  async () => import("remixicon-react/ShareBoxLineIcon"),
 );
 const ShareBoxFillIcon = importRemixIcon(
-  () => import("remixicon-react/ShareBoxFillIcon"),
+  async () => import("remixicon-react/ShareBoxFillIcon"),
 );
 const ShareForwardIcon = importRemixIcon(
-  () => import("remixicon-react/ShareForwardFillIcon"),
+  async () => import("remixicon-react/ShareForwardFillIcon"),
 );
 const Trash = importRemixIcon(
-  () => import("remixicon-react/DeleteBinLineIcon"),
+  async () => import("remixicon-react/DeleteBinLineIcon"),
 );
 const UpArrow = importRemixIcon(
-  () => import("remixicon-react/ArrowUpSFillIcon"),
+  async () => import("remixicon-react/ArrowUpSFillIcon"),
 );
 const WarningIcon = importRemixIcon(
-  () => import("remixicon-react/ErrorWarningFillIcon"),
+  async () => import("remixicon-react/ErrorWarningFillIcon"),
 );
 const WarningLineIcon = importRemixIcon(
-  () => import("remixicon-react/ErrorWarningLineIcon"),
+  async () => import("remixicon-react/ErrorWarningLineIcon"),
 );
 const LoginIcon = importRemixIcon(
-  () => import("remixicon-react/LoginBoxLineIcon"),
+  async () => import("remixicon-react/LoginBoxLineIcon"),
 );
 const LogoutIcon = importRemixIcon(
-  () => import("remixicon-react/LogoutBoxRLineIcon"),
+  async () => import("remixicon-react/LogoutBoxRLineIcon"),
 );
 const ShareLineIcon = importRemixIcon(
-  () => import("remixicon-react/ShareLineIcon"),
+  async () => import("remixicon-react/ShareLineIcon"),
 );
 const LoaderLineIcon = importRemixIcon(
-  () => import("remixicon-react/LoaderLineIcon"),
+  async () => import("remixicon-react/LoaderLineIcon"),
 );
 const WidgetIcon = importRemixIcon(
-  () => import("remixicon-react/FunctionLineIcon"),
+  async () => import("remixicon-react/FunctionLineIcon"),
 );
 const RefreshLineIcon = importRemixIcon(
-  () => import("remixicon-react/RefreshLineIcon"),
+  async () => import("remixicon-react/RefreshLineIcon"),
 );
 const GitBranchLineIcon = importRemixIcon(
-  () => import("remixicon-react/GitBranchLineIcon"),
+  async () => import("remixicon-react/GitBranchLineIcon"),
 );
 const EditBoxLineIcon = importRemixIcon(
-  () => import("remixicon-react/EditBoxLineIcon"),
+  async () => import("remixicon-react/EditBoxLineIcon"),
 );
 const StarLineIcon = importRemixIcon(
-  () => import("remixicon-react/StarLineIcon"),
+  async () => import("remixicon-react/StarLineIcon"),
 );
 const StarFillIcon = importRemixIcon(
-  () => import("remixicon-react/StarFillIcon"),
+  async () => import("remixicon-react/StarFillIcon"),
 );
 const Settings2LineIcon = importRemixIcon(
-  () => import("remixicon-react/Settings2LineIcon"),
+  async () => import("remixicon-react/Settings2LineIcon"),
 );
 const DownloadIcon = importRemixIcon(
-  () => import("remixicon-react/DownloadLineIcon"),
+  async () => import("remixicon-react/DownloadLineIcon"),
 );
 const UploadCloud2LineIcon = importRemixIcon(
-  () => import("remixicon-react/UploadCloud2LineIcon"),
+  async () => import("remixicon-react/UploadCloud2LineIcon"),
 );
 const DownloadLineIcon = importRemixIcon(
-  () => import("remixicon-react/DownloadLineIcon"),
+  async () => import("remixicon-react/DownloadLineIcon"),
 );
 const UploadLineIcon = importRemixIcon(
-  () => import("remixicon-react/UploadLineIcon"),
+  async () => import("remixicon-react/UploadLineIcon"),
 );
 const FileListLineIcon = importRemixIcon(
-  () => import("remixicon-react/FileListLineIcon"),
+  async () => import("remixicon-react/FileListLineIcon"),
 );
 const HamburgerIcon = importRemixIcon(
-  () => import("remixicon-react/MenuLineIcon"),
+  async () => import("remixicon-react/MenuLineIcon"),
 );
 const MagicLineIcon = importRemixIcon(
-  () => import("remixicon-react/MagicLineIcon"),
+  async () => import("remixicon-react/MagicLineIcon"),
 );
 const UserHeartLineIcon = importRemixIcon(
-  () => import("remixicon-react/UserHeartLineIcon"),
+  async () => import("remixicon-react/UserHeartLineIcon"),
 );
 const DvdLineIcon = importRemixIcon(
-  () => import("remixicon-react/DvdLineIcon"),
+  async () => import("remixicon-react/DvdLineIcon"),
 );
 const Group2LineIcon = importRemixIcon(
-  () => import("remixicon-react/Group2LineIcon"),
+  async () => import("remixicon-react/Group2LineIcon"),
 );
 const CodeViewIcon = importRemixIcon(
-  () => import("remixicon-react/CodeViewIcon"),
+  async () => import("remixicon-react/CodeViewIcon"),
 );
 const GroupLineIcon = importRemixIcon(
-  () => import("remixicon-react/GroupLineIcon"),
+  async () => import("remixicon-react/GroupLineIcon"),
 );
 const ArrowRightUpLineIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowRightUpLineIcon"),
+  async () => import("remixicon-react/ArrowRightUpLineIcon"),
 );
 const MailCheckLineIcon = importRemixIcon(
-  () => import("remixicon-react/MailCheckLineIcon"),
+  async () => import("remixicon-react/MailCheckLineIcon"),
 );
 const UserFollowLineIcon = importRemixIcon(
-  () => import("remixicon-react/UserFollowLineIcon"),
+  async () => import("remixicon-react/UserFollowLineIcon"),
 );
 const AddBoxLineIcon = importRemixIcon(
-  () => import("remixicon-react/AddBoxLineIcon"),
+  async () => import("remixicon-react/AddBoxLineIcon"),
 );
 const ArrowRightSFillIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowRightSFillIcon"),
+  async () => import("remixicon-react/ArrowRightSFillIcon"),
 );
 const ArrowDownSFillIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSFillIcon"),
+  async () => import("remixicon-react/ArrowDownSFillIcon"),
 );
 const MailLineIcon = importRemixIcon(
-  () => import("remixicon-react/MailLineIcon"),
+  async () => import("remixicon-react/MailLineIcon"),
 );
 const LockPasswordLineIcon = importRemixIcon(
-  () => import("remixicon-react/LockPasswordLineIcon"),
+  async () => import("remixicon-react/LockPasswordLineIcon"),
 );
 const Timer2LineIcon = importRemixIcon(
-  () => import("remixicon-react/Timer2LineIcon"),
+  async () => import("remixicon-react/Timer2LineIcon"),
 );
 const MapPin2LineIcon = importRemixIcon(
-  () => import("remixicon-react/MapPin2LineIcon"),
+  async () => import("remixicon-react/MapPin2LineIcon"),
 );
 const User3LineIcon = importRemixIcon(
-  () => import("remixicon-react/User3LineIcon"),
+  async () => import("remixicon-react/User3LineIcon"),
 );
 const User2LineIcon = importRemixIcon(
-  () => import("remixicon-react/User2LineIcon"),
+  async () => import("remixicon-react/User2LineIcon"),
 );
 const Key2LineIcon = importRemixIcon(
-  () => import("remixicon-react/Key2LineIcon"),
+  async () => import("remixicon-react/Key2LineIcon"),
 );
 const FileList2LineIcon = importRemixIcon(
-  () => import("remixicon-react/FileList2LineIcon"),
+  async () => import("remixicon-react/FileList2LineIcon"),
 );
 const Lock2LineIcon = importRemixIcon(
-  () => import("remixicon-react/Lock2LineIcon"),
+  async () => import("remixicon-react/Lock2LineIcon"),
 );
 const SearchEyeLineIcon = importRemixIcon(
-  () => import("remixicon-react/SearchEyeLineIcon"),
+  async () => import("remixicon-react/SearchEyeLineIcon"),
 );
 const AlertLineIcon = importRemixIcon(
-  () => import("remixicon-react/AlertLineIcon"),
+  async () => import("remixicon-react/AlertLineIcon"),
 );
 const SettingsLineIcon = importRemixIcon(
-  () => import("remixicon-react/SettingsLineIcon"),
+  async () => import("remixicon-react/SettingsLineIcon"),
 );
 const LockUnlockLineIcon = importRemixIcon(
-  () => import("remixicon-react/LockUnlockLineIcon"),
+  async () => import("remixicon-react/LockUnlockLineIcon"),
 );
 const PantoneLineIcon = importRemixIcon(
-  () => import("remixicon-react/PantoneLineIcon"),
+  async () => import("remixicon-react/PantoneLineIcon"),
 );
 const QuestionFillIcon = importRemixIcon(
-  () => import("remixicon-react/QuestionFillIcon"),
+  async () => import("remixicon-react/QuestionFillIcon"),
 );
 const QuestionLineIcon = importRemixIcon(
-  () => import("remixicon-react/QuestionLineIcon"),
+  async () => import("remixicon-react/QuestionLineIcon"),
 );
 const UserSharedLineIcon = importRemixIcon(
-  () => import("remixicon-react/UserSharedLineIcon"),
+  async () => import("remixicon-react/UserSharedLineIcon"),
 );
 const UserReceived2LineIcon = importRemixIcon(
-  () => import("remixicon-react/UserReceived2LineIcon"),
+  async () => import("remixicon-react/UserReceived2LineIcon"),
 );
 const UserAddLineIcon = importRemixIcon(
-  () => import("remixicon-react/UserAddLineIcon"),
+  async () => import("remixicon-react/UserAddLineIcon"),
 );
 const UserUnfollowLineIcon = importRemixIcon(
-  () => import("remixicon-react/UserUnfollowLineIcon"),
+  async () => import("remixicon-react/UserUnfollowLineIcon"),
 );
 const DeleteRowIcon = importRemixIcon(
-  () => import("remixicon-react/DeleteRowIcon"),
+  async () => import("remixicon-react/DeleteRowIcon"),
 );
 const ArrowUpLineIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowUpLineIcon"),
+  async () => import("remixicon-react/ArrowUpLineIcon"),
 );
 const MoneyDollarCircleLineIcon = importRemixIcon(
-  () => import("remixicon-react/MoneyDollarCircleLineIcon"),
+  async () => import("remixicon-react/MoneyDollarCircleLineIcon"),
 );
 const ExternalLinkLineIcon = importRemixIcon(
-  () => import("remixicon-react/ExternalLinkLineIcon"),
+  async () => import("remixicon-react/ExternalLinkLineIcon"),
 );
 
 export enum IconSize {
@@ -846,7 +916,7 @@ export const IconCollection = Object.keys(ICON_LOOKUP);
 
 export type IconName = (typeof IconCollection)[number];
 
-export type IconProps = {
+export interface IconProps {
   size?: IconSize;
   name?: IconName;
   invisible?: boolean;
@@ -860,7 +930,7 @@ export type IconProps = {
   disabled?: boolean;
   withWrapper?: boolean;
   wrapperColor?: string;
-};
+}
 
 const Icon = forwardRef(
   (

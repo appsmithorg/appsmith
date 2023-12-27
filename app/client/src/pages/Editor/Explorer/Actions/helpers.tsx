@@ -13,30 +13,30 @@ import type { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { groupBy } from "lodash";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   apiEditorIdURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
-export type ActionGroupConfig = {
+export interface ActionGroupConfig {
   groupName: string;
   types: PluginType[];
   icon: JSX.Element;
   key: string;
   getURL: (
-    pageId: string,
+    parentEntityId: string,
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
   getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
-};
+}
 
 // When we have new action plugins, we can just add it to this map
 // There should be no other place where we refer to the PluginType in entity explorer.
@@ -44,31 +44,38 @@ export type ActionGroupConfig = {
 export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
   {
     groupName: "Datasources",
-    types: [PluginType.API, PluginType.SAAS, PluginType.DB, PluginType.REMOTE],
+    types: [
+      PluginType.API,
+      PluginType.SAAS,
+      PluginType.DB,
+      PluginType.REMOTE,
+      PluginType.AI,
+    ],
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      pageId: string,
+      parentEntityId: string,
       id: string,
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
         return saasEditorApiIdURL({
-          pageId,
+          parentEntityId,
           pluginPackageName: plugin.packageName,
           apiId: id,
         });
       } else if (
         pluginType === PluginType.DB ||
-        pluginType === PluginType.REMOTE
+        pluginType === PluginType.REMOTE ||
+        pluginType === PluginType.AI
       ) {
         return queryEditorIdURL({
-          pageId,
+          parentEntityId,
           queryId: id,
         });
       } else {
-        return apiEditorIdURL({ pageId, apiId: id });
+        return apiEditorIdURL({ parentEntityId, apiId: id });
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
@@ -97,8 +104,9 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
 ];
 
 export const getActionConfig = (type: PluginType) =>
-  ACTION_PLUGIN_MAP.find((configByType: ActionGroupConfig | undefined) =>
-    configByType?.types.includes(type),
+  ACTION_PLUGIN_MAP.find(
+    (configByType: ActionGroupConfig | undefined) =>
+      configByType?.types.includes(type),
   );
 
 export const useNewActionName = () => {

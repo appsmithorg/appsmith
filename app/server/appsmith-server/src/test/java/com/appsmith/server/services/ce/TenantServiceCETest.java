@@ -13,6 +13,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,10 +69,13 @@ class TenantServiceCETest {
     @MockBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
+    TenantConfiguration originalTenantConfiguration;
+
     @BeforeEach
     public void setup() throws IOException {
         final Tenant tenant = tenantService.getDefaultTenant().block();
         assert tenant != null;
+        originalTenantConfiguration = tenant.getTenantConfiguration();
         mongoOperations.updateFirst(
                 Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
                 Update.update(fieldName(QTenant.tenant.tenantConfiguration), null),
@@ -83,6 +87,15 @@ class TenantServiceCETest {
                 .findByEmail("api_user")
                 .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
                 .block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        final Tenant tenant = tenantService.getDefaultTenant().block();
+        mongoOperations.updateFirst(
+                Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
+                Update.update(fieldName(QTenant.tenant.tenantConfiguration), originalTenantConfiguration),
+                Tenant.class);
     }
 
     @Test
@@ -201,8 +214,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
-                            .isTrue();
+                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -220,8 +232,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
-                            .isFalse();
+                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isFalse();
                 })
                 .verifyComplete();
     }

@@ -18,15 +18,15 @@ export type brandColorsKeys =
   | "hover"
   | "disabled";
 
-export type Inputs = {
+export interface Inputs {
   brandColors: Record<brandColorsKeys, string>;
   brandLogo: string;
   brandFavicon: string;
-};
+}
 
-type BrandingPageProps = {
+interface BrandingPageProps {
   category: AdminConfigType;
-};
+}
 
 function BrandingPage(props: BrandingPageProps) {
   const { category } = props;

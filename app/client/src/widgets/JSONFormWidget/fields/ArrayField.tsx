@@ -51,9 +51,9 @@ type ArrayComponentProps = FieldComponentBaseProps & {
 
 type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentProps>;
 
-type StyledButtonProps = {
+interface StyledButtonProps {
   color?: string;
-};
+}
 
 const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   backgroundColor: Colors.GREY_1,

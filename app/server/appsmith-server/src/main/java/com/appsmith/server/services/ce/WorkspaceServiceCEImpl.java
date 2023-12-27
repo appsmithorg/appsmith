@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -42,6 +43,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -74,6 +76,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
+@Service
 public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
         implements WorkspaceServiceCE {
 
@@ -87,6 +90,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final ModelMapper modelMapper;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
+    private final WorkspaceServiceHelper workspaceServiceHelper;
 
     @Autowired
     public WorkspaceServiceCEImpl(
@@ -105,7 +109,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             PolicySolution policySolution,
             ModelMapper modelMapper,
             WorkspacePermission workspacePermission,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            WorkspaceServiceHelper workspaceServiceHelper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -118,6 +123,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.modelMapper = modelMapper;
         this.workspacePermission = workspacePermission;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.workspaceServiceHelper = workspaceServiceHelper;
     }
 
     @Override
@@ -168,7 +174,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         // Does the user have permissions to create a workspace?
-        Mono<Boolean> createWorkspaceAllowedMono = isCreateWorkspaceAllowed(isDefault);
+        Mono<Boolean> createWorkspaceAllowedMono = workspaceServiceHelper.isCreateWorkspaceAllowed(isDefault);
 
         // Populate all the required fields for a valid workspace
         prepareWorkspaceToCreate(workspace, user);
@@ -231,11 +237,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             createdWorkspace = policySolution.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
         return repository.save(createdWorkspace);
-    }
-
-    @Override
-    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
-        return Mono.just(TRUE);
     }
 
     @Override
@@ -320,6 +321,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(permissionGroup ->
                         new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUP_MEMBERS))
                 .collect(Collectors.toSet());
+        // All the default permission groups should be unassignable by the administrator role of the workspace
         Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup ->
                         new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
@@ -386,8 +388,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .cleanPermissionGroupCacheForUsers(List.of(user.getId()))
                 .thenReturn(TRUE);
 
-        return Mono.zip(savedPermissionGroupsMono, cleanPermissionGroupCacheForCurrentUser)
-                .map(tuple -> tuple.getT1());
+        return savedPermissionGroupsMono.flatMap(
+                savedPermissionGroups -> cleanPermissionGroupCacheForCurrentUser.thenReturn(savedPermissionGroups));
     }
 
     protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {

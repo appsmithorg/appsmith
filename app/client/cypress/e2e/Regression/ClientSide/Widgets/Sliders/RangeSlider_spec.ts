@@ -1,21 +1,26 @@
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
-  propPane,
-  entityExplorer,
-  draggableWidgets,
-  locators,
   deployMode,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
-describe("Range Slider spec", () => {
+describe("Range Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("rangesliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);
     entityExplorer.DragDropWidgetNVerify("textwidget", 600, 300);
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{RangeSlider1.end}}");
-    entityExplorer.SelectEntityByName("Text2");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{RangeSlider1.start}}");
   });
 
@@ -38,7 +43,7 @@ describe("Range Slider spec", () => {
     ];
     const eventsProperties = ["onstartvaluechange", "onendvaluechange"];
 
-    entityExplorer.SelectEntityByName("RangeSlider1", "Widgets");
+    EditorNavigation.SelectEntityByName("RangeSlider1", EntityType.Widget);
     // Data Section properties
     dataSectionProperties.forEach((dataSectionProperty) => {
       agHelper.AssertElementVisibility(
@@ -142,7 +147,7 @@ describe("Range Slider spec", () => {
     deployMode.NavigateBacktoEditor();
 
     // Allows decimal value
-    entityExplorer.SelectEntityByName("RangeSlider1");
+    EditorNavigation.SelectEntityByName("RangeSlider1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Min. value", "10.5");
 
     // Verify Decimal value
@@ -254,7 +259,7 @@ describe("Range Slider spec", () => {
   });
 
   it("4. Validate accepted and unaccepted 'Step size' values", () => {
-    entityExplorer.SelectEntityByName("RangeSlider1");
+    EditorNavigation.SelectEntityByName("RangeSlider1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Min. range", "5");
     propPane.UpdatePropertyFieldValue("Step size", "10");
 
@@ -271,7 +276,7 @@ describe("Range Slider spec", () => {
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     // Does not allow value less than 0.1
-    entityExplorer.SelectEntityByName("RangeSlider1");
+    EditorNavigation.SelectEntityByName("RangeSlider1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Step size", "0");
     agHelper.VerifyEvaluatedErrorMessage("This value must be greater than 0.1");
     // Does not allow negative value
@@ -411,7 +416,7 @@ describe("Range Slider spec", () => {
   });
 
   it("8. Verify Range slider visibility in explorer", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     agHelper.ClearTextField(locators._entityExplorersearch);
     agHelper.TypeText(locators._entityExplorersearch, "Range");
     agHelper.AssertElementExist(locators._widgetPageIcon("rangesliderwidget"));

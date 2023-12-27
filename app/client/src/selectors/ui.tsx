@@ -7,6 +7,14 @@ export const getLastSelectedWidget = (state: AppState) =>
 export const getSelectedWidgets = (state: AppState) =>
   state.ui.widgetDragResize.selectedWidgets;
 
+export const getDefaultSelectedWidgetIds = (state: AppState) => {
+  const widgets = Object.keys(state.entities.canvasWidgets);
+  // We check for more than 1 because MainContainer is always present
+  if (widgets.length > 1) {
+    return [widgets[1]];
+  }
+};
+
 /**
  * Selector to use id and provide the status of saving an API.
  */
@@ -54,3 +62,6 @@ export const getDatasourceCollapsibleState = createSelector(
     return datasourceCollapsibleState[key];
   },
 );
+
+export const getIsImportingCurl = (state: AppState) =>
+  state.ui.imports.isImportingCurl;

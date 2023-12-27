@@ -210,7 +210,7 @@ describe("Validate Chart Widget's data property config", () => {
       return propertyConfig.propertyName == "customEChartConfig";
     })[0];
 
-    expect(customEChartConfig.validation?.params?.default).toEqual([]);
+    expect(customEChartConfig.validation?.params?.default).toEqual({});
   });
 
   it("validates that default value is present for custom charts property", () => {

@@ -12,7 +12,6 @@ import {
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
@@ -48,7 +47,7 @@ export const JSToString = (js: string): string => {
     .join("");
 };
 
-type InputTextProp = {
+interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -57,7 +56,7 @@ type InputTextProp = {
   placeholder?: string;
   dataTreePath?: string;
   theme: EditorTheme;
-};
+}
 
 function InputText(props: InputTextProp) {
   const {
@@ -76,11 +75,7 @@ function InputText(props: InputTextProp) {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
-        hinting={[
-          bindingHintHelper,
-          assistiveBindingHinter,
-          slashCommandHintHelper,
-        ]}
+        hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{
           value: value,
           onChange: onChange,

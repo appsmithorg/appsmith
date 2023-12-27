@@ -1,13 +1,12 @@
 import {
   agHelper,
-  entityExplorer,
   dataSources,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
-describe("Validate Redis DS", () => {
+describe("Validate Redis DS", { tags: ["@tag.Datasource"] }, () => {
   before("Create a new Redis DS", () => {
     dataSources.CreateDataSource("Redis");
     cy.get("@dsName").then(($dsName) => {
@@ -98,9 +97,9 @@ describe("Validate Redis DS", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
     //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
-    // entityExplorer.SelectEntityByName(dsName, "Datasources");
+    // EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     // entityExplorer.ActionContextMenuByEntityName({
     //   entityNameinLeftSidebar: dsName,
     //   action: "Delete",

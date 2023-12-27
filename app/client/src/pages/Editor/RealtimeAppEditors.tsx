@@ -41,9 +41,9 @@ const UserImageContainer = styled.div`
   }
 `;
 
-type RealtimeAppEditorsProps = {
+interface RealtimeAppEditorsProps {
   applicationId?: string;
-};
+}
 
 export function useEditAppCollabEvents(applicationId?: string) {
   const dispatch = useDispatch();

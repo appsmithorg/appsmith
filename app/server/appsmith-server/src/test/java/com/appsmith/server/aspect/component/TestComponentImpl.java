@@ -35,4 +35,10 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
         List<String> result = List.of("ee", "impl", "method");
         return Flux.fromIterable(result);
     }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
+    public String ceEeSyncMethod(String arg) {
+        return arg + "ee_impl_method";
+    }
 }

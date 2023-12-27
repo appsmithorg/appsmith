@@ -2,12 +2,12 @@ import React from "react";
 import { ContentBox } from "pages/AdminSettings/components";
 import { Text } from "design-system";
 
-type PreviewBoxProps = {
+interface PreviewBoxProps {
   title?: string;
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-};
+}
 
 const PreviewBox = (props: PreviewBoxProps) => {
   const { children, className, title, ...rest } = props;

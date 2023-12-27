@@ -5,10 +5,10 @@ import type {
   GenerateCRUDSuccessInfoData,
 } from "reducers/uiReducers/crudInfoModalReducer";
 
-export type CrudInfoModalData = {
+export interface CrudInfoModalData {
   crudInfoModalOpen: boolean;
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
-};
+}
 
 const getCrudInfoModalState = (state: AppState): CrudInfoModalReduxState =>
   state.ui.crudInfoModal;

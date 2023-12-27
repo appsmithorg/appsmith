@@ -139,7 +139,7 @@ const indicatorHelperInstance = new IndicatorHelper();
 
 // To check if the element is behind another element for e.g when it is scrolled
 // out of view
-function isBehindOtherElement(element: Element) {
+async function isBehindOtherElement(element: Element) {
   return new Promise((resolve) => {
     const o = new IntersectionObserver(([entry]) => {
       resolve(entry.intersectionRatio !== 1);

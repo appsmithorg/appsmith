@@ -78,14 +78,13 @@ export const getSectionId = (
   // "boxShadow" and "resetButtonStyles.boxShadow"
   // The intendened match is "resetButtonStyles.boxShadow".
   // So we aggregrate matches and find the best match which is the longest string
-  const bestMatchedSection = matchedSections.reduce(function (
-    sectiona,
-    sectionb,
-  ) {
-    return sectiona.propertyName.length > sectionb.propertyName.length
-      ? sectiona
-      : sectionb;
-  });
+  const bestMatchedSection = matchedSections.reduce(
+    function (sectiona, sectionb) {
+      return sectiona.propertyName.length > sectionb.propertyName.length
+        ? sectiona
+        : sectionb;
+    },
+  );
 
   return bestMatchedSection.id;
 };

@@ -15,6 +15,8 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import static java.lang.Boolean.FALSE;
+
 @Slf4j
 public class PreAuth implements WebFilter {
 
@@ -27,21 +29,23 @@ public class PreAuth implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+
+        Mono<Void> filterMono = chain.filter(exchange);
+
         return getUsername(exchange).flatMap(username -> {
             if (!username.isEmpty()) {
                 return rateLimitService
                         .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, username)
                         .flatMap(counterIncreaseAttemptSuccessful -> {
-                            if (Boolean.FALSE.equals(counterIncreaseAttemptSuccessful)) {
-                                log.error("Rate limit exceeded. Redirecting to login page.");
+                            if (FALSE.equals(counterIncreaseAttemptSuccessful)) {
                                 return handleRateLimitExceeded(exchange);
                             }
 
-                            return chain.filter(exchange);
+                            return filterMono;
                         });
             } else {
                 // If username is empty, simply continue with the filter chain
-                return chain.filter(exchange);
+                return filterMono;
             }
         });
     }

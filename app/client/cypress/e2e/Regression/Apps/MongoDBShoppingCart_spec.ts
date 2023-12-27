@@ -9,7 +9,7 @@ import {
   locators,
 } from "../../../support/Objects/ObjectsCore";
 
-describe("Shopping cart App", function () {
+describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
   let datasourceName: string, repoName: any;
 
   before(() => {
@@ -115,7 +115,6 @@ describe("Shopping cart App", function () {
     // Adding the books to the Add cart form
     agHelper.GetNClick(appPage.bookname);
     //Wait for element to be in DOM
-    agHelper.Sleep(3000);
     agHelper.AssertElementLength(appPage.inputValues, 9);
     agHelper.ClearNType(
       appPage.bookname + "//" + locators._inputField,
@@ -173,7 +172,6 @@ describe("Shopping cart App", function () {
     // Deleting the book from the cart
     agHelper.GetNClick(appPage.deleteButton, 1, false);
     assertHelper.AssertNetworkStatus("@postExecute");
-    agHelper.Sleep(3000);
     assertHelper.AssertNetworkStatus("@postExecute");
 
     // validating that the book is deleted
@@ -188,7 +186,6 @@ describe("Shopping cart App", function () {
     agHelper.GetNClick(appPage.editButton, 0, true);
 
     //Wait for all post execute calls to finish
-    agHelper.Sleep(3000);
     assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     // validating updated value in the cart
     agHelper

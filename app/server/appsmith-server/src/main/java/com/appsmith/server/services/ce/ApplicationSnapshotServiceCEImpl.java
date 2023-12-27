@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
@@ -7,11 +8,11 @@ import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -27,7 +28,8 @@ import java.util.List;
 public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServiceCE {
     private final ApplicationSnapshotRepository applicationSnapshotRepository;
     private final ApplicationService applicationService;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final ImportApplicationService importApplicationService;
+    private final ExportApplicationService exportApplicationService;
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
     private final ResponseUtils responseUtils;
@@ -42,7 +44,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
                 */
                 .flatMap(branchedAppId -> Mono.zip(
-                        importExportApplicationService.exportApplicationById(
+                        exportApplicationService.exportApplicationById(
                                 branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL),
                         Mono.just(branchedAppId)))
                 .flatMapMany(objects -> {
@@ -85,7 +87,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                     String applicationJsonString = objects.getT1();
                     Application application = objects.getT2();
                     ApplicationJson applicationJson = gson.fromJson(applicationJsonString, ApplicationJson.class);
-                    return importExportApplicationService.restoreSnapshot(
+                    return importApplicationService.restoreSnapshot(
                             application.getWorkspaceId(), applicationJson, application.getId(), branchName);
                 })
                 .flatMap(application -> applicationSnapshotRepository

@@ -1,61 +1,34 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
-import { PluginPackageName } from "entities/Action";
-import { useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getWidget } from "sagas/selectors";
 import { getPluginPackageFromDatasourceId } from "@appsmith/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetQueryGeneratorFormContext } from "..";
 import { isValidGsheetConfig } from "../utils";
-import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
+import { useContext, useMemo } from "react";
+import { WidgetQueryGeneratorFormContext } from "../index";
+import { PluginPackageName } from "../../../../entities/Action";
+import { useFormConfig } from "../common/useFormConfig";
 
 export function useConnectData() {
   const dispatch = useDispatch();
 
-  const { aliases, config, propertyName, widgetId } = useContext(
+  const { aliases, config, otherFields, propertyName, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
 
-  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+  const widget = useSelector((state) => getWidget(state, widgetId));
 
-  const { columns, primaryColumn } = useColumns("", false);
+  const formConfig = useFormConfig();
 
   const isLoading = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
   );
 
   const onClick = () => {
-    const searchableColumn = (() => {
-      if (config.searchableColumn) {
-        return config.searchableColumn;
-      } else {
-        const alias = aliases?.find((d) => d.isSearcheable)?.name;
-
-        return alias && config.alias[alias];
-      }
-    })();
-
-    const payload = {
-      tableName: config.table,
-      sheetName: config.sheet,
-      datasourceId: config.datasource,
-      widgetId: widgetId,
-      tableHeaderIndex: config.tableHeaderIndex,
-      searchableColumn,
-      columns: columns.map((column) => column.name),
-      primaryColumn,
-      connectionMode: config.datasourceConnectionMode,
-      aliases: Object.entries(config.alias).map(([key, value]) => ({
-        name: key,
-        alias: value,
-      })),
-    };
-
     dispatch({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE,
-      payload,
+      payload: formConfig, // Use the formConfig payload directly
     });
 
     AnalyticsUtil.logEvent(`GENERATE_QUERY_CONNECT_DATA_CLICK`, {
@@ -69,11 +42,12 @@ export function useConnectData() {
         dataTableName: config.table,
         searchableColumn: config.searchableColumn,
         alias: config.alias,
+        formType: config.otherFields?.formType,
       },
     });
   };
 
-  const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
+  const selectedDatasourcePluginPackageName = useSelector((state) =>
     getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
@@ -87,7 +61,15 @@ export function useConnectData() {
         !isValidGsheetConfig(config)) ||
       aliases?.some((alias) => {
         return alias.isRequired && !config.alias[alias.name];
-      })
+      }) ||
+      (otherFields &&
+        otherFields?.some((field) => {
+          return (
+            field.isRequired &&
+            field.isVisible?.(config) &&
+            !config.otherFields?.[field.name]
+          );
+        }))
     );
   }, [config, aliases]);
 

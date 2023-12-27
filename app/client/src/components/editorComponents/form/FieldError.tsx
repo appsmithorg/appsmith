@@ -15,10 +15,10 @@ const StyledError = styled.span<{ show: boolean }>`
   margin-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
-type FormFieldErrorProps = {
+interface FormFieldErrorProps {
   error?: string;
   className?: string;
-};
+}
 
 export function FormFieldError(props: FormFieldErrorProps) {
   return (

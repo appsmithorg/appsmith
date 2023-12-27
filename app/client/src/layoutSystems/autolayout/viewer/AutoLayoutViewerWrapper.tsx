@@ -24,10 +24,6 @@ export const AutoLayoutViewerWrapper = (props: WidgetProps) => {
       ? AutoLayoutViewerModalOnion
       : AutoLayoutViewerWidgetOnion;
   }, [props.type]);
-  const canvasWidget = props.type === "CANVAS_WIDGET";
-  if (canvasWidget) {
-    return props.children;
-  }
 
   return <WidgetOnion {...props}>{props.children}</WidgetOnion>;
 };

@@ -72,10 +72,15 @@ export class DataManager {
       AirtableTable: "tblsFCQSskVFf7xNd",
 
       mockApiUrl: "http://host.docker.internal:5001/v1/mock-api?records=10",
+      mockGenderAge:
+        "http://host.docker.internal:5001/v1/genderize_agify?name=",
+
       mockApiObjectUrl:
         "http://host.docker.internal:5001/v1/mock-api-object?records=10",
       echoApiUrl: "http://host.docker.internal:5001/v1/mock-api/echo",
       randomCatfactUrl: "http://host.docker.internal:5001/v1/catfact/random",
+      randomTrumpApi:
+        "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",
@@ -83,6 +88,7 @@ export class DataManager {
 
       firestore_database_url: "https://appsmith-22e8b.firebaseio.com",
       firestore_projectID: "appsmith-22e8b",
+      firestore_serviceaccountkey: Cypress.env("FIRESTORE_PRIVATE_KEY"),
 
       restapi_url: "https://my-json-server.typicode.com/typicode/demo/posts",
       connection_type: "Replica set",
@@ -173,8 +179,9 @@ export class DataManager {
       AirtableTableForME: "tblsFCQSskVFf7xNd",
       ApiUrlME: "http://host.docker.internal:5001/v1/staging",
 
-      firestore_database_url: "https://appsmith-22e8b.firebaseio.com",
-      firestore_projectID: "appsmith-22e8b",
+      firestore_database_url: "https://staging-sample.firebaseio.com",
+      firestore_projectID: "appsmith-dummy",
+      firestore_serviceaccountkey: "dummy_service_creds_key",
 
       restapi_url: "https://my-json-server.typicode.com/typicode/demo/posts",
       connection_type: "Replica set",

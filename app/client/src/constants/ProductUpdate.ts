@@ -4,7 +4,7 @@
  *
  */
 
-type ProductUpdate = {
+interface ProductUpdate {
   id: string; // ID is important for dismissal and remindLater to work
   enabled: boolean; // Won't be shown till this is true
   title: string;
@@ -12,7 +12,7 @@ type ProductUpdate = {
   learnMoreLink: string;
   canDismiss: boolean; // Can the user close this message.
   remindLaterDays?: number; // If the user chooses to remind later, // it will be shown again after these many days
-};
+}
 
 const update: ProductUpdate = {
   enabled: false,

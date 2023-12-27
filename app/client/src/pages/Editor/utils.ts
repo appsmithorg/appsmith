@@ -14,10 +14,11 @@ import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,
 } from "@appsmith/constants/messages";
-import type { URLBuilderParams } from "RouteBuilder";
+import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+import type { ActionResponse } from "api/ActionAPI";
 
 export const draggableElement = (
   id: string,
@@ -298,4 +299,40 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
   });
 
   return groupedCards;
+};
+
+export const transformTextToSentenceCase = (s: string) => {
+  return s.slice(0, 1).toUpperCase() + s.slice(1).toLowerCase();
+};
+
+export const actionResponseDisplayDataFormats = (
+  actionData?: ActionResponse,
+  defaultDisplayFormat: { title: string; value: string } = {
+    title: "",
+    value: "",
+  },
+) => {
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+
+  if (actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
+      };
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
+    };
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = defaultDisplayFormat;
+  }
+
+  return {
+    responseDataTypes,
+    responseDisplayFormat,
+  };
 };

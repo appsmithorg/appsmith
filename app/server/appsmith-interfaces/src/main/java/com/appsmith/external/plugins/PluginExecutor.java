@@ -352,4 +352,16 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
         return null;
     }
+
+    /*
+     * This method returns rate limit identifier required in order to apply rate limit on datasource test api
+     * and will also be used when creating connections during query execution.
+     * For more details: https://github.com/appsmithorg/appsmith/issues/22868
+     */
+    default Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+        // In case of endpoint identifier as empty string, no rate limiting will be applied
+        // Currently this function is overridden only by postgresPlugin class, in future it will be done for all plugins
+        // wherever applicable.
+        return Mono.just("");
+    }
 }

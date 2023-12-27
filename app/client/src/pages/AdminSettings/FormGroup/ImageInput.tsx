@@ -10,7 +10,7 @@ import { FormGroup } from "./Common";
 import { ContentBox } from "../components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
-type ImageInputProps = {
+interface ImageInputProps {
   value?: any;
   onChange?(value?: any): void;
   validate?(
@@ -19,7 +19,7 @@ type ImageInputProps = {
   ): void;
   className?: string;
   defaultValue?: string;
-};
+}
 export const ImageInput = (props: ImageInputProps) => {
   const { className, defaultValue, onChange, validate, value } = props;
   const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);

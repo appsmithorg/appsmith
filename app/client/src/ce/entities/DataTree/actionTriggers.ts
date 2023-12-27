@@ -163,17 +163,17 @@ export type ClearIntervalDescription = ActionDescriptionInterface<
   "CLEAR_INTERVAL"
 >;
 
-type GeolocationOptions = {
+interface GeolocationOptions {
   maximumAge?: number;
   timeout?: number;
   enableHighAccuracy?: boolean;
-};
+}
 
-type GeolocationPayload = {
+interface GeolocationPayload {
   onSuccess?: string;
   onError?: string;
   options?: GeolocationOptions;
-};
+}
 
 export type GetCurrentLocationDescription = ActionDescriptionInterface<
   GeolocationPayload,

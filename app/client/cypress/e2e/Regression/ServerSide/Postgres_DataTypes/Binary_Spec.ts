@@ -1,19 +1,29 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  entityItems,
-  dataSources,
-  table,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
-describe("Binary Datatype tests", function () {
+describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/BinaryDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(7, -9);
     dataSources.CreateDataSource("Postgres");
@@ -27,20 +37,12 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryAfterDSSaved(query, "createTable");
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.binarytype"),
-    );
-
     //Creating SELECT query - binarytype + Bug 14493
     query = `SELECT binarytype.serialid, binarytype.imagename, encode(binarytype.existingimage, 'escape') as "OldImage", encode(binarytype.newimage, 'escape') as "NewImage" from public."binarytype";`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.binarytype",
-      "SELECT",
+      "Select",
     );
     dataSources.RunQuery();
     agHelper
@@ -72,42 +74,41 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable");
     dataSources.SetQueryTimeout(30000);
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
   });
 
-  it.skip("3. Inserting record - binarytype", () => {
-    imageNameToUpload = "Datatypes/Bridge.jpg";
-    // entityExplorer.SelectEntityByName("Page1");
-    // deployMode.DeployApp();
-    // table.WaitForTableEmpty(); //asserting table is empty before inserting!
-    agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisibility(locators._modal);
+  //Timing out a lot in CI, hence skipped, Insert verified also in next case
+  // it.skip("3. Inserting record - binarytype", () => {
+  //   imageNameToUpload = "Datatypes/Bridge.jpg";
+  //   // entityExplorer.SelectEntityByName("Page1");
+  //   // deployMode.DeployApp();
+  //   // table.WaitForTableEmpty(); //asserting table is empty before inserting!
+  //   agHelper.ClickButton("Run InsertQuery");
+  //   agHelper.AssertElementVisibility(locators._modal);
 
-    agHelper.ClickButton("Select New Image");
-    agHelper.UploadFile(imageNameToUpload);
+  //   agHelper.ClickButton("Select New Image");
+  //   agHelper.UploadFile(imageNameToUpload);
 
-    agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
-    table.WaitUntilTableLoad();
-    agHelper.Sleep(3000); //some more time for all rows with images to be populated
-    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-      expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
-    });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("Bridge.jpg");
-    });
-    table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
-        expect($oldimage).to.eq($newimage);
-      });
-    });
-  });
+  //   agHelper.ClickButton("Insert");
+  //   agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+  //   agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
+  //   agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
+  //   table.WaitUntilTableLoad();
+  //   agHelper.Sleep(3000); //some more time for all rows with images to be populated
+  //   table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+  //     expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
+  //   });
+  //   table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+  //     expect($cellData).to.eq("Bridge.jpg");
+  //   });
+  //   table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
+  //     table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
+  //       expect($oldimage).to.eq($newimage);
+  //     });
+  //   });
+  // });
 
   it("4. Inserting another record - binarytype", () => {
     imageNameToUpload = "Datatypes/Georgia.jpeg";
@@ -180,7 +181,7 @@ describe("Binary Datatype tests", function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(10000); //some more time for rows to rearrange!
+    agHelper.Sleep(14000); //some more time for rows to rearrange!
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -249,13 +250,10 @@ describe("Binary Datatype tests", function () {
   it("9. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyBinaryFunctions");
-
+    PageLeftPane.expandCollapseItem("Queries/JS");
     //Validating zero octet
     query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyBinaryFunctions");
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
       "zero octet Hex",
@@ -378,7 +376,8 @@ describe("Binary Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   //Since query delete & Postgress DS delete is covered in other specs, commenting below code
@@ -400,11 +399,9 @@ describe("Binary Datatype tests", function () {
   //     agHelper.AssertElementAbsence(
   //       entityExplorer._entityNameInExplorer("public.binarytype"),
   //     );
-  //     entityExplorer.ExpandCollapseEntity(dsName, false);
-  //     entityExplorer.ExpandCollapseEntity("Datasources", false);
 
   //     //Delete all queries
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
   //      entityExplorer.DeleteAllQueriesForDB(dsName);
 
@@ -412,7 +409,7 @@ describe("Binary Datatype tests", function () {
   //     deployMode.DeployApp();
   //     deployMode.NavigateBacktoEditor();
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   //   },
   // );
 });

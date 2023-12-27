@@ -57,14 +57,17 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import { clearActionResponse } from "actions/pluginActionActions";
+import {
+  clearActionResponse,
+  updateActionData,
+} from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
 } from "@appsmith/actions/applicationActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import {
   setExplorerActiveAction,
@@ -74,10 +77,10 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { User } from "constants/userConstants";
-import { builderURL, queryEditorIdURL } from "RouteBuilder";
+import { builderURL, queryEditorIdURL } from "@appsmith/RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
@@ -87,8 +90,6 @@ import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import { isUndefined } from "lodash";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -185,9 +186,8 @@ function* setCurrentStepSaga(action: ReduxAction<number>) {
 function* setUpTourAppSaga() {
   yield put(setPreviewModeAction(false));
   // Delete the container widget
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const containerWidget = Object.values(widgets).find(
     (widget) => widget.type === "CONTAINER_WIDGET",
   );
@@ -218,6 +218,15 @@ function* setUpTourAppSaga() {
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
   yield put(clearActionResponse(query?.config.id ?? ""));
+  yield put(
+    updateActionData([
+      {
+        entityName: query?.config.name || "",
+        dataPath: "data",
+        data: undefined,
+      },
+    ]),
+  );
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
     updateApplicationLayout(applicationId || "", {
@@ -273,9 +282,8 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
     // Wait for widget names to be updated
     // Updating widget names here as widget blueprints don't take widget names
     yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
-    const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-      getWidgets,
-    );
+    const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+      yield select(getWidgets);
 
     const nameInput = Object.values(widgets).find(
       (widget) => widget.widgetName === "Input1",
@@ -323,9 +331,8 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
 // Update button widget text
 function* updateWidgetTextSaga() {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const buttonWidget = Object.values(widgets).find(
     (widget) => widget.type === "BUTTON_WIDGET",
   );
@@ -365,9 +372,8 @@ function* endGuidedTourSaga(action: ReduxAction<boolean>) {
 function* selectWidgetSaga(
   action: ReduxAction<{ widgetName: string; propertyName?: string }>,
 ) {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });
@@ -427,7 +433,11 @@ function* endFirstTimeUserOnboardingSaga() {
 }
 
 function* firstTimeUserOnboardingInitSaga(
-  action: ReduxAction<{ applicationId: string; pageId: string }>,
+  action: ReduxAction<{
+    applicationId: string;
+    pageId: string;
+    suffix?: string;
+  }>,
 ) {
   yield call(setEnableStartSignposting, true);
   yield put({
@@ -437,6 +447,7 @@ function* firstTimeUserOnboardingInitSaga(
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
+      suffix: action.payload.suffix || "",
     }),
   );
 
@@ -460,27 +471,6 @@ function* firstTimeUserOnboardingInitSaga(
   }
 
   yield put(setSignpostingOverlay(showOverlay));
-  const tableWidgetExperimentEnabled: boolean = yield select(
-    selectFeatureFlagCheck,
-    FEATURE_FLAG.ab_table_widget_activation_enabled,
-  );
-  if (tableWidgetExperimentEnabled) {
-    yield take(ReduxActionTypes.FETCH_WORKSPACE_SUCCESS);
-    yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: {
-        widgetId: "0",
-        type: "TABLE_WIDGET_V2",
-        leftColumn: 15,
-        topRow: 6,
-        columns: 34,
-        rows: 28,
-        parentRowSpace: 10,
-        parentColumnSpace: 13.390625,
-        newWidgetId: generateReactKey(),
-      },
-    });
-  }
   // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
   yield delay(1000);
   yield put({

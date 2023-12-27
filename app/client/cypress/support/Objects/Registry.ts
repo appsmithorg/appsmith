@@ -25,9 +25,9 @@ import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
 import { DataManager } from "./DataManager";
 import { AssertHelper } from "../Pages/AssertHelper";
-import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
+import { CommunityTemplates } from "../Pages/CommunityTemplates";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -44,14 +44,6 @@ export class ObjectsRegistry {
       ObjectsRegistry.assertHelper__ = new AssertHelper();
     }
     return ObjectsRegistry.assertHelper__;
-  }
-
-  private static reusableHelper__: ReusableHelper;
-  static get ReusableHelper(): ReusableHelper {
-    if (ObjectsRegistry.reusableHelper__ === undefined) {
-      ObjectsRegistry.reusableHelper__ = new ReusableHelper();
-    }
-    return ObjectsRegistry.reusableHelper__;
   }
 
   private static jsEditor__: JSEditor;
@@ -268,6 +260,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.gsheetHelper__ = new GsheetHelper();
     }
     return ObjectsRegistry.gsheetHelper__;
+  }
+
+  private static communityTemplates__: CommunityTemplates;
+  static get CommunityTemplates(): CommunityTemplates {
+    if (ObjectsRegistry.communityTemplates__ === undefined) {
+      ObjectsRegistry.communityTemplates__ = new CommunityTemplates();
+    }
+    return ObjectsRegistry.communityTemplates__;
   }
 }
 

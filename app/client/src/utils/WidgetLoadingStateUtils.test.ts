@@ -1,6 +1,9 @@
 import { PluginType } from "entities/Action";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+import type {
+  WidgetEntity,
+  ActionEntity,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,

@@ -62,7 +62,7 @@ jobs:
     steps:
       # Check out merge commit
       - name: Checkout Branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -127,6 +127,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ github.event.inputs.sub-domain-name }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
 
     outputs:
       imageHash: ${{ github.event.inputs.sub-domain-name }}
@@ -141,7 +142,7 @@ jobs:
     if: success()
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -195,5 +196,3 @@ jobs:
           --data ' {
                   "status": "FAILED"
           }'
-
-

@@ -18,8 +18,9 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
+import { ManageEnvironmentsMenu } from "@appsmith/pages/Applications/ManageEnvironmentsMenu";
 
-type WorkspaceMenuProps = {
+interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;
   canInviteToWorkspace: boolean;
   enableImportExport: boolean;
@@ -40,7 +41,7 @@ type WorkspaceMenuProps = {
   workspace: Workspace;
   workspaceNameChange: (newName: string, workspaceId: string) => void;
   workspaceToOpenMenu: string | null;
-};
+}
 
 const WorkspaceRename = styled(EditableText)`
   padding: 0 2px;
@@ -162,6 +163,10 @@ function WorkspaceMenu({
             Members
           </MenuItem>
         )}
+        <ManageEnvironmentsMenu
+          workspaceId={workspace.id}
+          workspacePermissions={workspace.userPermissions || []}
+        />
         {canInviteToWorkspace && (
           <MenuItem
             className="error-menuitem"

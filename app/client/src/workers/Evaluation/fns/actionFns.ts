@@ -1,6 +1,6 @@
 import { isTrueObject } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { promisify } from "./utils/Promisify";
-import type { ActionEntity } from "entities/DataTree/types";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 
 function runFnDescriptor(
   this: ActionEntity,

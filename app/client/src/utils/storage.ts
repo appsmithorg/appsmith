@@ -17,6 +17,7 @@ export const STORAGE_KEYS: {
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
   ENABLE_START_SIGNPOSTING: "ENABLE_START_SIGNPOSTING",
+  USERS_FIRST_APPLICATION_ID: "USERS_FIRST_APPLICATION_ID",
   FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS:
     "FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS",
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
@@ -35,6 +36,7 @@ export const STORAGE_KEYS: {
   AI_RECENT_QUERIES: "AI_RECENT_QUERIES",
   CURRENT_ENV: "CURRENT_ENV",
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
+  PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
 };
 
 const store = localforage.createInstance({
@@ -69,11 +71,11 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
   }
 };
 
-const getStoredUsersBetaFlags = (email: any) => {
+const getStoredUsersBetaFlags = async (email: any) => {
   return store.getItem(email);
 };
 
-const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
+const setStoredUsersBetaFlags = async (email: any, userBetaFlagsObj: any) => {
   return store.setItem(email, userBetaFlagsObj);
 };
 
@@ -280,7 +282,7 @@ export const setAIRecentQuery = async (
     let applicationTypeQueries = applicationRecentQueries[type] || [];
 
     if (!applicationTypeQueries.includes(query)) {
-      if (applicationTypeQueries.length >= 5) {
+      if (applicationTypeQueries.length >= 3) {
         applicationTypeQueries.pop();
       }
       applicationTypeQueries = [query, ...applicationTypeQueries];
@@ -311,7 +313,10 @@ export const getApplicationAIRecentQueriesByType = async (
         [task: string]: string[];
       };
     } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
-    return recentQueries?.[applicationId]?.[type] ?? defaultRecentQueries;
+    return (
+      recentQueries?.[applicationId]?.[type]?.slice(0, 3) ??
+      defaultRecentQueries
+    );
   } catch (error) {
     log.error("An error occurred while fetching AI_RECENT_QUERIES");
     log.error(error);
@@ -642,6 +647,7 @@ export const isUserSignedUpFlagSet = async (email: string) => {
   } catch (error) {
     log.error("An error occurred while reading USER_SIGN_UP");
     log.error(error);
+    return false;
   }
 };
 
@@ -715,15 +721,15 @@ export const initAppKbState = async (
 
     const appKbState = {
       checksum,
-      pageSlugs: pageSlugs.reduce((acc, pageSlug) => {
-        acc[pageSlug] = {
-          hasReacted: false,
-        };
-        return acc;
-      }, {} as Record<string, { hasReacted: boolean }>) as Record<
-        string,
-        { hasReacted: boolean }
-      >,
+      pageSlugs: pageSlugs.reduce(
+        (acc, pageSlug) => {
+          acc[pageSlug] = {
+            hasReacted: false,
+          };
+          return acc;
+        },
+        {} as Record<string, { hasReacted: boolean }>,
+      ) as Record<string, { hasReacted: boolean }>,
     };
 
     aiKBApplicationMap[appId] = appKbState;
@@ -811,5 +817,47 @@ export const getAISuggestedPromptShownForType = async (type: string) => {
     log.error("An error occurred while fetching AI_SUGGESTED_PROMPTS_SHOWN");
     log.error(error);
     return 0;
+  }
+};
+
+export const setPartnerProgramCalloutShown = async () => {
+  try {
+    await store.setItem(STORAGE_KEYS.PARTNER_PROGRAM_CALLOUT, true);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting PARTNER_PROGRAM_CALLOUT");
+    log.error(error);
+  }
+};
+
+export const getPartnerProgramCalloutShown = async () => {
+  try {
+    const flag = await store.getItem(STORAGE_KEYS.PARTNER_PROGRAM_CALLOUT);
+    return flag;
+  } catch (error) {
+    log.error("An error occurred while fetching PARTNER_PROGRAM_CALLOUT");
+    log.error(error);
+  }
+};
+
+export const setUsersFirstApplicationId = async (appId: string) => {
+  try {
+    await store.setItem(STORAGE_KEYS.USERS_FIRST_APPLICATION_ID, appId);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting USERS_FIRST_APPLICATION_ID");
+    log.error(error);
+  }
+};
+
+export const getUsersFirstApplicationId = async () => {
+  try {
+    const firstApplicationId: string | null = await store.getItem(
+      STORAGE_KEYS.USERS_FIRST_APPLICATION_ID,
+    );
+    return firstApplicationId;
+  } catch (error) {
+    log.error("An error occurred while fetching USERS_FIRST_APPLICATION_ID");
+    log.error(error);
   }
 };

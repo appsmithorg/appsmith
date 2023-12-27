@@ -13,10 +13,13 @@ import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { klona as clone } from "klona/full";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
@@ -192,6 +195,26 @@ class ButtonGroupWidget extends BaseWidget<
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: (props: ButtonGroupWidgetProps) => {
+        let minWidth = 120;
+        const buttonLength = Object.keys(props.groupButtons).length;
+        if (props.orientation === "horizontal") {
+          // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
+          minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
+        }
+        return {
+          maxHeight: {},
+          maxWidth: {},
+          minHeight: { base: "40px" },
+          minWidth: { base: `${minWidth}px` },
+        };
       },
     };
   }

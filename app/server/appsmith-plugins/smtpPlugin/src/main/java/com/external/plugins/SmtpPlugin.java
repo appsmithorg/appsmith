@@ -32,6 +32,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -43,13 +44,17 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Slf4j
 public class SmtpPlugin extends BasePlugin {
     private static final String BASE64_DELIMITER = ";base64,";
+    public static final Long SMTP_DEFAULT_PORT = 25L;
 
     public SmtpPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -275,6 +280,23 @@ public class SmtpPlugin extends BasePlugin {
                         return invalids;
                     })
                     .map(DatasourceTestResult::new);
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, SMTP_DEFAULT_PORT);
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 }

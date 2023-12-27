@@ -14,6 +14,8 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
+import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 
 export enum Shortcuts {
   PLUS = "PLUS",
@@ -98,8 +100,8 @@ export function Command(props: {
 }) {
   return (
     <div className="command-container">
-      <div className="command">
-        {props.icon}
+      <div className="command flex">
+        <div className="self-center">{props.icon}</div>
         <div className="flex flex-col gap-1">
           <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
             {props.name}
@@ -114,14 +116,16 @@ export function Command(props: {
 
 export const generateQuickCommands = (
   entitiesForSuggestions: NavigationData[],
-  currentEntityType: ENTITY_TYPE,
+  currentEntityType: EntityTypeValue,
   searchText: string,
   {
+    aiContext,
     datasources,
     enableAIAssistance,
     executeCommand,
     pluginIdToImageLocation,
   }: {
+    aiContext: AIEditorContext;
     datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
@@ -197,10 +201,11 @@ export const generateQuickCommands = (
       displayText: `${action.name}`,
       className: "CodeMirror-commands",
       data: action,
-      action: () =>
+      action: (callback?: (completion: string) => void) =>
         executeCommand({
           actionType: SlashCommand.NEW_QUERY,
           args: { datasource: action },
+          callback,
         }),
       render: (element: HTMLElement, self: any, data: CommandsCompletion) => {
         const completionData = data.data as Datasource;
@@ -220,12 +225,9 @@ export const generateQuickCommands = (
       },
     };
   });
-  const suggestionsMatchingSearchText = matchingCommands(
-    suggestions,
-    searchText,
-    5,
-  );
-  const actionCommands = [newBinding];
+
+  const filteredCommands: CommandsCompletion[] = [];
+  const commonCommands: CommandsCompletion[] = [];
 
   if (enableAIAssistance) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
@@ -233,38 +235,73 @@ export const generateQuickCommands = (
       displayText: APPSMITH_AI,
       shortcut: Shortcuts.ASK_AI,
       triggerCompletionsPostPick: true,
-      description: "Generate code using AI",
       isBeta: true,
+      action: () => {
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: aiContext,
+        });
+      },
     });
-    actionCommands.unshift(askGPT);
+    commonCommands.unshift(askGPT);
   }
-  const createNewCommands: CommandsCompletion[] = [];
 
-  if (currentEntityType === ENTITY_TYPE.WIDGET)
-    createNewCommands.push(...datasourceCommands);
+  if (currentEntityType !== ENTITY_TYPE.JSACTION) {
+    // New binding command is not applicable in JS Objects
+    commonCommands.push(newBinding);
+  }
 
-  const createNewCommandsMatchingSearchText = matchingCommands(
-    createNewCommands,
-    searchText,
-    3,
-  );
-  const actionCommandsMatchingSearchText = matchingCommands(
-    actionCommands,
+  // Filter common commands based on search text
+  const commonCommandsMatchingSearchText = matchingCommands(
+    commonCommands,
     searchText,
   );
-  if (currentEntityType === ENTITY_TYPE.WIDGET) {
-    createNewCommandsMatchingSearchText.push(
-      ...matchingCommands([newIntegration], searchText),
+
+  filteredCommands.push(...commonCommandsMatchingSearchText);
+
+  if (currentEntityType !== ENTITY_TYPE.JSACTION) {
+    // Binding suggestions and create query commands are not applicable in JS Objects
+
+    // Get top 5 matching suggestions
+    const suggestionsMatchingSearchText = matchingCommands(
+      suggestions,
+      searchText,
+      5,
     );
+
+    if (suggestionsMatchingSearchText.length) {
+      // Add header only if there are suggestions
+      filteredCommands.push(
+        commandsHeader("Bind data", "", filteredCommands.length > 0),
+      );
+      filteredCommands.push(...suggestionsMatchingSearchText);
+    }
+
+    if (currentEntityType === ENTITY_TYPE.WIDGET) {
+      const createNewCommands: CommandsCompletion[] = [];
+      createNewCommands.push(...datasourceCommands);
+
+      // Get top 3 matching create new commands
+      const createNewCommandsMatchingSearchText = matchingCommands(
+        createNewCommands,
+        searchText,
+        3,
+      );
+
+      // Check if new integration command matches search text
+      createNewCommandsMatchingSearchText.push(
+        ...matchingCommands([newIntegration], searchText),
+      );
+
+      if (createNewCommandsMatchingSearchText.length) {
+        // Add header only if there are create new commands
+        filteredCommands.push(
+          commandsHeader("Create a query", "", filteredCommands.length > 0),
+        );
+        filteredCommands.push(...createNewCommandsMatchingSearchText);
+      }
+    }
   }
-  const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
-  if (suggestionsMatchingSearchText.length) {
-    list.push(commandsHeader("Bind data", "", list.length > 0));
-  }
-  list.push(...suggestionsMatchingSearchText);
-  if (createNewCommandsMatchingSearchText.length) {
-    list.push(commandsHeader("Create a query", "", list.length > 0));
-  }
-  list.push(...createNewCommandsMatchingSearchText);
-  return list;
+
+  return filteredCommands;
 };

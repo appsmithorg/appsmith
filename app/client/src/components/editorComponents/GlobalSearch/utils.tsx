@@ -8,23 +8,29 @@ import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
 import {
   CurlIconV2,
+  EntityIcon,
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { createNewApiAction } from "actions/apiPaneActions";
-import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
-import { curlImportPageURL } from "RouteBuilder";
+import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Icon } from "design-system";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import {
+  createNewAPIBasedOnParentEntity,
+  createNewJSCollectionBasedOnParentEntity,
+} from "@appsmith/actions/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -32,11 +38,11 @@ export type SelectEvent =
   | KeyboardEvent
   | null;
 
-export type RecentEntity = {
+export interface RecentEntity {
   type: FocusEntity;
   id: string;
   pageId: string;
-};
+}
 
 export enum SEARCH_CATEGORY_ID {
   NAVIGATION = "Navigate",
@@ -66,15 +72,15 @@ export const comboHelpText = {
   ),
 };
 
-export type Snippet = {
+export interface Snippet {
   entities?: [string];
   fields?: [string];
   dataType?: string;
   language: string;
   body: SnippetBody;
-};
+}
 
-export type SnippetBody = {
+export interface SnippetBody {
   title: string;
   snippet: string;
   isTrigger?: boolean;
@@ -83,39 +89,40 @@ export type SnippetBody = {
   template: string;
   snippetMeta?: string;
   shortTitle?: string;
-};
+}
 
-export type FilterEntity = WidgetType | ENTITY_TYPE;
+export type FilterEntity = WidgetType | EntityTypeValue;
 
-export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
-  ACTION: "All Queries",
-  WIDGET: "All Widgets",
-  JSACTION: "JS Objects",
-};
+export const filterEntityTypeLabels: Partial<Record<EntityTypeValue, string>> =
+  {
+    ACTION: "All Queries",
+    WIDGET: "All Widgets",
+    JSACTION: "JS Objects",
+  };
 
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
   return (
     WidgetFactory.widgetConfigMap.get(label as WidgetType)?.widgetName ||
     getPluginByPackageName(state, label)?.name ||
-    filterEntityTypeLabels[label as ENTITY_TYPE] ||
+    filterEntityTypeLabels[label as EntityTypeValue] ||
     label
   );
 };
 
-export type SnippetArgument = {
+export interface SnippetArgument {
   identifier: string;
   name: string;
   type: ValidationTypes;
   placeholder?: boolean;
-};
+}
 
-export type SearchCategory = {
+export interface SearchCategory {
   id: SEARCH_CATEGORY_ID;
   kind?: SEARCH_ITEM_TYPES;
   title?: string;
   desc?: string;
   show?: () => boolean;
-};
+}
 
 export function getOptionalFilters(optionalFilterMeta: any) {
   return Object.entries(optionalFilterMeta || {}).reduce(
@@ -247,49 +254,83 @@ export const getEntityId = (entity: {
   }
 };
 
-export type ActionOperation = {
+export interface ActionOperation {
   title: string;
   desc: string;
   icon?: any;
   kind: SEARCH_ITEM_TYPES;
-  action?: (pageId: string, location: EventLocation) => any;
-  redirect?: (pageId: string, from: EventLocation) => any;
+  action?: (
+    entityId: string,
+    location: EventLocation,
+    entityType?: ActionParentEntityTypeInterface,
+  ) => any;
+  redirect?: (entityId: string, location: EventLocation) => any;
   pluginId?: string;
-};
+  focusEntityType?: FocusEntity;
+  dsName?: string;
+  entityExplorerTitle?: string;
+}
 
 export const actionOperations: ActionOperation[] = [
   {
     title: "New blank API",
+    entityExplorerTitle: "REST API",
     desc: "Create a new API",
     kind: SEARCH_ITEM_TYPES.actionOperation,
-    action: (pageId: string, location: EventLocation) =>
-      createNewApiAction(pageId, location),
+    action: (
+      entityId: string,
+      location: EventLocation,
+      entityType?: ActionParentEntityTypeInterface,
+    ) =>
+      createNewAPIBasedOnParentEntity(
+        entityId,
+        location,
+        undefined,
+        entityType,
+      ),
+    focusEntityType: FocusEntity.API,
   },
   {
     title: "New blank GraphQL API",
+    entityExplorerTitle: "GraphQL API",
     desc: "Create a new API",
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
-    action: (pageId: string, location: EventLocation) =>
-      createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
+    action: (
+      entityId: string,
+      location: EventLocation,
+      entityType?: ActionParentEntityTypeInterface,
+    ) =>
+      createNewAPIBasedOnParentEntity(
+        entityId,
+        location,
+        PluginPackageName.GRAPHQL,
+        entityType,
+      ),
+    focusEntityType: FocusEntity.API,
   },
   {
     title: "New JS Object",
+    entityExplorerTitle: "Import from cURL",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),
-    action: (pageId: string, from: EventLocation) =>
-      createNewJSCollection(pageId, from),
+    action: (
+      entityId: string,
+      from: EventLocation,
+      entityType?: ActionParentEntityTypeInterface,
+    ) => createNewJSCollectionBasedOnParentEntity(entityId, from, entityType),
+    focusEntityType: FocusEntity.JS_OBJECT,
   },
   {
     title: "New cURL import",
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (pageId: string, from: EventLocation) => {
+    redirect: (entityId: string, from: EventLocation) => {
       const queryParams = getQueryParams();
       const curlImportURL = curlImportPageURL({
-        pageId,
+        parentEntityId: entityId,
         params: {
           from,
           ...queryParams,
@@ -297,8 +338,59 @@ export const actionOperations: ActionOperation[] = [
       });
       history.push(curlImportURL);
     },
+    focusEntityType: FocusEntity.API,
   },
 ];
+
+export const createQueryOption = {
+  desc: "",
+  title: "Create a query",
+  kind: SEARCH_ITEM_TYPES.sectionTitle,
+  focusEntityType: FocusEntity.QUERY,
+};
+
+export const generateCreateQueryForDSOption = (
+  ds: Datasource,
+  onClick: (entityId: string, from: EventLocation) => void,
+) => {
+  return {
+    title: `New ${ds.name} query`,
+    shortTitle: `${ds.name} query`,
+    desc: `Create a query in ${ds.name}`,
+    pluginId: ds.pluginId,
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    action: onClick,
+    focusEntityType: FocusEntity.QUERY,
+    dsName: ds.name,
+  };
+};
+
+export const generateCreateNewDSOption = (
+  filteredFileOperations: ActionOperation[],
+  onRedirect: (id: string) => void,
+) => {
+  return [
+    ...filteredFileOperations,
+    {
+      desc: "Create a new datasource in the workspace",
+      title: "New datasource",
+      icon: (
+        <EntityIcon>
+          <Icon name="plus" size="lg" />
+        </EntityIcon>
+      ),
+      kind: SEARCH_ITEM_TYPES.actionOperation,
+      redirect: (id: string, entryPoint: string) => {
+        onRedirect(id);
+        // Event for datasource creation click
+        AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+          entryPoint,
+        });
+      },
+      focusEntityType: FocusEntity.DATASOURCE,
+    },
+  ];
+};
 
 export const isMatching = (text = "", query = "") => {
   if (typeof text === "string" && typeof query === "string") {

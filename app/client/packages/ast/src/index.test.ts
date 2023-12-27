@@ -1,5 +1,9 @@
 import { parseJSObject } from "../index";
-import { extractIdentifierInfoFromCode, isFunctionPresent } from "../src/index";
+import {
+  extractIdentifierInfoFromCode,
+  getMemberExpressionObjectFromProperty,
+  isFunctionPresent,
+} from "../src/index";
 
 describe("getAllIdentifiers", () => {
   it("works properly", () => {
@@ -688,5 +692,85 @@ describe("isFunctionPresent", () => {
     const result = isFunctionPresent(code, 2);
 
     expect(result).toBe(true);
+  });
+});
+
+describe("getMemberExpressionObjectFromProperty", () => {
+  it("returns an empty array for empty property name", () => {
+    const code = `function(){
+      const test = Api1.data.test
+      return "Favour"
+    }`;
+    const propertyName = "";
+    const actualResponse = getMemberExpressionObjectFromProperty(
+      propertyName,
+      code,
+    );
+    expect(actualResponse).toStrictEqual([]);
+  });
+  it("returns an empty array for invalid js", () => {
+    const code = `function(){
+      const test = Api1.data.test
+      return "Favour"
+    `;
+    const propertyName = "test";
+    const actualResponse = getMemberExpressionObjectFromProperty(
+      propertyName,
+      code,
+    );
+    expect(actualResponse).toStrictEqual([]);
+  });
+  it("returns correct member expression object(s)", () => {
+    const testData = [
+      {
+        code: `function(){
+        const test = Api1.data.test
+        return "Favour"
+      }`,
+        propertyName: "test",
+        expectedResponse: ["Api1.data"],
+      },
+      {
+        code: `function(){
+        const test = Api1.data.test;
+        Button1.test;
+        return "Favour"
+      }`,
+        propertyName: "test",
+        expectedResponse: ["Api1.data", "Button1"],
+      },
+      {
+        code: `function(){
+        // const test = Api1.data.test
+        return "Favour"
+      }`,
+        propertyName: "test",
+        expectedResponse: [],
+      },
+      {
+        code: `function(){
+        const test = Api1.data.test.now
+        return "Favour"
+      }`,
+        propertyName: "test",
+        expectedResponse: ["Api1.data"],
+      },
+      {
+        code: `function(){
+        const test = Api1.data["test"]
+        return "Favour"
+      }`,
+        propertyName: "test",
+        expectedResponse: ["Api1.data"],
+      },
+    ];
+
+    for (const testDatum of testData) {
+      const actualResponse = getMemberExpressionObjectFromProperty(
+        testDatum.propertyName,
+        testDatum.code,
+      );
+      expect(actualResponse).toStrictEqual(testDatum.expectedResponse);
+    }
   });
 });

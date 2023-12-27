@@ -1,6 +1,6 @@
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity } from "entities/DataTree/types";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
 export const getActionChildrenPeekData = (
   actionName: string,

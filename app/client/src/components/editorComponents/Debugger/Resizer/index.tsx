@@ -17,14 +17,14 @@ const Top = styled.div`
   margin-bottom: -2px;
 `;
 
-type ResizerProps = {
+interface ResizerProps {
   panelRef: RefObject<HTMLDivElement>;
   setContainerDimensions?: (height: number) => void;
   onResizeComplete?: (height: number) => void;
   snapToHeight?: number;
   openResizer?: boolean;
   initialHeight?: number;
-};
+}
 
 function Resizer(props: ResizerProps) {
   const [mouseDown, setMouseDown] = useState(false);

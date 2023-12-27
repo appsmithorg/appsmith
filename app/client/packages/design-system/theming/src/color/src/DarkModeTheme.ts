@@ -52,6 +52,7 @@ export class DarkModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.to("sRGB").toString(),
       bgAssistive: this.bgAssistive.to("sRGB").toString(),
       bgNeutral: this.bgNeutral.to("sRGB").toString(),
+      bgNeutralOpacity: this.bgNeutralOpacity.to("sRGB").toString(),
       bgNeutralHover: this.bgNeutralHover.to("sRGB").toString(),
       bgNeutralActive: this.bgNeutralActive.to("sRGB").toString(),
       bgNeutralSubtle: this.bgNeutralSubtle.to("sRGB").toString(),
@@ -76,9 +77,18 @@ export class DarkModeTheme implements ColorModeTheme {
       bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
       bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
 
+      bgElevation1: this.bgElevation1.to("sRGB").toString(),
+      bgElevation2: this.bgElevation2.to("sRGB").toString(),
+      bgElevation3: this.bgElevation3.to("sRGB").toString(),
+
+      shadowElevation1: this.shadowElevation1.to("sRGB").toString(),
+      shadowElevation2: this.shadowElevation2.to("sRGB").toString(),
+      shadowElevation3: this.shadowElevation3.to("sRGB").toString(),
+
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.to("sRGB").toString(),
+      fgNeutralSubtle: this.fgNeutralSubtle.to("sRGB").toString(),
       fgPositive: this.fgPositive.to("sRGB").toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
       fgWarning: this.fgWarning.to("sRGB").toString(),
@@ -300,6 +310,15 @@ export class DarkModeTheme implements ColorModeTheme {
     if (!this.seedIsCold && !this.seedIsAchromatic) {
       color.oklch.c = 0.01;
     }
+
+    return color;
+  }
+
+  private get bgNeutralOpacity() {
+    const color = this.bgNeutral.clone();
+
+    color.oklch.l = 0.15;
+    color.alpha = 0.5;
 
     return color;
   }
@@ -571,6 +590,68 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   /*
+   * Elevation colors
+   */
+
+  private get bgElevation1() {
+    const color = this.bg.clone();
+
+    color.oklch.l += 0.07;
+
+    return color;
+  }
+
+  private get bgElevation2() {
+    const color = this.bgElevation1.clone();
+
+    color.oklch.l += 0.04;
+
+    return color;
+  }
+
+  private get bgElevation3() {
+    const color = this.bgElevation2.clone();
+
+    color.oklch.l += 0.02;
+
+    return color;
+  }
+
+  /*
+   * Shadow colors
+   */
+
+  private get shadowElevation1() {
+    const color = this.seedColor.clone();
+
+    color.oklch.l = 0.1;
+
+    color.alpha = 0.5;
+
+    return color;
+  }
+
+  private get shadowElevation2() {
+    const color = this.shadowElevation1.clone();
+
+    color.oklch.l += 0.05;
+
+    color.alpha = 0.45;
+
+    return color;
+  }
+
+  private get shadowElevation3() {
+    const color = this.shadowElevation2.clone();
+
+    color.oklch.l += 0.05;
+
+    color.alpha = 0.4;
+
+    return color;
+  }
+
+  /*
    * Foreground colors
    */
 
@@ -634,6 +715,14 @@ export class DarkModeTheme implements ColorModeTheme {
     if (!this.seedIsCold && !this.seedIsAchromatic) {
       color.oklch.c = 0.01;
     }
+
+    return color;
+  }
+
+  private get fgNeutralSubtle() {
+    const color = this.fgNeutral.clone();
+
+    color.oklch.l -= 0.15;
 
     return color;
   }
@@ -832,28 +921,12 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdFocus() {
-    // Keyboard focus outline. Doesn't match the seed to increase contrast
-    const color = this.seedColor.clone();
-
-    if (this.seedLightness < 0.4) {
-      color.oklch.l = 0.4;
-    }
-
-    if (this.seedLightness > 0.65) {
-      color.oklch.l = 0.65;
-    }
+    // Keyboard focus outline
+    const color = this.bdAccent.clone();
 
     // Achromatic seeds still produce colorful focus; this is good for accessibility even though it affects visual style
     if (this.seedChroma < 0.12) {
       color.oklch.c = 0.12;
-    }
-
-    // Green-red color blindness is among the most prevalent, so instead of 180 we're rotating hue by additional 60°
-    color.oklch.h -= 240;
-
-    // Additional adjustments for red, pinks, magentas
-    if ((this.seedHue >= 0 && this.seedHue <= 55) || this.seedHue >= 340) {
-      color.oklch.h += 160;
     }
 
     return color;

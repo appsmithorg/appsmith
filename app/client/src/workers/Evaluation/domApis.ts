@@ -96,9 +96,12 @@ const DOM_API_NAMES = [
   "toJSON",
 ] as const;
 
-const DOM_APIS = DOM_API_NAMES.reduce((acc, key) => {
-  acc[key] = true;
-  return acc;
-}, {} as Record<string, true | undefined>);
+const DOM_APIS = DOM_API_NAMES.reduce(
+  (acc, key) => {
+    acc[key] = true;
+    return acc;
+  },
+  {} as Record<string, true | undefined>,
+);
 
 export default DOM_APIS;

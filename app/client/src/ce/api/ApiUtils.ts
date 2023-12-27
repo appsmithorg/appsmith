@@ -70,7 +70,7 @@ const is404orAuthPath = () => {
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
 };
 
-export const blockedApiRoutesForAirgapInterceptor = (
+export const blockedApiRoutesForAirgapInterceptor = async (
   config: AxiosRequestConfig,
 ) => {
   const { url } = config;
@@ -143,7 +143,7 @@ export const apiSuccessResponseInterceptor = (
 };
 
 // Handle different api failure scenarios
-export const apiFailureResponseInterceptor = (error: any) => {
+export const apiFailureResponseInterceptor = async (error: any) => {
   // this can be extended to other errors we want to catch.
   // in this case it is 413.
   if (error && error?.response && error?.response.status === 413) {

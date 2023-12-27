@@ -5,21 +5,21 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { isEmpty, isEqual, xorWith } from "lodash";
 
-export type ParsedJSSubAction = {
+export interface ParsedJSSubAction {
   name: string;
   body: string;
   arguments: Array<Variable>;
-};
+}
 
-export type ParsedBody = {
+export interface ParsedBody {
   actions: Array<ParsedJSSubAction>;
   variables: Array<Variable>;
-};
+}
 
-export type JSUpdate = {
+export interface JSUpdate {
   id: string;
   parsedBody: ParsedBody | undefined;
-};
+}
 
 export const getDifferenceInJSArgumentArrays = (x: any, y: any) =>
   isEmpty(xorWith(x, y, isEqual));
@@ -200,8 +200,8 @@ export const pushLogsForObjectUpdate = (
 };
 
 export const createDummyJSCollectionActions = (
-  pageId: string,
   workspaceId: string,
+  additionalParams: Record<string, unknown> = {},
 ) => {
   const body =
     "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1 () {\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t},\n\tasync myFun2 () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}\n}";
@@ -209,7 +209,6 @@ export const createDummyJSCollectionActions = (
   const actions = [
     {
       name: "myFun1",
-      pageId,
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
@@ -218,10 +217,10 @@ export const createDummyJSCollectionActions = (
         jsArguments: [],
       },
       clientSideExecution: true,
+      ...additionalParams,
     },
     {
       name: "myFun2",
-      pageId,
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
@@ -230,10 +229,24 @@ export const createDummyJSCollectionActions = (
         jsArguments: [],
       },
       clientSideExecution: true,
+      ...additionalParams,
     },
   ];
+
+  const variables = [
+    {
+      name: "myVar1",
+      value: [],
+    },
+    {
+      name: "myVar2",
+      value: {},
+    },
+  ];
+
   return {
     actions,
     body,
+    variables,
   };
 };

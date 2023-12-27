@@ -1,11 +1,11 @@
 import React from "react";
 import { Icon, Text } from "design-system";
 
-export type InfoBlockProps = {
+export interface InfoBlockProps {
   icon: string;
   header: string;
   info: string;
-};
+}
 
 export const InfoBlock = (props: InfoBlockProps) => {
   return (

@@ -5,8 +5,7 @@ export default defineConfig({
   requestTimeout: 60000,
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
-  videoUploadOnPasses: false,
-  videoCompression: false,
+  video: true,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporterOptions: {
@@ -26,6 +25,7 @@ export default defineConfig({
   e2e: {
     baseUrl: "http://localhost/",
     setupNodeEvents(on, config) {
+      require("@cypress/grep/src/plugin")(config);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
@@ -34,6 +34,7 @@ export default defineConfig({
       "cypress/e2e/**/spec_utility.ts",
       "cypress/e2e/GSheet/**/**/*",
       "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
+      "cypress/e2e/Regression/ClientSide/CommunityTemplate/*",
       "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
     ],
   },

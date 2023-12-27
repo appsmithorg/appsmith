@@ -6,7 +6,7 @@ import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { theme } from "constants/DefaultTheme";
 import type { SelectComponents } from "react-select/src/components";
 
-type DropdownProps = {
+interface DropdownProps {
   options: Array<{
     value: string;
     label: string;
@@ -21,7 +21,7 @@ type DropdownProps = {
   noOptionsMessage?: (obj: { inputValue: string }) => string;
   inputValue?: string;
   onInputChange: (value: string, actionMeta: InputActionMeta) => void;
-};
+}
 
 const selectStyles = {
   placeholder: (provided: any) => ({

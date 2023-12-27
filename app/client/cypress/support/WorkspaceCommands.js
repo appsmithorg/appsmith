@@ -5,11 +5,11 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
-import explorer from "../locators/explorerlocators";
 import { ObjectsRegistry } from "../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;
+const homePageTS = ObjectsRegistry.HomePage;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -214,11 +214,12 @@ Cypress.Commands.add("launchApp", () => {
 });
 
 Cypress.Commands.add("AppSetupForRename", () => {
+  cy.wait(2000); //wait a bit for app to load
   cy.get(homePage.applicationName).then(($appName) => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
-        .contains("Edit name", { matchCase: false })
+        .contains("Rename", { matchCase: false })
         .click({ force: true });
     }
   });
@@ -252,62 +253,64 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     "response.body.responseMeta.status",
     200,
   );
-  agHelper.RemoveTooltip("Rename application");
+  agHelper.RemoveUIElement("Tooltip", "Rename application");
 });
 
-Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
-  let applicationId;
-  cy.get(homePage.createNew).first().click({ force: true });
-  cy.wait("@createNewApplication").then((xhr) => {
+Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
+  let applicationId, appName;
+  let toNavigateToHome = false;
+  cy.get("body").then(($ele) => {
+    if ($ele.find(".t--appsmith-logo").length < 0) {
+      toNavigateToHome = false;
+    } else {
+      toNavigateToHome = true;
+    }
+  });
+  homePageTS.CreateNewWorkspace("", toNavigateToHome); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
+  //agHelper.Sleep(2000); //for workspace to open
+  cy.get("@workspaceName").then((workspaceName) => {
+    localStorage.setItem("workspaceName", workspaceName);
+    homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
+  });
+  cy.get("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
     applicationId = response.body.data.id;
+    appName = response.body.data.name;
+    cy.log("appName", appName);
     localStorage.setItem("applicationId", applicationId);
+    localStorage.setItem("appName", appName);
+
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(4000);
+    cy.get("#loading").should("not.exist");
+
+    cy.url().then((url) => {
+      if (url.indexOf("/applications") > -1) {
+        homePageTS.EditAppFromAppHover(appName);
+        agHelper.Sleep(2000); //for app to open
+      }
+    });
   });
-  //cy.get("#loading").should("not.exist");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  //cy.reload();
-  cy.wait(4000);
-  cy.get("#loading").should("not.exist");
-
-  assertHelper.AssertNetworkStatus("@getPage");
-  assertHelper.AssertNetworkStatus("@getLibraries");
-  assertHelper.AssertNetworkStatus("@getPlugins");
-
   cy.get("#sidebar").should("be.visible");
-  cy.wait("@getPluginForm") //replacing this since flaky in CI - to monitor
-    .its("response.body.responseMeta.status")
-    .should("eq", 200);
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-
-  // If the into modal is open close it
+  // If the intro modal is open, close it
   cy.skipSignposting();
 
-  cy.AppSetupForRename();
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  // Remove tooltip on the Application Name
-  agHelper.RemoveTooltip("Rename application");
+  //Removing renaming of app from all tests, since its also verified in other separate tests
+  // cy.AppSetupForRename();
+  // cy.get(homePage.applicationName).type(appname + "{enter}");
+  // assertHelper.AssertNetworkStatus("@updateApplication");
+  // // Remove tooltip on the Application Name
+  // agHelper.RemoveTooltip("Tooltip","Rename application");
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
    * we wait for that to finish before updating layout here
    */
   //cy.wait("@updateLayout");
-});
-
-Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
-  cy.get(`.t--entity-item:contains(${entityName})`).within(() => {
-    cy.get(".t--context-menu").click({ force: true });
-  });
-  cy.selectAction("Edit name");
-  cy.get(explorer.editEntity).last().type(`${renamedEntity}`, { force: true });
 });
 Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
   cy.openWorkspaceOptionsPopup(newWorkspaceName);

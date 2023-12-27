@@ -8,8 +8,8 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
+  combinedPreviewModeSelector,
   getIsAutoLayout,
-  previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
@@ -66,7 +66,7 @@ const ControlGroup = styled.div`
   }
 `;
 
-type WidgetNameComponentProps = {
+interface WidgetNameComponentProps {
   widgetName: string;
   widgetId: string;
   parentId?: string;
@@ -75,12 +75,12 @@ type WidgetNameComponentProps = {
   topRow: number;
   errorCount: number;
   widgetWidth: number;
-};
+}
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

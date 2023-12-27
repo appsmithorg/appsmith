@@ -5,7 +5,7 @@ import {
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type {
   MovementLimitMap,
   ReflowedSpaceMap,
@@ -29,10 +29,10 @@ import {
   modifyDrawingRectangles,
   updateRectanglesPostReflow,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
-import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 
 /**
@@ -107,13 +107,18 @@ export const useCanvasDragging = (
 
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
-
+  const canvasRenderingDependencies = useMemo(
+    () => ({
+      snapRows,
+      canExtend,
+    }),
+    [snapRows, canExtend],
+  );
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
     isCurrentDraggedCanvas,
     isDragging,
-    snapRows,
-    canExtend,
+    canvasRenderingDependencies,
   );
 
   const renderBlocks = useRenderBlocksOnCanvas(

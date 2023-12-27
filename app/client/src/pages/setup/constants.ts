@@ -1,50 +1,42 @@
-export type OptionType = {
+export interface OptionType {
   label?: string;
   value?: string;
+}
+
+type OptionTypeWithSubtext = OptionType & {
+  subtext?: string;
 };
 
-export const roleOptions: OptionType[] = [
+export const proficiencyOptions: OptionTypeWithSubtext[] = [
   {
-    label: "Frontend (HTML/JS/React)",
-    value: "frontend engineer",
+    label: "Brand New",
+    subtext: "I've never written code before.",
+    value: "Brand New",
   },
   {
-    label: "Backend (APIs/Databases)",
-    value: "backend engineer",
+    label: "Novice",
+    subtext: "Learning the ropes. Basic understanding of coding concepts.",
+    value: "Novice",
   },
   {
-    label: "Fullstack",
-    value: "fullstack engineer",
+    label: "Intermediate",
+    subtext: "Can tackle moderately complex projects.",
+    value: "Intermediate",
   },
   {
-    label: "SQL Queries & Basic Coding",
-    value: "business analyst",
-  },
-  {
-    label: "Non Technical",
-    value: "non technical",
-  },
-  {
-    label: "Other",
-    value: "other",
+    label: "Advanced",
+    subtext: "Mastery in development. Experienced with complex coding tasks.",
+    value: "Advanced",
   },
 ];
 
-export const useCaseOptions: OptionType[] = [
-  {
-    label: "Just Exploring",
-    value: "just exploring",
-  },
-  {
-    label: "Personal Project",
-    value: "personal project",
-  },
+export const useCaseOptions: OptionTypeWithSubtext[] = [
   {
     label: "Work Project",
     value: "work project",
   },
   {
-    label: "Other",
-    value: "other",
+    label: "Personal Project",
+    value: "personal project",
   },
 ];

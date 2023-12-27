@@ -14,7 +14,7 @@ import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
 import { importSvg } from "design-system-old";
 
 const ChevronDown = importSvg(
-  () => import("assets/icons/ads/chevron-down.svg"),
+  async () => import("assets/icons/ads/chevron-down.svg"),
 );
 
 const SelectedValueNodeContainer = styled.div`
@@ -45,11 +45,11 @@ const DropdownContainer = styled.div`
   }
 `;
 
-type OptionSelectorProps = {
+interface OptionSelectorProps {
   options: DropdownOption[];
   selected: DropdownOption;
   onSelect?: (value?: string, dropdownOption?: any) => void;
-};
+}
 
 function OptionSelector({ onSelect, options, selected }: OptionSelectorProps) {
   return (

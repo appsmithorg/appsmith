@@ -53,6 +53,10 @@ describe("emptyChartData", () => {
     renderMode: RenderModes.CANVAS,
   };
 
+  describe("font family", () => {
+    expect(ChartWidget.fontFamily).toEqual("Nunito Sans");
+  });
+
   describe("when chart type is basic ECharts", () => {
     const basicEChartProps = JSON.parse(JSON.stringify(defaultProps));
     const basicEChartsType = "LINE_CHART";
@@ -163,8 +167,8 @@ describe("emptyChartData", () => {
       );
       expect(deprecationMessage.links).toEqual([
         {
-          text: "Learn More",
-          url: "https://docs.appsmith.com",
+          text: "Learn more",
+          url: "https://www.appsmith.com/blog/deprecating-fusion-charts",
         },
       ]);
     });

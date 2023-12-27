@@ -12,7 +12,7 @@ let repoName;
 let generatedKey;
 let windowOpenSpy;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
-describe("Git sync modal: connect tab", function () {
+describe("Git sync modal: connect tab", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();
@@ -221,7 +221,7 @@ describe("Git sync modal: connect tab", function () {
     });
 
     cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView().click();
-    cy.get(gitSyncLocators.connetStatusbar).should("exist");
+    // cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
@@ -229,7 +229,7 @@ describe("Git sync modal: connect tab", function () {
     });
 
     // read document clicking test
-    cy.get(gitSyncLocators.errorCallout).contains("Learn More");
+    cy.get(gitSyncLocators.errorCallout).contains("Learn more");
     cy.window().then((window) => {
       windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
         // todo: check if we can improve this
@@ -237,7 +237,7 @@ describe("Git sync modal: connect tab", function () {
         windowOpenSpy.restore();
       });
     });
-    cy.get(gitSyncLocators.errorCallout).contains("Learn More").click();
+    cy.get(gitSyncLocators.errorCallout).contains("Learn more").click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 

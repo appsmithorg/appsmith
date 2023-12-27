@@ -5,14 +5,14 @@ import { isEllipsisActive } from "utils/helpers";
 import { Tooltip } from "design-system";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
-type ApplicationNameProps = {
+interface ApplicationNameProps {
   appName?: string;
   navColorStyle: NavigationSetting["colorStyle"];
   navStyle: NavigationSetting["navStyle"];
   primaryColor: string;
   forSidebar?: boolean;
   fontWeight?: "regular" | "bold";
-};
+}
 
 const ApplicationName = (props: ApplicationNameProps) => {
   const {

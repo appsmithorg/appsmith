@@ -3,7 +3,7 @@ import { importSvg } from "design-system-old";
 import styled from "styled-components";
 import { Text } from "design-system";
 const AppsmithLogo = importSvg(
-  () => import("assets/svg/appsmith-logo-no-pad.svg"),
+  async () => import("assets/svg/appsmith-logo-no-pad.svg"),
 );
 
 const Wrapper = styled.span`

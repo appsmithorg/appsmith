@@ -1,26 +1,19 @@
 import React, { forwardRef } from "react";
+import { Field } from "@design-system/headless";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
 import { useRadioGroup } from "@react-aria/radio";
-import type { StyleProps } from "@react-types/shared";
 import { useRadioGroupState } from "@react-stately/radio";
-import type { SpectrumRadioGroupProps } from "@react-types/radio";
 
 import { RadioContext } from "./context";
-import { Field } from "@design-system/headless";
-import type { LabelProps } from "@design-system/headless";
+import type { RadioGroupProps } from "./types";
 
 export type RadioGroupRef = DOMRef<HTMLDivElement>;
-export interface RadioGroupProps
-  extends Omit<SpectrumRadioGroupProps, keyof StyleProps> {
-  className?: string;
-  labelWidth?: LabelProps["labelWidth"];
-}
 
 const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
   const {
     children,
-    className,
+    fieldClassName,
     isDisabled = false,
     orientation = "vertical",
     validationState,
@@ -35,10 +28,10 @@ const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
       {...props}
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
-      includeNecessityIndicatorInAccessibilityName
+      fieldType="field-group"
       labelProps={labelProps}
       ref={domRef}
-      wrapperClassName={className}
+      wrapperClassName={fieldClassName}
     >
       <div
         {...radioGroupProps}

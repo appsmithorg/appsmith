@@ -10,16 +10,16 @@ import type {
 // // Type for the object that will store the eval output for the app
 export type TriggerValuesEvaluationState = Record<string, FormEvalOutput>;
 
-export type TriggerActionPayload = {
+export interface TriggerActionPayload {
   formId: string;
   values: ConditionalOutput;
-};
+}
 
-export type TriggerActionLoadingPayload = {
+export interface TriggerActionLoadingPayload {
   formId: string;
   keys: string[]; // keys that need their loading states set.
   value: boolean;
-};
+}
 
 const initialState: TriggerValuesEvaluationState = {};
 

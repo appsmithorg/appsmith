@@ -5,6 +5,7 @@ import { initialize } from "redux-form";
 import {
   getDBPlugins,
   getPluginImages,
+  getMostPopularPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
@@ -21,6 +22,16 @@ import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSel
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
+import { PluginPackageName, PluginType } from "entities/Action";
+import { Spinner } from "design-system";
+import PlusLogo from "assets/images/Plus-logo.svg";
+import {
+  createMessage,
+  CREATE_NEW_DATASOURCE_REST_API,
+} from "@appsmith/constants/messages";
+import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -104,7 +115,10 @@ const DatasourceContentWrapper = styled.div`
 `;
 
 interface DatasourceHomeScreenProps {
-  pageId: string;
+  editorType: string;
+  editorId: string;
+  parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
   location: {
     search: string;
   };
@@ -112,6 +126,8 @@ interface DatasourceHomeScreenProps {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showMostPopularPlugins?: boolean;
+  isCreating?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
 }
 
@@ -119,6 +135,13 @@ interface ReduxDispatchProps {
   initializeForm: (data: Record<string, any>) => void;
   createDatasource: (data: any) => void;
   createTempDatasource: (data: any) => void;
+  createNewApiActionBasedOnEditorType: (
+    editorType: string,
+    editorId: string,
+    parentEntityId: string,
+    parentEntityType: ActionParentEntityTypeInterface,
+    apiType: string,
+  ) => void;
 }
 
 interface ReduxStateProps {
@@ -181,14 +204,54 @@ class DatasourceHomeScreen extends React.Component<Props> {
     });
   };
 
+  handleOnClick = () => {
+    const { editorId, editorType, parentEntityId, parentEntityType } =
+      this.props;
+    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+      source: API_ACTION.CREATE_NEW_API,
+    });
+    this.props.createNewApiActionBasedOnEditorType(
+      editorType,
+      editorId,
+      parentEntityId,
+      parentEntityType,
+      PluginPackageName.REST_API,
+    );
+  };
+
   render() {
-    const { currentApplication, pluginImages, plugins } = this.props;
+    const {
+      currentApplication,
+      isCreating,
+      pluginImages,
+      plugins,
+      showMostPopularPlugins,
+    } = this.props;
 
     return (
       <DatasourceHomePage>
         <DatasourceCardsContainer data-testid="database-datasource-card-container">
           {plugins.map((plugin, idx) => {
-            return (
+            return plugin.type === PluginType.API ? (
+              !!showMostPopularPlugins ? (
+                <ApiCard
+                  className="t--createBlankApiCard create-new-api"
+                  onClick={() => this.handleOnClick()}
+                >
+                  <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
+                    <img
+                      alt="New"
+                      className="curlImage t--plusImage content-icon"
+                      src={PlusLogo}
+                    />
+                    <p className="textBtn">
+                      {createMessage(CREATE_NEW_DATASOURCE_REST_API)}
+                    </p>
+                  </CardContentWrapper>
+                  {isCreating && <Spinner className="cta" size={25} />}
+                </ApiCard>
+              ) : null
+            ) : (
               <DatasourceCard
                 data-testid="database-datasource-card"
                 key={`${plugin.id}_${idx}`}
@@ -221,11 +284,16 @@ class DatasourceHomeScreen extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (
+  state: AppState,
+  props: { showMostPopularPlugins?: boolean },
+) => {
   const { datasources } = state.entities;
   return {
     pluginImages: getPluginImages(state),
-    plugins: getDBPlugins(state),
+    plugins: !!props?.showMostPopularPlugins
+      ? getMostPopularPlugins(state)
+      : getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
     isSaving: datasources.loading,
     generateCRUDSupportedPlugin: getGenerateCRUDEnabledPluginMap(state),
@@ -239,6 +307,22 @@ const mapDispatchToProps = (dispatch: any) => {
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
     createTempDatasource: (data: any) =>
       dispatch(createTempDatasourceFromForm(data)),
+    createNewApiActionBasedOnEditorType: (
+      editorType: string,
+      editorId: string,
+      parentEntityId: string,
+      parentEntityType: ActionParentEntityTypeInterface,
+      apiType: string,
+    ) =>
+      dispatch(
+        createNewApiActionBasedOnEditorType(
+          editorType,
+          editorId,
+          parentEntityId,
+          parentEntityType,
+          apiType,
+        ),
+      ),
   };
 };
 

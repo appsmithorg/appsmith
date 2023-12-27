@@ -1,4 +1,4 @@
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { isDataTreeEntity } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { entityFns } from "@appsmith/workers/Evaluation/fns";
 import setters from "workers/Evaluation/setters";

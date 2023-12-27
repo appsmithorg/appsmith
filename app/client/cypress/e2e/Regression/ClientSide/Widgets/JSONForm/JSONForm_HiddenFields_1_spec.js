@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -6,6 +10,7 @@ import {
   entityExplorer,
   deployMode,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
@@ -82,84 +87,90 @@ function removeCustomField() {
   cy.deleteJSONFormField("customField1");
 }
 
-describe("JSON Form Hidden fields", () => {
-  before(() => {
-    agHelper.AddDsl("jsonFormDslWithSchema");
-    entityExplorer.SelectEntityByName("Text1");
-    propPane.UpdatePropertyFieldValue(
-      "Text",
-      "{{JSON.stringify(JSONForm1.formData)}}",
-    );
-  });
-
-  it("1. can hide Array Field", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.OpenJsonFormFieldSettings("Education");
-    hideAndVerifyProperties("education", [
-      {
-        college: "MIT",
-        year: "20/10/2014",
-      },
-    ]);
-  });
-
-  it("2. can hide Array Field's inner fields", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__", false);
-    cy.openFieldConfiguration("college", false);
-
-    hideAndVerifyProperties("education-0--college", "MIT", (formData) => {
-      return formData.education[0].college;
+describe(
+  "JSON Form Hidden fields",
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  () => {
+    before(() => {
+      agHelper.AddDsl("jsonFormDslWithSchema");
+      cy.openPropertyPane("jsonformwidget");
+      cy.get(locators._jsToggle("sourcedata")).click({ force: true });
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue(
+        "Text",
+        "{{JSON.stringify(JSONForm1.formData)}}",
+      );
     });
-  });
 
-  it("3. can hide Checkbox Field", () => {
-    // Add new custom field
-    addCustomField("Checkbox");
-
-    hideAndVerifyProperties("customField1", true);
-    // Remove custom field
-    removeCustomField();
-  });
-
-  it("4. can hide Currency Field", () => {
-    const defaultValue = 1000;
-    // Add new custom field
-    addCustomField("Currency Input");
-    cy.testJsontext("defaultvalue", defaultValue);
-    hideAndVerifyProperties("customField1", defaultValue);
-    removeCustomField();
-  });
-
-  it("5. can hide Date Field", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("dob");
-
-    hideAndVerifyProperties("dob", "10/12/1992");
-  });
-
-  it("6. can hide Input Field", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("name");
-
-    hideAndVerifyProperties("name", "John");
-  });
-
-  it("7. can hide Multiselect Field", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("hobbies");
-
-    hideAndVerifyProperties("hobbies", ["travelling", "swimming"]);
-  });
-
-  it("8. can hide Object Field", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("address");
-
-    hideAndVerifyProperties("address", {
-      street: "Koramangala",
-      city: "Bangalore",
+    it("1. can hide Array Field", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.OpenJsonFormFieldSettings("Education");
+      hideAndVerifyProperties("education", [
+        {
+          college: "MIT",
+          year: "20/10/2014",
+        },
+      ]);
     });
-  });
-});
+
+    it("2. can hide Array Field's inner fields", () => {
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("education");
+      cy.openFieldConfiguration("__array_item__", false);
+      cy.openFieldConfiguration("college", false);
+
+      hideAndVerifyProperties("education-0--college", "MIT", (formData) => {
+        return formData.education[0].college;
+      });
+    });
+
+    it("3. can hide Checkbox Field", () => {
+      // Add new custom field
+      addCustomField("Checkbox");
+
+      hideAndVerifyProperties("customField1", true);
+      // Remove custom field
+      removeCustomField();
+    });
+
+    it("4. can hide Currency Field", () => {
+      const defaultValue = 1000;
+      // Add new custom field
+      addCustomField("Currency Input");
+      cy.testJsontext("defaultvalue", defaultValue);
+      hideAndVerifyProperties("customField1", defaultValue);
+      removeCustomField();
+    });
+
+    it("5. can hide Date Field", () => {
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("dob");
+
+      hideAndVerifyProperties("dob", "10/12/1992");
+    });
+
+    it("6. can hide Input Field", () => {
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("name");
+
+      hideAndVerifyProperties("name", "John");
+    });
+
+    it("7. can hide Multiselect Field", () => {
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("hobbies");
+
+      hideAndVerifyProperties("hobbies", ["travelling", "swimming"]);
+    });
+
+    it("8. can hide Object Field", () => {
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("address");
+
+      hideAndVerifyProperties("address", {
+        street: "Koramangala",
+        city: "Bangalore",
+      });
+    });
+  },
+);

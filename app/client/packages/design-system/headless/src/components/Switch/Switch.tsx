@@ -16,9 +16,8 @@ import type { CheckboxGroupContextType } from "../Checkbox";
 
 export interface SwitchProps
   extends Omit<SpectrumSwitchProps, keyof StyleProps>,
-    Validation,
-    InlineLabelProps {
-  icon?: React.ReactNode;
+    InlineLabelProps,
+    Validation<boolean> {
   className?: string;
 }
 
@@ -30,6 +29,7 @@ const _Switch = (props: SwitchProps, ref: SwitchRef) => {
     children,
     className,
     isDisabled: isDisabledProp = false,
+    labelPosition = "right",
     validationState,
   } = props;
   const state = useToggleState(props);
@@ -44,7 +44,7 @@ const _Switch = (props: SwitchProps, ref: SwitchRef) => {
   const context = useContext(CheckboxGroupContext) as CheckboxGroupContextType;
   const isDisabled = isDisabledProp || context?.isDisabled;
   const { hoverProps, isHovered } = useHover({ isDisabled });
-  const { inputProps } = context?.state
+  const { inputProps } = Boolean(context?.state)
     ? // eslint-disable-next-line react-hooks/rules-of-hooks
       useCheckboxGroupItem(
         {
@@ -65,17 +65,18 @@ const _Switch = (props: SwitchProps, ref: SwitchRef) => {
     : // eslint-disable-next-line react-hooks/rules-of-hooks
       useSwitch(props, state, inputRef);
 
-  const dataState = inputProps.checked ? "checked" : "unchecked";
+  const dataState = Boolean(inputProps.checked) ? "checked" : "unchecked";
 
   return (
     <label
       {...hoverProps}
       className={className}
-      data-disabled={isDisabled ? "" : undefined}
+      data-disabled={Boolean(isDisabled) ? "" : undefined}
       data-focused={isFocusVisible ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
+      data-label-position={labelPosition}
       data-state={dataState}
       ref={domRef}
     >

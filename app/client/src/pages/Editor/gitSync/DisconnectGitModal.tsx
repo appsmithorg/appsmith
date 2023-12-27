@@ -118,7 +118,7 @@ function DisconnectGitModal() {
             kind="error"
             links={[
               {
-                children: "Learn More",
+                children: "Learn more",
                 to: gitDisconnectDocumentUrl,
                 className: "t--disconnect-learn-more",
               },

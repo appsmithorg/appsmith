@@ -6,13 +6,13 @@ import {
 
 let dsName: any;
 
-describe("SQL Autocompletion", () => {
+describe("SQL Autocompletion", { tags: ["@tag.JS"] }, () => {
   it("1. Create DS for SQL autocompletion testing", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       //Shows autocompletion hints in SQL", () => {
-      dataSources.NavigateFromActiveDS(dsName, true);
+      dataSources.CreateQueryForDS(dsName);
       dataSources.EnterQuery("");
       agHelper.TypeText(locators._codeMirrorTextArea, "select");
       // Hints should exist

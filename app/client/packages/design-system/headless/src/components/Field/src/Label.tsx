@@ -1,49 +1,52 @@
 import React, { forwardRef } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
 import { filterDOMProps } from "@react-aria/utils";
-import type { DOMRef } from "@react-types/shared";
+import type { DOMRef, StyleProps } from "@react-types/shared";
 import type { SpectrumLabelProps } from "@react-types/label";
 
-import { AsteriskIcon } from "./icons/AsteriskIcon";
-export interface LabelProps extends SpectrumLabelProps {
-  isEmphasized?: boolean;
-  labelWidth?: string;
-}
+export type LabelProps = Omit<
+  SpectrumLabelProps,
+  keyof StyleProps | "labelPosition" | "labelAlign"
+>;
 
 const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
   const {
     children,
-    labelPosition = "top",
-    labelAlign = labelPosition === "side" ? "start" : null,
-    isRequired,
-    necessityIndicator = isRequired != null ? "icon" : null,
-    includeNecessityIndicatorInAccessibilityName = false,
-    htmlFor,
-    for: labelFor,
+    className,
     elementType: ElementType = "label",
+    for: labelFor,
+    htmlFor,
+    includeNecessityIndicatorInAccessibilityName,
+    isRequired,
+    necessityIndicator = "icon",
     onClick,
     ...otherProps
   } = props;
 
   const domRef = useDOMRef(ref);
 
-  const necessityLabel = isRequired ? "(required)" : "(optional)";
+  const necessityLabel = Boolean(isRequired) ? "(required)" : "(optional)";
   const icon = (
-    <AsteriskIcon
+    <span
       aria-label={
-        includeNecessityIndicatorInAccessibilityName ? "(required)" : undefined
+        Boolean(includeNecessityIndicatorInAccessibilityName)
+          ? "(required)"
+          : undefined
       }
       data-field-necessity-indicator-icon=""
-    />
+    >
+      *
+    </span>
   );
 
   return (
     <ElementType
-      data-align={labelAlign}
       data-field-label=""
-      data-position={labelPosition}
       {...filterDOMProps(otherProps)}
-      htmlFor={ElementType === "label" ? labelFor || htmlFor : undefined}
+      className={className}
+      htmlFor={
+        ElementType === "label" ? Boolean(labelFor) || htmlFor : undefined
+      }
       onClick={onClick}
       ref={domRef}
     >
@@ -51,10 +54,13 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
       {/* necessityLabel is hidden to screen readers if the field is required because
        * aria-required is set on the field in that case. That will already be announced,
        * so no need to duplicate it here. If optional, we do want it to be announced here. */}
+      {(necessityIndicator === "label" ||
+        (necessityIndicator === "icon" && Boolean(isRequired))) &&
+        " \u200b"}
       {necessityIndicator === "label" && (
         <span
           aria-hidden={
-            !includeNecessityIndicatorInAccessibilityName
+            includeNecessityIndicatorInAccessibilityName == null
               ? isRequired
               : undefined
           }
@@ -62,7 +68,7 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
           {necessityLabel}
         </span>
       )}
-      {necessityIndicator === "icon" && isRequired && icon}
+      {necessityIndicator === "icon" && Boolean(isRequired) && icon}
     </ElementType>
   );
 };

@@ -1,5 +1,8 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const omnibar = require("../../../../locators/Omnibar.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
   entityExplorer,
@@ -18,10 +21,11 @@ describe("Omnibar functionality test cases", () => {
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
+    agHelper.Sleep(2000);
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
-      "connect-datasource",
-      "getWorkspace",
+      "connect-to-a-database",
+      "getPluginForm",
     );
   });
 
@@ -73,7 +77,7 @@ describe("Omnibar functionality test cases", () => {
     agHelper.AssertElementVisibility(omnibar.blankAPI);
     agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     assertHelper.AssertNetworkStatus("@createNewApi", 201);
-    entityExplorer.SelectEntityByName("Api1");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     agHelper.AssertURL("/api");
     agHelper.RenameWithInPane(apiName);
 
@@ -86,8 +90,8 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it(
-    "excludeForAirgap",
     "4. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       // typing a random string in search bar
       cy.get(omnibar.globalSearch).click({ force: true });
@@ -115,13 +119,13 @@ describe("Omnibar functionality test cases", () => {
       deployMode.StubWindowNAssert(
         omnibar.discordLink,
         "https://discord.com/invite/rBTTVJp",
-        "getWorkspace",
+        "getPluginForm",
       );
     },
   );
 
   it("5. Verify Navigate section shows recently opened widgets and datasources", function () {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).contains("Navigate").click();
     // verify recently opened items with their subtext i.e page name

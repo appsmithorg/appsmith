@@ -24,10 +24,13 @@ import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
 import type { IconNames } from "design-system";
-import type { NavigationSetting } from "constants/AppConstants";
-import { defaultNavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
+import {
+  defaultNavigationSetting,
+  defaultThemeSetting,
+} from "constants/AppConstants";
 import produce from "immer";
-import { groupBy } from "lodash";
+import { groupBy, isEmpty } from "lodash";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -52,6 +55,16 @@ export const initialState: ApplicationsReduxState = {
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
   deletingMultipleApps: {},
+  loadingStates: {
+    isFetchingAllRoles: false,
+    isFetchingAllUsers: false,
+  },
+  partialImportExport: {
+    isExporting: false,
+    isExportDone: false,
+    isImporting: false,
+    isImportDone: false,
+  },
 };
 
 export const handlers = {
@@ -236,13 +249,17 @@ export const handlers = {
       currentApplication: {
         applicationDetail: {
           navigationSetting: defaultNavigationSetting,
+          themeSetting: defaultThemeSetting,
         },
         ...action.payload,
       },
       isFetchingApplication: false,
     };
 
-    if (!newState.currentApplication.applicationDetail.navigationSetting) {
+    if (
+      !newState.currentApplication.applicationDetail.navigationSetting ||
+      isEmpty(newState.currentApplication.applicationDetail.navigationSetting)
+    ) {
       newState.currentApplication.applicationDetail.navigationSetting =
         defaultNavigationSetting;
     }
@@ -415,6 +432,34 @@ export const handlers = {
       importingApplication: false,
     };
   },
+  [ReduxActionTypes.PARTIAL_IMPORT_INIT]: (state: ApplicationsReduxState) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: true,
+      isImportDone: false,
+    },
+  }),
+  [ReduxActionTypes.PARTIAL_IMPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: false,
+      isImportDone: true,
+    },
+  }),
+  [ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: false,
+      isImportDone: true,
+    },
+  }),
   [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -666,6 +711,24 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_THEME_SETTING]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ThemeSetting>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        applicationDetail: {
+          ...state.currentApplication?.applicationDetail,
+          themeSetting: {
+            ...defaultThemeSetting,
+            ...action.payload,
+          },
+        },
+      },
+    };
+  },
   [ReduxActionTypes.SET_APP_SIDEBAR_PINNED]: (
     state: ApplicationsReduxState,
     action: ReduxAction<boolean>,
@@ -748,16 +811,139 @@ export const handlers = {
       isDeletingNavigationLogo: false,
     };
   },
+  [ReduxActionTypes.CURRENT_APPLICATION_COMMUNITY_TEMPLATE_STATUS_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{
+      isCommunityTemplate: boolean;
+      forkingEnabled: boolean;
+      isPublic: boolean;
+    }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      isCommunityTemplate: action.payload.isCommunityTemplate,
+      isPublic: action.payload.isPublic,
+      forkingEnabled: action.payload.forkingEnabled,
+    },
+  }),
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: true,
+      },
+    };
+  },
+  [ReduxActionTypes.SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        publishedAppToCommunityTemplate: false,
+      },
+    };
+  },
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+        publishedAppToCommunityTemplate: true,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+      },
+    };
+  },
+  [ReduxActionTypes.SET_CURRENT_APPLICATION_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentApplicationIdForCreateNewApp: action.payload,
+    };
+  },
+  [ReduxActionTypes.RESET_CURRENT_APPLICATION_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplicationIdForCreateNewApp: undefined,
+    };
+  },
+  [ReduxActionTypes.PARTIAL_EXPORT_INIT]: (state: ApplicationsReduxState) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: true,
+      isExportDone: false,
+    },
+  }),
+  [ReduxActionTypes.PARTIAL_EXPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: false,
+      isExportDone: true,
+    },
+  }),
+  [ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: false,
+      isExportDone: true,
+    },
+  }),
+  [ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentPluginIdForCreateNewApp: action.payload,
+    };
+  },
+  [ReduxActionTypes.RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentPluginIdForCreateNewApp: undefined,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 
-export type DeletingMultipleApps = {
+export interface DeletingMultipleApps {
   list?: string[];
   isDeleting?: boolean;
-};
+}
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
@@ -786,6 +972,18 @@ export interface ApplicationsReduxState {
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
   deletingMultipleApps: DeletingMultipleApps;
+  loadingStates: {
+    isFetchingAllRoles: boolean;
+    isFetchingAllUsers: boolean;
+  };
+  currentApplicationIdForCreateNewApp?: string;
+  partialImportExport: {
+    isExporting: boolean;
+    isExportDone: boolean;
+    isImporting: boolean;
+    isImportDone: boolean;
+  };
+  currentPluginIdForCreateNewApp?: string;
 }
 
 export interface Application {

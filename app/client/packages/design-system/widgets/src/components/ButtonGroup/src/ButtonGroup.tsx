@@ -1,35 +1,31 @@
 import React, { forwardRef } from "react";
+import { ButtonGroupContext } from "./ButtonGroupContext";
+import styles from "./styles.module.css";
 
-import { StyledContainer } from "./index.styled";
+import type { Ref } from "react";
+import type { ButtonGroupProps } from "./types";
 
-// types
-export const ORIENTATION = {
-  VERTICAL: "vertical",
-  HORIZONTAL: "horizontal",
-} as const;
+const _ButtonGroup = (props: ButtonGroupProps, ref: Ref<HTMLDivElement>) => {
+  const {
+    children,
+    color = "accent",
+    orientation = "horizontal",
+    variant = "filled",
+    ...others
+  } = props;
 
-type Orientation = (typeof ORIENTATION)[keyof typeof ORIENTATION];
-export interface ButtonGroupProps
-  extends React.ComponentPropsWithoutRef<"div"> {
-  children?: React.ReactNode;
-  orientation?: Orientation;
-}
-
-// component
-export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
-  (props, ref) => {
-    const { orientation = ORIENTATION.HORIZONTAL, ...others } = props;
-
-    return (
-      <StyledContainer
-        data-orientation={
-          orientation === ORIENTATION.VERTICAL ? "vertical" : undefined
-        }
+  return (
+    <ButtonGroupContext.Provider value={{ color, variant }}>
+      <div
+        className={styles.buttonGroup}
+        data-orientation={orientation}
         ref={ref}
         {...others}
-      />
-    );
-  },
-);
+      >
+        {children}
+      </div>
+    </ButtonGroupContext.Provider>
+  );
+};
 
-ButtonGroup.displayName = "ButtonGroup";
+export const ButtonGroup = forwardRef(_ButtonGroup);

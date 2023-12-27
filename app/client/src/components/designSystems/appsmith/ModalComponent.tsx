@@ -58,7 +58,7 @@ const Content = styled.div<{
   height: ${(props) => (props.height ? `${props.height}px` : "auto")};
 `;
 
-export type ModalComponentProps = {
+export interface ModalComponentProps {
   isOpen: boolean;
   onClose: (e: any) => void;
   onModalClose?: () => void;
@@ -77,7 +77,7 @@ export type ModalComponentProps = {
   hasBackDrop?: boolean;
   zIndex?: number;
   portalClassName?: string;
-};
+}
 
 /* eslint-disable react/display-name */
 export function ModalComponent(props: ModalComponentProps) {

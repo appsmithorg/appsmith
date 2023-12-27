@@ -1,16 +1,20 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import { ACTION_TYPE, JSACTION_TYPE } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getCurrentActions,
   getDatasources,
   getJSCollections,
+  getModuleInstanceEntities,
+  getModuleInstances,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { jsCollectionIdURL, widgetURL } from "RouteBuilder";
+import { jsCollectionIdURL, widgetURL } from "@appsmith/RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
@@ -23,11 +27,12 @@ import type { AppState } from "@appsmith/reducers";
 import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
+import { getModuleInstanceNavigationData } from "@appsmith/utils/moduleInstanceNavigationData";
 
-export type NavigationData = {
+export interface NavigationData {
   name: string;
   id: string;
-  type: ENTITY_TYPE;
+  type: EntityTypeValue;
   isfunction?: boolean;
   url: string | undefined;
   navigable: boolean;
@@ -40,8 +45,19 @@ export type NavigationData = {
   actionType?: string;
   widgetType?: string;
   value?: boolean | string;
-};
+}
 export type EntityNavigationData = Record<string, NavigationData>;
+
+export const getModulesData = createSelector(
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInstances, moduleInstanceEntities) => {
+    return {
+      moduleInstances,
+      moduleInstanceEntities,
+    };
+  },
+);
 
 export const getEntitiesForNavigation = createSelector(
   getCurrentActions,
@@ -51,6 +67,7 @@ export const getEntitiesForNavigation = createSelector(
   getCurrentPageId,
   getDataTree,
   getDatasources,
+  getModulesData,
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,
@@ -60,6 +77,7 @@ export const getEntitiesForNavigation = createSelector(
     pageId,
     dataTree: DataTree,
     datasources: Datasource[],
+    modulesData,
     entityName: string | undefined,
   ) => {
     // data tree retriggers this
@@ -127,6 +145,14 @@ export const getEntitiesForNavigation = createSelector(
         widgetType: widget.type,
       });
     });
+    let moduleInstanceNavigationData: EntityNavigationData = {};
+    if (!!modulesData.moduleInstances) {
+      moduleInstanceNavigationData = getModuleInstanceNavigationData(
+        modulesData.moduleInstances,
+        modulesData.moduleInstanceEntities,
+      );
+    }
+
     if (
       entityName &&
       isJSAction(dataTree[entityName]) &&
@@ -134,26 +160,40 @@ export const getEntitiesForNavigation = createSelector(
     ) {
       return {
         ...navigationData,
+        ...moduleInstanceNavigationData,
         this: navigationData[entityName],
       };
     }
-    return navigationData;
+    return {
+      ...navigationData,
+      ...moduleInstanceNavigationData,
+    };
   },
 );
-
-export const getJSFunctionNavigationUrl = createSelector(
+export const getPathNavigationUrl = createSelector(
   [
     (state: AppState, entityName: string) =>
       getEntitiesForNavigation(state, entityName),
-    (_, __, jsFunctionFullName: string | undefined) => jsFunctionFullName,
+    (_, __, fullPath: string | undefined) => fullPath,
   ],
-  (entitiesForNavigation, jsFunctionFullName) => {
-    if (!jsFunctionFullName) return undefined;
-    const { entityName: jsObjectName, propertyPath: jsFunctionName } =
-      getEntityNameAndPropertyPath(jsFunctionFullName);
-    const jsObjectNavigationData = entitiesForNavigation[jsObjectName];
-    const jsFuncNavigationData =
-      jsObjectNavigationData && jsObjectNavigationData.children[jsFunctionName];
-    return jsFuncNavigationData?.url;
+  (entitiesForNavigation, fullPath) => {
+    if (!fullPath) return undefined;
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+    const navigationData = entitiesForNavigation[entityName];
+    if (!navigationData) return undefined;
+    switch (navigationData.type) {
+      case JSACTION_TYPE: {
+        const jsPropertyNavigationData = navigationData.children[propertyPath];
+        return jsPropertyNavigationData.url;
+      }
+
+      case ACTION_TYPE:
+        {
+          return navigationData.url;
+        }
+        break;
+      default:
+        return undefined;
+    }
   },
 );

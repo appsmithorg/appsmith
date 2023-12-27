@@ -4,11 +4,11 @@ import type { TabProp } from "design-system-old";
 import { getTypographyByKey } from "design-system-old";
 import type { Theme } from "constants/DefaultTheme";
 
-type WrapperProps = {
+interface WrapperProps {
   selected: boolean;
   vertical: boolean;
   theme: Theme;
-};
+}
 
 const getFocusedStyles = (props: WrapperProps) => `
   background-color: ${props.theme.colors.tabItemBackgroundFill.highlightBackground};

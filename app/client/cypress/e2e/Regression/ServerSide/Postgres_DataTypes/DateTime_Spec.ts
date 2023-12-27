@@ -1,19 +1,30 @@
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
   entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
-describe("DateTime Datatype tests", function () {
+describe("DateTime Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/DateTimeDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(22, 32);
     dataSources.CreateDataSource("Postgres");
@@ -26,20 +37,9 @@ describe("DateTime Datatype tests", function () {
     query = `CREATE TABLE datetimeTypes (serialId serial primary key, ts TIMESTAMP not null DEFAULT NOW(),
     tstz TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, dater date NOT NULL, timer time NOT NULL,
     timertz time with time zone not null default now(), intervaler interval not null);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.datetimetypes"),
-    );
   });
 
   it("2. Creating SELECT query - datetimetypes + Bug 14493", () => {
@@ -49,9 +49,10 @@ describe("DateTime Datatype tests", function () {
     TO_CHAR (datetimeT.ts, 'MONTH') ||' / ' || TO_CHAR(datetimeT.dater, 'Month') as "MONTH/Month",
     TO_CHAR (datetimeT.dater, 'D') ||' / ' || TO_CHAR(datetimeT.dater, 'day') as "Day of the wentityExplorer.k/WentityExplorer.kday",
     TO_CHAR (datetimeT.dater, 'W') as "WentityExplorer.k of Month" FROM public."datetimetypes" as datetimeT;`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
-      "SELECT",
+      "Select",
     );
     dataSources.RunQuery();
     agHelper
@@ -64,9 +65,10 @@ describe("DateTime Datatype tests", function () {
   it("3. Creating all queries - datetimetypes", () => {
     query = `INSERT INTO public."datetimetypes" (ts, tstz, dater, timer, intervaler)
     VALUES('{{Insertts.text}}', '{{Inserttstz.text}}', '{{Insertdater.text}}', '{{Inserttimer.text}}', '{{Insertintervaler.text}}');`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
-      "INSERT",
+      "Insert",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
@@ -75,35 +77,39 @@ describe("DateTime Datatype tests", function () {
     query = `UPDATE public."datetimetypes" SET
     "ts" = '{{Updatets.text}}', "tstz" = '{{Updatetstz.text}}', "dater" = '{{Updatedater.text}}', "timer" = '{{Updatetimer.text}}',
     "intervaler" = '{{Updateintervaler.text}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
-      "UPDATE",
+      "Update",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `DELETE FROM public."datetimetypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."datetimetypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
     query = `DELETE FROM public."datetimetypes"
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
@@ -115,9 +121,10 @@ describe("DateTime Datatype tests", function () {
    justify_days(INTERVAL '30 days'),
    justify_hours(INTERVAL '24 hours'),
    EXTRACT (MINUTE  FROM  INTERVAL '5 hours 21 minutes');`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
-      "SELECT",
+      "Select",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("intervalRecords");
@@ -140,12 +147,12 @@ describe("DateTime Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("5. Inserting record - datetimetypes", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -317,33 +324,27 @@ describe("DateTime Datatype tests", function () {
 
   it("11. Validate Drop of the Newly Created - datetimetypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("dropTable");
+    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.datetimetypes"),
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
+    dataSources.AssertTableInVirtuosoList(
+      dsName,
+      "public.datetimetypes",
+      false,
     );
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("12. Verify Deletion of the datasource after all created queries are deleted", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, EmployentityExplorer.s pages are still using this ds
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, EmployentityExplorer.s pages are still using this ds
   });
 });

@@ -9,9 +9,9 @@ import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isElementVisible } from "./utils";
 
-const WalkthroughRenderer = lazy(() => {
+const WalkthroughRenderer = lazy(async () => {
   return retryPromise(
-    () =>
+    async () =>
       import(
         /* webpackChunkName: "walkthrough-renderer" */ "./walkthroughRenderer"
       ),
@@ -67,6 +67,9 @@ export default function Walkthrough({ children }: any) {
       if (highlightArea) {
         setTimeout(() => {
           if (isElementVisible(highlightArea as HTMLElement)) {
+            if (typeof feature[0].runBeforeWalkthrough === "function") {
+              feature[0].runBeforeWalkthrough();
+            }
             setActiveWalkthrough(feature[0]);
           }
         }, feature[0].delay || DEFAULT_DELAY);

@@ -1,9 +1,9 @@
 type Primitive = string | number | boolean;
 
-export type Item<T extends Primitive> = {
+export interface Item<T extends Primitive> {
   type: T;
   metadata?: Record<string, unknown>;
-};
+}
 
 const isPrimitive = (value: unknown) =>
   ["string", "boolean", "number"].includes(typeof value);

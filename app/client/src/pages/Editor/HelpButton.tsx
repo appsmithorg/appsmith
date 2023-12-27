@@ -68,12 +68,12 @@ const ActionsRow = styled.div`
   margin-bottom: 8px;
 `;
 
-type HelpItem = {
+interface HelpItem {
   label: string;
   link?: string;
   id?: string;
   icon: string;
-};
+}
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
@@ -106,6 +106,7 @@ export function IntercomConsent({
   const dispatch = useDispatch();
 
   const sendUserDataToIntercom = () => {
+    const { email } = user || {};
     updateIntercomProperties(instanceId, user);
     dispatch(
       updateUserDetails({
@@ -114,6 +115,14 @@ export function IntercomConsent({
     );
     dispatch(updateIntercomConsent());
     showIntercomConsent(false);
+
+    if (user?.enableTelemetry) {
+      AnalyticsUtil.identifyUser(user, true);
+      AnalyticsUtil.logEvent("SUPPORT_REQUEST_INITIATED", {
+        email,
+      });
+    }
+
     window.Intercom("show");
   };
   return (
@@ -299,7 +308,6 @@ function HelpButton() {
                       APPSMITH_DISPLAY_VERSION,
                       appVersion.edition,
                       appVersion.id,
-                      cloudHosting,
                     )}
                   </span>
                   <span>

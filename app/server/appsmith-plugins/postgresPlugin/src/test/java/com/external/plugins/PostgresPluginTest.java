@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -77,8 +78,15 @@ public class PostgresPluginTest {
         }
     }
 
+    public class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+    }
+
     PostgresPlugin.PostgresPluginExecutor pluginExecutor =
-            new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig());
+            new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig(), new MockConnectionPoolConfig());
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
@@ -276,6 +284,17 @@ public class PostgresPluginTest {
         dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
 
         return dsConfig;
+    }
+
+    private DatasourceStructure.Table findTableByName(List<DatasourceStructure.Table> tables, String tableToBeFound) {
+        DatasourceStructure.Table tableFound = null;
+        for (DatasourceStructure.Table table : tables) {
+            if (table.getName().equals(tableToBeFound)) {
+                tableFound = table;
+                break;
+            }
+        }
+        return tableFound;
     }
 
     @Test
@@ -478,9 +497,8 @@ public class PostgresPluginTest {
                     assertNotNull(structure);
                     assertEquals(5, structure.getTables().size());
 
-                    final DatasourceStructure.Table campusTable =
-                            structure.getTables().get(0);
-                    assertEquals("public.campus", campusTable.getName());
+                    DatasourceStructure.Table campusTable = findTableByName(structure.getTables(), "public.campus");
+                    assertNotNull(campusTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -490,9 +508,9 @@ public class PostgresPluginTest {
                             campusTable.getColumns().toArray());
                     assertEquals(campusTable.getKeys().size(), 0);
 
-                    final DatasourceStructure.Table dataTypeTestTable =
-                            structure.getTables().get(1);
-                    assertEquals("public.datatypetest", dataTypeTestTable.getName());
+                    DatasourceStructure.Table dataTypeTestTable =
+                            findTableByName(structure.getTables(), "public.datatypetest");
+                    assertNotNull(dataTypeTestTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -505,9 +523,9 @@ public class PostgresPluginTest {
                             dataTypeTestTable.getColumns().toArray());
                     assertEquals(dataTypeTestTable.getKeys().size(), 1);
 
-                    final DatasourceStructure.Table possessionsTable =
-                            structure.getTables().get(2);
-                    assertEquals("public.possessions", possessionsTable.getName());
+                    DatasourceStructure.Table possessionsTable =
+                            findTableByName(structure.getTables(), "public.possessions");
+                    assertNotNull(possessionsTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -550,9 +568,8 @@ public class PostgresPluginTest {
                             },
                             possessionsTable.getTemplates().toArray());
 
-                    final DatasourceStructure.Table usersTable =
-                            structure.getTables().get(4);
-                    assertEquals("public.users", usersTable.getName());
+                    DatasourceStructure.Table usersTable = findTableByName(structure.getTables(), "public.users");
+                    assertNotNull(usersTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -619,9 +636,9 @@ public class PostgresPluginTest {
                             },
                             usersTable.getTemplates().toArray());
 
-                    final DatasourceStructure.Table sampleTable =
-                            structure.getTables().get(3);
-                    assertEquals("sample_schema.sample_table", sampleTable.getName());
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "sample_schema.sample_table");
+                    assertNotNull(sampleTable);
                     assertEquals("sample_schema", sampleTable.getSchema());
                     assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
                     assertArrayEquals(
@@ -1625,5 +1642,71 @@ public class PostgresPluginTest {
                         .collect(Collectors.toList())
                         .size()
                 == 0);
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_endpointNotPresent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        // setting endpoints to empty list
+        dsConfig.setEndpoints(new ArrayList());
+
+        final Mono<String> rateLimitIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(rateLimitIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAbsent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("");
+        dsConfig.getEndpoints().get(0).setPort(5432L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAndPortPresent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(5431L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5431", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432", endpointIdentifier);
+                })
+                .verifyComplete();
     }
 }

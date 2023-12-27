@@ -1,15 +1,13 @@
-import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
+import { agHelper, gitSync } from "../../../../../support/Objects/ObjectsCore";
 import {
-  agHelper,
-  entityExplorer,
-  homePage,
-  gitSync,
-} from "../../../../../support/Objects/ObjectsCore";
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let repoName, branchName;
-describe("Delete branch flow", () => {
+describe("Delete branch flow", { tags: ["@tag.Git"] }, () => {
   it("1. Connect app to git, create new branch and delete it", () => {
     // create git repo and connect app to git
     gitSync.CreateNConnectToGit();
@@ -23,8 +21,7 @@ describe("Delete branch flow", () => {
     DeleteBranchFromUI(1);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
-      cy.get(homePage.toastMessage).should(
-        "contain",
+      agHelper.ValidateToastMessage(
         `Cannot delete checked out branch. Please check out other branch before deleting ${branchName}.`,
       );
       cy.get(gitSyncLocators.closeBranchList).click({ force: true });
@@ -50,7 +47,7 @@ describe("Delete branch flow", () => {
     cy.switchGitBranch("master");
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
     cy.get(".t--draggable-checkboxwidget").should("exist");
     cy.wait(2000);
@@ -74,7 +71,7 @@ describe("Delete branch flow", () => {
   it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
     cy.get(".t--widget-chartwidget").should("exist");
     cy.wait(2000);
@@ -95,6 +92,7 @@ describe("Delete branch flow", () => {
   });
 
   it("4. Verify Default branch deletion not allowed ", () => {
+    agHelper.Sleep(2000); //for toasts to appear then wait for disappear
     agHelper.WaitUntilAllToastsDisappear();
     DeleteBranchFromUI(0);
     cy.get(gitSyncLocators.closeBranchList).click({ force: true });

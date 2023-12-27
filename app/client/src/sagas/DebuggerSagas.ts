@@ -34,7 +34,7 @@ import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getConfigTree,
   getDataTree,
@@ -51,7 +51,7 @@ import {
 } from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil, { AnalyticsEventType } from "utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -64,6 +64,17 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import type {
+  ActionEntity,
+  WidgetEntity,
+} from "@appsmith/entities/DataTree/types";
+import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";
+
+let blockedSource: string | null = null;
+
+function generateErrorId(error: Log) {
+  return error.id + "_" + error.timestamp;
+}
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -179,23 +190,25 @@ function getLogsFromDependencyChain(
     };
 
     if (isAction(entity)) {
+      const actionEntity = entity as ActionEntity;
       log = {
         ...log,
         text: createMessage(ACTION_CONFIGURATION_UPDATED),
         source: {
           type: ENTITY_TYPE.ACTION,
           name: entityInfo.entityName,
-          id: entity.actionId,
+          id: actionEntity.actionId,
         },
       };
     } else if (isWidget(entity)) {
+      const widgetEntity = entity as WidgetEntity;
       log = {
         ...log,
         text: createMessage(WIDGET_PROPERTIES_UPDATED),
         source: {
           type: ENTITY_TYPE.WIDGET,
           name: entityInfo.entityName,
-          id: entity.widgetId,
+          id: widgetEntity.widgetId,
         },
       };
     }
@@ -376,12 +389,29 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
 
 // This saga is intended for analytics only
 function* logDebuggerErrorAnalyticsSaga(
-  action: ReduxAction<LogDebuggerErrorAnalyticsPayload>,
-) {
+  analyticsPayload: LogDebuggerErrorAnalyticsPayload,
+  currentDebuggerErrors: Record<string, Log>,
+): unknown {
   try {
-    const { payload } = action;
+    const payload = analyticsPayload;
     const currentPageId: string | undefined = yield select(getCurrentPageId);
-
+    const { source } = payload;
+    const activeEditorField: ReturnType<typeof getActiveEditorField> =
+      yield select(getActiveEditorField);
+    const sourceFullPath = source.name + "." + source.propertyPath || "";
+    // To prevent redundant logs for active editor fields
+    // We dispatch log events only after the onBlur event of the editor field is fired
+    if (sourceFullPath === activeEditorField) {
+      if (!blockedSource) {
+        blockedSource = sourceFullPath;
+        yield fork(
+          activeFieldDebuggerErrorHandler,
+          analyticsPayload,
+          currentDebuggerErrors,
+        );
+      }
+      return;
+    }
     if (payload.entityType === ENTITY_TYPE.WIDGET) {
       const widget: WidgetProps | undefined = yield select(
         getWidget,
@@ -391,16 +421,20 @@ function* logDebuggerErrorAnalyticsSaga(
       const propertyPath = `${widgetType}.${payload.propertyPath}`;
 
       // Sending widget type for widgets
-      AnalyticsUtil.logEvent(payload.eventName, {
-        entityType: widgetType,
-        propertyPath,
-        errorId: payload.errorId,
-        errorMessages: payload.errorMessages,
-        pageId: currentPageId,
-        errorMessage: payload.errorMessage,
-        errorType: payload.errorType,
-        appMode: payload.appMode,
-      });
+      AnalyticsUtil.logEvent(
+        payload.eventName,
+        {
+          entityType: widgetType,
+          propertyPath,
+          errorId: payload.errorId,
+          errorMessages: payload.errorMessages,
+          pageId: currentPageId,
+          errorMessage: payload.errorMessage,
+          errorType: payload.errorType,
+          appMode: payload.appMode,
+        },
+        AnalyticsEventType.error,
+      );
     } else if (payload.entityType === ENTITY_TYPE.ACTION) {
       const action: Action | undefined = yield select(
         getAction,
@@ -416,17 +450,21 @@ function* logDebuggerErrorAnalyticsSaga(
       }
 
       // Sending plugin name for actions
-      AnalyticsUtil.logEvent(payload.eventName, {
-        entityType: pluginName,
-        propertyPath,
-        errorId: payload.errorId,
-        errorMessages: payload.errorMessages,
-        pageId: currentPageId,
-        errorMessage: payload.errorMessage,
-        errorType: payload.errorType,
-        errorSubType: payload.errorSubType,
-        appMode: payload.appMode,
-      });
+      AnalyticsUtil.logEvent(
+        payload.eventName,
+        {
+          entityType: pluginName,
+          propertyPath,
+          errorId: payload.errorId,
+          errorMessages: payload.errorMessages,
+          pageId: currentPageId,
+          errorMessage: payload.errorMessage,
+          errorType: payload.errorType,
+          errorSubType: payload.errorSubType,
+          appMode: payload.appMode,
+        },
+        AnalyticsEventType.error,
+      );
     } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
       const action: JSCollection = yield select(
         getJSCollection,
@@ -437,14 +475,18 @@ function* logDebuggerErrorAnalyticsSaga(
       const pluginName = plugin?.name?.replace(/ /g, "");
 
       // Sending plugin name for actions
-      AnalyticsUtil.logEvent(payload.eventName, {
-        entityType: pluginName,
-        errorId: payload.errorId,
-        propertyPath: payload.propertyPath,
-        errorMessages: payload.errorMessages,
-        pageId: currentPageId,
-        appMode: payload.appMode,
-      });
+      AnalyticsUtil.logEvent(
+        payload.eventName,
+        {
+          entityType: pluginName,
+          errorId: payload.errorId,
+          propertyPath: payload.propertyPath,
+          errorMessages: payload.errorMessages,
+          pageId: currentPageId,
+          appMode: payload.appMode,
+        },
+        AnalyticsEventType.error,
+      );
     }
   } catch (e) {
     log.error(e);
@@ -453,9 +495,8 @@ function* logDebuggerErrorAnalyticsSaga(
 
 function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
   const errorLogs = action.payload;
-  const currentDebuggerErrors: Record<string, Log> = yield select(
-    getDebuggerErrors,
-  );
+  const currentDebuggerErrors: Record<string, Log> =
+    yield select(getDebuggerErrors);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   yield put(debuggerLogInit(errorLogs));
   const validErrorLogs = errorLogs.filter((log) => log.source && log.id);
@@ -475,15 +516,18 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
     if (!currentDebuggerErrors.hasOwnProperty(id)) {
       const errorMessages = errorLog.messages ?? [];
 
-      yield put({
-        type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-        payload: {
+      yield fork(
+        logDebuggerErrorAnalyticsSaga,
+        {
           ...analyticsPayload,
           eventName: "DEBUGGER_NEW_ERROR",
           errorMessages,
           appMode,
-        },
-      });
+          source,
+          logId: id,
+        } as LogDebuggerErrorAnalyticsPayload,
+        currentDebuggerErrors,
+      );
 
       // Log analytics for new error messages
       //errorID has timestamp for 1:1 mapping with new and resolved errors
@@ -493,20 +537,23 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
         );
         yield all(
           errorMessages.map((errorMessage) =>
-            put({
-              type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-              payload: {
+            fork(
+              logDebuggerErrorAnalyticsSaga,
+              {
                 ...analyticsPayload,
                 environmentId: currentEnvDetails.id,
                 environmentName: currentEnvDetails.name,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-                errorId: errorLog.id + "_" + errorLog.timestamp,
+                errorId: generateErrorId(errorLog),
                 errorMessage: errorMessage.message,
                 errorType: errorMessage.type,
                 errorSubType: errorMessage.subType,
                 appMode,
-              },
-            }),
+                source,
+                logId: id,
+              } as LogDebuggerErrorAnalyticsPayload,
+              currentDebuggerErrors,
+            ),
           ),
         );
       }
@@ -528,20 +575,23 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
 
           if (exists < 0) {
             //errorID has timestamp for 1:1 mapping with new and resolved errors
-            return put({
-              type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-              payload: {
+            return fork(
+              logDebuggerErrorAnalyticsSaga,
+              {
                 ...analyticsPayload,
                 environmentId: currentEnvDetails.id,
                 environmentName: currentEnvDetails.name,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-                errorId: errorLog.id + "_" + errorLog.timestamp,
+                errorId: generateErrorId(errorLog),
                 errorMessage: updatedErrorMessage.message,
                 errorType: updatedErrorMessage.type,
                 errorSubType: updatedErrorMessage.subType,
                 appMode,
-              },
-            });
+                source,
+                logId: id,
+              } as LogDebuggerErrorAnalyticsPayload,
+              currentDebuggerErrors,
+            );
           }
         }),
       );
@@ -557,23 +607,23 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
 
           if (exists < 0) {
             //errorID has timestamp for 1:1 mapping with new and resolved errors
-            return put({
-              type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-              payload: {
+            return fork(
+              logDebuggerErrorAnalyticsSaga,
+              {
                 ...analyticsPayload,
                 environmentId: currentEnvDetails.id,
                 environmentName: currentEnvDetails.name,
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-                errorId:
-                  currentDebuggerErrors[id].id +
-                  "_" +
-                  currentDebuggerErrors[id].timestamp,
+                errorId: generateErrorId(currentDebuggerErrors[id]),
                 errorMessage: existingErrorMessage.message,
                 errorType: existingErrorMessage.type,
                 errorSubType: existingErrorMessage.subType,
                 appMode,
-              },
-            });
+                source,
+                logId: id,
+              } as LogDebuggerErrorAnalyticsPayload,
+              currentDebuggerErrors,
+            );
           }
         }),
       );
@@ -585,9 +635,8 @@ function* deleteDebuggerErrorLogsSaga(
   action: ReduxAction<{ id: string; analytics: Log["analytics"] }[]>,
 ) {
   const { payload } = action;
-  const currentDebuggerErrors: Record<string, Log> = yield select(
-    getDebuggerErrors,
-  );
+  const currentDebuggerErrors: Record<string, Log> =
+    yield select(getDebuggerErrors);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const existingErrorPayloads = payload.filter((item) =>
     currentDebuggerErrors.hasOwnProperty(item.id),
@@ -613,15 +662,18 @@ function* deleteDebuggerErrorLogsSaga(
     };
     const errorMessages = error.messages;
 
-    yield put({
-      type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-      payload: {
+    yield fork(
+      logDebuggerErrorAnalyticsSaga,
+      {
         ...analyticsPayload,
         eventName: "DEBUGGER_RESOLVED_ERROR",
         errorMessages,
         appMode,
-      },
-    });
+        source: error.source,
+        logId: error.id,
+      } as LogDebuggerErrorAnalyticsPayload,
+      currentDebuggerErrors,
+    );
 
     if (errorMessages) {
       const currentEnvDetails: { id: string; name: string } = yield select(
@@ -630,20 +682,23 @@ function* deleteDebuggerErrorLogsSaga(
       //errorID has timestamp for 1:1 mapping with new and resolved errors
       yield all(
         errorMessages.map((errorMessage) => {
-          return put({
-            type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-            payload: {
+          return fork(
+            logDebuggerErrorAnalyticsSaga,
+            {
               ...analyticsPayload,
               environmentId: currentEnvDetails.id,
               environmentName: currentEnvDetails.name,
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-              errorId: error.id + "_" + error.timestamp,
+              errorId: generateErrorId(error),
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
               appMode,
-            },
-          });
+              source: error.source,
+              logId: error.id,
+            } as LogDebuggerErrorAnalyticsPayload,
+            currentDebuggerErrors,
+          );
         }),
       );
     }
@@ -691,15 +746,154 @@ export function* updateTriggerMeta(
     triggerMeta["triggerPropertyName"] = name;
   }
 }
+// This function handles logging of debugger error events for active editor fields
+// Error logs are fired only after the editor gets blur
+function* activeFieldDebuggerErrorHandler(
+  analyticsPayload: LogDebuggerErrorAnalyticsPayload,
+  currentDebuggerErrors: Record<string, Log>,
+) {
+  const { logId, source } = analyticsPayload;
+  const initialSourceDebuggerError: Log = currentDebuggerErrors[logId];
+  const sourceMetaData = {
+    entityName: source.name,
+    entityType: source.type,
+    entityId: source.id,
+    propertyPath: source.propertyPath ?? "",
+    source: source,
+  };
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
+  const envMetaData = {
+    appMode,
+    environmentId: currentEnvDetails.id,
+    environmentName: currentEnvDetails.name,
+  };
+  yield take(ReduxActionTypes.RESET_ACTIVE_EDITOR_FIELD);
+
+  const latestDebuggerErrors: Record<string, Log> =
+    yield select(getDebuggerErrors);
+  const latestSourceDebuggerError: Log = latestDebuggerErrors[logId];
+  blockedSource = null;
+
+  if (!initialSourceDebuggerError && latestSourceDebuggerError) {
+    yield fork(
+      logDebuggerErrorAnalyticsSaga,
+      {
+        ...sourceMetaData,
+        ...envMetaData,
+        eventName: "DEBUGGER_NEW_ERROR",
+        errorMessages: latestSourceDebuggerError.messages,
+        errorId: generateErrorId(latestSourceDebuggerError),
+      } as LogDebuggerErrorAnalyticsPayload,
+      latestDebuggerErrors,
+    );
+
+    yield all(
+      latestSourceDebuggerError.messages?.map((errorMessage) =>
+        fork(
+          logDebuggerErrorAnalyticsSaga,
+          {
+            ...sourceMetaData,
+            ...envMetaData,
+            eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+            errorId: generateErrorId(latestSourceDebuggerError),
+            errorMessage: errorMessage.message,
+            errorType: errorMessage.type,
+            errorSubType: errorMessage.subType,
+          } as LogDebuggerErrorAnalyticsPayload,
+          currentDebuggerErrors,
+        ),
+      ) || [],
+    );
+  }
+
+  if (!latestSourceDebuggerError && initialSourceDebuggerError) {
+    yield fork(
+      logDebuggerErrorAnalyticsSaga,
+      {
+        ...sourceMetaData,
+        ...envMetaData,
+        eventName: "DEBUGGER_RESOLVED_ERROR",
+        errorMessages: initialSourceDebuggerError.messages,
+        errorId: generateErrorId(initialSourceDebuggerError),
+      } as LogDebuggerErrorAnalyticsPayload,
+      latestDebuggerErrors,
+    );
+
+    yield all(
+      initialSourceDebuggerError.messages?.map((errorMessage) => {
+        return fork(
+          logDebuggerErrorAnalyticsSaga,
+          {
+            ...sourceMetaData,
+            ...envMetaData,
+            eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+            errorMessage: errorMessage.message,
+            errorId: generateErrorId(initialSourceDebuggerError),
+          } as LogDebuggerErrorAnalyticsPayload,
+          latestDebuggerErrors,
+        );
+      }) || [],
+    );
+  }
+
+  if (latestSourceDebuggerError && initialSourceDebuggerError) {
+    const latestErrorMessages = latestSourceDebuggerError.messages || [];
+    const initialErrorMessages = initialSourceDebuggerError.messages || [];
+    yield all(
+      initialErrorMessages.map((initialErrorMessage) => {
+        const exists = findIndex(latestErrorMessages, (latestErrorMessage) => {
+          return isMatch(latestErrorMessage, initialErrorMessage);
+        });
+
+        if (exists < 0) {
+          return put({
+            type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+            payload: {
+              ...sourceMetaData,
+              ...envMetaData,
+              eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+              errorMessage: initialErrorMessage.message,
+              errorId: generateErrorId(initialSourceDebuggerError),
+            },
+          });
+        }
+      }),
+    );
+    yield all(
+      latestErrorMessages.map((latestErrorMessage) => {
+        const exists = findIndex(
+          initialErrorMessages,
+          (initialErrorMessage) => {
+            return isMatch(initialErrorMessage, latestErrorMessage);
+          },
+        );
+
+        if (exists < 0) {
+          return fork(
+            logDebuggerErrorAnalyticsSaga,
+            {
+              ...sourceMetaData,
+              ...envMetaData,
+              eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+              errorMessage: latestErrorMessage.message,
+              errorType: latestErrorMessage.type,
+              errorSubType: latestErrorMessage.subType,
+              errorId: generateErrorId(latestSourceDebuggerError),
+            } as LogDebuggerErrorAnalyticsPayload,
+            currentDebuggerErrors,
+          );
+        }
+      }),
+    );
+  }
+}
 
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
-
-    takeEvery(
-      ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-      logDebuggerErrorAnalyticsSaga,
-    ),
     takeEvery(
       ReduxActionTypes.DEBUGGER_ADD_ERROR_LOG_INIT,
       addDebuggerErrorLogsSaga,

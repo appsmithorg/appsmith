@@ -28,14 +28,14 @@ export enum SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES {
   APPSMITH = "language-appsmith-binding", // Please note that we're using the CSS class name required by prismjs.
 }
 
-type HighlightedCodeProps = {
+interface HighlightedCodeProps {
   codeText: string;
   language?: SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES;
   skin: Skin;
   multiline?: boolean;
   onClick?: () => void;
   className?: string;
-};
+}
 /* eslint-disable react/display-name */
 export const HighlightedCode = forwardRef(
   (props: HighlightedCodeProps, ref: Ref<HTMLDivElement>) => {

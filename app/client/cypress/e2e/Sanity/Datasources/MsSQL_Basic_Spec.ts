@@ -1,44 +1,52 @@
-import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   assertHelper,
-  propPane,
+  dataManager,
   dataSources,
-  entityItems,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  table,
-  dataManager,
+  entityItems,
   locators,
+  propPane,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../support/Pages/EditorNavigation";
+import PageList from "../../../support/Pages/PageList";
 
 const oneClickBinding = new OneClickBinding();
 
-describe("Validate MsSQL connection & basic querying with UI flows", () => {
-  let dsName: any,
-    query: string,
-    containerName = "mssqldb";
+describe(
+  "Validate MsSQL connection & basic querying with UI flows",
+  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  () => {
+    let dsName: any,
+      query: string,
+      containerName = "mssqldb";
 
-  before("Create MsSql container & adding data into it", () => {
-    dataSources.StartContainerNVerify("MsSql", containerName);
+    before("Create MsSql container & adding data into it", () => {
+      dataSources.StartContainerNVerify("MsSql", containerName);
 
-    dataSources.CreateDataSource("MsSql");
-    cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
-      dataSources.CreateQueryAfterDSSaved(
-        "Create database fakeapi;",
-        "MsSQL_queries",
-      );
-      dataSources.RunQuery();
+      dataSources.CreateDataSource("MsSql");
+      cy.get("@dsName").then(($dsName) => {
+        dsName = $dsName;
+        dataSources.CreateQueryAfterDSSaved(
+          "Create database fakeapi;",
+          "MsSQL_queries",
+        );
+        dataSources.RunQuery();
 
-      query = "USE fakeapi;";
-      dataSources.EnterQuery(query);
-      dataSources.RunQuery();
+        query = "USE fakeapi;";
+        dataSources.EnterQuery(query);
+        dataSources.RunQuery();
 
-      query = `CREATE TABLE amazon_sales(
+        query = `CREATE TABLE amazon_sales(
         uniq_id                                    VARCHAR(32) NOT NULL PRIMARY KEY
        ,product_name                               VARCHAR(536) NOT NULL
        ,manufacturer                               VARCHAR(48)
@@ -60,10 +68,10 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
      INSERT INTO amazon_sales(uniq_id,product_name,manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,amazon_category_and_sub_category,customers_who_bought_this_item_also_bought) VALUES ('87bbb472ef9d90dcef140a551665c929','Hornby Santa''s Express Train Set','Hornby','£69.93','3 new','36',7,'4.3 out of 5 stars','Hobbies > Model Trains & Railway Sets > Rail Vehicles > Trains','http://www.amazon.co.uk/Hornby-R8221-Gauge-Track-Extension/dp/B000PVFYZ0 | http://www.amazon.co.uk/Hornby-R8222-Gauge-Track-Extension/dp/B000RK3FZK | http://www.amazon.co.uk/Hornby-R6368-RailRoad-Gauge-Brake/dp/B000WDWT22 | http://www.amazon.co.uk/Hornby-R6370-RailRoad-Tredegar-Gauge/dp/B000WDZH58 | http://www.amazon.co.uk/Hornby-R044-Passing-Contact-Switch/dp/B000H5V0RK | http://www.amazon.co.uk/Hornby-Gauge-Logan-Plank-Wagon/dp/B00SWV6RAG');
      INSERT INTO amazon_sales(uniq_id,product_name,manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,amazon_category_and_sub_category,customers_who_bought_this_item_also_bought) VALUES ('7e2aa2b4596a39ba852449718413d7cc','Hornby Gauge Western Express Digital Train Set with eLink and TTS Loco Train Set','Hornby','£235.58','4 new','1',1,'5.0 out of 5 stars','Hobbies > Model Trains & Railway Sets > Rail Vehicles > Trains','http://www.amazon.co.uk/Hornby-Western-Master-E-Link-Electric/dp/B00BUKPXS8 | http://www.amazon.co.uk/Hornby-Gloucester | http://www.amazon.co.uk/Hornby-Majestic-E-Link-Gauge-Electric/dp/B00BUKPXU6 | http://www.amazon.co.uk/Hornby-Gauge-Master-Glens/dp/B00TQNJIIW | http://www.amazon.co.uk/Hornby-Gauge-Eurostar-2014-Train/dp/B00TQNJIIC | http://www.amazon.co.uk/HORNBY-Digital-Train-Layout-Track/dp/B006BRH55Y');
      INSERT INTO amazon_sales(uniq_id,product_name,manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,amazon_category_and_sub_category,customers_who_bought_this_item_also_bought) VALUES ('5afbaf65680c9f378af5b3a3ae22427e','Learning Curve Chuggington Interactive Chatsworth','Chuggington',NULL,'1 new','8',1,'4.8 out of 5 stars','Hobbies > Model Trains & Railway Sets > Rail Vehicles > Trains','http://www.amazon.co.uk/Learning-Curve-Chuggington | http://www.amazon.co.uk/Chuggington | http://www.amazon.co.uk/Learning-Curve-Chuggington | http://www.amazon.co.uk/Learning-Chuggington');`;
-      dataSources.EnterQuery(query);
-      dataSources.RunQuery();
+        dataSources.EnterQuery(query);
+        dataSources.RunQuery();
 
-      query = `CREATE TABLE Simpsons(
+        query = `CREATE TABLE Simpsons(
         id               INT NOT NULL IDENTITY PRIMARY KEY
        ,episode_id       VARCHAR(7)
        ,season           INTEGER  NOT NULL
@@ -86,215 +94,314 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
      INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E8',1,8,8,'The Telltale Head','Bart gets more than he bargained for when he saws the head off a statue of the town''s founder.','1990-02-25','https://m.media-amazon.com/images/M/MV5BMzhhNTM3ZDYtYWQ3OS00NDU2LTk4MGEtOGZmMWUwODlmMjQyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.7,2733);
      INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E9',1,9,9,'Life on the Fast Lane','Marge contemplates an affair with a handsome bowling instructor.','1990-03-18','https://m.media-amazon.com/images/M/MV5BNzcxYWExZWYtMzY1MC00YjhlLWFmZmUtOTQ3ODZhZTUwN2EzXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.5,2716);
      INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E10',1,10,10,'Homer''s Night Out','After a photograph of Homer canoodling with an exotic dancer is distributed throughout Springfield, he finds himself kicked out of the house by Marge.','1990-03-25','https://m.media-amazon.com/images/M/MV5BMTQ4NzU0MjY1OF5BMl5BanBnXkFtZTgwNTE4NTQ2MjE@._V1_UX224_CR0,0,224,126_ALjpg',7.3,2624);`;
+        dataSources.EnterQuery(query);
+        dataSources.RunQuery();
+      });
+      //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
+      agHelper.RefreshPage();
+    });
+
+    it("1. Validate simple queries - Show all existing tables, Describe table & verify query responses", () => {
+      runQueryNValidate(
+        "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE';",
+        ["TABLE_CATALOG", "TABLE_SCHEMA", "TABLE_NAME", "TABLE_TYPE"],
+      );
+      runQueryNValidate("exec sp_columns Amazon_Sales;", [
+        "TABLE_QUALIFIER",
+        "TABLE_OWNER",
+        "TABLE_NAME",
+        "COLUMN_NAME",
+        "DATA_TYPE",
+        "TYPE_NAME",
+        "PRECISION",
+        "LENGTH",
+        "SCALE",
+        "RADIX",
+        "NULLABLE",
+        "REMARKS",
+        "COLUMN_DEF",
+        "SQL_DATA_TYPE",
+        "SQL_DATETIME_SUB",
+        "CHAR_OCTET_LENGTH",
+        "ORDINAL_POSITION",
+        "IS_NULLABLE",
+        "SS_DATA_TYPE",
+      ]);
+
+      runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
+
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
+    });
+
+    it("2. Run a Select query & Add Suggested widget - Table", () => {
+      query = `Select * from Simpsons;`;
+      dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
+      dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
+
+      dataSources.AddSuggestedWidget(Widgets.Table);
+      agHelper.GetNClick(propPane._deleteWidget);
+
+      EditorNavigation.SelectEntityByName("selectSimpsons", EntityType.Query);
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
+    });
+
+    // TODO: This fails with `Invalid Object <tablename>` error. Looks like there needs to be a delay in query exectuion. Will debug and fix this in a different PR - Sangeeth
+    it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
+
+      oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", {
+        searchableColumn: "title",
+      });
+
+      agHelper.GetNClick(oneClickBindingLocator.connectData);
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.Sleep(2000);
+
+      [
+        "id",
+        "episode_id",
+        "season",
+        "episode",
+        "number_in_series",
+        "title",
+        "summary",
+        "air_date",
+        "episode_image",
+        "rating",
+        "votes",
+      ].forEach((column) => {
+        agHelper.AssertElementExist(table._headerCell(column));
+      });
+
+      table.AddNewRow();
+
+      table.EditTableCell(0, 1, "S01E01", false);
+
+      table.UpdateTableCell(0, 2, "1");
+
+      table.UpdateTableCell(0, 3, " 1");
+
+      table.UpdateTableCell(0, 4, " 10");
+
+      table.UpdateTableCell(0, 5, "Expanse");
+      table.UpdateTableCell(0, 6, "Prime");
+
+      table.UpdateTableCell(0, 7, "2016-06-22 19:10:25-07", false, true);
+      agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
+      agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
+      table.UpdateTableCell(0, 8, "expanse.png", false, true);
+      table.UpdateTableCell(0, 9, "5");
+      table.UpdateTableCell(0, 10, "20");
+
+      agHelper.GetNClick(table._saveNewRow, 0, true, 2000);
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.TypeText(table._searchInput, "Expanse");
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.AssertElementExist(table._bodyCell("Expanse"));
+
+      agHelper.Sleep(1000);
+
+      table.EditTableCell(0, 5, "Westworld");
+
+      agHelper.Sleep(1000);
+
+      (cy as any).AssertTableRowSavable(11, 0);
+
+      (cy as any).saveTableRow(11, 0);
+      agHelper.Sleep(2000);
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.Sleep(500);
+      agHelper.ClearNType(table._searchInput, "Westworld");
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.Sleep(2000);
+
+      agHelper.AssertElementExist(table._bodyCell("Westworld"));
+
+      agHelper.ClearNType(table._searchInput, "Expanse");
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.Sleep(2000);
+
+      agHelper.AssertElementAbsence(table._bodyCell("Expanse"));
+    });
+
+    it("4. MsSQL connection errors", () => {
+      let dataSourceName: string;
+      dataSources.NavigateToDSCreateNew();
+      agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        dataSources.CreatePlugIn("Microsoft SQL Server");
+        dataSourceName = "MsSQL" + " " + uid;
+        agHelper.RenameWithInPane(dataSourceName, false);
+
+        dataSources.TestDatasource(false);
+        agHelper.ValidateToastMessage("Missing endpoint.");
+        agHelper.ValidateToastMessage("Missing username for authentication.");
+        agHelper.ValidateToastMessage("Missing password for authentication.");
+        agHelper.ClearTextField(dataSources._databaseName);
+        dataSources.TestDatasource(false);
+        agHelper.WaitUntilAllToastsDisappear();
+        agHelper.UpdateInputValue(
+          dataSources._host(),
+          dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
+        );
+        agHelper.UpdateInputValue(
+          dataSources._username,
+          dataManager.dsValues[dataManager.defaultEnviorment].mssql_username,
+        );
+        agHelper.UpdateInputValue(
+          dataSources._password,
+          dataManager.dsValues[dataManager.defaultEnviorment].mssql_password,
+        );
+        agHelper.GetNClick(locators._visibleTextSpan("Read only"));
+        dataSources.ValidateNSelectDropdown(
+          "SSL mode",
+          "Enabled with no verify",
+          "Disable",
+        );
+        dataSources.TestSaveDatasource();
+        dataSources.AssertDataSourceInfo(["READ_ONLY", "host.docker.internal"]);
+        dataSources.DeleteDSDirectly(200, false);
+      });
+    });
+
+    it("5. Add new Page and generate CRUD template using created datasource", () => {
+      PageList.AddNewPage();
+      PageList.AddNewPage("Generate page with data");
+      agHelper.GetNClick(dataSources._selectDatasourceDropdown);
+      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
+
+      assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+      agHelper.GetNClickByContains(
+        dataSources._dropdownOption,
+        "dbo.amazon_sales",
+      );
+
+      GenerateCRUDNValidateDeployPage(
+        "348f344247b0c1a935b1223072ef9d8a",
+        "CLASSIC TOY TRAIN SET TRACK CARRIAGES LIGHT" +
+          " ENGINE BOXED BOYS KIDS BATTERY",
+        "ccf",
+        "uniq_id",
+      );
+
+      deployMode.NavigateBacktoEditor();
+      table.WaitUntilTableLoad();
+      //Delete the test data
+      PageLeftPane.expandCollapseItem("Pages");
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Page2",
+        action: "Delete",
+        entityType: entityItems.Page,
+      });
+
+      //Should not be able to delete ds until app is published again
+      //coz if app is published & shared then deleting ds may cause issue, So!
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
+      agHelper.WaitUntilAllToastsDisappear();
+      deployMode.DeployApp(locators._emptyPageTxt);
+      agHelper.Sleep(3000);
+      deployMode.NavigateBacktoEditor();
+    });
+
+    it("6. Generate CRUD page from datasource present in ACTIVE section", function () {
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+      agHelper.GetNClickByContains(
+        dataSources._dropdownOption,
+        "dbo.amazon_sales",
+      );
+
+      GenerateCRUDNValidateDeployPage(
+        "348f344247b0c1a935b1223072ef9d8a",
+        "CLASSIC TOY TRAIN SET TRACK CARRIAGES LIGHT" +
+          " ENGINE BOXED BOYS KIDS BATTERY",
+        "ccf",
+        "uniq_id",
+      );
+
+      deployMode.NavigateBacktoEditor();
+      table.WaitUntilTableLoad();
+    });
+
+    after("Verify Deletion of the datasource", () => {
+      cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //since CRUD pages are still active
+      //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
+    });
+
+    function GenerateCRUDNValidateDeployPage(
+      col1Text: string,
+      col2Text: string,
+      col3Text: string,
+      jsonFromHeader: string,
+    ) {
+      agHelper.GetNClick(dataSources._generatePageBtn);
+      assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+      agHelper.AssertContains("Successfully generated a page");
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      agHelper.ClickButton("Got it");
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      table.WaitUntilTableLoad();
+
+      //Validating loaded table
+      agHelper.AssertElementExist(dataSources._selectedRow);
+      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+        expect($cellData).to.eq(col1Text);
+      });
+      table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq(col2Text);
+      });
+      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq(col3Text);
+      });
+
+      // Validating loaded JSON form
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
+        cy.wrap(selector)
+          .invoke("attr", "class")
+          .then((classes) => {
+            expect(classes).not.contain("bp3-disabled");
+          });
+      });
+      dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
+    }
+
+    function runQueryNValidate(query: string, columnHeaders: string[]) {
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
-    });
-    //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
-    agHelper.RefreshPage();
-  });
+      dataSources.AssertQueryResponseHeaders(columnHeaders);
+    }
 
-  it("1. Validate simple queries - Show all existing tables, Describe table & verify query responses", () => {
-    runQueryNValidate(
-      "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE';",
-      ["TABLE_CATALOG", "TABLE_SCHEMA", "TABLE_NAME", "TABLE_TYPE"],
-    );
-    runQueryNValidate("exec sp_columns Amazon_Sales;", [
-      "TABLE_QUALIFIER",
-      "TABLE_OWNER",
-      "TABLE_NAME",
-      "COLUMN_NAME",
-      "DATA_TYPE",
-      "TYPE_NAME",
-      "PRECISION",
-      "LENGTH",
-      "SCALE",
-      "RADIX",
-      "NULLABLE",
-      "REMARKS",
-      "COLUMN_DEF",
-      "SQL_DATA_TYPE",
-      "SQL_DATETIME_SUB",
-      "CHAR_OCTET_LENGTH",
-      "ORDINAL_POSITION",
-      "IS_NULLABLE",
-      "SS_DATA_TYPE",
-    ]);
-
-    runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
-
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-  });
-
-  it("2. Run a Select query & Add Suggested widget - Table", () => {
-    query = `Select * from Simpsons;`;
-    dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
-    dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
-
-    dataSources.AddSuggestedWidget(Widgets.Table);
-    agHelper.GetNClick(propPane._deleteWidget);
-
-    entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-  });
-
-  // TODO: This fails with `Invalid Object <tablename>` error. Looks like there needs to be a delay in query exectuion. Will debug and fix this in a different PR - Sangeeth
-  it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
-
-    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", {
-      searchableColumn: "title",
-    });
-
-    agHelper.GetNClick(oneClickBindingLocator.connectData);
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    agHelper.Sleep(2000);
-
-    [
-      "id",
-      "episode_id",
-      "season",
-      "episode",
-      "number_in_series",
-      "title",
-      "summary",
-      "air_date",
-      "episode_image",
-      "rating",
-      "votes",
-    ].forEach((column) => {
-      agHelper.AssertElementExist(table._headerCell(column));
-    });
-
-    table.AddNewRow();
-
-    table.EditTableCell(0, 1, "S01E01", false);
-
-    table.UpdateTableCell(0, 2, "1");
-
-    table.UpdateTableCell(0, 3, " 1");
-
-    table.UpdateTableCell(0, 4, " 10");
-
-    table.UpdateTableCell(0, 5, "Expanse");
-    table.UpdateTableCell(0, 6, "Prime");
-
-    table.UpdateTableCell(0, 7, "2016-06-22 19:10:25-07", false, true);
-    agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
-    agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
-    table.UpdateTableCell(0, 8, "expanse.png", false, true);
-    table.UpdateTableCell(0, 9, "5");
-    table.UpdateTableCell(0, 10, "20");
-
-    agHelper.GetNClick(table._saveNewRow, 0, true, 2000);
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    agHelper.TypeText(table._searchInput, "Expanse");
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    agHelper.AssertElementExist(table._bodyCell("Expanse"));
-
-    agHelper.Sleep(1000);
-
-    table.EditTableCell(0, 5, "Westworld");
-
-    agHelper.Sleep(1000);
-
-    (cy as any).AssertTableRowSavable(11, 0);
-
-    (cy as any).saveTableRow(11, 0);
-    agHelper.Sleep(2000);
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    agHelper.Sleep(500);
-    agHelper.ClearNType(table._searchInput, "Westworld");
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    agHelper.Sleep(2000);
-
-    agHelper.AssertElementExist(table._bodyCell("Westworld"));
-
-    agHelper.ClearNType(table._searchInput, "Expanse");
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    agHelper.Sleep(2000);
-
-    agHelper.AssertElementAbsence(table._bodyCell("Expanse"));
-  });
-
-  it("4. MsSQL connection errors", () => {
-    let dataSourceName: string;
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.CreatePlugIn("Microsoft SQL Server");
-      dataSourceName = "MsSQL" + " " + uid;
-      agHelper.RenameWithInPane(dataSourceName, false);
-
-      dataSources.TestDatasource(false);
-      agHelper.ValidateToastMessage("Missing endpoint.");
-      agHelper.ValidateToastMessage("Missing username for authentication.");
-      agHelper.ValidateToastMessage("Missing password for authentication.");
-      agHelper.ClearTextField(dataSources._databaseName);
-      dataSources.TestDatasource(false);
-      agHelper.WaitUntilAllToastsDisappear();
-      agHelper.UpdateInputValue(
-        dataSources._host(),
-        dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
-      );
-      agHelper.UpdateInputValue(
-        dataSources._username,
-        dataManager.dsValues[dataManager.defaultEnviorment].mssql_username,
-      );
-      agHelper.UpdateInputValue(
-        dataSources._password,
-        dataManager.dsValues[dataManager.defaultEnviorment].mssql_password,
-      );
-      agHelper.GetNClick(locators._visibleTextSpan("Read only"));
-      dataSources.ValidateNSelectDropdown(
-        "SSL mode",
-        "Enabled with no verify",
-        "Disable",
-      );
-      dataSources.TestSaveDatasource();
-      dataSources.AssertDataSourceInfo(["READ_ONLY", "host.docker.internal"]);
-      dataSources.DeleteDSDirectly(200, false);
-    });
-  });
-
-  after("Verify Deletion of the datasource", () => {
-    cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
-    dataSources.DeleteDatasouceFromWinthinDS(dsName);
-    //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
-  });
-
-  function runQueryNValidate(query: string, columnHeaders: string[]) {
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders(columnHeaders);
-  }
-
-  function runQueryNValidateResponseData(
-    query: string,
-    expectedResponse: string,
-    index = 0,
-  ) {
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.AssertQueryTableResponse(index, expectedResponse);
-  }
-});
+    function runQueryNValidateResponseData(
+      query: string,
+      expectedResponse: string,
+      index = 0,
+    ) {
+      dataSources.EnterQuery(query);
+      dataSources.RunQuery();
+      dataSources.AssertQueryTableResponse(index, expectedResponse);
+    }
+  },
+);

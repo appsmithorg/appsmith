@@ -4,8 +4,8 @@ import type {
   CursorPosition,
   EvaluatedPopupState,
   PropertyPanelContext,
-} from "reducers/uiReducers/editorContextReducer";
-import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+} from "@appsmith/reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 
 export const setFocusableInputField = (path: string | undefined) => {
   return {
@@ -25,13 +25,13 @@ export const setCodeEditorCursorAction = (
   };
 };
 
-export type CodeEditorFocusState = {
+export interface CodeEditorFocusState {
   key: string | undefined;
   cursorPosition: {
     ch: number;
     line: number;
   };
-};
+}
 
 export const setEditorFieldFocusAction = (payload: CodeEditorFocusState) => {
   return {

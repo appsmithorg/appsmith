@@ -1,5 +1,4 @@
 import React, { lazy, Suspense } from "react";
-
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
@@ -20,6 +19,7 @@ import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   WidgetCallout,
 } from "WidgetProvider/constants";
@@ -27,28 +27,21 @@ import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import type { ChartType } from "../constants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
-const ChartComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
+const ChartComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "charts" */ "../component"),
+  ),
 );
-
-export const isBasicEChart = (type: ChartType) => {
-  const types: ChartType[] = [
-    "AREA_CHART",
-    "PIE_CHART",
-    "LINE_CHART",
-    "BAR_CHART",
-    "COLUMN_CHART",
-  ];
-  return types.includes(type);
-};
 
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
@@ -69,6 +62,7 @@ export const emptyChartData = (props: ChartWidgetProps) => {
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static type = "CHART_WIDGET";
+  static fontFamily: string = "Nunito Sans";
 
   static getConfig() {
     return {
@@ -77,6 +71,12 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       searchTags: ["graph", "visuals", "visualisations"],
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      customEChartConfig: ["chartType"],
     };
   }
 
@@ -91,6 +91,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       version: 1,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       showDataPointLabel: false,
       customEChartConfig: `{{\n${JSON.stringify(
@@ -131,6 +132,18 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getMethods() {
     return {
       getEditorCallouts(props: WidgetProps): WidgetCallout[] {
@@ -143,8 +156,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             message: messages.customFusionChartDeprecationMessage,
             links: [
               {
-                text: "Learn More",
-                url: "https://docs.appsmith.com",
+                text: "Learn more",
+                url: "https://www.appsmith.com/blog/deprecating-fusion-charts",
               },
             ],
           });
@@ -233,7 +246,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               customEChartConfig={this.props.customEChartConfig}
               customFusionChartConfig={this.props.customFusionChartConfig}
               dimensions={this.props}
-              fontFamily={this.props.fontFamily ?? "Nunito Sans"}
+              fontFamily={ChartWidget.fontFamily}
               hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
               isLoading={this.props.isLoading}
               isVisible={this.props.isVisible}

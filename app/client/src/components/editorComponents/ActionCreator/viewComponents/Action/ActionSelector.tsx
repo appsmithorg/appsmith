@@ -19,6 +19,7 @@ import { getCodeFromMoustache, getSelectedFieldFromValue } from "../../utils";
 
 export default function ActionSelector(props: {
   action: TActionBlock;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
   children: React.ReactNode;
   open: boolean;
   id: string;
@@ -47,6 +48,7 @@ export default function ActionSelector(props: {
       content={
         <ActionSelectorForm
           action={action}
+          additionalAutoComplete={props.additionalAutoComplete}
           dataTreePath={props.dataTreePath}
           onChange={props.onChange}
         />
@@ -63,12 +65,12 @@ export default function ActionSelector(props: {
   );
 }
 
-type TActionSelectorFormProps = {
+interface TActionSelectorFormProps {
   action: TActionBlock;
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
   additionalAutoComplete?: AdditionalDynamicDataTree;
   dataTreePath: string | undefined;
-};
+}
 
 const pathClassList = [
   "CodeMirror-hints",

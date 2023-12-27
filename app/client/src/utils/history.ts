@@ -14,8 +14,11 @@ export enum NavigationMethod {
   CanvasClick = "CanvasClick",
   ActionBackButton = "ActionBackButton",
   ContextSwitching = "ContextSwitching",
+  AppSidebar = "AppSidebar",
+  PackageSidebar = "PackageSidebar",
+  SegmentControl = "SegmentControl",
 }
 
-export type AppsmithLocationState = {
+export interface AppsmithLocationState {
   invokedBy?: NavigationMethod;
-};
+}

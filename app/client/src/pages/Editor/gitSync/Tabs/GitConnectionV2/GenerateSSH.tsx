@@ -44,9 +44,9 @@ interface GenerateSSHProps {
 }
 
 function GenerateSSH({
+  errorData,
   onChange = noop,
   value = {},
-  errorData,
 }: GenerateSSHProps) {
   const [isTouched, setIsTouched] = useState(false);
   const isInvalid =

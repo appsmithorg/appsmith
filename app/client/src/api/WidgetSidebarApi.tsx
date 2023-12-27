@@ -9,7 +9,9 @@ export interface WidgetSidebarResponse {
 
 class WidgetSidebarApi extends Api {
   static url = "/widgetCards";
-  static fetchWidgetCards(): AxiosPromise<WidgetSidebarResponse> {
+  static async fetchWidgetCards(): Promise<
+    AxiosPromise<WidgetSidebarResponse>
+  > {
     return Api.get(WidgetSidebarApi.url);
   }
 }

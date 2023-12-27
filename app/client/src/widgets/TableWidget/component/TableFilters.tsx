@@ -17,7 +17,7 @@ import TableAction from "./TableAction";
 import { importSvg } from "design-system-old";
 
 const FilterIcon = importSvg(
-  () => import("assets/icons/control/filter-icon.svg"),
+  async () => import("assets/icons/control/filter-icon.svg"),
 );
 
 const SelectedFilterWrapper = styled.div`

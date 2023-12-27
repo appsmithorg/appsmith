@@ -9,7 +9,7 @@ import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, TEMPLATES } from "@appsmith/constants/messages";
-import { templateIdUrl } from "RouteBuilder";
+import { templateIdUrl } from "@appsmith/RouteBuilder";
 
 const Wrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;

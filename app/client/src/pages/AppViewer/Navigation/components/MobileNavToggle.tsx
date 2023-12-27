@@ -3,12 +3,12 @@ import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 import { Icon } from "design-system";
 
-type MobileNavToggleProps = {
+interface MobileNavToggleProps {
   isMenuOpen: boolean;
   setMenuOpen: (prevState: boolean) => void;
   navColorStyle: NavigationSetting["colorStyle"];
   primaryColor: string;
-};
+}
 
 const MobileNavToggle = (props: MobileNavToggleProps) => {
   const { isMenuOpen, navColorStyle, primaryColor, setMenuOpen } = props;

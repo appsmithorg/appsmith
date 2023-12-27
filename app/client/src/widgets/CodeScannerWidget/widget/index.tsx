@@ -8,12 +8,18 @@ import styleConfig from "./propertyConfig/styleConfig";
 import type { CodeScannerWidgetProps } from "../constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 
 import { ButtonPlacementTypes } from "components/constants";
 import { ScannerLayout } from "../constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
@@ -50,6 +56,7 @@ class CodeScannerWidget extends BaseWidget<
       animateLoading: true,
       placement: ButtonPlacementTypes.CENTER,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
@@ -71,6 +78,19 @@ class CodeScannerWidget extends BaseWidget<
       ],
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }

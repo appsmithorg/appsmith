@@ -18,4 +18,6 @@ public interface InstanceConfigHelperCE {
     Mono<Boolean> isLicenseValid();
 
     Mono<String> checkMongoDBVersion();
+
+    Mono<Void> updateCacheForTenantFeatureFlags();
 }

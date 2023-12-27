@@ -18,10 +18,10 @@ const StyledButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
-type Props = {
+interface Props {
   browserSupportedRemoteUrl: string;
   learnMoreLink: string;
-};
+}
 
 const ConflictInfoContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[7]}px;

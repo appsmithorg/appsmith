@@ -25,10 +25,10 @@ import {
 import type {
   JSCollectionData,
   JSCollectionDataState,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { JSCollection, JSAction } from "entities/JSCollection";
+import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
@@ -40,11 +40,12 @@ import {
   createDummyJSCollectionActions,
 } from "utils/JSPaneUtils";
 import type {
+  CreateJSCollectionRequest,
   JSCollectionCreateUpdateResponse,
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+} from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
@@ -70,12 +71,12 @@ import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { FetchPageResponse } from "api/PageApi";
+import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
-import { jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { ApiResponse } from "api/ApiResponses";
 import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
@@ -90,6 +91,19 @@ import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import {
+  getJSActionNameToDisplay,
+  getJSActionPathNameToDisplay,
+} from "@appsmith/utils/actionExecutionUtils";
+
+export interface GenerateDefaultJSObjectProps {
+  name: string;
+  workspaceId: string;
+  body: string;
+  actions: Partial<JSAction>[];
+  variables: Variable[];
+}
 
 const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
@@ -100,46 +114,63 @@ function* handleCreateNewJsActionSaga(
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
   const { from, pageId } = action.payload;
-  const pluginId: string = yield select(
-    getPluginIdOfPackageName,
-    PluginPackageName.JS,
-  );
-  if (pageId && pluginId) {
+
+  if (pageId) {
     const jsActions: JSCollectionDataState = yield select(getJSCollections);
     const pageJSActions = jsActions.filter(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
-    const { actions, body } = createDummyJSCollectionActions(
-      pageId,
+    const { actions, body, variables } = createDummyJSCollectionActions(
       workspaceId,
+      {
+        pageId,
+      },
     );
+
+    const defaultJSObject: CreateJSCollectionRequest =
+      yield generateDefaultJSObject({
+        name: newJSCollectionName,
+        workspaceId,
+        actions,
+        body,
+        variables,
+      });
+
     yield put(
       createJSCollectionRequest({
         from: from,
         request: {
-          name: newJSCollectionName,
+          ...defaultJSObject,
           pageId,
-          workspaceId,
-          pluginId,
-          body: body,
-          variables: [
-            {
-              name: "myVar1",
-              value: [],
-            },
-            {
-              name: "myVar2",
-              value: {},
-            },
-          ],
-          actions: actions,
           applicationId,
-          pluginType: PluginType.JS,
         },
       }),
     );
   }
+}
+
+export function* generateDefaultJSObject({
+  actions,
+  body,
+  name,
+  variables,
+  workspaceId,
+}: GenerateDefaultJSObjectProps) {
+  const pluginId: string = yield select(
+    getPluginIdOfPackageName,
+    PluginPackageName.JS,
+  );
+
+  return {
+    name,
+    workspaceId,
+    pluginId,
+    body: body,
+    variables,
+    actions: actions,
+    pluginType: PluginType.JS,
+  };
 }
 
 function* handleJSCollectionCreatedSaga(
@@ -163,8 +194,8 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = update.parsedBody;
-    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-    if (parsedBody) {
+    if (parsedBody && !!jsAction) {
+      const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
       // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
       if (data.nameChangedActions.length) {
@@ -251,7 +282,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
 export function* makeUpdateJSCollection(
   action: ReduxAction<Record<string, JSUpdate>>,
 ) {
-  const jsUpdates: Record<string, JSUpdate> = action.payload;
+  const jsUpdates: Record<string, JSUpdate> = action.payload || {};
 
   yield all(
     Object.keys(jsUpdates).map((key) =>
@@ -357,22 +388,22 @@ function* handleJSObjectNameChangeSuccessSaga(
 
 //isExecuteJSFunc is used to check if the function is called on the JS Function execution.
 export function* handleExecuteJSFunctionSaga(data: {
-  collectionName: string;
   action: JSAction;
-  collectionId: string;
+  collection: JSCollection;
   isExecuteJSFunc: boolean;
-}): any {
-  const { action, collectionId, collectionName, isExecuteJSFunc } = data;
+  openDebugger?: boolean;
+}) {
+  const { action, collection, isExecuteJSFunc, openDebugger = false } = data;
+  const { id: collectionId } = collection;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
   yield put(
     executeJSFunctionInit({
-      collectionName,
+      collection,
       action,
-      collectionId,
     }),
   );
-  const isEntitySaving = yield select(getIsSavingEntity);
+  const isEntitySaving: boolean = yield select(getIsSavingEntity);
   /**
    * Only start executing when no entity in the application is saving
    * This ensures that execution doesn't get carried out on stale values
@@ -382,18 +413,27 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield take(ReduxActionTypes.ENTITY_UPDATE_SUCCESS);
   }
 
+  const doesURLPathContainCollectionId =
+    window.location.pathname.includes(collectionId);
+
+  const jsActionPathNameToDisplay = getJSActionPathNameToDisplay(
+    action,
+    collection,
+  );
+
   try {
     const { isDirty, result } = yield call(
       executeJSFunction,
-      collectionName,
       action,
-      collectionId,
+      collection,
     );
     // open response tab in debugger on runnning or page load js action.
-    if (window.location.pathname.includes(collectionId)) {
+
+    if (doesURLPathContainCollectionId || openDebugger) {
       yield put(showDebugger(true));
 
-      const debuggerSelectedTab = yield select(getDebuggerSelectedTab);
+      const debuggerSelectedTab: ReturnType<typeof getDebuggerSelectedTab> =
+        yield select(getDebuggerSelectedTab);
 
       yield put(
         setDebuggerSelectedTab(
@@ -409,25 +449,34 @@ export function* handleExecuteJSFunctionSaga(data: {
         isDirty,
       },
     });
+
+    const jsActionNameToDisplay = getJSActionNameToDisplay(action);
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
         type: ENTITY_TYPE.JSACTION,
-        name: collectionName + "." + action.name,
+        name: jsActionPathNameToDisplay,
         id: collectionId,
       },
       state: { response: result },
     });
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
-    showSuccessToast &&
+
+    if (
+      showSuccessToast &&
       isExecuteJSFunc &&
-      !window.location.pathname.includes(collectionId) &&
-      toast.show(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
-        kind: "success",
-      });
+      !doesURLPathContainCollectionId
+    ) {
+      toast.show(
+        createMessage(JS_EXECUTION_SUCCESS_TOASTER, jsActionNameToDisplay),
+        {
+          kind: "success",
+        },
+      );
+    }
   } catch (error) {
     // open response tab in debugger on runnning js action.
-    if (window.location.pathname.includes(collectionId)) {
+    if (doesURLPathContainCollectionId) {
       yield put(showDebugger(true));
       yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     }
@@ -439,7 +488,7 @@ export function* handleExecuteJSFunctionSaga(data: {
           text: createMessage(JS_EXECUTION_FAILURE),
           source: {
             type: ENTITY_TYPE.JSACTION,
-            name: collectionName + "." + action.name,
+            name: jsActionPathNameToDisplay,
             id: collectionId,
           },
           messages: [
@@ -459,22 +508,26 @@ export function* handleExecuteJSFunctionSaga(data: {
 
 export function* handleStartExecuteJSFunctionSaga(
   data: ReduxAction<{
-    collectionName: string;
     action: JSAction;
-    collectionId: string;
+    collection: JSCollection;
     from: EventLocation;
+    openDebugger?: boolean;
   }>,
-): any {
-  const { action, collectionId, collectionName, from } = data.payload;
+) {
+  const { action, collection, from, openDebugger } = data.payload;
   const actionId = action.id;
+  const JSActionPathName = getJSActionPathNameToDisplay(action, collection);
   if (action.confirmBeforeExecute) {
     const modalPayload = {
-      name: collectionName + "." + action.name,
+      name: JSActionPathName,
       modalOpen: true,
       modalType: ModalType.RUN_ACTION,
     };
 
-    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+    const confirmed: boolean = yield call(
+      requestModalConfirmationSaga,
+      modalPayload,
+    );
 
     if (!confirmed) {
       yield put({
@@ -495,10 +548,10 @@ export function* handleStartExecuteJSFunctionSaga(
   });
 
   yield call(handleExecuteJSFunctionSaga, {
-    collectionName: collectionName,
-    action: action,
-    collectionId: collectionId,
+    action,
+    collection,
     isExecuteJSFunc: false,
+    openDebugger,
   });
 }
 
@@ -549,18 +602,19 @@ function* handleRefactorJSActionNameSaga(
     actionCollection: JSCollection;
   }>,
 ) {
-  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-    id: data.payload.refactorAction.pageId,
-  });
+  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
+  const params: FetchPageRequest = { id: data.payload.refactorAction.pageId };
+  if (isServerDSLMigrationsEnabled) {
+    params.migrateDSL = true;
+  }
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     const requestData = {
-      refactorAction: {
-        ...data.payload.refactorAction,
-        layoutId: layoutId,
-      },
+      ...data.payload.refactorAction,
+      layoutId: layoutId,
       actionCollection: data.payload.actionCollection,
     };
     // call to refactor action
@@ -568,9 +622,8 @@ function* handleRefactorJSActionNameSaga(
       const refactorResponse: ApiResponse =
         yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
-      const isRefactorSuccessful: boolean = yield validateResponse(
-        refactorResponse,
-      );
+      const isRefactorSuccessful: boolean =
+        yield validateResponse(refactorResponse);
 
       const currentPageId: string | undefined = yield select(getCurrentPageId);
 

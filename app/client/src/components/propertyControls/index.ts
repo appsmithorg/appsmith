@@ -63,6 +63,9 @@ import type { OneClickBindingControlProps } from "./OneClickBindingControl";
 import OneClickBindingControl from "./OneClickBindingControl";
 import type { WrappedCodeEditorControlProps } from "./WrappedCodeEditorControl";
 import WrappedCodeEditorControl from "./WrappedCodeEditorControl";
+import DynamicPropertiesControl from "./HTMLDocumentBuilderControl";
+import type { ZoneStepperControlProps } from "./ZoneStepperControl";
+import ZoneStepperControl from "./ZoneStepperControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -107,6 +110,8 @@ export const PropertyControls = {
   ListComputeControl,
   OneClickBindingControl,
   WrappedCodeEditorControl,
+  DynamicPropertiesControl,
+  ZoneStepperControl,
 };
 
 export type PropertyControlPropsType =
@@ -132,7 +137,8 @@ export type PropertyControlPropsType =
   | TableInlineEditValidationControlProps
   | ListComputeControlProps
   | OneClickBindingControlProps
-  | WrappedCodeEditorControlProps;
+  | WrappedCodeEditorControlProps
+  | ZoneStepperControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

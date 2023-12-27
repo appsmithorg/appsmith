@@ -7,8 +7,10 @@ import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import type { AppState } from "@appsmith/reducers";
 
-const StyledHelpBar = styled.div`
+const StyledHelpBar = styled.button`
   padding: 0 var(--ads-v2-spaces-3);
   margin: var(--ads-v2-spaces-2);
   .placeholder-text {
@@ -29,17 +31,24 @@ const StyledHelpBar = styled.div`
   &:hover {
     border: 1px solid var(--ads-v2-color-border-emphasis-plus);
   }
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+  }
 `;
 
-type Props = {
+interface Props {
   toggleShowModal: () => void;
-};
+  isProtectedMode: boolean;
+}
 
-function HelpBar({ toggleShowModal }: Props) {
+function HelpBar({ isProtectedMode, toggleShowModal }: Props) {
   return (
     <StyledHelpBar
       className="t--global-search-modal-trigger"
       data-testid="global-search-modal-trigger"
+      disabled={isProtectedMode}
       onClick={toggleShowModal}
     >
       <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
@@ -50,6 +59,10 @@ function HelpBar({ toggleShowModal }: Props) {
   );
 }
 
+const mapStateToProps = (state: AppState) => ({
+  isProtectedMode: protectedModeSelector(state),
+});
+
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
@@ -59,4 +72,4 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
 });
 
-export default connect(null, mapDispatchToProps)(HelpBar);
+export default connect(mapStateToProps, mapDispatchToProps)(HelpBar);

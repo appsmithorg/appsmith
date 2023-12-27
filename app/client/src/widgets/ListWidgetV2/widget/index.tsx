@@ -3,7 +3,7 @@ import log from "loglevel";
 import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { isEmpty, floor, isString, isNil } from "lodash";
+import { floor, isEmpty, isNil, isString } from "lodash";
 import { klona } from "klona";
 import hash from "object-hash";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -17,9 +17,10 @@ import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
-import WidgetFactory from "WidgetProvider/factory";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
   PropertyUpdates,
@@ -30,7 +31,11 @@ import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WIDGET_PADDING,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetState } from "../../BaseWidget";
@@ -41,14 +46,13 @@ import type {
 } from "widgets/TabsWidget/constants";
 import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -63,6 +67,7 @@ export enum DynamicPathType {
   CURRENT_VIEW = "currentView",
   LEVEL = "level",
 }
+
 export type DynamicPathMap = Record<string, DynamicPathType[]>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
@@ -77,16 +82,16 @@ export type MetaWidget<TProps = void> = TProps extends void
   ? BaseMetaWidget
   : TProps & BaseMetaWidget;
 
-export type LevelData = {
+export interface LevelData {
   [level: string]: {
     currentIndex: number;
     currentItem: string;
     currentRowCache: LevelDataRowCache;
     autocomplete: Record<string, unknown>;
   };
-};
+}
 
-export type MetaWidgetCacheProps = {
+export interface MetaWidgetCacheProps {
   entityDefinition: string;
   metaWidgetId: string;
   metaWidgetName: string;
@@ -99,7 +104,7 @@ export type MetaWidgetCacheProps = {
   type: string;
   viewIndex: number;
   prevViewIndex?: number;
-};
+}
 
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
@@ -110,9 +115,9 @@ export type MetaWidgetRowCache = Record<string, MetaWidgetCacheProps>;
 
 type LevelDataRowCache = Record<string, LevelDataMetaWidgetCacheProps>;
 
-export type MetaWidgetCache = {
+export interface MetaWidgetCache {
   [key: string]: MetaWidgetRowCache | undefined;
-};
+}
 
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
@@ -120,12 +125,12 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   isListWidgetCanvas?: boolean;
 };
 
-type RenderChildrenOption = {
+interface RenderChildrenOption {
   componentWidth: number;
   parentColumnSpace: number;
   selectedItemKey?: string | null;
   startIndex: number;
-};
+}
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 const EMPTY_BINDING = "{{{}}}";
@@ -175,6 +180,12 @@ class ListWidget extends BaseWidget<
           },
         ];
       },
+      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+        return {
+          widgetBindPath: `${widget.widgetName}.selectedItem`,
+          message: `Make sure ${widget.widgetName} data matches the column names in the connected datasource and has a default selected item`,
+        };
+      },
     };
   }
 
@@ -191,6 +202,18 @@ class ListWidget extends BaseWidget<
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 
@@ -1177,7 +1200,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
-          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+          if (this.props.layoutSystemType === LayoutSystemTypes.AUTO) {
             child.isListWidgetCanvas = true;
           }
           child.children = child.children?.map((container, viewIndex) => {
@@ -1186,7 +1209,7 @@ class ListWidget extends BaseWidget<
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
             if (
-              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
               container.children?.[0]
             ) {
               container.children[0].isListWidgetCanvas = true;
@@ -1207,7 +1230,7 @@ class ListWidget extends BaseWidget<
               },
             };
           });
-          return WidgetFactory.createWidget(child, this.props.renderMode);
+          return renderAppsmithCanvas(child as WidgetProps);
         },
       );
 

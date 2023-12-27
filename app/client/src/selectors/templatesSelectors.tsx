@@ -20,6 +20,12 @@ export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
 export const isImportingTemplateToAppSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplateToApp;
+export const isImportingStarterBuildingBlockToAppSelector = (state: AppState) =>
+  state.ui.templates.isImportingStarterBuildingBlockToApp;
+export const starterBuildingBlockDatasourcePromptSelector = (state: AppState) =>
+  state.ui.templates.starterBuildingBlockDatasourcePrompt;
+export const buildingBlocksSourcePageIdSelector = (state: AppState) =>
+  state.ui.templates.buildingBlockSourcePageId;
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 
@@ -65,12 +71,21 @@ export const getFilteredTemplateList = createSelector(
   (templates, templatesFilters, numberOfFiltersApplied) => {
     const result: Template[] = [];
     const activeTemplateIds: string[] = [];
+    const ALL_TEMPLATES_FILTER_VALUE = "All";
 
     if (!numberOfFiltersApplied) {
       return templates;
     }
 
     if (!Object.keys(templatesFilters).length) {
+      return templates;
+    }
+
+    // If only "All Templates" is selected, return all templates
+    if (
+      numberOfFiltersApplied === 1 &&
+      templatesFilters.functions?.includes(ALL_TEMPLATES_FILTER_VALUE)
+    ) {
       return templates;
     }
 
@@ -207,8 +222,11 @@ export const getForkableWorkspaces = createSelector(
   },
 );
 
-export const templateModalOpenSelector = (state: AppState) =>
-  state.ui.templates.showTemplatesModal;
+export const templateModalSelector = (state: AppState) =>
+  state.ui.templates.templatesModal;
 
 export const templatesCountSelector = (state: AppState) =>
   state.ui.templates.templates.length;
+
+export const activeLoadingTemplateId = (state: AppState) =>
+  state.ui.templates.activeLoadingTemplateId;

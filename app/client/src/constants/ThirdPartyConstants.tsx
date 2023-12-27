@@ -26,7 +26,24 @@ export const EMBED_PRIVATE_APPS_DOC =
 export const PROVISIONING_SETUP_DOC =
   "http://docs.appsmith.com/advanced-concepts/user-provisioning-group-sync";
 export const DISCORD_URL = "https://discord.gg/rBTTVJp";
+export const ENTERPRISE_PRICING_PAGE = "https://www.appsmith.com/enterprise";
+export const DOCS_BRANCH_PROTECTION_URL =
+  "https://docs.appsmith.com/advanced-concepts/version-control-with-git/working-with-branches#branch-protection";
+export const DOCS_DEFAULT_BRANCH_URL =
+  "https://docs.appsmith.com/advanced-concepts/version-control-with-git/working-with-branches#default-branch";
+
 export const PRICING_PAGE_URL = (
+  URL: string,
+  source: string,
+  instanceId: string,
+  feature?: string,
+  section?: string,
+) =>
+  `${URL}?source=${source}${instanceId ? `&instance=${instanceId}` : ``}${
+    feature ? `&feature=${feature}` : ""
+  }${section ? `&section=${section}` : ""}`;
+
+export const CUSTOMER_PORTAL_URL_WITH_PARAMS = (
   URL: string,
   source: string,
   instanceId: string,

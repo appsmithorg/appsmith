@@ -17,7 +17,6 @@ import GitErrorPopup from "../components/GitErrorPopup";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
-import { EnvInfoHeader } from "@appsmith/components/EnvInfoHeader";
 import {
   createMessage,
   GIT_CONNECTION,
@@ -154,7 +153,6 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
-          {isDeploying && <EnvInfoHeader />}
           <Menu
             activeTabKey={activeTabKey}
             onSelect={(tabKey: string) =>

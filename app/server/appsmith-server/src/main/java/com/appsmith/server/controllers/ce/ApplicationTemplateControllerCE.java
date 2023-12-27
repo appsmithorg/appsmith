@@ -5,8 +5,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;
-import com.appsmith.server.dtos.CommunityTemplateDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.TemplateDTO;
 import com.appsmith.server.services.ApplicationTemplateService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
@@ -75,14 +75,6 @@ public class ApplicationTemplateControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("recent")
-    public Mono<ResponseDTO<List<ApplicationTemplate>>> getRecentlyUsedTemplates() {
-        return applicationTemplateService
-                .getRecentlyUsedTemplates()
-                .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
-    }
-
-    @JsonView(Views.Public.class)
     @PostMapping("{templateId}/merge/{applicationId}/{organizationId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(
             @PathVariable String templateId,
@@ -96,11 +88,18 @@ public class ApplicationTemplateControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("publish/{applicationId}/{organizationId}")
-    public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(
-            @RequestBody(required = true) CommunityTemplateDTO resource) {
+    @PostMapping("publish/community-template")
+    public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(@RequestBody TemplateDTO resource) {
         return applicationTemplateService
                 .publishAsCommunityTemplate(resource)
+                .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("publish/use-case")
+    public Mono<ResponseDTO<Boolean>> publishAppsmithTemplate(@RequestBody TemplateDTO resource) {
+        return applicationTemplateService
+                .publishAppsmithTemplate(resource)
                 .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
     }
 }

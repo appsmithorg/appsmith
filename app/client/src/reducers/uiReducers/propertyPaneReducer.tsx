@@ -6,7 +6,9 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 
-export type SelectedPropertyPanel = { [path: string]: number };
+export interface SelectedPropertyPanel {
+  [path: string]: number;
+}
 
 const initialState: PropertyPaneReduxState = {
   isVisible: false,

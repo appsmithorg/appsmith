@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect } from "react";
+import React, { useRef, useCallback, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
@@ -16,23 +16,35 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { importSvg } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { INTEGRATION_TABS } from "constants/routes";
+import {
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "@appsmith/pages/Editor/Explorer/helpers";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
+import { FilesContextProvider } from "./Files/FilesContextProvider";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 const NoEntityFoundSvg = importSvg(
-  () => import("assets/svg/no_entities_found.svg"),
+  async () => import("assets/svg/no_entities_found.svg"),
 );
-
-const Wrapper = styled.div`
-  height: 100%;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-`;
 
 const NoResult = styled(NonIdealState)`
   &.${Classes.NON_IDEAL_STATE} {
@@ -87,19 +99,75 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     dispatch(fetchWorkspace(currentWorkspaceId));
   }, [currentWorkspaceId]);
 
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
+  const applicationId = useSelector(getCurrentApplicationId);
+  const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
+  const closeWalkthrough = useCallback(() => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature("EXPLORER_DATASOURCE_ADD");
+    }
+  }, [isWalkthroughOpened, popFeature]);
+
+  const addDatasource = useCallback(
+    (entryPoint: string) => {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
+      // Event for datasource creation click
+      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+        entryPoint,
+      });
+      closeWalkthrough();
+    },
+    [pageId, closeWalkthrough],
+  );
+
+  const listDatasource = useCallback(() => {
+    history.push(
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
+    );
+  }, [pageId]);
+
+  const onDatasourcesToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "datasource", isOpen);
+    },
+    [applicationId],
+  );
+
   return (
-    <Wrapper
-      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
-        isActive ? "" : "hidden"
-      }`}
-      ref={explorerRef}
-    >
+    <EntityExplorerWrapper explorerRef={explorerRef} isActive={isActive}>
       <ExplorerWidgetGroup
         addWidgetsFn={showWidgetsSidebar}
         searchKeyword=""
         step={0}
       />
-      <Files />
+      <FilesContextProvider
+        canCreateActions={canCreateActions}
+        editorId={applicationId}
+        parentEntityId={pageId}
+        parentEntityType={ActionParentEntityType.PAGE}
+      >
+        <Files />
+      </FilesContextProvider>
       {noResults && (
         <NoResult
           className={Classes.DARK}
@@ -108,9 +176,20 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <Datasources />
-      <JSDependencies />
-    </Wrapper>
+
+      {!isAppSidebarEnabled && (
+        <>
+          <Datasources
+            addDatasource={addDatasource}
+            entityId={pageId}
+            isDatasourcesOpen={isDatasourcesOpen}
+            listDatasource={listDatasource}
+            onDatasourcesToggle={onDatasourcesToggle}
+          />
+          <JSDependencies />
+        </>
+      )}
+    </EntityExplorerWrapper>
   );
 }
 

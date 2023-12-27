@@ -44,25 +44,26 @@ jobs:
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Check out merged commit from PR and base branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: inputs.pr != 0
         with:
-          fetch-depth: 0
+          fetch-tags: true
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
         if: inputs.pr == 0 && inputs.branch != ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          fetch-tags: true
           ref: ${{ inputs.branch }}
-  
+
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: inputs.pr == 0 && inputs.branch == ''
         with:
-          fetch-depth: 0
+          fetch-tags: true
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -70,34 +71,71 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
+      - name: Get changed files in the server folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v41
+        with:
+          files: 'app/server/**'
+
+      - name: Run step if any file(s) in the server folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+        run: |
+          echo "One or more files in the server folder has changed."
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
+
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
+        if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        id: cache-appsmith
         uses: actions/cache@v3
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-server
+          key: ${{ github.run_id }}-${{ github.job }}-server-junit
 
       # Fetch prior run result
       - name: Get the previous run result
+        if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
+        run: |
+          if [ -f ~/run_result ]; then
+            echo "run_result=$(cat ~/run_result)" >> $GITHUB_OUTPUT
+          else
+            echo "run_result=default" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download the failed test artifact in case of rerun
+        if: steps.run_result.outputs.run_result == 'failedtest' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        uses: actions/download-artifact@v3
+        with:
+          name: failed-server-tests
+          path: ~/failed-server-tests
+
+      - name: Extract the tests for rerun
+        id: failed_tests
+        if: steps.run_result.outputs.run_result == 'failedtest'  && steps.changed-files-specific.outputs.any_changed == 'true'
+        run: |
+          failed_tests=$(awk '$0 != "" && !seen[$0]++ {printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
+          echo "$failed_tests"
+          echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
       # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'
+      - if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
       - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
@@ -112,21 +150,21 @@ jobs:
       # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
       # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
       - name: Get the version to tag the Docker image
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
         run: |
           # Since this is an unreleased build, we set the version to incremented version number with a
           # `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
-      # Build and test the code
-      - name: Build and test
-        if: steps.run_result.outputs.run_result != 'success'
+      # Build the code
+      - name: Build
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -135,21 +173,87 @@ jobs:
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
-          if [[ "${{ inputs.skip-tests }}" == "true" ]]
-          then
-            args=-DskipTests
-          fi
           mvn --batch-mode versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          ./build.sh $args
+          ./build.sh -DskipTests
+
+      # Test the code
+      - name: Run only tests
+        if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        env:
+          ACTIVE_PROFILE: test
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
+        run: |
+          args=()
+          if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+            failed_tests="${{ steps.failed_tests.outputs.tests }}"
+            args+=("-DfailIfNoTests=false" "-Dtest=${failed_tests}")
+          fi
+          args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
+          mvn test "${args[@]}"
+
+      # Set status = failedtest
+      - name: Set fail if there are test failures
+        if: failure()
+        run: |
+          echo "run_result=failedtest" >> $GITHUB_OUTPUT
+          echo "failedtest" > ~/run_result
+
+      # Force store previous run result to cache
+      - name: Store the previous run result
+        if: failure()
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-server-junit
+
+      - name: Upload the failed tests report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: failed-server-tests
+          path: app/server/failed-server-tests.txt
+          if-no-files-found: ignore
+
+      - name: Fetch server build from cache
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/server
+          git lfs pull ./server.jar          
+          mv ./server.jar ../../../../../server.jar
+          cd ../../../../../
+          tar -xzvf ./server.jar
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/cache@v3
         with:
           path: |
@@ -162,6 +266,32 @@ jobs:
         with:
           name: server-build
           path: app/server/dist/
+
+      - name: Put release build in cache
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          pwd
+          tar -czvf server.jar dist/
+          mkdir cacherepo
+          cd ./cacherepo
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          cd cibuildcache/
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd $repodir/release/server
+          cp ../../../../../server.jar ./
+          git lfs track "server.jar"
+          git add  server.jar
+          git commit -m "Update Latest Server.jar"
+          git push
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

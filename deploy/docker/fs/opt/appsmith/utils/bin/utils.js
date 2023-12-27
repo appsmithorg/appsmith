@@ -98,8 +98,9 @@ async function getLastBackupErrorMailSentInMilliSec() {
 }
 
 async function getCurrentAppsmithVersion() {
-  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
-  return content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+  const githubRef = JSON.parse(await fsPromises.readFile("/opt/appsmith/info.json", "utf8")).githubRef;
+  // This will be of the form "refs/tags/v1.2.3".
+  return githubRef.split("/").pop() ?? "";
 }
 
 function preprocessMongoDBURI(uri /* string */) {

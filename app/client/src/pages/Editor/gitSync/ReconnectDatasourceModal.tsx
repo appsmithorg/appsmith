@@ -52,7 +52,7 @@ import {
   getOAuthAccessToken,
   loadFilePickerAction,
 } from "actions/datasourceActions";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
 import {
   Modal,
@@ -516,7 +516,10 @@ function ReconnectDatasourceModal() {
             JSON.stringify(appInfo),
           );
         }
-      } else if (appURL && unconfiguredDatasources.length === 0) {
+      }
+      // When datasources are present and pending datasources are 0,
+      // then only we want to update status as success
+      else if (appURL && pending.length === 0 && datasources.length > 0) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
         localStorage.setItem("importedAppPendingInfo", "null");

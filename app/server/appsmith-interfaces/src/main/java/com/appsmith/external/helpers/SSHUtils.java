@@ -21,6 +21,7 @@ import java.net.ServerSocket;
 
 import static com.appsmith.external.constants.ConnectionMethod.CONNECTION_METHOD_SSH;
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_PORT_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.SSH_CONNECTION_FAILED_ERROR_MSG;
 import static java.lang.Math.toIntExact;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
@@ -118,6 +119,16 @@ public class SSHUtils {
                                 .getValue());
     }
 
+    public static int getSSHPortFromConfigOrDefault(DatasourceConfiguration datasourceConfiguration) {
+        return toIntExact(defaultIfNull(datasourceConfiguration.getSshProxy().getPort(), DEFAULT_SSH_PORT));
+    }
+
+    public static int getDBPortFromConfigOrDefault(
+            DatasourceConfiguration datasourceConfiguration, Long defaultDBPort) {
+        return toIntExact(
+                defaultIfNull(datasourceConfiguration.getEndpoints().get(0).getPort(), defaultDBPort));
+    }
+
     /**
      * Create a new SSH connection if configured and return the SSH connection details in the ConnectionContext object.
      * @param datasourceConfiguration : datasource configuration
@@ -127,6 +138,7 @@ public class SSHUtils {
     public static <C> ConnectionContext getConnectionContext(
             DatasourceConfiguration datasourceConfiguration,
             int connectionMethodPropertiesIndex,
+            Long defaultDBPort,
             Class<C> connectionType) {
 
         /* Return empty ConnectionContext if SSH tunnel is not enabled */
@@ -134,13 +146,17 @@ public class SSHUtils {
             return new ConnectionContext<C>(null, null);
         }
 
+        if (datasourceConfiguration.getEndpoints().get(0).getPort() == null && defaultDBPort == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, DS_MISSING_PORT_ERROR_MSG);
+        }
+
         String sshHost = datasourceConfiguration.getSshProxy().getHost();
-        int sshPort = toIntExact(datasourceConfiguration.getSshProxy().getPort());
+        int sshPort = getSSHPortFromConfigOrDefault(datasourceConfiguration);
         String sshUsername = datasourceConfiguration.getSshProxy().getUsername();
         UploadedFile key = datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile();
         String dbHost = datasourceConfiguration.getEndpoints().get(0).getHost();
-        int dbPort = toIntExact(
-                defaultIfNull(datasourceConfiguration.getEndpoints().get(0).getPort(), DEFAULT_SSH_PORT));
+        int dbPort = getDBPortFromConfigOrDefault(datasourceConfiguration, defaultDBPort);
         SSHTunnelContext sshTunnelContext = null;
         try {
             sshTunnelContext = createSSHTunnel(sshHost, sshPort, sshUsername, key, dbHost, dbPort);

@@ -40,11 +40,11 @@ import {
   Tooltip,
 } from "design-system";
 
-type DropdownOption = {
+interface DropdownOption {
   label?: string;
   value?: string;
   id?: string;
-};
+}
 
 const TopLayer = styled.div`
   display: flex;
@@ -72,12 +72,12 @@ const OptionContentWrapper = styled.div<{
   gap: 10px;
 `;
 
-type PropertyPaneConnectionsProps = {
+interface PropertyPaneConnectionsProps {
   widgetName: string;
   widgetType: string;
-};
+}
 
-type TriggerNodeProps = {
+interface TriggerNodeProps {
   entityCount: number;
   iconAlignment: "LEFT" | "RIGHT";
   connectionType: "INCOMING" | "OUTGOING";
@@ -85,7 +85,7 @@ type TriggerNodeProps = {
   justifyContent: string;
   tooltipPosition?: TooltipPlacement;
   disabled?: boolean;
-};
+}
 
 const doConnectionsHaveErrors = (
   options: DropdownOption[],

@@ -1,20 +1,33 @@
 import React from "react";
 import { Tab, Tabs, TabsList } from "design-system";
+import styled from "styled-components";
 
-type Props = {
+interface Props {
   activeTabKey: string;
   onSelect: (key: string) => void;
-  options: Array<{ key: string; title: string }>;
-};
+  options: Array<{ key: string; title: string; disabled?: boolean }>;
+}
+
+const StyledTab = styled(Tab)`
+  &:disabled,
+  [disabled] {
+    cursor: not-allowed;
+  }
+`;
 
 export default function Menu(props: Props) {
   return (
     <Tabs onValueChange={props.onSelect} value={props.activeTabKey}>
       <TabsList>
         {props.options.map((tab) => (
-          <Tab data-testid={"t--tab-" + tab.key} key={tab.key} value={tab.key}>
+          <StyledTab
+            data-testid={"t--tab-" + tab.key}
+            disabled={tab.disabled ?? false}
+            key={tab.key}
+            value={tab.key}
+          >
             {tab.title}
-          </Tab>
+          </StyledTab>
         ))}
       </TabsList>
     </Tabs>

@@ -2,10 +2,10 @@ import React from "react";
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import { JS_OBJECT_HOTKEYS_CLASSNAME } from "./constants";
 
-type Props = {
+interface Props {
   runActiveJSFunction: (e: KeyboardEvent) => void;
   children: React.ReactNode;
-};
+}
 
 @HotkeysTarget
 class JSObjectHotKeys extends React.Component<Props> {

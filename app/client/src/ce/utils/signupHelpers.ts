@@ -1,4 +1,7 @@
-import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
+import {
+  firstTimeUserOnboardingInit,
+  setCurrentApplicationIdForCreateNewApp,
+} from "actions/onboardingActions";
 import {
   SIGNUP_SUCCESS_URL,
   BUILDER_PATH,
@@ -11,12 +14,15 @@ import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
+import { setUsersFirstApplicationId } from "utils/storage";
 
 export const redirectUserAfterSignup = (
   redirectUrl: string,
   shouldEnableFirstTimeUserOnboarding: string | null,
   _validLicense?: boolean,
   dispatch?: any,
+  showStarterTemplatesInsteadofBlankCanvas: boolean = false,
+  isEnabledForCreateNew?: boolean,
 ): any => {
   if (redirectUrl) {
     try {
@@ -43,9 +49,29 @@ export const redirectUserAfterSignup = (
         });
         const { applicationId, pageId } = match?.params || {};
         if (applicationId || pageId) {
-          dispatch(
-            firstTimeUserOnboardingInit(applicationId, pageId as string),
-          );
+          showStarterTemplatesInsteadofBlankCanvas &&
+            applicationId &&
+            setUsersFirstApplicationId(applicationId);
+          if (isEnabledForCreateNew) {
+            dispatch(
+              setCurrentApplicationIdForCreateNewApp(applicationId as string),
+            );
+            history.replace(APPLICATIONS_URL);
+          } else {
+            dispatch(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
+          }
+        } else {
+          if (!urlObject) {
+            try {
+              urlObject = new URL(redirectUrl, window.location.origin);
+            } catch (e) {}
+          }
+          const newRedirectUrl = urlObject?.toString() || "";
+          if (getIsSafeRedirectURL(newRedirectUrl)) {
+            window.location.replace(newRedirectUrl);
+          }
         }
       } else if (getIsSafeRedirectURL(redirectUrl)) {
         window.location.replace(redirectUrl);

@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
+import { AppSidebar, AppSidebarButton } from "./EditorNavigation";
 
 type FixedConversionOptions = "DESKTOP" | "MOBILE";
 
@@ -111,12 +112,14 @@ export class AutoLayout {
   }
 
   public VerifyIsAutoLayout() {
+    AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
     this.agHelper.GetNAssertContains(this.autoConvertButton, "fixed layout");
     this.agHelper.AssertElementExist(this.flexMainContainer);
   }
 
   public VerifyIsFixedLayout() {
+    AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
     cy.get(this.autoConvertButton).should("contain", "auto-layout");
     cy.get(this.flexMainContainer).should("not.exist");
@@ -190,7 +193,7 @@ export class AutoLayout {
     this.agHelper.GetWidth(this._buttonWidgetSelector);
     cy.get("@eleWidth").then(($initialWidth) => {
       this.propPane.UpdatePropertyFieldValue("Label", "Lengthy Button Label");
-      this.agHelper.Sleep(); //to allow time for widget to resize itself before checking width again!
+      this.agHelper.Sleep(2000); //to allow time for widget to resize itself before checking width again!
       this.agHelper.GetWidth(this._buttonWidgetSelector);
       cy.get("@eleWidth").then((width: any) => {
         //cy.get<number>("@initialWidth").then((initialWidth) => {
@@ -208,8 +211,8 @@ export class AutoLayout {
     // Decrease the length of button label & verify if the component shrinks
     this.agHelper.GetWidth(this._buttonWidgetSelector);
     cy.get("@eleWidth").then(($initialWidth) => {
-      this.propPane.UpdatePropertyFieldValue("Label", "Label");
-      this.agHelper.Sleep(); //to allow time for widget to resize itself before checking width again!
+      this.propPane.UpdatePropertyFieldValue("Label", "Short");
+      this.agHelper.Sleep(2000); //to allow time for widget to resize itself before checking width again!
       this.agHelper.GetWidth(this._buttonWidgetSelector);
       cy.get("@eleWidth").then((width: any) => {
         expect(width).to.be.lessThan(Number($initialWidth));

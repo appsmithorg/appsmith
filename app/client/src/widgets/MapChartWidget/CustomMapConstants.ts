@@ -1,6 +1,8 @@
 export const CUSTOM_MAP_PLUGINS: Record<string, any> = {
   world: require(`fusionmaps/maps/fusioncharts.world.js`),
-  worldwithantarctica: require(`fusionmaps/maps/fusioncharts.worldwithantarctica.js`),
+  worldwithantarctica: require(
+    `fusionmaps/maps/fusioncharts.worldwithantarctica.js`,
+  ),
   europe: require(`fusionmaps/maps/fusioncharts.europe.js`),
   northamerica: require(`fusionmaps/maps/fusioncharts.northamerica.js`),
   southamerica: require(`fusionmaps/maps/fusioncharts.southamerica.js`),

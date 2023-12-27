@@ -1,5 +1,4 @@
 import React from "react";
-import { Collapsible } from ".";
 import { Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
@@ -14,6 +13,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Connection } from "../Debugger/EntityDependecies";
 import { Icon } from "design-system";
+import Collapsible from "components/common/Collapsible";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -85,13 +85,13 @@ function Dependencies(props: any) {
   );
 }
 
-type ConnectionsProps = {
+interface ConnectionsProps {
   actionName: string;
   entityDependencies: {
     inverseDependencies: string[];
     directDependencies: string[];
   } | null;
-};
+}
 
 function Connections(props: ConnectionsProps) {
   return (

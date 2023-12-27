@@ -1,17 +1,19 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
+import { ButtonGroup, ButtonGroupItem } from "../";
 
-import { ButtonGroup } from "../";
-import { Button } from "../../Button";
 import type { ButtonGroupProps } from "../";
 
 const renderComponent = (props: ButtonGroupProps = {}) => {
   return render(
     <ButtonGroup {...props}>
-      <Button>Button 1</Button>
-      <Button>Button 2</Button>
-      <Button>Button 3</Button>
+      <ButtonGroupItem data-testid="Button 1" key="1">
+        Button 1
+      </ButtonGroupItem>
+      <ButtonGroupItem data-testid="Button 2" key="2">
+        Button 2
+      </ButtonGroupItem>
     </ButtonGroup>,
   );
 };
@@ -22,7 +24,6 @@ describe("@design-system/widgets/Button Group", () => {
 
     expect(screen.getByText("Button 1")).toBeInTheDocument();
     expect(screen.getByText("Button 2")).toBeInTheDocument();
-    expect(screen.getByText("Button 3")).toBeInTheDocument();
   });
 
   it("should support custom props", () => {
@@ -32,5 +33,35 @@ describe("@design-system/widgets/Button Group", () => {
 
     const buttonGroup = container.querySelector("div") as HTMLElement;
     expect(buttonGroup).toHaveAttribute("data-testid", "button-group");
+  });
+
+  it("should add variant to button group item", () => {
+    renderComponent({
+      variant: "ghost",
+    });
+
+    expect(screen.getByTestId("Button 1")).toHaveAttribute(
+      "data-variant",
+      "ghost",
+    );
+    expect(screen.getByTestId("Button 2")).toHaveAttribute(
+      "data-variant",
+      "ghost",
+    );
+  });
+
+  it("should add color to button group item", () => {
+    renderComponent({
+      color: "neutral",
+    });
+
+    expect(screen.getByTestId("Button 1")).toHaveAttribute(
+      "data-color",
+      "neutral",
+    );
+    expect(screen.getByTestId("Button 2")).toHaveAttribute(
+      "data-color",
+      "neutral",
+    );
   });
 });

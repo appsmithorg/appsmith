@@ -9,7 +9,8 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
-  dataManager = ObjectsRegistry.DataManager;
+  dataManager = ObjectsRegistry.DataManager,
+  assertHelper = ObjectsRegistry.AssertHelper;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -149,27 +150,42 @@ Cypress.Commands.add("latestDeployPreview", () => {
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  cy.wait(3000);
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
+  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   // increasing timeout to reduce flakyness
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("not.exist");
+  assertHelper.AssertDocumentReady();
+  cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
+    "be.visible",
+  );
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  agHelper.AssertElementExist(gitSync._bottomBarPull);
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
-  cy.wait(1000);
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
+  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("exist");
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("not.exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("not.exist");
   }
-
-  cy.wait(2000);
+  assertHelper.AssertDocumentReady();
+  cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
+    "be.visible",
+  );
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
@@ -303,7 +319,8 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
   agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
-  cy.wait("@mergeStatus", { timeout: 35000 }).should(
+  assertHelper.WaitForNetworkCall("mergeStatus");
+  cy.get("@mergeStatus").should(
     "have.nested.property",
     "response.body.data.isMergeAble",
     true,
@@ -311,12 +328,8 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.wait(2000);
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
-  cy.wait("@mergeBranch", { timeout: 35000 }).should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  ); //adding timeout since merge is taking longer sometimes
-  cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
+  assertHelper.AssertNetworkStatus("mergeBranch", 200);
+  agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
 Cypress.Commands.add(
@@ -408,21 +421,22 @@ Cypress.Commands.add(
 Cypress.Commands.add("gitDiscardChanges", () => {
   cy.get(gitSyncLocators.bottomBarCommitButton).click();
   cy.get(gitSyncLocators.discardChanges).should("be.visible");
-  //cy.wait(6000);
   cy.get(gitSyncLocators.discardChanges)
     .children()
     .should("have.text", "Discard & pull");
-
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
-
   cy.get(gitSyncLocators.discardChanges)
     .children()
     .should("have.text", "Are you sure?");
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-  cy.wait(2000);
   cy.validateToastMessage("Discarded changes successfully.");
+  cy.wait(2000);
+  assertHelper.AssertContains(
+    "Unable to import application in workspace",
+    "not.exist",
+  );
 });
 
 Cypress.Commands.add(

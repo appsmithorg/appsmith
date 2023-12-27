@@ -28,6 +28,8 @@ import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
+import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
@@ -35,17 +37,24 @@ import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
 import "cypress-plugin-tab";
-import { WALKTHROUGH_TEST_PAGE } from "./Constants.js";
+import {
+  FEATURE_WALKTHROUGH_INDEX_KEY,
+  WALKTHROUGH_TEST_PAGE,
+} from "./Constants.js";
+const registerCypressGrep = require("@cypress/grep");
 /// <reference types="cypress-xpath" />
 
-Cypress.on("uncaught:exception", () => {
-  // returning false here prevents Cypress from
-  // failing the test
-  return false;
+registerCypressGrep();
+installLogsCollector();
+
+Cypress.on("uncaught:exception", (error) => {
+  //cy.log(error.message);
+  return false; // returning false here prevents Cypress from failing the test
 });
 
 Cypress.on("fail", (error) => {
-  throw error; // throw error to have test still fail
+  cy.log(error.message);
+  throw error; // throw error to have test fail
 });
 
 Cypress.env("MESSAGES", MESSAGES);
@@ -83,6 +92,8 @@ before(function () {
   cy.visit("/setup/welcome", { timeout: 60000 });
   cy.wait("@getMe");
   cy.wait(2000);
+  const username = Cypress.env("USERNAME");
+  const password = Cypress.env("PASSWORD");
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
@@ -106,59 +117,38 @@ before(function () {
         Cypress.env("TESTPASSWORD4"),
       );
       cy.LogOut();
+      cy.LoginFromAPI(username, password);
+    } else if (url.indexOf("user/login") > -1) {
+      //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+      cy.LoginFromAPI(username, password);
+      cy.wait(3000);
     }
   });
 
+  if (CURRENT_REPO === REPO.EE) {
+    cy.wait(2000);
+    cy.url().then((url) => {
+      if (url.indexOf("/license") > -1) {
+        cy.validateLicense();
+      }
+    });
+  }
+
   if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
     // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
-    addIndexedDBKey("FEATURE_WALKTHROUGH", {
+    addIndexedDBKey(FEATURE_WALKTHROUGH_INDEX_KEY, {
       ab_ds_binding_enabled: true,
       ab_ds_schema_enabled: true,
       binding_widget: true,
     });
   }
-
   //console.warn = () => {};
-  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
-  const username = Cypress.env("USERNAME");
-  const password = Cypress.env("PASSWORD");
-  cy.LoginFromAPI(username, password);
-  cy.wait(3000);
-  cy.get(".t--applications-container .createnew")
-    .should("be.visible")
-    .should("be.enabled");
-  cy.generateUUID().then((id) => {
-    cy.CreateAppInFirstListedWorkspace(id);
-    localStorage.setItem("AppName", id);
-  });
 
+  cy.CreateNewAppInNewWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {
     this.dataSet = data;
   });
 });
-
-// before(function () {
-//   if (RapidMode.config.enabled) {
-//     return;
-//   }
-//   // //console.warn = () => {};
-//   // //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
-//   // const username = Cypress.env("USERNAME");
-//   // const password = Cypress.env("PASSWORD");
-//   // cy.LoginFromAPI(username, password);
-//   // cy.wait(3000);
-//   // cy.get(".t--applications-container .createnew")
-//   //   .should("be.visible")
-//   //   .should("be.enabled");
-//   // cy.generateUUID().then((id) => {
-//   //   cy.CreateAppInFirstListedWorkspace(id);
-//   //   localStorage.setItem("AppName", id);
-//   // });
-
-//   // cy.fixture("TestDataSet1").then(function (data) {
-//   //   this.dataSet = data;
-//   // });
-// });
 
 beforeEach(function () {
   //cy.window().then((win) => (win.onbeforeunload = undefined));
@@ -181,8 +171,9 @@ after(function () {
   }
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
+  cy.DeleteWorkspaceByApi();
   //-- LogOut Application---//
-  cy.LogOut();
+  //cy.LogOut(false);
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");

@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -15,7 +16,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -70,6 +75,15 @@ public class CurlImporterServiceTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    SessionUserService sessionUserService;
 
     String workspaceId;
 
@@ -169,7 +183,13 @@ public class CurlImporterServiceTest {
         assertThat(action.getActionConfiguration().getBodyFormData()).containsExactly(params);
     }
 
+    @BeforeEach
     public void setup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Not doing any setup for tests, where the user context is missing.
+            return;
+        }
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
 
@@ -178,11 +198,24 @@ public class CurlImporterServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("CurlImporterServiceTest");
 
-        if (workspaceId == null) {
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Since, no setup was done if the user context is missing. Hence, no cleanup required.
+            return;
         }
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     @Test
@@ -282,7 +315,6 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnInvalidInput() {
-        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -306,7 +338,6 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnNullInput() {
-        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -330,7 +361,6 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnEmptyInput() {
-        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -354,7 +384,6 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
-        setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));

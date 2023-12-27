@@ -23,7 +23,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
 
-type PropertyPaneTitleProps = {
+interface PropertyPaneTitleProps {
   title: string;
   widgetId?: string;
   widgetType?: WidgetType;
@@ -35,7 +35,7 @@ type PropertyPaneTitleProps = {
     icon: ReactElement;
     tooltipPosition?: TooltipPlacement;
   }>;
-};
+}
 
 const StyledEditableContainer = styled.div`
   max-width: calc(100% - 52px);

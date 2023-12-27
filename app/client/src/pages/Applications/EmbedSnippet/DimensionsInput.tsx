@@ -12,12 +12,12 @@ const StyledInput = styled(Input)`
   }
 `;
 
-type DimensionsInputProp = {
+interface DimensionsInputProp {
   onChange?: ((value: string) => void) | undefined;
   value: string;
   prefix: string;
   icon: string;
-};
+}
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 

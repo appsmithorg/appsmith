@@ -9,6 +9,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -17,7 +18,6 @@ import com.appsmith.server.dtos.GitPullDTO;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -49,14 +49,12 @@ public interface GitServiceCE {
 
     Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch);
 
-    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
+    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, boolean addFileLock);
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
     Mono<List<GitBranchDTO>> listBranchForApplication(
             String defaultApplicationId, Boolean pruneBranches, String currentBranch);
-
-    Mono<String> syncDefaultBranchNameFromRemote(Path repoPath, Application rootApp);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
@@ -82,7 +80,13 @@ public interface GitServiceCE {
 
     Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
 
-    Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName);
+    Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames);
 
-    Mono<Boolean> isProtectedBranch(String branchName, GitApplicationMetadata gitApplicationMetadata);
+    Mono<List<String>> getProtectedBranches(String defaultApplicationId);
+
+    Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId);
+
+    Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName);
+
+    Mono<Boolean> toggleAutoCommitEnabled(String defaultApplicationId);
 }

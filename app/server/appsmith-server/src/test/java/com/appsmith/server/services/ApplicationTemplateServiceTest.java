@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.CommunityTemplateDTO;
+import com.appsmith.server.dtos.TemplateDTO;
 import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -54,14 +54,10 @@ public class ApplicationTemplateServiceTest {
         mockCloudServices.shutdown();
     }
 
-    private Application setUpTestApplication() {
-        Workspace workspace = new Workspace();
-        workspace.setName("Import-Export-Test-Workspace");
-        Workspace savedWorkspace = workspaceService.create(workspace).block();
-
+    private Application setUpTestApplicationForWorkspace(String workspaceId) {
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
-        testApplication.setWorkspaceId(savedWorkspace.getId());
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -72,29 +68,38 @@ public class ApplicationTemplateServiceTest {
                 new MockResponse().setBody("{\"status\": 1}").addHeader("Content-Type", "application/json"));
 
         return applicationPageService
-                .createApplication(testApplication, savedWorkspace.getId())
+                .createApplication(testApplication, workspaceId)
                 .block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void test_application_published_as_community_template() {
-        Application testApp = setUpTestApplication();
-        CommunityTemplateDTO communityTemplateDTO = new CommunityTemplateDTO();
-        communityTemplateDTO.setApplicationId(testApp.getId());
-        communityTemplateDTO.setWorkspaceId(testApp.getWorkspaceId());
-        communityTemplateDTO.setTitle("Some title");
-        communityTemplateDTO.setHeadline("Some headline");
-        communityTemplateDTO.setDescription("Some description");
-        communityTemplateDTO.setUseCases(List.of("uc1", "uc2"));
-        communityTemplateDTO.setAuthorEmail("test@user.com");
+        // Create Workspace
+        Workspace workspace = new Workspace();
+        workspace.setName("Import-Export-Test-Workspace");
+        Workspace savedWorkspace = workspaceService.create(workspace).block();
 
-        StepVerifier.create(applicationTemplateService.publishAsCommunityTemplate(communityTemplateDTO))
+        Application testApp = setUpTestApplicationForWorkspace(savedWorkspace.getId());
+        TemplateDTO templateDTO = new TemplateDTO();
+        templateDTO.setApplicationId(testApp.getId());
+        templateDTO.setWorkspaceId(testApp.getWorkspaceId());
+        templateDTO.setTitle("Some title");
+        templateDTO.setHeadline("Some headline");
+        templateDTO.setDescription("Some description");
+        templateDTO.setUseCases(List.of("uc1", "uc2"));
+        templateDTO.setAuthorEmail("test@user.com");
+
+        StepVerifier.create(applicationTemplateService.publishAsCommunityTemplate(templateDTO))
                 .assertNext(updatedApplication -> {
                     assertThat(updatedApplication.getIsCommunityTemplate()).isTrue();
                     assertThat(updatedApplication.getForkingEnabled()).isTrue();
                     assertThat(updatedApplication.getIsPublic()).isTrue();
                 })
                 .verifyComplete();
+
+        // Test cleanup
+        applicationPageService.deleteApplication(testApp.getId()).block();
+        workspaceService.archiveById(savedWorkspace.getId()).block();
     }
 }

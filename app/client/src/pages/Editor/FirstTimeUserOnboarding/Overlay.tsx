@@ -6,6 +6,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
   getSignpostingSetOverlay,
 } from "selectors/onboardingSelectors";
+import { isImportingStarterBuildingBlockToAppSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
 
 const StyledOverlay = styled.div`
@@ -22,14 +23,21 @@ const StyledOverlay = styled.div`
       background-color: var(--ads-v2-color-bg-emphasis-max);
     }
   }
+  pointer-events: auto;
 `;
 
 function Overlay() {
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const setOverlay = useSelector(getSignpostingSetOverlay);
   const dispatch = useDispatch();
+  const isImportingStarterBuildingBlockToApp = useSelector(
+    isImportingStarterBuildingBlockToAppSelector,
+  );
 
-  if (signpostingEnabled && setOverlay) {
+  if (
+    isImportingStarterBuildingBlockToApp ||
+    (signpostingEnabled && setOverlay)
+  ) {
     return (
       <StyledOverlay
         className="fixed top-0 w-full h-full overflow-hidden"

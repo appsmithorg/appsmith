@@ -26,6 +26,7 @@ type MapProps = {
   MapComponentProps,
   | "updateCenter"
   | "zoomLevel"
+  | "enableMapTypeControl"
   | "updateMarker"
   | "selectMarker"
   | "saveMarker"
@@ -49,6 +50,7 @@ const Map = (props: MapProps) => {
     children,
     enableCreateMarker,
     enableDrag,
+    enableMapTypeControl,
     markers,
     saveMarker,
     selectMarker,
@@ -66,7 +68,7 @@ const Map = (props: MapProps) => {
     setMap(
       new window.google.maps.Map(mapRef.current, {
         streetViewControl: false,
-        mapTypeControl: false,
+        mapTypeControl: enableMapTypeControl,
         fullscreenControl: false,
       }),
     );
@@ -85,6 +87,30 @@ const Map = (props: MapProps) => {
       map.setZoom(Math.floor(zoomLevel / 5));
     }
   }, [zoomLevel, map]);
+
+  // toggle maptype controls if enableMapTypeControl switch is toggled
+  useEffect(() => {
+    if (map) {
+      if (enableMapTypeControl) {
+        map.setOptions({
+          mapTypeControl: enableMapTypeControl,
+          mapTypeControlOptions: {
+            position: google.maps.ControlPosition.BOTTOM_CENTER,
+            style: google.maps.MapTypeControlStyle.DEFAULT,
+            mapTypeIds: [
+              google.maps.MapTypeId.ROADMAP,
+              google.maps.MapTypeId.SATELLITE,
+            ],
+          },
+        });
+      } else {
+        map.setOptions({
+          mapTypeControl: enableMapTypeControl,
+          mapTypeControlOptions: {},
+        });
+      }
+    }
+  }, [enableMapTypeControl, map]);
 
   /**
    * on click map, add marker
@@ -128,9 +154,9 @@ const Map = (props: MapProps) => {
       />
       {map && (
         <MarkersOrCluster
-          key={`markers-${allowClustering ? "cluster" : "markers"}-${
-            markers?.length
-          }`}
+          key={`markers-${
+            allowClustering ? "cluster" : "markers"
+          }-${markers?.length}`}
           map={map}
           markers={markers}
           selectMarker={selectMarker}

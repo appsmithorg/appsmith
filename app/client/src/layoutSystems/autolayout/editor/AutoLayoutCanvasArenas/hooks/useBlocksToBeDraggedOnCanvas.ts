@@ -8,7 +8,7 @@ import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { widgetOperationParams } from "utils/WidgetPropsUtils";
-import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
+import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -17,12 +17,11 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
-import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
-import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   LayoutDirection,
   AlignItems,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import {
   getBlocksToDraw,
   getParentDiff,
@@ -30,6 +29,7 @@ import {
   getBoundUpdateRelativeRowsMethod,
   getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
+import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,

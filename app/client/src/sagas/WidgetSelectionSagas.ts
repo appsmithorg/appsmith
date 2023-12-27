@@ -1,54 +1,84 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
+import { importPartialApplicationSuccess } from "@appsmith/actions/applicationActions";
+import ApplicationApi, {
+  type exportApplicationRequest,
+} from "@appsmith/api/ApplicationApi";
+import type {
+  ApplicationPayload,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
-  getWidgetIdsByType,
-  getWidgetImmediateChildren,
-  getWidgets,
-} from "./selectors";
+  getAppMode,
+  getCanvasWidgets,
+} from "@appsmith/selectors/entitiesSelector";
+import { pasteWidget, showModal } from "actions/widgetActions";
 import type {
   SetSelectedWidgetsPayload,
   WidgetSelectionRequestPayload,
 } from "actions/widgetSelectionActions";
 import {
+  selectWidgetInitAction,
   setEntityExplorerAncestry,
   setSelectedWidgetAncestry,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
-import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { showModal } from "actions/widgetActions";
-import history, { NavigationMethod } from "utils/history";
+import type { ApiResponse } from "api/ApiResponses";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { toast } from "design-system";
+import { APP_MODE } from "entities/App";
+import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
+import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
+import {
+  SelectionRequestType,
+  assertParentId,
+  getWidgetAncestry,
+  isInvalidSelectionRequest,
+  pushPopWidgetSelection,
+  selectAllWidgetsInCanvasSaga,
+  selectMultipleWidgets,
+  selectOneWidget,
+  shiftSelectWidgets,
+  unselectWidget,
+} from "sagas/WidgetSelectUtils";
+import {
+  getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
   getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { builderURL, widgetURL } from "RouteBuilder";
-import {
-  getAppMode,
-  getCanvasWidgets,
-} from "@appsmith/selectors/entitiesSelector";
-import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
-import {
-  assertParentId,
-  isInvalidSelectionRequest,
-  pushPopWidgetSelection,
-  selectAllWidgetsInCanvasSaga,
-  SelectionRequestType,
-  selectMultipleWidgets,
-  selectOneWidget,
-  getWidgetAncestry,
-  shiftSelectWidgets,
-  unselectWidget,
-} from "sagas/WidgetSelectUtils";
-import { quickScrollToWidget } from "utils/helpers";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { areArraysEqual } from "utils/AppsmithUtils";
-import { APP_MODE } from "entities/App";
+import { quickScrollToWidget } from "utils/helpers";
+import history, { NavigationMethod } from "utils/history";
+import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+import { validateResponse } from "./ErrorSagas";
+import { postPageAdditionSaga } from "./TemplatesSagas";
+import { createWidgetCopy } from "./WidgetOperationUtils";
+import {
+  getWidgetIdsByType,
+  getWidgetImmediateChildren,
+  getWidgets,
+} from "./selectors";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -56,10 +86,10 @@ import { APP_MODE } from "entities/App";
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
     const {
-      payload = [],
-      selectionRequestType,
       invokedBy,
       pageId,
+      payload = [],
+      selectionRequestType,
     } = action.payload;
 
     if (payload.some(isInvalidSelectionRequest)) {
@@ -215,15 +245,22 @@ function* appendSelectedWidgetToUrlSaga(
 
 function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
   const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
-  const isPageFetching: boolean = yield select(getIsFetchingPage);
   const appMode: APP_MODE = yield select(getAppMode);
-  const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (!isEditorInitialized && !viewMode) {
+  const isViewMode = appMode === APP_MODE.PUBLISHED;
+
+  // Wait until the editor is initialised, and ensure we're not in the view mode
+  if (!isEditorInitialized && !isViewMode) {
     yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
+
+  // Wait until we're done fetching the page
+  // This is so that we can reliably assume that the Editor and the Canvas have loaded
+  const isPageFetching: boolean = yield select(getIsFetchingPage);
   if (isPageFetching) {
     yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
   }
+
+  // Continue yielding
   yield call(saga, action);
 }
 
@@ -238,17 +275,43 @@ function* handleWidgetSelectionSaga(
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (action.payload.widgetIds.length !== 1) return;
 
-  const selectedWidget = action.payload.widgetIds[0];
+  // Let's assume that the payload widgetId is a modal widget and we need to open the modal as it is selected
+  let modalWidgetToOpen: string = action.payload.widgetIds[0];
 
+  // Get all modal widget ids
   const modalWidgetIds: string[] = yield select(
     getWidgetIdsByType,
     "MODAL_WIDGET",
   );
 
-  const widgetIsModal = modalWidgetIds.includes(selectedWidget);
+  // Get all widgets
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  // Get the ancestry of the selected widget
+  const widgetAncestry = getWidgetAncestry(modalWidgetToOpen, allWidgets);
 
-  if (widgetIsModal) {
-    yield put(showModal(selectedWidget));
+  // If the selected widget is a modal, we want to open the modal
+  const widgetIsModal =
+    // Check if the widget is a modal widget
+    modalWidgetIds.includes(modalWidgetToOpen);
+
+  // Let's assume that this is not a child of a modal widget
+  let widgetIsChildOfModal = false;
+
+  if (!widgetIsModal) {
+    // Check if the widget is a child of a modal widget
+    const indexOfParentModalWidget: number = widgetAncestry.findIndex((id) =>
+      modalWidgetIds.includes(id),
+    );
+    // If we found a modal widget in the ancestry, we want to open that modal
+    if (indexOfParentModalWidget > -1) {
+      // Set the flag to true, so that we can open the modal
+      widgetIsChildOfModal = true;
+      modalWidgetToOpen = widgetAncestry[indexOfParentModalWidget];
+    }
+  }
+
+  if (widgetIsModal || widgetIsChildOfModal) {
+    yield put(showModal(modalWidgetToOpen));
   }
 }
 
@@ -294,4 +357,171 @@ export function* widgetSelectionSagas() {
       handleWidgetSelectionSaga,
     ),
   ]);
+}
+
+export interface PartialExportParams {
+  jsObjects: string[];
+  datasources: string[];
+  customJSLibs: string[];
+  widgets: string[];
+  queries: string[];
+}
+
+export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
+  try {
+    const canvasWidgets: unknown = yield partialExportWidgetSaga(
+      action.payload.widgets,
+    );
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const currentPageId: string = yield select(getCurrentPageId);
+
+    const body: exportApplicationRequest = {
+      actionList: action.payload.queries,
+      actionCollectionList: action.payload.jsObjects,
+      datasourceList: action.payload.datasources,
+      customJsLib: action.payload.customJSLibs,
+      widget: JSON.stringify(canvasWidgets),
+    };
+
+    const response: unknown = yield call(
+      ApplicationApi.exportPartialApplication,
+      applicationId,
+      currentPageId,
+      body,
+    );
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
+      const application: ApplicationPayload = yield select(
+        getCurrentApplication,
+      );
+
+      (function downloadJSON(response: unknown) {
+        const dataStr =
+          "data:text/json;charset=utf-8," +
+          encodeURIComponent(JSON.stringify(response));
+        const downloadAnchorNode = document.createElement("a");
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `${application.name}.json`);
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+      })((response as { data: unknown }).data);
+      yield put({
+        type: ReduxActionTypes.PARTIAL_EXPORT_SUCCESS,
+      });
+    }
+  } catch (e) {
+    toast.show(`Error exporting application. Please try again.`, {
+      kind: "error",
+    });
+    yield put({
+      type: ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR,
+      payload: {
+        error: "Error exporting application",
+      },
+    });
+  }
+}
+
+export function* partialExportWidgetSaga(widgetIds: string[]) {
+  const canvasWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
+  const selectedWidgets = widgetIds.map((each) => canvasWidgets[each]);
+
+  if (!selectedWidgets || !selectedWidgets.length) return;
+
+  const widgetListsToStore: {
+    widgetId: string;
+    parentId: string;
+    list: FlattenedWidgetProps[];
+  }[] = yield all(
+    selectedWidgets.map((widget) => call(createWidgetCopy, widget)),
+  );
+
+  const canvasId = selectedWidgets?.[0]?.parentId || "";
+
+  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
+    widgetIds,
+    canvasId ? canvasWidgets[canvasId] : undefined,
+  );
+  const widgetsDSL = {
+    widgets: widgetListsToStore,
+    flexLayers,
+  };
+  return widgetsDSL;
+}
+
+async function readJSONFile(file: File) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const json = JSON.parse(reader.result as string);
+        resolve(json);
+      } catch (e) {
+        reject(e);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function* partialImportWidgetsSaga(file: File) {
+  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
+  try {
+    // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
+    const userUploadedJSON: { widgets: string } = yield call(
+      readJSONFile,
+      file,
+    );
+    if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
+      yield saveCopiedWidgets(userUploadedJSON.widgets);
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+      yield put(pasteWidget(false, { x: 0, y: 0 }));
+    }
+  } finally {
+    if (existingCopiedWidgets) {
+      yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
+    }
+  }
+}
+
+export function* partialImportSaga(
+  action: ReduxAction<{ applicationFile: File }>,
+) {
+  try {
+    // Step1: Import widgets from file, in parallel
+    yield fork(partialImportWidgetsSaga, action.payload.applicationFile);
+    // Step2: Send backend request to import pending items.
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const pageId: string = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield call(
+      ApplicationApi.importPartialApplication,
+      {
+        applicationFile: action.payload.applicationFile,
+        workspaceId,
+        pageId,
+        applicationId,
+      },
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield call(postPageAdditionSaga, applicationId);
+      toast.show("Partial Application imported successfully", {
+        kind: "success",
+      });
+      yield put(importPartialApplicationSuccess());
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }

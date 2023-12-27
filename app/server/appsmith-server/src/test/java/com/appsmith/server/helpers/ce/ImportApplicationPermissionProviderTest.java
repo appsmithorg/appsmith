@@ -10,17 +10,14 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ApplicationPermissionImpl;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourcePermissionImpl;
 import com.appsmith.server.solutions.DomainPermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.appsmith.server.solutions.PagePermissionImpl;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.appsmith.server.solutions.WorkspacePermissionImpl;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -32,12 +29,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SpringBootTest
 class ImportApplicationPermissionProviderTest {
-    ApplicationPermission applicationPermission = new ApplicationPermissionImpl();
-    PagePermission pagePermission = new PagePermissionImpl();
-    ActionPermission actionPermission = new ActionPermissionImpl();
-    DatasourcePermission datasourcePermission = new DatasourcePermissionImpl();
-    WorkspacePermission workspacePermission = new WorkspacePermissionImpl();
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    PagePermission pagePermission;
+
+    @Autowired
+    ActionPermission actionPermission;
+
+    @Autowired
+    DatasourcePermission datasourcePermission;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
 
     @Test
     public void testCheckPermissionMethods_WhenNoPermissionProvided_ReturnsTrue() {

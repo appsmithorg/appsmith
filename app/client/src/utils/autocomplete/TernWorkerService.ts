@@ -19,10 +19,10 @@ function getFile(ts: any, name: string, c: CallbackFn) {
   else c(null);
 }
 
-type TernWorkerServerConstructor = {
+interface TernWorkerServerConstructor {
   (ts: any): void;
   new (ts: any): Server;
-};
+}
 
 function TernWorkerServer(this: any, ts: any) {
   const worker = (ts.worker = ternWorker);

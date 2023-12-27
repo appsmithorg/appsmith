@@ -5,10 +5,17 @@ import {
   getPluginDependencyConfig,
   getPluginEditorConfigs,
   getCurrentJSCollections,
+  getInputsForModule,
+  getModuleInstances,
+  getModuleInstanceEntities,
+  getCurrentModuleActions,
+  getCurrentModuleJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
+  getIsMobileBreakPoint,
   getMetaWidgets,
   getWidgetsForEval,
   getWidgetsMeta,
@@ -23,7 +30,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -33,20 +40,45 @@ export const getLoadingEntities = (state: AppState) =>
  * Current version of reselect package only allows upto 12 arguments. Hence, this workaround.
  * TODO: Figure out a better way to do this in a separate task. Or update the package if possible.
  */
-const getLayoutSystemPayload = (state: AppState) => ({
-  // appPositioning?.type instead of appPositioning.type is for legacy applications that may not have the appPositioning object.
-  // All new applications will have appPositioning.type
-  appPositioningType:
-    AppPositioningTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type || AppPositioningTypes.FIXED
-    ],
-  isMobile: state.ui.mainCanvas.isMobile,
-});
+const getLayoutSystemPayload = createSelector(
+  getLayoutSystemType,
+  getIsMobileBreakPoint,
+  (layoutSystemType, isMobile) => {
+    return {
+      layoutSystemType,
+      isMobile,
+    };
+  },
+);
+
+const getCurrentActionEntities = createSelector(
+  getCurrentActions,
+  getCurrentModuleActions,
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (actions, moduleActions, jsActions, moduleJSActions) => {
+    return {
+      actions: [...actions, ...moduleActions],
+      jsActions: [...jsActions, ...moduleJSActions],
+    };
+  },
+);
+
+const getModulesData = createSelector(
+  getInputsForModule,
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInputs, moduleInstances, moduleInstanceEntities) => {
+    return {
+      moduleInputs: moduleInputs,
+      moduleInstances: moduleInstances,
+      moduleInstanceEntities: moduleInstanceEntities,
+    };
+  },
+);
 
 export const getUnevaluatedDataTree = createSelector(
-  getCurrentActions,
-  getCurrentJSCollections,
+  getCurrentActionEntities,
   getWidgetsForEval,
   getWidgetsMeta,
   getPageList,
@@ -57,9 +89,9 @@ export const getUnevaluatedDataTree = createSelector(
   getMetaWidgets,
   getLayoutSystemPayload,
   getLoadingEntities,
+  getModulesData,
   (
-    actions,
-    jsActions,
+    currentActionEntities,
     widgets,
     widgetsMeta,
     pageListPayload,
@@ -70,11 +102,11 @@ export const getUnevaluatedDataTree = createSelector(
     metaWidgets,
     layoutSystemPayload,
     loadingEntities,
+    modulesData,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
-      actions,
-      jsActions,
+      ...currentActionEntities,
       widgets,
       widgetsMeta,
       pageList,
@@ -85,6 +117,7 @@ export const getUnevaluatedDataTree = createSelector(
       metaWidgets,
       loadingEntities,
       ...layoutSystemPayload,
+      ...modulesData,
     });
   },
 );

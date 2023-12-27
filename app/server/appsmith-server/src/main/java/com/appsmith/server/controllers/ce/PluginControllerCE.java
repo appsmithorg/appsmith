@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.PluginService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,20 +4,23 @@ import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
-import type { WidgetEntityConfig, WidgetEntity } from "./dataTreeFactory";
+import type {
+  WidgetEntityConfig,
+  WidgetEntity,
+} from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "./dataTreeFactory";
 import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
-} from "./types";
-import { OverridingPropertyType } from "./types";
+} from "@appsmith/entities/DataTree/types";
+import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
 
-import { setOverridingProperty } from "./utils";
+import { setOverridingProperty } from "@appsmith/entities/DataTree/utils";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 /**
  *
@@ -183,8 +186,11 @@ const generateDataTreeWidgetWithoutMeta = (
   );
   const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(widget.type);
 
+  const dependencyMap = WidgetFactory.getWidgetDependencyMap(widget.type);
+
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
+    widget,
   );
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   // Ensure all dynamic bindings are strings as they will be evaluated
@@ -310,6 +316,7 @@ const generateDataTreeWidgetWithoutMeta = (
     overridingMetaPropsMap,
     defaultMetaProps,
     entityConfig: {
+      widgetId: widget.widgetId,
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
       dynamicBindingPathList,
@@ -321,6 +328,7 @@ const generateDataTreeWidgetWithoutMeta = (
       reactivePaths,
       triggerPaths,
       validationPaths,
+      dependencyMap,
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       privateWidgets: {
         ...widget.privateWidgets,
@@ -347,7 +355,7 @@ export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
   loadingEntities: LoadingEntitiesState,
-  appPositioningType: AppPositioningTypes = AppPositioningTypes.FIXED,
+  layoutSystemType: LayoutSystemTypes = LayoutSystemTypes.FIXED,
   isMobile = false,
 ) => {
   const {
@@ -360,7 +368,6 @@ export const generateDataTreeWidget = (
 
   // overridingMetaProps maps properties that can be overriden by either default values or meta changes to initial values.
   // initial value is set to metaProps value or defaultMetaProps value.
-
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
@@ -386,7 +393,7 @@ export const generateDataTreeWidget = (
 
   const { componentHeight, componentWidth } = getComponentDimensions(
     dataTreeWidget,
-    appPositioningType,
+    layoutSystemType,
     isMobile,
   );
 
@@ -397,6 +404,6 @@ export const generateDataTreeWidget = (
       componentWidth,
       type: widget.type,
     },
-    configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
+    configEntity: entityConfig,
   };
 };

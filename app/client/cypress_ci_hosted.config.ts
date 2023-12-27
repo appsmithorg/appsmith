@@ -7,7 +7,7 @@ export default defineConfig({
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
   videoCompression: false,
-  videoUploadOnPasses: false,
+  video: true,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporter: "cypress-mochawesome-reporter",
@@ -47,13 +47,14 @@ export default defineConfig({
           }
         },
       );
+      require("@cypress/grep/src/plugin")(config);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: [
       "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
       "cypress/e2e/GSheet/**/**/*",
-      "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
       "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
+      "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
     ],
     testIsolation: false,
     excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],

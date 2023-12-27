@@ -17,7 +17,7 @@ import {
 import { AddButtonWrapper, EntityClassNames } from "./Entity";
 import styled from "styled-components";
 
-export type TreeDropdownOption = {
+export interface TreeDropdownOption {
   label: string;
   value: string;
   children?: TreeDropdownOption[];
@@ -26,16 +26,16 @@ export type TreeDropdownOption = {
   confirmDelete?: boolean;
   intent?: string;
   disabled?: boolean;
-};
+}
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 
-type TreeDropdownProps = {
+interface TreeDropdownProps {
   toggle?: React.ReactNode;
   optionTree: TreeDropdownOption[];
   className?: string;
   triggerId?: string;
   setConfirmDelete?: (val: boolean) => void;
-};
+}
 
 const StyledMenuSubContent = styled(MenuSubContent)`
   max-height: 350px;

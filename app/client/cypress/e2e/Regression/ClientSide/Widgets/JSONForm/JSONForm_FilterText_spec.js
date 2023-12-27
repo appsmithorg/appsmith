@@ -6,101 +6,108 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const onFilterUpdateJSBtn = ".t--property-control-onfilterupdate .t--js-toggle";
 const fieldPrefix = ".t--jsonformfield";
+import {
+  deployMode,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+let locators = ObjectsRegistry.CommonLocators;
 
-describe("JSONForm Select field - filterText update action trigger ", () => {
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
+describe(
+  "JSONForm Select field - filterText update action trigger ",
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  () => {
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
 
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
 
-  it("1. JSONForm Select field - filterText update action trigger - pre condition", () => {
-    const schema = {
-      color: "GREEN",
-    };
-    cy.addDsl(dslWithoutSchema);
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.openFieldConfiguration("color");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
-    cy.closePropertyPane();
-  });
-
-  it("2. shows alert on filter text change", () => {
-    const filterText = "Test string";
-
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("color");
-
-    // Enable filterable
-    cy.togglebar(`.t--property-control-allowsearching input`);
-    // Enable server side filtering
-    cy.togglebar(`.t--property-control-serversidefiltering input`);
-
-    // Enable JS mode for onFilterUpdate
-    cy.get(onFilterUpdateJSBtn).click({ force: true });
-
-    // Add onFilterUpdate action
-    cy.testJsontext(
-      "onfilterupdate",
-      "{{showAlert('Filter update:' + fieldState?.color?.filterText)}}",
+    before(
+      "JSONForm Select field - filterText update action trigger - pre condition",
+      () => {
+        const schema = {
+          color: "GREEN",
+        };
+        cy.addDsl(dslWithoutSchema);
+        cy.openPropertyPane("jsonformwidget");
+        propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+        cy.openFieldConfiguration("color");
+        cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
+        cy.closePropertyPane();
+      },
     );
 
-    // click select field and filter input should exist
-    cy.get(`${fieldPrefix}-color .bp3-control-group`).click({ force: true });
-    cy.get(`.bp3-select-popover .bp3-input-group`).should("exist");
+    it("1. shows alert on filter text change", () => {
+      const filterText = "Test string";
 
-    // Type "Test string" in the filterable input.
-    cy.get(`.bp3-select-popover .bp3-input-group input`).type(filterText);
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("color");
 
-    cy.get(commonlocators.toastmsg).contains(`Filter update:${filterText}`);
-  });
+      // Enable filterable
+      propPane.TogglePropertyState("Allow searching", "On");
+      propPane.TogglePropertyState("Server side filtering", "On");
 
-  it("3. JSONForm Multiselect field - filterText update action trigger - pre condition", () => {
-    const schema = {
-      colors: ["GREEN", "BLUE"],
-    };
-    cy.addDsl(dslWithoutSchema);
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.closePropertyPane();
-  });
+      propPane.EnterJSContext(
+        "onFilterUpdate",
+        "{{showAlert('Filter update:' + fieldState?.color?.filterText)}}",
+      );
 
-  it("4. shows alert on filter text change", () => {
-    const filterText = "Test string";
+      deployMode.DeployApp();
+      // click select field and filter input should exist
+      cy.get(`${fieldPrefix}-color .bp3-control-group`).click({ force: true });
+      cy.get(`.bp3-select-popover .bp3-input-group`).should("exist");
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("colors");
+      // Type "Test string" in the filterable input.
+      cy.get(`.bp3-select-popover .bp3-input-group input`).type(filterText);
 
-    // Enable filterable
-    cy.togglebar(`.t--property-control-allowsearching input`);
-    // Enable server side filtering
-    cy.togglebar(`.t--property-control-serversidefiltering input`);
+      cy.get(commonlocators.toastmsg).contains(`Filter update:${filterText}`);
+      deployMode.NavigateBacktoEditor();
+    });
 
-    // Enable JS mode for onFilterUpdate
-    cy.get(onFilterUpdateJSBtn).click({ force: true });
+    it("2. shows alert on filter text change", () => {
+      // JSONForm Multiselect field - filterText update action trigger - pre condition
+      const schema = {
+        colors: ["GREEN", "BLUE"],
+      };
+      cy.addDsl(dslWithoutSchema);
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    // Add onFilterUpdate action
-    cy.testJsontext(
-      "onfilterupdate",
-      "{{showAlert('Filter update:' + fieldState?.colors?.filterText)}}",
-    );
+      const filterText = "Test string";
 
-    // Open multiselect field and filter input should exist
-    cy.get(`${fieldPrefix}-colors`)
-      .find(".rc-select-selection-search-input")
-      .first()
-      .focus({ force: true })
-      .type("{uparrow}", { force: true });
-    cy.get(".multi-select-dropdown input.bp3-input").should("exist");
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("colors");
 
-    // Type "Test string" in the filterable input.
-    cy.get(".multi-select-dropdown input.bp3-input").type(filterText);
+      propPane.TogglePropertyState("Allow searching", "On");
+      propPane.TogglePropertyState("Server side filtering", "On");
 
-    cy.get(commonlocators.toastmsg).contains(`Filter update:${filterText}`);
-  });
-});
+      // Enable JS mode for onFilterUpdate
+      cy.get(onFilterUpdateJSBtn).click({ force: true });
+
+      // Add onFilterUpdate action
+      cy.testJsontext(
+        "onfilterupdate",
+        "{{showAlert('Filter update:' + fieldState?.colors?.filterText)}}",
+      );
+
+      deployMode.DeployApp();
+      // Open multiselect field and filter input should exist
+      cy.get(`${fieldPrefix}-colors`)
+        .find(".rc-select-selection-search-input")
+        .first()
+        .focus({ force: true })
+        .type("{uparrow}", { force: true });
+      cy.get(".multi-select-dropdown input.bp3-input").should("exist");
+
+      // Type "Test string" in the filterable input.
+      cy.get(".multi-select-dropdown input.bp3-input").type(filterText);
+
+      cy.get(commonlocators.toastmsg).contains(`Filter update:${filterText}`);
+    });
+  },
+);

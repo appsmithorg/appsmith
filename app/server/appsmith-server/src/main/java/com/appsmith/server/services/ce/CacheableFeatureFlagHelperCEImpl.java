@@ -6,15 +6,16 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.FeaturesRequestDTO;
+import com.appsmith.server.dtos.FeaturesResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
-import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.SignatureVerifier;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserIdentifierService;
@@ -24,6 +25,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
@@ -31,8 +36,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
 @Slf4j
@@ -109,8 +116,10 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         return Mono.zip(instanceIdMono, defaultTenantMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
                     String tenantId = objects.getT2().getId();
-                    return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
-                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3()));
+                    String appsmithVersion = releaseNotesService.getRunningVersion();
+                    FeatureFlagIdentityTraits featureFlagIdentityTraits = new FeatureFlagIdentityTraits(
+                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
+                    return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
                 .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
     }
@@ -145,7 +154,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     // We're gobbling up errors here so that all feature flags are turned off by default
                     // This will be problematic if we do not maintain code to reflect validity of flags
                     log.debug("Received error from CS for feature flags: {}", error.getMessage());
-                    return Mono.just(Map.of());
+                    return Mono.just(new HashMap<>());
                 });
     }
 
@@ -159,8 +168,14 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     public Mono<CachedFeatures> fetchCachedTenantFeatures(String tenantId) {
         return this.forceAllRemoteFeaturesForTenant(tenantId).flatMap(flags -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
-            cachedFeatures.setRefreshedAt(Instant.now());
             cachedFeatures.setFeatures(flags);
+            // If CS is down we expect the empty flags, from upstream method. Hence, setting the refreshed at to past
+            // so that the next call will have the force refresh.
+            if (CollectionUtils.isNullOrEmpty(flags)) {
+                cachedFeatures.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+            } else {
+                cachedFeatures.setRefreshedAt(Instant.now());
+            }
             return Mono.just(cachedFeatures);
         });
     }
@@ -212,17 +227,30 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      */
     @Override
     public Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrlWithSignatureVerification())
+        Mono<ResponseEntity<ResponseDTO<FeaturesResponseDTO>>> responseEntityMono = WebClientUtils.create(
+                        cloudServicesConfig.getBaseUrlWithSignatureVerification())
                 .post()
                 .uri("/api/v1/business-features")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(featuresRequestDTO))
-                .exchangeToMono(clientResponse -> {
-                    if (clientResponse.statusCode().is2xxSuccessful()) {
-                        return clientResponse.bodyToMono(
-                                new ParameterizedTypeReference<ResponseDTO<FeaturesResponseDTO>>() {});
-                    } else {
-                        return clientResponse.createError();
+                .retrieve()
+                .onStatus(
+                        HttpStatusCode::isError,
+                        response -> Mono.error(new AppsmithException(
+                                AppsmithError.CLOUD_SERVICES_ERROR,
+                                "unable to connect to cloud-services with error status ",
+                                response.statusCode())))
+                .toEntity(new ParameterizedTypeReference<>() {});
+
+        return responseEntityMono
+                .flatMap(entity -> {
+                    HttpHeaders headers = entity.getHeaders();
+                    if (!SignatureVerifier.isSignatureValid(headers)) {
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.INVALID_PARAMETER, CLOUD_SERVICES_SIGNATURE));
                     }
+                    return Mono.just(Objects.requireNonNull(entity.getBody()));
                 })
                 .map(ResponseDTO::getData)
                 .onErrorMap(

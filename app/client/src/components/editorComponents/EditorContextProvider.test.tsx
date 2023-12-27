@@ -6,9 +6,9 @@ import { Provider } from "react-redux";
 import type { EditorContextType } from "./EditorContextProvider";
 import EditorContextProvider, { EditorContext } from "./EditorContextProvider";
 
-type TestChildProps = {
+interface TestChildProps {
   editorContext: EditorContextType;
-};
+}
 
 const TestChild = (props: TestChildProps) => {
   return <div>{Object.keys(props)}</div>;

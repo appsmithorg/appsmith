@@ -1,6 +1,6 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type {
   DynamicValues,
   FormEvalOutput,
@@ -9,17 +9,17 @@ import type {
 import { createSelector } from "reselect";
 import { isEmpty, replace } from "lodash";
 import { getDataTree } from "./dataTreeSelectors";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
 
-export type GetFormData = {
+export interface GetFormData {
   initialValues: Record<string, unknown>;
   values: any;
   valid: boolean;
-};
+}
 
 export const getFormData = (state: AppState, formName: string): GetFormData => {
   const initialValues = getFormInitialValues(formName)(state);
@@ -68,7 +68,10 @@ export const getDynamicTriggers = (
   return !isEmpty(triggersAllowedToFetch) ? triggersAllowedToFetch : undefined;
 };
 
-type ConfigErrorProps = { configProperty: string; formName: string };
+interface ConfigErrorProps {
+  configProperty: string;
+  formName: string;
+}
 
 export const getConfigErrors = createSelector(
   getDataTree,

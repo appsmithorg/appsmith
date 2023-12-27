@@ -46,9 +46,12 @@ export class DebuggerHelper {
     _intercomOption: "#intercom-trigger",
     _intercomConsentText: "[data-testid='t--intercom-consent-text']",
     _logsTab: "[data-testid='t--tab-LOGS_TAB']",
+    _debuggerFilterClear:
+      "//input[@data-testid='t--debugger-search']/following-sibling::span",
     _logsGroup: "[data-testid='t--log-filter']",
     _logGroupOption: (option: string) =>
       `[data-testid='t--log-filter-${option}']`,
+    _downStreamLogMessage: ".t--debugger-log-downstream-message",
   };
 
   ClickDebuggerIcon(
@@ -239,5 +242,19 @@ export class DebuggerHelper {
       "not.exist",
       this.locators._debuggerList,
     );
+  }
+
+  AssertDownStreamLogError(message: string, shouldOpenDebugger = true) {
+    if (shouldOpenDebugger) {
+      this.ClickDebuggerIcon();
+    }
+
+    this.agHelper.GetNClick(this.commonLocators._responseTab, 0, true, 0);
+
+    this.agHelper
+      .GetText(this.locators._downStreamLogMessage, "text", 0)
+      .then(($text) => {
+        expect($text).to.contains(message);
+      });
   }
 }

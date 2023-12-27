@@ -1,4 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -7,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("Validate basic Promises", () => {
+describe("Validate basic Promises", { tags: ["@tag.Binding"] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -19,7 +22,7 @@ describe("Validate basic Promises", () => {
   it("1. Verify storeValue via .then via direct Promises", () => {
     const date = new Date().toDateString();
     agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}",
@@ -33,7 +36,7 @@ describe("Validate basic Promises", () => {
   it("2. Verify resolve & chaining via direct Promises", () => {
     agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{
@@ -79,7 +82,7 @@ describe("Validate basic Promises", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".runAny()}}");
     });
@@ -93,7 +96,7 @@ describe("Validate basic Promises", () => {
   it("4. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",

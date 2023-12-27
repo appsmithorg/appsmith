@@ -1,16 +1,17 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
-import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -37,12 +38,16 @@ import java.util.List;
 public class ActionCollectionControllerCE {
     private final ActionCollectionService actionCollectionService;
     private final LayoutCollectionService layoutCollectionService;
+    private final RefactoringService refactoringService;
 
     @Autowired
     public ActionCollectionControllerCE(
-            ActionCollectionService actionCollectionService, LayoutCollectionService layoutCollectionService) {
+            ActionCollectionService actionCollectionService,
+            LayoutCollectionService layoutCollectionService,
+            RefactoringService refactoringService) {
         this.actionCollectionService = actionCollectionService;
         this.layoutCollectionService = layoutCollectionService;
+        this.refactoringService = refactoringService;
     }
 
     @JsonView(Views.Public.class)
@@ -90,10 +95,11 @@ public class ActionCollectionControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollectionName(
-            @RequestBody RefactorActionCollectionNameDTO refactorActionCollectionNameDTO,
+            @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return layoutCollectionService
-                .refactorCollectionName(refactorActionCollectionNameDTO, branchName)
+        refactorEntityNameDTO.setEntityType(EntityType.JS_OBJECT);
+        return refactoringService
+                .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
@@ -127,13 +133,15 @@ public class ActionCollectionControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/refactorAction")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(
-            @Valid @RequestBody RefactorActionNameInCollectionDTO resource,
+            @Valid @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to refactor action collection with id: {}",
-                resource.getActionCollection().getId());
-        return layoutCollectionService
-                .refactorAction(resource, branchName)
+                refactorEntityNameDTO.getActionCollection().getId());
+
+        refactorEntityNameDTO.setEntityType(EntityType.JS_ACTION);
+        return refactoringService
+                .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

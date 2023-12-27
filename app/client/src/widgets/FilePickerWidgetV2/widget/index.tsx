@@ -20,11 +20,14 @@ import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import parseFileData from "./FileParser";
 import { FilePickerGlobalStyles } from "./index.styled";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -107,6 +110,18 @@ class FilePickerWidget extends BaseWidget<
       disableResizeHandles: {
         horizontal: true,
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: { base: "360px" },
+        minHeight: { base: "40px" },
+        minWidth: { base: "120px" },
       },
     };
   }
@@ -538,7 +553,7 @@ class FilePickerWidget extends BaseWidget<
 
     if (location.protocol === "https:") {
       uppy.use(Webcam, {
-        onBeforeSnapshot: () => Promise.resolve(),
+        onBeforeSnapshot: async () => Promise.resolve(),
         countdown: false,
         mirror: true,
         facingMode: "user",

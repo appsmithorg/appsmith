@@ -3,77 +3,86 @@ import log from "loglevel";
 import memoizeOne from "memoize-one";
 
 import _, {
-  isNumber,
-  isString,
-  isNil,
-  xor,
-  without,
-  isArray,
-  xorWith,
-  isEmpty,
-  union,
-  isObject,
-  pickBy,
-  orderBy,
   filter,
+  isArray,
+  isEmpty,
+  isNil,
+  isNumber,
+  isObject,
+  isString,
   merge,
+  orderBy,
+  pickBy,
+  union,
+  without,
+  xor,
+  xorWith,
 } from "lodash";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WIDGET_PADDING,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-import { SORT_ORDER } from "../component/Constants";
-import { StickyType } from "../component/Constants";
-import type { ReactTableFilter } from "../component/Constants";
-import { AddNewRowActions, DEFAULT_FILTER } from "../component/Constants";
+import type {
+  ColumnProperties,
+  ReactTableColumnProps,
+  ReactTableFilter,
+} from "../component/Constants";
+import {
+  AddNewRowActions,
+  CompactModeTypes,
+  DEFAULT_FILTER,
+  SORT_ORDER,
+  SortOrderTypes,
+  StickyType,
+} from "../component/Constants";
 import type {
   EditableCell,
   OnColumnEventArgs,
   TableWidgetProps,
   TransientDataPayload,
 } from "../constants";
-import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../constants";
 import {
   ActionColumnTypes,
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   ColumnTypes,
-  defaultEditableCell,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
+  defaultEditableCell,
   EditableCellActions,
   InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
-  TABLE_COLUMN_ORDER_KEY,
   PaginationDirection,
+  TABLE_COLUMN_ORDER_KEY,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
+  createEditActionColumn,
+  deleteLocalTableColumnOrderByWidgetId,
+  generateLocalNewColumnOrderFromStickyValue,
+  generateNewColumnOrderFromStickyValue,
+  getAllStickyColumnsCount,
   getAllTableColumnKeys,
+  getBooleanPropertyValue,
+  getCellProperties,
+  getColumnOrderByWidgetIdFromLS,
+  getColumnType,
   getDefaultColumnProperties,
   getDerivedColumns,
-  getTableStyles,
   getSelectRowIndex,
   getSelectRowIndices,
-  getCellProperties,
+  getTableStyles,
   isColumnTypeEditable,
-  getColumnType,
-  getBooleanPropertyValue,
-  deleteLocalTableColumnOrderByWidgetId,
-  getColumnOrderByWidgetIdFromLS,
-  generateLocalNewColumnOrderFromStickyValue,
   updateAndSyncTableLocalColumnOrders,
-  getAllStickyColumnsCount,
-  createEditActionColumn,
 } from "./utilities";
-import type {
-  ColumnProperties,
-  ReactTableColumnProps,
-} from "../component/Constants";
-import { CompactModeTypes, SortOrderTypes } from "../component/Constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -82,8 +91,8 @@ import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
 import {
-  sanitizeKey,
   DefaultAutocompleteDefinitions,
+  sanitizeKey,
 } from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
@@ -98,7 +107,6 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
-import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import type { MenuItem } from "widgets/MenuButtonWidget/constants";
@@ -111,25 +119,28 @@ import type {
   transformDataWithEditableCell,
 } from "./reactTableUtils/transformDataPureFn";
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
-import type {
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-const ReactTableComponent = lazy(() =>
-  retryPromise(() => import("../component")),
+const ReactTableComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
 );
 
 const emptyArr: any = [];
@@ -156,8 +167,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static type = "TABLE_WIDGET_V2";
 
-  static preloadConfig = true;
-
   static getConfig() {
     return {
       name: "Table",
@@ -170,6 +179,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       rows: 28,
@@ -337,6 +347,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         ];
       },
+      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+        return {
+          widgetBindPath: `${widget.widgetName}.selectedRow`,
+          message: `Make sure ${widget.widgetName} is bound to the same data source`,
+        };
+      },
     };
   }
 
@@ -353,6 +369,18 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 
@@ -585,7 +613,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const { tableData = [], primaryColumns = {} } = this.props;
+    const { primaryColumns = {}, tableData = [] } = this.props;
 
     if (!_.isArray(tableData) || tableData.length === 0) {
       return;
@@ -1026,7 +1054,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         pushBatchMetaUpdates("selectedRowIndex", -1);
       } else {
-        if (!isNil(defaultSelectedRowIndex) && defaultSelectedRowIndex > -1) {
+        if (
+          !isNil(defaultSelectedRowIndex) &&
+          parseInt(defaultSelectedRowIndex?.toString(), 10) > -1
+        ) {
           pushBatchMetaUpdates("selectedRowIndex", defaultSelectedRowIndex);
         }
 
@@ -1156,15 +1187,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
-      totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      pageSize,
       primaryColumns,
+      totalRecordsCount,
     } = this.props;
 
     const tableColumns = this.getTableColumns() || emptyArr;
@@ -1488,13 +1519,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * This function just pushes the meta update
    */
   pushOnColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
@@ -1517,13 +1548,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * Function to handle customColumn button type click interactions
    */
   onColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     if (action) {
       const { commitBatchMetaUpdates } = this.props;
@@ -1856,11 +1887,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isHidden = !column.isVisible;
     const {
+      compactMode = CompactModeTypes.DEFAULT,
       filteredTableData = [],
       multiRowSelection,
       selectedRowIndex,
       selectedRowIndices,
-      compactMode = CompactModeTypes.DEFAULT,
     } = this.props;
     let row;
     let originalIndex: number;
@@ -2451,6 +2482,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
             compactMode={compactMode}
+            currencyCode={cellProperties.currencyCode}
+            decimals={cellProperties.decimals}
             disabledEditIcon={
               shouldDisableEdit || this.props.isAddRowInProgress
             }
@@ -2466,12 +2499,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isEditableCellValid={this.isColumnCellValid(alias)}
             isHidden={isHidden}
             isNewRow={isNewRow}
+            notation={cellProperties.notation}
             onCellTextChange={this.onCellTextChange}
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             rowIndex={rowIndex}
             tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
+            thousandSeparator={cellProperties.thousandSeparator}
             toggleCellEditMode={this.toggleCellEditMode}
             validationErrorMessage={validationErrorMessage}
             value={props.cell.value}

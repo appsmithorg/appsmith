@@ -1,10 +1,14 @@
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  PropertyOverrideDependency,
+} from "@appsmith/entities/DataTree/types";
 import { klona } from "klona";
-import type { WidgetMetaState } from ".";
-import type { PropertyOverrideDependency } from "entities/DataTree/types";
+import type { MetaState, WidgetMetaState } from ".";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import produce from "immer";
+import { set, unset } from "lodash";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,
@@ -29,4 +33,51 @@ export function getMetaWidgetResetObj(
     });
   }
   return resetMetaObj;
+}
+
+/**
+ * When resetWidget is called from eval, we update all the meta values and remove those meta values which are undefined
+ */
+export function setMetaValuesOnResetFromEval(
+  state: MetaState,
+  action: ReduxAction<{
+    evalMetaUpdates: EvalMetaUpdates;
+  }>,
+) {
+  const { evalMetaUpdates } = action.payload;
+
+  if (!evalMetaUpdates.length) return state;
+
+  const newMetaState = klona(state);
+
+  evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
+    if (value === undefined) {
+      unset(newMetaState, `${widgetId}.${metaPropertyPath.join(".")}`);
+    } else {
+      set(newMetaState, [widgetId, ...metaPropertyPath], value);
+    }
+  });
+
+  return newMetaState;
+}
+
+export function getNextMetaStateWithUpdates(
+  state: MetaState,
+  action: ReduxAction<{
+    evalMetaUpdates: EvalMetaUpdates;
+  }>,
+) {
+  const { evalMetaUpdates } = action.payload;
+
+  if (!evalMetaUpdates.length) return state;
+
+  // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
+  const newMetaState = produce(state, (draftMetaState) => {
+    evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
+      set(draftMetaState, [widgetId, ...metaPropertyPath], value);
+    });
+    return draftMetaState;
+  });
+
+  return newMetaState;
 }

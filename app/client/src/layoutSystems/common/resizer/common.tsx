@@ -11,7 +11,7 @@ import styled from "styled-components";
 import type {
   LayoutDirection,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import memoize from "micro-memoize";
 
@@ -130,7 +130,7 @@ const getSnappedValues = (
   };
 };
 
-export type DimensionUpdateProps = {
+export interface DimensionUpdateProps {
   width: number;
   height: number;
   x: number;
@@ -141,9 +141,9 @@ export type DimensionUpdateProps = {
   Y?: number;
   reflectPosition: boolean;
   reflectDimension: boolean;
-};
+}
 
-type ResizableHandleProps = {
+interface ResizableHandleProps {
   allowResize: boolean;
   scrollParent: HTMLDivElement | null;
   disableDot: boolean;
@@ -163,14 +163,14 @@ type ResizableHandleProps = {
     y: number;
   };
   direction?: ReflowDirection;
-};
+}
 
 export function ResizableHandle(props: ResizableHandleProps) {
   const bind = useDrag((state) => {
     const {
+      dragging,
       first,
       last,
-      dragging,
       memo,
       movement: [mx, my],
     } = state;
@@ -219,7 +219,7 @@ export function ResizableHandle(props: ResizableHandleProps) {
   );
 }
 
-export type ResizableProps = {
+export interface ResizableProps {
   allowResize: boolean;
   handles: {
     left?: StyledComponent<"div", Record<string, unknown>>;
@@ -265,4 +265,4 @@ export type ResizableProps = {
   isMobile: boolean;
   showResizeBoundary: boolean;
   topRow: number;
-};
+}

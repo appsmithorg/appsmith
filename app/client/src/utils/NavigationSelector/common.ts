@@ -1,4 +1,4 @@
-import type { ENTITY_TYPE } from "entities/DataTree/types";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import type {
   EntityNavigationData,
   NavigationData,
@@ -7,7 +7,7 @@ import type {
 export const createNavData = (general: {
   name: string;
   id: string;
-  type: ENTITY_TYPE;
+  type: EntityTypeValue;
   isfunction?: boolean;
   children: EntityNavigationData;
   key?: string;

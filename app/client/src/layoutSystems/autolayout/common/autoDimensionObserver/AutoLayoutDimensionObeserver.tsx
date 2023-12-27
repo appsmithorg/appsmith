@@ -5,7 +5,9 @@ import type { PropsWithChildren } from "react";
 import styled from "styled-components";
 
 const SimpleContainer = styled.div`
+  position: auto;
   width: fit-content;
+  height: fit-content;
   &.fill-widget {
     width: 100%;
   }

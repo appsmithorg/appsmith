@@ -1,13 +1,19 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,21 +46,53 @@ public class ApplicationSnapshotServiceTest {
     @Autowired
     private ApplicationSnapshotRepository applicationSnapshotRepository;
 
+    @Autowired
+    private ApplicationService applicationService;
+
+    @Autowired
+    private ApplicationPermission applicationPermission;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
+    Workspace workspace;
+
+    @BeforeEach
+    public void setup() {
+        User user = sessionUserService.getCurrentUser().block();
+        if (null == user) {
+            // Don't do any setup.
+            return;
+        }
+        Workspace workspace1 = new Workspace();
+        workspace1.setName("ApplicationSnapshotServiceTest");
+        workspace = workspaceService.create(workspace1).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User user = sessionUserService.getCurrentUser().block();
+        if (null == user) {
+            // Since no setup is done, hence no cleanup should happen.
+            return;
+        }
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
+    }
+
     @Test
     @WithUserDetails("api_user")
     public void createApplicationSnapshot_WhenNoPreviousSnapshotExists_NewCreated() {
-        // create a new workspace
-        Workspace workspace = new Workspace();
-        workspace.setName("Test workspace " + UUID.randomUUID());
-
-        Mono<ApplicationSnapshot> snapshotMono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("Test app for snapshot");
-                    testApplication.setWorkspaceId(createdWorkspace.getId());
-                    return applicationPageService.createApplication(testApplication);
-                })
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot");
+        testApplication.setWorkspaceId(workspace.getId());
+        Mono<ApplicationSnapshot> snapshotMono = applicationPageService
+                .createApplication(testApplication)
                 .flatMap(application -> {
                     assert application.getId() != null;
                     return applicationSnapshotService
@@ -75,18 +113,11 @@ public class ApplicationSnapshotServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void createApplicationSnapshot_WhenSnapshotExists_ExistingSnapshotUpdated() {
-        // create a new workspace
-        Workspace workspace = new Workspace();
-        workspace.setName("Test workspace " + UUID.randomUUID());
-
-        Mono<ApplicationSnapshot> snapshotMono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("Test app for snapshot");
-                    testApplication.setWorkspaceId(createdWorkspace.getId());
-                    return applicationPageService.createApplication(testApplication);
-                })
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot");
+        testApplication.setWorkspaceId(workspace.getId());
+        Mono<ApplicationSnapshot> snapshotMono = applicationPageService
+                .createApplication(testApplication)
                 .flatMap(application -> {
                     assert application.getId() != null;
                     // create snapshot twice
@@ -112,25 +143,17 @@ public class ApplicationSnapshotServiceTest {
         String uniqueString = UUID.randomUUID().toString();
         String testDefaultAppId = "default-app-" + uniqueString;
         String testBranchName = "hello/world";
-        // create a new workspace
-        Workspace workspace = new Workspace();
-        workspace.setName("Test workspace " + uniqueString);
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot");
+        testApplication.setWorkspaceId(workspace.getId());
 
-        Mono<Tuple2<ApplicationSnapshot, Application>> tuple2Mono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("Test app for snapshot");
-                    testApplication.setWorkspaceId(createdWorkspace.getId());
-
-                    // this app will have default app id=testDefaultAppId and branch name=test branch name
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                    gitApplicationMetadata.setDefaultApplicationId(testDefaultAppId);
-                    gitApplicationMetadata.setBranchName(testBranchName);
-                    testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-
-                    return applicationPageService.createApplication(testApplication);
-                })
+        // this app will have default app id=testDefaultAppId and branch name=test branch name
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setDefaultApplicationId(testDefaultAppId);
+        gitApplicationMetadata.setBranchName(testBranchName);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Mono<Tuple2<ApplicationSnapshot, Application>> tuple2Mono = applicationPageService
+                .createApplication(testApplication)
                 .flatMap(application -> applicationSnapshotService
                         .createApplicationSnapshot(testDefaultAppId, testBranchName)
                         .then(applicationSnapshotService.getWithoutDataByApplicationId(
@@ -154,17 +177,12 @@ public class ApplicationSnapshotServiceTest {
         String testDefaultAppId = "default-app-" + uniqueString;
         String testBranchName = null;
         // create a new workspace
-        Workspace workspace = new Workspace();
-        workspace.setName("Test workspace " + uniqueString);
 
-        Flux<ApplicationSnapshot> applicationSnapshotFlux = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("Test app for snapshot");
-                    testApplication.setWorkspaceId(createdWorkspace.getId());
-                    return applicationPageService.createApplication(testApplication);
-                })
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot");
+        testApplication.setWorkspaceId(workspace.getId());
+        Flux<ApplicationSnapshot> applicationSnapshotFlux = applicationPageService
+                .createApplication(testApplication)
                 .flatMap(application -> {
                     ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
                     applicationSnapshot.setApplicationId(application.getId());
@@ -192,17 +210,10 @@ public class ApplicationSnapshotServiceTest {
         String testDefaultAppId = "default-app-" + uniqueString;
         String testBranchName = "hello/world";
 
-        // create a new workspace
-        Workspace workspace = new Workspace();
-        workspace.setName("Test workspace " + uniqueString);
-
-        Mono<Application> applicationMono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("App before snapshot");
-                    return applicationPageService.createApplication(testApplication, workspace.getId());
-                })
+        Application testApplication = new Application();
+        testApplication.setName("App before snapshot");
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(testApplication, workspace.getId())
                 .cache();
 
         Mono<ApplicationPagesDTO> pagesBeforeSnapshot = applicationMono.flatMap(createdApp -> {
@@ -251,19 +262,10 @@ public class ApplicationSnapshotServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void restoreSnapshot_WhenSuccessfullyRestored_SnapshotDeleted() {
-        String uniqueString = UUID.randomUUID().toString();
-
-        // create a new workspace
-        Workspace workspace = new Workspace();
-        workspace.setName("Test workspace " + uniqueString);
-
-        Flux<ApplicationSnapshot> snapshotFlux = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("App before snapshot");
-                    return applicationPageService.createApplication(testApplication, workspace.getId());
-                })
+        Application testApplication = new Application();
+        testApplication.setName("App before snapshot");
+        Flux<ApplicationSnapshot> snapshotFlux = applicationPageService
+                .createApplication(testApplication, workspace.getId())
                 .flatMap(
                         application -> { // create a snapshot
                             return applicationSnapshotService
@@ -298,19 +300,12 @@ public class ApplicationSnapshotServiceTest {
 
     @WithUserDetails("api_user")
     @Test
-    public void getWithoutDataByApplicationId_WhenSnanshotNotFound_ReturnsEmptySnapshot() {
-        String uniqueString = UUID.randomUUID().toString();
-        Workspace workspace = new Workspace();
-        workspace.setName("Test workspace " + uniqueString);
-
-        Mono<ApplicationSnapshot> applicationSnapshotMono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("Test app for snapshot");
-                    testApplication.setWorkspaceId(createdWorkspace.getId());
-                    return applicationPageService.createApplication(testApplication);
-                })
+    public void getWithoutDataByApplicationId_WhenSnapshotNotFound_ReturnsEmptySnapshot() {
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot");
+        testApplication.setWorkspaceId(workspace.getId());
+        Mono<ApplicationSnapshot> applicationSnapshotMono = applicationPageService
+                .createApplication(testApplication)
                 .flatMap(application1 -> {
                     return applicationSnapshotService.getWithoutDataByApplicationId(application1.getId(), null);
                 });

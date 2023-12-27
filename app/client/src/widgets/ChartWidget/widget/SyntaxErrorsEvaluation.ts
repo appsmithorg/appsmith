@@ -1,7 +1,7 @@
 import type { WidgetError } from "widgets/BaseWidget";
 
 import type { ChartWidgetProps } from ".";
-import { isBasicEChart } from ".";
+import { isBasicEChart } from "../component/helpers";
 
 export function syntaxErrorsFromProps(props: ChartWidgetProps): WidgetError[] {
   if (!props.errors) {

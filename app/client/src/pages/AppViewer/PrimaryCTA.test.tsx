@@ -9,6 +9,7 @@ import configureStore from "redux-mock-store";
 
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),
+  useHistory: () => ({ push: jest.fn() }),
   useLocation: () => ({
     pathname: "/app/test-3/page1-63cccd44463c535b9fbc297c",
     search: "?fork=true",
@@ -42,6 +43,9 @@ export const initialState: any = {
     },
   },
   ui: {
+    gitSync: {
+      protectedBranches: [],
+    },
     editor: {
       isPreviewMode: false,
     },

@@ -24,9 +24,7 @@ jobs:
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
     steps:
       - name: Checkout the head commit of the branch
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Set matrix jobs
         id: matrix
@@ -36,7 +34,7 @@ jobs:
           else
             echo "matrix_count=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
           fi
-
+          
       - name: Get the PR number if workflow is triggered manually
         id: fetch_pr
         if: github.event_name == 'workflow_dispatch'
@@ -95,7 +93,7 @@ jobs:
 
       - name: Comment the filenames if PR is there
         if: steps.check_files.outputs.non_ts_files_count != 0 && steps.args.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ fromJson(steps.args.outputs.pr) }}
           body: |
@@ -107,7 +105,7 @@ jobs:
 
       - name: Add a comment on the PR with link to workflow run
         if: success() && steps.args.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ fromJson(steps.args.outputs.pr) }}
           body: |
@@ -186,45 +184,63 @@ jobs:
       run:
         shell: bash
     steps:
-      # Deleting the existing dir's if any
-      - name: Delete existing directories
+      - name: Setup node
         if: needs.ci-test-limited.result != 'success'
-        run: |
-          rm -f ~/failed_spec_ci
-          rm -f ~/combined_failed_spec_ci
-
-      # Force store previous cypress dashboard url from cache
-      - name: Store the previous cypress dashboard url
-        if: success()
-        uses: actions/cache@v3
+        uses: actions/setup-node@v3
         with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
-          restore-keys: |
-            ${{ github.run_id }}-dashboard-url
+          node-version: 18
 
-      - name: Print cypress dashboard url
-        id: dashboard_url
-        run: |
-          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
-          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
-
-      # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v3
+      - name: install pg
         if: needs.ci-test-limited.result != 'success'
-        id: download_ci
+        run: npm install pg
+
+      - name: Fetch the failed specs
+        if: needs.ci-test-limited.result != 'success'
+        id: failed_specs
+        env:
+          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+        uses: actions/github-script@v6
         with:
-          name: failed-spec-ci-${{github.run_attempt}}
-          path: ~/failed_spec_ci
+          script: |
+            const { Pool } = require("pg");
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER } = process.env
+
+            const client = await new Pool({
+              user: DB_USER,
+              host: DB_HOST,
+              database: DB_NAME,
+              password: DB_PWD,
+              port: 5432,
+              connectionTimeoutMillis: 60000,
+            }).connect();
+
+            const result = await client.query(
+              `SELECT DISTINCT name FROM public."specs"
+                WHERE "matrixId" IN
+                (SELECT id FROM public."matrix"
+                WHERE "attemptId" = (
+                  SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+                  )
+                ) AND status = 'fail'`,
+              [RUN_ID, ATTEMPT_NUMBER],
+            );
+            client.release();
+            return result.rows.map((spec) => spec.name);
 
       # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
+      - name: combine all specs for CI
+        id: combine_ci
         if: needs.ci-test-limited.result != 'success'
         run: |
-          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
-          cat ~/failed_spec_ci/failed_spec_ci*
-          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+          failed_specs=$(echo ${{steps.failed_specs.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          while read -r line; do
+            echo "$line" >> ~/combined_failed_spec_ci
+          done <<< "$failed_specs"
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
@@ -253,23 +269,23 @@ jobs:
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
+            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
 
       - name: Add a comment on the PR when ci-test-limited is success
         if: needs.ci-test-limited.result == 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
 
       - name: Check ci-test-limited set status
@@ -285,45 +301,63 @@ jobs:
       run:
         shell: bash
     steps:
-      # Deleting the existing dir's if any
-      - name: Delete existing directories
+      - name: Setup node
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
-        run: |
-          rm -f ~/failed_spec_ci
-          rm -f ~/combined_failed_spec_ci
-
-      # Force store previous cypress dashboard url from cache
-      - name: Store the previous cypress dashboard url
-        if: success()
-        uses: actions/cache@v3
+        uses: actions/setup-node@v3
         with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
-          restore-keys: |
-            ${{ github.run_id }}-dashboard-url
+          node-version: 18
 
-      - name: Print cypress dashboard url
-        id: dashboard_url
-        run: |
-          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
-          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
-
-      # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v3
+      - name: install pg
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
-        id: download_ci
+        run: npm install pg
+
+      - name: Fetch the failed specs
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        id: failed_specs
+        env:
+          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+        uses: actions/github-script@v6
         with:
-          name: failed-spec-ci-${{github.run_attempt}}
-          path: ~/failed_spec_ci
+          script: |
+            const { Pool } = require("pg");
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER } = process.env
+
+            const client = await new Pool({
+              user: DB_USER,
+              host: DB_HOST,
+              database: DB_NAME,
+              password: DB_PWD,
+              port: 5432,
+              connectionTimeoutMillis: 60000,
+            }).connect();
+
+            const result = await client.query(
+              `SELECT DISTINCT name FROM public."specs"
+                WHERE "matrixId" IN
+                (SELECT id FROM public."matrix"
+                WHERE "attemptId" = (
+                  SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+                  )
+                ) AND status = 'fail'`,
+              [RUN_ID, ATTEMPT_NUMBER],
+            );
+            client.release();
+            return result.rows.map((spec) => spec.name);
 
       # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
+      - name: combine all specs for CI
+        id: combine_ci
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         run: |
-          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
-          cat ~/failed_spec_ci/failed_spec_ci*
-          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+          failed_specs=$(echo ${{steps.failed_specs.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          while read -r line; do
+            echo "$line" >> ~/combined_failed_spec_ci
+          done <<< "$failed_specs"
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
@@ -352,23 +386,23 @@ jobs:
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited-existing-docker-image.result != 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
+            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
         if: needs.ci-test-limited-existing-docker-image.result == 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
 
       - name: Check ci-test-limited-existing-docker-image set status

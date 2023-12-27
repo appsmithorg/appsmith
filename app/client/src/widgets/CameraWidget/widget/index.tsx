@@ -16,7 +16,10 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import {
   BACK_CAMERA_LABEL,
   createMessage,
@@ -24,7 +27,10 @@ import {
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
 } from "@appsmith/constants/messages";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -53,6 +59,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       isMirrored: true,
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Hug,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
@@ -71,6 +78,19 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       ],
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":

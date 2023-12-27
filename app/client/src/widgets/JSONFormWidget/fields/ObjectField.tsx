@@ -37,9 +37,9 @@ type ObjectFieldProps = Omit<
   name: string;
 };
 
-type StyledWrapperProps = {
+interface StyledWrapperProps {
   withBottomMargin: boolean;
-};
+}
 
 const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isDisabled: false,

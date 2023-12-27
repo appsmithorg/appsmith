@@ -1,20 +1,23 @@
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
-  assertHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
   locators,
   propPane,
-  debuggerHelper,
-  deployMode,
-  autoLayout,
 } from "../../../../../support/Objects/ObjectsCore";
-describe("Number Slider spec", () => {
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
+describe("Number Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("numbersliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{NumberSlider1.value}}");
   });
 
@@ -35,7 +38,7 @@ describe("Number Slider spec", () => {
     ];
     const eventsProperties = ["onchange"];
 
-    entityExplorer.SelectEntityByName("NumberSlider1", "Widgets");
+    EditorNavigation.SelectEntityByName("NumberSlider1", EntityType.Widget);
     // Data Section properties
     dataSectionProperties.forEach((dataSectionProperty) => {
       agHelper.AssertElementVisibility(
@@ -134,7 +137,7 @@ describe("Number Slider spec", () => {
     deployMode.NavigateBacktoEditor();
 
     // Allows decimal value
-    entityExplorer.SelectEntityByName("NumberSlider1");
+    EditorNavigation.SelectEntityByName("NumberSlider1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Min. value", "10.5");
 
     // Verify Decimal value
@@ -210,7 +213,7 @@ describe("Number Slider spec", () => {
   });
 
   it("4. Validate accepted and unaccepted 'Step Value' values", () => {
-    entityExplorer.SelectEntityByName("NumberSlider1");
+    EditorNavigation.SelectEntityByName("NumberSlider1", EntityType.Widget);
 
     propPane.UpdatePropertyFieldValue("Step size", "-10");
 
@@ -288,7 +291,7 @@ describe("Number Slider spec", () => {
   });
 
   it("7. Verify Range slider visibility in explorer", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     agHelper.ClearTextField(locators._entityExplorersearch);
     agHelper.TypeText(locators._entityExplorersearch, "Number");
     agHelper.AssertElementExist(locators._widgetPageIcon("numbersliderwidget"));
@@ -298,7 +301,7 @@ describe("Number Slider spec", () => {
   });
 
   it("8. Validate 'show marks', 'visible' and 'disable' toggle", () => {
-    entityExplorer.SelectEntityByName("NumberSlider1");
+    EditorNavigation.SelectEntityByName("NumberSlider1", EntityType.Widget);
 
     // Verify Show marks toggle
     agHelper.AssertContains("50%", "be.visible", "p");
@@ -341,7 +344,7 @@ describe("Number Slider spec", () => {
   });
 
   it("10.  Verify size change and color change", () => {
-    entityExplorer.SelectEntityByName("NumberSlider1");
+    EditorNavigation.SelectEntityByName("NumberSlider1", EntityType.Widget);
     propPane.MoveToTab("Style");
     // Verify Size
     agHelper.GetWidgetCSSHeight(locators._sliderThumb).then((initialHeight) => {
@@ -425,7 +428,7 @@ describe("Number Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep();
 
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT))

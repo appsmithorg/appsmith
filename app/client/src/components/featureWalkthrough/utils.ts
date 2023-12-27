@@ -3,10 +3,10 @@ import type { OffsetType, PositionType } from "./walkthroughContext";
 const DEFAULT_POSITION: PositionType = "top";
 export const PADDING_HIGHLIGHT = 10;
 
-type PositionCalculator = {
+interface PositionCalculator {
   offset?: OffsetType;
   targetId: string;
-};
+}
 
 export function getPosition({ offset, targetId }: PositionCalculator) {
   const target = document.querySelector(targetId);

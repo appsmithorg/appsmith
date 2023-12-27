@@ -50,30 +50,30 @@ type ReferenceCache = Record<
   | undefined
 >;
 
-type UpdateSiblingsOptions = {
+interface UpdateSiblingsOptions {
   templateWidgetId: string;
   originalMetaWidgetId: string;
   metaWidget: MetaWidget;
-};
+}
 
-type GenerateDefaultCacheOptions = {
+interface GenerateDefaultCacheOptions {
   lookupId: string;
   templateWidget: FlattenedWidgetProps;
   generateEntityDefinition: boolean;
-};
+}
 
-export type HookOptions = {
+export interface HookOptions {
   childMetaWidgets: MetaWidgets;
   rowReferences: Record<string, string | undefined>;
-};
+}
 
 type Hook = (metaWidget: MetaWidget, options: HookOptions) => void;
 
-type Hooks = {
+interface Hooks {
   afterMetaWidgetGenerate?: Hook;
-};
+}
 
-export type GeneratorOptions = {
+export interface GeneratorOptions {
   containerParentId: string;
   containerWidgetId: string;
   currTemplateWidgets: TemplateWidgets;
@@ -92,9 +92,9 @@ export type GeneratorOptions = {
   serverSidePagination: boolean;
   templateHeight: number;
   widgetName: string;
-};
+}
 
-export type ConstructorProps = {
+export interface ConstructorProps {
   getWidgetCache: () => MetaWidgetCache | undefined;
   getWidgetReferenceCache: () => ReferenceCache | undefined;
   infiniteScroll: boolean;
@@ -106,51 +106,51 @@ export type ConstructorProps = {
   renderMode: string;
   setWidgetCache: (data: MetaWidgetCache) => void;
   setWidgetReferenceCache: (data: ReferenceCache) => void;
-};
+}
 
-type TemplateWidgetStatus = {
+interface TemplateWidgetStatus {
   added: Set<string>;
   updated: Set<string>;
   removed: Set<string>;
   unchanged: Set<string>;
-};
+}
 
-type CacheDataOption = {
+interface CacheDataOption {
   keepMetaWidgetData: boolean;
   key: string;
-};
+}
 
-type GenerateMetaWidgetProps = {
+interface GenerateMetaWidgetProps {
   rowIndex: number;
   templateWidgetId: string;
   parentId: string;
   options?: CacheDataOption;
-};
+}
 
-type GenerateMetaWidgetChildrenProps = {
+interface GenerateMetaWidgetChildrenProps {
   rowIndex: number;
   parentId: string;
   templateWidget: FlattenedWidgetProps;
   options?: CacheDataOption;
-};
+}
 
-type GeneratedMetaWidget = {
+interface GeneratedMetaWidget {
   metaWidgetId?: string;
   metaWidgetName?: string;
   childMetaWidgets?: MetaWidgets;
   metaWidget?: MetaWidget;
-};
+}
 
-type CachedRows = {
+interface CachedRows {
   prev: Set<string>;
   curr: Set<string>;
-};
+}
 
-type LevelProperty = {
+interface LevelProperty {
   currentIndex: number;
   currentItem: string;
   currentView: Record<string, string>;
-};
+}
 
 type VirtualizerInstance = Virtualizer<HTMLDivElement, HTMLDivElement>;
 type VirtualizerOptionsProps = VirtualizerOptions<
@@ -158,15 +158,15 @@ type VirtualizerOptionsProps = VirtualizerOptions<
   HTMLDivElement
 >;
 
-type AddDynamicPathsPropertiesOptions = {
+interface AddDynamicPathsPropertiesOptions {
   excludedPaths?: string[];
-};
+}
 
-type ViewMetaWidget = {
+interface ViewMetaWidget {
   metaWidgetId: string;
   isClonedItem: boolean;
   templateWidgetId: string;
-};
+}
 
 type Siblings = Record<string, string[]>;
 
@@ -914,8 +914,8 @@ class MetaWidgetGenerator {
               }
               return newObj;
               })(${metaContainerName}.data, ${JSON.stringify(
-            BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
-          )} )
+                BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
+              )} )
           }}`,
         },
       },
@@ -1665,8 +1665,8 @@ class MetaWidgetGenerator {
           // "Input1: { value: List1_Input1_1.value, text: List1_Input1_1.text }"
           dependantBinding[templateWidgetName] = `
             ${templateWidgetName}: {${
-            dependantMetaWidget?.entityDefinition || ""
-          }}
+              dependantMetaWidget?.entityDefinition || ""
+            }}
           `;
         }
       });

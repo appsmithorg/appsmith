@@ -3,12 +3,12 @@ import React, { useRef, useEffect } from "react";
 
 type Places = google.maps.places.PlaceResult[] | undefined;
 
-type SearchBoxProps = {
+interface SearchBoxProps {
   isEnabled: boolean;
   map?: google.maps.Map;
   placeholder?: string;
   updateCenter: (lat: number, long: number) => void;
-};
+}
 
 const StyledInput = styled.input`
   position: absolute;

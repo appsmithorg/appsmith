@@ -25,4 +25,9 @@ public class TestComponentCEImpl implements TestComponentCE {
         List<String> result = List.of("ce", "impl", "method");
         return Flux.fromIterable(result);
     }
+
+    @Override
+    public String ceEeSyncMethod(String arg) {
+        return arg + "ce_impl_method";
+    }
 }

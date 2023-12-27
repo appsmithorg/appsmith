@@ -73,12 +73,12 @@ export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
 };
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
-  id: "APPSMITH_HIDE_WATERMARK",
-  name: "APPSMITH_HIDE_WATERMARK",
+  id: "hideWatermark",
+  name: "hideWatermark",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "Appsmith watermark",
-  text: "Show Appsmith watermark",
+  text: "Hide Appsmith watermark",
   isFeatureEnabled: false,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,

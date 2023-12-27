@@ -5,19 +5,6 @@ import { TagInput } from "design-system-old";
 import { FormGroup } from "./Common";
 import type { Intent } from "constants/DefaultTheme";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import styled from "styled-components";
-
-const StyledTagInput = styled(TagInput)`
-  .bp3-tag-input-values {
-    flex-wrap: nowrap;
-    width: 100%;
-    overflow: auto;
-
-    &::-webkit-scrollbar {
-      height: 0px;
-    }
-  }
-`;
 
 const renderComponent = (
   componentProps: TagListFieldProps & {
@@ -33,12 +20,12 @@ const renderComponent = (
       }`}
       setting={setting}
     >
-      <StyledTagInput {...componentProps} />
+      <TagInput {...componentProps} />
     </FormGroup>
   );
 };
 
-type TagListFieldProps = {
+interface TagListFieldProps {
   name: string;
   placeholder: string;
   type: string;
@@ -46,7 +33,7 @@ type TagListFieldProps = {
   intent: Intent;
   setting: Setting;
   customError?: (err: string) => void;
-};
+}
 
 function TagInputField(props: TagListFieldProps) {
   return <Field component={renderComponent} {...props} />;

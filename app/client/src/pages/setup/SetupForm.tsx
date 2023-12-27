@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import type { DetailsFormValues, SetupFormProps } from "./DetailsForm";
 import DetailsForm from "./DetailsForm";
 import {
   WELCOME_FORM_USECASE_FIELD_NAME,
@@ -8,18 +9,25 @@ import {
   WELCOME_FORM_NAME,
   WELCOME_FORM_NAME_FIELD_NAME,
   WELCOME_FORM_PASSWORD_FIELD_NAME,
-  WELCOME_FORM_ROLE_FIELD_NAME,
-  WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
-  WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
+  WELCOME_FORM_PROFICIENCY_LEVEL,
 } from "@appsmith/constants/forms";
-import type { FormErrors, InjectedFormProps } from "redux-form";
+import type { FormErrors } from "redux-form";
 import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
 import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
+  WELCOME_FORM_EMAIL_ERROR_MESSAGE,
+  createMessage,
+  WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE,
+  WELCOME_FORM_GENERIC_ERROR_MESSAGE,
+  WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE,
+  WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
+} from "@appsmith/constants/messages";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -40,18 +48,6 @@ const SpaceFiller = styled.div`
   height: 100px;
 `;
 
-export type DetailsFormValues = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  password?: string;
-  verifyPassword?: string;
-  role?: string;
-  useCase?: string;
-  custom_useCase?: string;
-  role_name?: string;
-};
-
 export const firstpageValues = [
   "firstName",
   "lastName",
@@ -60,57 +56,38 @@ export const firstpageValues = [
   "verifyPassword",
 ];
 
-export const secondPageValues = [
-  "role",
-  "useCase",
-  "custom_useCase",
-  "role_name",
-];
+export const secondPageValues = ["proficiency", "useCase"];
 
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
   if (!values.firstName) {
-    errors.firstName = "This field is required.";
+    errors.firstName = createMessage(WELCOME_FORM_GENERIC_ERROR_MESSAGE);
   }
 
   if (!values.email || !isEmail(values.email)) {
-    errors.email = "Enter a valid email address.";
+    errors.email = createMessage(WELCOME_FORM_EMAIL_ERROR_MESSAGE);
   }
 
   if (!values.password || !isStrongPassword(values.password)) {
-    errors.password = "Please enter a strong password.";
+    errors.password = createMessage(WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE);
   }
 
   if (!values.verifyPassword || values.password != values.verifyPassword) {
-    errors.verifyPassword = "Passwords don't match.";
+    errors.verifyPassword = createMessage(
+      WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE,
+    );
   }
 
-  if (!values.role) {
-    errors.role = "Please select a role";
-  }
-
-  if (values.role == "other" && !values.role_name) {
-    errors.role_name = "Please enter a role";
+  if (!values.proficiency) {
+    errors.proficiency = createMessage(WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE);
   }
 
   if (!values.useCase) {
-    errors.useCase = "Please select a use case";
+    errors.useCase = createMessage(WELCOME_FORM_USE_CASE_ERROR_MESSAGE);
   }
-
-  if (values.useCase === "other" && !values.custom_useCase)
-    errors.custom_useCase = "Please enter a use case";
 
   return errors;
 };
-
-export type SetupFormProps = DetailsFormValues & {
-  formSyncErrors?: FormErrors<string, string>;
-} & InjectedFormProps<
-    DetailsFormValues,
-    {
-      formSyncErrors?: FormErrors<string, string>;
-    }
-  >;
 
 function SetupForm(props: SetupFormProps) {
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
@@ -143,26 +120,20 @@ function SetupForm(props: SetupFormProps) {
       form.appendChild(fullName);
     }
 
-    const roleInput = document.createElement("input");
-    roleInput.type = "text";
-    roleInput.name = "role";
-    roleInput.style.display = "none";
-    if (props.role !== "other") {
-      roleInput.value = props.role as string;
-    } else {
-      roleInput.value = props.role_name as string;
-    }
-    form.appendChild(roleInput);
+    const proficiencyInput = document.createElement("input");
+    proficiencyInput.type = "text";
+    proficiencyInput.name = "proficiency";
+    proficiencyInput.style.display = "none";
+    proficiencyInput.value = props.proficiency as string;
+    form.appendChild(proficiencyInput);
+
     const useCaseInput = document.createElement("input");
     useCaseInput.type = "text";
     useCaseInput.name = "useCase";
     useCaseInput.style.display = "none";
-    if (props.useCase !== "other") {
-      useCaseInput.value = props.useCase as string;
-    } else {
-      useCaseInput.value = props.custom_useCase as string;
-    }
+    useCaseInput.value = props.useCase as string;
     form.appendChild(useCaseInput);
+
     const anonymousDataInput = document.createElement("input");
     anonymousDataInput.type = "checkbox";
     anonymousDataInput.value = isAirgappedFlag ? "false" : "true";
@@ -252,10 +223,8 @@ export default connect((state: AppState) => {
     email: selector(state, WELCOME_FORM_EMAIL_FIELD_NAME),
     password: selector(state, WELCOME_FORM_PASSWORD_FIELD_NAME),
     verify_password: selector(state, WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME),
-    role: selector(state, WELCOME_FORM_ROLE_FIELD_NAME),
-    role_name: selector(state, WELCOME_FORM_ROLE_NAME_FIELD_NAME),
+    proficiency: selector(state, WELCOME_FORM_PROFICIENCY_LEVEL),
     useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),
-    custom_useCase: selector(state, WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME),
     formSyncErrors: getFormSyncErrors(WELCOME_FORM_NAME)(state),
   };
 }, null)(

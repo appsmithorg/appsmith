@@ -9,11 +9,11 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 
-export type WorkspaceActionProps = {
+export interface WorkspaceActionProps {
   workspaceId: string;
   isMobile: boolean;
   onCreateNewApplication: (workspaceId: string) => void;
-};
+}
 
 function WorkspaceAction({
   isMobile,

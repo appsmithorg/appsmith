@@ -105,12 +105,12 @@ const StyledHighlightedCode = styled(HighlightedCode)`
   padding-bottom: 4px;
 `;
 
-export type EntityPropertyProps = {
+export interface EntityPropertyProps {
   propertyName: string;
   entityName: string;
   value: string;
   step?: number;
-};
+}
 
 /* eslint-disable react/display-name */
 export const EntityProperty = memo((props: any) => {

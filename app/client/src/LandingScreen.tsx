@@ -9,10 +9,10 @@ import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ServerUnavailable from "pages/common/ErrorPages/ServerUnavailable";
 
-type Props = {
+interface Props {
   user?: User;
   authError: string;
-};
+}
 
 function LandingScreen(props: Props) {
   if (props.user && window.location.pathname === BASE_URL) {

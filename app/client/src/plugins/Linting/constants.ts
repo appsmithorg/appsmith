@@ -27,7 +27,7 @@ export const lintOptions = (globalData: Record<string, boolean>) =>
     // global values
     globals: globalData,
     loopfunc: true,
-  } as LintOptions);
+  }) as LintOptions;
 export const JS_OBJECT_START_STATEMENT = "export default";
 export const INVALID_JSOBJECT_START_STATEMENT = `JSObject must start with '${JS_OBJECT_START_STATEMENT}'`;
 export const INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE =
@@ -62,6 +62,10 @@ export const SUPPORTED_WEB_APIS = {
 export enum CustomLintErrorCode {
   INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",
   ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD = "ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD",
+  // ButtonWidget.text = "test"
+  INVALID_WIDGET_PROPERTY_SETTER = "INVALID_WIDGET_PROPERTY_SETTER",
+  // appsmith.store.value = "test"
+  INVALID_APPSMITH_STORE_PROPERTY_SETTER = "INVALID_APPSMITH_STORE_PROPERTY_SETTER",
 }
 
 export const CUSTOM_LINT_ERRORS: Record<
@@ -92,5 +96,23 @@ export const CUSTOM_LINT_ERRORS: Record<
       : `Functions bound to data fields cannot execute async code. Remove async statements highlighted below or remove references to "${fullName}" on the following data ${
           hasMultipleBindings ? "fields" : "field"
         }: ${bindings}`;
+  },
+  [CustomLintErrorCode.INVALID_WIDGET_PROPERTY_SETTER]: (
+    methodName: string,
+    objectName: string,
+    propertyName: string,
+    isValidProperty: boolean,
+  ) => {
+    const suggestionSentence = methodName
+      ? `Use ${methodName}(value) instead.`
+      : `Use ${objectName} setter method instead.`;
+
+    const lintErrorMessage = !isValidProperty
+      ? `${objectName} doesn't have a property named ${propertyName}`
+      : `Direct mutation of widget properties is not supported. ${suggestionSentence}`;
+    return lintErrorMessage;
+  },
+  [CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER]: () => {
+    return "Use storeValue() method to modify the store";
   },
 };

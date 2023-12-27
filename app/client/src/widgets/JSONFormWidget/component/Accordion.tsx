@@ -14,17 +14,17 @@ type AccordionProps = React.PropsWithChildren<{
   title?: string;
 }>;
 
-type StyledToggleHeaderProps = {
+interface StyledToggleHeaderProps {
   isOpen: boolean;
-};
+}
 
-type StyledWrapperProps = {
+interface StyledWrapperProps {
   backgroundColor?: string;
   borderColor?: string;
   borderRadius?: string;
   borderWidth?: number;
   boxShadow?: string;
-};
+}
 
 const COLLAPSE_PADDING = 10;
 const WRAPPER_MARGIN_BOTTOM = 8;

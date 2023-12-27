@@ -229,7 +229,7 @@ export const onboardingContainerBlueprint = {
   ],
 };
 
-type Step = {
+interface Step {
   title: string;
   description?: string;
   elementSelector?: string;
@@ -254,7 +254,7 @@ type Step = {
     onClick: (dispatch: Dispatch<any>) => void;
     buttonText?: string;
   };
-};
+}
 type StepsType = Record<number, Step>;
 
 export const Steps: StepsType = {

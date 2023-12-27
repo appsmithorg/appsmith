@@ -40,12 +40,12 @@ const HeaderSection = styled.div`
 
 const StyledDropDownContainer = styled.div``;
 
-type ErrorPageHeaderProps = {
+interface ErrorPageHeaderProps {
   user?: User;
   flushErrors?: any;
   flushErrorsAndRedirect?: any;
   safeCrash: boolean;
-};
+}
 
 export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   const { flushErrors, flushErrorsAndRedirect, safeCrash, user } = props;

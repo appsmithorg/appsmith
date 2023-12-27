@@ -1,9 +1,9 @@
-import JSFactory from "../JSVariableFactory";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import type { JSActionEntity } from "entities/DataTree/types";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import TriggerEmitter, {
   jsVariableUpdatesHandlerWrapper,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";
+import JSObjectCollection from "../Collection";
 
 const applyJSVariableUpdatesToEvalTreeMock = jest.fn();
 jest.mock("../JSVariableUpdates.ts", () => ({
@@ -36,7 +36,12 @@ describe("JSVariableFactory", () => {
       weakSet: new WeakSet(),
     } as unknown as JSActionEntity;
 
-    const proxiedJSObject = JSFactory.create("JSObject1", jsObject);
+    Object.entries(jsObject).forEach(([k, v]) =>
+      JSObjectCollection.setVariableValue(v, `JSObject1.${k}`),
+    );
+
+    const proxiedJSObject =
+      JSObjectCollection.getVariablesForEvaluationContext("JSObject1");
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
@@ -96,7 +101,12 @@ describe("JSVariableFactory", () => {
       weakSet: new WeakSet(),
     } as unknown as JSActionEntity;
 
-    const proxiedJSObject = JSFactory.create("JSObject1", jsObject);
+    Object.entries(jsObject).forEach(([k, v]) =>
+      JSObjectCollection.setVariableValue(v, `JSObject1.${k}`),
+    );
+
+    const proxiedJSObject =
+      JSObjectCollection.getVariablesForEvaluationContext("JSObject1");
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: false,
@@ -125,7 +135,12 @@ describe("JSVariableFactory", () => {
       weakSet: new WeakSet(),
     } as unknown as JSActionEntity;
 
-    const proxiedJSObject = JSFactory.create("JSObject1", jsObject);
+    Object.entries(jsObject).forEach(([k, v]) =>
+      JSObjectCollection.setVariableValue(v, `JSObject1.${k}`),
+    );
+
+    const proxiedJSObject =
+      JSObjectCollection.getVariablesForEvaluationContext("JSObject1");
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,

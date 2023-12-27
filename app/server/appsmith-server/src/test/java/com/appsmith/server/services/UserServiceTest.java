@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
@@ -60,6 +61,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.AccessControlConstants.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -357,6 +359,10 @@ public class UserServiceTest {
                     assertTrue(passwordEncoder.matches("123456", user.getPassword()));
                 })
                 .verifyComplete();
+
+        Workspace deletedWorkspace = workspaceMono
+                .flatMap(workspace1 -> workspaceService.archiveById(workspace1.getId()))
+                .block();
     }
 
     @Test
@@ -495,6 +501,14 @@ public class UserServiceTest {
                 .assertNext(userProfileDTO -> {
                     assertNotNull(userProfileDTO);
                     assertThat(userProfileDTO.isIntercomConsentGiven()).isTrue();
+                    assertEquals(
+                            List.of(
+                                    UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
+                            userProfileDTO.getGroups());
+                    assertEquals(
+                            List.of(
+                                    UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
+                            userProfileDTO.getRoles());
                 })
                 .verifyComplete();
     }
@@ -730,5 +744,28 @@ public class UserServiceTest {
         StepVerifier.create(resultMono)
                 .expectErrorMessage(AppsmithError.USER_ALREADY_VERIFIED.getMessage())
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameProficiencyAndUseCaseOfUser() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("New name of user here");
+        updateUser.setProficiency("Proficiency level");
+        updateUser.setUseCase("New use case");
+        final Mono<Tuple2<User, UserData>> resultMono = userService
+                .updateCurrentUser(updateUser, null)
+                .flatMap(user -> Mono.zip(Mono.just(user), userDataService.getForUserEmail("api_user")));
+        StepVerifier.create(resultMono)
+                .assertNext(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    assertNotNull(user);
+                    assertNotNull(userData);
+                    assertEquals("New name of user here", user.getName());
+                    assertThat(userData.getProficiency()).isEqualTo("Proficiency level");
+                    assertEquals("New use case", userData.getUseCase());
+                })
+                .verifyComplete();
     }
 }

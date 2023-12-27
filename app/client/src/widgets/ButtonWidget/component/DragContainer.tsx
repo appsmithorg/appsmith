@@ -29,7 +29,7 @@ import { buttonHoverActiveStyles } from "./utils";
   For this reason we pass the showInAllModes prop.
 */
 
-export type ButtonContainerProps = {
+export interface ButtonContainerProps {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   disabled?: boolean;
@@ -39,7 +39,7 @@ export type ButtonContainerProps = {
   minHeight?: number;
   loading?: boolean;
   style?: React.CSSProperties;
-};
+}
 
 const ButtonContainer = styled.div<ButtonContainerProps>`
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};

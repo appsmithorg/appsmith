@@ -1,11 +1,8 @@
 import type { AppState } from "@appsmith/reducers";
 import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
-import type {
-  DataTree,
-  DataTreeEntity,
-  WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   PropertyPaneReduxState,
@@ -23,7 +20,7 @@ import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -71,7 +68,7 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getCurrentAppPositioningType,
+  getLayoutSystemType,
   (state) => {
     const currentWidget = getCurrentWidgetProperties(state);
     if (!currentWidget) return;
@@ -83,14 +80,14 @@ export const getWidgetPropsForPropertyPane = createSelector(
   },
   (
     widget: WidgetProps | undefined,
-    appPositioningType,
+    layoutSystemType,
     evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
 
     const widgetProperties = {
       ...widget,
-      appPositioningType,
+      layoutSystemType,
     };
     if (evaluatedValue) {
       widgetProperties[EVALUATION_PATH] = evaluatedValue;

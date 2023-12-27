@@ -11,7 +11,7 @@ jobs:
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
@@ -42,7 +42,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   build-docker-image:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -50,13 +50,23 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
-      
+
   perf-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: perf-test
     uses: ./.github/workflows/perf-test.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
+  perf-test-v2:
+    needs: [build-docker-image]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test-v2
+    uses: ./.github/workflows/perf-test-v2.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}

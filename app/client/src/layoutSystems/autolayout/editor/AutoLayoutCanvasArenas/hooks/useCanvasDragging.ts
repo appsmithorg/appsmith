@@ -1,18 +1,18 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 
 import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
-import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
-import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { modifyBlockDimension } from "layoutSystems/common/utils/canvasDraggingUtils";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
@@ -92,12 +92,18 @@ export const useCanvasDragging = (
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
 
+  const canvasRenderingDependencies = useMemo(
+    () => ({
+      snapRows,
+      canExtend,
+    }),
+    [snapRows, canExtend],
+  );
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
     isCurrentDraggedCanvas,
     isDragging,
-    snapRows,
-    canExtend,
+    canvasRenderingDependencies,
   );
 
   const renderBlocks = useRenderBlocksOnCanvas(

@@ -66,9 +66,9 @@ interface ChooseGitProviderProps {
 }
 
 function ChooseGitProvider({
+  isImport = false,
   onChange = noop,
   value = {},
-  isImport = false,
 }: ChooseGitProviderProps) {
   const workspace = useSelector(getCurrentAppWorkspace);
   const isMobile = useIsMobileDevice();
@@ -217,6 +217,7 @@ function ChooseGitProvider({
       ) : null}
       {isImport && (
         <Checkbox
+          data-testid="t--existing-repo-checkbox"
           isSelected={value?.gitExistingRepoExists}
           onChange={(v) => onChange({ gitExistingRepoExists: v })}
         >

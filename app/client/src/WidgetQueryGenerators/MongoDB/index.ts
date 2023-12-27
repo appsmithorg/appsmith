@@ -191,10 +191,13 @@ export default abstract class MongoDB extends BaseQueryGenerator {
 
     const scrubedOutInitalValues = [...ALLOWED_INITAL_VALUE_KEYS, commandKey]
       .filter((key) => initialValues[key as keyof MongoDBFormData])
-      .reduce((acc, key) => {
-        acc[key] = initialValues[key as keyof MongoDBFormData];
-        return acc;
-      }, {} as Record<string, object>);
+      .reduce(
+        (acc, key) => {
+          acc[key] = initialValues[key as keyof MongoDBFormData];
+          return acc;
+        },
+        {} as Record<string, object>,
+      );
 
     const { formData, ...rest } = builtValues;
 

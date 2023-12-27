@@ -62,9 +62,9 @@ export const TemplateDatasources = styled.div`
   gap: ${(props) => props.theme.spaces[4]}px;
 `;
 
-type TemplateDescriptionProps = {
+interface TemplateDescriptionProps {
   template: Template;
-};
+}
 
 function TemplateDescription(props: TemplateDescriptionProps) {
   const { template } = props;

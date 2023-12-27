@@ -6,11 +6,11 @@ import {
 import { SegmentedControl } from "design-system";
 import React from "react";
 
-type Option = {
+interface Option {
   id: string;
   text: string;
   action: () => void;
-};
+}
 
 export function TabView(props: TabViewProps) {
   const onClick = (id: string) => {

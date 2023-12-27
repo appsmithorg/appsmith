@@ -8,6 +8,7 @@ import { Classes } from "@blueprintjs/core";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { lightenColor } from "widgets/WidgetUtils";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const StyledDropdown = styled(Dropdown)`
   /*
@@ -100,8 +101,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
-    props.portalClassName
-  }  .${Classes.INPUT}:active {
+      props.portalClassName
+    }  .${Classes.INPUT}:active {
       border: 1px solid ${props.accentColor} !important;
       box-shadow: 0px 0px 0px 2px ${lightenColor(props.accentColor)} !important;
     }
@@ -211,7 +212,7 @@ export const getCountryCodeFromCurrencyCode = (currencyCode?: string) => {
 };
 
 interface CurrencyDropdownProps {
-  onCurrencyTypeChange: (currencyCountryCode?: string) => void;
+  onCurrencyTypeChange?: (currencyCountryCode?: string) => void;
   options: Array<DropdownOption>;
   selected?: string;
   allowCurrencyChange?: boolean;
@@ -256,7 +257,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
         optionWidth="360px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
-        portalContainer={document.getElementById("art-board") || undefined}
+        portalContainer={document.getElementById(CANVAS_ART_BOARD) || undefined}
         searchAutoFocus
         searchPlaceholder="Search by currency or country"
         selected={selectedOption}

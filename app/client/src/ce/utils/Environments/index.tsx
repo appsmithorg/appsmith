@@ -1,7 +1,11 @@
 import { PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 
-export const DB_NOT_SUPPORTED = [PluginType.REMOTE, PluginType.SAAS];
+export const DB_NOT_SUPPORTED = [
+  PluginType.REMOTE,
+  PluginType.SAAS,
+  PluginType.AI,
+];
 
 export const getUserPreferenceFromStorage = () => {
   return "true";

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import DataSourceHome from "./DatasourceHome";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 const QueryHomePage = styled.div`
   display: flex;
@@ -13,8 +14,11 @@ const QueryHomePage = styled.div`
   }
 `;
 
-type QueryHomeScreenProps = {
-  pageId: string;
+interface QueryHomeScreenProps {
+  editorId: string;
+  editorType: string;
+  parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
   isCreating: boolean;
   location: {
     search: string;
@@ -23,20 +27,35 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showMostPopularPlugins?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
-};
+}
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
-    const { history, location, pageId, showUnsupportedPluginDialog } =
-      this.props;
+    const {
+      editorId,
+      editorType,
+      history,
+      isCreating,
+      location,
+      parentEntityId,
+      parentEntityType,
+      showMostPopularPlugins,
+      showUnsupportedPluginDialog,
+    } = this.props;
 
     return (
       <QueryHomePage>
         <DataSourceHome
+          editorId={editorId}
+          editorType={editorType}
           history={history}
+          isCreating={isCreating}
           location={location}
-          pageId={pageId}
+          parentEntityId={parentEntityId}
+          parentEntityType={parentEntityType}
+          showMostPopularPlugins={showMostPopularPlugins}
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
         />
       </QueryHomePage>

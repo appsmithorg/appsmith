@@ -6,10 +6,7 @@ import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
-import {
-  APPSMITH_IP_ADDRESSES,
-  VIEW_MODE_TABS,
-} from "constants/DatasourceEditorConstants";
+import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
@@ -17,18 +14,8 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { Callout, Tabs, Tab, TabsList, TabPanel } from "design-system";
-import DatasourceViewModeSchema from "./DatasourceViewModeSchema";
-import {
-  DATASOURCE_CONFIGURATIONS_TAB,
-  DATASOURCE_VIEW_DATA_TAB,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { isEnvironmentValid } from "@appsmith/utils/Environments";
-import { setDatasourceViewModeFlag } from "actions/datasourceActions";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { Callout } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -43,9 +30,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   hiddenHeader?: boolean;
   datasourceName?: string;
   isEnabledForDSViewModeSchema: boolean;
-  isDatasourceValid: boolean;
   isPluginAllowedToPreviewData: boolean;
-  setDatasourceViewModeFlag: (viewMode: boolean) => void;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -58,29 +43,9 @@ export const Form = styled.form<{
   flex-direction: column;
   ${(props) =>
     !props.viewMode && `height: ${`calc(100% - ${props?.theme.backBanner})`};`}
-  overflow-y: scroll;
-  padding-bottom: 20px;
+  padding-bottom: var(--ads-v2-spaces-6);
+  overflow-y: auto;
   margin-left: ${(props) => (props.viewMode ? "0px" : "24px")};
-`;
-
-export const ViewModeWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  padding: var(--ads-v2-spaces-7) 0;
-  gap: var(--ads-v2-spaces-4);
-`;
-
-export const TabsContainer = styled(Tabs)`
-  height: 100%;
-`;
-
-export const TabPanelContainer = styled(TabPanel)`
-  height: 95%;
-`;
-
-export const ConfigurationTabPanelContainer = styled(TabPanel)`
-  margin-top: 0px;
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -100,15 +65,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
     return this.renderDataSourceConfigForm(formConfig);
   }
+
   renderDataSourceConfigForm = (sections: any) => {
-    const {
-      datasource,
-      datasourceId,
-      formConfig,
-      messages,
-      pluginType,
-      viewMode,
-    } = this.props;
+    const { datasourceId, messages, pluginType, viewMode } = this.props;
 
     return (
       <Form
@@ -154,63 +113,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {""}
           </>
         )}
-        {viewMode && (
-          <>
-            {this.props.isEnabledForDSViewModeSchema &&
-              this.props.isPluginAllowedToPreviewData && (
-                <TabsContainer
-                  defaultValue={
-                    this.props.isDatasourceValid
-                      ? VIEW_MODE_TABS.VIEW_DATA
-                      : VIEW_MODE_TABS.CONFIGURATIONS
-                  }
-                >
-                  <TabsList>
-                    <Tab value={VIEW_MODE_TABS.VIEW_DATA}>
-                      {createMessage(DATASOURCE_VIEW_DATA_TAB)}
-                    </Tab>
-                    <Tab value={VIEW_MODE_TABS.CONFIGURATIONS}>
-                      {createMessage(DATASOURCE_CONFIGURATIONS_TAB)}
-                    </Tab>
-                  </TabsList>
-                  <TabPanelContainer value={VIEW_MODE_TABS.VIEW_DATA}>
-                    <DatasourceViewModeSchema
-                      datasource={datasource}
-                      datasourceId={datasourceId}
-                      setDatasourceViewModeFlag={
-                        this.props.setDatasourceViewModeFlag
-                      }
-                    />
-                  </TabPanelContainer>
-                  <ConfigurationTabPanelContainer
-                    value={VIEW_MODE_TABS.CONFIGURATIONS}
-                  >
-                    <ViewModeWrapper data-testid="t--ds-review-section">
-                      {!_.isNil(formConfig) && !_.isNil(datasource) ? (
-                        <DatasourceInformation
-                          config={formConfig[0]}
-                          datasource={datasource}
-                          viewMode={viewMode}
-                        />
-                      ) : undefined}
-                    </ViewModeWrapper>
-                  </ConfigurationTabPanelContainer>
-                </TabsContainer>
-              )}
-            {(!this.props.isEnabledForDSViewModeSchema ||
-              !this.props.isPluginAllowedToPreviewData) && (
-              <ViewModeWrapper data-testid="t--ds-review-section">
-                {!_.isNil(formConfig) && !_.isNil(datasource) ? (
-                  <DatasourceInformation
-                    config={formConfig[0]}
-                    datasource={datasource}
-                    viewMode={viewMode}
-                  />
-                ) : undefined}
-              </ViewModeWrapper>
-            )}
-          </>
-        )}
       </Form>
     );
   };
@@ -223,28 +125,16 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const hintMessages = datasource && datasource.messages;
 
-  const currentEnvironmentId = getCurrentEnvironmentId(state);
-  const isDatasourceValid =
-    isEnvironmentValid(datasource, currentEnvironmentId) || false;
-
   return {
     messages: hintMessages,
     datasource,
     datasourceName: datasource?.name ?? "",
-    isDatasourceValid,
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => ({
-  setDatasourceViewModeFlag: (viewMode: boolean) =>
-    dispatch(setDatasourceViewModeFlag(viewMode)),
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(
+export default connect(mapStateToProps)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
+    destroyOnUnmount: false,
     form: DATASOURCE_DB_FORM,
     enableReinitialize: true,
   })(DatasourceDBEditor),

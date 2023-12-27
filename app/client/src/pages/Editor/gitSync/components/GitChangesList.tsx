@@ -62,11 +62,11 @@ export enum Kind {
   SETTINGS = "SETTINGS",
 }
 
-type GitStatusProps = {
+interface GitStatusProps {
   iconName: string;
   message: string;
   hasValue: boolean;
-};
+}
 
 type GitStatusMap = {
   [key in Kind]: (status: Partial<GitStatusData>) => GitStatusProps;
@@ -280,6 +280,7 @@ export default function GitChangesList() {
       ) : statusChanges.length ? (
         <Changes data-testid={"t--git-change-statuses"}>
           {statusChanges}
+          {remoteStatusChanges}
           {status?.migrationMessage ? (
             <CalloutContainer>
               <Callout kind="info">{status.migrationMessage}</Callout>

@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import WidgetsEditorWrapper from "./WidgetsEditorWrapper";
+import IDE from "./IDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -26,7 +26,7 @@ import type { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
-import { fetchPage, updateCurrentPage } from "actions/pageActions";
+import { setupPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
 import { loading } from "selectors/onboardingSelectors";
@@ -42,9 +42,10 @@ import { Spinner } from "design-system";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
 
-type EditorProps = {
+interface EditorProps {
   currentApplicationId?: string;
   currentApplicationName?: string;
   initEditor: (payload: InitializeEditorPayload) => void;
@@ -57,19 +58,22 @@ type EditorProps = {
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
-  fetchPage: (pageId: string) => void;
+  setupPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branch: string) => void;
   currentPageId?: string;
   pageLevelSocketRoomId: string;
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
-};
+}
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
   componentDidMount() {
+    const { pageId } = this.props.match.params || {};
+    urlBuilder.setCurrentPageId(pageId);
+
     editorInitializer().then(() => {
       this.props.widgetConfigBuildSuccess();
     });
@@ -130,13 +134,15 @@ class Editor extends Component<Props> {
        */
       if (prevPageId && pageId && isPageIdUpdated) {
         this.props.updateCurrentPage(pageId);
-        this.props.fetchPage(pageId);
+        this.props.setupPage(pageId);
+        urlBuilder.setCurrentPageId(pageId);
       }
     }
   }
 
   componentWillUnmount() {
     this.props.resetEditorRequest();
+    urlBuilder.setCurrentPageId(null);
   }
 
   public render() {
@@ -155,14 +161,14 @@ class Editor extends Component<Props> {
           <Helmet>
             <meta charSet="utf-8" />
             <title>
-              {`${this.props.currentApplicationName} |`} Editor | Appsmith
+              {`${this.props.currentApplicationName} | Editor | Appsmith`}
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <WidgetsEditorWrapper />
+            <IDE />
             <GitSyncModal />
-            <EnvDeployInfoModal />
             <DisconnectGitModal />
+            <DisableAutocommitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />
             <TemplatesModal />
@@ -196,7 +202,7 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (payload: InitializeEditorPayload) =>
       dispatch(initEditor(payload)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
-    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
+    setupPage: (pageId: string) => dispatch(setupPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     widgetConfigBuildSuccess: () => dispatch(widgetInitialisationSuccess()),
   };

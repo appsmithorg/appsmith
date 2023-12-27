@@ -5,13 +5,13 @@ import { DropdownOption } from "../../CommonControls/DatasourceDropdown/Dropdown
 import { ErrorMessage, Label, SelectWrapper } from "../../styles";
 import { useColumns } from "./useColumns";
 
-type Props = {
+interface Props {
   id: string;
   alias: string;
   label: string;
   onSelect: () => void;
   isSearcheable: boolean;
-};
+}
 
 function ColumnDropdown(props: Props) {
   const { alias, isSearcheable } = props;
@@ -49,6 +49,7 @@ function ColumnDropdown(props: Props) {
               onSelect(value, option);
             }
           }}
+          showSearch
           value={selected}
           virtual={false}
         >
@@ -59,7 +60,7 @@ function ColumnDropdown(props: Props) {
                 key={option.id}
                 value={option.value}
               >
-                <DropdownOption label={option.label} leftIcon={option.icon} />
+                <DropdownOption label={option.label} />
               </Option>
             );
           })}

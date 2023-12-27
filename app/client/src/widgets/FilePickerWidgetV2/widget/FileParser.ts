@@ -8,7 +8,7 @@ interface ExcelSheetData {
 
 type CSVRowData = Record<any, any>; // key represents column name, value represents cell value
 
-function parseFileData(
+async function parseFileData(
   data: Blob,
   type: FileDataTypes,
   fileType: string,
@@ -31,7 +31,7 @@ function parseFileData(
   }
 }
 
-function parseBase64Blob(data: Blob): Promise<string> {
+async function parseBase64Blob(data: Blob): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.readAsDataURL(data);
@@ -41,7 +41,7 @@ function parseBase64Blob(data: Blob): Promise<string> {
   });
 }
 
-function parseBinaryString(data: Blob): Promise<string> {
+async function parseBinaryString(data: Blob): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.readAsBinaryString(data);
@@ -51,7 +51,7 @@ function parseBinaryString(data: Blob): Promise<string> {
   });
 }
 
-function parseText(data: Blob): Promise<string> {
+async function parseText(data: Blob): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.readAsText(data);
@@ -61,7 +61,7 @@ function parseText(data: Blob): Promise<string> {
   });
 }
 
-function parseArrayTypeFile(
+async function parseArrayTypeFile(
   data: Blob,
   filetype: string,
   extension: string,
@@ -88,7 +88,7 @@ function parseArrayTypeFile(
   });
 }
 
-function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
+async function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -102,7 +102,7 @@ function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
   });
 }
 
-function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
+async function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -128,7 +128,7 @@ function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
   });
 }
 
-function parseCSVBlob(
+async function parseCSVBlob(
   data: Blob,
   dynamicTyping = false,
 ): Promise<CSVRowData[]> {

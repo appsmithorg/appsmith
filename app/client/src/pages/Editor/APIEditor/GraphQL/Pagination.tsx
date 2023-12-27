@@ -151,7 +151,7 @@ const graphqlParseVariables = (queryBody: string) => {
   return variables;
 };
 
-type PaginationTypeBasedWrapperProps = {
+interface PaginationTypeBasedWrapperProps {
   actionName: string;
   className: string;
   dataReplayId: string;
@@ -174,7 +174,7 @@ type PaginationTypeBasedWrapperProps = {
   variableLabel: string;
   variableTooltip?: string;
   valueTooltip?: string;
-};
+}
 
 function PaginationTypeBasedWrapper({
   actionName,

@@ -18,9 +18,13 @@ import {
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -70,6 +74,7 @@ class SwitchGroupWidget extends BaseWidget<
       labelWidth: 5,
       version: 1,
       labelTextSize: "0.875rem",
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
@@ -101,6 +106,19 @@ class SwitchGroupWidget extends BaseWidget<
       },
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "240px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {

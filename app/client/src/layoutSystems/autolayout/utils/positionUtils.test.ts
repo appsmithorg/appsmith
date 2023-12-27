@@ -2,8 +2,8 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
-import type { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
+} from "layoutSystems/common/utils/constants";
+import type { AlignmentInfo, Row } from "../../autolayout/utils/types";
 import { RenderModes } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -16,9 +16,10 @@ import {
   placeWrappedWidgets,
   updateWidgetPositions,
 } from "./positionUtils";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { LabelPosition } from "components/constants";
 import * as utils from "./flexWidgetUtils";
+import type { FlexLayer } from "./types";
 
 describe("test PositionUtils methods", () => {
   const mainCanvasWidth = 960;
@@ -1316,7 +1317,7 @@ describe("test PositionUtils methods", () => {
           responsiveBehavior: ResponsiveBehavior.Fill,
           parentId: "",
           positioning: Positioning.Vertical,
-          appPositioningType: AppPositioningTypes.AUTO,
+          layoutSystemType: LayoutSystemTypes.AUTO,
           useAutoLayout: true,
           flexLayers: [
             { children: [{ id: "3", align: FlexLayerAlignment.Start }] },
