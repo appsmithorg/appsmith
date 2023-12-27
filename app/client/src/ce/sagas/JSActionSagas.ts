@@ -58,8 +58,8 @@ import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
 import {
   builderURL,
+  jsCollectionAddURL,
   jsCollectionIdURL,
-  jsCollectionListURL,
 } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -300,7 +300,7 @@ function* handleDeleteRedirect(deletedJSObjectId: string) {
   );
   // If this was the only item, we navigate to the list url
   if (remainingJsObjects.length === 0) {
-    history.push(jsCollectionListURL({}));
+    history.push(jsCollectionAddURL({}));
     return;
   }
   const deletedIndex = findIndex(
