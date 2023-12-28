@@ -254,6 +254,7 @@ jobs:
           else
             echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
             echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
+          fi
         
       - name: Print the tags
         run: |
