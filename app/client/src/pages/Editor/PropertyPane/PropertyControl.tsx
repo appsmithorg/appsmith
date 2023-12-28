@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
@@ -39,7 +39,10 @@ import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import {
+  JS_TOGGLE_DISABLED_MESSAGE,
+  JS_TOGGLE_SWITCH_JS_MESSAGE,
+} from "@appsmith/constants/messages";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
@@ -57,6 +60,8 @@ import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -85,6 +90,7 @@ const PropertyControl = memo((props: Props) => {
     props.propertyName,
     props.dependencies,
     props.evaluatedDependencies,
+    props.dynamicDependencies,
   );
 
   const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);
@@ -156,6 +162,10 @@ const PropertyControl = memo((props: Props) => {
   })();
 
   const propertyValue = _.get(widgetProperties, props.propertyName);
+
+  const experimentalJSToggle = useFeatureFlag(
+    FEATURE_FLAG.ab_one_click_learning_popover_enabled,
+  );
 
   /**
    * checks if property value is deviated or not.
@@ -602,6 +612,53 @@ const PropertyControl = memo((props: Props) => {
     ],
   );
 
+  const [isRenaming, setIsRenaming] = useState(false);
+
+  const [editedName, setEditedName] = useState(props.propertyName);
+
+  const hasRenamingError = useCallback(() => {
+    return (
+      editedName.trim() === "" ||
+      (editedName !== props.propertyName &&
+        widgetProperties.hasOwnProperty(editedName))
+    );
+  }, [props, widgetProperties, editedName]);
+
+  const onEditSave = useCallback(() => {
+    if (hasRenamingError()) {
+      return;
+    } else if (editedName.trim() && editedName !== props.propertyName) {
+      let update = {
+        [editedName]: widgetProperties[props.propertyName],
+      };
+
+      if (
+        props.controlConfig &&
+        typeof props.controlConfig.onEdit === "function"
+      ) {
+        update = {
+          ...update,
+          ...props.controlConfig.onEdit(widgetProperties, editedName),
+        };
+      }
+
+      onBatchUpdateProperties(update);
+      onDeleteProperties([props.propertyName]);
+    }
+    resetEditing();
+  }, [
+    props,
+    onBatchUpdateProperties,
+    onDeleteProperties,
+    props.propertyName,
+    editedName,
+  ]);
+
+  const resetEditing = useCallback(() => {
+    setEditedName(props.propertyName);
+    setIsRenaming(false);
+  }, [props.propertyName]);
+
   const { propertyName } = props;
 
   if (widgetProperties) {
@@ -772,6 +829,12 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
+    const JSToggleTooltip = isToggleDisabled
+      ? JS_TOGGLE_DISABLED_MESSAGE
+      : !isDynamic
+      ? JS_TOGGLE_SWITCH_JS_MESSAGE
+      : "";
+
     try {
       return (
         <ControlWrapper
@@ -787,69 +850,177 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="flex items-center gap-1">
-            <PropertyHelpLabel
-              label={label}
-              theme={props.theme}
-              tooltip={helpText}
-            />
-            {isConvertible && (
-              <Tooltip
-                content={JS_TOGGLE_DISABLED_MESSAGE}
-                isDisabled={!isToggleDisabled}
-              >
-                <span>
-                  <ToggleButton
-                    className={classNames("t--js-toggle", {
-                      "is-active": isDynamic,
-                    })}
-                    icon="js-toggle-v2"
-                    isDisabled={isToggleDisabled}
-                    isSelected={isDynamic}
-                    onClick={() =>
-                      toggleDynamicProperty(
-                        propertyName,
-                        isDynamic,
-                        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
-                          config,
-                          propertyValue,
-                        ),
-                      )
+          {isRenaming && config.controlConfig?.allowEdit ? (
+            <div className="flex items-center justify-between">
+              <div className="grow">
+                <input
+                  autoFocus
+                  className={clsx(
+                    "w-full rounded-sm !outline !outline-2 !outline-offset-1",
+                    hasRenamingError()
+                      ? "!outline-[var(--ads-v2-colors-control-field-error-border)]"
+                      : "!outline-[#8BB0FA]",
+                  )}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Non-word characters are replaced with underscores for valid property naming
+                    setEditedName(value.split(/\W+/).join("_"));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      onEditSave();
+                    } else if (e.key === "Escape") {
+                      resetEditing();
                     }
-                    size="sm"
-                  />
-                </span>
-              </Tooltip>
-            )}
-            {isPropertyDeviatedFromTheme && (
-              <>
-                <Tooltip content="Value deviated from theme">
-                  <StyledDeviated className="w-2 h-2 rounded-full" />
-                </Tooltip>
-                <button
-                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
-                  onClick={resetPropertyValueToTheme}
-                >
-                  <Tooltip content="Reset value" placement="topRight">
-                    <ResetIcon className="w-5 h-5" />
+                  }}
+                  placeholder="Enter label"
+                  value={editedName}
+                />
+              </div>
+              <div>
+                <Button
+                  className={clsx(
+                    `${config.label}`,
+                    "edit-control flex items-center justify-center text-center h-7 w-7",
+                    `t--edit-control-${config.label}`,
+                  )}
+                  isDisabled={hasRenamingError()}
+                  isIconButton
+                  kind="tertiary"
+                  onClick={() => {
+                    onEditSave();
+                  }}
+                  size="small"
+                  startIcon="check-line"
+                />
+              </div>
+              <div>
+                <Button
+                  className={clsx(
+                    `${config.label}`,
+                    "edit-control flex items-center justify-center text-center h-7 w-7",
+                    `t--edit-control-${config.label}`,
+                  )}
+                  isIconButton
+                  kind="tertiary"
+                  onClick={() => {
+                    resetEditing();
+                  }}
+                  size="small"
+                  startIcon="close-x"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className={clsx("flex items-center justify-right  gap-1")}>
+                <PropertyHelpLabel
+                  label={label}
+                  theme={props.theme}
+                  tooltip={helpText}
+                />
+                {isConvertible && (
+                  <Tooltip
+                    content={JSToggleTooltip}
+                    isDisabled={!JSToggleTooltip}
+                  >
+                    <span>
+                      <ToggleButton
+                        className={classNames({
+                          "t--js-toggle": true,
+                          "is-active": isDynamic,
+                          "!h-[20px]": experimentalJSToggle,
+                        })}
+                        icon="js-toggle-v2"
+                        isDisabled={isToggleDisabled}
+                        isSelected={isDynamic}
+                        onClick={() =>
+                          toggleDynamicProperty(
+                            propertyName,
+                            isDynamic,
+                            controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                              config,
+                              propertyValue,
+                            ),
+                          )
+                        }
+                        size={experimentalJSToggle ? "md" : "sm"}
+                      />
+                    </span>
                   </Tooltip>
-                </button>
-              </>
-            )}
-            {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
-              <Button
-                className={clsx(
-                  `${config.label}`,
-                  "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
-                  `t--add-action-${config.label}`,
                 )}
-                isIconButton
-                kind="tertiary"
-                onClick={() => setShowEmptyBlock(true)}
-                startIcon="plus"
-              />
-            )}
-          </div>
+                {isPropertyDeviatedFromTheme && (
+                  <>
+                    <Tooltip content="Value deviated from theme">
+                      <StyledDeviated className="w-2 h-2 rounded-full" />
+                    </Tooltip>
+                    <button
+                      className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                      onClick={resetPropertyValueToTheme}
+                    >
+                      <Tooltip content="Reset value" placement="topRight">
+                        <ResetIcon className="w-5 h-5" />
+                      </Tooltip>
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className={clsx("flex items-center justify-right")}>
+                {config.controlConfig?.allowEdit && (
+                  <Button
+                    className={clsx(
+                      `${config.label}`,
+                      "edit-control flex items-center justify-center text-center h-7 w-7",
+                      `t--edit-control-${config.label}`,
+                    )}
+                    isIconButton
+                    kind="tertiary"
+                    onClick={() => setIsRenaming(true)}
+                    size="small"
+                    startIcon="pencil-line"
+                  />
+                )}
+                {config.controlConfig?.allowDelete && (
+                  <Button
+                    className={clsx(
+                      `${config.label}`,
+                      "delete-control flex items-center justify-center text-center h-7 w-7",
+                      `t--delete-control-${config.label}`,
+                    )}
+                    isIconButton
+                    kind="tertiary"
+                    onClick={() => {
+                      if (
+                        config.controlConfig &&
+                        typeof config.controlConfig.onDelete === "function"
+                      ) {
+                        const updates =
+                          config.controlConfig.onDelete(widgetProperties);
+
+                        onBatchUpdateProperties(updates);
+                      }
+                      onDeleteProperties([config.propertyName]);
+                    }}
+                    size="small"
+                    startIcon="trash"
+                  />
+                )}
+                {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
+                  <Button
+                    className={clsx(
+                      `${config.label}`,
+                      "add-action flex items-center justify-center text-center h-7 w-7",
+                      `t--add-action-${config.label}`,
+                    )}
+                    isIconButton
+                    kind="tertiary"
+                    onClick={() => setShowEmptyBlock(true)}
+                    startIcon="plus"
+                  />
+                )}
+              </div>
+            </div>
+          )}
           {PropertyControlFactory.createControl(
             config,
             {
@@ -865,6 +1036,7 @@ const PropertyControl = memo((props: Props) => {
             customJSControl,
             additionAutocomplete,
             hideEvaluatedValue(),
+            props.isSearchResult,
           )}
           <PropertyPaneHelperText helperText={helperText} />
         </ControlWrapper>

@@ -11,6 +11,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -27,15 +28,20 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
+import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -46,7 +52,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -63,12 +68,15 @@ import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,6 +105,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository workspaceRepository;
     private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
 
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
@@ -120,6 +129,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
+    private final DSLMigrationUtils dslMigrationUtils;
+    private final GitAutoCommitHelper gitAutoCommitHelper;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -251,7 +262,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     || layout.getMongoEscapedWidgetNames().isEmpty()) {
                 continue;
             }
-            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+            layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
         }
         page.setLayouts(layouts);
         return page;
@@ -273,21 +284,83 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
-
+    public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
+            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
         // Fetch the page with read permission in both editor and in viewer.
-        AclPermission permission = pagePermission.getReadPermission();
         return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
                 .flatMap(newPage -> {
-                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
+                    return sendPageViewAnalyticsEvent(newPage, viewMode)
+                            .then(getPage(newPage, viewMode))
+                            .zipWith(Mono.just(newPage));
                 })
-                .flatMap(page -> {
-                    // Call the DSL Utils for on demand migration of the page.
-                    // Based on view mode save the migrated DSL to the database
-                    return Mono.just(page);
+                .flatMap(objects -> {
+                    PageDTO pageDTO = objects.getT1();
+                    if (migrateDsl) {
+                        // Call the DSL Utils for on demand migration of the page.
+                        // Based on view mode save the migrated DSL to the database
+                        // Migrate the DSL to the latest version if required
+                        NewPage newPage = objects.getT2();
+                        if (pageDTO.getLayouts() != null) {
+                            return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                        }
+                    }
+                    return Mono.just(pageDTO);
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
+    }
+
+    private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
+        return dslMigrationUtils
+                .getLatestDslVersion()
+                .onErrorMap(throwable -> {
+                    log.error("Error fetching latest DSL version", throwable);
+                    return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
+                })
+                .flatMap(latestDslVersion -> {
+                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
+                    // when multiple layouts are supported, this code will have to be updated
+                    assert page.getLayouts().size() == 1;
+
+                    Layout layout = page.getLayouts().get(0);
+                    JSONObject layoutDsl = layout.getDsl();
+                    boolean isMigrationRequired = GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
+                    if (isMigrationRequired) {
+                        // if edit mode, then trigger the auto commit event
+                        Mono<Boolean> autoCommitEventRunner;
+                        if (!viewMode) {
+                            autoCommitEventRunner = gitAutoCommitHelper.autoCommitApplication(
+                                    newPage.getDefaultResources().getApplicationId(),
+                                    newPage.getDefaultResources().getBranchName());
+                        } else {
+                            autoCommitEventRunner = Mono.just(Boolean.FALSE);
+                        }
+                        // zipping them so that they can run in parallel
+                        return Mono.zip(dslMigrationUtils.migratePageDsl(layoutDsl), autoCommitEventRunner)
+                                .onErrorMap(throwable -> {
+                                    log.error("Error while migrating DSL ", throwable);
+                                    return new AppsmithException(
+                                            AppsmithError.RTS_SERVER_ERROR,
+                                            "Error while migrating to latest DSL version");
+                                })
+                                .flatMap(tuple2 -> {
+                                    JSONObject migratedDsl = tuple2.getT1();
+                                    // update the current page DTO with migrated dsl
+                                    page.getLayouts().get(0).setDsl(migratedDsl);
+
+                                    // update the new page with migrated dsl and save to the database
+                                    PageDTO updatedPage;
+                                    if (viewMode) {
+                                        updatedPage = newPage.getPublishedPage();
+                                    } else {
+                                        updatedPage = newPage.getUnpublishedPage();
+                                    }
+                                    updatedPage.getLayouts().get(0).setDsl(migratedDsl);
+                                    return newPageService.save(newPage).thenReturn(page);
+                                });
+                    }
+                    return Mono.just(page);
+                });
     }
 
     @Override
@@ -468,9 +541,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return applicationMono
                 .flatMapMany(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
-                            && !StringUtils.isEmpty(gitData.getRepoName())) {
+                    if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
                                 gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
                     }
@@ -777,8 +848,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return Flux.fromIterable(layouts)
                             .flatMap(layout -> {
-                                layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                return layoutActionService.updateLayout(
+                                layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                                return updateLayoutService.updateLayout(
                                         savedPage.getId(), savedPage.getApplicationId(), layout.getId(), layout);
                             })
                             .collectList()
@@ -1101,6 +1172,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
+        return publishAndGetMetadata(applicationId, isPublishedManually)
+                .flatMap(tuple2 -> {
+                    ApplicationPublishingMetaDTO metaDTO = tuple2.getT2();
+                    return sendApplicationPublishedEvent(metaDTO);
+                })
+                .elapsed()
+                .map(objects -> {
+                    log.debug(
+                            "Published application {} in {} ms", objects.getT2().getId(), objects.getT1());
+                    return objects.getT2();
+                });
+    }
+
+    protected Mono<Tuple2<Mono<Application>, ApplicationPublishingMetaDTO>> publishAndGetMetadata(
+            String applicationId, boolean isPublishedManually) {
         /*
          * Please note that it is a cached Mono, hence please be careful with using this Mono to update / read data
          * when latest updated application object is desired.
@@ -1114,7 +1200,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<Theme> publishThemeMono =
                 applicationMono.flatMap(application -> themeService.publishTheme(application.getId()));
 
-        Set<CustomJSLibApplicationDTO> updatedPublishedJSLibDTOs = new HashSet<>();
+        Set<CustomJSLibContextDTO> updatedPublishedJSLibDTOs = new HashSet<>();
         Mono<List<ApplicationPage>> publishApplicationAndPages = applicationMono
                 // Return all the pages in the Application
                 .flatMap(application -> {
@@ -1204,21 +1290,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .collectList()
                 .cache(); // caching because it's needed to send analytics attributes after publishing the app
 
+        ApplicationPublishingMetaDTO applicationPublishingMetaDTO = ApplicationPublishingMetaDTO.builder()
+                .applicationId(applicationId)
+                .isPublishedManually(isPublishedManually)
+                .applicationPagesMono(publishApplicationAndPages)
+                .updatedPublishedJSLibDTOsMono(Mono.just(updatedPublishedJSLibDTOs))
+                .actionCountByPluginTypeMapMono(actionCountByPluginTypeMapMono)
+                .publishedActionCollectionsListMono(publishedActionCollectionsListMono)
+                .build();
+
         return publishApplicationAndPages
                 .flatMap(newPages -> Mono.zip(publishActionsMono, publishedActionCollectionsListMono, publishThemeMono))
-                .then(sendApplicationPublishedEvent(
-                        publishApplicationAndPages,
-                        actionCountByPluginTypeMapMono,
-                        publishedActionCollectionsListMono,
-                        Mono.just(updatedPublishedJSLibDTOs),
-                        applicationId,
-                        isPublishedManually))
-                .elapsed()
-                .map(objects -> {
-                    log.debug(
-                            "Published application {} in {} ms", objects.getT2().getId(), objects.getT1());
-                    return objects.getT2();
-                });
+                .then(Mono.just(Tuples.of(applicationMono, applicationPublishingMetaDTO)));
     }
 
     private int getActionCount(Map<PluginType, Integer> pluginTypeCollectionMap, PluginType pluginType) {
@@ -1228,13 +1311,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return 0;
     }
 
-    private Mono<Application> sendApplicationPublishedEvent(
-            Mono<List<ApplicationPage>> publishApplicationAndPages,
-            Mono<Map<PluginType, Integer>> publishedActionsFlux,
-            Mono<List<ActionCollection>> publishedActionsCollectionFlux,
-            Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
-            String applicationId,
-            boolean isPublishedManually) {
+    private Mono<Application> sendApplicationPublishedEvent(ApplicationPublishingMetaDTO publishingMetaDTO) {
+
+        Mono<List<ApplicationPage>> publishApplicationAndPages = publishingMetaDTO.getApplicationPagesMono();
+        Mono<Map<PluginType, Integer>> publishedActionsFlux = publishingMetaDTO.getActionCountByPluginTypeMapMono();
+        Mono<List<ActionCollection>> publishedActionsCollectionFlux =
+                publishingMetaDTO.getPublishedActionCollectionsListMono();
+        Mono<Set<CustomJSLibContextDTO>> publishedJSLibDTOsMono = publishingMetaDTO.getUpdatedPublishedJSLibDTOsMono();
+        String applicationId = publishingMetaDTO.getApplicationId();
+        boolean isPublishedManually = publishingMetaDTO.isPublishedManually();
 
         Mono<String> publicPermissionGroupIdMono =
                 permissionGroupService.getPublicPermissionGroupId().cache();

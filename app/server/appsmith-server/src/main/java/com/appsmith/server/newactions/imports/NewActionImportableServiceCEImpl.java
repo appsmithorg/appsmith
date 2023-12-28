@@ -11,19 +11,20 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,36 +42,29 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;
 
 @Slf4j
+@RequiredArgsConstructor
 public class NewActionImportableServiceCEImpl implements ImportableServiceCE<NewAction> {
 
     private final NewActionService newActionService;
     private final NewActionRepository repository;
     private final ActionCollectionService actionCollectionService;
 
-    public NewActionImportableServiceCEImpl(
-            NewActionService newActionService,
-            NewActionRepository repository,
-            ActionCollectionService actionCollectionService) {
-        this.newActionService = newActionService;
-        this.repository = repository;
-        this.actionCollectionService = actionCollectionService;
-    }
-
-    // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap to be present in importable
+    // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap, to be present in importable
     // resources.
     // Updates actionResultDTO in importable resources.
-    // Also directly updates required information in DB
+    // Also, directly updates required information in DB
     @Override
     public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
-        Mono<List<NewAction>> importedNewActionMono = Mono.just(importedNewActionList);
+        Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
@@ -100,14 +94,18 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (!StringUtils.isEmpty(importingMetaDTO.getApplicationId())
-                            && !importingMetaDTO.getAppendToApp()
+                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
+                            && !Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
-                        for (NewAction action : importActionResultDTO.getExistingActions()) {
-                            if (!importActionResultDTO.getImportedActionIds().contains(action.getId())) {
-                                invalidActionIds.add(action.getId());
+                        if (Boolean.FALSE.equals(isPartialImport)) {
+                            for (NewAction action : importActionResultDTO.getExistingActions()) {
+                                if (!importActionResultDTO
+                                        .getImportedActionIds()
+                                        .contains(action.getId())) {
+                                    invalidActionIds.add(action.getId());
+                                }
                             }
                         }
                         log.info("Deleting {} actions which are no more used", invalidActionIds.size());
@@ -136,7 +134,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
         ImportActionCollectionResultDTO importActionCollectionResultDTO =
@@ -156,8 +155,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (!StringUtils.isEmpty(importingMetaDTO.getApplicationId())
-                            && !importingMetaDTO.getAppendToApp()) {
+                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
+                            && !Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())
+                            && Boolean.FALSE.equals(isPartialImport)) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
@@ -220,10 +220,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
          */
         return Mono.just(application)
                 .flatMap(importedApplication -> {
-                    Mono<Map<String, NewAction>> actionsInCurrentAppMono = repository
-                            .findByApplicationId(importedApplication.getId())
-                            .filter(newAction -> newAction.getGitSyncId() != null)
-                            .collectMap(NewAction::getGitSyncId);
+                    Mono<Map<String, NewAction>> actionsInCurrentAppMono =
+                            getActionsInCurrentAppMono(importedApplication).collectMap(NewAction::getGitSyncId);
 
                     // find existing actions in all the branches of this application and put them in a map
                     Mono<Map<String, NewAction>> actionsInOtherBranchesMono;
@@ -255,7 +253,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                                 for (NewAction newAction : importedNewActionList) {
                                     if (newAction.getUnpublishedAction() == null
-                                            || !org.springframework.util.StringUtils.hasLength(newAction
+                                            || !StringUtils.hasLength(newAction
                                                     .getUnpublishedAction()
                                                     .getPageId())) {
                                         continue;
@@ -284,8 +282,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                                     if (publishedAction != null && publishedAction.getValidName() != null) {
                                         publishedAction.setId(newAction.getId());
-                                        if (!org.springframework.util.StringUtils.hasLength(
-                                                publishedAction.getPageId())) {
+                                        if (!StringUtils.hasLength(publishedAction.getPageId())) {
                                             publishedAction.setPageId(fallbackParentPageId);
                                         }
                                         NewPage publishedActionPage = updatePageInAction(
@@ -335,16 +332,18 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                             log.error(
                                                     "User does not have permission to create action in page with id: {}",
                                                     parentPage.getId());
-                                            throw new AppsmithException(
+                                            return Mono.error(new AppsmithException(
                                                     AppsmithError.ACL_NO_RESOURCE_FOUND,
                                                     FieldName.PAGE,
-                                                    parentPage.getId());
+                                                    parentPage.getId()));
                                         }
+
+                                        populateDomainMappedReferences(mappedImportableResourcesDTO, newAction);
 
                                         // this will generate the id and other auto generated fields e.g. createdAt
                                         newAction.updateForBulkWriteOperation();
 
-                                        // set gitSyncId if doesn't exist
+                                        // set gitSyncId, if it doesn't exist
                                         if (newAction.getGitSyncId() == null) {
                                             newAction.setGitSyncId(newAction.getApplicationId() + "_"
                                                     + Instant.now().toString());
@@ -415,6 +414,17 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 });
     }
 
+    protected void populateDomainMappedReferences(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO, NewAction newAction) {
+        // Nothing needs to be copied into the action from mapped resources
+    }
+
+    protected Flux<NewAction> getActionsInCurrentAppMono(Application importedApplication) {
+        return repository
+                .findByApplicationId(importedApplication.getId())
+                .filter(newAction -> newAction.getGitSyncId() != null);
+    }
+
     private NewPage updatePageInAction(
             ActionDTO action, Map<String, NewPage> pageNameMap, Map<String, String> actionIdMap) {
         NewPage parentPage = pageNameMap.get(action.getPageId());
@@ -443,6 +453,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             throw new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, existingAction.getId());
         }
         Set<Policy> existingPolicy = existingAction.getPolicies();
+
+        updateImportableActionFromExistingAction(existingAction, actionToImport);
+
         copyNestedNonNullProperties(actionToImport, existingAction);
         // Update branchName
         existingAction.getDefaultResources().setBranchName(branchName);
@@ -453,6 +466,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         existingAction.setDeletedAt(actionToImport.getDeletedAt());
         existingAction.setDeleted(actionToImport.getDeleted());
         existingAction.setPolicies(existingPolicy);
+    }
+
+    protected void updateImportableActionFromExistingAction(NewAction existingAction, NewAction actionToImport) {
+        // Nothing to update from the existing action
     }
 
     private void putActionIdInMap(NewAction newAction, ImportActionResultDTO importActionResultDTO) {

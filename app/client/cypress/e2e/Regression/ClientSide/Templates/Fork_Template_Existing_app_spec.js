@@ -1,10 +1,10 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
-import {
-  entityExplorer,
-  agHelper,
-  templates,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, templates } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
@@ -13,16 +13,16 @@ beforeEach(() => {
       cy.xpath(template.closeButton).click({ force: true });
     }
   });
-  entityExplorer.SelectEntityByName("Page1", "Pages");
+  EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 });
 
 describe(
-  "excludeForAirgap",
   "Fork a template to the current app from new page popover",
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
     it("1. Fork template from page section", () => {
       //Fork template button to be visible always
-      entityExplorer.AddNewPage("Add page from template");
+      PageList.AddNewPage("Add page from template");
       agHelper.Sleep(5000);
       agHelper.AssertElementExist(template.templateDialogBox);
       agHelper.AssertElementVisibility(templates.locators._templateCard);
@@ -47,7 +47,7 @@ describe(
     });
 
     it("2. Add selected page of template from page section", () => {
-      entityExplorer.AddNewPage("Add page from template");
+      PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.AssertElementVisibility(
         templates.locators._templateCard,
@@ -81,7 +81,7 @@ describe(
     it("3. Templates card should take user to 'select pages from template' page", () => {
       //agHelper.RefreshPage();
 
-      entityExplorer.AddNewPage("Add page from template");
+      PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(
         templates.locators._templateCard,
         true,
@@ -97,7 +97,7 @@ describe(
 
       //Similar templates add icon should take user to 'select pages from template'
       //agHelper.RefreshPage();
-      entityExplorer.AddNewPage("Add page from template");
+      PageList.AddNewPage("Add page from template");
       // We are currentlyon on templates list page
       agHelper.GetNClick(templates.locators._templateCard);
       // Here we are on template detail page, with similar templates at the bottom
@@ -122,7 +122,7 @@ describe(
         ).as("fetchAllTemplates");
         agHelper.RefreshPage(); //is important for intercept to go thru!
 
-        entityExplorer.AddNewPage("Add page from template");
+        PageList.AddNewPage("Add page from template");
 
         agHelper.AssertElementVisibility(template.templateDialogBox);
         cy.wait("@fetchAllTemplates");

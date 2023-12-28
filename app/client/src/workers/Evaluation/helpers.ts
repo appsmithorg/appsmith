@@ -3,9 +3,11 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
-import { get, isNumber, isObject } from "lodash";
+import { get, isNumber, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+
+export const fn_keys: string = "__fn_keys__";
 
 export interface DiffReferenceState {
   kind: "referenceState";
@@ -92,6 +94,71 @@ const generateWithKey = (basePath: any, key: any) => {
     path: basePath.join(".") + "." + key,
     segmentedPath,
   };
+};
+
+export const stringifyFnsInObject = (
+  userObject: Record<string, unknown>,
+): Record<string, unknown> => {
+  const paths: string[] = parseFunctionsInObject(userObject);
+  const fnStrings: string[] = [];
+
+  for (const path of paths) {
+    const fnValue: any = get(userObject, path);
+    fnStrings.push(fnValue.toString());
+  }
+
+  const output = JSON.parse(JSON.stringify(userObject));
+  for (const [index, parsedFnString] of fnStrings.entries()) {
+    set(output, paths[index], parsedFnString);
+  }
+
+  output[fn_keys] = paths;
+  return output;
+};
+
+const constructPath = (existingPath: string, suffix: string): string => {
+  if (existingPath.length > 0) {
+    return `${existingPath}.${suffix}`;
+  } else {
+    return suffix;
+  }
+};
+
+const parseFunctionsInObject = (
+  userObject: Record<string, unknown>,
+  paths: string[] = [],
+  path: string = "",
+): string[] => {
+  if (Array.isArray(userObject)) {
+    for (let i = 0; i < userObject.length; i++) {
+      const arrayValue = userObject[i];
+      if (typeof arrayValue == "function") {
+        paths.push(constructPath(path, `[${i}]`));
+      } else if (typeof arrayValue == "object") {
+        parseFunctionsInObject(
+          arrayValue,
+          paths,
+          constructPath(path, `[${i}]`),
+        );
+      }
+    }
+  } else {
+    const keys = Object.keys(userObject);
+    for (const key of keys) {
+      const value = userObject[key];
+      if (typeof value == "function") {
+        paths.push(constructPath(path, key));
+      } else if (typeof value == "object") {
+        parseFunctionsInObject(
+          value as Record<string, unknown>,
+          paths,
+          constructPath(path, key),
+        );
+      }
+    }
+  }
+
+  return paths;
 };
 
 const isLargeCollection = (val: any) => {
@@ -202,18 +269,16 @@ const generateDiffUpdates = (
 
       const lhs = get(oldDataTree, segmentedPath);
 
-      //convert all invalid moment objects to nulls ...
-      //large collect nodes are anyway getting serialised so the invalid objects will be converted to nulls
-      if (isMoment(rhs) && !rhs.isValid()) {
-        if (lhs === undefined || lhs !== null) {
-          attachDirectly.push({
-            kind: "E",
-            lhs,
-            rhs: null as any,
-            path: segmentedPath,
-          });
-        }
-        // ignore invalid moment objects
+      //when a moment value changes we do not want the inner moment object updates, we just want the ISO result of it
+      // which we get during the serialisation process we perform at latter steps
+      if (isMoment(rhs)) {
+        attachDirectly.push({
+          kind: "E",
+          lhs,
+          rhs: rhs as any,
+          path: segmentedPath,
+        });
+        // ignore trying to diff moment objects
         return true;
       }
       if (rhs === undefined) {

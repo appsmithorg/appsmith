@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
@@ -13,7 +14,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -31,7 +32,6 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Service
 @Primary
 public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl implements ImportApplicationService {
-
     public ImportApplicationServiceImpl(
             DatasourceService datasourceService,
             SessionUserService sessionUserService,
@@ -54,7 +54,8 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
             ImportableService<CustomJSLib> customJSLibImportableService,
             ImportableService<Datasource> datasourceImportableService,
             ImportableService<NewAction> newActionImportableService,
-            ImportableService<ActionCollection> actionCollectionImportableService) {
+            ImportableService<ActionCollection> actionCollectionImportableService,
+            PermissionGroupService permissionGroupService) {
         super(
                 datasourceService,
                 sessionUserService,
@@ -77,6 +78,7 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
                 customJSLibImportableService,
                 datasourceImportableService,
                 newActionImportableService,
-                actionCollectionImportableService);
+                actionCollectionImportableService,
+                permissionGroupService);
     }
 }

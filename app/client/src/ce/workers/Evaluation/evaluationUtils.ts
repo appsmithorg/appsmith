@@ -13,7 +13,7 @@ import type {
   DataTree,
   ConfigTree,
 } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
@@ -32,6 +32,7 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -356,7 +357,7 @@ export function isWidget(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.WIDGET
+    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
   );
 }
 
@@ -372,7 +373,7 @@ export function isAction(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.ACTION
+    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
   );
 }
 
@@ -382,7 +383,7 @@ export function isAppsmithEntity(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.APPSMITH
+    entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH
   );
 }
 
@@ -390,16 +391,24 @@ export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.JSACTION
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
+/**
+ *
+ * isAnyJSAction checks if the entity is a JSAction ( or a JSModuleInstance on EE )
+ */
+export function isAnyJSAction(entity: DataTreeEntity) {
+  return isJSAction(entity);
+}
+
 export function isJSActionConfig(
   entity: DataTreeEntityConfig,
 ): entity is JSActionEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.JSACTION
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
 
@@ -407,7 +416,7 @@ export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.JSACTION &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
     "pluginType" in entity &&
     entity.pluginType === PluginType.JS
   );
@@ -650,8 +659,7 @@ export const isDynamicLeaf = (
 
   const entityConfig = configTree[entityName];
   const entity = unEvalTree[entityName];
-  if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
-    return false;
+  if (!isWidgetActionOrJsObject(entity)) return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
     (!isEmpty(entityConfig.reactivePaths) &&
@@ -972,7 +980,7 @@ export const isAPathDynamicBindingPath = (
   propertyPath: string,
 ) => {
   return (
-    (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+    isWidgetActionOrJsObject(entity) &&
     isPathADynamicBinding(entityConfig, propertyPath)
   );
 };

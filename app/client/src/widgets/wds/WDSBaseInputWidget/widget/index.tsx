@@ -49,6 +49,7 @@ class WDSBaseInputWidget<
       labelStyle: "",
       resetOnSubmit: true,
       isRequired: false,
+      isReadOnly: false,
       isDisabled: false,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
@@ -86,6 +87,7 @@ class WDSBaseInputWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

@@ -1,7 +1,11 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("xml2json text", function () {
+describe("xml2json text", { tags: ["@tag.Binding"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("xmlParser.json");
@@ -9,7 +13,7 @@ describe("xml2json text", function () {
   });
 
   it("1. Check if XMLparser v3 autocomplete works", function () {
-    _.entityExplorer.SelectEntityByName("Text2", "Widgets");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
     _.propPane.TypeTextIntoField("Text", "{{xmlParser.j", true);
     _.agHelper.GetNAssertElementText(_.locators._hints, "j2xParser");
 

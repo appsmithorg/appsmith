@@ -1,6 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 import { ObjectsRegistry } from "../support/Objects/Registry";
+import EditorNavigation, { EntityType } from "./Pages/EditorNavigation";
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const jsEditorLocators = require("../locators/JSEditor.json");
@@ -8,11 +9,9 @@ const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const queryEditor = require("../locators/QueryEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
-const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
-const queryLocators = require("../locators/QueryEditor.json");
-const { AggregateHelper, DataSources, PropertyPane } = ObjectsRegistry;
+const { AggregateHelper, PropertyPane } = ObjectsRegistry;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -21,40 +20,10 @@ export const initLocalstorage = () => {
   });
 };
 
-Cypress.Commands.add("NavigateToQueryEditor", () => {
-  cy.get(explorer.addDBQueryEntity).last().click({ force: true });
-});
-
-Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
-  cy.get(explorer.entityQuery).click({ force: true });
-});
-
-Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
-  DataSources.NavigateToActiveTab();
-
-  cy.get(datasource.datasourceCard)
-    .contains(datasourceName)
-    .scrollIntoView()
-    .should("be.visible")
-    .closest(datasource.datasourceCard)
-    .within(() => {
-      cy.get(queryLocators.createQuery).click({ force: true });
-    })
-    .wait(2000); //for the specified page to load
-});
-
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
-  DataSources.NavigateToActiveTab();
-
-  cy.get(datasource.datasourceCard)
-    .contains(datasourceName)
-    .scrollIntoView()
-    .should("be.visible")
-    .closest(datasource.datasourceCard)
-    .within(() => {
-      cy.get(datasource.datasourceCardGeneratePageBtn).click();
-    })
-    .wait(2000); //for the specified page to load
+  EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
+  cy.get(datasource.datasourceCardGeneratePageBtn).click();
+  cy.wait(2000); //for the specified page to load
 });
 
 Cypress.Commands.add("ClickGotIt", () => {
@@ -266,12 +235,6 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("NavigateToAction", (actionName) => {
-  cy.get(queryEditor.navigateToAction)
-    .contains(actionName)
-    .should("be.visible")
-    .click();
-});
 Cypress.Commands.add("SelecJSFunctionAndRun", (functionName) => {
   cy.xpath("//span[@name='expand-more']").first().click();
   cy.get(`[data-testid='t--dropdown-option-${functionName}']`).click();

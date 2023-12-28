@@ -1,264 +1,261 @@
 import {
-  entityExplorer,
-  draggableWidgets,
   agHelper,
-  dataSources,
-  propPane,
   apiPage,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
-import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+} from "../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
 const upfrontContentCount = 4;
 
-describe("excludeForAirgap", "One click binding control", () => {
-  before(() => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
-  });
-
-  it("1. Should check the datasource selector and the form", () => {
-    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-    agHelper.AssertElementAbsence(
-      oneClickBindingLocator.datasourceQueryBindHeaderSelector,
-    );
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceGenerateAQuerySelector,
-    );
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceOtherActionsSelector,
-    );
-
-    entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-
-    dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
-      dataSources.CreateQueryAfterDSSaved();
+describe(
+  "One click binding control",
+  { tags: ["@tag.excludeForAirgap", "@tag.Binding"] },
+  () => {
+    before(() => {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
     });
 
-    cy.wait(500);
+    it("1. Should check the datasource selector and the form", () => {
+      agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+      agHelper.AssertElementAbsence(
+        oneClickBindingLocator.datasourceQueryBindHeaderSelector,
+      );
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.datasourceGenerateAQuerySelector,
+      );
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.datasourceOtherActionsSelector,
+      );
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-    entityExplorer.NavigateToSwitcher("Explorer");
-    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+      dataSources.CreateMockDB("Users").then(() => {
+        dataSources.CreateQueryAfterDSSaved();
+      });
 
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceQueryBindHeaderSelector,
-    );
+      cy.wait(500);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-    agHelper.AssertElementLength(
-      oneClickBindingLocator.datasourceQuerySelector(),
-      1,
-    );
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.datasourceQueryBindHeaderSelector,
+      );
 
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceGenerateAQuerySelector,
-    );
+      agHelper.AssertElementLength(
+        oneClickBindingLocator.datasourceQuerySelector(),
+        1,
+      );
 
-    agHelper.AssertElementExist(oneClickBindingLocator.datasourceSelector());
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.datasourceGenerateAQuerySelector,
+      );
 
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceOtherActionsSelector,
-    );
+      agHelper.AssertElementExist(oneClickBindingLocator.datasourceSelector());
 
-    agHelper.AssertElementExist(oneClickBindingLocator.otherActionSelector());
-    agHelper.GetNClick(
-      oneClickBindingLocator.otherActionSelector("Connect new datasource"),
-    );
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.datasourceOtherActionsSelector,
+      );
 
-    agHelper.AssertElementExist(onboardingLocator.datasourcePage);
+      agHelper.AssertElementExist(oneClickBindingLocator.otherActionSelector());
+      agHelper.GetNClick(
+        oneClickBindingLocator.otherActionSelector("Connect new datasource"),
+      );
 
-    agHelper.GetNClick(onboardingLocator.datasourceBackBtn);
+      agHelper.AssertElementExist(dataSources._newDatasourceContainer);
 
-    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
-    agHelper.AssertElementAbsence(
-      oneClickBindingLocator.datasourceDropdownOptionSelector("Query1"),
-    );
+      agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-    agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector(), 0);
+      agHelper.AssertElementAbsence(
+        oneClickBindingLocator.datasourceDropdownOptionSelector("Query1"),
+      );
 
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.dropdownOptionSelector("Query1"),
-    );
+      agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector(), 0);
 
-    propPane.ToggleJSMode("Table data");
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.dropdownOptionSelector("Query1"),
+      );
 
-    propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
+      propPane.ToggleJSMode("Table data");
 
-    propPane.AssertJSToggleState("Table data", "enabled");
+      propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
 
-    propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data1}}");
+      propPane.AssertJSToggleState("Table data", "enabled");
 
-    propPane.AssertJSToggleState("Table data", "disabled");
+      propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data1}}");
 
-    propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data}}");
+      propPane.AssertJSToggleState("Table data", "disabled");
 
-    propPane.AssertJSToggleState("Table data", "enabled");
+      propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data}}");
 
-    propPane.ToggleJSMode("Table data", false);
+      propPane.AssertJSToggleState("Table data", "enabled");
 
-    oneClickBinding.ChooseAndAssertForm("Users", "Users", "public.users", {
-      searchableColumn: "gender",
-    });
+      propPane.ToggleJSMode("Table data", false);
 
-    propPane.MoveToTab("Style");
+      oneClickBinding.ChooseAndAssertForm("Users", "Users", "public.users", {
+        searchableColumn: "gender",
+      });
 
-    propPane.MoveToTab("Content");
+      propPane.MoveToTab("Style");
 
-    oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
-      searchableColumn: "status",
-    });
+      propPane.MoveToTab("Content");
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("Mongo");
-    agHelper.RenameWithInPane("myinvalidds", false);
-
-    agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
-    agHelper.UpdateInputValue(dataSources._port, "8000");
-
-    dataSources.SaveDatasource();
-
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-
-    expandLoadMoreOptions();
-
-    agHelper.GetNClick(
-      oneClickBindingLocator.datasourceSelector("myinvalidds"),
-    );
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.tableError(
-        "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",
-      ),
-    );
-  });
-
-  it("2. should check that load more options and search", () => {
-    [1, 2].forEach((I) => {
-      entityExplorer.NavigateToSwitcher("Explorer");
+      oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
+        searchableColumn: "status",
+      });
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Mongo");
-      agHelper.RenameWithInPane(`dummy${I}`, false);
+      agHelper.RenameWithInPane("myinvalidds", false);
 
       agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
       agHelper.UpdateInputValue(dataSources._port, "8000");
 
       dataSources.SaveDatasource();
 
-      entityExplorer.NavigateToSwitcher("Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+
+      agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+
+      expandLoadMoreOptions();
+
+      agHelper.GetNClick(
+        oneClickBindingLocator.datasourceSelector("myinvalidds"),
+      );
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.tableError(
+          "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",
+        ),
+      );
     });
 
-    propPane.MoveToTab("Style");
+    it("2. should check that load more options and search", () => {
+      [1, 2].forEach((I) => {
+        dataSources.NavigateToDSCreateNew();
+        dataSources.CreatePlugIn("Mongo");
+        agHelper.RenameWithInPane(`dummy${I}`, false);
 
-    propPane.MoveToTab("Content");
+        agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
+        agHelper.UpdateInputValue(dataSources._port, "8000");
 
-    entityExplorer.NavigateToSwitcher("Explorer");
+        dataSources.SaveDatasource();
+      });
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      propPane.MoveToTab("Style");
 
-    [1, 2, 3, 4, 5].forEach(() => {
-      apiPage.CreateAndFillApi("http://www.example.com");
+      propPane.MoveToTab("Content");
+
+      [1, 2, 3, 4, 5].forEach(() => {
+        apiPage.CreateAndFillApi("http://www.example.com");
+      });
+
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+
+      agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+        .then(($ele) => {
+          expect($ele.length).equals(upfrontContentCount);
+        });
+
+      agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
+
+      agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
+
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+        .then(($ele) => {
+          expect($ele.length).greaterThan(upfrontContentCount);
+        });
+
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceSelector())
+        .then(($ele) => {
+          expect($ele.length).equals(upfrontContentCount);
+        });
+
+      agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
+
+      agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
+
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceSelector())
+        .then(($ele) => {
+          expect($ele.length).greaterThan(upfrontContentCount);
+        });
     });
 
-    entityExplorer.NavigateToSwitcher("Widgets");
+    it("3. should test the search input function", () => {
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+        .then(($ele) => {
+          expect($ele.length).greaterThan(upfrontContentCount);
+        });
 
-    entityExplorer.SelectEntityByName("Table1");
+      agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api1");
 
-    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+        .then(($ele) => {
+          expect($ele.length).equals(1);
+        });
 
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
-      .then(($ele) => {
-        expect($ele.length).equals(upfrontContentCount);
-      });
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.datasourceQueryBindHeaderSelector,
+      );
 
-    agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
+      agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api123");
 
-    agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
+      agHelper.AssertElementAbsence(
+        oneClickBindingLocator.datasourceQuerySelector(),
+      );
 
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
-      .then(($ele) => {
-        expect($ele.length).greaterThan(upfrontContentCount);
-      });
+      agHelper.AssertElementAbsence(
+        oneClickBindingLocator.datasourceQueryBindHeaderSelector,
+      );
 
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceSelector())
-      .then(($ele) => {
-        expect($ele.length).equals(upfrontContentCount);
-      });
+      agHelper.ClearTextField(oneClickBindingLocator.datasourceSearch);
 
-    agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceSelector())
+        .then(($ele) => {
+          expect($ele.length).greaterThan(upfrontContentCount);
+        });
 
-    agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
+      agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "myinvalidds");
 
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceSelector())
-      .then(($ele) => {
-        expect($ele.length).greaterThan(upfrontContentCount);
-      });
-  });
+      agHelper
+        .GetElement(oneClickBindingLocator.datasourceSelector())
+        .then(($ele) => {
+          expect($ele.length).equals(1);
+        });
 
-  it("3. should test the search input function", () => {
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
-      .then(($ele) => {
-        expect($ele.length).greaterThan(upfrontContentCount);
-      });
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.datasourceGenerateAQuerySelector,
+      );
 
-    agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api1");
+      agHelper.TypeText(
+        oneClickBindingLocator.datasourceSearch,
+        "myinvalidds123",
+      );
 
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
-      .then(($ele) => {
-        expect($ele.length).equals(1);
-      });
+      agHelper.AssertElementAbsence(
+        oneClickBindingLocator.datasourceSelector(),
+      );
 
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceQueryBindHeaderSelector,
-    );
-
-    agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api123");
-
-    agHelper.AssertElementAbsence(
-      oneClickBindingLocator.datasourceQuerySelector(),
-    );
-
-    agHelper.AssertElementAbsence(
-      oneClickBindingLocator.datasourceQueryBindHeaderSelector,
-    );
-
-    agHelper.ClearTextField(oneClickBindingLocator.datasourceSearch);
-
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceSelector())
-      .then(($ele) => {
-        expect($ele.length).greaterThan(upfrontContentCount);
-      });
-
-    agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "myinvalidds");
-
-    agHelper
-      .GetElement(oneClickBindingLocator.datasourceSelector())
-      .then(($ele) => {
-        expect($ele.length).equals(1);
-      });
-
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceGenerateAQuerySelector,
-    );
-
-    agHelper.TypeText(
-      oneClickBindingLocator.datasourceSearch,
-      "myinvalidds123",
-    );
-
-    agHelper.AssertElementAbsence(oneClickBindingLocator.datasourceSelector());
-
-    agHelper.AssertElementAbsence(
-      oneClickBindingLocator.datasourceGenerateAQuerySelector,
-    );
-  });
-});
+      agHelper.AssertElementAbsence(
+        oneClickBindingLocator.datasourceGenerateAQuerySelector,
+      );
+    });
+  },
+);

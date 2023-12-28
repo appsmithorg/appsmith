@@ -38,4 +38,8 @@ export interface TextProps {
   children: ReactNode;
   /** title attribute for the component */
   title?: string;
+  /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
+  id?: string;
+  /** extra style properties to pass to the componetn */
+  style?: React.CSSProperties;
 }

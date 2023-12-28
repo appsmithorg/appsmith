@@ -1,12 +1,39 @@
-export enum AppState {
+export enum EditorState {
   DATA = "DATA",
-  PAGES = "PAGES",
+  EDITOR = "EDITOR",
   SETTINGS = "SETTINGS",
   LIBRARIES = "LIBRARIES",
 }
 
+export const SidebarTopButtonTitles = {
+  DATA: "Data",
+  EDITOR: "Editor",
+};
+
+export const SidebarBottomButtonTitles = {
+  SETTINGS: "Settings",
+  LIBRARIES: "Libraries",
+};
+
+export enum EditorEntityTab {
+  QUERIES = "queries",
+  JS = "js",
+  UI = "ui",
+}
+
+export enum EditorEntityTabState {
+  List = "List",
+  Edit = "Edit",
+  Add = "Add",
+}
+
+export enum EditorViewMode {
+  FullScreen = "FullScreen",
+  HalfScreen = "HalfScreen",
+}
+
 export interface SidebarButton {
-  state: AppState;
+  state: EditorState;
   icon: string;
   title?: string;
   urlSuffix: string;
@@ -14,30 +41,30 @@ export interface SidebarButton {
 
 export const TopButtons: SidebarButton[] = [
   {
-    state: AppState.DATA,
-    icon: "database-2-line",
-    title: "Data",
-    urlSuffix: "datasource",
+    state: EditorState.EDITOR,
+    icon: "editor-v3",
+    title: SidebarTopButtonTitles.EDITOR,
+    urlSuffix: "",
   },
   {
-    state: AppState.PAGES,
-    icon: "file-copy-2-line",
-    title: "Pages",
-    urlSuffix: "",
+    state: EditorState.DATA,
+    icon: "datasource-v3",
+    title: SidebarTopButtonTitles.DATA,
+    urlSuffix: "datasource",
   },
 ];
 
-export const ButtonButtons: SidebarButton[] = [
+export const BottomButtons: SidebarButton[] = [
   {
-    state: AppState.LIBRARIES,
-    icon: "box-3-line",
-    title: "Libraries",
+    state: EditorState.LIBRARIES,
+    icon: "packages-v3",
+    title: SidebarBottomButtonTitles.LIBRARIES,
     urlSuffix: "libraries",
   },
   {
-    state: AppState.SETTINGS,
-    icon: "settings-2-line",
-    title: "Settings",
+    state: EditorState.SETTINGS,
+    icon: "settings-v3",
+    title: SidebarBottomButtonTitles.SETTINGS,
     urlSuffix: "settings",
   },
 ];

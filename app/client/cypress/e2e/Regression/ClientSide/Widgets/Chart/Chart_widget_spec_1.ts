@@ -1,20 +1,23 @@
 import {
   agHelper,
-  entityExplorer,
   deployMode,
   draggableWidgets,
-  propPane,
+  entityExplorer,
   locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
-describe("", () => {
+describe("", { tags: ["@tag.Widget", "@tag.Chart"] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.CHART);
   });
 
   afterEach(() => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
   });
 
   it("1. Test pie chart", () => {
@@ -25,7 +28,7 @@ describe("", () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/piechartsnapshot");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.TogglePropertyState("Show Labels", "On");
     deployMode.DeployApp();
     agHelper
@@ -42,7 +45,7 @@ describe("", () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/linechartsnapshot");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.TogglePropertyState("Show Labels", "On");
     deployMode.DeployApp();
     agHelper
@@ -58,7 +61,7 @@ describe("", () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/columnchartsnapshot");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.TogglePropertyState("Show Labels", "On");
     deployMode.DeployApp();
     agHelper
@@ -75,7 +78,7 @@ describe("", () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/areachartsnapshot");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.TogglePropertyState("Show Labels", "On");
     deployMode.DeployApp();
     agHelper

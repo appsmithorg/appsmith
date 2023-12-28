@@ -1,6 +1,8 @@
 import React from "react";
 import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
+import DatasourceStarterLayoutPrompt from "pages/Editor/Explorer/Datasources/DatasourceStarterLayoutPrompt";
+import { SidebarTopButtonTitles } from "entities/IDE/constants";
 
 interface Props {
   title?: string;
@@ -42,12 +44,20 @@ const IconContainer = styled.div<{ selected: boolean }>`
 function SidebarButton(props: Props) {
   return (
     <Container>
+      {props.title === SidebarTopButtonTitles.DATA && (
+        <DatasourceStarterLayoutPrompt />
+      )}
       <Tooltip
         content={props.tooltip}
         isDisabled={!!props.title && !props.tooltip}
         placement={"right"}
       >
-        <IconContainer onClick={props.onClick} selected={props.selected}>
+        <IconContainer
+          className={`t--sidebar-${props.title || props.tooltip}`}
+          data-selected={props.selected}
+          onClick={props.onClick}
+          selected={props.selected}
+        >
           <Icon name={props.icon} size="lg" />
         </IconContainer>
       </Tooltip>

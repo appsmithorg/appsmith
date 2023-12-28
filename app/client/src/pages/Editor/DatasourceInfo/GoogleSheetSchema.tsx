@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { DropdownOption } from "design-system-old";
 import { Button, SearchInput } from "design-system";
@@ -48,6 +48,8 @@ import Entity from "../Explorer/Entity";
 import DatasourceField from "./DatasourceField";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
 
 interface Props {
   datasourceId: string;
@@ -74,6 +76,11 @@ function GoogleSheetSchema(props: Props) {
     setSelectedDatasourceTableOptions: setSpreadsheetOptions,
     setSelectedDatasourceIsInvalid,
   });
+
+  const toggleOnUnmountRefObject = useRef<{
+    selectedSheet?: string;
+    selectedSpreadSheet?: string;
+  }>({});
 
   const handleSearch = (value: string) => {
     setSearchString(value.toLowerCase());
@@ -155,15 +162,15 @@ function GoogleSheetSchema(props: Props) {
       selectedSpreadsheet.value,
       selectedSheet.value,
     );
-    setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
     setSheetOptions([]);
+    setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
     setSheetData(undefined);
     dispatch(
       setEntityCollapsibleState(`${datasource?.id}-${option.value}`, true),
     );
     scrollIntoView(
       `#${CSS.escape(`entity-${datasource?.id}-${option.value}`)}`,
-      ".t--gsheet-structure",
+      ".t--gsheet-structure .t--gsheet-structure-list",
     );
     setSelectedSpreadsheet(option);
     fetchSheetsList({
@@ -191,7 +198,7 @@ function GoogleSheetSchema(props: Props) {
       `#${CSS.escape(
         `entity-${datasource?.id}-${selectedSpreadsheet.value}-${option.value}`,
       )}`,
-      ".t--gsheet-structure",
+      ".t--gsheet-structure .t--gsheet-structure-list",
       -30,
     );
     setSelectedSheet(option);
@@ -258,11 +265,17 @@ function GoogleSheetSchema(props: Props) {
   ]);
 
   useEffect(() => {
+    toggleOnUnmountRefObject.current.selectedSpreadSheet =
+      selectedSpreadsheet.value;
+    toggleOnUnmountRefObject.current.selectedSheet = selectedSheet.value;
+  }, [selectedSpreadsheet, selectedSheet]);
+
+  useEffect(() => {
     return () => {
       collapseAccordions(
         datasource?.id || "",
-        selectedSpreadsheet.value,
-        selectedSheet.value,
+        toggleOnUnmountRefObject.current.selectedSpreadSheet,
+        toggleOnUnmountRefObject.current.selectedSheet,
       );
     };
   }, [datasource?.id]);
@@ -332,16 +345,19 @@ function GoogleSheetSchema(props: Props) {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const editorType = useEditorType(history.location.pathname);
+
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const refreshSpreadSheetButton = (option: DropdownOption) => (
     <Button
@@ -366,7 +382,7 @@ function GoogleSheetSchema(props: Props) {
   return (
     <ViewModeSchemaContainer>
       <DataWrapperContainer>
-        <StructureContainer>
+        <StructureContainer data-testId="datasource-schema-container">
           {datasource && (
             <DatasourceStructureHeader
               datasource={datasource}
@@ -416,6 +432,7 @@ function GoogleSheetSchema(props: Props) {
                         sheetOptions.map((sheet) => (
                           <Entity
                             className={`t--sheet-structure ${
+                              spreadsheet.value === selectedSpreadsheet.value &&
                               sheet.value === selectedSheet.value
                                 ? "t--sheet-structure-active"
                                 : ""

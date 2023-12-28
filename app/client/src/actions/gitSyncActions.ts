@@ -196,8 +196,11 @@ export const fetchGitRemoteStatusSuccess = (payload: GitRemoteStatusData) => ({
   payload,
 });
 
-export const discardChanges = () => ({
+export const discardChanges = (
+  payload: { successToastMessage?: string } | undefined | null = {},
+) => ({
   type: ReduxActionTypes.GIT_DISCARD_CHANGES,
+  payload,
 });
 
 export const discardChangesSuccess = (payload: any) => ({
@@ -474,25 +477,6 @@ export const fetchGitProtectedBranchesInit = () => {
   };
 };
 
-export const fetchGitProtectedBranchesSuccess = (
-  protectedBranches: string[],
-) => {
-  return {
-    type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS,
-    payload: { protectedBranches },
-  };
-};
-
-export const fetchGitProtectedBranchesError = (
-  error: any,
-  show: boolean = true,
-) => {
-  return {
-    type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
-    payload: { error, show },
-  };
-};
-
 export const updateGitProtectedBranchesInit = (payload: {
   protectedBranches: string[];
 }) => {
@@ -502,18 +486,23 @@ export const updateGitProtectedBranchesInit = (payload: {
   };
 };
 
-export const updateGitProtectedBranchesSuccess = () => {
-  return {
-    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS,
-  };
-};
+export const toggleAutocommitEnabledInit = () => ({
+  type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT,
+});
 
-export const updateGitProtectedBranchesError = (
-  error: any,
-  show: boolean = true,
-) => {
-  return {
-    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
-    payload: { error, show },
-  };
-};
+export const setIsAutocommitModalOpen = (isAutocommitModalOpen: boolean) => ({
+  type: ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN,
+  payload: { isAutocommitModalOpen },
+});
+
+export const startAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING,
+});
+
+export const stopAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+});
+
+export const getGitMetadataInitAction = () => ({
+  type: ReduxActionTypes.GIT_GET_METADATA_INIT,
+});

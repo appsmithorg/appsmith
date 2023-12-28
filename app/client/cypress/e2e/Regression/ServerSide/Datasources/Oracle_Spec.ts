@@ -13,8 +13,15 @@ import {
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
-describe("Validate Oracle DS", () => {
+describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
 
   before("Generate GUID", () => {
@@ -108,7 +115,8 @@ describe("Validate Oracle DS", () => {
     dataSources.AssertDataSourceInfo(["Host address", "Port", "Service Name"]);
     agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
     dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
-    agHelper.GoBack(); //Do not edit anythin, go back to active ds list, ensure no modal is opened
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    AppSidebar.navigate(AppSidebarButton.Data);
     dataSources.AssertDSInActiveList(dataSourceName);
   });
 
@@ -155,7 +163,6 @@ describe("Validate Oracle DS", () => {
       1,
       true,
     );
-    dataSources.NavigateFromActiveDS(dataSourceName, true);
     query = `CREATE TABLE ${guid} (
       aircraft_id NUMBER(5) PRIMARY KEY,
       aircraft_type VARCHAR2(50) NOT NULL,
@@ -168,11 +175,8 @@ describe("Validate Oracle DS", () => {
       maintenance_last_date DATE,
       notes CLOB
   );`;
-    agHelper.RenameWithInPane("CreateAircraft");
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dataSourceName, query);
     dataSources.RunQuery();
-
-    dataSources.AssertTableInVirtuosoList(dataSourceName, guid.toUpperCase());
 
     query = `INSERT INTO ${guid} (
     aircraft_id,
@@ -195,7 +199,9 @@ describe("Validate Oracle DS", () => {
     TO_DATE('2020-01-15', 'YYYY-MM-DD'),
     TO_DATE('{{DatePicker1.formattedDate}}', 'YYYY-MM-DD'),
     'This aircraft is used for domestic flights.')`;
-    entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "Select");
+    selectQuery = `SELECT * FROM ${guid} WHERE ROWNUM < 10`;
+    dataSources.EnterQuery(selectQuery);
+
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -210,7 +216,6 @@ describe("Validate Oracle DS", () => {
       `INSERT INTO ${guid} (\n    aircraft_id,\n    aircraft_type,\n    registration_number,\n    manufacturer,\n    seating_capacity,\n    maximum_speed,\n    range,\n    purchase_date,\n    maintenance_last_date,\n    notes) VALUES (\n    1,\n    'Cargo Plane',\n    'N12345',\n    'Boeing',\n    150,\n    550.03,\n    3500.30,\n    TO_DATE('2020-01-15', 'YYYY-MM-DD'),\n    TO_DATE('${currentDate}', 'YYYY-MM-DD'),\n    'This aircraft is used for domestic flights.')`,
     );
     dataSources.RunQuery();
-    selectQuery = `SELECT * FROM ${guid} WHERE ROWNUM < 10`;
     dataSources.EnterQuery(selectQuery);
     dataSources.RunQueryNVerifyResponseViews();
     dataSources.ToggleUsePreparedStatement(true);
@@ -331,7 +336,7 @@ describe("Validate Oracle DS", () => {
   });
 
   it("4. Tc #2362  - Update query validation", () => {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     query = `UPDATE ${guid}
 SET
     maximum_speed = CASE
@@ -366,7 +371,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
   });
 
   it("5. Tc #2361  - Delete query validation", () => {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     query = `DELETE FROM ${guid}
     WHERE
         (aircraft_type = 'Cargo Plane' AND seating_capacity <= 100)
@@ -406,7 +411,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
   });
 
   it("6. Tc #2363  - Copy & Move query validations", () => {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Copy to page",
       subAction: "Page1",
@@ -414,8 +419,8 @@ WHERE aircraft_type = 'Passenger Plane'`;
     });
     agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
     dataSources.RunQueryNVerifyResponseViews(2);
-    entityExplorer.AddNewPage();
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    PageList.AddNewPage();
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
       subAction: "Page2",
@@ -428,8 +433,8 @@ WHERE aircraft_type = 'Passenger Plane'`;
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
   });
 
   it("7. Tc #2365  - Query settings tab validations", () => {
@@ -455,11 +460,12 @@ WHERE aircraft_type = 'Passenger Plane'`;
     "Verify Deletion of the Oracle datasource after all created queries are deleted",
     () => {
       dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 409); //Since all queries exists
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dataSourceName);
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 200);
     },
   );

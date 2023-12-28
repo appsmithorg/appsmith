@@ -20,6 +20,7 @@ import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -45,66 +46,76 @@ const Canvas = (props: CanvasProps) => {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
-  const { theme } = useTheme({
+  const themeSetting = useSelector(getAppThemeSettings);
+  const themeProps = {
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
     fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  });
+  };
+  const wdsThemeProps = {
+    borderRadius: themeSetting.borderRadius,
+    seedColor: themeSetting.accentColor,
+    colorMode: themeSetting.colorMode.toLowerCase(),
+    fontFamily: themeSetting.fontFamily as FontFamily,
+    userSizing: themeSetting.sizing,
+    userDensity: themeSetting.density,
+  };
+  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
 
   /**
    * background for canvas
    */
-  let backgroundForCanvas;
+  let backgroundForCanvas: string;
 
   if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
-    if (isWDSV2Enabled) {
-      backgroundForCanvas = "var(--color-bg)";
-    } else {
-      backgroundForCanvas = "initial";
-    }
+    backgroundForCanvas = "initial";
   } else {
-    if (isWDSV2Enabled) {
-      backgroundForCanvas = "var(--color-bg)";
-    } else {
-      backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
-    }
+    backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
   }
 
   const focusRef = useWidgetFocus();
-  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const marginHorizontalClass = props.enableMainCanvasResizer
     ? `mx-0`
     : `mx-auto`;
   const paddingBottomClass = props.enableMainCanvasResizer ? "" : "pb-52";
-  try {
+
+  const renderChildren = () => {
     return (
-      <WDSThemeProvider theme={theme}>
-        <Wrapper
-          $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
-          background={backgroundForCanvas}
-          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
-            canvasWidth,
-          )}`}
-          data-testid={"t--canvas-artboard"}
-          id={CANVAS_ART_BOARD}
-          ref={isWDSEnabled ? undefined : focusRef}
-          width={canvasWidth}
-        >
-          {props.widgetsStructure.widgetId &&
-            renderAppsmithCanvas({
-              ...props.widgetsStructure,
-              classList:
-                layoutSystemType === LayoutSystemTypes.ANVIL
-                  ? ["main-anvil-canvas"]
-                  : [],
-            } as WidgetProps)}
-        </Wrapper>
-      </WDSThemeProvider>
+      <Wrapper
+        $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
+        background={isWDSEnabled ? "" : backgroundForCanvas}
+        className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+          canvasWidth,
+        )}`}
+        data-testid={"t--canvas-artboard"}
+        id={CANVAS_ART_BOARD}
+        ref={isWDSEnabled ? undefined : focusRef}
+        width={canvasWidth}
+      >
+        {props.widgetsStructure.widgetId &&
+          renderAppsmithCanvas({
+            ...props.widgetsStructure,
+            classList:
+              layoutSystemType === LayoutSystemTypes.ANVIL
+                ? ["main-anvil-canvas"]
+                : [],
+          } as WidgetProps)}
+      </Wrapper>
     );
+  };
+
+  try {
+    if (isWDSEnabled) {
+      return (
+        <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
+      );
+    }
+
+    return renderChildren();
   } catch (error) {
     log.error("Error rendering DSL", error);
     Sentry.captureException(error);

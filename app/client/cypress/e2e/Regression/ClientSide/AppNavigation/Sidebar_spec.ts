@@ -6,8 +6,12 @@ import {
   assertHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Sidebar navigation style", function () {
+describe("Test Sidebar navigation style", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     // Import an application
     homePage.NavigateToHome();
@@ -15,7 +19,6 @@ describe("Test Sidebar navigation style", function () {
     assertHelper
       .WaitForNetworkCall("@importNewApplication")
       .then((response) => {
-        agHelper.Sleep();
         const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           homePage.AssertNCloseImport();
@@ -26,7 +29,7 @@ describe("Test Sidebar navigation style", function () {
   });
 
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
@@ -60,7 +63,7 @@ describe("Test Sidebar navigation style", function () {
     );
     // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
     deployMode.DeployApp();
@@ -82,7 +85,7 @@ describe("Test Sidebar navigation style", function () {
     agHelper.GetNClick(
       `${appSettings.locators._sideNavbar} ${appSettings.locators._shareButton}`,
     );
-    agHelper.Sleep(1000);
+    agHelper.WaitUntilEleAppear(appSettings.locators._modal);
     agHelper.AssertElementVisibility(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown

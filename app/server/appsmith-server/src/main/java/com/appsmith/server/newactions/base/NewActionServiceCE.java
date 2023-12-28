@@ -1,17 +1,18 @@
 package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
+import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
-import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
@@ -27,8 +28,6 @@ import java.util.Set;
 
 public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
-    Boolean validateActionName(String name);
-
     void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
 
     Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
@@ -37,7 +36,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction);
 
-    NewAction extractAndSetJsonPathKeys(NewAction newAction);
+    Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
@@ -73,6 +72,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+
+    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
@@ -135,5 +136,18 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
-    Flux<NewAction> findByListOfPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+    Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+
+    Flux<NewAction> findByPageIdsForExport(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+
+    Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs);
+
+    NewAction generateActionDomain(ActionDTO action);
+
+    void updateDefaultResourcesInAction(NewAction newAction);
 }

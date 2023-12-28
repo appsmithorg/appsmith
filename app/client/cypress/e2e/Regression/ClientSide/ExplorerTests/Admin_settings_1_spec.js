@@ -21,7 +21,7 @@ const routes = {
   VERSION: "/settings/version",
 };
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -70,8 +70,8 @@ describe("Admin settings page", function () {
   });
 
   it(
-    "excludeForAirgap",
     "5. should test that settings page tab redirects not airgap",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.APPLICATIONS, { timeout: 60000 });
       cy.wait(3000);

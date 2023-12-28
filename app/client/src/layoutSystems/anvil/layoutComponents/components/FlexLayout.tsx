@@ -1,3 +1,4 @@
+import "./styles.css";
 import { Flex } from "@design-system/widgets";
 import type {
   AlignSelf,
@@ -9,8 +10,6 @@ import type {
   SizingDimension,
   SpacingDimension,
 } from "@design-system/widgets";
-import { ROW_GAP } from "layoutSystems/common/utils/constants";
-import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type {
@@ -20,6 +19,9 @@ import type {
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+
+export const FLEX_LAYOUT_PADDING = 4;
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -28,9 +30,12 @@ export interface FlexLayoutProps
     FlexWrap {
   canvasId: string;
   children: ReactNode;
+  isContainer?: boolean;
   isDropTarget?: boolean;
   layoutId: string;
   layoutIndex: number;
+  layoutType: LayoutComponentTypes;
+  parentDropTarget: string;
   renderMode: RenderMode;
 
   border?: string;
@@ -63,15 +68,18 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     flexGrow,
     flexShrink,
     height,
+    isContainer,
     isDropTarget,
     justifyContent,
     layoutId,
     layoutIndex,
+    layoutType,
     maxHeight,
     maxWidth,
     minHeight,
     minWidth,
     padding,
+    parentDropTarget,
     position,
     renderMode,
     rowGap,
@@ -88,7 +96,9 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     {
       layoutId: layoutId,
       canvasId: canvasId,
-      isDropTarget: isDropTarget,
+      isDropTarget,
+      layoutType,
+      parentDropTarget,
     },
     ref,
   );
@@ -108,10 +118,8 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       maxWidth: maxWidth || "none",
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
-      padding: padding || (isDropTarget ? "4px" : "0px"),
-      rowGap: rowGap || {
-        base: addPixelToSize(ROW_GAP),
-      },
+      padding: padding || (isDropTarget ? `${FLEX_LAYOUT_PADDING}px` : "0px"),
+      rowGap: rowGap || "0px",
       width: width || "auto",
       wrap: wrap || "nowrap",
     };
@@ -148,8 +156,10 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
   }, [border, isDropTarget, position, renderMode]);
 
   const className = useMemo(() => {
-    return `layout-${layoutId} layout-index-${layoutIndex}`;
-  }, [layoutId, layoutIndex]);
+    return `layout-${layoutId} layout-index-${layoutIndex} ${
+      isContainer ? "make-container" : ""
+    }`;
+  }, [isContainer, layoutId, layoutIndex]);
 
   return (
     <Flex

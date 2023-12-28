@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
@@ -16,7 +17,6 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
@@ -34,7 +34,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,7 +90,6 @@ public class ThemeImportableServiceCETest {
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Theme Service Test workspace");
-        workspace.setUserRoles(new ArrayList<>());
         this.workspace = workspaceService.create(workspace).block();
     }
 
@@ -180,7 +178,8 @@ public class ThemeImportableServiceCETest {
                                 new MappedImportableResourcesDTO(),
                                 null,
                                 Mono.just(application),
-                                applicationJson)
+                                applicationJson,
+                                false)
                         .thenReturn(savedApplication.getId()))
                 .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
 
@@ -224,7 +223,8 @@ public class ThemeImportableServiceCETest {
                                     new MappedImportableResourcesDTO(),
                                     null,
                                     Mono.just(savedApplication),
-                                    applicationJson)
+                                    applicationJson,
+                                    false)
                             .thenReturn(savedApplication.getId());
                 })
                 .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));

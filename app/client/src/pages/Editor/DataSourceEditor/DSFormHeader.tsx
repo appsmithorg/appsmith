@@ -1,6 +1,6 @@
+/* DO NOT INTRODUCE PAGE AND APPLICATION DEPENDENCIES IN THIS COMPONENT */
 import React, { useState } from "react";
 import FormTitle from "./FormTitle";
-import NewActionButton from "./NewActionButton";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { Datasource } from "entities/Datasource";
 import {
@@ -11,7 +11,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
@@ -19,6 +19,15 @@ import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
+import {
+  DB_NOT_SUPPORTED,
+  isEnvironmentConfigured,
+} from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { PluginType } from "entities/Action";
+import { useEditorType } from "@appsmith/hooks";
+import { useHistory } from "react-router";
+import { useHeaderActions } from "@appsmith/hooks/datasourceEditorHooks";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -68,7 +77,6 @@ export const PluginImage = (props: any) => {
 };
 
 interface DSFormHeaderProps {
-  canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
   canManageDatasource: boolean;
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -89,7 +97,6 @@ interface DSFormHeaderProps {
 
 export const DSFormHeader = (props: DSFormHeaderProps) => {
   const {
-    canCreateDatasourceActions,
     canDeleteDatasource,
     canManageDatasource,
     datasource,
@@ -107,6 +114,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
+  const history = useHistory();
+  const editorType = useEditorType(history.location.pathname);
 
   const deleteAction = () => {
     if (isDeleting) return;
@@ -142,11 +151,29 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     ];
   };
 
+  const currentEnv = useSelector(getCurrentEnvironmentId);
+  const envSupportedDs = !DB_NOT_SUPPORTED.includes(pluginType as PluginType);
+
+  const showReconnectButton = !(
+    isPluginAuthorized &&
+    (envSupportedDs
+      ? isEnvironmentConfigured(datasource as Datasource, currentEnv)
+      : true)
+  );
+
+  const headerActions = useHeaderActions(editorType, {
+    datasource,
+    isPluginAuthorized,
+    pluginType,
+    showReconnectButton,
+  });
+
   return (
     <Header noBottomBorder={!!noBottomBorder}>
       <FormTitleContainer>
         <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
         <FormTitle
+          datasourceId={datasourceId}
           disabled={!isNewDatasource && !canManageDatasource}
           focusOnMount={isNewDatasource}
         />
@@ -170,7 +197,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
                     startIcon="context-menu"
                   />
                 </MenuTrigger>
-                <MenuContent style={{ zIndex: 100 }} width="200px">
+                <MenuContent align="end" style={{ zIndex: 100 }} width="200px">
                   {renderMenuOptions()}
                 </MenuContent>
               </StyledMenu>
@@ -194,12 +221,12 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           >
             {createMessage(EDIT)}
           </Button>
-          <NewActionButton
-            datasource={datasource as Datasource}
-            disabled={!canCreateDatasourceActions || !isPluginAuthorized}
-            eventFrom="datasource-pane"
-            pluginType={pluginType}
-          />
+          {headerActions && headerActions.newActionButton
+            ? headerActions.newActionButton
+            : null}
+          {headerActions && headerActions.generatePageButton
+            ? headerActions.generatePageButton
+            : null}
         </ActionWrapper>
       )}
     </Header>

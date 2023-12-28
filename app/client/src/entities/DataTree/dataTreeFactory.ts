@@ -1,16 +1,16 @@
-import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
-import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
+import { generateDataTreeAction } from "@appsmith/entities/DataTree/dataTreeAction";
+import { generateDataTreeJSAction } from "@appsmith/entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
 import {
-  ENTITY_TYPE_VALUE,
+  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "@appsmith/entities/DataTree/types";
 import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 import type {
   DataTreeSeed,
   AppsmithEntity,
-  ENTITY_TYPE,
+  EntityTypeValue,
 } from "@appsmith/entities/DataTree/types";
 import type {
   unEvalAndConfigTree,
@@ -18,7 +18,7 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
-
+import { generateModuleInstance } from "@appsmith/entities/DataTree/dataTreeModuleInstance";
 export class DataTreeFactory {
   static create({
     actions,
@@ -30,6 +30,8 @@ export class DataTreeFactory {
     loadingEntities,
     metaWidgets,
     moduleInputs,
+    moduleInstanceEntities,
+    moduleInstances,
     pluginDependencyConfig,
     theme,
     widgets,
@@ -73,6 +75,19 @@ export class DataTreeFactory {
       }
     }
 
+    if (!isEmpty(moduleInstances)) {
+      Object.values(moduleInstances).forEach((moduleInstance) => {
+        const { configEntity, unEvalEntity } = generateModuleInstance(
+          moduleInstance,
+          moduleInstanceEntities,
+        );
+        if (!!configEntity && !!unEvalEntity) {
+          dataTree[moduleInstance.name] = unEvalEntity;
+          configTree[moduleInstance.name] = configEntity;
+        }
+      });
+    }
+
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
@@ -95,8 +110,7 @@ export class DataTreeFactory {
       store: appData.store,
       theme,
     } as AppsmithEntity;
-    (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE =
-      ENTITY_TYPE_VALUE.APPSMITH;
+    (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
 
     const startMetaWidgets = performance.now();
 
@@ -126,5 +140,5 @@ export class DataTreeFactory {
   }
 }
 
-export { ENTITY_TYPE_VALUE, EvaluationSubstitutionType };
-export type { ENTITY_TYPE };
+export { ENTITY_TYPE, EvaluationSubstitutionType };
+export type { EntityTypeValue };

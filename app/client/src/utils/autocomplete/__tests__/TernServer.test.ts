@@ -7,9 +7,28 @@ import CodemirrorTernService, {
 } from "../CodemirrorTernService";
 import { AutocompleteDataType } from "../AutocompleteDataType";
 import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
+import type CodeMirror from "codemirror";
+
+jest.mock("utils/getCodeMirrorNamespace", () => {
+  const actual = jest.requireActual("utils/getCodeMirrorNamespace");
+  return {
+    ...actual,
+    getCodeMirrorNamespaceFromDoc: jest.fn((doc) => ({
+      ...actual.getCodeMirrorNamespaceFromDoc(doc),
+      innerMode: jest.fn(() => ({
+        mode: {
+          name: "",
+        },
+        state: {
+          lexical: {},
+        },
+      })),
+    })),
+  };
+});
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
@@ -235,11 +254,11 @@ describe("Tern server sorting", () => {
     data: {},
   };
   defEntityInformation.set("sameEntity", {
-    type: ENTITY_TYPE_VALUE.WIDGET,
+    type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
   });
   defEntityInformation.set("sameEntity", {
-    type: ENTITY_TYPE_VALUE.WIDGET,
+    type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET_V2",
   });
 
@@ -250,11 +269,11 @@ describe("Tern server sorting", () => {
     data: {},
   };
   defEntityInformation.set("sameType", {
-    type: ENTITY_TYPE_VALUE.WIDGET,
+    type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
   });
   defEntityInformation.set("sameType", {
-    type: ENTITY_TYPE_VALUE.WIDGET,
+    type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET_V2",
   });
 
@@ -266,11 +285,11 @@ describe("Tern server sorting", () => {
   };
 
   defEntityInformation.set("diffType", {
-    type: ENTITY_TYPE_VALUE.WIDGET,
+    type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
   });
   defEntityInformation.set("diffType", {
-    type: ENTITY_TYPE_VALUE.WIDGET,
+    type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET_V2",
   });
 
@@ -282,8 +301,8 @@ describe("Tern server sorting", () => {
   };
 
   defEntityInformation.set("diffEntity", {
-    type: ENTITY_TYPE_VALUE.ACTION,
-    subType: ENTITY_TYPE_VALUE.ACTION,
+    type: ENTITY_TYPE.ACTION,
+    subType: ENTITY_TYPE.ACTION,
   });
 
   const dataTreeCompletion: Completion<any> = {
@@ -294,7 +313,7 @@ describe("Tern server sorting", () => {
   };
 
   defEntityInformation.set("otherDataTree", {
-    type: ENTITY_TYPE_VALUE.WIDGET,
+    type: ENTITY_TYPE.WIDGET,
     subType: "TEXT_WIDGET",
   });
 
@@ -340,21 +359,24 @@ describe("Tern server sorting", () => {
   ];
 
   it("shows best match results", () => {
-    CodemirrorTernService.setEntityInformation({
-      entityName: "sameEntity",
-      entityType: ENTITY_TYPE_VALUE.WIDGET,
-      expectedType: AutocompleteDataType.OBJECT,
-    });
+    CodemirrorTernService.setEntityInformation(
+      MockCodemirrorEditor as unknown as CodeMirror.Editor,
+      {
+        entityName: "sameEntity",
+        entityType: ENTITY_TYPE.WIDGET,
+        expectedType: AutocompleteDataType.OBJECT,
+      },
+    );
     CodemirrorTernService.defEntityInformation = defEntityInformation;
     const sortedCompletions = AutocompleteSorter.sort(
       _.shuffle(completions),
       {
         entityName: "sameEntity",
-        entityType: ENTITY_TYPE_VALUE.WIDGET,
+        entityType: ENTITY_TYPE.WIDGET,
         expectedType: AutocompleteDataType.STRING,
       },
       {
-        type: ENTITY_TYPE_VALUE.WIDGET,
+        type: ENTITY_TYPE.WIDGET,
         subType: "TABLE_WIDGET",
       },
     );
@@ -371,12 +393,12 @@ describe("Tern server sorting", () => {
 
   it("tests score of completions", function () {
     AutocompleteSorter.entityDefInfo = {
-      type: ENTITY_TYPE_VALUE.WIDGET,
+      type: ENTITY_TYPE.WIDGET,
       subType: "TABLE_WIDGET",
     };
     AutocompleteSorter.currentFieldInfo = {
       entityName: "sameEntity",
-      entityType: ENTITY_TYPE_VALUE.WIDGET,
+      entityType: ENTITY_TYPE.WIDGET,
       expectedType: AutocompleteDataType.STRING,
     };
     //completion that matches type and is present in dataTree.

@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -24,7 +25,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -39,6 +39,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,8 +60,8 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     private final ExportableService<Datasource> datasourceExportableService;
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<NewPage> newPageExportableService;
-    private final ExportableService<NewAction> newActionExportableService;
-    private final ExportableService<ActionCollection> actionCollectionExportableService;
+    protected final ExportableService<NewAction> newActionExportableService;
+    protected final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ExportableService<Theme> themeExportableService;
     private final ExportableService<CustomJSLib> customJSLibExportableService;
 
@@ -182,7 +183,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                 .thenReturn(applicationJson);
     }
 
-    private Mono<Void> sanitizeEntities(
+    protected Mono<Void> sanitizeEntities(
             SerialiseApplicationObjective serialiseFor,
             ApplicationJson applicationJson,
             MappedExportableResourcesDTO mappedResourcesDTO,
@@ -265,7 +266,9 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
 
         Mono<Void> combinedActionExportablesMono = actionCollectionExportablesMono.then(newActionExportablesMono);
 
-        return List.of(combinedActionExportablesMono);
+        List<Mono<Void>> monos = new ArrayList<>();
+        monos.add(combinedActionExportablesMono);
+        return monos;
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {

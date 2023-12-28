@@ -1,15 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
-import { Button, Text } from "design-system";
+import { Text } from "design-system";
 import {
   createMessage,
   DATASOURCE_BLANK_STATE_MESSAGE,
 } from "@appsmith/constants/messages";
-import history from "utils/history";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import type { RouteComponentProps } from "react-router";
-import { INTEGRATION_TABS } from "constants/routes";
+import { Redirect } from "react-router";
+import { useSelector } from "react-redux";
+import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 
 const Container = styled.div`
   height: 100%;
@@ -33,31 +32,20 @@ const BlankStateIllustration = importSvg(
   async () => import("assets/images/data-main-blank-state.svg"),
 );
 
-const DatasourceBlankState = (
-  props: RouteComponentProps<{
-    pageId: string;
-  }>,
-) => {
+const DatasourceBlankState = () => {
+  const firstDatasourceId = useSelector(getFirstDatasourceId);
+
+  if (firstDatasourceId) {
+    return <Redirect to={`${location.pathname}/${firstDatasourceId}`} />;
+  }
+
   return (
-    <Container>
+    <Container className="t--data-blank-state">
       <Content>
         <BlankStateIllustration />
         <Text kind="body-s">
           {createMessage(DATASOURCE_BLANK_STATE_MESSAGE)}
         </Text>
-        <Button
-          kind="primary"
-          onClick={() =>
-            history.push(
-              integrationEditorURL({
-                pageId: props.match.params.pageId,
-                selectedTab: INTEGRATION_TABS.NEW,
-              }),
-            )
-          }
-        >
-          Bring your data
-        </Button>
       </Content>
     </Container>
   );

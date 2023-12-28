@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import get from "lodash/get";
-import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 
 export enum ExplorerPinnedState {
@@ -25,13 +25,13 @@ export interface ExplorerReduxState {
   active: boolean;
   entityInfo: {
     show: boolean;
-    entityType?: ENTITY_TYPE;
+    entityType?: EntityTypeValue;
     entityId: string;
     entityName?: string;
   };
 }
 
-const initialState: ExplorerReduxState = {
+export const initialState: ExplorerReduxState = {
   pinnedState: ExplorerPinnedState.PINNED,
   entity: {},
   width: DEFAULT_ENTITY_EXPLORER_WIDTH,
@@ -44,7 +44,7 @@ const initialState: ExplorerReduxState = {
 
 export const setEntityInfo = (
   state: ExplorerReduxState,
-  action: ReduxAction<{ entityId: string; entityType: ENTITY_TYPE }>,
+  action: ReduxAction<{ entityId: string; entityType: EntityTypeValue }>,
 ) => ({
   ...state,
   entityInfo: {

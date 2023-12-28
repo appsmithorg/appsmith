@@ -76,12 +76,6 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
 
-  /*
-   * Turning on this flag will preload all the widget configs like
-   * derivedProperties, propertyPaneconfig etc into the widgetFactory.
-   */
-  static preloadConfig = false;
-
   context!: React.ContextType<Context<EditorContextType<TCache>>>;
 
   static type = "BASE_WIDGET";
@@ -470,6 +464,10 @@ export interface WidgetPositionProps extends WidgetRowCols {
   width?: number;
 }
 
+export interface WidgetCanvasProps {
+  isWidgetSelected?: boolean;
+}
+
 export const WIDGET_DISPLAY_PROPS = {
   isVisible: true,
   isLoading: true,
@@ -501,7 +499,8 @@ export interface WidgetDataProps
   extends WidgetBaseProps,
     WidgetErrorProps,
     WidgetPositionProps,
-    WidgetDisplayProps {}
+    WidgetDisplayProps,
+    WidgetCanvasProps {}
 
 export interface WidgetProps
   extends WidgetDataProps,
@@ -522,6 +521,7 @@ export interface WidgetCardProps {
   icon: string;
   isBeta?: boolean;
   tags?: WidgetTags[];
+  isSearchWildcard?: boolean;
 }
 
 export const WidgetOperations = {

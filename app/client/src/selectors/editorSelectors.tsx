@@ -57,7 +57,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
-import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -355,6 +355,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout = false,
         displayName,
         iconSVG,
+        isSearchWildcard,
         key,
         searchTags,
         tags,
@@ -379,6 +380,7 @@ export const getWidgetCards = createSelector(
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
+        isSearchWildcard: isSearchWildcard,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -914,6 +916,18 @@ export const getActionById = createSelector(
     const action = actions.find((action) => action.config.id === id);
     if (action) {
       return action.config;
+    } else {
+      return undefined;
+    }
+  },
+);
+
+export const getJSCollectionDataById = createSelector(
+  [getJSCollections, (state: AppState, collectionId: string) => collectionId],
+  (jsActions, id) => {
+    const action = jsActions.find((action) => action.config.id === id);
+    if (action) {
+      return action;
     } else {
       return undefined;
     }

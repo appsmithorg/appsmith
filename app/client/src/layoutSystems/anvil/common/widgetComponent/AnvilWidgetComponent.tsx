@@ -25,12 +25,7 @@ export const AnvilWidgetComponent = (props: BaseWidgetProps) => {
     return <Skeleton />;
   }
 
-  if (!detachFromLayout)
-    return (
-      <WidgetVisibilityWrapper visible={!!props.isVisible}>
-        {props.children}
-      </WidgetVisibilityWrapper>
-    );
+  if (!detachFromLayout) return props.children;
 
   return (
     <ErrorBoundary>

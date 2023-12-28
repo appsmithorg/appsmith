@@ -29,6 +29,7 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   getAllDatasourceCollapsibleState,
+  getDefaultSelectedWidgetIds,
   getDsViewModeValues,
   getSelectedWidgets,
 } from "selectors/ui";
@@ -55,20 +56,36 @@ import { PluginPackageName } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
+import {
+  getFirstJSObjectId,
+  getJSPaneConfigSelectedTab,
+} from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
+import {
+  getFirstQueryId,
+  getQueryPaneConfigSelectedTabIndex,
+} from "selectors/queryPaneSelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
-import { getSelectedDatasourceId } from "./FocusSelectors";
-import { setSelectedDatasource } from "./FocusSetters";
+import {
+  getSelectedDatasourceId,
+  getSelectedJSObjectId,
+  getSelectedQueryId,
+  getSelectedSegment,
+} from "./FocusSelectors";
+import {
+  setSelectedDatasource,
+  setSelectedJSObject,
+  setSelectedQuery,
+  setSelectedSegment,
+} from "./FocusSetters";
 import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
 
 export enum FocusElement {
@@ -93,6 +110,9 @@ export enum FocusElement {
   SelectedWidgets = "SelectedWidgets",
   SubEntityCollapsibleState = "SubEntityCollapsibleState",
   InputField = "InputField",
+  SelectedQuery = "SelectedQuery",
+  SelectedJSObject = "SelectedJSObject",
+  SelectedSegment = "SelectedSegment",
 }
 
 export enum ConfigType {
@@ -124,85 +144,14 @@ export type Config = ConfigRedux | ConfigURL;
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.NONE]: [],
-  [FocusEntity.PAGE]: [
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.CodeEditorHistory,
-      selector: getCodeEditorHistory,
-      setter: setCodeEditorHistory,
-      defaultValue: {},
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.EntityExplorerWidth,
-      selector: getExplorerWidth,
-      setter: updateExplorerWidthAction,
-      defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.EntityCollapsibleState,
-      selector: getAllEntityCollapsibleStates,
-      setter: setAllEntityCollapsibleStates,
-      defaultValue: {},
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.SubEntityCollapsibleState,
-      selector: getAllSubEntityCollapsibleStates,
-      setter: setAllSubEntityCollapsibleStates,
-      defaultValue: {},
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.ExplorerSwitchIndex,
-      selector: getExplorerSwitchIndex,
-      setter: setExplorerSwitchIndex,
-      defaultValue: 0,
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyPanelContext,
-      selector: getPropertyPanelState,
-      setter: setPanelPropertiesState,
-      defaultValue: {},
-    },
-  ],
-  [FocusEntity.CANVAS]: [
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertySections,
-      selector: getAllPropertySectionState,
-      setter: setAllPropertySectionState,
-      defaultValue: {},
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.SelectedPropertyPanel,
-      selector: getSelectedPropertyPanel,
-      setter: setSelectedPropertyPanels,
-      defaultValue: {},
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.SelectedWidgets,
-      selector: getSelectedWidgets,
-      setter: (widgetIds: string[]) =>
-        selectWidgetInitAction(
-          SelectionRequestType.Multiple,
-          widgetIds,
-          NavigationMethod.ContextSwitching,
-        ),
-      defaultValue: [],
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyPaneWidth,
-      selector: getPropertyPaneWidth,
-      setter: setPropertyPaneWidthAction,
-      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
-    },
-  ],
+  [FocusEntity.APP_STATE]: [],
+  [FocusEntity.PAGE]: [],
+  [FocusEntity.CANVAS]: [],
+  [FocusEntity.QUERY_ADD]: [],
+  [FocusEntity.API]: [],
+  [FocusEntity.LIBRARY]: [],
+  [FocusEntity.SETTINGS]: [],
+  [FocusEntity.DATASOURCE_CREATE]: [],
   [FocusEntity.DATASOURCE_LIST]: [
     {
       type: ConfigType.URL,
@@ -256,24 +205,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setQueryPaneConfigSelectedTabIndex,
       defaultValue: 0,
     },
-  ],
-  [FocusEntity.PROPERTY_PANE]: [
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyTabs,
-      selector: getWidgetSelectedPropertyTabIndex,
-      setter: setWidgetSelectedPropertyTabIndex,
-      defaultValue: 0,
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyField,
-      selector: getFocusablePropertyPaneField,
-      setter: setFocusablePropertyPaneField,
-      defaultValue: "",
-    },
-  ],
-  [FocusEntity.API]: [
     {
       type: ConfigType.Redux,
       name: FocusElement.ApiPaneConfigTabs,
@@ -299,6 +230,43 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setApiRightPaneSelectedTab,
     },
   ],
+  [FocusEntity.PROPERTY_PANE]: [
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyPanelContext,
+      selector: getPropertyPanelState,
+      setter: setPanelPropertiesState,
+      defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertySections,
+      selector: getAllPropertySectionState,
+      setter: setAllPropertySectionState,
+      defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.SelectedPropertyPanel,
+      selector: getSelectedPropertyPanel,
+      setter: setSelectedPropertyPanels,
+      defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyTabs,
+      selector: getWidgetSelectedPropertyTabIndex,
+      setter: setWidgetSelectedPropertyTabIndex,
+      defaultValue: 0,
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
+      defaultValue: "",
+    },
+  ],
   [FocusEntity.DEBUGGER]: [
     {
       type: ConfigType.Redux,
@@ -306,6 +274,88 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getDebuggerContext,
       setter: setDebuggerContext,
       defaultValue: DefaultDebuggerContext,
+    },
+  ],
+  [FocusEntity.QUERY_LIST]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedQuery,
+      selector: getSelectedQueryId,
+      setter: setSelectedQuery,
+      defaultValue: getFirstQueryId,
+    },
+  ],
+  [FocusEntity.JS_OBJECT_LIST]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedJSObject,
+      selector: getSelectedJSObjectId,
+      setter: setSelectedJSObject,
+      defaultValue: getFirstJSObjectId,
+    },
+  ],
+  [FocusEntity.WIDGET_LIST]: [
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.SelectedWidgets,
+      selector: getSelectedWidgets,
+      setter: (widgetIds: string[]) =>
+        selectWidgetInitAction(
+          SelectionRequestType.Multiple,
+          widgetIds,
+          NavigationMethod.ContextSwitching,
+        ),
+      defaultValue: getDefaultSelectedWidgetIds,
+    },
+  ],
+  [FocusEntity.EDITOR]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedSegment,
+      selector: getSelectedSegment,
+      setter: setSelectedSegment,
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.EntityExplorerWidth,
+      selector: getExplorerWidth,
+      setter: updateExplorerWidthAction,
+      defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.EntityCollapsibleState,
+      selector: getAllEntityCollapsibleStates,
+      setter: setAllEntityCollapsibleStates,
+      defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.SubEntityCollapsibleState,
+      selector: getAllSubEntityCollapsibleStates,
+      setter: setAllSubEntityCollapsibleStates,
+      defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.ExplorerSwitchIndex,
+      selector: getExplorerSwitchIndex,
+      setter: setExplorerSwitchIndex,
+      defaultValue: 0,
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.CodeEditorHistory,
+      selector: getCodeEditorHistory,
+      setter: setCodeEditorHistory,
+      defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyPaneWidth,
+      selector: getPropertyPaneWidth,
+      setter: setPropertyPaneWidthAction,
+      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
   ],
 };

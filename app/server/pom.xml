@@ -29,6 +29,7 @@
         <deploy.disabled>true</deploy.disabled>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
+        <logback.version>1.4.14</logback.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
@@ -78,6 +79,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M5</version>
                 <configuration>
+                    <printSummary>true</printSummary>
                     <!-- Allow JUnit to access the test classes -->
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED

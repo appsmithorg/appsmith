@@ -136,7 +136,11 @@ import {
   mergeDynamicPropertyPaths,
   purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
-import { widgetSelectionSagas } from "./WidgetSelectionSagas";
+import {
+  partialImportSaga,
+  partialExportSaga,
+  widgetSelectionSagas,
+} from "./WidgetSelectionSagas";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
@@ -182,6 +186,7 @@ import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
+import { saveAnvilLayout } from "layoutSystems/anvil/integrations/actions/saveLayoutActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -624,7 +629,10 @@ export function getPropertiesToUpdate(
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(
+    widget.type,
+    widget,
+  );
   const { triggerPaths: triggerPathsFromPropertyConfig = {} } =
     getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
@@ -1916,7 +1924,7 @@ function* pasteWidgetSaga(
       ),
       reflowedWidgets,
     );
-    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(saveAnvilLayout(updatedWidgets));
 
     const pageId: string = yield select(getCurrentPageId);
 
@@ -2201,5 +2209,7 @@ export default function* widgetOperationSagas() {
     takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
+    takeEvery(ReduxActionTypes.PARTIAL_IMPORT_INIT, partialImportSaga),
+    takeEvery(ReduxActionTypes.PARTIAL_EXPORT_INIT, partialExportSaga),
   ]);
 }

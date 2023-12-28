@@ -1,10 +1,7 @@
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
-import {
-  extractLayoutIdFromLayoutDOMId,
-  extractWidgetIdFromAnvilWidgetDOMId,
-} from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { extractWidgetIdFromAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import log from "loglevel";
@@ -13,6 +10,56 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import type { RefObject } from "react";
+import { getAnvilSpaceDistributionStatus } from "../selectors";
+/**
+ * In this function,
+ * Get the DOM elements for the registered widgets and layouts
+ * Call `getBoundingClientRect` on each of them
+ * Offset the values by the MainContainer's left and top and store them as left top values in positions
+ * Offset the values by their parent drop targets positions(if parent drop target exists) and store them as offsetTop offsetLeft values in positions.
+ * Store the values in the `positions` object
+ */
+function processPositionsForLayouts(
+  layoutDomId: string,
+  positions: LayoutElementPositions,
+  registeredLayouts: {
+    [layoutDOMId: string]: {
+      ref: RefObject<HTMLDivElement>;
+      layoutId: string;
+      canvasId: string;
+      parentDropTarget: string;
+      isDropTarget: boolean;
+    };
+  },
+  mainContainerDOMRectOffsets: {
+    left: number;
+    top: number;
+  },
+) {
+  const { left, top } = mainContainerDOMRectOffsets;
+  const { layoutId, parentDropTarget } = registeredLayouts[layoutDomId];
+  const element: HTMLElement | null = document.getElementById(layoutDomId);
+  const parentPositions = positions[parentDropTarget];
+  if (element) {
+    const rect: DOMRect = element.getBoundingClientRect();
+    positions[layoutId] = {
+      left: rect.left - left,
+      top: rect.top - top,
+      height: rect.height,
+      width: rect.width,
+      ...(parentPositions
+        ? {
+            offsetLeft: rect.left - (parentPositions.left + left),
+            offsetTop: rect.top - (parentPositions.top + top),
+          }
+        : {
+            offsetLeft: 0,
+            offsetTop: 0,
+          }),
+    };
+  }
+}
 
 /**
  * This saga is used to read(from DOM) and update(in reducers) the widget and layout positions
@@ -27,7 +74,10 @@ function* readAndUpdateLayoutElementPositions() {
   const isCanvasResizing: boolean = yield select(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
-  if (isCanvasResizing) {
+  const isDistributingSpace: boolean = yield select(
+    getAnvilSpaceDistributionStatus,
+  );
+  if (isCanvasResizing || isDistributingSpace) {
     return;
   }
 
@@ -62,31 +112,27 @@ function* readAndUpdateLayoutElementPositions() {
   // However, it doesn't work in all browsers as we need the V2 trackVisibility API
   const registeredLayouts = positionObserver.getRegisteredLayouts();
   const registeredWidgets = positionObserver.getRegisteredWidgets();
-
-  // In the following code:
-  // Get the DOM elements for the registered widgets and layouts
-  // Call `getBoundingClientRect` on each of them
-  // Offset the values by the MainContainer's left and top
-  // Store the values in the `positions` object
-
-  // Do the above for layouts
-  for (const anvilLayoutDOMId of Object.keys(registeredLayouts)) {
-    const element: HTMLElement | null =
-      document.getElementById(anvilLayoutDOMId);
-    const layoutId = extractLayoutIdFromLayoutDOMId(anvilLayoutDOMId);
-    if (element) {
-      const rect: DOMRect = element.getBoundingClientRect();
-      positions[layoutId] = {
-        left: rect.left - left,
-        top: rect.top - top,
-        height: rect.height,
-        width: rect.width,
-      };
-    }
-  }
-
-  // Do the above for widgets
+  const dropTargetsOrder = positionObserver.getDropTargetDomIdsOrder();
+  // process drop targets positions first to capture all drop targets offset positions in order of parent to child drop target(dropTargetsOrder).
+  dropTargetsOrder.forEach((eachDomId) =>
+    processPositionsForLayouts(eachDomId, positions, registeredLayouts, {
+      left,
+      top,
+    }),
+  );
+  // process positions for layouts wrt MainContainer as well as their parent drop target layout
+  Object.keys(registeredLayouts)
+    .filter((each) => !dropTargetsOrder.includes(each))
+    .forEach((eachDomId) =>
+      processPositionsForLayouts(eachDomId, positions, registeredLayouts, {
+        left,
+        top,
+      }),
+    );
+  // process positions for widgets wrt MainContainer as well as their parent drop target layout
   for (const anvilWidgetDOMId of Object.keys(registeredWidgets)) {
+    const { layoutId } = registeredWidgets[anvilWidgetDOMId];
+    const parentDropTargetPositions = positions[layoutId];
     const element: HTMLElement | null =
       document.getElementById(anvilWidgetDOMId);
     const widgetId = extractWidgetIdFromAnvilWidgetDOMId(anvilWidgetDOMId);
@@ -97,6 +143,15 @@ function* readAndUpdateLayoutElementPositions() {
         top: rect.top - top,
         height: rect.height,
         width: rect.width,
+        ...(parentDropTargetPositions
+          ? {
+              offsetLeft: rect.left - (parentDropTargetPositions.left + left),
+              offsetTop: rect.top - (parentDropTargetPositions.top + top),
+            }
+          : {
+              offsetLeft: 0,
+              offsetTop: 0,
+            }),
       };
     }
   }

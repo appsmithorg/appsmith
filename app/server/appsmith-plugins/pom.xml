@@ -62,6 +62,14 @@
 
         <module>openAiPlugin</module>
 
+        <module>anthropicPlugin</module>
+
+        <module>googleAiPlugin</module>
+
+        <module>awsLambdaPlugin</module>
+
+        <module>databricksPlugin</module>
+
     </modules>
 
     <properties>

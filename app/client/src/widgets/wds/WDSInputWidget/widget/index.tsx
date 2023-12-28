@@ -14,6 +14,7 @@ import type {
 } from "WidgetProvider/constants";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";
+import type { InputWidgetProps } from "./types";
 import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -22,13 +23,13 @@ import type { SetterConfig } from "entities/AppTheming";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import derivedProperties from "./parsedDerivedProperties";
 import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
-import type { InputWidgetProps, KeyDownEvent } from "./types";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { BaseInputWidgetProps } from "../../WDSBaseInputWidget";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static getConfig() {
@@ -111,6 +112,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -133,6 +135,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       isValid: "bool",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
+      isReadOnly: "bool",
     };
 
     return definitions;
@@ -181,6 +184,10 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         },
         setDisabled: {
           path: "isDisabled",
+          type: "boolean",
+        },
+        setReadOnly: {
+          path: "isReadOnly",
           type: "boolean",
         },
         setRequired: {
@@ -337,6 +344,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         inputType={inputType}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
+        isReadOnly={this.props.isReadOnly}
         isRequired={this.props.isRequired}
         label={this.props.label}
         maxChars={this.props.maxChars}

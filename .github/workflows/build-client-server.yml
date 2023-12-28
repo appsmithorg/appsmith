@@ -24,9 +24,7 @@ jobs:
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
     steps:
       - name: Checkout the head commit of the branch
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Set matrix jobs
         id: matrix
@@ -36,7 +34,7 @@ jobs:
           else
             echo "matrix_count=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
           fi
-
+          
       - name: Get the PR number if workflow is triggered manually
         id: fetch_pr
         if: github.event_name == 'workflow_dispatch'
@@ -95,7 +93,7 @@ jobs:
 
       - name: Comment the filenames if PR is there
         if: steps.check_files.outputs.non_ts_files_count != 0 && steps.args.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ fromJson(steps.args.outputs.pr) }}
           body: |
@@ -107,7 +105,7 @@ jobs:
 
       - name: Add a comment on the PR with link to workflow run
         if: success() && steps.args.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ fromJson(steps.args.outputs.pr) }}
           body: |
@@ -271,23 +269,23 @@ jobs:
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypressdashboard/identified-flaky-tests-6541e22b0c243558fe2288ca?branch=master" target="_blank">Refer here</a>
+            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
 
       - name: Add a comment on the PR when ci-test-limited is success
         if: needs.ci-test-limited.result == 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
 
       - name: Check ci-test-limited set status
@@ -388,23 +386,23 @@ jobs:
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited-existing-docker-image.result != 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypressdashboard/identified-flaky-tests-6541e22b0c243558fe2288ca?branch=master" target="_blank">Refer here</a>
+            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
         if: needs.ci-test-limited-existing-docker-image.result == 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
 
       - name: Check ci-test-limited-existing-docker-image set status

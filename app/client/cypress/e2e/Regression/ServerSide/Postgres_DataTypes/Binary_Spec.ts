@@ -1,19 +1,29 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  entityItems,
-  dataSources,
-  table,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
-describe("Binary Datatype tests", function () {
+describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/BinaryDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(7, -9);
     dataSources.CreateDataSource("Postgres");
@@ -27,11 +37,10 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryAfterDSSaved(query, "createTable");
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, "public.binarytype");
-
     //Creating SELECT query - binarytype + Bug 14493
     query = `SELECT binarytype.serialid, binarytype.imagename, encode(binarytype.existingimage, 'escape') as "OldImage", encode(binarytype.newimage, 'escape') as "NewImage" from public."binarytype";`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.binarytype",
       "Select",
     );
@@ -65,9 +74,7 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable");
     dataSources.SetQueryTimeout(30000);
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
   });
@@ -243,13 +250,10 @@ describe("Binary Datatype tests", function () {
   it("9. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyBinaryFunctions");
-
+    PageLeftPane.expandCollapseItem("Queries/JS");
     //Validating zero octet
     query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyBinaryFunctions");
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
       "zero octet Hex",
@@ -372,7 +376,8 @@ describe("Binary Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   //Since query delete & Postgress DS delete is covered in other specs, commenting below code
@@ -394,8 +399,6 @@ describe("Binary Datatype tests", function () {
   //     agHelper.AssertElementAbsence(
   //       entityExplorer._entityNameInExplorer("public.binarytype"),
   //     );
-  //     entityExplorer.ExpandCollapseEntity(dsName, false);
-  //     entityExplorer.ExpandCollapseEntity("Datasources", false);
 
   //     //Delete all queries
   //     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

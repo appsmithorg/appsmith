@@ -21,9 +21,9 @@ import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
-import type { FetchPageResponse } from "api/PageApi";
+import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type {
   FetchActionsPayload,
   SetActionPropertyPayload,
@@ -38,6 +38,7 @@ import {
   moveActionError,
   moveActionSuccess,
   updateAction,
+  updateActionData,
   updateActionProperty,
   updateActionSuccess,
 } from "actions/pluginActionActions";
@@ -62,6 +63,7 @@ import {
   SlashCommand,
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { PagePaneData } from "@appsmith/selectors/entitiesSelector";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -72,6 +74,8 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
+  selectQueriesForPagespane,
+  getPageActions,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -105,6 +109,7 @@ import {
   apiEditorIdURL,
   builderURL,
   integrationEditorURL,
+  queryAddURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
@@ -128,6 +133,12 @@ import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { getActionConfig } from "../pages/Editor/Explorer/Actions/helpers";
 
 export function* createDefaultActionPayloadWithPluginDefaults(
   props: CreateActionDefaultsParams,
@@ -281,7 +292,9 @@ export function* createActionSaga(
   }
 }
 
-function* fetchActionDatasourceStructure(action: ActionCreateUpdateResponse) {
+export function* fetchActionDatasourceStructure(
+  action: ActionCreateUpdateResponse,
+) {
   if (action.datasource?.id) {
     const doesDatasourceStructureAlreadyExist: DatasourceStructure =
       yield select(getDatasourceStructureById, action.datasource.id);
@@ -303,8 +316,9 @@ export function* fetchActionsSaga(
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> =
-      yield ActionAPI.fetchActions(applicationId);
+    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions({
+      applicationId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -487,6 +501,69 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+/**
+ * Adds custom redirect logic to redirect after an item is deleted
+ * 1. Do not navigate if the deleted item is not selected
+ * 2. If it is the only item, navigate to a list url
+ * 3. If there are other items, navigate to an item close to the current one
+ * **/
+function* handleDeleteActionRedirect(deletedAction: Action) {
+  const pageId: string = yield select(getCurrentPageId);
+  const allActions: ActionData[] = yield select(getPageActions(pageId));
+  const currentSelectedEntity = identifyEntityFromPath(
+    window.location.pathname,
+  );
+  const isSelectedActionDeleted = currentSelectedEntity.id === deletedAction.id;
+
+  // If deleted item is not currently selected, don't redirect
+  if (!isSelectedActionDeleted) {
+    return;
+  }
+
+  const otherActions = allActions.filter(
+    (a) => deletedAction.id !== a.config.id,
+  );
+  // If no other action is remaining, navigate to the query add url
+  if (otherActions.length === 0) {
+    history.push(queryAddURL({ pageId }));
+    return;
+  }
+
+  // Check if another action is present in the group and redirect to it, orelse
+  // navigate to tht top of the list
+  const currentSortedList: PagePaneData = yield select(
+    selectQueriesForPagespane,
+  );
+  let deletedActionGroup;
+  for (const [group, actions] of Object.entries(currentSortedList)) {
+    if (actions.find((a) => a.id === deletedAction.id)) {
+      deletedActionGroup = group;
+      break;
+    }
+  }
+  const groupActions = currentSortedList[deletedActionGroup || ""];
+  const remainingGroupActions = groupActions.filter(
+    (a) => a.id !== deletedAction.id,
+  );
+  let url;
+  if (remainingGroupActions.length === 0) {
+    const toRedirect = otherActions[0];
+    const config = getActionConfig(toRedirect.config.pluginType);
+    url = config?.getURL(
+      pageId,
+      toRedirect.config.id,
+      toRedirect.config.pluginType,
+    );
+  } else {
+    const toRedirect = remainingGroupActions[0];
+    const config = getActionConfig(toRedirect.type);
+    url = config?.getURL(pageId, toRedirect.id, toRedirect.type);
+  }
+  if (url) {
+    history.push(url);
+  }
+}
+
 export function* deleteActionSaga(
   actionPayload: ReduxAction<{
     id: string;
@@ -532,16 +609,25 @@ export function* deleteActionSaga(
         queryName: name,
       });
     }
+    const currentUrl = window.location.pathname;
+    const isPagePaneSegmentsEnabled: boolean = yield select(
+      selectFeatureFlagCheck,
+      FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+    );
 
-    if (!!actionPayload.payload.onSuccess) {
-      actionPayload.payload.onSuccess();
+    if (isPagePaneSegmentsEnabled) {
+      yield call(handleDeleteActionRedirect, action);
     } else {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
+      if (!!actionPayload.payload.onSuccess) {
+        actionPayload.payload.onSuccess();
+      } else {
+        history.push(
+          integrationEditorURL({
+            pageId,
+            selectedTab: INTEGRATION_TABS.NEW,
+          }),
+        );
+      }
     }
 
     AppsmithConsole.info({
@@ -558,6 +644,7 @@ export function* deleteActionSaga(
     });
 
     yield put(deleteActionSuccess({ id }));
+    yield put(removeFocusHistoryRequest(currentUrl));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -611,8 +698,10 @@ function* moveActionSaga(
       // @ts-expect-error: response is of type unknown
       apiID: response.data.id,
     });
+    const currentUrl = window.location.pathname;
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
+    yield put(removeFocusHistoryRequest(currentUrl));
   } catch (e) {
     toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
@@ -714,9 +803,13 @@ export function* refactorActionName(
     PerformanceTransactionName.REFACTOR_ACTION_NAME,
     { actionId: id },
   );
-  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-    id: pageId,
-  });
+
+  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
+  const params: FetchPageRequest = { id: pageId };
+  if (isServerDSLMigrationsEnabled) {
+    params.migrateDSL = true;
+  }
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
@@ -750,6 +843,16 @@ export function* refactorActionName(
       if (currentPageId === pageId) {
         // @ts-expect-error: refactorResponse is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+        yield put(
+          updateActionData([
+            {
+              entityName: newName,
+              dataPath: "data",
+              data: undefined,
+              dataPathRef: `${oldName}.data`,
+            },
+          ]),
+        );
       } else {
         yield put(fetchActionsForPage(pageId));
       }

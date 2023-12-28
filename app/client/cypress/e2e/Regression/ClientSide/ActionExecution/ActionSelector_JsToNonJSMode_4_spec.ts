@@ -1,18 +1,20 @@
 import {
   agHelper,
-  entityExplorer,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
-describe("JS to non-JS mode in Action Selector", () => {
+describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   before(() => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
   });
 
   it("10. Bug 23167 - Message field in PostMessage should accept all type of values", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext(
       "onClick",

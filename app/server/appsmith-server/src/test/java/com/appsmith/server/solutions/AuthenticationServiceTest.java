@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
@@ -21,7 +22,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.AfterEach;
@@ -109,7 +109,7 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null);
+                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null, null);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -150,7 +150,7 @@ public class AuthenticationServiceTest {
         Mono<String> authorizationCodeUrlMono = datasourceMono
                 .map(BaseDomain::getId)
                 .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null));
+                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null, null));
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -228,7 +228,7 @@ public class AuthenticationServiceTest {
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId1, defaultEnvironmentId, pageDto.getId(), httpRequest);
+                datasourceId1, defaultEnvironmentId, pageDto.getId(), null, httpRequest);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .assertNext(url -> {
@@ -243,6 +243,100 @@ public class AuthenticationServiceTest {
                                             datasourceId1,
                                             defaultEnvironmentId,
                                             "https://mock.origin.com")
+                                    + "&scope=Scope\\d%20Scope\\d"
+                                    + "&key=value"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAuthorizationCodeURL_validDatasourceAndBranchName() {
+        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(1);
+        mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
+
+        MockServerHttpRequest httpRequest =
+                MockServerHttpRequest.get("").headers(mockHeaders).build();
+
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Test-Workspace-OAuth2-git-redirection");
+        testWorkspace = workspaceService.create(testWorkspace).block();
+        String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("Test-Page-oauth2-git-redirection");
+
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
+        Application application =
+                applicationPageService.createApplication(newApp, workspaceId).block();
+
+        testPage.setApplicationId(application.getId());
+
+        PageDTO pageDTO = applicationPageService.createPage(testPage).block();
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        // install plugin
+        pluginMono
+                .flatMap(plugin -> pluginService.installPlugin(PluginWorkspaceDTO.builder()
+                        .pluginId(plugin.getId())
+                        .workspaceId(workspaceId)
+                        .status(WorkspacePluginStatus.FREE)
+                        .build()))
+                .block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Valid datasource for OAuth2");
+        datasource.setWorkspaceId(workspaceId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setClientId("ClientId");
+        authenticationDTO.setClientSecret("ClientSecret");
+        authenticationDTO.setAuthorizationUrl("AuthorizationURL");
+        authenticationDTO.setAccessTokenUrl("AccessTokenURL");
+        authenticationDTO.setScope(Set.of("Scope1", "Scope2"));
+        authenticationDTO.setCustomAuthenticationParameters(Set.of(new Property("key", "value")));
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        datasource.setDatasourceStorages(storages);
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .cache();
+
+        final String datasourceId = datasourceMono.map(BaseDomain::getId).block();
+
+        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
+                datasourceId, null, pageDTO.getId(), "testBranch", httpRequest);
+
+        StepVerifier.create(authorizationCodeUrlMono)
+                .assertNext(url -> {
+                    assertThat(url)
+                            .matches(Pattern.compile("AuthorizationURL" + "\\?client_id=ClientId"
+                                    + "&response_type=code"
+                                    + "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize"
+                                    + "&state="
+                                    + String.join(
+                                            ",",
+                                            pageDTO.getId(),
+                                            datasourceId,
+                                            defaultEnvironmentId,
+                                            "https://mock.origin.com",
+                                            "testBranch")
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));
                 })

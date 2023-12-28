@@ -42,7 +42,6 @@ import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 import {
   getCurrentApplicationId,
-  getPagePermissions,
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
@@ -103,14 +102,12 @@ import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
-  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
 
 interface ReduxStateProps {
-  canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
   canManageDatasource: boolean;
   datasourceButtonConfiguration: string[] | undefined;
@@ -147,6 +144,8 @@ interface ReduxStateProps {
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
   isAppSidebarEnabled: boolean;
+  isPagePaneSegmentsEnabled: boolean;
+  isOnboardingFlow?: boolean;
 }
 
 const Form = styled.div`
@@ -169,6 +168,10 @@ export const DSEditorWrapper = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: row;
+
+  &.onboarding-flow {
+    height: 100%;
+  }
 `;
 
 export const CalloutContainer = styled.div<{
@@ -320,7 +323,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
-      this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
+      this.props?.match?.params?.datasourceId === TEMP_DATASOURCE_ID
     ) {
       this.props.createTempDatasource({
         pluginId,
@@ -397,6 +400,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     const { configProperty, controlType, isRequired } = config;
     const configDetails = this.state.configDetails;
     const requiredFields = this.state.requiredFields;
+    if (!configProperty || !configProperty.includes(this.getEnvironmentId()))
+      return;
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
 
@@ -683,6 +688,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         name,
         userPermissions,
       },
+      configDetails: {},
+      requiredFields: {},
     });
     this.blockRoutes();
     return true;
@@ -890,7 +897,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   render() {
     const {
-      canCreateDatasourceActions,
       canDeleteDatasource,
       canManageDatasource,
       datasource,
@@ -902,6 +908,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
+      isOnboardingFlow,
+      isPagePaneSegmentsEnabled,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -955,10 +963,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled ? null : <CloseEditor />}
+        {isAppSidebarEnabled ||
+        isPagePaneSegmentsEnabled ||
+        !!isOnboardingFlow ? null : (
+          <CloseEditor />
+        )}
         {!isInsideReconnectModal && (
           <DSFormHeader
-            canCreateDatasourceActions={canCreateDatasourceActions}
             canDeleteDatasource={canDeleteDatasource}
             canManageDatasource={canManageDatasource}
             datasource={datasource}
@@ -980,7 +991,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               showingTabsOnViewMode && "db-form-resizer-content-show-tabs"
             }`}
           >
-            <DSEditorWrapper>
+            <DSEditorWrapper
+              className={!!isOnboardingFlow ? "onboarding-flow" : ""}
+            >
               {viewMode && !isInsideReconnectModal ? (
                 this.renderTabsForViewMode()
               ) : (
@@ -1010,6 +1023,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                         isFormDirty={this.props.isFormDirty}
                         isInsideReconnectModal={isInsideReconnectModal}
                         isInvalid={this.validateForm()}
+                        isOnboardingFlow={isOnboardingFlow}
                         isSaving={isSaving}
                         isTesting={isTesting}
                         onCancel={() => this.onCancel()}
@@ -1105,13 +1119,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isFeatureEnabled,
     datasourcePermissions,
   );
-
-  const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
-    pagePermissions,
-  );
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
@@ -1151,9 +1158,12 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
+  const isPagePaneSegmentsEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
 
   return {
-    canCreateDatasourceActions,
     canDeleteDatasource,
     canManageDatasource,
     datasourceButtonConfiguration,
@@ -1189,6 +1199,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     initialValue,
     showDebugger,
     isAppSidebarEnabled,
+    isPagePaneSegmentsEnabled,
   };
 };
 

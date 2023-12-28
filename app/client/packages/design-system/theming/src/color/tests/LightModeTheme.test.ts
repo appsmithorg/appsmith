@@ -8,7 +8,7 @@ describe("bg color", () => {
 
   it("should return correct color when lightness < 0.93", () => {
     const { bg } = new LightModeTheme("oklch(0.92 0.09 231)").getColors();
-    expect(bg).toBe("rgb(95.828% 98.573% 100%)");
+    expect(bg).toBe("rgb(92.567% 95.296% 96.777%)");
   });
 
   it("should return correct color when hue > 120 && hue < 300", () => {
@@ -18,12 +18,12 @@ describe("bg color", () => {
 
   it("should return correct color when hue < 120 or hue > 300", () => {
     const { bg } = new LightModeTheme("oklch(0.92 0.07 110)").getColors();
-    expect(bg).toBe("rgb(98.101% 98.258% 96.176%)");
+    expect(bg).toBe("rgb(94.827% 94.982% 92.913%)");
   });
 
   it("should return correct color when chroma < 0.04", () => {
     const { bg } = new LightModeTheme("oklch(0.92 0.02 110)").getColors();
-    expect(bg).toBe("rgb(98.026% 98.026% 98.026%)");
+    expect(bg).toBe("rgb(94.752% 94.752% 94.752%)");
   });
 });
 
@@ -223,6 +223,15 @@ describe("bgNeutral color", () => {
   it("should return correct color when hue is not between 120 and 300 and chroma is not less than 0.04", () => {
     const { bgNeutral } = new LightModeTheme("oklch(0.95 0.06 30)").getColors();
     expect(bgNeutral).toEqual("rgb(98.083% 92.81% 91.842%)");
+  });
+});
+
+describe("bgNeutralOpacity color", () => {
+  it("should return correct color", () => {
+    const { bgNeutralOpacity } = new LightModeTheme(
+      "oklch(0.51 0.24 279)",
+    ).getColors();
+    expect(bgNeutralOpacity).toEqual("rgb(27.662% 28.6% 35.606% / 0.5)");
   });
 });
 
@@ -785,12 +794,12 @@ describe("bdFocus color", () => {
 
   it("should return correct color when hue is between 0 and 55", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 30)").getColors();
-    expect(bdFocus).toEqual("rgb(100% 70.125% 64.059%)");
+    expect(bdFocus).toEqual("rgb(72.468% 27.962% 22.197%)");
   });
 
   it("should return correct color when hue >  340", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 350)").getColors();
-    expect(bdFocus).toEqual("rgb(100% 67.07% 84.709%)");
+    expect(bdFocus).toEqual("rgb(68.494% 27.322% 49.304%)");
   });
 });
 

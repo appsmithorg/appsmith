@@ -5,7 +5,7 @@ import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import type { DatasourceTable } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { useCloseMenuOnScroll } from "../Explorer/hooks";
+import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -21,6 +21,8 @@ import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
@@ -28,7 +30,6 @@ interface DatasourceStructureItemProps {
   datasourceId: string;
   context: DatasourceStructureContext;
   isDefaultOpen?: boolean;
-  forceExpand?: boolean;
   currentActionId: string;
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
@@ -63,12 +64,14 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const datasourcePermissions = datasource?.userPermissions || [];
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const editorType = useEditorType(history.location.pathname);
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const onSelect = () => {
     setActive(false);
@@ -150,7 +153,6 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
       collapseRef={collapseRef}
       contextMenu={templateMenu}
       entityId={`${props.datasourceId}-${dbStructure.name}-${props.context}`}
-      forceExpand={props.forceExpand}
       icon={datasourceTableIcon}
       isDefaultExpanded={props?.isDefaultOpen}
       name={dbStructure.name}
@@ -177,7 +179,6 @@ type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
   datasourceId: string;
   context: DatasourceStructureContext;
   isDefaultOpen?: boolean;
-  forceExpand?: boolean;
   currentActionId: string;
 };
 

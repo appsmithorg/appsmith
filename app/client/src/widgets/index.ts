@@ -61,10 +61,22 @@ import { WDSButtonWidget } from "./wds/WDSButtonWidget";
 import { WDSInputWidget } from "./wds/WDSInputWidget";
 import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
 import { WDSIconButtonWidget } from "./wds/WDSIconButtonWidget";
-import { WDSTextWidget } from "./wds/WDSTextWidget";
 import type BaseWidget from "./BaseWidget";
+import ExternalWidget from "./ExternalWidget";
 import { WDSTableWidget } from "./wds/WDSTableWidget";
+import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
 import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
+import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
+import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
+import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
+import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
+import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
+import { WDSMenuButtonWidget } from "./wds/WDSMenuButtonWidget";
+import CustomWidget from "./CustomWidget";
+import { SectionWidget } from "./anvil/SectionWidget";
+import { ZoneWidget } from "./anvil/ZoneWidget";
+import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
+import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -116,13 +128,25 @@ const Widgets = [
   CategorySliderWidget,
   CodeScannerWidget,
   ListWidgetV2,
+  ExternalWidget,
   WDSButtonWidget,
   WDSInputWidget,
   WDSCheckboxWidget,
   WDSIconButtonWidget,
-  WDSTextWidget,
   WDSTableWidget,
+  WDSCurrencyInputWidget,
   WDSButtonGroupWidget,
+  WDSPhoneInputWidget,
+  WDSCheckboxGroupWidget,
+  WDSSwitchWidget,
+  WDSSwitchGroupWidget,
+  WDSRadioGroupWidget,
+  WDSMenuButtonWidget,
+  CustomWidget,
+  SectionWidget,
+  ZoneWidget,
+  WDSParagraphWidget,
+  WDSHeadingWidget,
 
   //Deprecated Widgets
   InputWidget,

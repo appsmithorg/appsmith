@@ -10,14 +10,15 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,15 +35,10 @@ import java.util.Set;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
+@RequiredArgsConstructor
 public class ActionCollectionImportableServiceCEImpl implements ImportableServiceCE<ActionCollection> {
     private final ActionCollectionService actionCollectionService;
     private final ActionCollectionRepository repository;
-
-    public ActionCollectionImportableServiceCEImpl(
-            ActionCollectionService actionCollectionService, ActionCollectionRepository repository) {
-        this.actionCollectionService = actionCollectionService;
-        this.repository = repository;
-    }
 
     // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable resources.
     // Updates actionCollectionResultDTO in importable resources.
@@ -53,7 +49,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
         List<ActionCollection> importedActionCollectionList =
                 CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
                         ? new ArrayList<>()
@@ -229,6 +226,10 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                                         Set<Policy> existingPolicy = existingActionCollection.getPolicies();
                                         copyNestedNonNullProperties(actionCollection, existingActionCollection);
+
+                                        populateDomainMappedReferences(
+                                                mappedImportableResourcesDTO, existingActionCollection);
+
                                         // Update branchName
                                         existingActionCollection
                                                 .getDefaultResources()
@@ -295,6 +296,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                     actionCollection.getApplicationId() + "_" + new ObjectId());
                                         }
 
+                                        populateDomainMappedReferences(mappedImportableResourcesDTO, actionCollection);
+
                                         // it's new actionCollection
                                         newActionCollections.add(actionCollection);
                                         resultDTO.getSavedActionCollectionIds().add(actionCollection.getId());
@@ -315,6 +318,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
                 });
+    }
+
+    protected void populateDomainMappedReferences(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO, ActionCollection actionCollection) {
+        // Nothing needs to be copied into the action collection from mapped resources
     }
 
     private NewPage updatePageInActionCollection(ActionCollectionDTO collectionDTO, Map<String, NewPage> pageNameMap) {

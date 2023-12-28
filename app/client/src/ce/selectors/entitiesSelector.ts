@@ -12,9 +12,10 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
-import { find, get, sortBy } from "lodash";
+import { find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -22,7 +23,7 @@ import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import type {
   JSCollectionData,
   JSCollectionDataState,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
@@ -43,8 +44,14 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
-import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { Plugin } from "api/PluginApi";
+import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+import {
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
+} from "@appsmith/selectors/workflowSelectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -52,6 +59,41 @@ export const getEntities = (state: AppState): AppState["entities"] =>
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
+
+export const getPlugins = (state: AppState) => state.entities.plugins.list;
+
+export enum PluginCategory {
+  Integrations = "Integrations",
+  Databases = "Databases",
+  APIs = "APIs",
+  Others = "Others",
+}
+
+export type DatasourceGroupByPluginCategory = Record<
+  PluginCategory,
+  Datasource[]
+>;
+
+export const getDatasourcesGroupedByPluginCategory = createSelector(
+  getDatasources,
+  getPlugins,
+  (datasources, plugins): DatasourceGroupByPluginCategory => {
+    const groupedPlugins = keyBy(plugins, "id");
+    return <DatasourceGroupByPluginCategory>groupBy(datasources, (d) => {
+      const plugin = groupedPlugins[d.pluginId];
+      if (
+        plugin.type === PluginType.SAAS ||
+        plugin.type === PluginType.REMOTE ||
+        plugin.type === PluginType.AI
+      ) {
+        return PluginCategory.Integrations;
+      }
+      if (plugin.type === PluginType.DB) return PluginCategory.Databases;
+      if (plugin.type === PluginType.API) return PluginCategory.APIs;
+      return PluginCategory.Others;
+    });
+  },
+);
 
 // Returns non temp datasources
 export const getSavedDatasources = (state: AppState): Datasource[] => {
@@ -85,6 +127,7 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  getAnvilSpaceDistributionStatus,
   // cannot import other selectors, breaks the app
   (state) => {
     const gitMetaData =
@@ -103,6 +146,7 @@ export const getShouldShowWidgetName = createSelector(
     isDragging,
     isPreviewMode,
     isAutoCanvasResizing,
+    isDistributingSpace,
     isProtectedMode,
   ) => {
     return (
@@ -110,6 +154,7 @@ export const getShouldShowWidgetName = createSelector(
       !isDragging &&
       !isPreviewMode &&
       !isAutoCanvasResizing &&
+      !isDistributingSpace &&
       !isProtectedMode
     );
   },
@@ -372,8 +417,6 @@ export const getDatasourcesByPluginId = (
   return state.entities.datasources.list.filter((d) => d.pluginId === id);
 };
 
-export const getPlugins = (state: AppState) => state.entities.plugins.list;
-
 export const getPluginByPackageName = (state: AppState, name: string) =>
   state.entities.plugins.list.find((p) => p.packageName === name);
 
@@ -389,6 +432,36 @@ export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
 export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
+
+// Most popular datasources are hardcoded right now to include these 4 plugins and REST API
+// Going forward we may want to have separate list for each instance based on usage
+export const getMostPopularPlugins = createSelector(getPlugins, (plugins) => {
+  const popularPlugins: Plugin[] = [];
+
+  const gsheetPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
+  );
+  const restPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
+  );
+  const postgresPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.POSTGRES,
+  );
+  const mysqlPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MY_SQL,
+  );
+  const mongoPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MONGO,
+  );
+
+  gsheetPlugin && popularPlugins.push(gsheetPlugin);
+  restPlugin && popularPlugins.push(restPlugin);
+  postgresPlugin && popularPlugins.push(postgresPlugin);
+  mysqlPlugin && popularPlugins.push(mysqlPlugin);
+  mongoPlugin && popularPlugins.push(mongoPlugin);
+
+  return popularPlugins;
+});
 
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
@@ -557,6 +630,10 @@ export const getCurrentJSCollections = createSelector(
   },
 );
 
+export const getCurrentModuleActions = () => [];
+
+export const getCurrentModuleJSCollections = () => [];
+
 export const getJSCollectionFromName = createSelector(
   [
     getCurrentJSCollections,
@@ -636,15 +713,27 @@ export const getActionData = (
   return action ? action.data : undefined;
 };
 
-export const getJSCollection = (
-  state: AppState,
-  actionId: string,
-): JSCollection | undefined => {
+export const getJSCollection = (state: AppState, actionId: string) => {
   const jsaction = find(
     state.entities.jsActions,
     (a) => a.config.id === actionId,
   );
-  return jsaction ? jsaction.config : undefined;
+  return jsaction && jsaction.config;
+};
+
+/**
+ *
+ * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )
+ */
+export const getJSCollectionFromAllEntities = (
+  state: AppState,
+  actionId: string,
+) => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction && jsaction.config;
 };
 
 export function getCurrentPageNameByActionId(
@@ -709,7 +798,9 @@ export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId].dsl : {},
+    currentPageId && widgetsByPage[currentPageId]
+      ? widgetsByPage[currentPageId].dsl
+      : {},
 );
 
 export const getParentModalId = (
@@ -916,9 +1007,22 @@ export const getDatasourceLoading = (state: AppState) => {
 export const selectFilesForExplorer = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, datasourceIdToNameMap) => {
-    const files = [...actions, ...jsActions].reduce((acc, file) => {
+  (
+    actions,
+    jsActions,
+    workflowActions,
+    workflowJsActions,
+    datasourceIdToNameMap,
+  ) => {
+    const files = [
+      ...actions,
+      ...jsActions,
+      ...workflowActions,
+      ...workflowJsActions,
+    ].reduce((acc, file) => {
       let group = "";
       if (file.config.pluginType === PluginType.JS) {
         group = "JS Objects";
@@ -938,6 +1042,7 @@ export const selectFilesForExplorer = createSelector(
     }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
+      (file) => file.entity.config?.isMainJSCollection,
       (file) => file.group?.toLowerCase(),
       (file) => file.entity.config?.name?.toLowerCase(),
     ]);
@@ -954,7 +1059,11 @@ export const selectFilesForExplorer = createSelector(
         }
         acc.files = acc.files.concat({
           ...file,
-          entity: { id: file.entity.config.id, name: file.entity.config.name },
+          entity: {
+            id: file.entity.config.id,
+            name: file.entity.config.name,
+            isMainJSCollection: file.entity?.config?.isMainJSCollection,
+          },
         });
         return acc;
       },
@@ -1276,6 +1385,94 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
   );
 };
 
-export function getInputsForModule(): Record<string, ModuleInput> {
-  return {};
+export function getInputsForModule(): Module["inputsForm"] {
+  return [];
 }
+
+export const getModuleInstances = (
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  state: AppState,
+) => {
+  return null;
+};
+
+export const getModuleInstanceEntities = () => {
+  return null;
+};
+
+export interface PagePaneData {
+  [key: string]: { id: string; name: string; type: PluginType }[];
+}
+
+const GroupAndSortPagePaneData = (
+  files: ActionData[] | JSCollectionData[],
+  datasourceIdToNameMap: Record<string, string>,
+) => {
+  let data: PagePaneData = {};
+
+  files.forEach((file) => {
+    let group = "";
+
+    if (file.config.pluginType === PluginType.JS) {
+      group = "JS Objects";
+    } else if (file.config.pluginType === PluginType.API) {
+      group = isEmbeddedRestDatasource(file.config.datasource)
+        ? "APIs"
+        : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+    } else {
+      group = datasourceIdToNameMap[file.config.datasource.id];
+    }
+    if (!data[group]) {
+      data[group] = [];
+    }
+    data[group].push({
+      id: file.config.id,
+      name: file.config.name,
+      type: file.config.pluginType,
+    });
+  });
+
+  data = Object.keys(data)
+    .sort()
+    .reduce(function (acc, key) {
+      acc[key] = sortBy(data[key], (file) => file.name);
+      return acc;
+    }, {} as PagePaneData);
+  return data;
+};
+
+export const selectQueriesForPagespane = createSelector(
+  getCurrentActions,
+  selectDatasourceIdToNameMap,
+  (actions, datasourceIdToNameMap) => {
+    return GroupAndSortPagePaneData(actions, datasourceIdToNameMap);
+  },
+);
+
+export const selectJSForPagespane = createSelector(
+  getCurrentJSCollections,
+  selectDatasourceIdToNameMap,
+  (jsActions, datasourceIdToNameMap) => {
+    return GroupAndSortPagePaneData(jsActions, datasourceIdToNameMap);
+  },
+);
+
+export const getQueryModuleInstances = () => {
+  return [];
+};
+
+export const getJSModuleInstancesData = (_: AppState) => {
+  return [] as Array<{
+    config: JSCollection;
+    data: unknown;
+    name: string;
+  }>;
+};
+
+export const getAllJSCollections = createSelector(
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (currentContextJSCollections, moduleInstanceJSCollections) => {
+    return [...moduleInstanceJSCollections, ...currentContextJSCollections];
+  },
+);

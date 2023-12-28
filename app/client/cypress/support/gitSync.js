@@ -150,27 +150,42 @@ Cypress.Commands.add("latestDeployPreview", () => {
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  cy.wait(3000);
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
+  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   // increasing timeout to reduce flakyness
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("not.exist");
+  assertHelper.AssertDocumentReady();
+  cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
+    "be.visible",
+  );
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  agHelper.AssertElementExist(gitSync._bottomBarPull);
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
-  cy.wait(1000);
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
+  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("exist");
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("not.exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("not.exist");
   }
-
-  cy.wait(2000);
+  assertHelper.AssertDocumentReady();
+  cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
+    "be.visible",
+  );
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
@@ -314,7 +329,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
   assertHelper.AssertNetworkStatus("mergeBranch", 200);
-  cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
+  agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
 Cypress.Commands.add(
@@ -416,12 +431,12 @@ Cypress.Commands.add("gitDiscardChanges", () => {
     .should("have.text", "Are you sure?");
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
+  cy.validateToastMessage("Discarded changes successfully.");
   cy.wait(2000);
   assertHelper.AssertContains(
     "Unable to import application in workspace",
     "not.exist",
   );
-  cy.validateToastMessage("Discarded changes successfully.");
 });
 
 Cypress.Commands.add(

@@ -14,6 +14,7 @@ import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -21,6 +22,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
@@ -45,17 +47,19 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -83,6 +87,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -119,6 +124,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -158,7 +164,7 @@ public class GitServiceCETest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    @Autowired
+    @SpyBean
     ApplicationService applicationService;
 
     @Autowired
@@ -169,6 +175,9 @@ public class GitServiceCETest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     NewPageService newPageService;
@@ -212,13 +221,22 @@ public class GitServiceCETest {
     @Autowired
     WorkspacePermission workspacePermission;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
-
+        User currentUser = sessionUserService.getCurrentUser().block();
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("Git Service Test");
 
+        Set<String> beforeCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -235,6 +253,15 @@ public class GitServiceCETest {
         // applicationPermission = new ApplicationPermissionImpl();
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
+
+        Set<String> afterCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+
+        log.info("Workspace ID: {}", workspaceId);
+        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
     }
 
     @AfterEach
@@ -306,7 +333,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
 
@@ -616,7 +643,7 @@ public class GitServiceCETest {
                         Mockito.anyBoolean(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("commit"));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
@@ -690,7 +717,7 @@ public class GitServiceCETest {
                         Mockito.anyBoolean(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("commit"));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
@@ -794,7 +821,7 @@ public class GitServiceCETest {
                         Mockito.anyBoolean(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("commit"));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
@@ -999,7 +1026,7 @@ public class GitServiceCETest {
                         Mockito.anyBoolean(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("commit"));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
@@ -1212,12 +1239,12 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleAction(action, Boolean.FALSE)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 
@@ -1515,7 +1542,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("status"));
         Mockito.when(gitExecutor.checkoutRemoteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("feature1"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
@@ -1554,10 +1581,10 @@ public class GitServiceCETest {
         gitStatusDTO.setBehindCount(0);
         gitStatusDTO.setIsClean(true);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.pullApplication(
@@ -1600,10 +1627,10 @@ public class GitServiceCETest {
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMergeAble(true);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenThrow(new IOException("Error accessing the file System"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(new ApplicationJson()));
         Mockito.when(gitExecutor.fetchRemote(
@@ -1642,10 +1669,10 @@ public class GitServiceCETest {
         mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
         mergeStatusDTO.setMergeAble(true);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.justOrEmpty(applicationJson));
         Mockito.when(gitExecutor.getStatus(any(), any())).thenReturn(Mono.just(new GitStatusDTO()));
@@ -1700,7 +1727,7 @@ public class GitServiceCETest {
         gitStatusDTO.setAheadCount(0);
         gitStatusDTO.setBehindCount(0);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.isMergeBranch(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -1716,7 +1743,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(TRUE));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
 
@@ -1743,7 +1770,7 @@ public class GitServiceCETest {
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMergeAble(false);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.isMergeBranch(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -1759,7 +1786,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Boolean.FALSE));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
 
@@ -1793,7 +1820,7 @@ public class GitServiceCETest {
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMergeAble(false);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
         Mockito.when(gitExecutor.isMergeBranch(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -1809,7 +1836,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Boolean.FALSE));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
 
@@ -1865,13 +1892,13 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.checkoutRemoteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("testBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(branchList));
 
         Mono<Application> applicationMono = gitService
-                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal")
+                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
@@ -1922,7 +1949,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.checkoutRemoteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("testBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(branchList));
@@ -1947,7 +1974,7 @@ public class GitServiceCETest {
         Mono<Tuple4<Theme, Application, Theme, Theme>> resultMono =
                 setCustomThemeToGitConnectedAppMono.flatMap(theme -> {
                     return gitService
-                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2")
+                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2", true)
                             .then(Mono.defer(() -> applicationService.findByBranchNameAndDefaultApplicationId(
                                     "branchNotInLocal2", gitConnectedApplication.getId(), READ_APPLICATIONS)))
                             .flatMap(application -> {
@@ -2010,7 +2037,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
 
         Mono<Application> applicationMono =
-                gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal");
+                gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal", true);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2024,8 +2051,7 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkoutBranch_branchNotProvided_throwInvalidParameterError() {
-
-        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null);
+        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null, true);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2043,7 +2069,7 @@ public class GitServiceCETest {
         commitDTO.setDoPush(false);
         commitDTO.setCommitMessage("empty commit");
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2101,7 +2127,7 @@ public class GitServiceCETest {
         Mono<String> commitMono =
                 gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(
                         Mono.error(new RepositoryNotFoundException(AppsmithError.REPOSITORY_NOT_FOUND.getMessage())));
@@ -2123,7 +2149,7 @@ public class GitServiceCETest {
         commitDTO.setDoPush(false);
         commitDTO.setCommitMessage("commit message");
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2152,7 +2178,7 @@ public class GitServiceCETest {
         commitDTO.setDoPush(false);
         commitDTO.setCommitMessage("commit message");
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2179,7 +2205,7 @@ public class GitServiceCETest {
         commitDTO.setDoPush(true);
         commitDTO.setCommitMessage("commit message");
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2226,7 +2252,7 @@ public class GitServiceCETest {
         commitDTO.setDoPush(true);
         commitDTO.setCommitMessage("empty commit");
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2433,7 +2459,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(new ArrayList<>()));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(any(), any()))
                 .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2537,7 +2563,7 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleActionWithBranch(action, null)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -2676,7 +2702,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(new ArrayList<>()));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(any(), any()))
                 .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2766,7 +2792,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(new ArrayList<>()));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(any(), any()))
                 .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -2796,7 +2822,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createBranch_BranchHasCustomNavigationSettings_SrcBranchRemainsUnchanged()
+    public void createBranch_BranchHasCustomApplicationSettings_SrcBranchRemainsUnchanged()
             throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2830,6 +2856,15 @@ public class GitServiceCETest {
                     appNavigationSetting.setOrientation("top");
                     branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+
+                    Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+                    themeSettings.setSizing(1);
+                    themeSettings.setDensity(1);
+                    themeSettings.setBorderRadius("#000000");
+                    themeSettings.setAccentColor("#FFFFFF");
+                    themeSettings.setFontFamily("#000000");
+                    themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication -> applicationService.update(
@@ -2849,6 +2884,14 @@ public class GitServiceCETest {
                                     .getOrientation())
                             .isEqualTo("top");
                     assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
+                    Application.ThemeSetting themes =
+                            branchedApp.getApplicationDetail().getThemeSetting();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
@@ -3171,7 +3214,7 @@ public class GitServiceCETest {
         page.setName("commit_sink_page");
         applicationPageService.createPage(page).block();
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -3236,7 +3279,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(new ArrayList<>()));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(any(), any()))
                 .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -3423,7 +3466,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
@@ -3449,7 +3492,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
@@ -3473,6 +3516,8 @@ public class GitServiceCETest {
                                     .getGitAuth()
                                     .getPublicKey())
                             .isEqualTo(gitAuth.getPublicKey());
+                    assertThat(application.getUnpublishedCustomJSLibs().size())
+                            .isEqualTo(application.getPublishedCustomJSLibs().size());
                 })
                 .verifyComplete();
     }
@@ -3495,7 +3540,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
@@ -3556,7 +3601,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
@@ -3621,7 +3666,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
@@ -3691,7 +3736,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
@@ -3715,7 +3760,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
@@ -3865,10 +3910,10 @@ public class GitServiceCETest {
         gitStatusDTO.setBehindCount(0);
         gitStatusDTO.setIsClean(true);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.rebaseBranch(any(Path.class), Mockito.anyString()))
@@ -3901,10 +3946,10 @@ public class GitServiceCETest {
         gitStatusDTO.setBehindCount(0);
         gitStatusDTO.setIsClean(true);
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.pullApplication(
@@ -4012,7 +4057,7 @@ public class GitServiceCETest {
         page.setName("commit_WithMultipleUsers_page");
         applicationPageService.createPage(page).block();
 
-        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.commitApplication(
@@ -4135,11 +4180,11 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("success"));
 
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop");
+        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop", true);
         StepVerifier.create(checkoutBranchMono)
                 .assertNext(app -> {
                     assertThat(app.getId()).isEqualTo(application.getId());
@@ -4226,7 +4271,7 @@ public class GitServiceCETest {
 
         StepVerifier.create(branchListMono)
                 .assertNext(branches -> {
-                    assertThat(branches).containsExactlyInAnyOrder("main", "develop");
+                    assertThat(branches).isNullOrEmpty();
                 })
                 .verifyComplete();
     }
@@ -4325,9 +4370,6 @@ public class GitServiceCETest {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
                         assertThat(metadata.getDefaultBranchName()).isEqualTo("master");
-                        // only the master branch should be protected
-                        assertThat(metadata.getBranchName().equals("master"))
-                                .isEqualTo(metadata.getIsProtectedBranch());
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the protected branch list
                             assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
@@ -4353,7 +4395,6 @@ public class GitServiceCETest {
                 .assertNext(applicationList -> {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(true);
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the empty protected branch list
                             assertThat(metadata.getBranchProtectionRules()).isEmpty();
@@ -4373,5 +4414,197 @@ public class GitServiceCETest {
         StepVerifier.create(updateProtectedBranchesMono)
                 .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Protect branch"))
                 .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateProtectedBranches_WhenOneOperationFails_ChangesReverted() {
+        List<String> branchList = List.of("master", "develop", "feature");
+        // create three app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+
+        Mockito.when(applicationService.updateProtectedBranches(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Test error")));
+
+        Mono<List<String>> updateProtectedBranchesMono = gitService.updateProtectedBranches(defaultAppId, List.of());
+
+        StepVerifier.create(updateProtectedBranchesMono)
+                .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Test error"))
+                .verify();
+
+        StepVerifier.create(applicationService.findById(defaultAppId))
+                .assertNext(application -> {
+                    GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                    // the default app should have the empty protected branch list
+                    assertThat(metadata.getBranchProtectionRules()).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getProtectedBranches_WhenUserHasMultipleBranchProtected_ReturnsEmptyOrDefaultBranchOnly() {
+        Application testApplication = new Application();
+        testApplication.setName("App" + UUID.randomUUID());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    gitApplicationMetadata.setDefaultBranchName("master");
+                    // include default branch in the list of the protected branches
+                    gitApplicationMetadata.setBranchProtectionRules(List.of("master", "develop"));
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .cache();
+
+        Mono<List<String>> branchListMonoWithDefaultBranch =
+                applicationMono.flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMonoWithDefaultBranch)
+                .assertNext(branchList -> {
+                    assertThat(branchList).containsExactly("master");
+                })
+                .verifyComplete();
+
+        Mono<List<String>> branchListMonoWithoutDefaultBranch = applicationMono
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    // remove the default branch from the protected branches
+                    gitApplicationMetadata.setBranchProtectionRules(List.of("develop", "feature"));
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMonoWithoutDefaultBranch)
+                .assertNext(branchList -> {
+                    assertThat(branchList).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void toggleAutoCommit() {
+        Application testApplication = new Application();
+        testApplication.setName("App" + UUID.randomUUID());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Application> createdApplicationMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .cache();
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsIsNullMono =
+                createdApplicationMono.flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsIsNullMono)
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsHasTrue = createdApplicationMono
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoCommitConfig(new AutoCommitConfig());
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoCommitConfig()
+                            .setEnabled(TRUE);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsHasTrue)
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsHasFalse = createdApplicationMono
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoCommitConfig(new AutoCommitConfig());
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoCommitConfig()
+                            .setEnabled(FALSE);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsHasFalse)
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isTrue();
+                })
+                .verifyComplete();
+
+        Mono<GitApplicationMetadata> metaDataAfterToggleMono = createdApplicationMono
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoCommitConfig(new AutoCommitConfig());
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoCommitConfig()
+                            .setEnabled(FALSE);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.getGitApplicationMetadata(application.getId()));
+
+        StepVerifier.create(metaDataAfterToggleMono)
+                .assertNext(gitApplicationMetadata -> {
+                    assertThat(gitApplicationMetadata.getAutoCommitConfig()).isNotNull();
+                    assertThat(gitApplicationMetadata.getAutoCommitConfig().getEnabled())
+                            .isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_WhenLocalRepoDoesNotExist_RepoIsClonedFromRemote()
+            throws IOException, GitAPIException {
+        List<GitBranchDTO> branchList = List.of(
+                createGitBranchDTO("defaultBranch", false),
+                createGitBranchDTO("origin/defaultBranch", false),
+                createGitBranchDTO("origin/feature1", false));
+
+        Mockito.when(gitExecutor.listBranches(any(Path.class)))
+                .thenReturn(Mono.error(new RepositoryNotFoundException("repo not found"))) // throw exception first
+                .thenReturn(Mono.just(branchList)); // return list of branches later
+
+        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+
+        Mockito.when(gitExecutor.fetchRemote(
+                        any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("status"));
+
+        Application application1 = createApplicationConnectedToGit(
+                "listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
+
+        Mono<List<GitBranchDTO>> listMono =
+                gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+
+        StepVerifier.create(listMono)
+                .assertNext(listBranch -> {
+                    assertThat(listBranch.size()).isEqualTo(3);
+                })
+                .verifyComplete();
     }
 }

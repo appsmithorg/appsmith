@@ -1,12 +1,12 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type {
   AppEmbedSetting,
   ApplicationResponsePayload,
-  UpdateApplicationPayload,
-  ImportApplicationRequest,
   FetchApplicationPayload,
+  ImportApplicationRequest,
+  UpdateApplicationPayload,
 } from "@appsmith/api/ApplicationApi";
-import type { NavigationSetting } from "constants/AppConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { IconNames } from "design-system";
 import type { Datasource } from "entities/Datasource";
 
@@ -110,6 +110,13 @@ export const updateApplicationNavigationSettingAction = (
   };
 };
 
+export const updateApplicationThemeSettingAction = (theme: ThemeSetting) => {
+  return {
+    type: ReduxActionTypes.UPDATE_THEME_SETTING,
+    payload: theme,
+  };
+};
+
 export const updateApplicationNavigationLogoAction = (logo: string) => {
   return {
     type: ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,
@@ -151,6 +158,21 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
   return {
     type: ReduxActionTypes.IMPORT_APPLICATION_INIT,
     payload: appDetails,
+  };
+};
+
+export const importPartialApplication = (appPartialDetails: {
+  applicationFile: File;
+}) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+    payload: appPartialDetails,
+  };
+};
+
+export const importPartialApplicationSuccess = () => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_SUCCESS,
   };
 };
 

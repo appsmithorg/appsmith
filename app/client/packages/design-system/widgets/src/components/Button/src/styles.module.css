@@ -11,9 +11,9 @@
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
-  padding-inline: var(--inner-spacing-4);
-  block-size: var(--sizing-8);
-  min-inline-size: var(--sizing-8);
+  padding-inline: var(--inner-spacing-3);
+  padding-block: var(--inner-spacing-2);
+  min-inline-size: var(--sizing-12);
   border-radius: var(--border-radius-1);
 
   @each $color in colors {
@@ -62,8 +62,13 @@
 
   /* Note: adding important here as ADS is overriding the color of blueprint icon globally */
   /* TODO(pawan): Remove this once ADS team removes the global override */
-  &[data-button] .bp3-icon {
-    color: currentColor !important;
+  &[data-button] [data-icon],
+  &[data-button] [icon] {
+    color: inherit !important;
+  }
+
+  &[data-button] [data-icon] path {
+    fill: currentColor;
   }
 
   /**
@@ -98,8 +103,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 1.5em;
-    width: 1.5em;
+    height: 1.2em;
+    width: 1.2em;
+    margin: -1.2em 0;
   }
 
   /**

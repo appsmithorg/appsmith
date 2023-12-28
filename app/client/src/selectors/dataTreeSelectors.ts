@@ -6,6 +6,10 @@ import {
   getPluginEditorConfigs,
   getCurrentJSCollections,
   getInputsForModule,
+  getModuleInstances,
+  getModuleInstanceEntities,
+  getCurrentModuleActions,
+  getCurrentModuleJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
@@ -49,11 +53,26 @@ const getLayoutSystemPayload = createSelector(
 
 const getCurrentActionEntities = createSelector(
   getCurrentActions,
+  getCurrentModuleActions,
   getCurrentJSCollections,
-  (actions, jsActions) => {
+  getCurrentModuleJSCollections,
+  (actions, moduleActions, jsActions, moduleJSActions) => {
     return {
-      actions: actions,
-      jsActions: jsActions,
+      actions: [...actions, ...moduleActions],
+      jsActions: [...jsActions, ...moduleJSActions],
+    };
+  },
+);
+
+const getModulesData = createSelector(
+  getInputsForModule,
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInputs, moduleInstances, moduleInstanceEntities) => {
+    return {
+      moduleInputs: moduleInputs,
+      moduleInstances: moduleInstances,
+      moduleInstanceEntities: moduleInstanceEntities,
     };
   },
 );
@@ -68,9 +87,9 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
-  getInputsForModule,
   getLayoutSystemPayload,
   getLoadingEntities,
+  getModulesData,
   (
     currentActionEntities,
     widgets,
@@ -81,9 +100,9 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
-    moduleInputs,
     layoutSystemPayload,
     loadingEntities,
+    modulesData,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -96,9 +115,9 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
-      moduleInputs,
       loadingEntities,
       ...layoutSystemPayload,
+      ...modulesData,
     });
   },
 );

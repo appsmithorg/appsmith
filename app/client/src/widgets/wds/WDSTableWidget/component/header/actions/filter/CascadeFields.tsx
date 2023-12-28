@@ -323,8 +323,6 @@ interface CascadeFieldProps {
     isOperatorChange: boolean,
   ) => void;
   removeFilter: (index: number) => void;
-  accentColor: string;
-  borderRadius: string;
 }
 
 interface CascadeFieldState {
@@ -576,7 +574,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {index === 1 ? (
         <DropdownWrapper width={95}>
           <RenderOptions
-            borderRadius={props.borderRadius}
             className="t--table-filter-operators-dropdown"
             columns={operatorOptions}
             placeholder="or"
@@ -591,7 +588,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       )}
       <DropdownWrapper width={120}>
         <RenderOptions
-          borderRadius={props.borderRadius}
           className="t--table-filter-columns-dropdown"
           columns={props.columns}
           placeholder="Attribute"
@@ -603,7 +599,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showConditions ? (
         <DropdownWrapper width={200}>
           <RenderOptions
-            borderRadius={props.borderRadius}
             className="t--table-filter-conditions-dropdown"
             columns={conditions}
             placeholder=""
@@ -614,7 +609,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       ) : null}
       {showInput ? (
         <RenderInput
-          borderRadius={props.borderRadius}
           className="t--table-filter-value-input"
           onChange={onValueChange}
           value={value}
@@ -622,10 +616,9 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       ) : null}
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
+          {/*@ts-expect-error: types mismatch because we don't use settings styles through props anymore. Remove this after creating WDS datepicker. */}
           <DatePickerComponent
-            accentColor={props.accentColor}
             backgroundColor="#fff"
-            borderRadius={props.borderRadius}
             closeOnSelection
             compactMode
             dateFormat="YYYY-MM-DD HH:mm"

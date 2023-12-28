@@ -26,6 +26,7 @@ export const StyledTable = styled.table`
   td {
     text-align: left;
     padding: var(--spacing-2);
+    background-color: var(--color-bg-elevation-1);
   }
 
   td {
@@ -42,13 +43,13 @@ interface TokenTableProps {
   children: (cssVar: string) => ReactNode;
   filter?: string | string[];
   tokens?: { [key: string]: Token };
-  isExactMatch: boolean;
+  isExactMatch?: boolean;
 }
 
 export const TokenTable = ({
   children,
   filter,
-  isExactMatch,
+  isExactMatch = true,
   prefix,
   tokens,
 }: TokenTableProps) => {

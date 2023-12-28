@@ -141,7 +141,6 @@ export class HomePage {
     let oldName = "";
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
-    this.agHelper.Sleep(2000);
     cy.get("@createWorkspace").then((interception: any) => {
       localStorage.setItem("workspaceId", interception.response.body.data.id);
       localStorage.setItem(
@@ -310,9 +309,7 @@ export class HomePage {
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
         this.agHelper.GetNClick(this._applicationName);
-        // cy.get(this._appMenu)
-        //   .contains("Edit name", { matchCase: false })
-        this.agHelper.GetNClickByContains(this._appMenu, "Edit name");
+        this.agHelper.GetNClickByContains(this._appMenu, "Rename");
       }
     });
     cy.get(this._applicationName).type(appName);
@@ -326,8 +323,12 @@ export class HomePage {
 
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
+    let httpMethod = "POST";
+    if (CURRENT_REPO === REPO.EE) {
+      httpMethod = "GET";
+    }
     cy.request({
-      method: "POST",
+      method: httpMethod,
       url: "/api/v1/logout",
       headers: {
         "X-Requested-By": "Appsmith",
@@ -342,7 +343,10 @@ export class HomePage {
     if (toNavigateToHome) this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    this.assertHelper.AssertNetworkStatus("@postLogout");
+    //Logout is still a POST request in CE
+    if (CURRENT_REPO === REPO.CE) {
+      this.assertHelper.AssertNetworkStatus("@postLogout");
+    }
     return this.agHelper.Sleep(); //for logout to complete!
   }
 
@@ -405,19 +409,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(SignupPageLocators.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(SignupPageLocators.roleDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(SignupPageLocators.useCaseDropdown);
-        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
-        this.agHelper.GetNClick(
-          SignupPageLocators.getStartedSubmit,
-          undefined,
-          true,
-        );
-      } else if (
-        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
-      ) {
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
         this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
         this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
         this.agHelper.GetNClick(

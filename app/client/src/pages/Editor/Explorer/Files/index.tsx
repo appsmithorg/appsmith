@@ -1,21 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useActiveAction } from "../hooks";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
   ADD_QUERY_JS_BUTTON,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
+  ADD_QUERY_JS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -24,12 +25,12 @@ import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 import { Icon, Text } from "design-system";
 import styled from "styled-components";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { ExplorerModuleInstanceEntity } from "@appsmith/pages/Editor/Explorer/ModuleInstanceEntity";
+import { FilesContext } from "./FilesContextProvider";
+import { selectFilesForExplorer as default_selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -38,15 +39,29 @@ const StyledText = styled(Text)`
   padding-bottom: 4px;
 `;
 function Files() {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId) as string;
+  // Import the context
+  const context = useContext(FilesContext);
+  const {
+    canCreateActions,
+    editorId,
+    parentEntityId,
+    parentEntityType,
+    selectFilesForExplorer = default_selectFilesForExplorer,
+    showModules = true,
+  } = context;
+
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
-  const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
+  // Accordion state for the app/worflow/module explorer
+  const isFilesOpen = getExplorerStatus(editorId, "queriesAndJs");
   const [isMenuOpen, openMenu] = useState(false);
   const [query, setQuery] = useState("");
 
-  const fileOperations = useFilteredFileOperations(query);
+  const fileOperations = useFilteredFileOperations({
+    query,
+    canCreateActions,
+    showModules,
+  });
 
   const onCreate = useCallback(() => {
     openMenu(true);
@@ -64,18 +79,9 @@ function Files() {
 
   const onFilesToggle = useCallback(
     (isOpen: boolean) => {
-      saveExplorerStatus(applicationId, "queriesAndJs", isOpen);
+      saveExplorerStatus(editorId, "queriesAndJs", isOpen);
     },
-    [applicationId],
-  );
-
-  const pagePermissions = useSelector(getPagePermissions);
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
+    [editorId],
   );
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
@@ -93,12 +99,25 @@ function Files() {
               {entity.name}
             </StyledText>
           );
+        } else if (type === "moduleInstance") {
+          return (
+            <ExplorerModuleInstanceEntity
+              id={entity.id}
+              isActive={entity.id === activeActionId}
+              key={entity.id}
+              searchKeyword={""}
+              step={2}
+              type={type}
+            />
+          );
         } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
+              parentEntityId={parentEntityId}
+              parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
               type={type}
@@ -110,6 +129,8 @@ function Files() {
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
+              parentEntityId={parentEntityId}
+              parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
               type={type}
@@ -117,19 +138,25 @@ function Files() {
           );
         }
       }),
-    [files, activeActionId],
+    [files, activeActionId, parentEntityId],
   );
 
   const handleClick = useCallback(
     (item: any) => {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
       if (item.action) {
-        dispatch(item.action(pageId, DatasourceCreateEntryPoints.SUBMENU));
+        dispatch(
+          item.action(
+            parentEntityId,
+            DatasourceCreateEntryPoints.SUBMENU,
+            parentEntityType,
+          ),
+        );
       } else if (item.redirect) {
-        item.redirect(pageId, DatasourceCreateEntryPoints.SUBMENU);
+        item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
       }
     },
-    [pageId, dispatch],
+    [parentEntityId, dispatch],
   );
 
   return (
@@ -146,15 +173,16 @@ function Files() {
           openMenu={isMenuOpen}
           query={query}
           setQuery={setQuery}
+          tooltipText={createMessage(ADD_QUERY_JS_TOOLTIP)}
         />
       }
-      entityId={pageId + "_actions"}
+      entityId={parentEntityId + "_actions"}
       icon={null}
       isDefaultExpanded={
         isFilesOpen === null || isFilesOpen === undefined ? true : isFilesOpen
       }
       isSticky
-      key={pageId + "_actions"}
+      key={parentEntityId + "_actions"}
       name="Queries/JS"
       onCreate={onCreate}
       onToggle={onFilesToggle}
@@ -176,7 +204,7 @@ function Files() {
       {fileEntities.length > 0 && canCreateActions && (
         <AddEntity
           action={onCreate}
-          entityId={pageId + "_queries_js_add_new_datasource"}
+          entityId={parentEntityId + "_queries_js_add_new_datasource"}
           icon={<Icon name="plus" />}
           name={createMessage(ADD_QUERY_JS_BUTTON)}
           step={1}

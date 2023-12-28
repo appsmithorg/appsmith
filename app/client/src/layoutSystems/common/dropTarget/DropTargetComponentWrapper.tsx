@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface DropTargetComponentWrapperProps {
   dropTargetProps: DropTargetComponentProps;
@@ -30,7 +31,12 @@ export const DropTargetComponentWrapper = memo(
     const widget = useSelector((state: AppState) =>
       getWidget(state, dropTargetProps.parentId || MAIN_CONTAINER_WIDGET_ID),
     );
-    if ((dropTargetProps.parentId && !widget) || dropDisabled) {
+    const isProtectedMode = useSelector(protectedModeSelector);
+    if (
+      (dropTargetProps.parentId && !widget) ||
+      isProtectedMode ||
+      dropDisabled
+    ) {
       //eslint-disable-next-line
       return <>{children}</>;
     }

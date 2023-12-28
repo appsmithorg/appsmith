@@ -16,6 +16,8 @@ interface QueryEditorContextContextProps {
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
   closeEditorLink?: React.ReactNode;
+  actionRightPaneAdditionSections?: React.ReactNode;
+  showSuggestedWidgets?: boolean;
 }
 
 type QueryEditorContextProviderProps =
@@ -26,6 +28,7 @@ export const QueryEditorContext = createContext<QueryEditorContextContextProps>(
 );
 
 export function QueryEditorContextProvider({
+  actionRightPaneAdditionSections,
   actionRightPaneBackLink,
   changeQueryPage,
   children,
@@ -34,25 +37,30 @@ export function QueryEditorContextProvider({
   onCreateDatasourceClick,
   onEntityNotFoundBackClick,
   saveActionName,
+  showSuggestedWidgets,
 }: QueryEditorContextProviderProps) {
   const value = useMemo(
     () => ({
       actionRightPaneBackLink,
+      actionRightPaneAdditionSections,
       changeQueryPage,
       closeEditorLink,
       moreActionsMenu,
       onCreateDatasourceClick,
       onEntityNotFoundBackClick,
       saveActionName,
+      showSuggestedWidgets,
     }),
     [
       actionRightPaneBackLink,
+      actionRightPaneAdditionSections,
       changeQueryPage,
       closeEditorLink,
       moreActionsMenu,
       onCreateDatasourceClick,
       onEntityNotFoundBackClick,
       saveActionName,
+      showSuggestedWidgets,
     ],
   );
 

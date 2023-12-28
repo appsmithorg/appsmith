@@ -10,6 +10,8 @@ export interface AnvilFlexComponentProps {
   parentId?: string;
   rowIndex: number;
   selected?: boolean;
+  flexGrow?: number;
+  isVisible: boolean;
   widgetId: string;
   widgetName: string;
   widgetSize?: SizeConfig;

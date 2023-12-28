@@ -1,10 +1,8 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import { Classes, getTypographyByKey } from "design-system-old";
-import { Divider, Icon, Text } from "design-system";
+import { getTypographyByKey } from "design-system-old";
+import { Divider } from "design-system";
 import SuggestedWidgets from "./SuggestedWidgets";
-import type { ReactNode, MutableRefObject } from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
@@ -24,10 +22,7 @@ import type {
 } from "api/ActionAPI";
 import { getPagePermissions } from "selectors/editorSelectors";
 import DatasourceStructureHeader from "pages/Editor/DatasourceInfo/DatasourceStructureHeader";
-import {
-  DatasourceStructureContainer as DataStructureList,
-  SCHEMALESS_PLUGINS,
-} from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
+import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -44,15 +39,18 @@ import {
 } from "utils/storage";
 import { SCHEMA_SECTION_ID } from "entities/Action";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
+import Collapsible, {
+  CollapsibleGroup,
+  CollapsibleGroupContainer,
+  DisabledCollapsible,
+} from "components/common/Collapsible";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -105,43 +103,6 @@ const SideBar = styled.div`
   }
 `;
 
-const Label = styled.span`
-  cursor: pointer;
-`;
-
-const CollapsibleWrapper = styled.div<{
-  isOpen: boolean;
-  isDisabled?: boolean;
-}>`
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  ${(props) => !!props.isDisabled && `opacity: 0.6`};
-
-  &&&&&& .${BPClasses.COLLAPSE} {
-    flex-grow: 1;
-    overflow-y: auto !important;
-  }
-
-  .${BPClasses.COLLAPSE_BODY} {
-    padding-top: ${(props) => props.theme.spaces[3]}px;
-    height: 100%;
-  }
-
-  & > .icon-text:first-child {
-    color: var(--ads-v2-color-fg);
-    ${getTypographyByKey("h4")}
-    cursor: pointer;
-    .${Classes.ICON} {
-      ${(props) => !props.isOpen && `transform: rotate(-90deg);`}
-    }
-
-    .label {
-      padding-left: ${(props) => props.theme.spaces[1] + 1}px;
-    }
-  }
-`;
-
 const Placeholder = styled.div`
   display: flex;
   justify-content: center;
@@ -159,7 +120,10 @@ const DataStructureListWrapper = styled.div`
   flex-direction: column;
 `;
 
-const CollapsibleSection = styled.div<{ height: string; marginTop?: number }>`
+export const CollapsibleSection = styled.div<{
+  height: string;
+  marginTop?: number;
+}>`
   margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
   height: auto;
   display: flex;
@@ -171,89 +135,9 @@ const CollapsibleSection = styled.div<{ height: string; marginTop?: number }>`
   }
 `;
 
-interface CollapsibleProps {
-  expand?: boolean;
-  children: ReactNode;
-  label: string;
-  CustomLabelComponent?: (props: any) => JSX.Element;
-  isDisabled?: boolean;
-  datasource?: Partial<Datasource>;
-  containerRef?: MutableRefObject<HTMLDivElement | null>;
-}
-
-interface DisabledCollapsibleProps {
-  label: string;
-  tooltipLabel?: string;
-}
-
-export function Collapsible({
-  children,
-  containerRef,
-  CustomLabelComponent,
-  datasource,
-  expand = true,
-  label,
-}: CollapsibleProps) {
-  const [isOpen, setIsOpen] = useState(!!expand);
-
-  const handleCollapse = (openStatus: boolean) => {
-    if (containerRef?.current) {
-      if (openStatus) {
-        containerRef.current.style.height = "";
-      } else {
-        containerRef.current.style.height = "auto";
-      }
-    }
-    setIsOpen(openStatus);
-  };
-
-  useEffect(() => {
-    handleCollapse(expand);
-  }, [expand]);
-
-  return (
-    <CollapsibleWrapper isOpen={isOpen}>
-      <Label className="icon-text" onClick={() => handleCollapse(!isOpen)}>
-        <Icon
-          className="collapsible-icon"
-          name={isOpen ? "down-arrow" : "arrow-right-s-line"}
-          size="lg"
-        />
-        {!!CustomLabelComponent ? (
-          <CustomLabelComponent
-            datasource={datasource}
-            onRefreshCallback={() => handleCollapse(true)}
-          />
-        ) : (
-          <Text className="label" kind="heading-xs">
-            {label}
-          </Text>
-        )}
-      </Label>
-      <Collapse isOpen={isOpen} keepChildrenMounted>
-        {children}
-      </Collapse>
-    </CollapsibleWrapper>
-  );
-}
-
-export function DisabledCollapsible({
-  label,
-  tooltipLabel = "",
-}: DisabledCollapsibleProps) {
-  return (
-    <Tooltip content={tooltipLabel}>
-      <CollapsibleWrapper isDisabled isOpen={false}>
-        <Label className="icon-text">
-          <Icon name="arrow-right-s-line" size="lg" />
-          <Text className="label" kind="heading-xs">
-            {label}
-          </Text>
-        </Label>
-      </CollapsibleWrapper>
-    </Tooltip>
-  );
-}
+const StyledDivider = styled(Divider)`
+  display: block;
+`;
 
 export function useEntityDependencies(actionName: string) {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
@@ -278,11 +162,14 @@ export function useEntityDependencies(actionName: string) {
 function ActionSidebar({
   actionName,
   actionRightPaneBackLink,
+  additionalSections,
   context,
   datasourceId,
   hasConnections,
   hasResponse,
   pluginId,
+  showSchema,
+  showSuggestedWidgets = true,
   suggestedWidgets,
 }: {
   actionName: string;
@@ -292,7 +179,10 @@ function ActionSidebar({
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
+  additionalSections?: React.ReactNode;
   actionRightPaneBackLink: React.ReactNode;
+  showSuggestedWidgets?: boolean;
+  showSchema: boolean;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
@@ -378,10 +268,6 @@ function ActionSidebar({
       });
   };
 
-  const showSchema =
-    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
-    !SCHEMALESS_PLUGINS.includes(pluginName);
-
   useEffect(() => {
     if (showSchema) {
       checkAndShowWalkthrough();
@@ -397,13 +283,13 @@ function ActionSidebar({
     pagePermissions,
   );
 
-  const showSuggestedWidgets =
+  const suggestedWidgetsEnabled =
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (
     !hasConnections &&
-    !showSuggestedWidgets &&
+    !suggestedWidgetsEnabled &&
     !showSnipingMode &&
     // putting this here to make the placeholder only appear for rest APIs.
     pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
@@ -411,56 +297,75 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
+  if (!additionalSections && !showSchema && !showSuggestedWidgets) {
+    return null;
+  }
+
   return (
     <SideBar>
       {actionRightPaneBackLink}
+      <CollapsibleGroupContainer>
+        {additionalSections && (
+          <CollapsibleGroup maxHeight={"50%"}>
+            {additionalSections}
+          </CollapsibleGroup>
+        )}
+        <CollapsibleGroup height={additionalSections ? "50%" : "100%"}>
+          {showSchema && (
+            <>
+              {additionalSections && <StyledDivider />}
+              <CollapsibleSection
+                data-testId="datasource-schema-container"
+                height={
+                  datasourceStructure?.tables?.length && !isLoadingSchema
+                    ? showSuggestedWidgets
+                      ? "50%"
+                      : "100%"
+                    : "auto"
+                }
+                id={SCHEMA_SECTION_ID}
+                ref={schemaRef}
+              >
+                <Collapsible
+                  CustomLabelComponent={DatasourceStructureHeader}
+                  containerRef={schemaRef}
+                  datasource={{ id: datasourceId }}
+                  expand={!suggestedWidgetsEnabled}
+                  label="Schema"
+                >
+                  <DataStructureListWrapper>
+                    <DataStructureList
+                      context={context}
+                      currentActionId={params?.queryId || ""}
+                      datasourceId={datasourceId || ""}
+                      datasourceStructure={datasourceStructure}
+                      pluginName={pluginName}
+                      step={0}
+                    />
+                  </DataStructureListWrapper>
+                </Collapsible>
+              </CollapsibleSection>
+            </>
+          )}
 
-      {showSchema && (
-        <CollapsibleSection
-          height={
-            datasourceStructure?.tables?.length && !isLoadingSchema
-              ? "50%"
-              : "auto"
-          }
-          id={SCHEMA_SECTION_ID}
-          ref={schemaRef}
-        >
-          <Collapsible
-            CustomLabelComponent={DatasourceStructureHeader}
-            containerRef={schemaRef}
-            datasource={{ id: datasourceId }}
-            expand={!showSuggestedWidgets}
-            label="Schema"
-          >
-            <DataStructureListWrapper>
-              <DataStructureList
-                context={context}
-                currentActionId={params?.queryId || ""}
-                datasourceId={datasourceId || ""}
-                datasourceStructure={datasourceStructure}
-                pluginName={pluginName}
-                step={0}
+          {showSuggestedWidgets && showSchema && <StyledDivider />}
+          {showSuggestedWidgets && suggestedWidgetsEnabled && (
+            <CollapsibleSection height={"40%"} marginTop={12}>
+              <SuggestedWidgets
+                actionName={actionName}
+                hasWidgets={hasWidgets}
+                suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
               />
-            </DataStructureListWrapper>
-          </Collapsible>
-        </CollapsibleSection>
-      )}
-
-      {showSchema && <Divider />}
-      {showSuggestedWidgets ? (
-        <CollapsibleSection height={"40%"} marginTop={12}>
-          <SuggestedWidgets
-            actionName={actionName}
-            hasWidgets={hasWidgets}
-            suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
-          />
-        </CollapsibleSection>
-      ) : (
-        <DisabledCollapsible
-          label={createMessage(BINDING_SECTION_LABEL)}
-          tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
-        />
-      )}
+            </CollapsibleSection>
+          )}
+          {showSuggestedWidgets && !suggestedWidgetsEnabled && (
+            <DisabledCollapsible
+              label={createMessage(BINDING_SECTION_LABEL)}
+              tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
+            />
+          )}
+        </CollapsibleGroup>
+      </CollapsibleGroupContainer>
     </SideBar>
   );
 }

@@ -3,6 +3,7 @@ import type {
   DeriveHighlightsFn,
   DraggedWidget,
   GetDimensions,
+  HighlightPayload,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
@@ -10,6 +11,7 @@ import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
   INFINITE_DROP_ZONE,
+  defaultHighlightPayload,
 } from "../../constants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
@@ -18,7 +20,11 @@ import type {
   LayoutElementPositions,
 } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
-import { getNonDraggedWidgets, getStartPosition } from "./highlightUtils";
+import {
+  getNonDraggedWidgets,
+  getStartPosition,
+  performInitialChecks,
+} from "./highlightUtils";
 import type { DropZone } from "layoutSystems/common/utils/types";
 
 export interface RowMetaInformation {
@@ -35,7 +41,7 @@ export interface RowMetaData extends WidgetLayoutProps, LayoutElementPosition {}
  * @param draggedWidgets | DraggedWidget[] : List of widgets that are being dragged
  * @param layoutOrder | string[] : Top - down hierarchy of layout IDs.
  * @param parentDropTarget | string : id of immediate drop target ancestor.
- * @returns AnvilHighlightInfo[] : List of highlights for the layout.
+ * @returns HighlightPayload.
  */
 export const deriveRowHighlights =
   (
@@ -47,14 +53,18 @@ export const deriveRowHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-  ): AnvilHighlightInfo[] => {
-    if (
-      !layoutProps ||
-      !positions ||
-      !positions[layoutProps.layoutId] ||
-      !draggedWidgets.length
-    )
-      return [];
+  ): HighlightPayload => {
+    /**
+     * Step 0: Perform initial checks before calculating highlights.
+     * There are situations where highlight calculations are not required.
+     */
+    const res: HighlightPayload | undefined = performInitialChecks(
+      layoutProps,
+      positions,
+      draggedWidgets,
+    );
+
+    if (res) return res;
 
     const { isDropTarget, layoutId, layoutStyle } = layoutProps;
 
@@ -63,7 +73,7 @@ export const deriveRowHighlights =
       : parentDropTarget;
 
     const getDimensions: (id: string) => LayoutElementPosition =
-      getRelativeDimensions(parentDropTargetId, positions);
+      getRelativeDimensions(positions);
 
     const baseHighlight: AnvilHighlightInfo = {
       alignment:
@@ -128,14 +138,14 @@ export const deriveRowHighlights =
  * @param baseHighlight | AnvilHighlightInfo
  * @param draggedWidgets | DraggedWidget[] : List of dragged widgets.
  * @param getDimensions | GetDimensions : method to get relative dimensions of an entity.
- * @returns AnvilHighlightInfo[] : List of highlights.
+ * @returns HighlightPayload.
  */
 export function getHighlightsForWidgetsRow(
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
   getDimensions: GetDimensions,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   // Get widget data
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
 
@@ -150,7 +160,12 @@ export function getHighlightsForWidgetsRow(
     draggedWidgets,
   );
 
-  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget) return [];
+  /**
+   * If layout is empty after discarding dragged widgets,
+   * then it should be skipped.
+   */
+  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget)
+    return { ...defaultHighlightPayload, skipEntity: true };
 
   // add a highlight before every widget and after the last one.
   const highlights: AnvilHighlightInfo[] = [];
@@ -168,7 +183,7 @@ export function getHighlightsForWidgetsRow(
     );
   });
 
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 /**
@@ -208,6 +223,8 @@ export function getHighlightsForRow(
 
     const nextWidgetDimensions: LayoutElementPosition | undefined =
       index === row.length - 1 ? undefined : row[index + 1];
+    const prevWidgetDimensions: LayoutElementPosition | undefined =
+      index === 0 ? undefined : row[index - 1];
 
     // Don't add highlights for widget if it is being dragged.
     if (!isDraggedWidget) {
@@ -218,6 +235,7 @@ export function getHighlightsForRow(
         layoutDimensions,
         row[index],
         nextWidgetDimensions,
+        prevWidgetDimensions,
         tallestDimension,
         index + startingIndex - draggedWidgetCount,
         false,
@@ -235,6 +253,7 @@ export function getHighlightsForRow(
         layoutDimensions,
         row[index - 1],
         nextWidgetDimensions,
+        prevWidgetDimensions,
         tallestDimension,
         index + startingIndex - draggedWidgetCount,
         true,
@@ -310,7 +329,10 @@ export function extractMetaInformation(
 }
 
 export function checkIntersection(a: number[], b: number[]): boolean {
-  return a[0] < b[1] && b[0] < a[1];
+  return (
+    parseFloat(a[0].toFixed(2)) < parseFloat(b[1].toFixed(2)) &&
+    parseFloat(b[0].toFixed(2)) < parseFloat(a[1].toFixed(2))
+  );
 }
 
 /**
@@ -323,7 +345,7 @@ export function checkIntersection(a: number[], b: number[]): boolean {
  * @param layoutOrder |string[] : Top - down hierarchy of parent layouts.
  * @param parentDropTargetId | string : Id of immediate drop target ancestor.
  * @param getDimensions | GetDimensions : method to get relative dimensions of an entity.
- * @returns AnvilHighlightInfo[] : List of highlights
+ * @returns HighlightPayload.
  */
 export function getHighlightsForLayoutRow(
   layoutProps: LayoutProps,
@@ -334,7 +356,7 @@ export function getHighlightsForLayoutRow(
   layoutOrder: string[],
   parentDropTargetId: string,
   getDimensions: GetDimensions,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   let highlights: AnvilHighlightInfo[] = [];
   const layout: LayoutProps[] = layoutProps.layout as LayoutProps[];
 
@@ -351,6 +373,9 @@ export function getHighlightsForLayoutRow(
         ? undefined
         : getDimensions(layout[index + 1]?.layoutId);
 
+    const prevLayoutDimensions: LayoutElementPosition | undefined =
+      index === 0 ? undefined : getDimensions(layout[index - 1]?.layoutId);
+
     const layoutDimension: LayoutElementPosition = getDimensions(
       layoutProps.layoutId,
     );
@@ -361,21 +386,35 @@ export function getHighlightsForLayoutRow(
     const deriveHighlightsFn: DeriveHighlightsFn =
       LayoutFactory.getDeriveHighlightsFn(layoutType);
     // Calculate highlights for the layout component.
-    const layoutHighlights: AnvilHighlightInfo[] = deriveHighlightsFn(
-      layout[index],
-      canvasId,
-      [...layoutOrder, layout[index].layoutId],
-      parentDropTargetId,
-    )(positions, draggedWidgets);
+    const { highlights: layoutHighlights, skipEntity }: HighlightPayload =
+      deriveHighlightsFn(
+        layout[index],
+        canvasId,
+        [...layoutOrder, layout[index].layoutId],
+        parentDropTargetId,
+      )(positions, draggedWidgets);
 
-    if (layoutHighlights.length) {
-      // Add a highlight before the child layout
+    if (skipEntity) {
+      /**
+       * Layout is discarded from child count only if skipEntity is true.
+       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
+       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
+       */
+      discardedLayouts += 1;
+    } else {
+      /**
+       * Add a highlight for the drop zone above the child layout.
+       * This is done only if the child layout has highlights.
+       * If it doesn't, that means that the layout is empty after excluding the dragged widgets
+       * and can be avoided.
+       */
       highlights = updateHighlights(
         highlights,
         baseHighlight,
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         undefined,
         index - discardedLayouts,
         false,
@@ -386,10 +425,10 @@ export function getHighlightsForLayoutRow(
        * Add highlights of the child layout if it is not a drop target.
        * because if it is, then it can handle its own drag behavior.
        */
-      if (!isDropTarget) {
+      if (!isDropTarget && layoutHighlights.length) {
         highlights.push(...layoutHighlights);
       }
-    } else discardedLayouts += 1;
+    }
 
     index += 1;
 
@@ -401,6 +440,7 @@ export function getHighlightsForLayoutRow(
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         undefined,
         index - discardedLayouts,
         true,
@@ -408,7 +448,7 @@ export function getHighlightsForLayoutRow(
       );
     }
   }
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 function updateHighlights(
@@ -417,6 +457,7 @@ function updateHighlights(
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   tallestWidget: LayoutElementPosition | undefined,
   rowIndex: number,
   isFinalHighlight: boolean,
@@ -438,6 +479,7 @@ function updateHighlights(
     layoutDimension,
     currDimension,
     nextDimension,
+    prevDimension,
     tallestWidget,
     rowIndex,
     isFinalHighlight,
@@ -461,6 +503,7 @@ export function generateHighlights(
   layoutDimension: LayoutElementPosition,
   currentDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   tallestDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
@@ -475,14 +518,27 @@ export function generateHighlights(
     if (isInitialHighlight) {
       posX = currentDimension.left;
     } else {
-      posX = Math.min(
-        currentDimension.left + currentDimension.width,
-        layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE,
+      const gap: number = Math.max(
+        layoutDimension.left +
+          layoutDimension.width -
+          currentDimension.left -
+          currentDimension.width,
+        0,
       );
+      const pos: number =
+        layoutDimension.left +
+        layoutDimension.width -
+        gap / 2 -
+        HIGHLIGHT_SIZE / 2;
+
+      posX = Math.min(currentDimension.left + currentDimension.width, pos);
     }
   } else {
+    const gap: number = prevDimension
+      ? currentDimension.left - (prevDimension.left + prevDimension.width)
+      : HIGHLIGHT_SIZE;
     posX = Math.max(
-      currentDimension.left - HIGHLIGHT_SIZE,
+      currentDimension.left - gap / 2 - HIGHLIGHT_SIZE / 2,
       layoutDimension.left,
     );
   }
@@ -523,14 +579,14 @@ export function generateHighlights(
  * @param baseHighlight | AnvilHighlightInfo : base highlight object.
  * @param getDimensions | GetDimensions : method of getting dimensions of a widget.
  * @param isDropTarget | boolean
- * @returns AnvilHighlightInfo[]
+ * @returns HighlightPayload
  */
 export function getInitialHighlights(
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
   getDimensions: GetDimensions,
   isDropTarget: boolean,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   const { layoutId } = layoutProps;
 
   const layoutDimension: LayoutElementPosition = getDimensions(layoutId);
@@ -539,15 +595,19 @@ export function getInitialHighlights(
     baseHighlight.alignment,
     layoutDimension.width,
   );
-  return updateHighlights(
-    [],
-    baseHighlight,
-    layoutDimension,
-    { ...layoutDimension, left: posX, width: HIGHLIGHT_SIZE },
-    undefined,
-    undefined,
-    0,
-    true,
-    isDropTarget,
-  );
+  return {
+    highlights: updateHighlights(
+      [],
+      baseHighlight,
+      layoutDimension,
+      { ...layoutDimension, left: posX, width: HIGHLIGHT_SIZE },
+      undefined,
+      undefined,
+      undefined,
+      0,
+      true,
+      isDropTarget,
+    ),
+    skipEntity: false,
+  };
 }

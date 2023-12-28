@@ -28,7 +28,7 @@ import BrandingBadge from "./BrandingBadge";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { fetchPublishedPage } from "actions/pageActions";
+import { setupPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
@@ -38,7 +38,10 @@ import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import BottomBar from "components/BottomBar";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import {
+  getAppThemeSettings,
+  getCurrentApplication,
+} from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import {
@@ -111,11 +114,22 @@ function AppViewer(props: Props) {
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
   );
-  const { theme } = useTheme({
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const themeSetting = useSelector(getAppThemeSettings);
+  const themeProps = {
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
     fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  });
+  };
+  const wdsThemeProps = {
+    borderRadius: themeSetting.borderRadius,
+    seedColor: themeSetting.accentColor,
+    colorMode: themeSetting.colorMode.toLowerCase(),
+    fontFamily: themeSetting.fontFamily as FontFamily,
+    userSizing: themeSetting.sizing,
+    userDensity: themeSetting.density,
+  };
+  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
   const focusRef = useWidgetFocus();
 
   const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
@@ -133,7 +147,7 @@ function AppViewer(props: Props) {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
       (isMultipleEnvEnabled || canShowRamp) &&
-      environmentList.length &&
+      environmentList.length > 0 &&
       !isOnlyDefaultShown
     );
   });
@@ -176,7 +190,7 @@ function AppViewer(props: Props) {
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
-        dispatch(fetchPublishedPage(pageId, true));
+        dispatch(setupPublishedPage(pageId, true));
       }
     }
   }, [branch, pageId, applicationId, pathname]);
@@ -214,59 +228,64 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
-  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
-  const backgroundForBody = isWDSV2Enabled
-    ? "var(--color-bg)"
-    : selectedTheme.properties.colors.backgroundColor;
-
-  return (
-    <WDSThemeProvider theme={theme}>
-      <ThemeProvider theme={lightTheme}>
-        <EditorContextProvider renderMode="PAGE">
-          {!isWDSV2Enabled && (
-            <WidgetGlobaStyles
-              fontFamily={selectedTheme.properties.fontFamily.appFont}
-              primaryColor={selectedTheme.properties.colors.primaryColor}
-            />
-          )}
-          <HtmlTitle
-            description={pageDescription}
-            name={currentApplicationDetails?.name}
+  const renderChildren = () => {
+    return (
+      <EditorContextProvider renderMode="PAGE">
+        {!isWDSEnabled && (
+          <WidgetGlobaStyles
+            fontFamily={selectedTheme.properties.fontFamily.appFont}
+            primaryColor={selectedTheme.properties.colors.primaryColor}
           />
-          <AppViewerBodyContainer backgroundColor={backgroundForBody}>
-            <AppViewerBody
-              className={CANVAS_SELECTOR}
-              hasPages={pages.length > 1}
-              headerHeight={headerHeight}
-              ref={focusRef}
-              showBottomBar={!!showBottomBar}
-              showGuidedTourMessage={showGuidedTourMessage}
-            >
-              {isInitialized && <AppViewerPageContainer />}
-            </AppViewerBody>
-            {showBottomBar && <BottomBar viewMode />}
-            <div
-              className={`fixed hidden right-8 z-3 md:flex ${
-                showBottomBar ? "bottom-12" : "bottom-4"
-              }`}
-            >
-              {!hideWatermark && (
-                <a
-                  className="hover:no-underline"
-                  href="https://appsmith.com"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <BrandingBadge />
-                </a>
-              )}
-              <KBViewerFloatingButton />
-            </div>
-          </AppViewerBodyContainer>
-        </EditorContextProvider>
-      </ThemeProvider>
-    </WDSThemeProvider>
-  );
+        )}
+        <HtmlTitle
+          description={pageDescription}
+          name={currentApplicationDetails?.name}
+        />
+        <AppViewerBodyContainer
+          backgroundColor={
+            isWDSEnabled ? "" : selectedTheme.properties.colors.backgroundColor
+          }
+        >
+          <AppViewerBody
+            className={CANVAS_SELECTOR}
+            hasPages={pages.length > 1}
+            headerHeight={headerHeight}
+            ref={focusRef}
+            showBottomBar={!!showBottomBar}
+            showGuidedTourMessage={showGuidedTourMessage}
+          >
+            {isInitialized && <AppViewerPageContainer />}
+          </AppViewerBody>
+          {showBottomBar && <BottomBar viewMode />}
+          <div
+            className={`fixed hidden right-8 z-3 md:flex ${
+              showBottomBar ? "bottom-12" : "bottom-4"
+            }`}
+          >
+            {!hideWatermark && (
+              <a
+                className="hover:no-underline"
+                href="https://appsmith.com"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <BrandingBadge />
+              </a>
+            )}
+            <KBViewerFloatingButton />
+          </div>
+        </AppViewerBodyContainer>
+      </EditorContextProvider>
+    );
+  };
+
+  if (isWDSEnabled) {
+    return (
+      <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
+    );
+  }
+
+  return <ThemeProvider theme={lightTheme}>{renderChildren()}</ThemeProvider>;
 }
 
 export default withRouter(Sentry.withProfiler(AppViewer));

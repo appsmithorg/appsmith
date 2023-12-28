@@ -52,6 +52,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.to("sRGB").toString(),
       bgAssistive: this.bgAssistive.to("sRGB").toString(),
       bgNeutral: this.bgNeutral.to("sRGB").toString(),
+      bgNeutralOpacity: this.bgNeutralOpacity.to("sRGB").toString(),
       bgNeutralHover: this.bgNeutralHover.to("sRGB").toString(),
       bgNeutralActive: this.bgNeutralActive.to("sRGB").toString(),
       bgNeutralSubtle: this.bgNeutralSubtle.to("sRGB").toString(),
@@ -75,6 +76,14 @@ export class LightModeTheme implements ColorModeTheme {
       bgWarningSubtle: this.bgWarningSubtle.to("sRGB").toString(),
       bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
       bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
+
+      bgElevation1: this.bgElevation1.to("sRGB").toString(),
+      bgElevation2: this.bgElevation2.to("sRGB").toString(),
+      bgElevation3: this.bgElevation3.to("sRGB").toString(),
+
+      shadowElevation1: this.shadowElevation1.to("sRGB").toString(),
+      shadowElevation2: this.shadowElevation2.to("sRGB").toString(),
+      shadowElevation3: this.shadowElevation3.to("sRGB").toString(),
 
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
@@ -128,7 +137,7 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.985;
+      color.oklch.l = 0.96;
     }
 
     // Cold colors can have a bit more chroma while staying perceptually neutral
@@ -297,6 +306,14 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
     }
+
+    return color;
+  }
+
+  private get bgNeutralOpacity() {
+    const color = this.bgNeutral.clone();
+
+    color.alpha = 0.5;
 
     return color;
   }
@@ -595,6 +612,79 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgWarningSubtle.clone();
 
     color.oklch.l -= 0.01;
+
+    return color;
+  }
+
+  /*
+   * Elevation colors
+   */
+
+  private get bgElevation1() {
+    const color = this.bg.clone();
+
+    if (this.seedIsVeryLight) {
+      color.oklch.l += 0.015;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l += 0.02;
+    }
+
+    return color;
+  }
+
+  private get bgElevation2() {
+    const color = this.bgElevation1.clone();
+
+    if (this.seedIsVeryLight) {
+      color.oklch.l += 0.012;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l += 0.015;
+    }
+    return color;
+  }
+
+  private get bgElevation3() {
+    const color = this.bgElevation2.clone();
+
+    color.oklch.l += 0.01;
+
+    return color;
+  }
+
+  /*
+   * Shadow colors
+   */
+
+  private get shadowElevation1() {
+    const color = this.seedColor.clone();
+
+    color.oklch.l = 0.2;
+
+    color.alpha = 0.35;
+
+    return color;
+  }
+
+  private get shadowElevation2() {
+    const color = this.shadowElevation1.clone();
+
+    color.oklch.l += 0.05;
+
+    color.alpha = 0.3;
+
+    return color;
+  }
+
+  private get shadowElevation3() {
+    const color = this.shadowElevation2.clone();
+
+    color.oklch.l += 0.05;
+
+    color.alpha = 0.25;
 
     return color;
   }

@@ -1,16 +1,20 @@
 import {
+  getWidgetSelector,
   PROPERTY_SELECTOR,
   WIDGET,
-  getWidgetSelector,
 } from "../../../../locators/WidgetLocators";
 
 import {
+  agHelper,
   entityExplorer,
   jsEditor,
-  agHelper,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const setterMethodsToTest = [
   {
@@ -117,80 +121,88 @@ Object.values(setterMethodsToTest).forEach(
     { actionBinding, expectedValue, name, property, valueBinding, widget },
     index,
   ) => {
-    describe(`${index + 1}. ${name} method test`, () => {
-      beforeEach("Adding new pag & DragDrop widget", () => {
-        entityExplorer.AddNewPage();
-        entityExplorer.DragDropWidgetNVerify(widget, 300, 200);
-      });
-      it(`1. DragDrop Label/Text widgets and Verify the updated value`, () => {
-        entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 500, 100);
-
-        propPane.EnterJSContext(
-          PROPERTY_SELECTOR.onClickFieldName,
-          actionBinding,
-        );
-
-        entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 500, 300);
-
-        propPane.UpdatePropertyFieldValue(
-          PROPERTY_SELECTOR.TextFieldName,
-          valueBinding,
-        );
-        agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
-
-        agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
-          expect($label).to.eq(expectedValue);
+    describe(
+      `${index + 1}. ${name} method test`,
+      { tags: ["@tag.Widget"] },
+      () => {
+        beforeEach("Adding new pag & DragDrop widget", () => {
+          PageList.AddNewPage();
+          entityExplorer.DragDropWidgetNVerify(widget, 300, 200);
         });
-      });
-    });
+        it(`1. DragDrop Label/Text widgets and Verify the updated value`, () => {
+          entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 500, 100);
+
+          propPane.EnterJSContext(
+            PROPERTY_SELECTOR.onClickFieldName,
+            actionBinding,
+          );
+
+          entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 500, 300);
+
+          propPane.UpdatePropertyFieldValue(
+            PROPERTY_SELECTOR.TextFieldName,
+            valueBinding,
+          );
+          agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
+
+          agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
+            expect($label).to.eq(expectedValue);
+          });
+        });
+      },
+    );
   },
 );
 
-describe("Linting warning for setter methods", function () {
-  it("Lint error when setter is used in a data field", function () {
-    entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
-    entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 400, 400);
+describe(
+  "Linting warning for setter methods",
+  { tags: ["@tag.Widget"] },
+  function () {
+    it("Lint error when setter is used in a data field", function () {
+      entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+      entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 400, 400);
 
-    agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
-    propPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
+      agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
+      propPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
 
-    //Mouse hover to exact warning message
-    agHelper.AssertElementVisibility(locators._lintErrorElement);
-    agHelper.HoverElement(locators._lintErrorElement);
-    agHelper.AssertContains("Data fields cannot execute async code");
-    agHelper.Sleep();
+      //Mouse hover to exact warning message
+      agHelper.AssertElementVisibility(locators._lintErrorElement);
+      agHelper.HoverElement(locators._lintErrorElement);
+      agHelper.AssertContains("Data fields cannot execute async code");
+      agHelper.Sleep();
 
-    //Create a JS object
-    jsEditor.CreateJSObject(
-      `export default {
+      //Create a JS object
+      jsEditor.CreateJSObject(
+        `export default {
         myFun1: () => {
           Button1.setLabel('Hello');
           Button1.isVisible = false;
         },
       }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-        prettify: false,
-      },
-    );
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+          prettify: false,
+        },
+      );
 
-    agHelper.AssertElementVisibility(locators._lintErrorElement);
-    agHelper.HoverElement(locators._lintErrorElement);
-    agHelper.AssertContains(
-      "Direct mutation of widget properties is not supported. Use Button1.setVisibility(value) instead.",
-    );
-    agHelper.Sleep();
+      agHelper.AssertElementVisibility(locators._lintErrorElement);
+      agHelper.HoverElement(locators._lintErrorElement);
+      agHelper.AssertContains(
+        "Direct mutation of widget properties is not supported. Use Button1.setVisibility(value) instead.",
+      );
+      agHelper.Sleep();
 
-    //Add myFun1 to onClick
-    entityExplorer.SelectEntityByName("Button1");
-    propPane.TypeTextIntoField("Label", "{{JSObject1.myFun1()}}");
+      //Add myFun1 to onClick
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.TypeTextIntoField("Label", "{{JSObject1.myFun1()}}");
 
-    agHelper.AssertContains(
-      "Found an action invocation during evaluation. Data fields cannot execute actions.",
-    );
-    agHelper.Sleep();
-  });
-});
+      agHelper.AssertContains(
+        "Found an action invocation during evaluation. Data fields cannot execute actions.",
+      );
+      agHelper.Sleep();
+    });
+  },
+);

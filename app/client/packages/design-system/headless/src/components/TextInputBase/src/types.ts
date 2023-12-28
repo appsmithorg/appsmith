@@ -1,11 +1,13 @@
 import type { RefObject } from "react";
 import type { TextFieldAria } from "@react-aria/textfield";
 
-import type { OmitedSpectrumTextFieldProps } from "../../TextInput";
+import type { PressEvents } from "@react-types/shared";
 
-export interface TextInputBaseProps extends OmitedSpectrumTextFieldProps {
-  /** classname for the input element */
-  inputClassName?: string;
+import type { TextInputProps } from "../../TextInput";
+
+export interface TextInputBaseProps
+  extends Omit<TextInputProps, "onChange">,
+    PressEvents {
   /** indicates if the component is textarea */
   multiLine?: boolean;
   /** props to be passed to label component */
@@ -18,12 +20,6 @@ export interface TextInputBaseProps extends OmitedSpectrumTextFieldProps {
   errorMessageProps?: TextFieldAria["errorMessageProps"];
   /** ref for input component */
   inputRef?: RefObject<HTMLInputElement | HTMLTextAreaElement>;
-  /** indicates loading state of the text input */
-  isLoading?: boolean;
-  /** className for the text input. */
-  className?: string;
-  /**an icon to be displayed at the start of the component  */
-  startIcon?: React.ReactNode;
-  /** an icon to be displayed at the end of the component */
-  endIcon?: React.ReactNode;
+  /** Whether the input can be selected but not changed by the user. Readonly has a higher priority than disabled. */
+  isReadOnly?: boolean;
 }

@@ -17,7 +17,8 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' 
     defaults:
       run:
         shell: bash
@@ -26,17 +27,14 @@ jobs:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Download the client build artifact
         if: steps.run_result.outputs.run_result != 'success'
@@ -100,12 +98,11 @@ jobs:
           docker save cicontainer -o cicontainer.tar
           gzip cicontainer.tar
 
-      # Uploading the artifact to use it in other subsequent runners
-      - name: Upload Docker image to artifacts
-        uses: actions/upload-artifact@v3
+      - name: Cache docker image
+        uses: actions/cache/save@v3
         with:
-          name: cicontainer
           path: cicontainer.tar.gz
+          key: docker-image-${{github.run_id}}
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

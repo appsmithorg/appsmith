@@ -1,18 +1,25 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
-describe("Divider Widget Functionality", function () {
-  before(() => {
-    _.agHelper.AddDsl("DividerDsl");
-  });
+describe(
+  "Divider Widget Functionality",
+  { tags: ["@tag.Widget", "@tag.Divider"] },
+  function () {
+    before(() => {
+      _.agHelper.AddDsl("DividerDsl");
+    });
 
-  it("1. Add new Divider", () => {
-    _.entityExplorer.DragDropWidgetNVerify(
-      _.draggableWidgets.DIVIDER,
-      320,
-      200,
-    );
-    //Open Existing Divider from created  list
-    _.entityExplorer.SelectEntityByName("Divider1");
-    _.entityExplorer.SelectEntityByName("Divider2");
-  });
-});
+    it("1. Add new Divider", () => {
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.DIVIDER,
+        320,
+        200,
+      );
+      //Open Existing Divider from created  list
+      EditorNavigation.SelectEntityByName("Divider1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Divider2", EntityType.Widget);
+    });
+  },
+);

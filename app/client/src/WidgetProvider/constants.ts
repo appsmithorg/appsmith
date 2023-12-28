@@ -63,8 +63,11 @@ export interface SizeConfig {
 }
 
 export interface AnvilConfig {
+  isLargeWidget: boolean;
   // min/max sizes for the widget
-  widgetSize?: SizeConfig | ((props: any) => SizeConfig);
+  widgetSize?:
+    | SizeConfig
+    | ((props: any, isPreviewMode: boolean) => SizeConfig);
 }
 
 export interface WidgetBaseConfiguration {
@@ -79,6 +82,10 @@ export interface WidgetBaseConfiguration {
   searchTags?: string[];
   tags?: WidgetTags[];
   needsHeightForContent?: boolean;
+
+  // Flag to tell platform to disaplay this widget when search key
+  // is not matching any widget.
+  isSearchWildcard?: boolean;
 }
 
 export type WidgetDefaultProps = Partial<WidgetProps> & WidgetConfigProps;

@@ -25,11 +25,7 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch'
-    defaults:
-      run:
-        working-directory: app/client
-        shell: bash
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -51,17 +47,14 @@ jobs:
     steps:
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -189,7 +182,7 @@ jobs:
           echo ref=$ref >> $GITHUB_OUTPUT
 
       - name: Checkout Performance Infra code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}

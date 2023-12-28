@@ -6,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Select Widget", () => {
+describe("Select Widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.SELECT);
   });
@@ -15,14 +15,10 @@ describe("Select Widget", () => {
     featureFlagIntercept({
       license_widget_rtl_support_enabled: false,
     });
-
     agHelper.AssertElementAbsence(".t--property-control-enablertl");
-
     featureFlagIntercept({
       license_widget_rtl_support_enabled: true,
     });
-
-    agHelper.RefreshPage();
 
     agHelper.Sleep(2000);
 

@@ -1,4 +1,11 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
@@ -11,37 +18,41 @@ import {
 
 let datasourceName;
 
-describe("Validate CRUD queries for Postgres along with UI flow verifications", function () {
-  // afterEach(function() {
-  //   if (this.currentTest.state === "failed") {
-  //     Cypress.runner.stop();
-  //   }
-  // });
+describe(
+  "Validate CRUD queries for Postgres along with UI flow verifications",
+  { tags: ["@tag.Datasource"] },
+  function () {
+    // afterEach(function() {
+    //   if (this.currentTest.state === "failed") {
+    //     Cypress.runner.stop();
+    //   }
+    // });
 
-  it("1. Creates a new Postgres datasource", function () {
-    dataSources.CreateDataSource("Postgres");
-    cy.get("@dsName").then(($dsName) => {
-      datasourceName = $dsName;
+    it("1. Creates a new Postgres datasource", function () {
+      dataSources.CreateDataSource("Postgres");
+      cy.get("@dsName").then(($dsName) => {
+        datasourceName = $dsName;
+      });
     });
-  });
 
-  it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
-    cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    agHelper.TypeDynamicInputValueNValidate(
-      "select * from users limit {{Table1.pageSize}} OFFSET {{((Table1.pageNo - 1)*Table1.pageSize)}}",
-      ".CodeEditorTarget",
-      true,
-      "select * from users limit $1 OFFSET $2",
-    );
-    cy.runAndDeleteQuery();
-  });
+    it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
+      dataSources.CreateQueryForDS(datasourceName);
+      agHelper.TypeDynamicInputValueNValidate(
+        "select * from users limit {{Table1.pageSize}} OFFSET {{((Table1.pageNo - 1)*Table1.pageSize)}}",
+        ".CodeEditorTarget",
+        true,
+        "select * from users limit $1 OFFSET $2",
+      );
+      cy.runAndDeleteQuery();
+    });
 
-  it("3. Create new CRUD Table and populate", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    it("3. Create new CRUD Table and populate", () => {
+      dataSources.CreateQueryForDS(datasourceName);
 
-    let tableCreateQuery = `CREATE TABLE public.users_crud (
+      let tableCreateQuery = `CREATE TABLE public.users_crud (
       id integer NOT NULL,
       name character varying,
       status character varying,
@@ -82,245 +93,249 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       (29, 'CRUD User29', 'IN PROGRESS', 'Male','cruduser29@ihg.com', '19624 Scofield Way', 'Editor'),
       (30, 'CRUD User30', 'APPROVED', 'Female','cruduser30@ihg.com', '19624 Scofield Way', 'Admin');`;
 
-    //cy.typeValueNValidate(tableCreateQuery);//Since type method is slow for such big text - using paste!
-    cy.get(".CodeMirror textarea").focus().paste(tableCreateQuery);
-    cy.EvaluateCurrentValue(tableCreateQuery);
-    cy.wait(3000);
-    cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
-  });
-
-  it("4. Validate Select record from Postgress datasource", () => {
-    let selectQuery = "select * from public.users_crud";
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.typeValueNValidate(selectQuery);
-
-    // cy.xpath(queryLocators.codeTextArea).paste(selectQuery);
-    //cy.EvaluateCurrentValue(selectQuery);
-
-    cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
-  });
-
-  it("5. Validate Create/Insert record into Postgress datasource", () => {
-    let insertQuery =
-      "INSERT INTO public.users_crud (id, name, gender, email) VALUES (31, 'CRUD User11','Male','cruduser31@ihg.com');";
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.typeValueNValidate(insertQuery);
-    cy.runAndDeleteQuery();
-  });
-
-  it("6. Validate Update record into Postgress datasource", () => {
-    let updateQuery =
-      "UPDATE public.users_crud SET status = 'PENDING', role = 'Viewer' WHERE id = 31;";
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.typeValueNValidate(updateQuery);
-    cy.runAndDeleteQuery();
-  });
-
-  it("7. Validate Delete record from Postgress datasource", () => {
-    let deleteQuery = "DELETE FROM public.users_crud WHERE id = 31;";
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.typeValueNValidate(deleteQuery);
-    cy.runAndDeleteQuery();
-  });
-
-  it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function () {
-    //Verifying Select from UI
-    cy.NavigateToDSGeneratePage(datasourceName);
-    cy.get(generatePage.selectTableDropdown).click();
-    cy.get(generatePage.dropdownOption)
-      .contains("public.users_crud")
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-
-    cy.get(generatePage.generatePageFormSubmitBtn).click();
-
-    cy.wait("@replaceLayoutWithCRUDPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-
-    cy.wait("@getActions");
-
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    ); //This verifies the Select on the table, ie page is created fine
-    assertHelper.AssertNetworkStatus("@updateLayout", 200);
-
-    cy.ClickGotIt();
-    cy.wait(3000);
-    //Verifying Update from UI
-    cy.xpath(generatePage.selectRowinTable)
-      .eq(0)
-      .scrollIntoView()
-      .click({ force: true });
-
-    //Commenting below section as it will be replaced with new JSON Form CRUD!
-    // cy.xpath(generatePage.currentStatusField)
-    //   .scrollIntoView()
-    //   .clear()
-    //   .wait(500)
-    //   .type("APPROVED");
-
-    // cy.get(generatePage.updateBtn)
-    //   .closest("div")
-    //   .eq(1)
-    //   .click();
-
-    // cy.wait(8000); //Wait for update call to be success
-    // cy.wait("@postExecute").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // ); //This verifies the Update on the table
-
-    // //.should("have.nested.property", "response.body.data.request.requestParams.Query.value",);
-
-    // cy.wait(2000);
-
-    // cy.xpath(generatePage.selectRowinTable)
-    //   .scrollIntoView()
-    //   .should("be.visible")
-    //   .click({ force: true });
-
-    // cy.getTableDataSelector("1", "2").then((selector) => {
-    //   cy.get(selector + " span span span").should("have.text", "APPROVED");
-    // }); //Verifying update is success
-
-    // //verifying Insert from UI
-    // cy.xpath(generatePage.addRowIcon)
-    //   .scrollIntoView()
-    //   .click();
-    // // cy.xpath(generatePage.idField).clear().type("31");
-    // cy.get(generatePage.idField)
-    //   .last()
-    //   .children()
-    //   .last()
-    //   .clear()
-    //   .type("31");
-    // //  cy.xpath(generatePage.nameField).clear().type("CRUD User31");
-    // cy.get(generatePage.nameField)
-    //   .last()
-    //   .children()
-    //   .last()
-    //   .clear()
-    //   .type("CRUD User31");
-    // //  cy.xpath(generatePage.statusField).clear().type("REJECTED");
-    // cy.get(generatePage.statusField)
-    //   .last()
-    //   .children()
-    //   .last()
-    //   .clear()
-    //   .type("REJECTED");
-    // //  cy.xpath(generatePage.genderField).clear().type("Male");
-    // cy.get(generatePage.genderField)
-    //   .last()
-    //   .children()
-    //   .last()
-    //   .clear()
-    //   .type("Male");
-    // //  cy.xpath(generatePage.emailField)
-    // cy.get(generatePage.emailField)
-    //   .last()
-    //   .children()
-    //   .last()
-    //   .clear()
-    //   .type("curduser31@ihg.com")
-    //   .wait(2000); //Waiting for Submit button to get enabled
-    // cy.get(generatePage.submitBtn)
-    //   .closest("div")
-    //   .first()
-    //   .click();
-    // cy.wait(5000);
-
-    // //cy.get(generatePage.sortByDropdown)
-    // //   .last()
-    // //   .click(); //Sorting by descending to verify newly added record - also sorting is verified
-    // //  cy.xpath(generatePage.descending).click();
-    // // cy.wait(2000); //for descending to take effect!
-    // // sreach for added row
-    // cy.get(generatePage.searchinTable).type("31");
-    // cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User31"); //Verifying Addition is success
-
-    // //Verifying Delete from UI
-    // cy.xpath(generatePage.deleteofSelectedRow)
-    //   .scrollIntoView()
-    //   .should("be.visible")
-    //   .click({ force: true });
-    // cy.get(generatePage.confirmBtn)
-    //   .closest("div")
-    //   .click()
-    //   .wait(2000); //Wait for update call to be success
-
-    // cy.wait("@postExecute").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-    // // verify table row is deleted
-
-    // cy.xpath(generatePage.currentNameField)
-    //   .scrollIntoView()
-    //   .should("be.empty"); //Verifying Deletion of id # 31 is success
-
-    // cy.get(generatePage.searchinTable).clear();
-  });
-
-  it("9. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Public.users_crud",
-      action: "Delete",
-      entityType: entityItems.Page,
+      //cy.typeValueNValidate(tableCreateQuery);//Since type method is slow for such big text - using paste!
+      cy.get(".CodeMirror textarea").focus().paste(tableCreateQuery);
+      cy.EvaluateCurrentValue(tableCreateQuery);
+      cy.wait(3000);
+      cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
     });
-    entityExplorer.SelectEntityByName("Page1");
-  });
 
-  it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
-    let deleteTblQuery = "DROP TABLE public.users_crud;";
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    dataSources.EnterQuery(deleteTblQuery);
-    dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: datasourceName,
-      action: "Refresh",
+    it("4. Validate Select record from Postgress datasource", () => {
+      dataSources.CreateQueryForDS(
+        datasourceName,
+        "select * from public.users_crud",
+      );
+
+      // cy.xpath(queryLocators.codeTextArea).paste(selectQuery);
+      //cy.EvaluateCurrentValue(selectQuery);
+
+      cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
     });
-    cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
-    cy.deleteQueryUsingContext();
-  });
 
-  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    cy.typeValueNValidate("select * from public.users limit 10");
-    cy.runQuery();
-    cy.typeValueNValidate("select * from public.users_crud limit 10");
-    cy.onlyQueryRun();
-    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
-    cy.get(commonlocators.debuggerLabel)
-      .first()
-      .invoke("text")
-      .then(($text) => {
-        expect($text).to.eq("Query execution error");
+    it("5. Validate Create/Insert record into Postgress datasource", () => {
+      dataSources.CreateQueryForDS(
+        datasourceName,
+        "INSERT INTO public.users_crud (id, name, gender, email) VALUES (31, 'CRUD User11','Male','cruduser31@ihg.com');",
+      );
+      cy.runAndDeleteQuery();
+    });
+
+    it("6. Validate Update record into Postgress datasource", () => {
+      dataSources.CreateQueryForDS(
+        datasourceName,
+        "UPDATE public.users_crud SET status = 'PENDING', role = 'Viewer' WHERE id = 31;",
+      );
+      cy.runAndDeleteQuery();
+    });
+
+    it("7. Validate Delete record from Postgress datasource", () => {
+      dataSources.CreateQueryForDS(
+        datasourceName,
+        "DELETE FROM public.users_crud WHERE id = 31;",
+      );
+      cy.runAndDeleteQuery();
+    });
+
+    it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function () {
+      //Verifying Select from UI
+      cy.NavigateToDSGeneratePage(datasourceName);
+      cy.get(generatePage.selectTableDropdown).click();
+      cy.get(generatePage.dropdownOption)
+        .contains("public.users_crud")
+        .scrollIntoView()
+        .should("be.visible")
+        .click();
+
+      cy.get(generatePage.generatePageFormSubmitBtn).click();
+
+      cy.wait("@replaceLayoutWithCRUDPage").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+
+      cy.wait("@getActions");
+
+      cy.wait("@postExecute").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      ); //This verifies the Select on the table, ie page is created fine
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
+
+      cy.ClickGotIt();
+      cy.wait(3000);
+      //Verifying Update from UI
+      cy.xpath(generatePage.selectRowinTable)
+        .eq(0)
+        .scrollIntoView()
+        .click({ force: true });
+
+      //Commenting below section as it will be replaced with new JSON Form CRUD!
+      // cy.xpath(generatePage.currentStatusField)
+      //   .scrollIntoView()
+      //   .clear()
+      //   .wait(500)
+      //   .type("APPROVED");
+
+      // cy.get(generatePage.updateBtn)
+      //   .closest("div")
+      //   .eq(1)
+      //   .click();
+
+      // cy.wait(8000); //Wait for update call to be success
+      // cy.wait("@postExecute").should(
+      //   "have.nested.property",
+      //   "response.body.responseMeta.status",
+      //   200,
+      // ); //This verifies the Update on the table
+
+      // //.should("have.nested.property", "response.body.data.request.requestParams.Query.value",);
+
+      // cy.wait(2000);
+
+      // cy.xpath(generatePage.selectRowinTable)
+      //   .scrollIntoView()
+      //   .should("be.visible")
+      //   .click({ force: true });
+
+      // cy.getTableDataSelector("1", "2").then((selector) => {
+      //   cy.get(selector + " span span span").should("have.text", "APPROVED");
+      // }); //Verifying update is success
+
+      // //verifying Insert from UI
+      // cy.xpath(generatePage.addRowIcon)
+      //   .scrollIntoView()
+      //   .click();
+      // // cy.xpath(generatePage.idField).clear().type("31");
+      // cy.get(generatePage.idField)
+      //   .last()
+      //   .children()
+      //   .last()
+      //   .clear()
+      //   .type("31");
+      // //  cy.xpath(generatePage.nameField).clear().type("CRUD User31");
+      // cy.get(generatePage.nameField)
+      //   .last()
+      //   .children()
+      //   .last()
+      //   .clear()
+      //   .type("CRUD User31");
+      // //  cy.xpath(generatePage.statusField).clear().type("REJECTED");
+      // cy.get(generatePage.statusField)
+      //   .last()
+      //   .children()
+      //   .last()
+      //   .clear()
+      //   .type("REJECTED");
+      // //  cy.xpath(generatePage.genderField).clear().type("Male");
+      // cy.get(generatePage.genderField)
+      //   .last()
+      //   .children()
+      //   .last()
+      //   .clear()
+      //   .type("Male");
+      // //  cy.xpath(generatePage.emailField)
+      // cy.get(generatePage.emailField)
+      //   .last()
+      //   .children()
+      //   .last()
+      //   .clear()
+      //   .type("curduser31@ihg.com")
+      //   .wait(2000); //Waiting for Submit button to get enabled
+      // cy.get(generatePage.submitBtn)
+      //   .closest("div")
+      //   .first()
+      //   .click();
+      // cy.wait(5000);
+
+      // //cy.get(generatePage.sortByDropdown)
+      // //   .last()
+      // //   .click(); //Sorting by descending to verify newly added record - also sorting is verified
+      // //  cy.xpath(generatePage.descending).click();
+      // // cy.wait(2000); //for descending to take effect!
+      // // sreach for added row
+      // cy.get(generatePage.searchinTable).type("31");
+      // cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User31"); //Verifying Addition is success
+
+      // //Verifying Delete from UI
+      // cy.xpath(generatePage.deleteofSelectedRow)
+      //   .scrollIntoView()
+      //   .should("be.visible")
+      //   .click({ force: true });
+      // cy.get(generatePage.confirmBtn)
+      //   .closest("div")
+      //   .click()
+      //   .wait(2000); //Wait for update call to be success
+
+      // cy.wait("@postExecute").should(
+      //   "have.nested.property",
+      //   "response.body.responseMeta.status",
+      //   200,
+      // );
+      // // verify table row is deleted
+
+      // cy.xpath(generatePage.currentNameField)
+      //   .scrollIntoView()
+      //   .should("be.empty"); //Verifying Deletion of id # 31 is success
+
+      // cy.get(generatePage.searchinTable).clear();
+    });
+
+    it("9. Validate Deletion of the Newly Created Page", () => {
+      dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Public.users_crud",
+        action: "Delete",
+        entityType: entityItems.Page,
       });
-    cy.deleteQueryUsingContext();
-  });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    });
 
-  it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.typeValueNValidate(
-      "select * from public.users where name='Ayush1234' ORDER BY id LIMIT 10",
-    );
-    cy.runQuery();
-    cy.deleteQueryUsingContext();
-  });
+    it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
+      let deleteTblQuery = "DROP TABLE public.users_crud;";
+      dataSources.CreateQueryForDS(datasourceName, deleteTblQuery);
+      dataSources.RunQuery();
+      // TODO use the schema on the query itself to check
+      dataSources.AssertTableInVirtuosoList(
+        datasourceName,
+        "public.users_crud",
+        false,
+      );
+      cy.deleteQueryUsingContext();
+    });
 
-  it("13. Deletes the datasource", () => {
-    cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
-  });
-});
+    it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
+      dataSources.CreateQueryForDS(
+        datasourceName,
+        "select * from public.users limit 10",
+      );
+      cy.runQuery();
+      cy.typeValueNValidate("select * from public.users_crud limit 10");
+      cy.onlyQueryRun();
+      cy.get(commonlocators.errorTab)
+        .should("be.visible")
+        .click({ force: true });
+      cy.get(commonlocators.debuggerLabel)
+        .first()
+        .invoke("text")
+        .then(($text) => {
+          expect($text).to.eq("Query execution error");
+        });
+      cy.deleteQueryUsingContext();
+    });
+
+    it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function () {
+      dataSources.CreateQueryForDS(
+        datasourceName,
+        "select * from public.users where name='Ayush1234' ORDER BY id LIMIT 10",
+      );
+      cy.runQuery();
+      cy.deleteQueryUsingContext();
+    });
+
+    it("13. Deletes the datasource", () => {
+      dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
+    });
+  },
+);

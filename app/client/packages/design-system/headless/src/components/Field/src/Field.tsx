@@ -4,19 +4,16 @@ import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
 import { HelpText } from "./HelpText";
-import type { StyleProps } from "@react-types/shared";
+import type { StyleProps, ValidationState } from "@react-types/shared";
 
 export type FieldProps = Omit<
   SpectrumFieldProps,
-  | "includeNecessityIndicatorInAccessibilityName"
-  | "necessityIndicator"
-  | "isRequired"
-  | "showErrorIcon"
-  | "labelPosition"
-  | "labelAlign"
-  | keyof StyleProps
+  "showErrorIcon" | "labelPosition" | "labelAlign" | keyof StyleProps
 > & {
   fieldType?: "field" | "field-group";
+  labelClassName?: string;
+  helpTextClassName?: string;
+  validationState?: ValidationState;
 };
 
 export type FieldRef = Ref<HTMLDivElement>;
@@ -31,13 +28,23 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     errorMessage,
     errorMessageProps = {},
     fieldType = "field",
+    helpTextClassName,
+    includeNecessityIndicatorInAccessibilityName,
     isDisabled = false,
+    isReadOnly = false,
+    isRequired,
     label,
+    labelClassName,
     labelProps,
+    necessityIndicator,
     validationState,
     wrapperClassName,
     wrapperProps = {},
   } = props;
+
+  // Readonly has a higher priority than disabled.
+  const getDisabledState = () => Boolean(isDisabled) && !Boolean(isReadOnly);
+
   const hasHelpText =
     Boolean(description) ||
     (Boolean(errorMessage) && validationState === "invalid");
@@ -45,23 +52,34 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
   const renderHelpText = () => {
     return (
       <HelpText
+        className={helpTextClassName}
         description={description}
         descriptionProps={descriptionProps}
         errorMessage={errorMessage}
         errorMessageProps={errorMessageProps}
-        isDisabled={isDisabled}
+        isDisabled={getDisabledState()}
         validationState={validationState}
       />
     );
   };
 
-  const isLabelVisible = Boolean(label) || Boolean(contextualHelp);
-
-  const labelAndContextualHelp = isLabelVisible && (
+  const labelAndContextualHelp = (Boolean(label) ||
+    Boolean(contextualHelp)) && (
     <div data-field-label-wrapper="">
-      <Label {...labelProps} elementType={elementType}>
-        {label}
-      </Label>
+      {Boolean(label) && (
+        <Label
+          {...labelProps}
+          className={labelClassName}
+          elementType={elementType}
+          includeNecessityIndicatorInAccessibilityName={
+            includeNecessityIndicatorInAccessibilityName
+          }
+          isRequired={isRequired}
+          necessityIndicator={necessityIndicator}
+        >
+          <span>{label}</span>
+        </Label>
+      )}
       {contextualHelp}
     </div>
   );
@@ -70,9 +88,10 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     <div
       {...wrapperProps}
       className={wrapperClassName}
-      data-disabled={isDisabled ? "" : undefined}
+      data-disabled={getDisabledState() ? "" : undefined}
       data-field=""
       data-field-type={fieldType}
+      data-readonly={Boolean(isReadOnly) ? "" : undefined}
       ref={ref}
     >
       {labelAndContextualHelp}

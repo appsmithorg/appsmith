@@ -1,8 +1,8 @@
 import type { Ref } from "react";
 import { mergeProps } from "@react-aria/utils";
+import React, { forwardRef, useRef } from "react";
 import { useHover } from "@react-aria/interactions";
 import { useFocusRing, useFocusable } from "@react-aria/focus";
-import React, { forwardRef, useRef, useCallback, useState } from "react";
 
 import { Field } from "../../Field";
 import type { TextInputBaseProps } from "./types";
@@ -10,24 +10,32 @@ import type { TextInputBaseProps } from "./types";
 function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const {
     autoFocus,
-    className,
     descriptionProps,
     endIcon,
     errorMessageProps,
+    fieldClassName,
     inputClassName,
     inputProps,
     inputRef: userInputRef,
     isDisabled = false,
     isLoading = false,
+    isReadOnly = false,
     labelProps,
     multiLine = false,
     onBlur,
     onFocus,
+    prefix,
     startIcon,
+    suffix,
     validationState,
   } = props;
-  const [isFocussed, setIsFocused] = useState(false);
-  const { hoverProps, isHovered } = useHover({ isDisabled });
+
+  // Readonly has a higher priority than disabled.
+  const getDisabledState = () => isDisabled && !isReadOnly;
+
+  const { hoverProps, isHovered } = useHover({
+    isDisabled: getDisabledState(),
+  });
   const domRef = useRef<HTMLDivElement>(null);
   const defaultInputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const inputRef = userInputRef ?? defaultInputRef;
@@ -35,31 +43,18 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const ElementType: React.ElementType = Boolean(multiLine)
     ? "textarea"
     : "input";
-  const isInvalid = validationState === "invalid" && !Boolean(isDisabled);
+  const isInvalid =
+    validationState === "invalid" &&
+    !Boolean(isDisabled) &&
+    !Boolean(isReadOnly);
 
-  const { focusProps, isFocusVisible } = useFocusRing({
+  const { focusProps, isFocused, isFocusVisible } = useFocusRing({
     isTextInput: true,
     autoFocus,
   });
 
-  // TODO(Pawan): Remove this once has() css selector is available in all browsers
-  const handleOnFocus = useCallback(
-    (e) => {
-      setIsFocused(true);
-      onFocus && onFocus(e);
-    },
-    [onFocus],
-  );
-  const handleOnBlur = useCallback(
-    (e) => {
-      setIsFocused(false);
-      onBlur && onBlur(e);
-    },
-    [onBlur],
-  );
-
   const { focusableProps } = useFocusable(
-    { isDisabled, onFocus: handleOnFocus, onBlur: handleOnBlur },
+    { isDisabled: getDisabledState(), onFocus: onFocus, onBlur: onBlur },
     inputRef,
   );
 
@@ -71,24 +66,31 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const inputField = (
     <div
       aria-busy={isLoading ? true : undefined}
-      data-disabled={isDisabled ? "" : undefined}
+      data-disabled={getDisabledState() ? "" : undefined}
       data-field-input=""
-      data-focused={isFocusVisible || isFocussed ? "" : undefined}
+      data-focused={
+        isFocusVisible || (isFocused && !isReadOnly) ? "" : undefined
+      }
       data-hovered={isHovered ? "" : undefined}
       data-invalid={isInvalid ? "" : undefined}
       data-loading={isLoading ? "" : undefined}
+      data-readonly={isReadOnly ? "" : undefined}
       onClick={focusInput}
       ref={ref}
     >
-      {startIcon}
+      {Boolean(startIcon) && (
+        <span data-field-input-start-icon="">{startIcon}</span>
+      )}
       <ElementType
         {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
         className={inputClassName}
+        disabled={getDisabledState()}
+        readOnly={isReadOnly}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={inputRef as any}
         rows={multiLine ? 1 : undefined}
       />
-      {endIcon}
+      {Boolean(endIcon) && <span data-field-input-end-icon="">{endIcon}</span>}
     </div>
   );
 
@@ -99,9 +101,13 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       errorMessageProps={errorMessageProps}
       labelProps={labelProps}
       ref={domRef}
-      wrapperClassName={className}
+      wrapperClassName={fieldClassName}
     >
-      {inputField}
+      <div data-field-input-group="">
+        {Boolean(prefix) && <span data-field-input-prefix>{prefix}</span>}
+        {inputField}
+        {Boolean(suffix) && <span data-field-input-suffix>{suffix}</span>}
+      </div>
     </Field>
   );
 }

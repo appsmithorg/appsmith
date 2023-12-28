@@ -5,8 +5,8 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
-import explorer from "../locators/explorerlocators";
 import { ObjectsRegistry } from "../support/Objects/Registry";
+import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;
@@ -220,7 +220,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
-        .contains("Edit name", { matchCase: false })
+        .contains("Rename", { matchCase: false })
         .click({ force: true });
     }
   });
@@ -273,6 +273,9 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("workspaceName", workspaceName);
     homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
   });
+
+  featureFlagIntercept({ release_custom_widgets_enabled: true });
+
   cy.get("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
@@ -312,14 +315,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
    * we wait for that to finish before updating layout here
    */
   //cy.wait("@updateLayout");
-});
-
-Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
-  cy.get(`.t--entity-item:contains(${entityName})`).within(() => {
-    cy.get(".t--context-menu").click({ force: true });
-  });
-  cy.selectAction("Edit name");
-  cy.get(explorer.editEntity).last().type(`${renamedEntity}`, { force: true });
 });
 Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
   cy.openWorkspaceOptionsPopup(newWorkspaceName);

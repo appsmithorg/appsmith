@@ -4,10 +4,14 @@ import {
   locators,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
-  "excludeForAirgap",
   "Google Sheets datasource row objects placeholder",
+  { tags: ["@tag.GSheet", "@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     let pluginName = "Google Sheets";
 
@@ -44,7 +48,7 @@ describe(
       );
       agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
       agHelper.Sleep();
-      agHelper.GoBack();
+      AppSidebar.navigate(AppSidebarButton.Editor, true);
       agHelper.Sleep();
     });
   },

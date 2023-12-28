@@ -86,7 +86,11 @@ public enum AnalyticsEvents {
     GIT_STALE_FILE_LOCK_DELETED,
     SERVER_SETUP_COMPLETE("server_setup_complete"),
 
-    PARTIAL_IMPORT;
+    PARTIAL_IMPORT,
+
+    PARTIAL_EXPORT,
+
+    COMMUNITY_TEMPLATE_PUBLISHED;
 
     private final String eventName;
 

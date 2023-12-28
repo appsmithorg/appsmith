@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import React from "react";
 import {
   getFunctionNameFromJsObjectExpression,
@@ -17,16 +18,21 @@ import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type {
+  ActionData,
+  ActionDataState,
+} from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getCurrentActions,
   getJSCollectionFromName,
   getCurrentJSCollections,
+  getQueryModuleInstances,
+  getJSModuleInstancesData,
 } from "@appsmith/selectors/entitiesSelector";
 import {
   getModalDropdownList,
@@ -61,6 +67,8 @@ import {
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 const actionList: {
   label: string;
@@ -103,7 +111,7 @@ export function getFieldFromValue(
   const entity = dataTree && dataTree[entityProps.entityName];
 
   if (entity && "ENTITY_TYPE" in entity) {
-    if (isAction(entity)) {
+    if (isAction(entity as DataTreeEntity)) {
       // get fields for API action
       return getActionEntityFields(
         fields,
@@ -383,6 +391,16 @@ export function useModalDropdownList(handleClose: () => void) {
   return finalList;
 }
 
+export const getModuleInstanceIcon = (type: MODULE_TYPE): ReactNode => {
+  if (type === MODULE_TYPE.QUERY || type === MODULE_TYPE.JS) {
+    return (
+      <EntityIcon>
+        <Icon name="module" />
+      </EntityIcon>
+    );
+  }
+};
+
 export function getApiQueriesAndJSActionOptionsWithChildren(
   pageId: string,
   plugins: any,
@@ -390,12 +408,20 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   jsActions: Array<JSCollectionData>,
   dispatch: any,
   handleClose: () => void,
+  queryModuleInstances: ModuleInstanceDataState,
+  jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
 ) {
   // this function gets a list of all the queries/apis and attaches it to actionList
-  getApiAndQueryOptions(plugins, actions, dispatch, handleClose);
+  getApiAndQueryOptions(
+    plugins,
+    actions,
+    dispatch,
+    handleClose,
+    queryModuleInstances,
+  );
 
   // this function gets a list of all the JS Objects and attaches it to actionList
-  getJSOptions(pageId, jsActions, dispatch);
+  getJSOptions(pageId, jsActions, dispatch, jsModuleInstances);
 
   return actionList;
 }
@@ -405,6 +431,7 @@ function getApiAndQueryOptions(
   actions: ActionDataState,
   dispatch: any,
   handleClose: () => void,
+  queryModuleInstances: ModuleInstanceDataState,
 ) {
   const createQueryObject: TreeDropdownOption = {
     label: "New query",
@@ -422,12 +449,12 @@ function getApiAndQueryOptions(
     },
   };
 
-  const queries = actions.filter(
-    (action) => action.config.pluginType === PluginType.DB,
+  const queries: ActionDataState = actions.filter(
+    (action: ActionData) => action.config.pluginType === PluginType.DB,
   );
 
-  const apis = actions.filter(
-    (action) =>
+  const apis: ActionDataState = actions.filter(
+    (action: ActionData) =>
       action.config.pluginType === PluginType.API ||
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE ||
@@ -467,6 +494,15 @@ function getApiAndQueryOptions(
         ),
       } as TreeDropdownOption);
     });
+    queryModuleInstances.forEach((instance) => {
+      (queryOptions.children as TreeDropdownOption[]).push({
+        label: instance.config.name,
+        id: instance.config.id,
+        value: instance.config.name,
+        type: queryOptions.value,
+        icon: getModuleInstanceIcon(instance.config.type),
+      } as TreeDropdownOption);
+    });
   }
 }
 
@@ -474,6 +510,7 @@ export function getJSOptions(
   pageId: string,
   jsActions: Array<JSCollectionData>,
   dispatch: any,
+  jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
 ) {
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
@@ -534,6 +571,52 @@ export function getJSOptions(
         }
       }
     });
+
+    jsModuleInstances.forEach((jsModuleInstance) => {
+      if (!jsModuleInstance) return;
+      if (
+        jsModuleInstance.config.actions &&
+        jsModuleInstance.config.actions.length > 0
+      ) {
+        const jsObject = {
+          label: jsModuleInstance.name,
+          id: jsModuleInstance.config.id,
+          value: jsModuleInstance.name,
+          type: jsOption.value,
+          icon: getModuleInstanceIcon(MODULE_TYPE.JS),
+        } as unknown as TreeDropdownOption;
+
+        (jsOption.children as unknown as TreeDropdownOption[]).push(jsObject);
+
+        if (jsObject) {
+          jsObject.children = [];
+
+          jsModuleInstance.config.actions.forEach((js: JSAction) => {
+            const jsArguments = js.actionConfiguration.jsArguments;
+            const argValue: Array<any> = [];
+
+            if (jsArguments && jsArguments.length) {
+              jsArguments.forEach((arg: Variable) => {
+                argValue.push(arg.value);
+              });
+            }
+
+            const jsFunction = {
+              label: js.name,
+              id: js.id,
+              value: jsModuleInstance.config.name + "." + js.name,
+              type: jsOption.value,
+              icon: <Icon name="js-function" size="md" />,
+              args: argValue,
+            };
+            (jsObject.children as TreeDropdownOption[]).push(
+              jsFunction as unknown as TreeDropdownOption,
+            );
+          });
+          jsObject.children.sort((a, b) => a.label?.localeCompare(b.label));
+        }
+      }
+    });
   }
 }
 
@@ -546,6 +629,10 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const actions = useSelector(getCurrentActions);
   const jsActions = useSelector(getCurrentJSCollections);
+  const queryModuleInstances = useSelector(
+    getQueryModuleInstances,
+  ) as unknown as ModuleInstanceDataState;
+  const jsModuleInstancesData = useSelector(getJSModuleInstancesData);
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
@@ -555,5 +642,7 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     jsActions,
     dispatch,
     handleClose,
+    queryModuleInstances,
+    jsModuleInstancesData,
   );
 }

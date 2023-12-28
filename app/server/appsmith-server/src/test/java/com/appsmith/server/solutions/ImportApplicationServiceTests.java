@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -17,6 +18,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -33,6 +35,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -48,6 +51,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -55,14 +59,15 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -72,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -122,7 +128,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
-import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
+import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -179,6 +185,9 @@ public class ImportApplicationServiceTests {
     LayoutActionService layoutActionService;
 
     @Autowired
+    UpdateLayoutService updateLayoutService;
+
+    @Autowired
     LayoutCollectionService layoutCollectionService;
 
     @Autowired
@@ -214,6 +223,12 @@ public class ImportApplicationServiceTests {
     @SpyBean
     PluginService pluginService;
 
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
     @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -222,6 +237,10 @@ public class ImportApplicationServiceTests {
         if (Boolean.TRUE.equals(isSetupDone)) {
             return;
         }
+        User currentUser = sessionUserService.getCurrentUser().block();
+        Set<String> beforeCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Workspace workspace = new Workspace();
         workspace.setName("Import-Export-Test-Workspace");
@@ -230,6 +249,14 @@ public class ImportApplicationServiceTests {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
+        Set<String> afterCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+
+        log.info("Workspace ID: {}", workspaceId);
+        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
@@ -238,6 +265,10 @@ public class ImportApplicationServiceTests {
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+
+        Application.ThemeSetting themeSettings = getThemeSetting();
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -283,9 +314,6 @@ public class ImportApplicationServiceTests {
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
         isSetupDone = true;
-
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
-                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
     }
 
     private Flux<ActionDTO> getActionsInApplication(Application application) {
@@ -374,7 +402,6 @@ public class ImportApplicationServiceTests {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication).isNotNull();
                     // Assert that the exported application is NOT public
-                    assertThat(exportedApplication.getDefaultPermissionGroup()).isNull();
                     assertThat(exportedApplication.getPolicies()).isNullOrEmpty();
                 })
                 .verifyComplete();
@@ -537,10 +564,10 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -781,6 +808,40 @@ public class ImportApplicationServiceTests {
                     assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
                     assertThat(exportedApp.getGitApplicationMetadata()).isNull();
 
+                    assertThat(exportedApp.getApplicationDetail()).isNotNull();
+                    assertThat(exportedApp.getApplicationDetail().getThemeSetting())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getAccentColor())
+                            .isEqualTo("#FFFFFF");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getColorMode())
+                            .isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getDensity())
+                            .isEqualTo(1);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getFontFamily())
+                            .isEqualTo("#000000");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isEqualTo(1);
+
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
 
@@ -878,11 +939,14 @@ public class ImportApplicationServiceTests {
                 importApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable
-                                .getMessage()
-                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage(
-                                        "Field '" + FieldName.APPLICATION + "' is missing in the JSON.")))
+                .expectErrorMatches(
+                        throwable -> throwable instanceof AppsmithException
+                                && throwable
+                                        .getMessage()
+                                        .equals(
+                                                AppsmithError.VALIDATION_FAILURE.getMessage(
+                                                        "Field '" + FieldName.APPLICATION
+                                                                + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page.")))
                 .verify();
     }
 
@@ -955,7 +1019,8 @@ public class ImportApplicationServiceTests {
                             actionCollectionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList(),
-                            customJSLibService.getAllJSLibsInApplication(application.getId(), null, false));
+                            customJSLibService.getAllJSLibsInContext(
+                                    application.getId(), CreatorContextType.APPLICATION, null, false));
                 }))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
@@ -2019,7 +2084,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setActions(List.of(action1));
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
-                    return layoutCollectionService.createCollection(actionCollectionDTO1);
+                    return layoutCollectionService.createCollection(actionCollectionDTO1, null);
                 })
                 .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
                 .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
@@ -2374,9 +2439,9 @@ public class ImportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void discardChange_addNavigationSettingAfterImport_addedNavigationSettingRemoved() {
-        Mono<ApplicationJson> applicationJsonMono =
-                createAppJson("test_assets/ImportExportServiceTest/valid-application-without-navigation-setting.json");
+    public void discardChange_addNavigationAndThemeSettingAfterImport_addedNavigationAndThemeSettingRemoved() {
+        Mono<ApplicationJson> applicationJsonMono = createAppJson(
+                "test_assets/ImportExportServiceTest/valid-application-without-navigation-theme-setting.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
@@ -2389,6 +2454,10 @@ public class ImportApplicationServiceTests {
                     Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
                     navigationSetting.setOrientation("top");
                     applicationDetail.setNavigationSetting(navigationSetting);
+
+                    Application.ThemeSetting themeSettings = getThemeSetting();
+                    applicationDetail.setThemeSetting(themeSettings);
+
                     application.setUnpublishedApplicationDetail(applicationDetail);
                     application.setPublishedApplicationDetail(applicationDetail);
                     return applicationService.save(application);
@@ -2419,6 +2488,15 @@ public class ImportApplicationServiceTests {
                                     .getNavigationSetting()
                                     .getOrientation())
                             .isEqualTo("top");
+
+                    Application.ThemeSetting themes =
+                            initialApplication.getApplicationDetail().getThemeSetting();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
                 })
                 .verifyComplete();
         // Import the same application again
@@ -2444,6 +2522,17 @@ public class ImportApplicationServiceTests {
                     assertThat(application.getPublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @NotNull private static Application.ThemeSetting getThemeSetting() {
+        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+        themeSettings.setSizing(1);
+        themeSettings.setDensity(1);
+        themeSettings.setBorderRadius("#000000");
+        themeSettings.setAccentColor("#FFFFFF");
+        themeSettings.setFontFamily("#000000");
+        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        return themeSettings;
     }
 
     /**
@@ -2750,10 +2839,10 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -3617,6 +3706,8 @@ public class ImportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -4736,7 +4827,7 @@ public class ImportApplicationServiceTests {
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
-                .addJSLibToApplication(testAppId, jsLib, null, false)
+                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->
                         Mono.zip(Mono.just(isJSLibAdded), applicationPageService.publish(testAppId, true)))
                 .map(tuple2 -> {
@@ -4904,7 +4995,7 @@ public class ImportApplicationServiceTests {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
-        return layoutCollectionService.createCollection(actionCollectionDTO1);
+        return layoutCollectionService.createCollection(actionCollectionDTO1, null);
     }
 
     @Test

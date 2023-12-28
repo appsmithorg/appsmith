@@ -80,17 +80,14 @@ jobs:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -138,17 +135,18 @@ jobs:
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id != 0
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/cache@v3
         with:
-          name: cicontainer
-          run_id: ${{ inputs.previous-workflow-run-id }}
+          path: cicontainer.tar.gz
+          key: docker-image-${{ inputs.previous-workflow-run-id }}
 
       # In case of run-id is 0 download the artifact from the current run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id == 0
-        uses: actions/download-artifact@v3
+        uses: actions/cache@v3
         with:
-          name: cicontainer
+          path: cicontainer.tar.gz
+          key: docker-image-${{github.run_id}}
 
       - name: Load Docker image from tar file
         run: |
@@ -200,6 +198,7 @@ jobs:
             -e FLAGSMITH_URL=http://host.docker.internal:5001/flagsmith \
             -e FLAGSMITH_SERVER_KEY=dummykey \
             -e FLAGSMITH_SERVER_KEY_BUSINESS_FEATURES=dummykeybusinessfeatures \
+            -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
@@ -224,8 +223,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -346,6 +343,7 @@ jobs:
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           CYPRESS_SPECS: ${{ env.specs_to_run }}
           CYPRESS_RERUN: ${{steps.run_result.outputs.rerun}}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
@@ -354,6 +352,7 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
+          CYPRESS_STATIC_ALLOCATION: true
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false
@@ -437,5 +436,5 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: |
-          echo "::set-output name=run_result::success"
+          echo "run_result=success" >> $GITHUB_OUTPUT
           echo "success" > ~/run_result

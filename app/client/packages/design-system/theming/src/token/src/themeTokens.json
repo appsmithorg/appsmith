@@ -1,7 +1,7 @@
 {
   "color": {
     "bg": {
-      "value": "rgb(97.488% 97.871% 100%)",
+      "value": "rgb(94.217% 94.598% 97.227%)",
       "type": "color"
     },
     "bg-accent": {
@@ -34,6 +34,10 @@
     },
     "bg-neutral": {
       "value": "rgb(27.359% 28.199% 35.2%)",
+      "type": "color"
+    },
+    "bg-neutral-opacity": {
+      "value": "rgb(27.359% 28.199% 35.2% / 0.5)",
       "type": "color"
     },
     "bg-neutral-hover": {
@@ -128,6 +132,30 @@
       "value": "rgb(99.63% 92.81% 78.869%)",
       "type": "color"
     },
+    "bg-elevation-1": {
+      "value": "rgb(96.832% 97.215% 99.857%)",
+      "type": "color"
+    },
+    "bg-elevation-2": {
+      "value": "rgb(98.836% 99.192% 100%)",
+      "type": "color"
+    },
+    "bg-elevation-3": {
+      "value": "rgb(100% 100% 100%)",
+      "type": "color"
+    },
+    "shadow-elevation-1": {
+      "value": "rgb(0% 0% 0%)",
+      "type": "color"
+    },
+    "shadow-elevation-2": {
+      "value": "rgb(13.355% 0% 21.478%)",
+      "type": "color"
+    },
+    "shadow-elevation-3": {
+      "value": "rgb(19.719% 0% 40.53%)",
+      "type": "color"
+    },
     "fg": {
       "value": "rgb(1.6475% 1.7126% 6.8084%)",
       "type": "color"
@@ -137,11 +165,11 @@
       "type": "color"
     },
     "fg-neutral": {
-      "value": "rgb(37.193% 38.537% 50.855%)",
+      "value": "rgb(26.531% 27.672% 39.337%)",
       "type": "color"
     },
     "fg-neutral-subtle": {
-      "value": "rgb(48.439% 49.938% 62.827%)",
+      "value": "rgb(37.193% 38.537% 50.855%)",
       "type": "color"
     },
     "fg-positive": {
@@ -257,7 +285,15 @@
   },
   "boxShadow": {
     "1": {
-      "value": "0 2px 2px 0 rgba(0, 0, 0, 0.2)",
+      "value": "0 4px 6px 0 var(--color-shadow-elevation-1)",
+      "type": "boxShadow"
+    },
+    "2": {
+      "value": "0 2px 4px 0 var(--color-shadow-elevation-2)",
+      "type": "boxShadow"
+    },
+    "3": {
+      "value": "0 1px 2px 0 var(--color-shadow-elevation-3)",
       "type": "boxShadow"
     }
   },
@@ -294,5 +330,6 @@
       "value": 9999,
       "type": "zIndex"
     }
-  }
+  },
+  "colorMode": "light"
 }

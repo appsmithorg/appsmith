@@ -5,7 +5,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate Elasticsearch DS", () => {
+describe("Validate Elasticsearch DS", { tags: ["@tag.Datasource"] }, () => {
   let dsName: any,
     books: any,
     containerName = "elasticsearch";
@@ -208,12 +208,7 @@ describe("Validate Elasticsearch DS", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
     //dataSources.StopNDeleteContainer(containerName);
   });
 });

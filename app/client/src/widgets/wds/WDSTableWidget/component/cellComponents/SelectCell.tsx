@@ -5,7 +5,7 @@ import type { DropdownOption } from "widgets/SelectWidget/constants";
 import type { BaseCellComponentProps } from "../Constants";
 import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import type { EditableCellActions } from "widgets/wds/WDSTableWidget/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
 

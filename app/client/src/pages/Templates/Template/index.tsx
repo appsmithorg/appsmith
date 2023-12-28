@@ -12,9 +12,17 @@ import {
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "@appsmith/RouteBuilder";
 import { Position } from "@blueprintjs/core";
+import {
+  activeLoadingTemplateId,
+  isImportingTemplateToAppSelector,
+} from "selectors/templatesSelectors";
+import { useSelector } from "react-redux";
 
 const TemplateWrapper = styled.div`
   border: 1px solid var(--ads-v2-color-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   margin-bottom: 24px;
   cursor: pointer;
   background-color: var(--ads-v2-color-bg);
@@ -37,7 +45,7 @@ const StyledImage = styled.img`
 `;
 
 const TemplateContent = styled.div`
-  padding: 0 25px 16px 25px;
+  padding: 0 25px 0 25px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -61,6 +69,7 @@ const TemplateContentFooter = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: ${(props) => props.theme.spaces[7]}px;
+  padding: 0 25px 20px 25px;
 `;
 
 const TemplateDatasources = styled.div`
@@ -92,7 +101,12 @@ export interface TemplateLayoutProps extends TemplateProps {
 export function TemplateLayout(props: TemplateLayoutProps) {
   const { datasources, description, functions, id, screenshotUrls, title } =
     props.template;
+
   const [showForkModal, setShowForkModal] = useState(false);
+  const loadingTemplateId = useSelector(activeLoadingTemplateId);
+  const isImportingTemplateToApp = useSelector(
+    isImportingTemplateToAppSelector,
+  );
   const onClick = () => {
     if (props.onClick) {
       props.onClick(id);
@@ -142,33 +156,38 @@ export function TemplateLayout(props: TemplateLayoutProps) {
           <Text className="description" kind="body-m">
             {description}
           </Text>
-          <TemplateContentFooter>
-            <TemplateDatasources>
-              {datasources.map((pluginPackageName) => {
-                return (
-                  <DatasourceChip
-                    key={pluginPackageName}
-                    pluginPackageName={pluginPackageName}
-                  />
-                );
-              })}
-            </TemplateDatasources>
-            {props.hideForkTemplateButton && (
-              <Tooltip
-                content={createMessage(FORK_THIS_TEMPLATE)}
-                placement={Position.BOTTOM}
-              >
-                <Button
-                  className="t--fork-template fork-button"
-                  isIconButton
-                  onClick={onForkButtonTrigger}
-                  size="sm"
-                  startIcon="plus"
-                />
-              </Tooltip>
-            )}
-          </TemplateContentFooter>
         </TemplateContent>
+
+        <TemplateContentFooter>
+          <TemplateDatasources>
+            {datasources.map((pluginPackageName) => {
+              return (
+                <DatasourceChip
+                  key={pluginPackageName}
+                  pluginPackageName={pluginPackageName}
+                />
+              );
+            })}
+          </TemplateDatasources>
+          {!props.hideForkTemplateButton && (
+            <Tooltip
+              content={createMessage(FORK_THIS_TEMPLATE)}
+              placement={Position.BOTTOM}
+            >
+              <Button
+                className="t--fork-template fork-button"
+                isDisabled={isImportingTemplateToApp}
+                isIconButton
+                isLoading={
+                  props.onForkTemplateClick && loadingTemplateId === id
+                }
+                onClick={onForkButtonTrigger}
+                size="sm"
+                startIcon="plus"
+              />
+            </Tooltip>
+          )}
+        </TemplateContentFooter>
       </TemplateWrapper>
     </>
   );

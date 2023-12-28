@@ -8,7 +8,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import Landing from "pages/setup/Welcome";
+import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
 import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
@@ -30,11 +30,17 @@ export function SignupSuccess() {
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
+  const isEnabledForCreateNew = useFeatureFlag(
+    FEATURE_FLAG.ab_create_new_apps_enabled,
+  );
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     user?.email && setUserSignedUpFlag(user?.email);
   }, []);
+
+  const isNonInvitedAndNonAdminUser =
+    !user?.isSuperUser && shouldEnableFirstTimeUserOnboarding === "true";
 
   const redirectUsingQueryParam = useCallback(
     () =>
@@ -44,6 +50,7 @@ export function SignupSuccess() {
         validLicense,
         dispatch,
         showStarterTemplatesInsteadofBlankCanvas,
+        isNonInvitedAndNonAdminUser && isEnabledForCreateNew,
       ),
     [],
   );
@@ -73,7 +80,7 @@ export function SignupSuccess() {
   //TODO(Balaji): Factor in case, where user had closed the tab, while filling the form.And logs back in again.
   if (
     user?.isSuperUser ||
-    (user?.role && user?.useCase) ||
+    ((user?.role || user?.proficiency) && user?.useCase) ||
     shouldEnableFirstTimeUserOnboarding !== "true"
   ) {
     redirectUsingQueryParam();
@@ -84,7 +91,7 @@ export function SignupSuccess() {
       </Center>
     );
   }
-  return <Landing forSuperUser={false} onGetStarted={onGetStarted} />;
+  return <UserWelcomeScreen isSuperUser={false} onGetStarted={onGetStarted} />;
 }
 
 export default requiresAuth(SignupSuccess);

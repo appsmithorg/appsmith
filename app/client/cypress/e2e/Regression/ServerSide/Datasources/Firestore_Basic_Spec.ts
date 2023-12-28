@@ -9,6 +9,9 @@ import {
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any,
   guid: any,
@@ -16,7 +19,7 @@ let dsName: any,
   newCityPath: any,
   createCity: any,
   cityName = "LA_";
-describe("Validate Firestore DS", () => {
+describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
   before("Generate GUID for new Firestore DS", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -240,7 +243,7 @@ describe("Validate Firestore DS", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
   });
 
   it("4. Validate Upsert [Update & Insert]/Delete documents", () => {
@@ -353,9 +356,9 @@ describe("Validate Firestore DS", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(dsName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
-    // entityExplorer.SelectEntityByName(dsName, "Datasources");
+    // EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     // entityExplorer.ActionContextMenuByEntityName({
     //   entityNameinLeftSidebar: dsName,
     //   action: "Delete",

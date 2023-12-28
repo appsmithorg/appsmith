@@ -9,10 +9,10 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ImportActionResultDTO;
+import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
-import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -60,15 +60,16 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         this.newActionService = newActionService;
     }
 
-    // Updates pageNametoIdMap and pageNameMap in importable resources.
-    // Also directly updates required information in DB
+    // Updates pageNameToIdMap and pageNameMap in importable resources.
+    // Also, directly updates required information in DB
     @Override
     public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
 
         List<NewPage> importedNewPageList = applicationJson.getPageList();
 
@@ -113,7 +114,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
 
         ImportedActionAndCollectionMapsDTO actionAndCollectionMapsDTO =
                 mappedImportableResourcesDTO.getActionAndCollectionMapsDTO();
@@ -580,6 +582,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                 .getUnpublishedAction()
                                 .getDefaultResources()
                                 .getCollectionId();
+                        final String collectionId =
+                                newAction.getUnpublishedAction().getCollectionId();
+
                         newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                             if (layout.getLayoutOnLoadActions() != null) {
                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction.stream()
@@ -587,6 +592,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                         .forEach(actionDTO -> {
                                             actionDTO.setDefaultActionId(defaultActionId);
                                             actionDTO.setDefaultCollectionId(defaultCollectionId);
+                                            actionDTO.setCollectionId(collectionId);
                                         }));
                             }
                         });
@@ -608,6 +614,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                                 actionDTO.setDefaultCollectionId(newAction
                                                         .getPublishedAction()
                                                         .getDefaultResources()
+                                                        .getCollectionId());
+                                                actionDTO.setCollectionId(newAction
+                                                        .getPublishedAction()
                                                         .getCollectionId());
                                             }
                                         }));

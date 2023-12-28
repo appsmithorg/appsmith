@@ -143,6 +143,12 @@ export const onboardingCheckListUrl = (props: URLBuilderParams): string =>
 export const builderURL = (props: URLBuilderParams): string => {
   return urlBuilder.build(props);
 };
+export const globalAddURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: "add",
+  });
+};
 
 export const widgetURL = (
   props: URLBuilderParams & { selectedWidgets: string[] },
@@ -150,6 +156,13 @@ export const widgetURL = (
   return urlBuilder.build({
     ...props,
     suffix: `widgets/${props.selectedWidgets.join(",")}`,
+  });
+};
+
+export const widgetListURL = (props: URLBuilderParams) => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `widgets`,
   });
 };
 
@@ -169,3 +182,29 @@ export function adminSettingsCategoryUrl({
 
 export const templateIdUrl = ({ id }: { id: string }): string =>
   `${TEMPLATES_PATH}/${id}`;
+
+export const jsCollectionListURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `jsObjects`,
+  });
+};
+
+export const jsCollectionAddURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: "jsObjects/add",
+  });
+};
+
+export const queryListURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
+    ...props,
+    suffix: `queries`,
+  });
+
+export const queryAddURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
+    ...props,
+    suffix: `queries/add`,
+  });

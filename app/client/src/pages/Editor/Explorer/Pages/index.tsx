@@ -23,7 +23,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL, widgetListURL } from "@appsmith/RouteBuilder";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -47,6 +47,10 @@ import {
   StyledEntity,
 } from "../Common/components";
 import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
+import {
+  PERMISSION_TYPE,
+  isPermitted,
+} from "@appsmith/utils/permissionHelpers";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -68,9 +72,12 @@ function Pages() {
 
   const switchPage = useCallback(
     (page: Page) => {
-      const navigateToUrl = builderURL({
-        pageId: page.pageId,
-      });
+      const navigateToUrl =
+        currentPageId === page.pageId
+          ? widgetListURL({})
+          : builderURL({
+              pageId: page.pageId,
+            });
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
         name: page.pageName,
         fromUrl: location.pathname,
@@ -82,7 +89,7 @@ function Pages() {
         invokedBy: NavigationMethod.EntityExplorer,
       });
     },
-    [location.pathname],
+    [location.pathname, currentPageId],
   );
 
   const [isMenuOpen, openMenu] = useState(false);
@@ -133,6 +140,10 @@ function Pages() {
     isFeatureEnabled,
     userAppPermissions,
   );
+  const hasExportPermission = isPermitted(
+    userAppPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
+  );
 
   const pageElements = useMemo(
     () =>
@@ -144,10 +155,13 @@ function Pages() {
           isFeatureEnabled,
           pagePermissions,
         );
+
         const contextMenu = (
           <PageContextMenu
             applicationId={applicationId as string}
             className={EntityClassNames.CONTEXT_MENU}
+            hasExportPermission={hasExportPermission}
+            isCurrentPage={isCurrentPage}
             isDefaultPage={page.isDefault}
             isHidden={!!page.isHidden}
             key={page.pageId + "_context-menu"}

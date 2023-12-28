@@ -8,7 +8,9 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -36,7 +38,6 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -59,6 +60,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -657,64 +659,96 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private Mono<Boolean> checkPermissionsForForking(
             String srcApplicationId, String targetWorkspaceId, String branchName) {
-        Mono<Application> applicationMono = applicationService
-                .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
+        Optional<String> optionalBranchName = Optional.ofNullable(branchName);
+        Optional<AclPermission> optionalAclPermission = Optional.empty();
+        Mono<Application> applicationMonoWithOutPermission = applicationService
+                .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
                 .flatMap(branchedApplicationId ->
-                        applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()));
+                        applicationService.findById(branchedApplicationId, optionalAclPermission))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                .flatMap(newPageRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
-                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                .flatMap(newActionRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
-                .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
-                .retrieveById(targetWorkspaceId)
-                .flatMap(workspaceRepository::setUserPermissionsInObject));
+        // For sample apps that are marked as forked, we allow forking to any workspace without any permission checks
+        return isForkingEnabled(applicationMonoWithOutPermission).flatMap(isForkingEnabled -> {
+            if (isForkingEnabled) {
+                return Mono.just(Boolean.TRUE);
+            }
+            Mono<Application> applicationMono = applicationService
+                    .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
+                    .flatMap(branchedApplicationId -> applicationService.findById(
+                            branchedApplicationId, applicationPermission.getEditPermission()))
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+                    .cache();
 
-        Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                pageFlux,
-                FieldName.PAGE,
-                permissionGroupService.getSessionUserPermissionGroupIds(),
-                pagePermission.getEditPermission(),
-                AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                actionFlux,
-                FieldName.ACTION,
-                permissionGroupService.getSessionUserPermissionGroupIds(),
-                actionPermission.getEditPermission(),
-                AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> actionCollectionsValidatedForPermission =
-                UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                        actionCollectionFlux,
-                        FieldName.ACTION,
-                        permissionGroupService.getSessionUserPermissionGroupIds(),
-                        actionPermission.getEditPermission(),
-                        AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> workspaceValidatedForCreateApplicationPermission =
-                UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                        workspaceFlux,
-                        FieldName.WORKSPACE,
-                        permissionGroupService.getSessionUserPermissionGroupIds(),
-                        workspacePermission.getApplicationCreatePermission(),
-                        AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> workspaceValidatedForCreateDatasourcePermission =
-                UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                        workspaceFlux,
-                        FieldName.WORKSPACE,
-                        permissionGroupService.getSessionUserPermissionGroupIds(),
-                        workspacePermission.getDatasourceCreatePermission(),
-                        AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+            // Normal Application forking with developer/edit access
+            Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
+                    .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                    .flatMap(newPageRepository::setUserPermissionsInObject));
 
-        return Mono.when(
-                        pagesValidatedForPermission,
-                        actionsValidatedForPermission,
-                        actionCollectionsValidatedForPermission,
-                        workspaceValidatedForCreateApplicationPermission,
-                        workspaceValidatedForCreateDatasourcePermission)
-                .thenReturn(Boolean.TRUE);
+            Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
+                    .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                    .flatMap(newActionRepository::setUserPermissionsInObject));
+
+            Flux<BaseDomain> actionCollectionFlux =
+                    applicationMono.flatMapMany(application -> actionCollectionRepository
+                            .findByApplicationId(application.getId(), Optional.empty(), Optional.empty())
+                            .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+
+            Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
+                    .findById(targetWorkspaceId)
+                    .flatMap(workspaceRepository::setUserPermissionsInObject));
+
+            Mono<Set<String>> permissionGroupIdsMono =
+                    permissionGroupService.getSessionUserPermissionGroupIds().cache();
+
+            Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                    pageFlux,
+                    FieldName.PAGE,
+                    permissionGroupIdsMono,
+                    pagePermission.getEditPermission(),
+                    AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+            Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                    actionFlux,
+                    FieldName.ACTION,
+                    permissionGroupIdsMono,
+                    actionPermission.getEditPermission(),
+                    AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+            Mono<Boolean> actionCollectionsValidatedForPermission =
+                    UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                            actionCollectionFlux,
+                            FieldName.ACTION,
+                            permissionGroupIdsMono,
+                            actionPermission.getEditPermission(),
+                            AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+            Mono<Boolean> workspaceValidatedForCreateApplicationPermission =
+                    UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                            workspaceFlux,
+                            FieldName.WORKSPACE,
+                            permissionGroupIdsMono,
+                            workspacePermission.getApplicationCreatePermission(),
+                            AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+            Mono<Boolean> workspaceValidatedForCreateDatasourcePermission =
+                    UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                            workspaceFlux,
+                            FieldName.WORKSPACE,
+                            permissionGroupIdsMono,
+                            workspacePermission.getDatasourceCreatePermission(),
+                            AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+
+            return Mono.when(
+                            pagesValidatedForPermission,
+                            actionsValidatedForPermission,
+                            actionCollectionsValidatedForPermission,
+                            workspaceValidatedForCreateApplicationPermission,
+                            workspaceValidatedForCreateDatasourcePermission)
+                    .thenReturn(Boolean.TRUE);
+        });
+    }
+
+    private Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
+        return applicationMono
+                .map(application -> Boolean.TRUE.equals(application.getForkingEnabled()))
+                .defaultIfEmpty(Boolean.FALSE);
     }
 }

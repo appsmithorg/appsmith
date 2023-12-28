@@ -47,9 +47,13 @@ export const getTemplateInformation = (payload: string) => ({
   payload,
 });
 
-export const showTemplatesModal = (payload: boolean) => ({
+export const showTemplatesModal = (payload: { isOpenFromCanvas: boolean }) => ({
   type: ReduxActionTypes.SHOW_TEMPLATES_MODAL,
   payload,
+});
+
+export const hideTemplatesModal = () => ({
+  type: ReduxActionTypes.HIDE_TEMPLATES_MODAL,
 });
 
 export const importTemplateIntoApplication = (
@@ -91,4 +95,26 @@ export const hideStarterBuildingBlockDatasourcePrompt = () => ({
 
 export const getTemplateFilters = () => ({
   type: ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
+});
+
+export const importTemplateIntoApplicationViaOnboardingFlow = (
+  templateId: string,
+  templateName: string,
+  pageNames: string[],
+  applicationId: string,
+  workspaceId: string,
+) => ({
+  type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW,
+  payload: {
+    templateId,
+    templateName,
+    pageNames,
+    applicationId,
+    workspaceId,
+  },
+});
+
+export const setActiveLoadingTemplateId = (templateId: string) => ({
+  type: ReduxActionTypes.SET_ACTIVE_LOADING_TEMPLATE_ID,
+  payload: templateId,
 });

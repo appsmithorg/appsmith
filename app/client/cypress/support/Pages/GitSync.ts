@@ -46,6 +46,14 @@ export class GitSync {
   private _gitSyncBranches = ".t--sync-branches";
   learnMoreSshUrl = ".t--learn-more-ssh-url";
   repoLimitExceededErrorModal = ".t--git-repo-limited-modal";
+  public _bottomSettingsBtn = ".t--bottom-git-settings";
+  public _defaultBranchSelect = "[data-testid='t--git-default-branch-select']";
+  public _defaultBranchUpdateBtn =
+    "[data-testid='t--git-default-branch-update-btn']";
+  public _protectedBranchesSelect =
+    "[data-testid='t--git-protected-branches-select']";
+  public _protectedBranchesUpdateBtn =
+    "[data-testid='t--git-protected-branches-update-btn']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -347,10 +355,20 @@ export class GitSync {
     toUseNewGuid = false,
     assertCreateBranch = true,
   ) {
+    this.agHelper.AssertElementVisibility(this._bottomBarPull);
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
-    this.agHelper.GetNClick(this._branchButton);
-    this.agHelper.Sleep(2000); //branch pop up to open
+    cy.waitUntil(
+      () => {
+        this.agHelper.GetNClick(this._branchButton, 0, true);
+        if (this.agHelper.IsElementVisible(this._branchSearchInput)) {
+          return true; //visible, return true to stop waiting
+        }
+        return false; //not visible, return false to continue waiting
+      },
+      { timeout: Cypress.config("pageLoadTimeout") },
+    );
+
     cy.get("@guid").then((uid) => {
       //using the same uid as generated during CreateNConnectToGit
       this.agHelper.TypeText(
@@ -466,9 +484,9 @@ export class GitSync {
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
     );
+    this.agHelper.AssertContains("Discarded changes successfully");
     this.assertHelper.AssertNetworkStatus("@discardChanges");
     this.assertHelper.AssertNetworkStatus("@gitStatus");
-    this.agHelper.AssertContains("Discarded changes successfully");
     this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
   }
 

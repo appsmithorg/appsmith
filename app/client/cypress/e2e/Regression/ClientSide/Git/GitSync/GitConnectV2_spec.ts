@@ -1,12 +1,17 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let ws1Name: string;
 let ws2Name: string;
 let app1Name: string;
 let repoName: any;
+let branchName: any;
 
-describe("Git Connect V2", function () {
+describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -36,17 +41,21 @@ describe("Git Connect V2", function () {
       release_git_connect_v2_enabled: true,
     });
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 300);
-    _.propPane.RenameWidget("Text1", "MyText");
-    _.propPane.UpdatePropertyFieldValue("Text", "Hello World");
-    _.gitSync.CommitAndPush();
+    _.gitSync.CreateGitBranch("test", true);
+    cy.get("@gitbranchName").then((bName) => {
+      branchName = bName;
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 300);
+      _.propPane.RenameWidget("Text1", "MyText");
+      _.propPane.UpdatePropertyFieldValue("Text", "Hello World");
+      _.gitSync.CommitAndPush();
 
-    _.gitSync.ImportAppFromGitV2(ws2Name, repoName);
-
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.AssertEntityPresenceInExplorer("MyText");
-    _.entityExplorer.SelectEntityByName("MyText");
-    _.propPane.ValidatePropertyFieldValue("Text", "Hello World");
+      _.gitSync.ImportAppFromGitV2(ws2Name, repoName);
+      _.gitSync.SwitchGitBranch(branchName);
+      PageLeftPane.expandCollapseItem("Widgets");
+      PageLeftPane.assertPresence("MyText");
+      EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
+      _.propPane.ValidatePropertyFieldValue("Text", "Hello World");
+    });
   });
 
   after(() => {

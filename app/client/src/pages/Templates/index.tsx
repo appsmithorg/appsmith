@@ -1,59 +1,40 @@
-import React, { useEffect } from "react";
-import styled from "styled-components";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
+import type { AppState } from "@appsmith/reducers";
+import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
 import * as Sentry from "@sentry/react";
-import { isEmpty } from "lodash";
-import { Switch, Route, useRouteMatch } from "react-router-dom";
-import { SearchInput, Text } from "design-system";
-import TemplateList from "./TemplateList";
-import TemplateView from "./TemplateView";
-import Filters from "pages/Templates/Filters";
-import { useDispatch, useSelector } from "react-redux";
+import { fetchDefaultPlugins } from "actions/pluginActions";
+import { getAllTemplates, getTemplateFilters } from "actions/templateActions";
 import { setHeaderMeta } from "actions/themeActions";
-import {
-  getAllTemplates,
-  getTemplateFilters,
-  setTemplateSearchQuery,
-} from "actions/templateActions";
+import { Text } from "design-system";
+import { isEmpty } from "lodash";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Route, Switch, useRouteMatch } from "react-router-dom";
 import {
   allTemplatesFiltersSelector,
   getForkableWorkspaces,
-  getSearchedTemplateList,
-  getTemplateFiltersLength,
-  getTemplateSearchQuery,
-  isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
-import { fetchDefaultPlugins } from "actions/pluginActions";
-import type { AppState } from "@appsmith/reducers";
+import styled from "styled-components";
 import { editorInitializer } from "utils/editor/EditorUtils";
-import {
-  getIsFetchingApplications,
-  getUserApplicationsWorkspacesList,
-} from "@appsmith/selectors/applicationSelectors";
-import { getAllApplications } from "@appsmith/actions/applicationActions";
-import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
-import type { Template } from "api/TemplatesApi";
-import LoadingScreen from "./TemplatesModal/LoadingScreen";
-import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { debounce } from "lodash";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { StartWithTemplateContent } from "./StartWithTemplateContent";
+import StartWithTemplateFilters from "./StartWithTemplateFilter";
+import TemplateView from "./TemplateView";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
   margin-top: ${(props) => props.theme.homePage.header}px;
-  display: flex;
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  background-color: var(--ads-v2-color-gray-50);
 `;
 
 const SidebarWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding: 16px 16px 0;
+  padding: 25px 16px 0;
   flex-direction: column;
-  border-right: 1px solid var(--ads-v2-color-border);
   position: fixed;
 `;
 
@@ -67,7 +48,7 @@ const SecondaryWrapper = styled.div`
 export const TemplateListWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  min-height: 100vh;
   margin-left: ${(props) => props.theme.homePage.sidebar}px;
 `;
 
@@ -76,23 +57,6 @@ export const ResultsCount = styled(Text)`
   margin-top: 20px;
   margin-left: ${(props) => props.theme.spaces[12] - 8}px;
   padding-bottom: 20px;
-`;
-
-const SearchWrapper = styled.div<{ sticky?: boolean }>`
-  margin-left: ${(props) => props.theme.spaces[11]}px;
-  /* max-width: 250px; */
-  .templates-search {
-    max-width: 250px;
-  }
-  ${(props) =>
-    props.sticky &&
-    `position: sticky;
-  top: 0;
-  position: -webkit-sticky;
-  z-index: 1;
-  background-color: var(--ads-v2-color-bg);
-  padding: var(--ads-v2-spaces-7);
-  margin-left: 0; `}
 `;
 
 function TemplateRoutes() {
@@ -147,85 +111,6 @@ function TemplateRoutes() {
   );
 }
 
-interface TemplatesContentProps {
-  onTemplateClick?: (id: string) => void;
-  onForkTemplateClick?: (template: Template) => void;
-  stickySearchBar?: boolean;
-  isForkingEnabled: boolean;
-  filterWithAllowPageImport?: boolean;
-}
-const INPUT_DEBOUNCE_TIMER = 500;
-export function TemplatesContent(props: TemplatesContentProps) {
-  const templateSearchQuery = useSelector(getTemplateSearchQuery);
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
-  const isLoading = isFetchingApplications || isFetchingTemplates;
-  const dispatch = useDispatch();
-  const onChange = debounce((query: string) => {
-    dispatch(setTemplateSearchQuery(query));
-    AnalyticsUtil.logEvent("TEMPLATES_SEARCH_INPUT_EVENT", { query });
-  }, INPUT_DEBOUNCE_TIMER);
-  const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
-  const templates = useSelector(getSearchedTemplateList).filter((template) =>
-    filterWithAllowPageImport ? !!template.allowPageImport : true,
-  );
-  const filterCount = useSelector(getTemplateFiltersLength);
-
-  useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
-    });
-  }, []);
-  let resultsText =
-    templates.length > 1
-      ? `Showing all ${templates.length} templates`
-      : templates.length === 1
-      ? "Showing 1 template"
-      : "No templates to show";
-
-  if (templates.length) {
-    resultsText +=
-      filterCount > 1
-        ? ` matching ${filterCount} filters`
-        : filterCount === 1
-        ? " matching 1 filter"
-        : "";
-  }
-
-  if (isLoading) {
-    return <LoadingScreen text="Loading templates" />;
-  }
-
-  return (
-    <>
-      <SearchWrapper sticky={props.stickySearchBar}>
-        <div className="templates-search">
-          <SearchInput
-            data-testid={"t--application-search-input"}
-            isDisabled={isLoading}
-            onChange={onChange}
-            placeholder={createMessage(SEARCH_TEMPLATES)}
-            value={templateSearchQuery}
-          />
-        </div>
-      </SearchWrapper>
-      <ResultsCount
-        data-testid="t--application-templates-results-header"
-        kind="heading-m"
-        renderAs="h1"
-      >
-        {resultsText}
-      </ResultsCount>
-      <TemplateList
-        isForkingEnabled={props.isForkingEnabled}
-        onForkTemplateClick={props.onForkTemplateClick}
-        onTemplateClick={props.onTemplateClick}
-        templates={templates}
-      />
-    </>
-  );
-}
-
 function Templates() {
   const workspaceList = useSelector(getForkableWorkspaces);
 
@@ -234,12 +119,12 @@ function Templates() {
       <SidebarWrapper>
         <SecondaryWrapper>
           <ReconnectDatasourceModal />
-          <Filters />
+          <StartWithTemplateFilters />
           <LeftPaneBottomSection />
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>
-        <TemplatesContent isForkingEnabled={!!workspaceList.length} />
+        <StartWithTemplateContent isForkingEnabled={!!workspaceList.length} />
       </TemplateListWrapper>
     </PageWrapper>
   );

@@ -8,7 +8,11 @@ import type { ActionResponse } from "api/ActionAPI";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
 import type { Action } from "entities/Action";
-import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import type {
+  ExecutePluginActionSuccessPayload,
+  UpdateActionPropertyActionPayload,
+} from "actions/pluginActionActions";
+import { klona } from "klona";
 
 export interface ActionData {
   isLoading: boolean;
@@ -173,8 +177,10 @@ export const handlers = {
   },
   [ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS]: (
     draftMetaState: Array<ActionData | PartialActionData>,
-    action: ReduxAction<{ id: string; response: ActionResponse }>,
+    action: ReduxAction<ExecutePluginActionSuccessPayload>,
   ) => {
+    if (!action.payload.isActionCreatedInApp) return;
+
     const foundAction = draftMetaState.find((stateAction) => {
       return stateAction.config.id === action.payload.id;
     });
@@ -383,6 +389,10 @@ export const handlers = {
     draftMetaState.forEach((a) => {
       a.data = undefined;
     });
+  },
+
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 };
 

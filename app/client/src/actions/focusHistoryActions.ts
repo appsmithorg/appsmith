@@ -19,9 +19,23 @@ export const routeChanged = (
   };
 };
 
-export const setFocusHistory = (key: string, focusState: FocusState) => {
+export const storeFocusHistory = (key: string, focusState: FocusState) => {
   return {
     type: ReduxActionTypes.SET_FOCUS_HISTORY,
     payload: { key, focusState },
+  };
+};
+
+export const removeFocusHistoryRequest = (url: string) => {
+  return {
+    type: ReduxActionTypes.REMOVE_FOCUS_HISTORY_REQUEST,
+    payload: { url },
+  };
+};
+
+export const removeFocusHistory = (key: string) => {
+  return {
+    type: ReduxActionTypes.REMOVE_FOCUS_HISTORY,
+    payload: { key },
   };
 };

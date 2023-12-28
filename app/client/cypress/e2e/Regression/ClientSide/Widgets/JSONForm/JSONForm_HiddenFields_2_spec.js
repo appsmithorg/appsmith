@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -86,89 +90,93 @@ function removeCustomField() {
   cy.deleteJSONFormField("customField1");
 }
 
-describe("JSON Form Hidden fields", () => {
-  before(() => {
-    agHelper.AddDsl("jsonFormDslWithSchema");
-    cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    entityExplorer.SelectEntityByName("Text1");
-    propPane.UpdatePropertyFieldValue(
-      "Text",
-      "{{JSON.stringify(JSONForm1.formData)}}",
-    );
-  });
-
-  it("1. can hide Phone Number Input Field", () => {
-    const defaultValue = "1000";
-    // Add new custom field
-    addCustomField("Phone Number Input");
-
-    cy.testJsontext("defaultvalue", defaultValue);
-
-    hideAndVerifyProperties("customField1", defaultValue);
-
-    removeCustomField();
-  });
-
-  it("2. can hide Radio Group Field", () => {
-    const defaultValue = "Y";
-    // Add new custom field
-    addCustomField("Phone Number Input");
-
-    cy.testJsontext("defaultvalue", defaultValue);
-
-    hideAndVerifyProperties("customField1", defaultValue);
-
-    removeCustomField();
-  });
-
-  it("3. can hide Select Field", () => {
-    const defaultValue = "BLUE";
-    // Add new custom field
-    addCustomField(/^Select/);
-
-    cy.testJsontext("defaultselectedvalue", defaultValue);
-
-    hideAndVerifyProperties("customField1", defaultValue);
-
-    removeCustomField();
-  });
-
-  it("4. can hide Switch Field", () => {
-    // Add new custom field
-    addCustomField("Switch");
-
-    hideAndVerifyProperties("customField1", true);
-
-    removeCustomField();
-  });
-
-  it("5. hides fields on first load", () => {
-    cy.openPropertyPane("jsonformwidget");
-
-    // hide education field
-    cy.openFieldConfiguration("education");
-    cy.togglebarDisable(".t--property-control-visible input");
-    cy.get(backBtn).click({ force: true }).wait(500);
-    // hide name field
-    cy.openFieldConfiguration("name");
-    cy.togglebarDisable(".t--property-control-visible input");
-
-    // publish the app
-    deployMode.DeployApp();
-    cy.wait(4000);
-
-    // Check if name is hidden
-    cy.get(`${fieldPrefix}-name`).should("not.exist");
-    // Check if education is hidden
-    cy.get(`${fieldPrefix}-education`).should("not.exist");
-
-    // check if name and education are not present in form data
-    cy.get(".t--widget-textwidget .bp3-ui-text").then(($el) => {
-      const formData = JSON.parse($el.text());
-
-      cy.wrap(formData.name).should("deep.equal", undefined);
-      cy.wrap(formData.education).should("deep.equal", undefined);
+describe(
+  "JSON Form Hidden fields",
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  () => {
+    before(() => {
+      agHelper.AddDsl("jsonFormDslWithSchema");
+      cy.openPropertyPane("jsonformwidget");
+      cy.get(locators._jsToggle("sourcedata")).click({ force: true });
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue(
+        "Text",
+        "{{JSON.stringify(JSONForm1.formData)}}",
+      );
     });
-  });
-});
+
+    it("1. can hide Phone Number Input Field", () => {
+      const defaultValue = "1000";
+      // Add new custom field
+      addCustomField("Phone Number Input");
+
+      cy.testJsontext("defaultvalue", defaultValue);
+
+      hideAndVerifyProperties("customField1", defaultValue);
+
+      removeCustomField();
+    });
+
+    it("2. can hide Radio Group Field", () => {
+      const defaultValue = "Y";
+      // Add new custom field
+      addCustomField("Phone Number Input");
+
+      cy.testJsontext("defaultvalue", defaultValue);
+
+      hideAndVerifyProperties("customField1", defaultValue);
+
+      removeCustomField();
+    });
+
+    it("3. can hide Select Field", () => {
+      const defaultValue = "BLUE";
+      // Add new custom field
+      addCustomField(/^Select/);
+
+      cy.testJsontext("defaultselectedvalue", defaultValue);
+
+      hideAndVerifyProperties("customField1", defaultValue);
+
+      removeCustomField();
+    });
+
+    it("4. can hide Switch Field", () => {
+      // Add new custom field
+      addCustomField("Switch");
+
+      hideAndVerifyProperties("customField1", true);
+
+      removeCustomField();
+    });
+
+    it("5. hides fields on first load", () => {
+      cy.openPropertyPane("jsonformwidget");
+
+      // hide education field
+      cy.openFieldConfiguration("education");
+      cy.togglebarDisable(".t--property-control-visible input");
+      cy.get(backBtn).click({ force: true }).wait(500);
+      // hide name field
+      cy.openFieldConfiguration("name");
+      cy.togglebarDisable(".t--property-control-visible input");
+
+      // publish the app
+      deployMode.DeployApp();
+      cy.wait(4000);
+
+      // Check if name is hidden
+      cy.get(`${fieldPrefix}-name`).should("not.exist");
+      // Check if education is hidden
+      cy.get(`${fieldPrefix}-education`).should("not.exist");
+
+      // check if name and education are not present in form data
+      cy.get(".t--widget-textwidget .bp3-ui-text").then(($el) => {
+        const formData = JSON.parse($el.text());
+
+        cy.wrap(formData.name).should("deep.equal", undefined);
+        cy.wrap(formData.education).should("deep.equal", undefined);
+      });
+    });
+  },
+);

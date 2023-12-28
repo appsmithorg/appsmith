@@ -35,6 +35,7 @@ import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
 import {
+  getCurrentApplicationIdForCreateNewApp,
   getDeletingMultipleApps,
   getUserApplicationsWorkspacesList,
 } from "@appsmith/selectors/applicationSelectors";
@@ -59,13 +60,13 @@ import {
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
+  updateApplicationThemeSettingAction,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   DELETING_APPLICATION,
   DELETING_MULTIPLE_APPLICATION,
-  DISCARD_SUCCESS,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import { APP_MODE } from "entities/App";
@@ -210,6 +211,13 @@ export function* getAllApplicationSaga() {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
+    const isEnabledForCreateNew: boolean = yield select(
+      selectFeatureFlagCheck,
+      FEATURE_FLAG.ab_create_new_apps_enabled,
+    );
+    const isOnboardingApplicationId: string = yield select(
+      getCurrentApplicationIdForCreateNewApp,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaceApplication: WorkspaceApplicationObject[] =
@@ -234,6 +242,18 @@ export function* getAllApplicationSaga() {
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
         payload: workspaceApplication,
       });
+
+      // This will initialise the current workspace to first only during onboarding
+      if (
+        isEnabledForCreateNew &&
+        workspaceApplication.length > 0 &&
+        !!isOnboardingApplicationId
+      ) {
+        yield put({
+          type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+          payload: workspaceApplication[0]?.workspace,
+        });
+      }
     }
     if (!isAirgappedInstance) {
       yield call(fetchReleases);
@@ -300,12 +320,6 @@ export function* fetchAppAndPagesSaga(
         },
       });
 
-      if (localStorage.getItem("GIT_DISCARD_CHANGES") === "success") {
-        toast.show(createMessage(DISCARD_SUCCESS), {
-          kind: "success",
-        });
-        localStorage.setItem("GIT_DISCARD_CHANGES", "");
-      }
       yield put({
         type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
         payload: response.data.application?.evaluationVersion,
@@ -442,6 +456,15 @@ export function* updateApplicationSaga(
           yield put(
             updateApplicationNavigationSettingAction(
               response.data.applicationDetail.navigationSetting,
+            ),
+          );
+        }
+
+        // TODO: refactor this once backend is ready
+        if (request.applicationDetail?.themeSetting) {
+          yield put(
+            updateApplicationThemeSettingAction(
+              request.applicationDetail?.themeSetting,
             ),
           );
         }

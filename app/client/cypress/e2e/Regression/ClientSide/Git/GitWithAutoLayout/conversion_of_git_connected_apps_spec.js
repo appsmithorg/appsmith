@@ -6,12 +6,16 @@ import {
   entityExplorer,
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch";
 
 let repoName;
-describe("Git sync:", function () {
+describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     agHelper.GenerateUUID();
@@ -40,15 +44,15 @@ describe("Git sync:", function () {
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER, 100, 100);
 
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
 
     autoLayout.UseSnapshotFromBanner();
 
-    entityExplorer.VerifyIsCurrentPage("Page2");
+    PageList.VerifyIsCurrentPage("Page2");
 
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     agHelper.Sleep();
 
@@ -60,11 +64,11 @@ describe("Git sync:", function () {
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     autoLayout.ConvertToAutoLayoutAndVerify();
 
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     autoLayout.UseSnapshotFromBanner();
 
-    entityExplorer.VerifyIsCurrentPage("Page1");
+    PageList.VerifyIsCurrentPage("Page1");
   });
 
   it("3. Switch to parentBranch and when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
@@ -74,11 +78,11 @@ describe("Git sync:", function () {
 
     autoLayout.ConvertToAutoLayoutAndVerify();
 
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     autoLayout.UseSnapshotFromBanner();
 
-    entityExplorer.VerifyIsCurrentPage("Page1");
+    PageList.VerifyIsCurrentPage("Page1");
   });
 
   after(() => {

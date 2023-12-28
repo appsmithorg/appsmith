@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.mongodb.client.result.UpdateResult;
@@ -42,9 +43,9 @@ public interface UserDataServiceCE {
 
     Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application);
 
-    Mono<UserData> addTemplateIdToLastUsedList(String templateId);
-
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
     Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
+
+    Mono<GitProfile> getGitProfileForCurrentUser(String defaultApplicationId);
 }

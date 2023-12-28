@@ -10,6 +10,10 @@ import {
   jsEditor,
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
@@ -17,7 +21,7 @@ const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 
-describe("Git sync Bug #10773", function () {
+describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
   let repoName;
 
   beforeEach(() => {
@@ -44,15 +48,14 @@ describe("Git sync Bug #10773", function () {
   it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     // adding a new page "ChildPage" to master
     cy.Createpage(pagename);
-    cy.get(".t--entity-name:contains('Page1')").click();
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.commitAndPush();
     cy.wait(2000);
     gitSync.CreateGitBranch(tempBranch, false);
     //cy.createGitBranch(tempBranch);
     cy.CheckAndUnfoldEntityItem("Pages");
     // verify tempBranch should contain this page
-    cy.get(`.t--entity-name:contains("${pagename}")`).should("be.visible");
-    cy.get(`.t--entity-name:contains("${pagename}")`).click();
+    EditorNavigation.SelectEntityByName(pagename, EntityType.Page);
     // delete page from tempBranch and merge to master
     cy.Deletepage(pagename);
     cy.get(homePageLocators.publishButton).click();
@@ -64,13 +67,13 @@ describe("Git sync Bug #10773", function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify ChildPage is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence(pagename);
     // create another branch and verify deleted page doesn't exist on it
     //cy.createGitBranch(tempBranch0);
     gitSync.CreateGitBranch(tempBranch0, false);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence(pagename);
   });
 
   it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
@@ -86,12 +89,10 @@ describe("Git sync Bug #10773", function () {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
+    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(1000);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
@@ -106,9 +107,9 @@ describe("Git sync Bug #10773", function () {
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     // verify jsObject is not duplicated
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    PageLeftPane.assertPresence(jsObject);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -139,14 +140,10 @@ describe("Git sync Bug #10773", function () {
 
     gitSync.CreateGitBranch(tempBranch, true);
     cy.wait(2000);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(".t--entity-name:contains(Page1)")
-      .last()
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     // verify jsObject is not duplicated
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    PageLeftPane.assertPresence(jsObject);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -170,12 +167,10 @@ describe("Git sync Bug #10773", function () {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       agHelper.AddDsl("JsObjecWithGitdsl");
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
+    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(1000);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
@@ -228,26 +223,16 @@ describe("Git sync Bug #10773", function () {
           }
 
           // verify jsObject data binding on Page 1
-          cy.CheckAndUnfoldEntityItem("Queries/JS");
-          cy.get(`.t--entity-name:contains(${jsObject})`).should(
-            "have.length",
-            1,
-          );
+          PageLeftPane.expandCollapseItem("Queries/JS");
+          PageLeftPane.assertPresence(jsObject);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );
           // switch to Page1 copy and verify jsObject data binding
-          cy.CheckAndUnfoldEntityItem("Pages");
-          cy.get(".t--entity-name:contains(Page1)")
-            .last()
-            .trigger("mouseover")
-            .click({ force: true });
-          cy.CheckAndUnfoldEntityItem("Queries/JS");
+          EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+          PageLeftPane.expandCollapseItem("Queries/JS");
           // verify jsObject is not duplicated
-          cy.get(`.t--entity-name:contains(${jsObject})`).should(
-            "have.length",
-            1,
-          );
+          PageLeftPane.assertPresence(jsObject);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );

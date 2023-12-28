@@ -1,12 +1,21 @@
 name: Test, build and push Docker Image
 
 on:
+  # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC) on weekdays
+  schedule:
+    - cron: "30 00 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      tags:
+        description: "Tags"
+        required: false
+        type: string
+        default: ""
 
-  # trigger for pushes to release and master
+  # trigger for pushes to master
   push:
-    branches: [release, master]
+    branches: [master]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -14,14 +23,41 @@ on:
       - "!app/client/cypress/manual_TestSuite/**"
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.setup.outputs.tags }}
+      matrix: ${{ steps.setup.outputs.matrix }}
+    steps:
+      - name: Set tags and matrix runner
+        id: setup
+        run: |
+          if [ "${{github.event_name}}" == "workflow_dispatch" ]; then
+            if [[ "${{inputs.tags}}" != "" && "${{inputs.tags}}" != *"@tag.All"* ]]; then
+              echo "tags=${{inputs.tags}}" >> $GITHUB_OUTPUT
+              echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]" >> $GITHUB_OUTPUT
+            else
+              echo "tags=" >> $GITHUB_OUTPUT
+              echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "tags=" >> $GITHUB_OUTPUT
+            echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
+          fi
+
   server-build:
+    needs: [setup]
+    if: success()
     name: server-build
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
       pr: 0
+      skip-tests: true
 
   client-build:
+    needs: [setup]
+    if: success()
     name: client-build
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
@@ -29,6 +65,8 @@ jobs:
       pr: 0
 
   rts-build:
+    needs: [setup]
+    if: success()
     name: rts-build
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
@@ -46,7 +84,7 @@ jobs:
       pr: 0
 
   ci-test:
-    needs: [build-docker-image]
+    needs: [setup, build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test
@@ -54,12 +92,32 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      tags: ${{needs.setup.outputs.tags}}
+      matrix: ${{needs.setup.outputs.matrix}}
+
+  server-unit-tests:
+    name: server-unit-tests
+    needs: [build-docker-image]
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: false
+
+  client-unit-tests:
+    name: client-unit-tests
+    needs: [build-docker-image]
+    uses: ./.github/workflows/client-unit-tests.yml
+    secrets: inherit
+    with:
+      pr: 0
 
   ci-test-result:
-    needs: [ci-test]
+    needs: [ci-test, client-unit-tests, server-unit-tests]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
+      github.event_name == 'schedule' ||
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
@@ -112,11 +170,11 @@ jobs:
           eventCommit=$(echo ${{env.EVENT_COMMITS}} | sed "s/'//g")
           echo "slack_username=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_OUTPUT
           if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
-            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
             echo "slack_icon=:no_entry:" >> $GITHUB_OUTPUT
           elif [[ ${{ needs.ci-test.result }} == 'success' ]]; then
-            echo "slack_message=All tests passed successfully :tada: Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_message=All tests passed successfully :tada: Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
             echo "slack_icon=:white_check_mark:" >> $GITHUB_OUTPUT
           else
@@ -187,8 +245,8 @@ jobs:
 
     steps:
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v3
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        uses: actions/checkout@v4
 
       - name: Download the react build artifact
         uses: actions/download-artifact@v3
@@ -250,7 +308,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
 
   package-master:
-    needs: ci-test
+    needs: [ci-test, client-unit-tests, server-unit-tests]
     runs-on: ubuntu-latest
     # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
@@ -263,7 +321,7 @@ jobs:
     steps:
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the react build artifact
         uses: actions/download-artifact@v3

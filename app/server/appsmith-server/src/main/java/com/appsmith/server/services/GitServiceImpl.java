@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exports.internal.ExportApplicationService;
@@ -10,6 +11,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -23,6 +25,7 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -53,7 +56,9 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
-            GitPrivateRepoHelper gitPrivateRepoHelper) {
+            GitPrivateRepoHelper gitPrivateRepoHelper,
+            TransactionalOperator transactionalOperator,
+            GitAutoCommitHelper gitAutoCommitHelper) {
         super(
                 userService,
                 userDataService,
@@ -79,6 +84,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 workspaceService,
                 redisUtils,
                 observationRegistry,
-                gitPrivateRepoHelper);
+                gitPrivateRepoHelper,
+                transactionalOperator,
+                gitAutoCommitHelper);
     }
 }

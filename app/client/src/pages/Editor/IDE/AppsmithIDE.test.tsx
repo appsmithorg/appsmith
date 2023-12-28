@@ -28,6 +28,14 @@ import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import GlobalHotKeys from "../GlobalHotKeys";
 import * as uiSelectors from "selectors/ui";
 
+// Mocking debounce hook that is being used in ThemeProvider to set width
+// This is done so that we render out widgets in this test.
+jest.mock("@react-hook/debounce", () => ({
+  useDebounce: jest.fn(() => {
+    return [1000, jest.fn()];
+  }),
+}));
+
 const renderNestedComponent = () => {
   const initialState = store.getState() as unknown as Partial<AppState>;
   const canvasId = "canvas-id";
@@ -133,8 +141,8 @@ describe("Drag and Drop widgets into Main container", () => {
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
-    jest.mock("sagas/PageSagas", () => ({
-      ...jest.requireActual("sagas/PageSagas"),
+    jest.mock("@appsmith/sagas/PageSagas", () => ({
+      ...jest.requireActual("@appsmith/sagas/PageSagas"),
       default: mockGenerator,
     }));
   });
@@ -804,8 +812,8 @@ describe("Drag in a nested container", () => {
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
-    jest.mock("sagas/PageSagas", () => ({
-      ...jest.requireActual("sagas/PageSagas"),
+    jest.mock("@appsmith/sagas/PageSagas", () => ({
+      ...jest.requireActual("@appsmith/sagas/PageSagas"),
       default: mockGenerator,
     }));
   });
