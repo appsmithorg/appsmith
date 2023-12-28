@@ -216,9 +216,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId);
-        Criteria deletionCriteria =
-                where(fieldName(QApplication.application.deleted)).ne(true);
-        return queryAll(List.of(applicationIdCriteria, deletionCriteria), permission);
+        return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     /**
@@ -282,7 +280,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         query.addCriteria(where(gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId));
-        query.addCriteria(where(fieldName(QApplication.application.deleted)).ne(true));
+        query.addCriteria(notDeleted());
         query.equals(where("this." + gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.branchName))
                 .equals("this." + gitApplicationMetadata + "."
