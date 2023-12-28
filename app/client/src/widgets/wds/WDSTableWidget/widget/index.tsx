@@ -1181,8 +1181,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPaddingAdjustedDimensions = () => {
-    // eslint-disable-next-line prefer-const
-    // let { componentHeight } = this.props;
     // Hacky fix for now to supply width to table widget
     let componentWidth: number =
       document
