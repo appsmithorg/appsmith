@@ -20,7 +20,7 @@ describe(
     });
 
     it("1. Should check analytics is not initialised when enableTelemtry is false", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       // agHelper.RefreshPage();
       // cy.wait(3000);
       // cy.wait("@getMe")
@@ -47,7 +47,7 @@ describe(
     });
 
     it("2. Should check smartlook is not initialised when enableTelemtry is false", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {
@@ -67,7 +67,7 @@ describe(
     });
 
     it("3. Should check Sentry is not initialised when enableTelemtry is false", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {

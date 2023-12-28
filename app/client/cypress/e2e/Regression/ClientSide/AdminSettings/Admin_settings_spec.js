@@ -49,7 +49,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     "4. Should test that settings page tab redirects",
     { tags: ["@tag.excludeForAirgap"] },
     () => {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");
       cy.get(adminsSettings.generalTab).click();
@@ -73,7 +73,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     { tags: ["@tag.airgap"] },
     () => {
       cy.visit("/applications", { timeout: 60000 });
-      if (!Cypress.env("AIRGAPPED")) cy.wait("@getReleaseItems");
+      if (!Cypress.env("AIRGAPPED")) cy.wait("@getAllWorkspaces");
 
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");

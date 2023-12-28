@@ -246,7 +246,7 @@ export class HomePage {
     this.agHelper.Sleep(2000); //to avoid CI flakyness
     this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
     if (!Cypress.env("AIRGAPPED")) {
-      this.assertHelper.AssertNetworkStatus("@getReleaseItems");
+      this.assertHelper.AssertNetworkStatus("@getAllWorkspaces");
     } else {
       this.agHelper.Sleep(2000);
     }

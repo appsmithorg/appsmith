@@ -14,7 +14,7 @@ describe(
     let newWorkspaceName;
 
     it("1. Should delete the workspace", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         newWorkspaceName = "workspace" + uid;
@@ -26,7 +26,7 @@ describe(
     });
 
     it("2. Should show option to delete workspace for an admin user", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.Sleep(2000);
 
       featureFlagIntercept({ license_gac_enabled: true });
@@ -49,7 +49,7 @@ describe(
           Cypress.env("TESTPASSWORD1"),
           "App Viewer",
         );
-        agHelper.VisitNAssert("/applications", "getReleaseItems");
+        agHelper.VisitNAssert("/applications", "getAllWorkspaces");
         homePage.OpenWorkspaceOptions(newWorkspaceName);
         agHelper.AssertContains(
           "Delete workspace",

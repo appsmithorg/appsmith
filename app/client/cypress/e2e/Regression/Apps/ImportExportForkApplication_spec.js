@@ -118,7 +118,7 @@ describe(
               { force: true },
             );
             if (!Cypress.env("AIRGAPPED"))
-              assertHelper.AssertNetworkStatus("@getReleaseItems");
+              assertHelper.AssertNetworkStatus("@getAllWorkspaces");
 
             // import exported application in new workspace
             // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });

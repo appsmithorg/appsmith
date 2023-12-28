@@ -44,6 +44,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { VersionData } from "../PageHeader";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const HomepageHeaderAction = ({
@@ -97,6 +98,9 @@ const HomepageHeaderAction = ({
           onOpenChange={(open) => {
             if (open) {
               setShowIntercomConsent(false);
+              dispatch({
+                type: ReduxActionTypes.FETCH_RELEASES,
+              });
             }
           }}
         >
