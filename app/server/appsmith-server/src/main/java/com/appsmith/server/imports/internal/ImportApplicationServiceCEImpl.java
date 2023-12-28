@@ -677,7 +677,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 applicationJson);
 
         return Flux.merge(pageIndependentImportables)
-                .thenMany(Flux.merge(pageDependentImportables))
+                .thenMany(Flux.defer(() -> Flux.merge(pageDependentImportables)))
                 .then();
     }
 
