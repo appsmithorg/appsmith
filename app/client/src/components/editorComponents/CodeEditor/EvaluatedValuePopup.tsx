@@ -616,6 +616,7 @@ function EvaluatedValuePopup(props: Props) {
     const { left, right } = wrapperRef.current.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const halfViewportWidth = viewportWidth / 2;
+    // TODO: Remove this temporary fix
     if (left < halfViewportWidth) {
       if (right < halfViewportWidth) {
         offset = "0, 5";
