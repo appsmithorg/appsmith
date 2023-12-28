@@ -30,6 +30,17 @@ jobs:
       - name: Stop the workflow run if tags are not present
         if: steps.checkTags.outputs.tags != 'true'
         run: exit 1
+        
+       - name: Check for the tags in tags.js 
+        if: steps.checkTags.outputs.tags == 'true'
+        run: |
+          tags="${{ github.event.client_payload.slash_command.args.named.tags }}"
+          IFS=',' read -ra tagArray <<< "$tags"
+          for tag in "${tagArray[@]}"; do
+            if ! grep -q "$tag" tag.js; then
+              echo "The provided tag '$tag' is not available. Please refer to tags.js for valid tags." >> $GITHUB_OUTPUT
+            fi
+          done
 
       - name: Check if @tag.All is present in tags
         if: steps.checkTags.outputs.tags == 'true'
