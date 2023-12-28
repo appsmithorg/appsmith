@@ -47,9 +47,13 @@ export const getTemplateInformation = (payload: string) => ({
   payload,
 });
 
-export const showTemplatesModal = (payload: boolean) => ({
+export const showTemplatesModal = (payload: { isOpenFromCanvas: boolean }) => ({
   type: ReduxActionTypes.SHOW_TEMPLATES_MODAL,
   payload,
+});
+
+export const hideTemplatesModal = () => ({
+  type: ReduxActionTypes.HIDE_TEMPLATES_MODAL,
 });
 
 export const importTemplateIntoApplication = (

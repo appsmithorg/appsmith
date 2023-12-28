@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ProvisionResourceDto;
@@ -16,7 +15,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Set;
 
 public interface UserGroupServiceCECompatible extends CrudService<UserGroup, String> {
     Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroupUpdateDTO resource);
@@ -53,6 +51,4 @@ public interface UserGroupServiceCECompatible extends CrudService<UserGroup, Str
             UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader);
 
     Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId);
-
-    Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds);
 }

@@ -568,6 +568,17 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
                         userGroup.getIsProvisioned()));
     }
 
+    @Override
+    public Flux<UserGroupCompactDTO> findAllGroupsForUserWithoutPermission(String userId) {
+        return repository
+                .findAllByUsersIn(Set.of(userId))
+                .map(userGroup -> new UserGroupCompactDTO(
+                        userGroup.getId(),
+                        userGroup.getName(),
+                        userGroup.getUserPermissions(),
+                        userGroup.getIsProvisioned()));
+    }
+
     private UserGroupCompactDTO generateUserGroupCompactDTO(UserGroup userGroup) {
         if (userGroup == null) {
             throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "user group can't be null");
@@ -579,7 +590,6 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds) {
         return repository
                 .findAllById(groupIds)
