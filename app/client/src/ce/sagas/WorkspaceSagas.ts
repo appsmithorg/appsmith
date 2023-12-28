@@ -65,6 +65,7 @@ export function* fetchAllWorkspacesSaga(
         const activeWorkspace = workspaces.find(
           (workspace) => workspace.id === workspaceId,
         );
+        //Fetch entities like applications, packages, workflows etc.
         yield put(fetchAllApplicationsOfWorkspace(workspaceId));
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
