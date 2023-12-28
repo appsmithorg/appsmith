@@ -6,7 +6,6 @@ import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { theme } from "constants/DefaultTheme";
 import type { Placement } from "popper.js";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -35,7 +34,7 @@ import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
     enabled: true,
-    offset: "0, 15",
+    offset: "0, -150",
   },
   preventOverflow: {
     enabled: true,
@@ -609,16 +608,27 @@ function EvaluatedValuePopup(props: Props) {
   const [isDragging, setIsDragging] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const placement: Placement = useMemo(() => {
-    if (props.popperPlacement) return props.popperPlacement;
-    if (wrapperRef.current) {
-      const boundingRect = wrapperRef.current.getBoundingClientRect();
-      if (boundingRect.left < theme.evaluatedValuePopup.width) {
-        return "right-start";
+  const [placement, offset]: [Placement, string] = useMemo(() => {
+    const placement: Placement = "left-start";
+    let offset = "0, 15";
+    if (!wrapperRef.current) return [placement, "0, 0"];
+    if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
+    const { left, right } = wrapperRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const halfViewportWidth = viewportWidth / 2;
+    if (left < halfViewportWidth) {
+      if (right < halfViewportWidth) {
+        offset = "0, 5";
+      } else {
+        // If the target spans from left half to the right half, show the popper on the right with offset eg. postgres on smaller screens
+        offset = "0, -290";
       }
+    } else {
+      // If the target is on the right half of the screen, show the popper on the left with offset eg. property pane
+      offset = "0, 15";
     }
-    return "left-start";
-  }, [wrapperRef.current]);
+    return [placement, offset];
+  }, [wrapperRef.current, props.popperPlacement]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -628,7 +638,13 @@ function EvaluatedValuePopup(props: Props) {
         isDraggable
         isDragging={isDragging}
         isOpen={props.isOpen || contentHovered || isDragging}
-        modifiers={modifiers}
+        modifiers={{
+          ...modifiers,
+          offset: {
+            enabled: true,
+            offset,
+          },
+        }}
         placement={placement}
         position={position}
         setIsDragging={setIsDragging}
