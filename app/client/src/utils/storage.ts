@@ -118,7 +118,7 @@ export const getCopiedWidgets = async () => {
 
 export const updateCurrentEnvironmentDetails = async () => {
   try {
-    const currentEnvDetails = await getSavedCurrentEnvironmentDetails();
+    const currentEnvDetails = await getSavedCurrentEnvironmentDetails(false);
     if (currentEnvDetails.appId) {
       await store.setItem(STORAGE_KEYS.CURRENT_ENV, {
         envId: currentEnvDetails.envId,
@@ -147,13 +147,17 @@ export const saveCurrentEnvironment = async (
 };
 
 // Function to fetch the current environment and related appId from indexedDB
-export const getSavedCurrentEnvironmentDetails = async (): Promise<{
+export const getSavedCurrentEnvironmentDetails = async (
+  callUpdate = true,
+): Promise<{
   envId: string;
   editorId: string;
   appId?: string;
 }> => {
   try {
-    await updateCurrentEnvironmentDetails();
+    if (callUpdate) {
+      await updateCurrentEnvironmentDetails();
+    }
     return (
       (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
         envId: "",
