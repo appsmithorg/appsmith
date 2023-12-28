@@ -68,11 +68,6 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
 
     @JsonView(Views.Internal.class)
     public boolean isDeleted() {
-        return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
-    }
-
-    @JsonView(Views.Public.class)
-    public boolean getDeleted() {
         return deletedAt != null;
     }
 
