@@ -31,7 +31,7 @@ jobs:
         if: steps.checkTags.outputs.tags != 'true'
         run: exit 1
 
-       - name: Check for the tags in tags.js 
+      - name: Check for the tags in tags.js 
         if: steps.checkTags.outputs.tags == 'true'
         run: |
           tags="${{ github.event.client_payload.slash_command.args.named.tags }}"
