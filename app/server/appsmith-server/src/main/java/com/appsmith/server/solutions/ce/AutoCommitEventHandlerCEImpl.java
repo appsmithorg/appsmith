@@ -150,6 +150,24 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             false)
                                     .map(commitResponse -> Boolean.TRUE);
                         })
+                        .flatMap(result -> {
+                            return setProgress(result, autoCommitEvent.getApplicationId(), 80);
+                        })
+                        .flatMap(result -> {
+                            Path baseRepoSuffix = Paths.get(
+                                    autoCommitEvent.getWorkspaceId(),
+                                    autoCommitEvent.getApplicationId(),
+                                    autoCommitEvent.getRepoName());
+
+                            return gitExecutor
+                                    .pushApplication(
+                                            baseRepoSuffix,
+                                            autoCommitEvent.getRepoUrl(),
+                                            autoCommitEvent.getPublicKey(),
+                                            autoCommitEvent.getPrivateKey(),
+                                            autoCommitEvent.getBranchName())
+                                    .map(pushResponse -> Boolean.TRUE);
+                        })
                         .defaultIfEmpty(Boolean.FALSE))
                 .flatMap(result -> {
                     log.info(
