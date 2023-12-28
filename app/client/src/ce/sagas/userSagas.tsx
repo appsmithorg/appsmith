@@ -90,6 +90,7 @@ import type {
   ProductAlertConfig,
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -148,12 +149,19 @@ export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   }
 }
 
-export function* getCurrentUserSaga() {
+export function* getCurrentUserSaga(action?: {
+  payload?: { v1UsersMeResp?: ApiResponse };
+}) {
+  const v1UsersMeResp = action?.payload?.v1UsersMeResp;
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.USER_ME_API,
     );
-    const response: ApiResponse = yield call(UserApi.getCurrentUser);
+    const response: ApiResponse = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      v1UsersMeResp,
+      () => call(UserApi.getCurrentUser),
+    );
 
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -534,11 +542,17 @@ export function* updatePhoto(
   }
 }
 
-export function* fetchFeatureFlags() {
+export function* fetchFeatureFlags(action?: {
+  payload?: { v1UsersFeaturesResp?: ApiResponse<FeatureFlags> };
+}) {
+  const v1UsersFeaturesResp = action?.payload?.v1UsersFeaturesResp;
   try {
     const response: ApiResponse<FeatureFlags> = yield call(
-      UserApi.fetchFeatureFlags,
+      getFromServerWhenNoPrefetchedResult,
+      v1UsersFeaturesResp,
+      () => call(UserApi.fetchFeatureFlags),
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
@@ -594,11 +608,17 @@ export function* leaveWorkspaceSaga(
   }
 }
 
-export function* fetchProductAlertSaga() {
+export function* fetchProductAlertSaga(action?: {
+  payload?: { v1ProductAlertResp?: ApiResponse<ProductAlert> };
+}) {
+  const v1ProductAlertResp = action?.payload?.v1ProductAlertResp;
   try {
     const response: ApiResponse<ProductAlert> = yield call(
-      UserApi.getProductAlert,
+      getFromServerWhenNoPrefetchedResult,
+      v1ProductAlertResp,
+      () => call(UserApi.getProductAlert),
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const message = response.data;

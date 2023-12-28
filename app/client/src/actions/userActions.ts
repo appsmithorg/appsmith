@@ -10,9 +10,11 @@ import type {
 } from "@appsmith/api/UserApi";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type {
+  ProductAlert,
   ProductAlertConfig,
   ProductAlertState,
 } from "reducers/uiReducers/usersReducer";
+import type { ApiResponse } from "api/ApiResponses";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
@@ -103,8 +105,13 @@ export const leaveWorkspace = (workspaceId: string) => {
   };
 };
 
-export const fetchFeatureFlagsInit = () => ({
+export const fetchFeatureFlagsInit = (
+  v1UsersFeaturesResp?: ApiResponse<FeatureFlags>,
+) => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
+  payload: {
+    v1UsersFeaturesResp,
+  },
 });
 
 export const fetchFeatureFlagsSuccess = (payload: FeatureFlags) => ({
@@ -117,8 +124,13 @@ export const fetchFeatureFlagsError = (error: any) => ({
   payload: { error, show: false },
 });
 
-export const fetchProductAlertInit = () => ({
+export const fetchProductAlertInit = (
+  v1ProductAlertResp?: ApiResponse<ProductAlert>,
+) => ({
   type: ReduxActionTypes.FETCH_PRODUCT_ALERT_INIT,
+  payload: {
+    v1ProductAlertResp,
+  },
 });
 
 export const fetchProductAlertSuccess = (productAlert: ProductAlertState) => ({

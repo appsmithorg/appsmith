@@ -174,16 +174,24 @@ import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchDatasourcesSaga(
-  action: ReduxAction<{ workspaceId?: string } | undefined>,
+  action: ReduxAction<
+    | { workspaceId?: string; v1DatasourcesResp?: ApiResponse<Datasource[]> }
+    | undefined
+  >,
 ) {
   try {
     let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
+    const v1DatasourcesResp = action.payload?.v1DatasourcesResp;
+    const response: ApiResponse<Datasource[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      v1DatasourcesResp,
+      async () => DatasourcesApi.fetchDatasources(workspaceId),
+    );
 
-    const response: ApiResponse<Datasource[]> =
-      yield DatasourcesApi.fetchDatasources(workspaceId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -231,9 +239,17 @@ function* fetchDatasourceStructureOnLoad() {
   } catch (error) {}
 }
 
-function* fetchMockDatasourcesSaga() {
+function* fetchMockDatasourcesSaga(action?: {
+  payload?: { v1DatasourcesMockResp?: ApiResponse };
+}) {
+  const v1DatasourcesMockResp = action?.payload?.v1DatasourcesMockResp;
   try {
-    const response: ApiResponse = yield DatasourcesApi.fetchMockDatasources();
+    const response: ApiResponse = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      v1DatasourcesMockResp,
+      async () => DatasourcesApi.fetchMockDatasources(),
+    );
+
     // not validating the api call here. If the call is unsuccessful it'll be unblocking. And we'll hide the mock DB section.
     yield put({
       type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,

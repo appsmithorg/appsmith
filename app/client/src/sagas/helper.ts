@@ -203,3 +203,12 @@ export async function generateHashFromString(str: unknown) {
 
   return hashHex;
 }
+
+export function* getFromServerWhenNoPrefetchedResult(
+  prefetchedResult?: any,
+  apiEffect?: any,
+): any {
+  if (prefetchedResult) return prefetchedResult;
+
+  return yield apiEffect();
+}

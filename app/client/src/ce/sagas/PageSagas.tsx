@@ -41,6 +41,7 @@ import type {
   FetchPageListResponse,
   FetchPageRequest,
   FetchPageResponse,
+  FetchPageResponseData,
   FetchPublishedPageRequest,
   GenerateTemplatePageRequest,
   PageLayout,
@@ -123,7 +124,10 @@ import {
   waitForWidgetConfigBuild,
 } from "../../sagas/InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "../../sagas/WidgetOperationUtils";
-import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
+import {
+  checkAndLogErrorsIfCyclicDependency,
+  getFromServerWhenNoPrefetchedResult,
+} from "../../sagas/helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
@@ -374,22 +378,23 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id, isFirstLoad } = pageRequestAction.payload;
+    const { id, isFirstLoad, v1PageResp } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
     );
-
     const isServerDSLMigrationsEnabled = select(
       getIsServerDSLMigrationsEnabled,
     );
+
     const params: FetchPageRequest = { id };
     if (isServerDSLMigrationsEnabled) {
       params.migrateDSL = true;
     }
     const fetchPageResponse: FetchPageResponse = yield call(
-      PageApi.fetchPage,
-      params,
+      getFromServerWhenNoPrefetchedResult,
+      v1PageResp,
+      () => call(PageApi.fetchPage, params),
     );
 
     yield handleFetchedPage({
@@ -423,10 +428,12 @@ export function* fetchPublishedPageSaga(
     pageId: string;
     bustCache: boolean;
     firstLoad: boolean;
+    v1PublishedPageResp?: FetchPageResponse;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId } = pageRequestAction.payload;
+    const { bustCache, firstLoad, pageId, v1PublishedPageResp } =
+      pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -438,10 +445,13 @@ export function* fetchPublishedPageSaga(
       pageId,
       bustCache,
     };
+
     const response: FetchPageResponse = yield call(
-      PageApi.fetchPublishedPage,
-      request,
+      getFromServerWhenNoPrefetchedResult,
+      v1PublishedPageResp,
+      () => call(PageApi.fetchPublishedPage, request),
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
@@ -1188,7 +1198,10 @@ export function* setDataUrl() {
   yield put(setUrlData(urlData));
 }
 
-export function* fetchPageDSLSaga(pageId: string) {
+export function* fetchPageDSLSaga(
+  pageId: string,
+  v1PageDSL?: ApiResponse<FetchPageResponseData>,
+) {
   try {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
@@ -1206,9 +1219,11 @@ export function* fetchPageDSLSaga(pageId: string) {
       params.migrateDSL = true;
     }
     const fetchPageResponse: FetchPageResponse = yield call(
-      PageApi.fetchPage,
-      params,
+      getFromServerWhenNoPrefetchedResult,
+      v1PageDSL,
+      () => call(PageApi.fetchPage, params),
     );
+
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Wait for the Widget config to be loaded before we can migrate the DSL
@@ -1248,14 +1263,25 @@ export function* fetchPageDSLSaga(pageId: string) {
   }
 }
 
-export function* populatePageDSLsSaga() {
+export function* populatePageDSLsSaga(action?: {
+  payload?: { v1PageDSLs?: ApiResponse<FetchPageResponseData[]> };
+}) {
+  const { v1PageDSLs } = action?.payload || {};
   try {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
     const pageDSLs: unknown = yield all(
       pageIds.map((pageId: string) => {
-        return call(fetchPageDSLSaga, pageId);
+        if (!v1PageDSLs) {
+          return call(fetchPageDSLSaga, pageId);
+        }
+        const { data } = v1PageDSLs;
+        const v1PageDSL = data?.find?.((v: any) => v?.id === pageId);
+        return call(fetchPageDSLSaga, pageId, {
+          ...v1PageDSLs,
+          data: v1PageDSL,
+        } as ApiResponse<FetchPageResponseData>);
       }),
     );
     yield put({
@@ -1436,11 +1462,11 @@ export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
 
 export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
-    const { id, isFirstLoad } = action.payload;
+    const { id, isFirstLoad, v1PageResp } = action.payload;
 
     yield call(fetchPageSaga, {
       type: ReduxActionTypes.FETCH_PAGE_INIT,
-      payload: { id, isFirstLoad },
+      payload: { id, isFirstLoad, v1PageResp },
     });
 
     yield put({
@@ -1459,14 +1485,16 @@ export function* setupPublishedPageSaga(
     pageId: string;
     bustCache: boolean;
     firstLoad: boolean;
+    v1PublishedPageResp?: FetchPageResponse;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId } = action.payload;
+    const { bustCache, firstLoad, pageId, v1PublishedPageResp } =
+      action.payload;
 
     yield call(fetchPublishedPageSaga, {
       type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: { bustCache, firstLoad, pageId },
+      payload: { bustCache, firstLoad, pageId, v1PublishedPageResp },
     });
 
     yield put({
