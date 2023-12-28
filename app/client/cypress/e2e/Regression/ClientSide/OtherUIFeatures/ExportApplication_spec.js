@@ -32,7 +32,6 @@ describe("Export application as a JSON file", function () {
           Cypress.env("TESTPASSWORD1"),
         );
         cy.wait(2000);
-        // cy.log({ appid });
         cy.get(homePageLocators.searchInput).type("exportApp" + uid);
         cy.wait(5000);
         cy.get(`[data-testid="${"exportApp" + uid}"]`).click({ force: true });

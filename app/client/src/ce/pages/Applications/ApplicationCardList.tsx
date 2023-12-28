@@ -9,6 +9,7 @@ import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
+  APPLICATIONS,
   APPLICATION_CARD_LIST_ZERO_STATE,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -49,7 +50,7 @@ function ApplicationCardList({
     <CardList
       isLoading={isFetchingApplications}
       isMobile={isMobile}
-      title="Applications"
+      title={createMessage(APPLICATIONS)}
     >
       {applications.map((application: any) => {
         return (
