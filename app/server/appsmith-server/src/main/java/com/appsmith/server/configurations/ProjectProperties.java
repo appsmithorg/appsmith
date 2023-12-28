@@ -29,9 +29,9 @@ public class ProjectProperties {
                 if (Files.exists(infoJsonPath)) {
                     String jsonContent = Files.readString(infoJsonPath);
                     // Parse JSON content using the AppsmithInfo class
-                    BuildInfo appsmithInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
-                    version = appsmithInfo.getVersion();
-                    return appsmithInfo.getVersion();
+                    BuildInfo buildInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
+                    version = buildInfo.getVersion();
+                    return version;
                 }
             } catch (IOException e) {
                 // Ignore the exception and return "UNKNOWN" as the version
