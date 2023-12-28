@@ -49,7 +49,7 @@ import analyticsReducer from "reducers/uiReducers/analyticsReducer";
 import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer";
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
-import selectedWorkspaceReducer from "./selectedWorkspaceReducer";
+import selectedWorkspaceReducer from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import ideReducer from "../../../reducers/uiReducers/ideReducer";
 
 export const uiReducerObject = {

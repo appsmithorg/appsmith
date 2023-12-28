@@ -43,7 +43,7 @@ import {
 import { toast } from "design-system";
 import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { fetchReleases } from "./ApplicationSagas";
+import { fetchReleases } from "@appsmith/sagas/ApplicationSagas";
 
 export function* fetchAllWorkspacesSaga(
   action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,
@@ -136,7 +136,14 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
         payload: users,
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ALL_USERS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
 
 export function* changeWorkspaceUserRoleSaga(

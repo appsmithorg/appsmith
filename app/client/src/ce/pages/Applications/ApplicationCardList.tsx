@@ -13,6 +13,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 interface ApplicationCardListProps {
   applications: ApplicationPayload[];
@@ -74,7 +76,7 @@ function ApplicationCardList({
         <NoAppsFound>
           <img
             className="mb-7"
-            src="https://assets.appsmith.com/no-applications.svg"
+            src={getAssetUrl(`${ASSETS_CDN_URL}/no-applications.svg`)}
           />
           <Text kind="heading-xs">
             {createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}

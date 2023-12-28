@@ -1,7 +1,7 @@
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
-import type { FetchApplicationsResponse } from "./ApplicationApi";
-import type { FetchWorkspacesResponse } from "./WorkspaceApi";
+import type { FetchWorkspacesResponse } from "@appsmith/api/WorkspaceApi";
+import type { FetchApplicationsResponse } from "@appsmith/api/ApplicationApi";
 import type { AxiosPromise } from "axios";
 
 export interface SearchEntitiesRequest {

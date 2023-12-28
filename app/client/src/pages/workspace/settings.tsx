@@ -22,7 +22,7 @@ import { debounce } from "lodash";
 import { WorkspaceSettingsTabs } from "@appsmith/components/WorkspaceSettingsTabs";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { fetchAllWorkspaces } from "@appsmith/actions/workspaceActions";
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -98,10 +98,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (!currentWorkspace) {
-      dispatch({
-        type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
-        payload: { fetchEntities: true },
-      });
+      dispatch(fetchAllWorkspaces({ fetchEntities: true }));
     } else {
       setPageTitle(`${currentWorkspace?.name}`);
     }

@@ -7,7 +7,7 @@ import type {
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import { getApplicationsOfWorkspace } from "./selectedWorkspaceSelectors";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import {
   NAVIGATION_SETTINGS,

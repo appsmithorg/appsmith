@@ -15,11 +15,11 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { editorInitializer } from "utils/editor/EditorUtils";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { StartWithTemplateContent } from "./StartWithTemplateContent";
 import StartWithTemplateFilters from "./StartWithTemplateFilter";
 import TemplateView from "./TemplateView";
+import { fetchAllWorkspaces } from "@appsmith/actions/workspaceActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -86,7 +86,7 @@ function TemplateRoutes() {
 
   useEffect(() => {
     if (!workspaceListLength) {
-      dispatch({ type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT });
+      dispatch(fetchAllWorkspaces());
     }
   }, [workspaceListLength]);
 
