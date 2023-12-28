@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
-import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -108,9 +107,7 @@ public class ConsolidatedAPIServiceImplTest {
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(null, null, null, ApplicationMode.EDIT);
         StepVerifier.create(consolidatedInfoForPageLoad).verifyErrorSatisfies(error -> {
             assertTrue(error instanceof AppsmithException);
-            AppsmithException expectedError =
-                    new AppsmithException(AppsmithError.INVALID_PARAMETER, "application" + " id / page id");
-            assertEquals(expectedError.getMessage(), error.getMessage());
+            assertEquals("Please enter a valid parameter application id / page id.", error.getMessage());
         });
     }
 
