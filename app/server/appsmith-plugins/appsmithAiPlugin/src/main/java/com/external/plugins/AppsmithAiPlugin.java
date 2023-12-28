@@ -81,7 +81,11 @@ public class AppsmithAiPlugin extends BasePlugin {
             List<Property> properties = datasourceConfiguration.getProperties();
             ArrayList<String> files = new ArrayList<String>();
             ObjectMapper objectMapper = new ObjectMapper();
-            UploadedFile file = objectMapper.convertValue(properties.get(0).getValue(), UploadedFile.class);
+            Object fileObject = properties.get(0).getValue();
+            if (fileObject == null) {
+                return Mono.just(datasourceStorage);
+            }
+            UploadedFile file = objectMapper.convertValue(fileObject, UploadedFile.class);
             files.add(file.getBase64Content());
             return aiServerService
                     .createDatasource(datasourceStorage.getDatasourceId(), files)
