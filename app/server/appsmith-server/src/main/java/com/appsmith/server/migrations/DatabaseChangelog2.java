@@ -613,7 +613,7 @@ public class DatabaseChangelog2 {
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
                                 fieldName(QBaseDomain.baseDomain.gitSyncId),
-                                fieldName(QBaseDomain.baseDomain.deleted))
+                                FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
         ensureIndexes(
@@ -622,7 +622,7 @@ public class DatabaseChangelog2 {
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
                                 fieldName(QBaseDomain.baseDomain.gitSyncId),
-                                fieldName(QBaseDomain.baseDomain.deleted))
+                                FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
         ensureIndexes(
@@ -631,7 +631,7 @@ public class DatabaseChangelog2 {
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
                                 fieldName(QBaseDomain.baseDomain.gitSyncId),
-                                fieldName(QBaseDomain.baseDomain.deleted))
+                                FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
     }
 
@@ -1135,7 +1135,7 @@ public class DatabaseChangelog2 {
 
         Index applicationIdIndex = new Index()
                 .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
-                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
+                .on(FieldName.DELETED, Sort.Direction.ASC)
                 .named("application_id_index")
                 .background();
 
@@ -1233,8 +1233,7 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted");
 
         Index assignedToUserIds_deleted_compound_index = makeIndex(
-                        fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
-                        fieldName(QPermissionGroup.permissionGroup.deleted))
+                        fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), FieldName.DELETED)
                 .named("permission_group_assignedUserIds_deleted");
 
         ensureIndexes(mongoTemplate, PermissionGroup.class, assignedToUserIds_deleted_compound_index);
@@ -1313,7 +1312,7 @@ public class DatabaseChangelog2 {
         query.addCriteria(new Criteria()
                 .andOperator(
                         new Criteria(fieldName(QTheme.theme.isSystemTheme)).is(false),
-                        new Criteria(fieldName(QTheme.theme.deleted)).is(false)));
+                        new Criteria(FieldName.DELETED).is(false)));
 
         mongoTemplate.stream(query, Theme.class).forEach(theme -> {
             Query applicationQuery = new Query();

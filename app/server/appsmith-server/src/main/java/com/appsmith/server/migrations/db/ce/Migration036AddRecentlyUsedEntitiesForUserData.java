@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
@@ -33,8 +34,7 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
     @Execution
     public void addRecentlyUsedEntitiesForUserData() {
 
-        final Query userDataQuery =
-                query(where(fieldName(QUserData.userData.deleted)).ne(true));
+        final Query userDataQuery = query(where(FieldName.DELETED).ne(true));
 
         // We are not migrating the applicationIds, to avoid long-running migration. Also, as user starts using the
         // instance these fields should auto-populate.

@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.querydsl.core.annotations.QueryTransient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -66,6 +67,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         return this.getId() == null;
     }
 
+    @QueryTransient
     @JsonView(Views.Internal.class)
     public boolean isDeleted() {
         return deletedAt != null;
