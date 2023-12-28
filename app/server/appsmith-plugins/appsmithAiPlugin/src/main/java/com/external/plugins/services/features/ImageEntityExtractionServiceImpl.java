@@ -1,7 +1,7 @@
 package com.external.plugins.services.features;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.dtos.Query;
 import com.external.plugins.dtos.TextEntityExtractionQuery;
 import com.external.plugins.services.AiFeatureService;
@@ -17,7 +17,7 @@ import static com.external.plugins.utils.FieldValidationHelper.validateTextInput
 
 public class ImageEntityExtractionServiceImpl implements AiFeatureService {
     @Override
-    public Query createQuery(ActionConfiguration actionConfiguration, ExecuteActionDTO executeActionDTO) {
+    public Query createQuery(ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         validateTextInputAndProperties(formData, List.of(LABELS));
         String input = RequestUtils.extractDataFromFormData(formData, INPUT);

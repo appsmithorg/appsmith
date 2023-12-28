@@ -76,20 +76,24 @@ public class AppsmithAiPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStorage> postUpdateHook(DatasourceStorage datasourceStorage) {
-            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
-            List<Property> properties = datasourceConfiguration.getProperties();
+        public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+            List<Property> properties =
+                    datasourceStorage.getDatasourceConfiguration().getProperties();
             ArrayList<String> files = new ArrayList<String>();
             ObjectMapper objectMapper = new ObjectMapper();
             Object fileObject = properties.get(0).getValue();
             if (fileObject == null) {
+                log.debug("No file uploaded. Skipping preSaveHook.");
                 return Mono.just(datasourceStorage);
             }
             UploadedFile file = objectMapper.convertValue(fileObject, UploadedFile.class);
+            if (file.getBase64Content() == null) return Mono.just(datasourceStorage);
             files.add(file.getBase64Content());
-            return aiServerService
-                    .createDatasource(datasourceStorage.getDatasourceId(), files)
-                    .then(Mono.just(datasourceStorage));
+            return aiServerService.createDatasource(files).flatMap(fileIds -> {
+                properties.get(0).setValue(file.getName());
+                properties.get(1).setValue(fileIds.get(0));
+                return Mono.just(datasourceStorage);
+            });
         }
 
         @Override
@@ -125,7 +129,7 @@ public class AppsmithAiPlugin extends BasePlugin {
             Feature feature =
                     Feature.valueOf(RequestUtils.extractDataFromFormData(actionConfiguration.getFormData(), USECASE));
             AiFeatureService aiFeatureService = AiFeatureServiceFactory.getAiFeatureService(feature);
-            Query query = aiFeatureService.createQuery(actionConfiguration, executeActionDTO);
+            Query query = aiFeatureService.createQuery(actionConfiguration, datasourceConfiguration);
             AiServerRequestDTO aiServerRequestDTO = new AiServerRequestDTO(feature, query);
 
             ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -133,7 +137,7 @@ public class AppsmithAiPlugin extends BasePlugin {
                     actionConfiguration, RequestUtils.createQueryUri(), insertedParams, objectMapper);
 
             return aiServerService
-                    .executeQuery(datasourceConfiguration.toString(), aiServerRequestDTO)
+                    .executeQuery(aiServerRequestDTO)
                     .map(response -> {
                         actionExecutionResult.setIsExecutionSuccess(true);
                         actionExecutionResult.setBody(response);

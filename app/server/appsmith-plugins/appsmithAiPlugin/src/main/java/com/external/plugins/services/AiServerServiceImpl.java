@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.dtos.AiServerUploadDTO;
+import com.external.plugins.dtos.AiServerUploadResponseDTO;
 import com.external.plugins.utils.RequestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -23,11 +24,10 @@ public class AiServerServiceImpl implements AiServerService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Mono<Boolean> createDatasource(String datasourceId, ArrayList<String> files) {
+    public Mono<ArrayList<String>> createDatasource(ArrayList<String> files) {
         URI uri = RequestUtils.createUploadURI();
 
         AiServerUploadDTO aiServerRequestDTO = new AiServerUploadDTO();
-        aiServerRequestDTO.setId(datasourceId);
         aiServerRequestDTO.setFiles(files);
 
         return RequestUtils.makeRequest(HttpMethod.POST, uri, BodyInserters.fromValue(aiServerRequestDTO))
@@ -51,19 +51,25 @@ public class AiServerServiceImpl implements AiServerService {
                         return Mono.error(
                                 new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ERROR, errorMessage));
                     }
-
-                    Object body;
-                    body = new String(responseEntity.getBody());
+                    Object stingifiedBody = new String(responseEntity.getBody());
+                    AiServerUploadResponseDTO responseBody;
+                    try {
+                        responseBody =
+                                this.objectMapper.readValue(responseEntity.getBody(), AiServerUploadResponseDTO.class);
+                    } catch (IOException exception) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, stingifiedBody));
+                    }
                     if (!statusCode.is2xxSuccessful()) {
                         return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, body));
+                                AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, stingifiedBody));
                     }
-                    return Mono.just(true);
+                    return Mono.just(responseBody.getFileIds());
                 });
     }
 
     @Override
-    public Mono<Object> executeQuery(String datasourceId, AiServerRequestDTO aiServerRequestDTO) {
+    public Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO) {
         URI uri = RequestUtils.createQueryUri();
         return RequestUtils.makeRequest(HttpMethod.POST, uri, BodyInserters.fromValue(aiServerRequestDTO))
                 .flatMap(responseEntity -> {

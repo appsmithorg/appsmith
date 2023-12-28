@@ -23,7 +23,7 @@ public class DatasourceConfiguration implements AppsmithDomain {
 
     Connection connection;
 
-    String datasourceId;
+    String description;
 
     List<Endpoint> endpoints;
 
