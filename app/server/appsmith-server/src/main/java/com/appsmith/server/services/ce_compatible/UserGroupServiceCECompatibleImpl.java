@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ProvisionResourceDto;
@@ -25,7 +24,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class UserGroupServiceCECompatibleImpl extends BaseService<UserGroupRepository, UserGroup, String>
@@ -124,10 +122,5 @@ public class UserGroupServiceCECompatibleImpl extends BaseService<UserGroupRepos
     @Override
     public Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId) {
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

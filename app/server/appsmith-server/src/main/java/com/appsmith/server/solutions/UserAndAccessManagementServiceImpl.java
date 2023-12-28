@@ -232,7 +232,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private Mono<UserForManagementDTO> addGroupsAndRolesForUser(User user) {
         Flux<PermissionGroupInfoDTO> rolesAssignedToUserFlux = permissionGroupHelper.mapToPermissionGroupInfoDto(
                 permissionGroupService.findAllByAssignedToUsersIn(Set.of(user.getId())));
-        Flux<UserGroupCompactDTO> groupsForUser = userGroupService.findAllGroupsForUser(user.getId());
+        Flux<UserGroupCompactDTO> groupsForUser = userGroupService.findAllGroupsForUserWithoutPermission(user.getId());
 
         return Mono.zip(rolesAssignedToUserFlux.collectList(), groupsForUser.collectList())
                 .map(tuple -> {
@@ -262,7 +262,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                             .map(PermissionGroup::getId)
                             .collect(Collectors.toSet());
                     Mono<Set<String>> groupIdsMono = userGroupService
-                            .findAllGroupsForUser(user.getId())
+                            .findAllGroupsForUserWithoutPermission(user.getId())
                             .map(UserGroupCompactDTO::getId)
                             .collect(Collectors.toSet());
 
