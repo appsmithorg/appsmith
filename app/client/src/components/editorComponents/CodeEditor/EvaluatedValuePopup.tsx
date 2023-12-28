@@ -620,8 +620,12 @@ function EvaluatedValuePopup(props: Props) {
       if (right < halfViewportWidth) {
         offset = "0, 5";
       } else {
-        // If the target spans from left half to the right half, show the popper on the right with offset eg. postgres on smaller screens
-        offset = "0, -290";
+        // If the target spans from left half to the right half and more that 3 quarters of the view port, show the popper on the right without overlap
+        if (right < halfViewportWidth + halfViewportWidth / 2) {
+          offset = "0, 5";
+        } else {
+          offset = "0, -290";
+        }
       }
     } else {
       // If the target is on the right half of the screen, show the popper on the left with offset eg. property pane
