@@ -206,6 +206,7 @@ describe(
       table.NavigateToNextPage(true, "v2"); //page 2
       agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2"); //page 2
+      table.SelectTableRow(0, 0, true, "v2"); // Added because on navigating to next page the table row was not getting automatically selected
       agHelper.AssertElementVisibility(locators._jsonFormWidget); // JSON form should be present
 
       table.NavigateToNextPage(true, "v2"); //page 3
@@ -323,6 +324,7 @@ describe(
       table.NavigateToNextPage(true, "v2"); //page 2
       agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2"); //page 2 //newly inserted record would have pushed the existing record to next page!
+      table.SelectTableRow(0, 0, true, "v2"); // Added because on navigating to next page the table row was not getting automatically selected
       agHelper.AssertElementVisibility(locators._jsonFormWidget); //JSON form should be present
 
       table.NavigateToPreviousPage(true, "v2");

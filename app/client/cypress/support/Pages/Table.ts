@@ -343,7 +343,7 @@ export class Table {
       cy.get(this._pageNumber)
         .invoke("text")
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-      cy.get(this._nextPage(tableVersion)).invoke("click");
+      cy.get(this._nextPage(tableVersion)).click();
       cy.get(this._pageNumber)
         .invoke("text")
         .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
@@ -377,7 +377,7 @@ export class Table {
       cy.get(this._pageNumber)
         .invoke("text")
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-      cy.get(this._previousPage(tableVersion)).invoke("click");
+      cy.get(this._previousPage(tableVersion)).click();
       cy.get(this._pageNumber)
         .invoke("text")
         .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
