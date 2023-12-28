@@ -72,6 +72,7 @@ import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
 import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
 import { WDSMenuButtonWidget } from "./wds/WDSMenuButtonWidget";
+import CustomWidget from "./CustomWidget";
 import { SectionWidget } from "./anvil/SectionWidget";
 import { ZoneWidget } from "./anvil/ZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
@@ -141,6 +142,7 @@ const Widgets = [
   WDSSwitchGroupWidget,
   WDSRadioGroupWidget,
   WDSMenuButtonWidget,
+  CustomWidget,
   SectionWidget,
   ZoneWidget,
   WDSParagraphWidget,
