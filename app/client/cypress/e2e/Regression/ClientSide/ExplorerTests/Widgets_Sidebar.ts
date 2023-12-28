@@ -78,7 +78,7 @@ describe(
     };
 
     it("1. All widget tags should be visible and open by default.", () => {
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
 
       agHelper.AssertElementLength(
         entityExplorer._widgetTagsList,

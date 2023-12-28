@@ -13,8 +13,9 @@ export enum AppSidebarButton {
 export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
 
 export enum PagePaneSegment {
-  Explorer = "Explorer",
-  Widgets = "Widgets",
+  UI = "UI",
+  Queries = "Queries",
+  JS = "JS",
 }
 
 const pagePaneListItemSelector = (name: string) =>
@@ -52,7 +53,7 @@ class EditorNavigation {
     hierarchy: string[] = [],
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.expandCollapseItem("Widgets");
     hierarchy.forEach((level) => {
       PageLeftPane.expandCollapseItem(level);
@@ -63,7 +64,7 @@ class EditorNavigation {
 
   NavigateToQuery(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
@@ -71,7 +72,7 @@ class EditorNavigation {
 
   NavigateToJSObject(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle

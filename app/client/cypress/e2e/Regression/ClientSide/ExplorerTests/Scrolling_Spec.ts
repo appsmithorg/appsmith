@@ -30,7 +30,7 @@ describe(
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
         agHelper.GetNClick(locators._closeModal, 0, true, 0);
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-        PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         PageLeftPane.expandCollapseItem("Modal1");
         PageLeftPane.expandCollapseItem("Modal2");
         PageLeftPane.expandCollapseItem("Modal3");
@@ -80,7 +80,7 @@ describe(
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
         agHelper.GetNClick(locators._closeModal, 0, true, 0);
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-        PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         PageLeftPane.expandCollapseItem("Modal1");
         PageLeftPane.expandCollapseItem("Modal2");
         PageLeftPane.expandCollapseItem("Modal3");

@@ -339,7 +339,7 @@ describe(
       cy.wait("@saveAction");
       cy.get(".t--run-query").click();
       cy.wait("@postExecute");
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(".t--property-control-serversidefiltering input").click();

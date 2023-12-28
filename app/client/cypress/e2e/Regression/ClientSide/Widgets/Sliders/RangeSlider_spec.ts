@@ -416,7 +416,7 @@ describe("Range Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   });
 
   it("8. Verify Range slider visibility in explorer", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     agHelper.ClearTextField(locators._entityExplorersearch);
     agHelper.TypeText(locators._entityExplorersearch, "Range");
     agHelper.AssertElementExist(locators._widgetPageIcon("rangesliderwidget"));

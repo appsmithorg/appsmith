@@ -97,7 +97,7 @@ export class ApiPage {
     else {
       AppSidebar.navigate(AppSidebarButton.Editor);
       this.agHelper.RemoveUIElement("EvaluatedPopUp");
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
       this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");

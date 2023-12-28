@@ -45,7 +45,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
       table.AddSampleTableData();
       // close Widget side bar
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(widgetsPage.tabedataField).should("not.be.empty");
       cy.get(`${widgetsPage.tabedataField} .CodeMirror`)
         .first()

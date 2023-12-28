@@ -227,7 +227,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);

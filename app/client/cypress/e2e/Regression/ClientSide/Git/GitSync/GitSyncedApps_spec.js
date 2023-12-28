@@ -306,7 +306,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       toastToValidate: "moved to page",
     });
     agHelper.WaitUntilAllToastsDisappear();
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
@@ -322,7 +322,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       "Default value",
       "{{get_users.data[0].name}}",
     );
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     EditorNavigation.SelectEntityByName("get_users", EntityType.Query);
     dataSources.RunQuery();
   });

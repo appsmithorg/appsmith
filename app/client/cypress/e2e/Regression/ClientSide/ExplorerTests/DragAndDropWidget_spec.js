@@ -45,7 +45,7 @@ describe(
       cy.get(formWidgetsPage.formD)
         .scrollTo("bottom", { ensureScrollable: false })
         .should("be.visible");
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       _.deployMode.DeployApp();
       _.deployMode.NavigateBacktoEditor();
       cy.CheckAndUnfoldEntityItem("Widgets");

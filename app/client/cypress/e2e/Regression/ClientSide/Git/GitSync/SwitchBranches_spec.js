@@ -41,7 +41,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   });
 
   it("1. create branch input", function () {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(gitSyncLocators.branchButton).click();
 
     // validate of the branch name
@@ -229,7 +229,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(`.t--entity.page`)
         .contains("Page1")
         .closest(".t--entity")
@@ -242,7 +242,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
   it("7. branch list search", function () {
     cy.get(".ads-v2-spinner").should("not.exist");
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
     gitSync.CreateGitBranch("parentBranch", true);

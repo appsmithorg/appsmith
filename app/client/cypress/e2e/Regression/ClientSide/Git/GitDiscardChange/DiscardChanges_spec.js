@@ -55,7 +55,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
       "Default value",
       `{{JSObject1.myFun1()}}`,
     );
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     // connect app to git
     gitSync.CreateNConnectToGit();
     gitSync.CreateGitBranch();

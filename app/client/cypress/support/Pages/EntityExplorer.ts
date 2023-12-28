@@ -132,7 +132,7 @@ export class EntityExplorer {
   }
 
   public SearchWidgetPane(widgetType: string) {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     this.agHelper.Sleep();
     this.agHelper.ClearTextField(this.locator._entityExplorersearch);
     this.agHelper.TypeText(
@@ -191,7 +191,7 @@ export class EntityExplorer {
     skipWidgetSearch = false,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     this.DragNDropWidget(
       widgetType,
       x,
@@ -234,7 +234,7 @@ export class EntityExplorer {
   }
 
   public CopyPasteWidget(widgetName: string) {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);

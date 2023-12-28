@@ -47,7 +47,7 @@ describe("Delete branch flow", { tags: ["@tag.Git"] }, () => {
     cy.switchGitBranch("master");
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
     cy.get(".t--draggable-checkboxwidget").should("exist");
     cy.wait(2000);
@@ -71,7 +71,7 @@ describe("Delete branch flow", { tags: ["@tag.Git"] }, () => {
   it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
     cy.get(".t--widget-chartwidget").should("exist");
     cy.wait(2000);

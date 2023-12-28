@@ -45,7 +45,7 @@ describe(
     });
 
     it("3. Check if the uploaded data does not reset when back from query page", () => {
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
@@ -63,7 +63,7 @@ describe(
       cy.validateEvaluatedValue("testFile.mov");
 
       // Go back to widgets page
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
         "1 files selected",
@@ -76,7 +76,7 @@ describe(
       cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
       cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
       cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       PageLeftPane.expandCollapseItem("Queries/JS");
       cy.get(".t--entity-item:contains(Api1)").click();
       cy.focusCodeInput("[class*='t--actionConfiguration']");

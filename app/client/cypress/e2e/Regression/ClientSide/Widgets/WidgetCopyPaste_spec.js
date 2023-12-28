@@ -125,7 +125,7 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
     cy.get("body").type("{del}");
 
     //add list widget
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.dragAndDropToCanvas("listwidgetv2", { x: 500, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 

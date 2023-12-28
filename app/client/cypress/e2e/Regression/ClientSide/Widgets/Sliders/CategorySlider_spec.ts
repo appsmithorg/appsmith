@@ -116,7 +116,7 @@ describe(
     });
 
     it("4. Verify Range slider visibility in explorer", () => {
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper.ClearTextField(locators._entityExplorersearch);
       agHelper.TypeText(locators._entityExplorersearch, "Category");
       agHelper.AssertElementExist(

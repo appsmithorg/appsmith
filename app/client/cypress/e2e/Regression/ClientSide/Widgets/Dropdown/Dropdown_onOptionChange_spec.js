@@ -123,7 +123,7 @@ describe(
       cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
         force: true,
       });
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("selectwidget");
       cy.reload();
       // Adding the query in the onOptionChangeAction of the dropdown widget.

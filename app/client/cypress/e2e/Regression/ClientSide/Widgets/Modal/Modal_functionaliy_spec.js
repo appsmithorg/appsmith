@@ -109,7 +109,7 @@ describe(
         300,
         300,
       );
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.expandCollapseItem("Widgets", true);
 
       //select all widgets and copy
@@ -130,7 +130,7 @@ describe(
       //paste
       cy.get("body").type(`{${modifierKey}}v`);
 
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.expandCollapseItem("Widgets", true);
 
       //verify that the two modal widget should have pasted on the main canvas

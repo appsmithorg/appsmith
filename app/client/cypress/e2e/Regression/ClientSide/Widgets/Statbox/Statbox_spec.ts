@@ -56,7 +56,7 @@ describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
     });
   });
   it("2. Validate if the default widgets are present inside the statbox", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.assertPresence("Statbox1");
     PageLeftPane.expandCollapseItem("Statbox1");
     PageLeftPane.assertPresence("Text1");
@@ -94,12 +94,12 @@ describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
   });
 
   it("4. Validate if widgets can be D&D inside the Statbox widget", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.expandCollapseItem("Statbox1");
     propPane.DeleteWidgetFromPropertyPane("IconButton1");
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.ICONBUTTON, 260, 189);
     //Verifying if the dropped widget exists in the container
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.expandCollapseItem("Statbox1");
     PageLeftPane.assertPresence("IconButton1");
     //Verifying if the dropped widget exists once deployed
