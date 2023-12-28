@@ -1,4 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
+} from "./EditorNavigation";
 
 type DragDropWidgetOptions = {
   skipWidgetSearch?: boolean;
@@ -17,7 +23,8 @@ export class AnvilLayout {
     if (!skipWidgetSearch) {
       this.entityExplorer.SearchWidgetPane(widgetType);
     } else {
-      this.entityExplorer.NavigateToSwitcher("Widgets", 0, true);
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     }
 
     cy.get(this.locator._widgetPageIcon(widgetType))

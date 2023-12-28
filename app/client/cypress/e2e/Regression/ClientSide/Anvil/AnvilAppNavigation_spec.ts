@@ -10,9 +10,12 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetConstants";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(`${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`, function () {
   beforeEach(() => {
+    // intercept features call for Anvil + WDS tests
+    featureFlagIntercept({ release_anvil_enabled: true, ab_wds_enabled: true });
     // Cleanup the canvas before each test
     agHelper.SelectAllWidgets(`#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`);
     agHelper.PressDelete();
@@ -33,8 +36,7 @@ describe(`${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode
       });
     });
     propPane.NavigateToPage("Page1", "onClick");
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    appSettings.OpenAppSettings();
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
