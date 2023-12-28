@@ -153,6 +153,7 @@ describe(
         Cypress.env("TESTPASSWORD2"),
       );
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceName);
       cy.openWorkspaceOptionsPopup(workspaceName);
       cy.get(homePageLocators.workspaceNamePopoverContent)
         .find(".ads-v2-menu__menu-item")
@@ -242,7 +243,7 @@ describe(
       cy.LogintoAppTestUser(testUser3, password);
       cy.wait(2000);
       // delete app
-      cy.get(homePageLocators.searchInput).clear().type(appName);
+      homePage.SelectWorkspace(workspaceName);
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
       cy.wait(2000);
       cy.get(RBAC.appMoreIcon)
