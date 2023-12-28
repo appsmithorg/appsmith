@@ -78,25 +78,6 @@ export const TemplateLayoutRowItemDescription = styled.p<{
   opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
 `;
 
-export const TemplateLayoutOrText = styled.p<{ layoutActive: boolean }>`
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  margin: 16px 0px;
-  opacity: ${(props) => (props.layoutActive ? "0" : "0.7")};
-  transition: opacity 0.3s ease;
-`;
-
-export const TemplateLayoutDragAndDropText = styled.p<{
-  layoutActive: boolean;
-}>`
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
-  opacity: ${(props) => (props.layoutActive ? "0" : "0.7")};
-  transition: opacity 0.3s ease;
-`;
-
 export const TemplateLayoutContentGrid = styled.div`
   display: flex;
   justify-content: center;

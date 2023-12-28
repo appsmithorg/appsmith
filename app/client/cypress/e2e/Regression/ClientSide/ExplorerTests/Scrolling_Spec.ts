@@ -16,8 +16,8 @@ describe(
   { tags: ["@tag.IDE"] },
   function () {
     it(
-      "excludeForAirgap",
       "1. Bug #15474 - Entity explorer menu must close on scroll",
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
         agHelper.GetNClick(locators._closeModal, 0, true, 0);
