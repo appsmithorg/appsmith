@@ -138,6 +138,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
 
+    Flux<NewAction> findByPageIdsForExport(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+
     Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,
             CreatorContextType contextType,

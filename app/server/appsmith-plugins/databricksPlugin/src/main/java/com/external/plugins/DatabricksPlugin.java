@@ -138,11 +138,21 @@ public class DatabricksPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
+
+                            String sqlState = e.getSQLState();
+                            // Databricks returns true on isValid check even if the connection is stale.
+                            // This scenario in particular happens when the connection was established before
+                            // the cluster restarts. The sql state here corresponds to bad connection link
+                            // and hence the correct action is to throw a StaleConnectionException.
+                            if (sqlState != null && sqlState.equals("08S01")) {
+                                return Mono.error(new StaleConnectionException(CONNECTION_CLOSED_ERROR_MSG));
+                            }
+
                             return Mono.error(new AppsmithPluginException(
                                     QUERY_EXECUTION_FAILED,
                                     QUERY_EXECUTION_FAILED_ERROR_MSG,
                                     e.getMessage(),
-                                    "SQLSTATE: " + e.getSQLState()));
+                                    "SQLSTATE: " + sqlState));
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();

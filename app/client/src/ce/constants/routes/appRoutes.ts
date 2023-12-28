@@ -30,6 +30,14 @@ export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
 
 export const WIDGETS_EDITOR_BASE_PATH = `/widgets`;
 export const WIDGETS_EDITOR_ID_PATH = `${WIDGETS_EDITOR_BASE_PATH}/:widgetIds`;
+
+/*
+ * CUSTOM WIDGET BUILDER PATHS
+ */
+export const CUSTOM_WIDGETS_EDITOR_ID_PATH = `${BUILDER_PATH}${WIDGETS_EDITOR_ID_PATH}/builder`;
+export const CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM = `${BUILDER_CUSTOM_PATH}${WIDGETS_EDITOR_ID_PATH}/builder`;
+/* */
+
 export const API_EDITOR_BASE_PATH = `/api`;
 export const API_EDITOR_ID_PATH = `${API_EDITOR_BASE_PATH}/:apiId`;
 export const API_EDITOR_ID_ADD_PATH = `${API_EDITOR_BASE_PATH}/:apiId/add`;

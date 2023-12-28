@@ -1760,6 +1760,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
+    public Flux<NewAction> findByPageIdsForExport(
+            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return repository.findByPageIds(unpublishedPages, optionalPermission);
+    }
+
+    @Override
     public Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,
             CreatorContextType contextType,
