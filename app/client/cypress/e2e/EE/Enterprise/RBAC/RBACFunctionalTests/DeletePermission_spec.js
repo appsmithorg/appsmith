@@ -179,8 +179,7 @@ describe(
         Cypress.env("TESTPASSWORD2"),
       );
       cy.wait(2000);
-      cy.get(homePageLocators.searchInput).type(appName);
-      cy.wait(2000);
+      homePage.SelectWorkspace(workspaceName);
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
       cy.get(homePageLocators.appEditIcon).click();
       cy.wait(2000);
@@ -215,7 +214,7 @@ describe(
       cy.get(explorer.addEntityJSEditor).should("not.exist");
       cy.get(homePageLocators.homeIcon).click({ force: true });
       cy.wait(2000);
-      cy.get(homePageLocators.searchInput).clear().type(appName);
+      homePage.SelectWorkspace(workspaceName);
       // verify create new app button is not visible to user
       cy.get(homePageLocators.createNewAppButton).should("not.exist");
       cy.LogOut();
@@ -226,8 +225,7 @@ describe(
       cy.LogintoAppTestUser(testUser3, password);
       cy.wait(2000);
       // verify deletion of jsObject
-      cy.get(homePageLocators.searchInput).type(appName);
-      cy.wait(2000);
+      homePage.SelectWorkspace(workspaceName);
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
       cy.get(homePageLocators.appEditIcon).click();
       cy.wait(2000);
@@ -274,7 +272,7 @@ describe(
         Cypress.env("TESTPASSWORD1"),
       );
       cy.get(homePageLocators.searchInput).clear().type(appName);
-      cy.wait(2000);
+
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
       cy.get(homePageLocators.appEditIcon).click();
       cy.wait(2000);
