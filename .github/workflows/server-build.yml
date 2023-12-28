@@ -159,9 +159,6 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
-          mvn --batch-mode versions:set \
-            -DgenerateBackupPoms=false \
-            -DprocessAllModules=true
           ./build.sh -DskipTests
 
       # Test the code
