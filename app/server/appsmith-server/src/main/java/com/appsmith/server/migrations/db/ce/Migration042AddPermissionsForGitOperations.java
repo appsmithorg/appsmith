@@ -52,9 +52,6 @@ public class Migration042AddPermissionsForGitOperations {
     @RollbackExecution
     public void rollbackExecution() {}
 
-    // @Execution
-    public void dummy() {}
-
     @Execution
     public void addPermissionForGitOperationsToExistingApplications() {
         /*
