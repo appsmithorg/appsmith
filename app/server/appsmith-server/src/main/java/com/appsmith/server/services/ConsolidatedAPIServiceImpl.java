@@ -44,6 +44,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -186,7 +188,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         /* Get current page */
         Mono<PageDTO> currentPageDTOMono = migrateDslMonoCache.flatMap(
                 migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                        defaultPageId, branchName, true, migrateDsl));
+                        defaultPageId, branchName, isViewMode, migrateDsl));
 
         /* Fetch view specific data */
         if (isViewMode) {
@@ -266,11 +268,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .cache();
 
             /* Get all plugins in workspace */
-            Mono<List<Plugin>> listOfPluginsMono = workspaceIdMonoCache.flatMap(workspaceId -> {
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                params.add(WORKSPACE_ID, workspaceId);
-                return pluginService.get(params).collectList();
-            });
+            Mono<List<Plugin>> listOfPluginsMonoCache = workspaceIdMonoCache
+                    .flatMap(workspaceId -> {
+                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                        params.add(WORKSPACE_ID, workspaceId);
+                        return pluginService.get(params).collectList();
+                    })
+                    .cache();
 
             /* Get all datasources in workspace */
             Mono<List<Datasource>> listOfDatasourcesMonoCache = workspaceIdMonoCache
@@ -281,24 +285,27 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     })
                     .cache();
 
-            /* Get form config for all plugins such that:
+            /* Get form config for all relevant plugins by following this rule:
              *   (a) there is at least one datasource of the plugin type alive in the workspace
-             *   (b) there is at least one action of the plugin type defined in the application - this is useful in
-             * case the user has created a query without datasource e.g.REST API / GraphQL API
+             *   (b) include REST API and GraphQL API plugin always
+             *   (c) ignore any other plugin
              *  */
-            Mono<Map<String, Map>> listOfFormConfigsMono = Mono.zip(listOfActionDTOs, listOfDatasourcesMonoCache)
+            Mono<Map<String, Map>> listOfFormConfigsMono = Mono.zip(listOfPluginsMonoCache, listOfDatasourcesMonoCache)
                     .map(tuple2 -> {
-                        Set<String> setOfAllPluginIdsUsedInApp = new HashSet<>();
-                        List<ActionDTO> actionDTOList = tuple2.getT1();
+                        Set<String> setOfAllPluginIdsToGetFormConfig = new HashSet<>();
+                        List<Plugin> pluginList = tuple2.getT1();
                         List<Datasource> datasourcesList = tuple2.getT2();
-                        actionDTOList.stream()
-                                .filter(actionDTO -> !isBlank(actionDTO.getPluginId()))
-                                .forEach(actionDTO -> setOfAllPluginIdsUsedInApp.add(actionDTO.getPluginId()));
+
                         datasourcesList.stream()
                                 .filter(datasource -> !isBlank(datasource.getPluginId()))
-                                .forEach(datasource -> setOfAllPluginIdsUsedInApp.add(datasource.getPluginId()));
+                                .forEach(datasource -> setOfAllPluginIdsToGetFormConfig.add(datasource.getPluginId()));
 
-                        return setOfAllPluginIdsUsedInApp;
+                        pluginList.stream()
+                                .filter(plugin -> REST_API_PLUGIN.equals(plugin.getPackageName())
+                                        || GRAPHQL_PLUGIN.equals(plugin.getPackageName()))
+                                .forEach(plugin -> setOfAllPluginIdsToGetFormConfig.add(plugin.getId()));
+
+                        return setOfAllPluginIdsToGetFormConfig;
                     })
                     .flatMapMany(Flux::fromIterable)
                     .flatMap(pluginId ->
@@ -335,7 +342,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     listOfActionDTOs,
                     listOfActionCollectionDTOs,
                     listOfAllPageDTOMono,
-                    listOfPluginsMono,
+                    listOfPluginsMonoCache,
                     listOfDatasourcesMonoCache,
                     listOfFormConfigsMono,
                     mockDataList);
