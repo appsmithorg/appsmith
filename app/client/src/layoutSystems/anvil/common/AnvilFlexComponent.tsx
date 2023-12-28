@@ -76,7 +76,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   );
 
   const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
-    !isSnipingMode && e.preventDefault();
+    !isSnipingMode && e.stopPropagation();
   };
 
   useEffect(() => {
