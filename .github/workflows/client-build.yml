@@ -222,19 +222,6 @@ jobs:
               echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
           fi
 
-      - name: Get the version to tag the Docker image
-        id: extract-build-version
-        run: |
-          if [[ -f ../../deploy/docker/fs/opt/appsmith/info.json ]]; then
-            echo "info.json already exists. Skipping generation."
-          else
-            echo "info.json does not exist. Generating..."
-            if [[ -f ../../scripts/generate_info_json.sh ]]; then
-              ../../scripts/generate_info_json.sh
-            fi
-          fi
-          echo version=$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json) >> $GITHUB_OUTPUT
-
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
@@ -247,8 +234,6 @@ jobs:
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_ID=${{ steps.extract-build-version.outputs.version }} \
-            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_VERSION_EDITION="Community" \
             yarn build
 

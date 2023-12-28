@@ -145,20 +145,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Get the version to tag the Docker image
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        id: vars
-        run: |
-          if [[ -f ../../deploy/docker/fs/opt/appsmith/info.json ]]; then
-            echo "info.json already exists. Skipping generation."
-          else
-            echo "info.json does not exist. Generating..."
-            if [[ -f ../../scripts/generate_info_json.sh ]]; then
-              ../../scripts/generate_info_json.sh
-            fi
-          fi
-          echo version=$(jq -r .version ../../deploy/docker/fs/opt/appsmith/info.json) >> $GITHUB_OUTPUT
-
       # Build the code
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
@@ -174,7 +160,6 @@ jobs:
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
           mvn --batch-mode versions:set \
-            -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           ./build.sh -DskipTests

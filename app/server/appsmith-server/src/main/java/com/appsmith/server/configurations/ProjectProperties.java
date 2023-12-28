@@ -19,6 +19,7 @@ public class ProjectProperties {
     public static final String EDITION = "CE";
     private String version = "UNKNOWN";
     private static final String INFO_JSON_PATH = "/opt/appsmith/info.json";
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public String getVersion() {
         // Check if the version is "UNKNOWN" and attempt to read from /opt/appsmith/info.json
@@ -28,7 +29,6 @@ public class ProjectProperties {
                 if (Files.exists(infoJsonPath)) {
                     String jsonContent = Files.readString(infoJsonPath);
                     // Parse JSON content using the AppsmithInfo class
-                    ObjectMapper objectMapper = new ObjectMapper();
                     BuildInfo appsmithInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
                     version = appsmithInfo.getVersion();
                     return appsmithInfo.getVersion();
