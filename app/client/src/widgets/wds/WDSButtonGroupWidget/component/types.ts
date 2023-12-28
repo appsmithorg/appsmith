@@ -1,16 +1,12 @@
 import type { IconName } from "@blueprintjs/icons";
-import type {
-  ActionGroupProps,
-  ButtonGroupProps,
-  ButtonProps,
-} from "@design-system/widgets";
+import type { ActionGroupProps, ButtonProps } from "@design-system/widgets";
 import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface ButtonGroupComponentProps {
-  color?: ButtonGroupProps["color"];
-  variant?: ButtonGroupProps["variant"];
-  orientation: ButtonGroupProps["orientation"];
+  color?: ActionGroupProps<object>["color"];
+  variant?: ActionGroupProps<object>["variant"];
+  orientation: ActionGroupProps<object>["orientation"];
   buttonsList: ButtonsList;
   onButtonClick: (
     onClick?: string,
