@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -17,7 +18,7 @@ public class Migration041TagWorkspacesForGitOperationsPermissionMigration {
 
     private final MongoTemplate mongoTemplate;
 
-    public static final String MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS = "tagWorkspacesWithoutGitPermissions";
+    public static final String MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS = "tagWithoutGitPermissions";
 
     public Migration041TagWorkspacesForGitOperationsPermissionMigration(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -32,16 +33,26 @@ public class Migration041TagWorkspacesForGitOperationsPermissionMigration {
     @Execution
     public void addPermissionForGitOperationsToExistingWorkspaces() {
         /*
-        This migration is going to add a new field to all Workspace objects.
-        It will be used in the next migration class to select workspaces whose applications need to be migrated.
-        When the exists then the application.policies does not have the new permissions yet and hence need migration.
-        This field will be unset once the migration is done.
+        This migration is going to add a new field to all Workspace and Application objects.
+        It will be used in the next migration class to select workspaces and applications that need to be migrated.
+        If workspace has this flag set, it means all the applications of this workspace have not been migrated.
+        If application has this flag set, it means this application does not have all new policies added.
+        This field will be unset once the migration is done on workspae and application.
          */
         Criteria criteria = Criteria.where(FieldName.DELETED_AT).exists(false);
-        Query query = Query.query(criteria);
+        Query query = new Query(criteria);
 
         Update update = new Update();
-        update.set(MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS, true);
+        update.set(MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS, true);
+
+        // set tag to the workspaces
+        log.info("setting field: {} for all workspaces", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
         mongoTemplate.updateMulti(query, update, Workspace.class);
+        log.info("field: {} set for all workspaces", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
+
+        // set tag to the applications
+        log.info("setting field: {} for all applications", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
+        mongoTemplate.updateMulti(query, update, Application.class);
+        log.info("field: {} set for all applications", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
     }
 }

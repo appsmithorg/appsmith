@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QApplication;
@@ -15,19 +14,23 @@ import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
-import static com.appsmith.server.migrations.db.ce.Migration041TagWorkspacesForGitOperationsPermissionMigration.MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS;
+import static com.appsmith.server.migrations.db.ce.Migration041TagWorkspacesForGitOperationsPermissionMigration.MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
@@ -61,104 +64,128 @@ public class Migration042AddPermissionsForGitOperations {
          1. Get all workspaces in batches that has migration flag set
          2. For each application under that workspace
          3. Generate a new policy for the permission groups and permissions
-         4. Add the new policy for git permissions to set of application.policies and save application
+         4. Add the new policy for git permissions to the application.policies
          5. Unset the flag for the workspace and save when all the applications are migrated
         */
-
-        int batchSize = 7;
+        int batchSize = 5000;
         List<Workspace> workspaceList;
 
         do {
-            // get workspaces which are not deleted and are tagged for migration
-            Criteria criteria = Criteria.where(MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS)
+            Instant batchStartTime = Instant.now();
+
+            // get workspaces which are tagged for migration and has defaultPermissionGroups fields
+            Criteria criteria = Criteria.where(MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS)
+                    .exists(true)
+                    .and(defaultPermissionGroupsFieldPath)
                     .exists(true);
-            Query selectWorkspacesQuery = Query.query(criteria).limit(batchSize);
-            // we only need the default permission groups
+            Query selectWorkspacesQuery = new Query(criteria);
+            selectWorkspacesQuery.limit(batchSize);
+
+            // project the defaultPermissionGroups field only
             selectWorkspacesQuery.fields().include(defaultPermissionGroupsFieldPath);
 
             // fetch the workspaes with the above criteria
             workspaceList = mongoTemplate.find(selectWorkspacesQuery, Workspace.class);
-            workspaceList.parallelStream().forEach(this::migrateAppliationsInWorkspace);
+            final List<String> workspaceIdList = new ArrayList<>();
+
+            int workspaceCount = workspaceList.size();
+
+            log.info("fetched {} workspaces for migration", workspaceCount);
+
+            if (workspaceList.size() > 0) {
+                BulkOperations bulkApplicationMigrations =
+                        mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Application.class);
+                BulkOperations bulkWorkspaceMigrations =
+                        mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Workspace.class);
+
+                workspaceList.parallelStream().forEach(workspace -> {
+                    addNewPoliciesToWorkspaceApplications(workspace, bulkApplicationMigrations);
+                    synchronized (workspaceIdList) {
+                        workspaceIdList.add(workspace.getId());
+                    }
+                });
+
+                // add update multi operation to unset flag from the workspaces
+                unsetMigrationFlagFromWorkspace(workspaceIdList, bulkWorkspaceMigrations);
+
+                // execute the bulk operations if we've at least one workspace
+                bulkApplicationMigrations.execute();
+                bulkWorkspaceMigrations.execute();
+            }
+
+            Instant batchEndTime = Instant.now();
+            Duration duration = Duration.between(batchStartTime, batchEndTime);
+            log.info("{} workspaces migrated. time taken: {} seconds", workspaceCount, duration.getSeconds());
         } while (!CollectionUtils.isEmpty(workspaceList));
+
+        log.info("all workspaces have been migrated");
     }
 
-    private void migrateAppliationsInWorkspace(Workspace workspace) {
-        // get the default permission groups for this workspace
+    private void unsetMigrationFlagFromWorkspace(List<String> workspaceIds, BulkOperations bulkWorkspaceOperations) {
+        // all the applications of this workspace have been migrated, unset the flag for this workspace
+        Update update = new Update();
+        update.unset(MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
+
+        Query updateWorkspaceQuery = Query.query(Criteria.where(idFieldPath).in(workspaceIds));
+        bulkWorkspaceOperations.updateMulti(updateWorkspaceQuery, update);
+    }
+
+    private Set<String> getPermissionGroupsForNewPermissions(Workspace workspace) {
         Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
         Query permissionGroupsQuery = new Query(Criteria.where(idFieldPath).in(defaultPermissionGroups));
         permissionGroupsQuery.fields().include(fieldName(QPermissionGroup.permissionGroup.name));
 
         List<PermissionGroup> permissionGroups = mongoTemplate.find(permissionGroupsQuery, PermissionGroup.class);
 
-        Set<String> adminAndDeveloperPermissionGroupIds = permissionGroups.stream()
+        return permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR)
                         || permissionGroup.getName().startsWith(DEVELOPER))
                 .map(BaseDomain::getId)
                 .collect(Collectors.toSet());
-
-        // fetch all the applications under this workspace
-        Query selectApplicationQuery = Query.query(Criteria.where(FieldName.DELETED_AT)
-                .exists(false)
-                .and(workspaceIdFieldPath)
-                .is(workspace.getId()));
-        selectApplicationQuery.fields().include(policiesFieldPath); // we only need the policies
-
-        List<Application> applicationList = mongoTemplate.find(selectApplicationQuery, Application.class);
-
-        applicationList.parallelStream().forEach(application -> {
-            migrateApplication(application, adminAndDeveloperPermissionGroupIds);
-        });
-
-        // all the applications of this workspace have been migrated, unset the flag for this workspace
-        Update update = new Update();
-        update.unset(MIGRATION_FLAG_WORKSPACE_WITHOUT_GIT_PERMISSIONS);
-
-        Query updateWorkspaceQuery = Query.query(Criteria.where(idFieldPath).is(workspace.getId()));
-        mongoTemplate.updateFirst(updateWorkspaceQuery, update, Workspace.class);
     }
 
-    private void migrateApplication(Application application, Set<String> permissionGroupIds) {
-        // add a new policy for git permissions and allow adminAndDeveloperPermissionGroupIds
-        addGitPoliciesToPolicySet(application.getPolicies(), permissionGroupIds);
+    private void addNewPoliciesToWorkspaceApplications(Workspace workspace, BulkOperations bulkOperations) {
+        Set<String> groupsForNewPermissions = getPermissionGroupsForNewPermissions(workspace);
 
-        // update the application object
+        Policy connectGitPolicy = Policy.builder()
+                .permission(AclPermission.CONNECT_TO_GIT.getValue())
+                .permissionGroups(groupsForNewPermissions)
+                .build();
+
+        Policy manageDefaultBranchPolicy = Policy.builder()
+                .permission(AclPermission.MANAGE_DEFAULT_BRANCHES.getValue())
+                .permissionGroups(groupsForNewPermissions)
+                .build();
+
+        Policy manageProtectedBranchPolicy = Policy.builder()
+                .permission(AclPermission.MANAGE_PROTECTED_BRANCHES.getValue())
+                .permissionGroups(groupsForNewPermissions)
+                .build();
+
+        Policy mangeAutoCommitPolicy = Policy.builder()
+                .permission(AclPermission.MANAGE_AUTO_COMMIT.getValue())
+                .permissionGroups(groupsForNewPermissions)
+                .build();
+
+        // applications that are in this workspace and not migrated yet
+        Criteria criteria = Criteria.where(workspaceIdFieldPath)
+                .is(workspace.getId())
+                .and(MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS)
+                .exists(true);
+
+        Query updateApplicationsQuery = new Query(criteria);
         Update update = new Update();
-        update.set(policiesFieldPath, application.getPolicies());
+        // unset the flag so that new policies are not added again
+        update.unset(MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
+        // push these new 4 policies to end of the policies
+        update.push(policiesFieldPath)
+                .each(connectGitPolicy, manageDefaultBranchPolicy, manageProtectedBranchPolicy, mangeAutoCommitPolicy);
 
-        Query updateQuery = Query.query(Criteria.where(idFieldPath).is(application.getId()));
-        mongoTemplate.updateFirst(updateQuery, update, Application.class);
+        addUpdateApplicationsQueryToBulkOperations(updateApplicationsQuery, update, bulkOperations);
     }
 
-    private void addGitPoliciesToPolicySet(Set<Policy> policies, Set<String> permissionGroups) {
-        List<String> existingPermissions =
-                policies.stream().map(Policy::getPermission).collect(Collectors.toList());
-
-        if (!existingPermissions.contains(AclPermission.CONNECT_TO_GIT.getValue())) {
-            policies.add(Policy.builder()
-                    .permission(AclPermission.CONNECT_TO_GIT.getValue())
-                    .permissionGroups(permissionGroups)
-                    .build());
-        }
-
-        if (!existingPermissions.contains(AclPermission.MANAGE_DEFAULT_BRANCHES.getValue())) {
-            policies.add(Policy.builder()
-                    .permission(AclPermission.MANAGE_DEFAULT_BRANCHES.getValue())
-                    .permissionGroups(permissionGroups)
-                    .build());
-        }
-
-        if (!existingPermissions.contains(AclPermission.MANAGE_PROTECTED_BRANCHES.getValue())) {
-            policies.add(Policy.builder()
-                    .permission(AclPermission.MANAGE_PROTECTED_BRANCHES.getValue())
-                    .permissionGroups(permissionGroups)
-                    .build());
-        }
-
-        if (!existingPermissions.contains(AclPermission.MANAGE_AUTO_COMMIT.getValue())) {
-            policies.add(Policy.builder()
-                    .permission(AclPermission.MANAGE_AUTO_COMMIT.getValue())
-                    .permissionGroups(permissionGroups)
-                    .build());
-        }
+    private synchronized void addUpdateApplicationsQueryToBulkOperations(
+            Query query, Update update, BulkOperations bulkOperations) {
+        bulkOperations.updateMulti(query, update);
     }
 }
