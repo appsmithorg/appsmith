@@ -55,6 +55,7 @@ describe(
         homePage.CreateNewWorkspace(workspaceId);
         homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
         agHelper.VisitNAssert("/applications", "getReleaseItems");
+        homePage.SelectWorkspace(workspaceId);
         cy.InviteGroupToWorkspace(workspaceId, GroupName, "Developer");
         agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
         homePage.NavigateToHome();
