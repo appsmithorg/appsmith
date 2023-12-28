@@ -46,13 +46,9 @@ public class Migration041TagWorkspacesForGitOperationsPermissionMigration {
         update.set(MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS, true);
 
         // set tag to the workspaces
-        log.info("setting field: {} for all workspaces", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
         mongoTemplate.updateMulti(query, update, Workspace.class);
-        log.info("field: {} set for all workspaces", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
 
         // set tag to the applications
-        log.info("setting field: {} for all applications", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
         mongoTemplate.updateMulti(query, update, Application.class);
-        log.info("field: {} set for all applications", MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS);
     }
 }

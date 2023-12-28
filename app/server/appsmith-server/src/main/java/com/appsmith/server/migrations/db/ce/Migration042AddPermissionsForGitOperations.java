@@ -21,8 +21,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -71,8 +69,6 @@ public class Migration042AddPermissionsForGitOperations {
         List<Workspace> workspaceList;
 
         do {
-            Instant batchStartTime = Instant.now();
-
             // get workspaces which are tagged for migration and has defaultPermissionGroups fields
             Criteria criteria = Criteria.where(MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS)
                     .exists(true)
@@ -87,10 +83,6 @@ public class Migration042AddPermissionsForGitOperations {
             // fetch the workspaes with the above criteria
             workspaceList = mongoTemplate.find(selectWorkspacesQuery, Workspace.class);
             final List<String> workspaceIdList = new ArrayList<>();
-
-            int workspaceCount = workspaceList.size();
-
-            log.info("fetched {} workspaces for migration", workspaceCount);
 
             if (workspaceList.size() > 0) {
                 BulkOperations bulkApplicationMigrations =
@@ -112,13 +104,7 @@ public class Migration042AddPermissionsForGitOperations {
                 bulkApplicationMigrations.execute();
                 bulkWorkspaceMigrations.execute();
             }
-
-            Instant batchEndTime = Instant.now();
-            Duration duration = Duration.between(batchStartTime, batchEndTime);
-            log.info("{} workspaces migrated. time taken: {} seconds", workspaceCount, duration.getSeconds());
         } while (!CollectionUtils.isEmpty(workspaceList));
-
-        log.info("all workspaces have been migrated");
     }
 
     private void unsetMigrationFlagFromWorkspace(List<String> workspaceIds, BulkOperations bulkWorkspaceOperations) {
