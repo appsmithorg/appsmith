@@ -3,6 +3,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
 
 /**
  * Custom hook to handle click events for clearing widget selections.
@@ -22,7 +23,7 @@ export const useClickToClearSelections = (widgetId: string) => {
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
   const isDistributingSpace: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDistributingSpace,
+    getAnvilSpaceDistributionStatus,
   );
 
   // Click event handler function

@@ -5,8 +5,8 @@ import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Creating new app after discontinuing guided tour should not start the same",
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     it("1. Creating new app after discontinuing guided tour should not start the same", function () {
       // Start guided tour

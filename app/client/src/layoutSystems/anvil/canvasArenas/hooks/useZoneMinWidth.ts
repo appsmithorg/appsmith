@@ -10,10 +10,13 @@ import {
 import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtils";
 import { FLEX_LAYOUT_PADDING } from "layoutSystems/anvil/layoutComponents/components/FlexLayout";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidgets } from "sagas/selectors";
 
 export function useZoneMinWidth() {
   const childrenMap: Record<string, WidgetProps> =
     useContext(ChildrenMapContext);
+  const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
   const renderMode: RenderModes = useSelector(getRenderMode);
   const isPreviewMode: boolean = useSelector(combinedPreviewModeSelector);
 
@@ -23,7 +26,8 @@ export function useZoneMinWidth() {
     (acc: number, curr: string) => {
       const sizeConfig: SizeConfig = getWidgetSizeConfiguration(
         childrenMap[curr].type,
-        childrenMap[curr],
+        widgets[curr],
+        isPreviewMode,
       );
       if (!sizeConfig.minWidth || !sizeConfig.minWidth["base"]) return acc;
 
