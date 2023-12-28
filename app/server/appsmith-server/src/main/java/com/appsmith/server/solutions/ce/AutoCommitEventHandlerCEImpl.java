@@ -126,18 +126,18 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         redisUtils.startAutoCommit(autoCommitEvent.getApplicationId(), autoCommitEvent.getBranchName()))
                 .flatMap(autoCommitLocked -> dslMigrationUtils.getLatestDslVersion())
                 .flatMap(latestSchemaVersion -> resetUncommittedChanges(autoCommitEvent)
-                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 20))
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 10))
                         .then(fileUtils.reconstructApplicationJsonFromGitRepo(
                                 autoCommitEvent.getWorkspaceId(),
                                 autoCommitEvent.getApplicationId(),
                                 autoCommitEvent.getRepoName(),
                                 autoCommitEvent.getBranchName()))
-                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 40))
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 30))
                         .flatMap(applicationJson ->
                                 migrateUnpublishedPageDSLs(applicationJson, latestSchemaVersion, autoCommitEvent))
-                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 60))
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 50))
                         .flatMap(applicationJson -> saveApplicationJsonToFileSystem(applicationJson, autoCommitEvent))
-                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 70))
                         .flatMap(baseRepoPath -> {
                             // commit the application
                             return gitExecutor
@@ -150,9 +150,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             false)
                                     .map(commitResponse -> Boolean.TRUE);
                         })
-                        .flatMap(result -> {
-                            return setProgress(result, autoCommitEvent.getApplicationId(), 80);
-                        })
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
                         .flatMap(result -> {
                             Path baseRepoSuffix = Paths.get(
                                     autoCommitEvent.getWorkspaceId(),
