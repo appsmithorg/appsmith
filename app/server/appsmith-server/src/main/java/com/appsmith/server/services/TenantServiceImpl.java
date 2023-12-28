@@ -282,7 +282,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                     // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                     // latest
                                     // DB object and not the modified one because of the client pertinent changes
-                                    .then(repository.retrieveById(tenant.getId()))
+                                    .then(repository.findById(tenant.getId()))
                                     .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
                                     .flatMap(this::syncLicensePlansAndRunFeatureBasedMigrationsWithoutPermission);
                         }
@@ -318,7 +318,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 : tenant.getTenantConfiguration().getLicense();
         license.setPreviousPlan(license.getPlan());
         return this.save(tenant)
-                .flatMap(savedTenant -> repository.retrieveById(savedTenant.getId()))
+                .flatMap(savedTenant -> repository.findById(savedTenant.getId()))
                 .map(tenantWithUpdatedMigration -> {
                     // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
                     // Generate the deep copy for the tenant to avoid any unintended updates while running the migration
@@ -473,7 +473,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                         tenantMono = this.save(tenant)
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest DB object and not the modified one because of the client pertinent changes
-                                .then(repository.retrieveById(tenant.getId()))
+                                .then(repository.findById(tenant.getId()))
                                 .flatMap(updatedTenant -> sendLicenseUpdatedOnInstanceEvent(
                                                 updatedTenant, existingLicense)
                                         .thenReturn(updatedTenant))
@@ -645,7 +645,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             license.setStatus(LicenseStatus.EXPIRED);
             tenantConfiguration.setLicense(license);
             tenant.setTenantConfiguration(tenantConfiguration);
-            return this.save(tenant).then(repository.retrieveById(tenant.getId()));
+            return this.save(tenant).then(repository.findById(tenant.getId()));
         }
         return Mono.just(tenant);
     }
@@ -686,7 +686,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     return this.save(tenant)
                             // Fetch the tenant again from DB to make sure the downstream chain is consuming the latest
                             // DB object and not the modified one because of the client pertinent changes
-                            .then(repository.retrieveById(tenant.getId()));
+                            .then(repository.findById(tenant.getId()));
                 });
     }
 

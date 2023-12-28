@@ -123,7 +123,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const flexProps: FlexProps = useMemo(() => {
     const data: FlexProps = {
       alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
-      flexGrow: isFillWidget ? 1 : 0,
+      flexGrow: props.flexGrow ? props.flexGrow : isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
       flexBasis: isFillWidget ? "0%" : "auto",
       height: "auto",
@@ -150,7 +150,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       }
     }
     return data;
-  }, [isFillWidget, props.widgetSize, verticalAlignment]);
+  }, [isFillWidget, props.widgetSize, verticalAlignment, props.flexGrow]);
 
   const borderStyles = useWidgetBorderStyles(props.widgetId);
 

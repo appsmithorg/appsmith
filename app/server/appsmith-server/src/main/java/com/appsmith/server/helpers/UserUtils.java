@@ -93,7 +93,7 @@ public class UserUtils extends UserUtilsCE {
         return configRepository.findByName(DEFAULT_USER_PERMISSION_GROUP).flatMap(defaultRoleConfig -> {
             JSONObject config = defaultRoleConfig.getConfig();
             String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-            return permissionGroupRepository.retrieveById(defaultPermissionGroup);
+            return permissionGroupRepository.findById(defaultPermissionGroup);
         });
     }
 
@@ -101,7 +101,7 @@ public class UserUtils extends UserUtilsCE {
         return configRepository.findByName(PROVISIONING_CONFIG).flatMap(defaultRoleConfig -> {
             JSONObject config = defaultRoleConfig.getConfig();
             String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-            return permissionGroupRepository.retrieveById(defaultPermissionGroup);
+            return permissionGroupRepository.findById(defaultPermissionGroup);
         });
     }
 }

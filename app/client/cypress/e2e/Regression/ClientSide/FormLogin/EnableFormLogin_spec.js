@@ -60,7 +60,6 @@ describe("Form Login test functionality", function () {
   });
 
   it(
-    "excludeForAirgap",
     "2. Go to admin settings and disable Form Login",
     { tags: ["@tag.excludeForAirgap"] },
     function () {
