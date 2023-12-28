@@ -88,6 +88,7 @@ describe(
         license_gac_enabled: true,
       });
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceName);
       homePage.EditAppFromAppHover(appName);
       agHelper.ClickButton("Deploy");
       agHelper.GetText(locators._toastMsg).then((text) => {
