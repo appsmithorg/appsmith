@@ -227,11 +227,11 @@ const CreateNewAppsOption = ({
     dispatch(fetchMockDatasources());
     if (application?.workspaceId) {
       dispatch(
-        fetchingEnvironmentConfigs(
-          application?.workspaceId,
-          application.id,
-          true,
-        ),
+        fetchingEnvironmentConfigs({
+          editorId: application.id,
+          fetchDatasourceMeta: true,
+          workspaceId: application?.workspaceId,
+        }),
       );
     }
     setUseType(START_WITH_TYPE.DATA);

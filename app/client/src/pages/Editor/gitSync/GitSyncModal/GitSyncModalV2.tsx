@@ -115,7 +115,9 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport("", appId));
+    dispatch(
+      setWorkspaceIdForImport({ editorId: appId || "", workspaceId: "" }),
+    );
   }, [dispatch, setIsGitSyncModalOpen]);
 
   return (

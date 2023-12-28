@@ -82,7 +82,12 @@ function ChooseGitProvider({
     dispatch({
       type: ReduxActionTypes.GIT_INFO_INIT,
     });
-    dispatch(setWorkspaceIdForImport(workspace.id, appId));
+    dispatch(
+      setWorkspaceIdForImport({
+        editorId: appId || "",
+        workspaceId: workspace.id,
+      }),
+    );
 
     dispatch(
       setIsGitSyncModalOpen({
