@@ -109,6 +109,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
      * This method is meant to be used by the client application at the time of 1st page load. Client currently makes
      * several API calls to fetch all the required data. This method consolidates all that data and returns them as
      * response hence enabling the client to fetch the required data via a single API call only.
+     *
+     * PLEASE TAKE CARE TO USE .cache() FOR Mono THAT GETS REUSED SO THAT FIRST PAGE LOAD PERFORMANCE DOES NOT DEGRADE.
      */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
@@ -181,7 +183,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 appId -> themeService.getApplicationThemes(appId, branchName).collectList());
 
         /* Get all custom JS libraries installed in the application */
-        Mono<List<CustomJSLib>> allJSLibsInContextDTO =
+        Mono<List<CustomJSLib>> allJSLibsInContextDTOMono =
                 applicationIdMonoCache.flatMap(appId -> customJSLibService.getAllJSLibsInContext(
                         appId, CreatorContextType.APPLICATION, branchName, isViewMode));
 
@@ -215,7 +217,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     listOfActionViewDTOs,
                     listOfActionCollectionViewDTOs,
                     currentPageDTOMono,
-                    allJSLibsInContextDTO,
+                    allJSLibsInContextDTOMono,
                     productAlertResponseDTOMono);
 
             return Mono.zip(listOfMonosForPublishedApp, responseArray -> {
@@ -236,7 +238,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             });
         } else {
             /* Get all actions in edit mode */
-            Mono<List<ActionDTO>> listOfActionDTOs = applicationIdMonoCache.flatMap(appId -> {
+            Mono<List<ActionDTO>> listOfActionDTOsMono = applicationIdMonoCache.flatMap(appId -> {
                 MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                 params.add(APPLICATION_ID, appId);
                 return newActionService
@@ -245,7 +247,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             });
 
             /* Get all action collections in edit mode */
-            Mono<List<ActionCollectionDTO>> listOfActionCollectionDTOs = applicationIdMonoCache.flatMap(appId -> {
+            Mono<List<ActionCollectionDTO>> listOfActionCollectionDTOsMono = applicationIdMonoCache.flatMap(appId -> {
                 MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                 params.add(APPLICATION_ID, appId);
                 return actionCollectionService
@@ -323,7 +325,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     });
 
             /* List of mock datasources available to the user */
-            Mono<List<MockDataSet>> mockDataList =
+            Mono<List<MockDataSet>> mockDataListMono =
                     mockDataService.getMockDataSet().map(MockDataDTO::getMockdbs);
 
             /* This list contains the Mono objects corresponding to all the data points required for edit mode. All
@@ -337,15 +339,15 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     applicationThemeMono,
                     ThemesListMono,
                     currentPageDTOMono,
-                    allJSLibsInContextDTO,
+                    allJSLibsInContextDTOMono,
                     productAlertResponseDTOMono,
-                    listOfActionDTOs,
-                    listOfActionCollectionDTOs,
+                    listOfActionDTOsMono,
+                    listOfActionCollectionDTOsMono,
                     listOfAllPageDTOMono,
                     listOfPluginsMonoCache,
                     listOfDatasourcesMonoCache,
                     listOfFormConfigsMono,
-                    mockDataList);
+                    mockDataListMono);
 
             return Mono.zip(listOfMonoForEditMode, responseArray -> {
                 consolidatedAPIResponseDTO.setV1UsersMeResp((UserProfileDTO) responseArray[0]);
