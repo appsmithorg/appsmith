@@ -90,7 +90,8 @@ public class AppsmithAiPlugin extends BasePlugin {
             if (file.getBase64Content() == null) return Mono.just(datasourceStorage);
             files.add(file.getBase64Content());
             return aiServerService.createDatasource(files).flatMap(fileIds -> {
-                properties.get(0).setValue(file.getName());
+                file.setBase64Content(null);
+                properties.get(0).setValue(file);
                 properties.get(1).setValue(fileIds.get(0));
                 return Mono.just(datasourceStorage);
             });
