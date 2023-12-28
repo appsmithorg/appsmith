@@ -17,7 +17,7 @@ describe(
     it("1. Import application from json and validate data on pageload", function () {
       // import application
       homePage.NavigateToHome();
-      cy.get(homePageLocatores.createNew).first().click();
+      agHelper.GetNClick(homePageLocatores.createNew, 0)
       cy.get(homePageLocatores.workspaceImportAppOption).click({ force: true });
       cy.get(homePageLocatores.workspaceImportAppModal).should("be.visible");
       cy.xpath(homePageLocatores.uploadLogo).selectFile(
@@ -105,7 +105,7 @@ describe(
             newWorkspaceName = uid;
             homePage.CreateNewWorkspace(newWorkspaceName);
             homePage.NavigateToHome();
-            cy.get(homePageLocatores.createNew).first().click();
+            agHelper.GetNClick(homePageLocatores.createNew, 0)
 
             cy.get(homePageLocatores.workspaceImportAppOption).click({
               force: true,
