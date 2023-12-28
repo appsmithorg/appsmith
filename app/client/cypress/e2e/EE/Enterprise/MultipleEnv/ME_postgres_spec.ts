@@ -26,8 +26,8 @@ let meDatasourceName: string,
   meDSStagingOnlyName: string;
 
 describe(
-  "excludeForAirgap",
   "Multiple environment datasource creation and test flow",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       // Need to remove the previous user preference for the callout

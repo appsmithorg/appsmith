@@ -50,8 +50,8 @@ describe(
 
     // Upgrade page for Business edition
     it(
-      "excludeForAirgap",
       "1. Go to admin settings and check provisioning should show upgrade page for business edition",
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         license.UpdateLicenseKey("business");
         agHelper.Sleep(4000);
@@ -73,8 +73,8 @@ describe(
       },
     );
     it(
-      "excludeForAirgap",
       "1. Go to admin settings and check provisioning should show upgrade page for free plan",
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         agHelper.VisitNAssert("/settings/general", "getEnvVariables");
 

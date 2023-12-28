@@ -23,8 +23,8 @@ let meDatasourceName: string,
   APIName: any;
 
 describe(
-  "excludeForAirgap",
   "Multiple environment datasource creation and test flow",
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     before(() => {
       // Need to remove the previous user preference for the callout

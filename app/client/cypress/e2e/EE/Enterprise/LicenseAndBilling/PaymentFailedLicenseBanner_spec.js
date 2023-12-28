@@ -2,9 +2,8 @@ import LicenseLocators from "../../../../locators/LicenseLocators.json";
 import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Payment Failed License Banner",
-  { tags: ["@tag.LicenseAndBilling"] },
+  { tags: ["@tag.LicenseAndBilling", "@tag.excludeForAirgap"] },
   function () {
     it("1. should show payment failure banner for tenants with payment failure", function () {
       cy.interceptLicenseApi({
