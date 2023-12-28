@@ -198,7 +198,6 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2"); //page 2
       table.SelectTableRow(0, 0, true, "v2"); // Added because on navigating to next page the table row was not getting automatically selected
       agHelper.AssertElementVisibility(locators._jsonFormWidget); // JSON form should be present
-      table.SelectTableRow(0, 0, true, "v2"); // Deselecting a row to go to new page, when the issue https://github.com/appsmithorg/appsmith/issues/29870 is fixed then update the test case
 
       table.NavigateToNextPage(true, "v2"); //page 3
       agHelper.Sleep(3000); //wait for table navigation to take effect!
