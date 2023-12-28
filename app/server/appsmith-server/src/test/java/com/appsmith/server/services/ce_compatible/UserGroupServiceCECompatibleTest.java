@@ -417,16 +417,4 @@ class UserGroupServiceCECompatibleTest {
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
         // Feature assertion finished
     }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testBulkRemoveUserFromGroupsWithoutPermission() {
-        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
-        // Feature assertion started
-        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> userGroupService
-                .bulkRemoveUserFromGroupsWithoutPermission(new User(), Set.of())
-                .block());
-        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
-        // Feature assertion finished
-    }
 }
