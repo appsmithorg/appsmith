@@ -454,7 +454,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._backToEditor);
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
-    this.agHelper.WaitUntilEleDisappear(this.locator._btnSpinner);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //10 secs for update to reflect!
   }
 
   public EditAppFromAppHover(appName = "") {
