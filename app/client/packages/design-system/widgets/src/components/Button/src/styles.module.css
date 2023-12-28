@@ -168,19 +168,16 @@
     container-type: inline-size;
 
     &[data-size="small"] {
-      min-inline-size: var(--sizing-5);
       block-size: var(--sizing-5);
       inline-size: var(--sizing-5);
     }
 
     &[data-size="medium"] {
-      min-inline-size: var(--sizing-7);
       block-size: var(--sizing-7);
       inline-size: var(--sizing-7);
     }
 
     &[data-size="large"] {
-      min-inline-size: var(--sizing-9);
       block-size: var(--sizing-9);
       inline-size: var(--sizing-9);
     }

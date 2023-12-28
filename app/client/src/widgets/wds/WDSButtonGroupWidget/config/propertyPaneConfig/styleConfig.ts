@@ -1,8 +1,4 @@
-import {
-  BUTTON_GROUP_ORIENTATIONS,
-  BUTTON_VARIANTS,
-  COLORS,
-} from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
 
@@ -60,28 +56,39 @@ export const propertyPaneStyleConfig = [
         fullWidth: true,
         options: [
           {
-            label: capitalize(BUTTON_GROUP_ORIENTATIONS.horizontal),
-            value: BUTTON_GROUP_ORIENTATIONS.horizontal,
+            label: "Horizontal",
+            value: "horizontal",
           },
           {
-            label: capitalize(BUTTON_GROUP_ORIENTATIONS.vertical),
-            value: BUTTON_GROUP_ORIENTATIONS.vertical,
+            label: "Vertical",
+            value: "vertical",
           },
         ],
-        defaultValue: BUTTON_GROUP_ORIENTATIONS.horizontal,
+        defaultValue: "horizontal",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
       {
-        propertyName: "isCompact",
+        propertyName: "density",
         helpText: "Controls the density of the widget",
-        label: "Compact",
-        controlType: "SWITCH",
-        isJSConvertible: true,
+        label: "Density",
+        controlType: "ICON_TABS",
+        fullWidth: true,
+        options: [
+          {
+            label: "Regular",
+            value: "regular",
+          },
+          {
+            label: "Compact",
+            value: "compact",
+          },
+        ],
+        defaultValue: "regular",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

@@ -13,7 +13,7 @@ export interface ButtonGroupComponentProps {
   orientation: ButtonGroupProps["orientation"];
   buttonsList: ButtonsList;
   onButtonClick: (
-    onClick: string | undefined,
+    onClick?: string,
     callback?: (result: ExecutionResult) => void,
   ) => void;
   density?: ActionGroupProps<object>["density"];

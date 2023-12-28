@@ -82,7 +82,7 @@ class WDSButtonGroupWidget extends BaseWidget<
       <ButtonGroupComponent
         buttonsList={this.props.buttonsList}
         color={this.props.buttonColor}
-        density={Boolean(this.props.isCompact) ? "compact" : "regular"}
+        density={this.props.density}
         key={this.props.widgetId}
         onButtonClick={this.onButtonClick}
         orientation={this.props.orientation}

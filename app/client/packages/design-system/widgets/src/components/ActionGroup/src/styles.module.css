@@ -16,10 +16,6 @@
     gap: var(--inner-spacing-2);
   }
 
-  & [data-button] {
-    flex-grow: 1;
-  }
-
   &[data-density="compact"] {
     /* increasing z index to make sure the focused button is on top of the others */
     & [data-button]:not([data-disabled]):focus-visible {

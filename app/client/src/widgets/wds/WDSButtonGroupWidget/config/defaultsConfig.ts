@@ -1,8 +1,3 @@
-import {
-  BUTTON_GROUP_ORIENTATIONS,
-  BUTTON_VARIANTS,
-  COLORS,
-} from "@design-system/widgets";
 import { IconNames } from "@blueprintjs/icons";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
@@ -14,9 +9,9 @@ export const defaultsConfig = {
   rows: 4,
   columns: 24,
   widgetName: "ButtonGroup",
-  orientation: BUTTON_GROUP_ORIENTATIONS.horizontal,
-  buttonVariant: BUTTON_VARIANTS.filled,
-  buttonColor: COLORS.accent,
+  orientation: "horizontal",
+  buttonVariant: "filled",
+  buttonColor: "accent",
   isDisabled: false,
   isVisible: true,
   version: 1,
