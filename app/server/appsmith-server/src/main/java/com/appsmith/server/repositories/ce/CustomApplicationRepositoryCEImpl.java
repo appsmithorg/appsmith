@@ -281,7 +281,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId));
         query.addCriteria(notDeleted());
-
         return mongoOperations.findOne(query, Application.class);
     }
 
