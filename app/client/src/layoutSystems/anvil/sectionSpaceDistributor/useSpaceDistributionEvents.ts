@@ -45,8 +45,47 @@ const updatedCSSOfWidgetsOnHittingMinimumLimit = (
     currentGrowthFactor.rightZone = minSpacePerBlock;
   }
 };
-
+const checkForNeedToAddMagneticForce = (
+  movementX: number,
+  columnWidth: number,
+  leftZoneDom: HTMLElement,
+  rightZoneDom: HTMLElement,
+  leftZoneComputedColumns: number,
+  rightZoneComputedColumns: number,
+  leftZoneComputedColumnsRoundOff: number,
+  rightZoneComputedColumnsRoundOff: number,
+  minimumShrinkableSpacePerBlock: number,
+) => {
+  const magneticRange = columnWidth * 0.3;
+  const leftZoneFlexGrow = Math.max(
+    leftZoneComputedColumns,
+    minimumShrinkableSpacePerBlock,
+  );
+  const rightZoneFlexGrow = Math.max(
+    rightZoneComputedColumns,
+    minimumShrinkableSpacePerBlock,
+  );
+  const leftZoneFlexGrowDifference =
+    Math.abs(leftZoneFlexGrow - leftZoneComputedColumnsRoundOff) * columnWidth;
+  const isInMagneticZone =
+    Math.abs(movementX) > 0.6 * columnWidth &&
+    leftZoneFlexGrowDifference <= magneticRange;
+  if (isInMagneticZone) {
+    leftZoneDom.style.flexGrow = leftZoneComputedColumnsRoundOff.toString();
+    rightZoneDom.style.flexGrow = rightZoneComputedColumnsRoundOff.toString();
+    leftZoneDom.style.transition = "all 1s ease";
+    rightZoneDom.style.transition = "all 1s ease";
+  } else {
+    // adjust the zones flex grow property to the minimum shrinkable space
+    leftZoneDom.style.flexGrow = leftZoneFlexGrow.toString();
+    rightZoneDom.style.flexGrow = rightZoneFlexGrow.toString();
+    leftZoneDom.style.transition = "";
+    rightZoneDom.style.transition = "";
+  }
+  return isInMagneticZone;
+};
 const updatedCSSOfWidgetsOnHandleMove = (
+  movementX: number,
   ref: React.RefObject<HTMLDivElement>,
   leftZoneComputedColumns: number,
   rightZoneComputedColumns: number,
@@ -60,6 +99,7 @@ const updatedCSSOfWidgetsOnHandleMove = (
   minimumShrinkableSpacePerBlock: number,
   columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
   columnPosition: number,
+  columnWidth: number,
 ) => {
   checkForNeedToAddResistiveForce(
     leftZoneComputedColumns,
@@ -69,15 +109,18 @@ const updatedCSSOfWidgetsOnHandleMove = (
     minSpacePerBlock,
     ref,
   );
-  // adjust the zones flex grow property to the minimum shrinkable space
-  leftZoneDom.style.flexGrow = Math.max(
+
+  checkForNeedToAddMagneticForce(
+    movementX,
+    columnWidth,
+    leftZoneDom,
+    rightZoneDom,
     leftZoneComputedColumns,
-    minimumShrinkableSpacePerBlock,
-  ).toString();
-  rightZoneDom.style.flexGrow = Math.max(
     rightZoneComputedColumns,
+    leftZoneComputedColumnsRoundOff,
+    rightZoneComputedColumnsRoundOff,
     minimumShrinkableSpacePerBlock,
-  ).toString();
+  );
   // note down the new growth factor for the zones
   currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
   currentGrowthFactor.rightZone = rightZoneComputedColumnsRoundOff;
@@ -350,6 +393,7 @@ export const useSpaceDistributionEvents = ({
               rightZoneComputedColumns >= minimumShrinkableSpacePerBlock
             ) {
               updatedCSSOfWidgetsOnHandleMove(
+                dx,
                 ref,
                 leftZoneComputedColumns,
                 rightZoneComputedColumns,
@@ -363,6 +407,7 @@ export const useSpaceDistributionEvents = ({
                 minimumShrinkableSpacePerBlock,
                 columnIndicatorDivRef,
                 columnPosition,
+                columnWidth,
               );
             } else {
               updatedCSSOfWidgetsOnHittingMinimumLimit(
