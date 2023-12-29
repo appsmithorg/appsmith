@@ -108,8 +108,7 @@ describe(
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
 
-      cy.get(HomePage.searchInput).type(appid);
-      _.agHelper.Sleep(2000);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(HomePage.appsContainer).contains(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
@@ -143,7 +142,7 @@ describe(
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
 
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
@@ -162,10 +161,12 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-      cy.get(HomePage.searchInput).type(appid);
-      _.agHelper.Sleep(2000);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(HomePage.appsContainer).contains(workspaceId);
-      cy.get(_.homePage._applicationCard).first().trigger("mouseover");
+      _.agHelper
+        .GetElement(_.homePage._appCard(appid))
+        .first()
+        .trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
       _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
       _.agHelper.Sleep(2000);
@@ -188,7 +189,7 @@ describe(
       _.agHelper.AssertElementAbsence(HomePage.manageUsers);
       _.agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
       _.homePage.NavigateToHome();
-      _.homePage.FilterApplication(appid + "Internal Apps", workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
       _.agHelper.AssertElementExist(_.homePage._shareWorkspace(workspaceId));
@@ -204,7 +205,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
 
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
@@ -236,6 +237,7 @@ describe(
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.DeleteUserFromWorkspace(
         appid,
         workspaceId,
@@ -265,8 +267,7 @@ describe(
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
 
-      cy.get(HomePage.searchInput).type(appid);
-      _.agHelper.Sleep(2000);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(HomePage.appsContainer).contains(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
@@ -295,24 +296,19 @@ describe(
       _.agHelper.AssertElementAbsence(HomePage.manageUsers);
       _.agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
       _.homePage.NavigateToHome();
-      _.homePage.FilterApplication(appid, workspaceId, false);
+      _.homePage.SelectWorkspace(workspaceId);
       _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
       _.agHelper.AssertElementAbsence(_.homePage._shareWorkspace(workspaceId));
       _.agHelper.AssertElementAbsence(HomePage.optionsIcon);
-      cy.get(HomePage.searchInput)
-        .clear()
-        .type(appid + "Internal Apps");
-      _.agHelper.Sleep(2000);
-      cy.get(HomePage.appsContainer).should("not.contain", workspaceId);
-      _.agHelper.AssertElementAbsence(".t--workspace-section");
+
       _.homePage.LogOutviaAPI();
     });
 
     it("9. Login as Administrator and change app level access for user 1 to App Viewer and verify", () => {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      _.homePage.FilterApplication(appid, workspaceId);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      _.homePage.SelectWorkspace(workspaceId);
       _.agHelper.GetNClick(HomePage.optionsIcon);
       _.agHelper.GetNClick(_.homePage._visibleTextSpan("Members"));
       _.agHelper.TypeText(
@@ -341,8 +337,7 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      cy.get(HomePage.searchInput).type(appid);
-      _.agHelper.Sleep(2000);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(HomePage.appsContainer).contains(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
@@ -363,9 +358,9 @@ describe(
 
     it("10. Login as Administrator and delete app level access for user 1", () => {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      _.homePage.FilterApplication(appid, workspaceId);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      _.homePage.SelectWorkspace(workspaceId);
       _.agHelper.GetNClick(HomePage.optionsIcon);
       _.agHelper.GetNClick(_.homePage._visibleTextSpan("Members"));
       _.agHelper.TypeText(

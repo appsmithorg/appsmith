@@ -7,13 +7,13 @@ import type {
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import {
   NAVIGATION_SETTINGS,
   SIDEBAR_WIDTH,
   defaultThemeSetting,
 } from "constants/AppConstants";
-import { getApplicationsOfWorkspace } from "./selectedWorkspaceSelectors";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],

@@ -87,7 +87,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                                 branchName,
                                                 isFeatureEnabled,
                                                 isAutoCommitDisabledForBranch);
-                                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                                        return Mono.empty();
                                     }
                                 })
                                 .zipWith(userDataService.getGitProfileForCurrentUser(defaultApplicationId))

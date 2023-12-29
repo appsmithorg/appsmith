@@ -503,7 +503,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
 
   it.skip("11. Import app from git and verify page order should not change", () => {
     cy.get(homePageLocators.homeIcon).click();
-    cy.get(homePageLocators.createNew).first().click();
+    agHelper.GetNClick(homePageLocators.createNew, 0)
     cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
     cy.get(".t--import-json-card").next().click();
     // import application from git

@@ -11,7 +11,7 @@ describe("Currency Input Issue", function () {
     "1. Import application json &should check that the widget input is not showing any error",
     { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
     function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       homePage.ImportApp("CurrencyInputIssueExport.json");
       cy.wait("@importNewApplication").then((interception) => {
         const { isPartialImport } = interception.response.body.data;

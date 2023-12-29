@@ -68,7 +68,7 @@ describe(
     it("2. Non signed user should be able to fork a public forkable app", function () {
       homePage.NavigateToHome();
       cy.get(homepagelocators.homeIcon).click();
-      cy.get(homepagelocators.createNew).first().click();
+      agHelper.GetNClick(homepagelocators.createNew, 0)
       cy.get(homepagelocators.workspaceImportAppOption).click({ force: true });
       cy.get(homepagelocators.workspaceImportAppModal).should("be.visible");
       cy.xpath(homepagelocators.uploadLogo).selectFile(
