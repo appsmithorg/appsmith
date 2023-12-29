@@ -40,6 +40,7 @@ import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
         Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
-        if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
+        if (TRUE.equals(importingMetaDTO.getAppendToApp())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
                         .distinct()
@@ -95,7 +96,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
                     if (StringUtils.hasText(importingMetaDTO.getApplicationId())
-                            && !Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())
+                            && !TRUE.equals(importingMetaDTO.getAppendToApp())
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
@@ -156,7 +157,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
                     if (StringUtils.hasText(importingMetaDTO.getApplicationId())
-                            && !Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())
+                            && !TRUE.equals(importingMetaDTO.getAppendToApp())
                             && Boolean.FALSE.equals(isPartialImport)) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
@@ -307,11 +308,11 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                     newActionService.generateAndSetActionPolicies(parentPage, newAction);
 
                                     // Check if the action has gitSyncId and if it's already in DB
-                                    if (newAction.getGitSyncId() != null
-                                            && actionsInCurrentApp.containsKey(newAction.getGitSyncId())) {
+                                    if (existingAppContainsAction(actionsInCurrentApp, newAction)) {
 
                                         // Since the resource is already present in DB, just update resource
-                                        NewAction existingAction = actionsInCurrentApp.get(newAction.getGitSyncId());
+                                        NewAction existingAction = getExistingActionForImportedAction(
+                                                mappedImportableResourcesDTO, actionsInCurrentApp, newAction);
                                         updateExistingAction(
                                                 existingAction,
                                                 newAction,
@@ -355,8 +356,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                             if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
                                                 // action found in other branch, copy the default resources from that
                                                 // action
-                                                NewAction branchedAction =
-                                                        actionsInOtherBranches.get(newAction.getGitSyncId());
+                                                NewAction branchedAction = getExistingActionForImportedAction(
+                                                        mappedImportableResourcesDTO,
+                                                        actionsInOtherBranches,
+                                                        newAction);
                                                 newActionService.populateDefaultResources(
                                                         newAction, branchedAction, importingMetaDTO.getBranchName());
                                             } else {
@@ -394,9 +397,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                 mappedImportableResourcesDTO.setActionResultDTO(importActionResultDTO);
 
                                 // Save all the new actions in bulk
-                                return repository
-                                        .bulkInsert(newNewActionList)
-                                        .then(repository.bulkUpdate(existingNewActionList))
+                                return newActionService
+                                        .bulkValidateAndInsertActionInRepository(newNewActionList)
+                                        .zipWith(newActionService.bulkValidateAndUpdateActionInRepository(
+                                                existingNewActionList))
                                         .thenReturn(importActionResultDTO);
                             });
                 })
@@ -414,14 +418,25 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 });
     }
 
+    protected NewAction getExistingActionForImportedAction(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, NewAction> actionsInCurrentApp,
+            NewAction newAction) {
+        return actionsInCurrentApp.get(newAction.getGitSyncId());
+    }
+
+    protected boolean existingAppContainsAction(Map<String, NewAction> actionsInCurrentApp, NewAction newAction) {
+        return newAction.getGitSyncId() != null && actionsInCurrentApp.containsKey(newAction.getGitSyncId());
+    }
+
     protected void populateDomainMappedReferences(
             MappedImportableResourcesDTO mappedImportableResourcesDTO, NewAction newAction) {
         // Nothing needs to be copied into the action from mapped resources
     }
 
-    protected Flux<NewAction> getActionsInCurrentAppMono(Application importedApplication) {
+    protected Flux<NewAction> getActionsInCurrentAppMono(Application application) {
         return repository
-                .findByApplicationId(importedApplication.getId())
+                .findByApplicationId(application.getId())
                 .filter(newAction -> newAction.getGitSyncId() != null);
     }
 
