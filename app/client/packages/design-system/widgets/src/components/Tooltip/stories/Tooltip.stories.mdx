@@ -1,6 +1,7 @@
 import {
   Button,
-  ButtonGroup,
+  ActionGroup,
+  Item,
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
@@ -43,32 +44,32 @@ A tooltip is a small pop-up that appears when a user places their cursor over an
 The placement of the tooltip can be changed by passing the `placement` prop.
 
 <Story name="Tooltip placement">
-  <ButtonGroup>
+  <ActionGroup>
     <TooltipRoot placement="left">
       <TooltipTrigger>
-        <Button variant="outlined">Left</Button>
+        <Item variant="outlined">Left</Item>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
     <TooltipRoot placement="top">
       <TooltipTrigger>
-        <Button variant="outlined">Top</Button>
+        <Item variant="outlined">Top</Item>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
     <TooltipRoot placement="bottom">
       <TooltipTrigger>
-        <Button variant="outlined">Bottom</Button>
+        <Item variant="outlined">Bottom</Item>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
     <TooltipRoot placement="right">
       <TooltipTrigger>
-        <Button variant="outlined">Right</Button>
+        <Item variant="outlined">Right</Item>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
-  </ButtonGroup>
+  </ActionGroup>
 </Story>
 
 # Disabled

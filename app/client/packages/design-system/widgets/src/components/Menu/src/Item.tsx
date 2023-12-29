@@ -8,6 +8,7 @@ interface ItemProps<T> extends HeadlessItemProps<T> {
   color?: keyof typeof COLORS;
   icon?: React.ComponentType;
   iconPosition?: "start" | "end";
+  isLoading?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

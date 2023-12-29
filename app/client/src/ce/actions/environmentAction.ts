@@ -8,15 +8,10 @@ export const setCurrentEditingEnvironmentID = (currentEditingId: string) => ({
 });
 
 // Redux action to fetch environments
-export const fetchingEnvironmentConfigs = ({
-  editorId,
+export const fetchingEnvironmentConfigs = (
+  workspaceId: string,
   fetchDatasourceMeta = false,
-  workspaceId,
-}: {
-  editorId: string;
-  fetchDatasourceMeta: boolean;
-  workspaceId: string;
-}) => ({
+) => ({
   type: "",
-  payload: { workspaceId, editorId, fetchDatasourceMeta },
+  payload: { workspaceId, fetchDatasourceMeta },
 });
