@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.QModuleInstance;
 import com.mongodb.client.result.UpdateResult;
@@ -145,11 +146,19 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleId(
-            String originModuleId, Optional<AclPermission> permission) {
+    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
+            Module sourceModule, Optional<AclPermission> permission) {
         List<Criteria> criteria = new ArrayList<>();
-        Criteria originModuleIdCriterion =
-                where(fieldName(QModuleInstance.moduleInstance.originModuleId)).is(originModuleId);
+        Criteria originModuleIdCriterion = new Criteria()
+                .orOperator(
+                        where(fieldName(QModuleInstance.moduleInstance.originModuleId))
+                                .is(sourceModule.getOriginModuleId()),
+                        new Criteria()
+                                .andOperator(
+                                        where(fieldName(QModuleInstance.moduleInstance.originModuleId))
+                                                .isNull(),
+                                        where(fieldName(QModuleInstance.moduleInstance.moduleUUID))
+                                                .is(sourceModule.getModuleUUID())));
 
         Criteria notDeletedCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
                         + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))

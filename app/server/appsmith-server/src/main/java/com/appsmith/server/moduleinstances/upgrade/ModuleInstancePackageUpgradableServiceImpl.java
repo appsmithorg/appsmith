@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class ModuleInstancePackageUpgradableServiceImpl implements PackageUpgrad
                         .getOriginModuleIdToPublishedModuleMap()
                         .values())
                 .flatMap(newSourceModule -> crudModuleInstanceService
-                        .findAllUnpublishedByOriginModuleId(newSourceModule.getOriginModuleId(), Optional.empty())
+                        .findAllUnpublishedByOriginModuleIdOrModuleUUID(newSourceModule, Optional.empty())
                         .collectMap(ModuleInstance::getId, moduleInstance -> moduleInstance)
                         .doOnNext(map -> publishingMetaDTO
                                 .getExistingModuleInstanceIdToModuleInstanceMap()
@@ -65,7 +66,12 @@ public class ModuleInstancePackageUpgradableServiceImpl implements PackageUpgrad
         existingModuleInstanceDTO.setInputs(mergedInputs);
         // TODO: Update dynamic binding path list
 
+        existingModuleInstance.setOriginModuleId(createdModuleInstanceDTO.getOriginModuleId());
         existingModuleInstance.setSourceModuleId(createdModuleInstanceDTO.getSourceModuleId());
+
+        // TODO: Do this validation step properly in a centralized method
+        existingModuleInstanceDTO.setIsValid(true);
+        existingModuleInstanceDTO.setInvalids(Set.of());
 
         crudModuleInstanceService.extractAndSetJsonPathKeys(existingModuleInstance);
 

@@ -25,6 +25,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
@@ -81,6 +82,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final PolicySolution policySolution;
     private final NewPageService newPageService;
     private final WorkflowRepository workflowRepository;
+    private final ModuleInstanceRepository moduleInstanceRepository;
     private final EntityValidationService entityValidationService;
     private final WorkflowPermission workflowPermission;
 
@@ -111,7 +113,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ObservationRegistry observationRegistry,
             PermissionGroupRepository permissionGroupRepository,
             WorkflowRepository workflowRepository,
-            WorkflowPermission workflowPermission) {
+            WorkflowPermission workflowPermission,
+            ModuleInstanceRepository moduleInstanceRepository) {
         super(
                 scheduler,
                 validator,
@@ -145,6 +148,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.workflowRepository = workflowRepository;
         this.entityValidationService = entityValidationService;
         this.workflowPermission = workflowPermission;
+        this.moduleInstanceRepository = moduleInstanceRepository;
     }
 
     /**
@@ -213,6 +217,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
         Mono<ActionDTO> actionDTOMono = super.validateAndSaveActionToRepository(newAction);
         return actionDTOMono.flatMap(actionDTO -> {
+
             /*
              * We don't want to update the Datasource policy if Plugin Type is JS
              * Or the Datasource doesn't exist.
@@ -357,7 +362,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     @Override
     protected boolean isValidActionName(ActionDTO action) {
         boolean isInternal = false;
-        if (action.getModuleInstanceId() != null) {
+        if (action.getRootModuleInstanceId() != null) {
             isInternal = true;
         }
         return entityValidationService.validateName(action.getName(), isInternal);
@@ -500,10 +505,11 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         if (action.getModuleInstanceId() != null) {
             actionViewDTO.setIsPublic(action.getIsPublic());
             actionViewDTO.setModuleInstanceId(action.getModuleInstanceId());
+            actionViewDTO.setRootModuleInstanceId(action.getRootModuleInstanceId());
             if (!viewMode) {
                 actionViewDTO.setPluginId(action.getPluginId());
                 actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
-                if (!actionDTO.getUserSetOnLoad()) {
+                if (!Boolean.TRUE.equals(actionDTO.getUserSetOnLoad())) {
                     actionViewDTO.setExecuteOnLoad(
                             actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
                 }
@@ -570,6 +576,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Flux<NewAction> findByPageIdsForExport(
+            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return super.findByPageIdsForExport(unpublishedPages, optionalPermission)
+                .filter(newAction ->
+                        newAction.getRootModuleInstanceId() == null || Boolean.TRUE.equals(newAction.getIsPublic()));
+    }
+
+    @Override
     public Mono<List<BulkWriteResult>> publishActionsForActionCollection(
             String actionCollectionId, AclPermission aclPermission) {
         Mono<UpdateResult> archiveDeletedUnpublishedActions =
@@ -577,6 +591,15 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         Mono<List<BulkWriteResult>> publishActions =
                 repository.publishActionsForCollection(actionCollectionId, aclPermission);
         return archiveDeletedUnpublishedActions.then(publishActions);
+    }
+
+    @Override
+    protected void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
+        super.setCommonFieldsFromNewActionIntoAction(newAction, action);
+
+        action.setIsPublic(newAction.getIsPublic());
+        action.setModuleInstanceId(newAction.getModuleInstanceId());
+        action.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
     }
 
     @Override

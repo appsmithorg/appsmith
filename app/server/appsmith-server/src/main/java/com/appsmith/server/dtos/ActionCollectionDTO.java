@@ -27,14 +27,20 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusa
 
     @JsonView(Views.Public.class)
     @Transient
+    String rootModuleInstanceId;
+
+    @JsonView(Views.Public.class)
+    @Transient
     Boolean isPublic;
 
     @JsonView(Views.Public.class)
     String workflowId;
 
+    @Override
     public void populateTransientFields(ActionCollection actionCollection) {
         super.populateTransientFields(actionCollection);
         this.moduleInstanceId = actionCollection.getModuleInstanceId();
+        this.rootModuleInstanceId = actionCollection.getRootModuleInstanceId();
         this.isPublic = actionCollection.getIsPublic();
     }
 }

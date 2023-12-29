@@ -21,6 +21,11 @@ public class NewActionExportableServiceImpl extends NewActionExportableServiceCE
     }
 
     @Override
+    protected boolean hasExportableDatasource(NewAction newAction) {
+        return newAction.getRootModuleInstanceId() == null;
+    }
+
+    @Override
     public void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,

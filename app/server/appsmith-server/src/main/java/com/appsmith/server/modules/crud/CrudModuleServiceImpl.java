@@ -431,9 +431,20 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Flux<Module> findUniqueReferencesByIds(Set<String> ids, Optional<AclPermission> permission) {
-        List<String> projectionFields =
-                List.of(completeFieldName(QModule.module.packageUUID), completeFieldName(QModule.module.moduleUUID));
-        return repository.findAllByIds(ids, projectionFields, permission);
+    public Flux<String> findPackageIdsByModuleIds(Set<String> ids, Optional<AclPermission> permission) {
+        List<String> projectionFields = List.of(completeFieldName(QModule.module.packageId));
+        return repository.findAllByIds(ids, projectionFields, permission).map(module -> module.getPackageId());
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Flux<Module> findExportableModuleDataByIds(
+            Set<String> moduleIdsSet, Optional<AclPermission> permissionOptional) {
+        List<String> projectionFields = List.of(
+                completeFieldName(QModule.module.packageId),
+                completeFieldName(QModule.module.packageUUID),
+                completeFieldName(QModule.module.publishedModule.name),
+                completeFieldName(QModule.module.moduleUUID));
+        return repository.findAllByIds(moduleIdsSet, projectionFields, permissionOptional);
     }
 }

@@ -5,6 +5,7 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -16,6 +17,7 @@ import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.packages.crud.CrudPackageService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,9 +25,11 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
@@ -38,14 +42,17 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
     private final CrudModuleInstanceService crudModuleInstanceService;
     private final ModuleInstancePermission moduleInstancePermission;
     private final CrudModuleService crudModuleService;
+    private final CrudPackageService crudPackageService;
 
     public ModuleInstanceExportableServiceImpl(
             CrudModuleInstanceService crudModuleInstanceService,
             ModuleInstancePermission moduleInstancePermission,
-            CrudModuleService crudModuleService) {
+            CrudModuleService crudModuleService,
+            CrudPackageService crudPackageService) {
         this.crudModuleInstanceService = crudModuleInstanceService;
         this.moduleInstancePermission = moduleInstancePermission;
         this.crudModuleService = crudModuleService;
+        this.crudPackageService = crudPackageService;
     }
 
     // Requires pageIdToNameMap
@@ -65,21 +72,32 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
         Flux<ModuleInstance> moduleInstanceFlux =
                 crudModuleInstanceService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
 
-        final Set<String> refModuleIdsSet = ConcurrentHashMap.newKeySet();
+        final Set<String> sourceModuleIdsSet = ConcurrentHashMap.newKeySet();
 
-        Mono<Void> updateModulesListMono = crudModuleService
-                .findUniqueReferencesByIds(refModuleIdsSet, Optional.empty())
-                .map(ExportableModule::new)
-                .collectList()
-                .doOnNext(modules -> {
-                    if (!modules.isEmpty()) {
-                        applicationJson.setModuleList(modules);
-                    }
-                })
-                .then();
+        Mono<Map<String, Package>> packageInfoMapMono = crudModuleService
+                .findPackageIdsByModuleIds(sourceModuleIdsSet, Optional.empty())
+                .collect(Collectors.toSet())
+                .flatMapMany(crudPackageService::getUniquePublishedReference)
+                .collectMap(Package::getId, aPackage -> aPackage);
+
+        Mono<Void> updateModulesListMono = packageInfoMapMono.flatMap(packageInfoMap -> {
+            return crudModuleService
+                    .findExportableModuleDataByIds(sourceModuleIdsSet, Optional.empty())
+                    .map(module -> {
+                        Package aPackage = packageInfoMap.get(module.getPackageId());
+                        return new ExportableModule(aPackage, module);
+                    })
+                    .collectList()
+                    .doOnNext(modules -> {
+                        if (!modules.isEmpty()) {
+                            applicationJson.setModuleList(modules);
+                        }
+                    })
+                    .then();
+        });
 
         return moduleInstanceFlux
-                .doOnNext(moduleInstance -> refModuleIdsSet.add(moduleInstance.getSourceModuleId()))
+                .doOnNext(moduleInstance -> sourceModuleIdsSet.add(moduleInstance.getSourceModuleId()))
                 .collectList()
                 .map(moduleInstanceList -> {
                     mapNameToIdForExportableEntities(mappedExportableResourcesDTO, moduleInstanceList);

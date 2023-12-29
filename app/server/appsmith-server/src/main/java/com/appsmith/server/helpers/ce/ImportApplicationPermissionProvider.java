@@ -60,28 +60,33 @@ public class ImportApplicationPermissionProvider {
 
     // minimum required permission on the application being updated in the import flow
     private final AclPermission requiredPermissionOnTargetApplication;
-
+    // all the permission groups of the current user
+    private final Set<String> currentUserPermissionGroups;
     /*
     Following fields are flags to indicate whether permission check is required on the corresponding operation.
      */
     // flag to indicate whether permission check is required on the create datasource operation
     private boolean permissionRequiredToCreateDatasource;
-
     // flag to indicate whether permission check is required on the create page operation
     private boolean permissionRequiredToCreatePage;
     // flag to indicate whether permission check is required on the edit page operation
     private boolean permissionRequiredToEditPage;
-
     // flag to indicate whether permission check is required on the create action operation
     private boolean permissionRequiredToCreateAction;
     // flag to indicate whether permission check is required on the edit action operation
     private boolean permissionRequiredToEditAction;
-
     // flag to indicate whether permission check is required during the edit datasource operation
     private boolean permissionRequiredToEditDatasource;
 
-    // all the permission groups of the current user
-    private final Set<String> currentUserPermissionGroups;
+    public static Builder builder(
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            DatasourcePermission datasourcePermission,
+            WorkspacePermission workspacePermission) {
+        return new Builder(
+                applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
+    }
 
     /**
      * Helper method to check whether the provided permission is present in the provided baseDomain's policies.
@@ -141,16 +146,6 @@ public class ImportApplicationPermissionProvider {
         return hasPermission(workspacePermission.getDatasourceCreatePermission(), workspace);
     }
 
-    public static Builder builder(
-            ApplicationPermission applicationPermission,
-            PagePermission pagePermission,
-            ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission,
-            WorkspacePermission workspacePermission) {
-        return new Builder(
-                applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
-    }
-
     @Setter
     @Accessors(chain = true, fluent = true)
     public static class Builder {
@@ -206,13 +201,13 @@ public class ImportApplicationPermissionProvider {
                     workspacePermission,
                     requiredPermissionOnTargetWorkspace,
                     requiredPermissionOnTargetApplication,
+                    currentUserPermissionGroups,
                     permissionRequiredToCreateDatasource,
                     permissionRequiredToCreatePage,
                     permissionRequiredToEditPage,
                     permissionRequiredToCreateAction,
                     permissionRequiredToEditAction,
-                    permissionRequiredToEditDatasource,
-                    currentUserPermissionGroups);
+                    permissionRequiredToEditDatasource);
         }
     }
 }

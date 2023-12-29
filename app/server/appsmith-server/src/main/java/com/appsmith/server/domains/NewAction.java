@@ -40,14 +40,21 @@ public class NewAction extends NewActionCE {
     public void sanitiseToExportDBObject() {
         super.sanitiseToExportDBObject();
 
-        if (Boolean.TRUE.equals(this.getIsPublic())) {
+        if (this.rootModuleInstanceId != null) {
+            this.setOriginActionId(null);
             ActionDTO unpublishedAction = this.getUnpublishedAction();
             if (unpublishedAction != null) {
                 unpublishedAction.setActionConfiguration(null);
+                unpublishedAction.setDatasource(null);
+                unpublishedAction.setDynamicBindingPathList(null);
+                unpublishedAction.setJsonPathKeys(null);
             }
             ActionDTO publishedAction = this.getPublishedAction();
             if (publishedAction != null) {
                 publishedAction.setActionConfiguration(null);
+                publishedAction.setDatasource(null);
+                publishedAction.setDynamicBindingPathList(null);
+                publishedAction.setJsonPathKeys(null);
             }
         }
     }

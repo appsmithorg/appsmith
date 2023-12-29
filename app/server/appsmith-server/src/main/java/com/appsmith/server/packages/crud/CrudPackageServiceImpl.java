@@ -19,6 +19,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
+import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleMetadata;
 import com.appsmith.server.dtos.PackageDTO;
@@ -46,6 +47,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PACKAGES;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.completeFieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -175,8 +178,13 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
+    public Flux<Package> getAllPublishedPackagesByUniqueRef(String workspaceId, List<ExportableModule> packageList) {
+        return repository.findAllPublishedByUniqueReference(workspaceId, packageList, Optional.empty());
+    }
+
+    @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<List<PackageDTO>> getAllPackages() {
+    public Mono<List<PackageDTO>> getAllEditablePackages() {
         return repository
                 .findAllUserPackages(packagePermission.getEditPermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.EDIT))
@@ -316,6 +324,16 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                 .then(repository.archiveById(aPackage.getId()))
                 .as(transactionalOperator::transactional)
                 .then(setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getUnpublishedPackage())));
+    }
+
+    @Override
+    public Flux<Package> getUniquePublishedReference(Set<String> packageIds) {
+        List<String> projectionFields = List.of(
+                completeFieldName(QPackage.package$.id),
+                completeFieldName(QPackage.package$.publishedPackage.name),
+                completeFieldName(QPackage.package$.packageUUID),
+                completeFieldName(QPackage.package$.version));
+        return repository.findAllByIds(new ArrayList<>(packageIds), projectionFields);
     }
 
     @Override

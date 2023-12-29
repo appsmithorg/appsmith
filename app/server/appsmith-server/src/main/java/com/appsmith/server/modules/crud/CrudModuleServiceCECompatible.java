@@ -15,5 +15,7 @@ public interface CrudModuleServiceCECompatible extends BaseModuleServiceCECompat
 
     Mono<ModuleDTO> updateModule(ModuleDTO moduleResource, String moduleId);
 
-    Flux<Module> findUniqueReferencesByIds(Set<String> ids, Optional<AclPermission> permission);
+    Flux<String> findPackageIdsByModuleIds(Set<String> ids, Optional<AclPermission> permission);
+
+    Flux<Module> findExportableModuleDataByIds(Set<String> moduleIdsSet, Optional<AclPermission> permissionOptional);
 }

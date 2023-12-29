@@ -46,7 +46,9 @@ public class PackageJsLibServiceImpl extends PackageJsLibServiceCECompatibleImpl
                     } else {
                         packageDTO = aPackage.getUnpublishedPackage();
                     }
-                    return packageDTO == null ? new HashSet<>() : packageDTO.getCustomJSLibs();
+                    return packageDTO == null || packageDTO.getCustomJSLibs() == null
+                            ? new HashSet<>()
+                            : packageDTO.getCustomJSLibs();
                 });
     }
 

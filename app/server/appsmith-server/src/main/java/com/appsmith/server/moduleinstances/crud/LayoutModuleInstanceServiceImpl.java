@@ -95,7 +95,7 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_INSTANCE_ID, moduleInstanceId)));
 
         return moduleInstanceMono.flatMap(moduleInstance -> {
-            validateModuleInstanceDTO(moduleInstanceDTO);
+            validateModuleInstanceDTO(moduleInstanceDTO, false);
             Update updateObj = prepareUpdatableFieldsForModuleInstance(moduleInstanceDTO, isRefactor);
 
             return repository

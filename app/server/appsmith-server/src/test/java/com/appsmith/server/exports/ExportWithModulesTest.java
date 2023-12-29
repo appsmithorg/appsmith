@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class ImportExportWithModulesTest {
+class ExportWithModulesTest {
 
     @Autowired
     private ExportApplicationService exportApplicationService;

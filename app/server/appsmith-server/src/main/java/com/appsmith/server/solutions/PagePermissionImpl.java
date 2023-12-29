@@ -15,6 +15,11 @@ public class PagePermissionImpl extends PagePermissionCEImpl implements PagePerm
     }
 
     @Override
+    public AclPermission getModuleInstanceCreatePermission() {
+        return AclPermission.PAGE_CREATE_MODULE_INSTANCES;
+    }
+
+    @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public AclPermission getDeletePermission() {
         return AclPermission.DELETE_PAGES;
