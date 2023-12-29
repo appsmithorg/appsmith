@@ -89,7 +89,6 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
       data-label=""
       data-label-position={labelPosition}
       data-state={dataState}
-      htmlFor={inputProps.id}
       ref={domRef}
     >
       <input
