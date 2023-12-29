@@ -18,10 +18,7 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -29,6 +26,7 @@ import {
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
 import { call, fork, put, select, spawn } from "redux-saga/effects";
+import type { EditConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -63,11 +61,6 @@ import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import {
-  getFeatureFlagsForEngine,
-  type DependentFeatureFlags,
-} from "@appsmith/selectors/engineSelectors";
 import { fetchJSCollections } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
@@ -115,13 +108,41 @@ export default class AppEditorEngine extends AppEngine {
   private *loadPageThemesAndActions(
     toLoadPageId: string,
     applicationId: string,
+    allResponses?: EditConsolidatedApi,
   ) {
+    const {
+      v1ActionsResp,
+      v1CollectionsActionsResp,
+      v1LibrariesApplicationResp,
+      v1PageResp,
+      v1ThemesApplicationCurrentModeResp,
+      v1ThemesResp,
+    } = allResponses || {};
     const initActionsCalls = [
-      setupPage(toLoadPageId, true),
-      fetchActions({ applicationId }, []),
-      fetchJSCollections({ applicationId }),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
+      // check from the feature flags response for release_server_dsl_migrations_enabled
+      // if it is true or truthy set the migrateDSL parameter to true
+      // v1/page/:pageId?migrateDSL=!!release_server_dsl_migrations_enabled
+      // tie response to v1PageResp
+      setupPage(toLoadPageId, true, v1PageResp),
+      // params applicationId
+      // v1/actions?applicationId=someApplicationId
+      // tie response to v1ActionsResp
+      fetchActions({ applicationId, v1ActionsResp }, []),
+      // params applicationId
+      // v1/collections/actions?applicationId=someApplicationId
+      // tie response to v1CollectionsActionsResp
+      fetchJSCollections({ applicationId, v1CollectionsActionsResp }),
+      // pathVariable applicationId
+      // v1/themes/applications/:applicationId/current?mode=EDIT
+      // tie response to v1ThemesApplicationCurrentModeResp
+      fetchSelectedAppThemeAction(
+        applicationId,
+        v1ThemesApplicationCurrentModeResp,
+      ),
+      // pathVariable applicationId
+      // v1/themes/applications/:applicationId
+      // tie response to v1ThemesApplicationsResp
+      fetchAppThemesAction(applicationId, v1ThemesResp),
     ];
 
     const successActionEffects = [
@@ -140,7 +161,12 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.SETUP_PAGE_ERROR,
     ];
 
-    initActionsCalls.push(fetchJSLibraries(applicationId));
+    initActionsCalls.push(
+      // pathVariable applicationId
+      // "v1/libraries/:applicationId
+      // tie response to v1LibrariesApplicationResp
+      fetchJSLibraries(applicationId, v1LibrariesApplicationResp),
+    );
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
 
     const allActionCalls: boolean = yield call(
@@ -161,17 +187,19 @@ export default class AppEditorEngine extends AppEngine {
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
-  private *loadPluginsAndDatasources() {
+  private *loadPluginsAndDatasources(allResponses: EditConsolidatedApi) {
+    const { v1DatasourcesMockResp, v1PluginFormConfigsResp } =
+      allResponses || {};
     const isAirgappedInstance = isAirgapped();
-    const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
-    const featureFlags: DependentFeatureFlags = yield select(
-      getFeatureFlagsForEngine,
-    );
+
     const { errorActions, initActions, successActions } =
-      getPageDependencyActions(currentWorkspaceId, featureFlags);
+      getPageDependencyActions(allResponses);
 
     if (!isAirgappedInstance) {
-      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
+      // v1/datasources/mocks
+      // tie response to v1DatasourcesMockResp
+      initActions.push(fetchMockDatasources(v1DatasourcesMockResp));
+
       successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
       errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
     }
@@ -188,7 +216,16 @@ export default class AppEditorEngine extends AppEngine {
 
     const pluginFormCall: boolean = yield call(
       failFastApiCalls,
-      [fetchPluginFormConfigs()],
+      //  pluginIds are the combination of the following
+      //  1.are all unique plugins returned by the datasources call made earlier
+      //  2.if an API plugin is present in the plugins call made earlier
+      //  3.if a graphQl plugin is present in the plugins call made earlier
+      //  4.are all plugins returned by the actions calls made earlier
+      // for the above pluginIds make the fetch calls with the following api
+      // v1/plugins/:pluginId/form
+      // please attach a plugin id to each element in the collection
+      // tie response to v1PluginFormConfigsResp
+      [fetchPluginFormConfigs(v1PluginFormConfigsResp)],
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
@@ -198,9 +235,18 @@ export default class AppEditorEngine extends AppEngine {
       );
   }
 
-  public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield call(this.loadPageThemesAndActions, toLoadPageId, applicationId);
-    yield call(this.loadPluginsAndDatasources);
+  public *loadAppEntities(
+    toLoadPageId: string,
+    applicationId: string,
+    allResponses: EditConsolidatedApi,
+  ): any {
+    yield call(
+      this.loadPageThemesAndActions,
+      toLoadPageId,
+      applicationId,
+      allResponses,
+    );
+    yield call(this.loadPluginsAndDatasources, allResponses);
   }
 
   public *completeChore() {

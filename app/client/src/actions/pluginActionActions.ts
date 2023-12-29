@@ -10,11 +10,13 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { Action } from "entities/Action";
+import type { Action, ActionViewMode } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
+import type { ApiResponse } from "api/ApiResponses";
+import type { JSCollection } from "entities/JSCollection";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -32,27 +34,36 @@ export const createActionSuccess = (payload: Action) => {
 
 export interface FetchActionsPayload {
   applicationId: string;
+  v1ActionsViewResp?: ApiResponse<ActionViewMode[]>;
+  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
+  v1CollectionsActionsResp?: ApiResponse<JSCollection[]>;
+  v1ActionsResp?: ApiResponse<Action[]>;
 }
 
 export const fetchActions = (
-  { applicationId }: { applicationId: string },
+  {
+    applicationId,
+    v1ActionsResp,
+  }: { applicationId: string; v1ActionsResp?: ApiResponse<Action[]> },
   postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload: { applicationId },
+    payload: { applicationId, v1ActionsResp },
     postEvalActions,
   };
 };
 
 export const fetchActionsForView = ({
   applicationId,
+  v1ActionsViewResp,
 }: {
   applicationId: string;
+  v1ActionsViewResp?: ApiResponse<ActionViewMode[]>;
 }): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId },
+    payload: { applicationId, v1ActionsViewResp },
   };
 };
 

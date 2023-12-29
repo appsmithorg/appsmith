@@ -12,6 +12,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
 import { call, put, spawn } from "redux-saga/effects";
+import type { DeployConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -54,11 +55,6 @@ export default class AppViewerEngine extends AppEngine {
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
-    if ("serviceWorker" in navigator) {
-      yield put({
-        type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
-      });
-    }
     yield spawn(reportSWStatus);
   }
 
@@ -78,13 +74,43 @@ export default class AppViewerEngine extends AppEngine {
     );
   }
 
-  *loadAppEntities(toLoadPageId: string, applicationId: string): any {
+  *loadAppEntities(
+    toLoadPageId: string,
+    applicationId: string,
+    allResponses: DeployConsolidatedApi,
+  ): any {
+    const {
+      v1ActionsViewResp,
+      v1CollectionsActionsViewResp,
+      v1LibrariesApplicationResp,
+      v1PublishedPageResp,
+      v1ThemesApplicationCurrentModeResp,
+      v1ThemesResp,
+    } = allResponses;
     const initActionsCalls: any = [
-      fetchActionsForView({ applicationId }),
-      fetchJSCollectionsForView({ applicationId }),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
-      setupPublishedPage(toLoadPageId, true, true),
+      // v1/actions/view?applicationId=someApplicationId
+      //tie to v1ActionsViewResp
+      fetchActionsForView({ applicationId, v1ActionsViewResp }),
+      // v1/collections/actions/view?applicationId=someApplicationId
+      // tie to v1CollectionsActionsViewResp
+      fetchJSCollectionsForView({
+        applicationId,
+        v1CollectionsActionsViewResp,
+      }),
+
+      // v1/themes/applications/:applicationId/current?mode=PUBLISHED
+      // tie to v1ThemesApplicationCurrentModeResp
+      fetchSelectedAppThemeAction(
+        applicationId,
+        v1ThemesApplicationCurrentModeResp,
+      ),
+      // v1/themes/applications/:applicationId
+      // tie to v1ThemesResp
+      fetchAppThemesAction(applicationId, v1ThemesResp),
+      // every request should invalidate the cache, when making this call "v" query param should always be unique
+      // v1/pages/:pageId/view?v=someUniqueValue
+      // tie to v1PublishedPageResp
+      setupPublishedPage(toLoadPageId, true, true, v1PublishedPageResp),
     ];
 
     const successActionEffects = [
@@ -101,8 +127,11 @@ export default class AppViewerEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
       ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
     ];
-
-    initActionsCalls.push(fetchJSLibraries(applicationId));
+    // v1/libraries/:applicationId/view
+    // tie response to v1LibrariesApplicationResp
+    initActionsCalls.push(
+      fetchJSLibraries(applicationId, v1LibrariesApplicationResp),
+    );
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
     failureActionEffects.push(ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED);
 

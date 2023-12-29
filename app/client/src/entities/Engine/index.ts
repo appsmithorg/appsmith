@@ -9,6 +9,7 @@ import { getPersistentAppStore } from "constants/AppConstants";
 import type { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
+import type { InitConsolidatedApi } from "sagas/InitSagas";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultPageId } from "sagas/selectors";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
@@ -23,6 +24,8 @@ export interface AppEnginePayload {
   pageId?: string;
   branch?: string;
   mode: APP_MODE;
+  shouldInitialiseUserDetails?: boolean;
+  allResponses?: InitConsolidatedApi;
 }
 
 export interface IAppEngine {
@@ -48,16 +51,40 @@ export default abstract class AppEngine {
   }
   private _urlRedirect: URLRedirect | null;
 
-  abstract loadAppEntities(toLoadPageId: string, applicationId: string): any;
+  abstract loadAppEntities(
+    toLoadPageId: string,
+    applicationId: string,
+    allResponses?: InitConsolidatedApi,
+  ): any;
   abstract loadGit(applicationId: string): any;
   abstract startPerformanceTracking(): any;
   abstract stopPerformanceTracking(): any;
   abstract completeChore(): any;
 
   *loadAppData(payload: AppEnginePayload) {
-    const { applicationId, branch, pageId } = payload;
+    const { allResponses, applicationId, branch, pageId } = payload;
+    const v1PagesResp = allResponses?.v1PagesResp;
+    // pick up all truthy params from the oneApi applicationId, mode, pageId
+    // and if applicationId and pageId are both provided delete applicationId
+    // when in edit
+    // v1/pages?mode=EDIT&pageId=somePageId
+    // or
+    // v1/pages?mode=EDIT&applicationId=somApplicationId
+    // mode is always PUBLISHED
+    // v1/pages?mode=PUBLISHED&pageId=somePageId
+    // or
+    // v1/pages?mode=PUBLISHED&applicationId=somApplicationId
+    // tie response to v1PagesResp
+
     const apiCalls: boolean = yield failFastApiCalls(
-      [fetchApplication({ applicationId, pageId, mode: this._mode })],
+      [
+        fetchApplication({
+          applicationId,
+          pageId,
+          mode: this._mode,
+          v1PagesResp,
+        }),
+      ],
       [
         ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
