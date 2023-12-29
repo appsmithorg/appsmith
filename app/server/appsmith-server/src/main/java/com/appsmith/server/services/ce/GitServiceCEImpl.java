@@ -100,6 +100,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.GitConstants.CONFLICTED_SUCCESS_MESSAGE;
 import static com.appsmith.external.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
 import static com.appsmith.external.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
@@ -3254,11 +3256,17 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     if (branchNames.isEmpty()
                             || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
+                        // keep a copy of old protected branches as it's required to send analytics event later
+                        List<String> oldProtectedBranches = metadata.getBranchProtectionRules() != null
+                                ? metadata.getBranchProtectionRules()
+                                : List.of();
+
                         // user wants to unprotect all branches or user wants to protect only default branch
                         metadata.setBranchProtectionRules(branchNames);
                         return applicationService
                                 .save(rootApplication)
                                 .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
+                                .then(sendBranchProtectionAnalytics(rootApplication, oldProtectedBranches, branchNames))
                                 .thenReturn(branchNames);
                     } else {
                         // user want to protect multiple branches, not allowed
@@ -3330,5 +3338,64 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .getGitApplicationMetadata()
                                 .getAutoCommitConfig()
                                 .getEnabled()));
+    }
+
+    /**
+     * Sends Analytics event for a single branch when that branch is protected or un-protected.
+     * @param application Application object
+     * @param branchName String, name of the branch
+     * @param isProtected boolean, true if branch is protected. false otherwise
+     * @return an empty mono
+     */
+    private Mono<Void> sendAnalyticsForBranchProtection(
+            Application application, String branchName, boolean isProtected) {
+        AnalyticsEvents event = isProtected ? GIT_ADD_PROTECTED_BRANCH : GIT_REMOVE_PROTECTED_BRANCH;
+
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        Map<String, Object> analyticsProps = new HashMap<>();
+        analyticsProps.put("appId", gitData.getDefaultApplicationId());
+        analyticsProps.put("orgId", application.getWorkspaceId());
+        analyticsProps.put("branch", branchName);
+        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> analyticsService.sendEvent(event.getEventName(), user.getUsername(), analyticsProps));
+    }
+
+    /**
+     * Sends one or more analytics events when there's a change in protected branches.
+     * If n number of branches are un-protected and m number of branches are protected, it'll send m+n number of
+     * events. It receives the list of branches before and after the action.
+     * For example, if user has "main" and "develop" branches as protected and wants to include "staging" branch as
+     * protected as well, then oldProtectedBranches will be ["main", "develop"] and newProtectedBranches will be
+     * ["main", "develop", "staging"]
+     * @param application Application object of the root application
+     * @param oldProtectedBranches List of branches that were protected before this action.
+     * @param newProtectedBranches List of branches that are going to be protected.
+     * @return An empty Mono
+     */
+    protected Mono<Void> sendBranchProtectionAnalytics(
+            Application application, List<String> oldProtectedBranches, List<String> newProtectedBranches) {
+        List<String> itemsAdded = new ArrayList<>(newProtectedBranches); // add all new items
+        itemsAdded.removeAll(oldProtectedBranches); // remove the items that were present earlier
+
+        List<String> itemsRemoved = new ArrayList<>(oldProtectedBranches); // add all old items
+        itemsRemoved.removeAll(newProtectedBranches); // remove the items that are also present in new list
+
+        List<Mono<Void>> eventSenderMonos = new ArrayList<>();
+
+        // send an analytics event for each removed branch
+        for (String branchName : itemsRemoved) {
+            eventSenderMonos.add(sendAnalyticsForBranchProtection(application, branchName, false));
+        }
+
+        // send an analytics event for each removed branch
+        for (String branchName : itemsAdded) {
+            eventSenderMonos.add(sendAnalyticsForBranchProtection(application, branchName, true));
+        }
+
+        return Flux.merge(eventSenderMonos).then();
     }
 }
