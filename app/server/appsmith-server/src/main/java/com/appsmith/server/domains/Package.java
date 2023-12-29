@@ -45,6 +45,9 @@ public class Package extends BranchAwareDomain {
     @JsonView(Views.Internal.class)
     String version;
 
+    @JsonView(Views.Internal.class)
+    Instant lastEditedAt;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Instant lastPublishedAt; // when this package was last published
@@ -52,10 +55,10 @@ public class Package extends BranchAwareDomain {
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     public String getLastUpdateTime() {
-        if (updatedAt != null) {
-            return ISO_FORMATTER.format(updatedAt);
+        if (lastEditedAt == null || lastEditedAt.isBefore(updatedAt)) {
+            lastEditedAt = updatedAt;
         }
-        return null;
+        return (lastEditedAt != null) ? ISO_FORMATTER.format(lastEditedAt) : null;
     }
 
     @JsonProperty(value = "lastPublished", access = JsonProperty.Access.READ_ONLY)

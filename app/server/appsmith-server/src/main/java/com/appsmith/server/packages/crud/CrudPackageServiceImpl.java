@@ -374,19 +374,6 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         return updateObj;
     }
 
-    private Mono<PackageDTO> setTransientFieldsFromPackageToPackageDTO(Package aPackage, PackageDTO packageDTO) {
-        packageDTO.setWorkspaceId(aPackage.getWorkspaceId());
-        packageDTO.setId(aPackage.getId());
-        packageDTO.setPackageUUID(aPackage.getPackageUUID());
-        packageDTO.setUserPermissions(aPackage.getUserPermissions());
-        packageDTO.setModifiedAt(aPackage.getLastUpdateTime());
-        packageDTO.setModifiedBy(aPackage.getModifiedBy());
-        packageDTO.setLastPublishedAt(aPackage.getLastPublishedTime());
-        packageDTO.setPolicies(aPackage.getPolicies());
-
-        return Mono.just(packageDTO);
-    }
-
     private Mono<Package> createSuffixedPackage(Package requestedPackage, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         requestedPackage.getUnpublishedPackage().setName(actualName);

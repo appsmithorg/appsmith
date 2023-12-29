@@ -22,10 +22,10 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.modules.metadata.ModuleMetadataService;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
@@ -82,9 +82,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final PolicySolution policySolution;
     private final NewPageService newPageService;
     private final WorkflowRepository workflowRepository;
-    private final ModuleInstanceRepository moduleInstanceRepository;
     private final EntityValidationService entityValidationService;
     private final WorkflowPermission workflowPermission;
+    private final ModuleMetadataService moduleMetadataService;
 
     public NewActionServiceImpl(
             Scheduler scheduler,
@@ -114,7 +114,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             PermissionGroupRepository permissionGroupRepository,
             WorkflowRepository workflowRepository,
             WorkflowPermission workflowPermission,
-            ModuleInstanceRepository moduleInstanceRepository) {
+            ModuleMetadataService moduleMetadataService) {
         super(
                 scheduler,
                 validator,
@@ -148,7 +148,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.workflowRepository = workflowRepository;
         this.entityValidationService = entityValidationService;
         this.workflowPermission = workflowPermission;
-        this.moduleInstanceRepository = moduleInstanceRepository;
+        this.moduleMetadataService = moduleMetadataService;
     }
 
     /**
@@ -225,9 +225,13 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
              */
 
             if (actionDTO.getPluginType() == PluginType.JS
-                    || StringUtils.isEmpty(actionDTO.getDatasource().getId())
-                    || isModuleContext(actionDTO.getContextType())) {
+                    || StringUtils.isEmpty(actionDTO.getDatasource().getId())) {
                 return Mono.just(actionDTO);
+            }
+            if (isModuleContext(actionDTO.getContextType())) {
+                return moduleMetadataService
+                        .saveLastEditInformation(actionDTO.getModuleId())
+                        .thenReturn(actionDTO);
             }
 
             /*
@@ -622,5 +626,15 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             boolean includeJs) {
         return repository.findAllModuleInstanceEntitiesByContextAndViewMode(
                 contextId, contextType, Optional.of(permission), viewMode, includeJs);
+    }
+
+    @Override
+    public Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO) {
+        if (isModuleContext(actionDTO.getContextType())) {
+            return moduleMetadataService
+                    .saveLastEditInformation(actionDTO.getModuleId())
+                    .then();
+        }
+        return super.saveLastEditInformationInParent(actionDTO);
     }
 }
