@@ -103,13 +103,12 @@ public class ConsolidatedAPIServiceImplTest {
 
     @Test
     public void testErrorWhenModeIsNullAndPageIdAvailable() {
-        Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad = consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null);
-        StepVerifier.create(consolidatedInfoForPageLoad)
-            .verifyErrorSatisfies(error -> {
-                assertTrue(error instanceof AppsmithException);
-                assertEquals("Please enter a valid parameter appMode.", error.getMessage());
-            });
-
+        Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
+                consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null);
+        StepVerifier.create(consolidatedInfoForPageLoad).verifyErrorSatisfies(error -> {
+            assertTrue(error instanceof AppsmithException);
+            assertEquals("Please enter a valid parameter appMode.", error.getMessage());
+        });
     }
 
     @Test
