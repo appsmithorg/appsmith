@@ -35,8 +35,6 @@
 .body {
   overflow: auto;
   max-height: 100%;
-  padding-inline: var(--outer-spacing-4);
-  margin-inline: calc(var(--outer-spacing-4) * -1);
   flex: 1;
 }
 
