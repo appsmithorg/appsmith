@@ -193,6 +193,16 @@ describe(
       agHelper.GetNClick(dataSources._refreshIcon);
 
       //Store Address deletion remains
+      table.ReadTableRowColumnData(4, 3, "v2", 2000).then(($cellData) => {
+        expect($cellData).to.eq("");
+      });
+      table.ReadTableRowColumnData(7, 3, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq("");
+      });
+
+      table.ReadTableRowColumnData(5, 0, "v2", 200).then(($cellData) => {
+        expect($cellData).not.eq("2132"); //Deleted record Store_ID
+      });
 
       table.NavigateToNextPage(true, "v2"); //page 2
       agHelper.Sleep(3000); //wait for table navigation to take effect!
