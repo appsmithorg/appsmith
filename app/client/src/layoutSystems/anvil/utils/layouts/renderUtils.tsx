@@ -134,6 +134,7 @@ export function renderWidgetsInAlignedRow(
     parentDropTarget: props.parentDropTarget,
     renderMode: props.renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
+    className: props.className,
   };
 
   const startChildren: WidgetLayoutProps[] = (
