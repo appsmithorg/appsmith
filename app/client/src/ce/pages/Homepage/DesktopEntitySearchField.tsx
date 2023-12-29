@@ -1,20 +1,38 @@
-import { DEFAULT_PACKAGE_ICON } from "@appsmith/constants/PackageConstants";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { setFetchingApplications } from "@appsmith/actions/applicationActions";
+import { Icon, SearchInput, Spinner, Text } from "design-system";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import {
+  getIsFetchingEntities,
+  getSearchedApplications,
+  getSearchedWorkspaces,
+} from "@appsmith/selectors/applicationSelectors";
+import Fuse from "fuse.js";
+import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { Button, Icon, SearchInput, Spinner, Text } from "design-system";
-import React from "react";
-import styled from "styled-components";
-import { getApplicationIcon } from "utils/AppsmithUtils";
 import { Size, type AppIconName, AppIcon } from "design-system-old";
-import history from "utils/history";
+import { getApplicationIcon } from "utils/AppsmithUtils";
 import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
+import { DEFAULT_PACKAGE_ICON } from "@appsmith/constants/PackageConstants";
+import history from "utils/history";
+
+const SearchContainer = styled.div<{ isMobile?: boolean }>`
+  width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
+  position: relative;
+`;
 
 const SearchListContainer = styled.div`
-  width: 100%;
-  height: 100vh;
+  width: 350px;
+  max-height: 420px;
   position: absolute;
-  top: 47px;
+  top: 30px;
   left: 0;
+  border-radius: 4px;
+  box-shadow: 0 1px 20px 0 rgba(76, 86, 100, 0.11);
   border: solid 1px var(--ads-v2-color-bg-muted);
   background-color: var(--ads-v2-color-bg);
   display: flex;
@@ -46,54 +64,86 @@ const CircleAppIcon = styled(AppIcon)`
   }
 `;
 
-const MobileSearchInput = styled(SearchInput)`
-  span {
-    display: none;
-  }
-  input {
-    border: none !important;
-    padding: 0 0 0 4px !important;
-  }
-`;
+const DesktopEntitySearchField = (props: any) => {
+  const isMobile = useIsMobileDevice();
+  const dispatch = useDispatch();
 
-function MobileSearchBar(props: any) {
   const {
-    applicationsList,
-    canShowSearchDropdown,
     handleInputClicked,
-    handleSearchInput,
+    handleSearchDebounced,
     isDropdownOpen,
-    isFetchingApplications,
-    isFetchingEntities,
     navigateToApplication,
     noSearchResults,
-    searchedPackages,
+    prevIsFetchingEntitiesRef,
+    searchInput,
+    searchInputRef,
     searchListContainerRef,
     setIsDropdownOpen,
-    setShowMobileSearchBar,
-    workspacesList,
+    setNoSearchResults,
+    setSearchInput,
   } = props;
+
+  const [searchedPackages, setSearchedPackages] = useState([]);
+
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const applicationsList = useSelector(getSearchedApplications);
+  const isFetchingEntities = useSelector(getIsFetchingEntities);
+  const fetchedPackages = useSelector(getPackagesList);
+  const workspacesList = useSelector(getSearchedWorkspaces);
+
+  const fuzzy = new Fuse(fetchedPackages, {
+    keys: ["name"],
+    shouldSort: true,
+    threshold: 0.5,
+    location: 0,
+    distance: 100,
+  });
+
+  function handleSearchInput(text: string) {
+    setSearchInput(text);
+    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
+    else dispatch(setFetchingApplications(false));
+    handleSearchDebounced(text);
+    setSearchedPackages(fuzzy.search(text));
+    setIsDropdownOpen(true);
+  }
+
+  useEffect(() => {
+    const prevIsFetchingEntities = prevIsFetchingEntitiesRef.current;
+    if (prevIsFetchingEntities && !isFetchingEntities) {
+      if (
+        !workspacesList?.length &&
+        !applicationsList?.length &&
+        !searchedPackages?.length
+      ) {
+        setNoSearchResults(true);
+      } else {
+        setNoSearchResults(false);
+      }
+    }
+    prevIsFetchingEntitiesRef.current = isFetchingEntities;
+  }, [isFetchingEntities]);
+
+  const canShowSearchDropdown =
+    (noSearchResults && !isFetchingEntities) ||
+    isFetchingEntities ||
+    !!(
+      workspacesList?.length ||
+      applicationsList?.length ||
+      searchedPackages?.length
+    );
+
   return (
-    <>
-      <div className="flex items-center w-full pl-4">
-        <Icon className="!text-black !mr-2" name="search" size={"md"} />
-        <MobileSearchInput
-          data-testid="t--application-search-input"
-          defaultValue=""
-          isDisabled={isFetchingApplications}
-          onChange={handleSearchInput}
-          onClick={handleInputClicked}
-          placeholder={""}
-        />
-        <Button
-          className="!mr-2"
-          isIconButton
-          kind="tertiary"
-          onClick={() => setShowMobileSearchBar(false)}
-          size="md"
-          startIcon="close-x"
-        />
-      </div>
+    <SearchContainer isMobile={isMobile}>
+      <SearchInput
+        data-testid="t--application-search-input"
+        isDisabled={isFetchingApplications}
+        onChange={handleSearchInput}
+        onClick={handleInputClicked}
+        placeholder={""}
+        ref={searchInputRef}
+        value={searchInput}
+      />
       {isDropdownOpen && canShowSearchDropdown && (
         <SearchListContainer ref={searchListContainerRef}>
           {noSearchResults && !isFetchingEntities && (
@@ -125,6 +175,7 @@ function MobileSearchBar(props: any) {
                   </Text>
                   {workspacesList.map((workspace: Workspace) => (
                     <SearchListItem
+                      data-testId={workspace.name}
                       key={workspace.id}
                       onClick={() => {
                         setIsDropdownOpen(false);
@@ -151,6 +202,7 @@ function MobileSearchBar(props: any) {
                   </Text>
                   {applicationsList.map((application: ApplicationPayload) => (
                     <SearchListItem
+                      data-testId={application.name}
                       key={application.id}
                       onClick={() => navigateToApplication(application.id)}
                     >
@@ -199,7 +251,8 @@ function MobileSearchBar(props: any) {
           )}
         </SearchListContainer>
       )}
-    </>
+    </SearchContainer>
   );
-}
-export default MobileSearchBar;
+};
+
+export default DesktopEntitySearchField;

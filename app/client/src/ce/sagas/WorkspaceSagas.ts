@@ -41,7 +41,10 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
+import {
+  fetchUsersForWorkspace,
+  resetCurrentWorkspace,
+} from "@appsmith/actions/workspaceActions";
 
 export function* fetchAllWorkspacesSaga(
   action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,
@@ -62,8 +65,9 @@ export function* fetchAllWorkspacesSaga(
         const activeWorkspace = workspaces.find(
           (workspace) => workspace.id === workspaceId,
         );
-        //Fetch entities like applications, packages, workflows etc.
+        //Fetch entities like applications, packages, workflows, users etc.
         yield put(fetchAllApplicationsOfWorkspace(workspaceId));
+        yield put(fetchUsersForWorkspace(workspaceId));
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: { ...activeWorkspace },
@@ -300,8 +304,6 @@ export function* createWorkspaceSaga(
         type: ReduxActionTypes.CREATE_WORKSPACE_SUCCESS,
         payload: response.data,
       });
-
-      yield put(fetchAllApplicationsOfWorkspace());
       yield call(resolve);
     }
 
