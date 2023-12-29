@@ -304,8 +304,6 @@ export function* createWorkspaceSaga(
         type: ReduxActionTypes.CREATE_WORKSPACE_SUCCESS,
         payload: response.data,
       });
-
-      yield put(fetchAllApplicationsOfWorkspace());
       yield call(resolve);
     }
 
