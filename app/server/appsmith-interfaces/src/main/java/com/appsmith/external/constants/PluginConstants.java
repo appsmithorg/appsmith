@@ -11,7 +11,7 @@ public interface PluginConstants {
         String AMAZON_S3_PLUGIN = "amazons3-plugin";
         String GOOGLE_SHEETS_PLUGIN = "google-sheets-plugin";
         String REST_API_PLUGIN = "restapi-plugin";
-        String GRAPH_QL_PLUGIN = "graphql-plugin";
+        String GRAPHQL_PLUGIN = "graphql-plugin";
         String OPEN_AI_PLUGIN = "openai-plugin";
         String ANTHROPIC_PLUGIN = "anthropic-plugin";
         String GOOGLE_AI_PLUGIN = "googleai-plugin";
