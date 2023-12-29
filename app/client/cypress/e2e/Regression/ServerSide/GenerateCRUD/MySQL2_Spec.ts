@@ -188,35 +188,35 @@ describe(
       dataSources.AssertJSONFormHeader(0, 0, "store_id");
     });
 
-     // https://github.com/appsmithorg/appsmith/issues/29870 Once this issue is fixed then this test case should be enabled and fixed for the table v2
-    // it("7. Verify Refresh table from Deploy page - on Stores & verify all updates persists", () => {
-    //   agHelper.GetNClick(dataSources._refreshIcon);
+    // https://github.com/appsmithorg/appsmith/issues/29870 Once this issue is fixed then this test case should be enabled and fixed for the table v2
+    it.skip("7. Verify Refresh table from Deploy page - on Stores & verify all updates persists : Skipped till #29870 gets fixed", () => {
+      agHelper.GetNClick(dataSources._refreshIcon);
 
-    //   //Store Address deletion remains
+      //Store Address deletion remains
 
-    //   table.NavigateToNextPage(true, "v2"); //page 2
-    //   agHelper.Sleep(3000); //wait for table navigation to take effect!
-    //   table.WaitUntilTableLoad(0, 0, "v2"); //page 2
-    //   table.SelectTableRow(0, 0, true, "v2"); // Added because on navigating to next page the table row was not getting automatically selected
-    //   agHelper.AssertElementVisibility(locators._jsonFormWidget); // JSON form should be present
+      table.NavigateToNextPage(true, "v2"); //page 2
+      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      table.WaitUntilTableLoad(0, 0, "v2"); //page 2
+      table.SelectTableRow(0, 0, true, "v2"); // Added because on navigating to next page the table row was not getting automatically selected
+      agHelper.AssertElementVisibility(locators._jsonFormWidget); // JSON form should be present
 
-    //   table.NavigateToNextPage(true, "v2"); //page 3
-    //   agHelper.Sleep(3000); //wait for table navigation to take effect!
-    //   table.WaitForTableEmpty("v2"); //page 3
-    //   agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form also should not be present
+      table.NavigateToNextPage(true, "v2"); //page 3
+      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      table.WaitForTableEmpty("v2"); //page 3
+      agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form also should not be present
 
-    //   //Try to add via to Insert Modal - JSON fields not showing correct fields, Open bug 14122
+      //Try to add via to Insert Modal - JSON fields not showing correct fields, Open bug 14122
 
-    //   // Go back to page 2
-    //   table.NavigateToPreviousPage(true, "v2");
-    //   agHelper.Sleep(3000); //wait for table navigation to take effect!
-    //   table.WaitUntilTableLoad(0, 0, "v2");
+      // Go back to page 2
+      table.NavigateToPreviousPage(true, "v2");
+      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      table.WaitUntilTableLoad(0, 0, "v2");
 
-    //   // Go back to page 1
-    //   table.NavigateToPreviousPage(true, "v2");
-    //   agHelper.Sleep(3000); //wait for table navigation to take effect!
-    //   table.WaitUntilTableLoad(0, 0, "v2");
-    // });
+      // Go back to page 1
+      table.NavigateToPreviousPage(true, "v2");
+      agHelper.Sleep(3000); //wait for table navigation to take effect!
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
 
     it("8. Verify Add/Insert from Deploy page - on Stores - new record", () => {
       deployMode.NavigateBacktoEditor();
