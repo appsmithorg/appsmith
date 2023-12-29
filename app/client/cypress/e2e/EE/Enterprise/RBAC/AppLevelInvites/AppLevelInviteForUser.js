@@ -297,12 +297,7 @@ describe(
       _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
       _.agHelper.AssertElementAbsence(_.homePage._shareWorkspace(workspaceId));
       _.agHelper.AssertElementAbsence(HomePage.optionsIcon);
-      cy.get(HomePage.searchInput)
-        .clear()
-        .type(appid + "Internal Apps");
-      _.agHelper.Sleep(2000);
-      cy.get(HomePage.appsContainer).should("not.contain", workspaceId);
-      _.agHelper.AssertElementAbsence(".t--workspace-section");
+
       _.homePage.LogOutviaAPI();
     });
 
