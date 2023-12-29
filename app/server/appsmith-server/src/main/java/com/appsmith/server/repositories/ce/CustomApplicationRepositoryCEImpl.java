@@ -208,7 +208,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
                         + "defaultApplicationId")
                 .is(defaultApplicationId);
-        return queryAll(List.of(applicationIdCriteria), permission);
+        return queryAll(List.of(applicationIdCriteria), permission);*/
     }
 
     /**
