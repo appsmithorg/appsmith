@@ -1,12 +1,13 @@
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Flex, Icon, Text } from "design-system";
+import { Button, Flex, Icon, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history from "utils/history";
 import { queryAddURL } from "@appsmith/RouteBuilder";
 import { createNewJSCollection } from "actions/jsPaneActions";
+import PaneHeader from "../LeftPane/PaneHeader";
 
 const CTABox = styled.div`
   height: 62px;
@@ -66,9 +67,22 @@ const GlobalAdd = () => {
     dispatch(createNewJSCollection(pageId, "ADD_PANE"));
   }, [pageId]);
   return (
-    <Flex flexDirection={"column"} width={"256px"}>
+    <Flex flexDirection={"column"}>
+      <PaneHeader
+        rightIcon={
+          <Button
+            className={"t--close-add-editor-button"}
+            isIconButton
+            kind="secondary"
+            onClick={() => history.goBack()}
+            size="sm"
+            startIcon={"close-line"}
+          />
+        }
+        title="Add"
+      />
       <Flex
-        border-bottom={"1px solid var(--ads-v2-color-border)"}
+        borderBottom={"1px solid var(--ads-v2-color-border)"}
         flexDirection={"column"}
         gap={"spaces-3"}
         padding={"spaces-3"}

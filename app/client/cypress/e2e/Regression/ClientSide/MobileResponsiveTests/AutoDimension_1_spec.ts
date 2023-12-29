@@ -1,4 +1,3 @@
-import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
   locators,
@@ -35,8 +34,6 @@ describe(
         if (viewport === "MOBILE") {
           agHelper.SetCanvasViewportWidth(375);
         }
-        agHelper.GetNClick(getWidgetSelector(draggableWidgets.BUTTON));
-        agHelper.PressDelete();
         entityExplorer.DragDropWidgetNVerify(
           draggableWidgets.CONTAINER,
           100,
