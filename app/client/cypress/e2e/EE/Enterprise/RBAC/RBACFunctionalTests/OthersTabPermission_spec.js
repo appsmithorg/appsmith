@@ -240,7 +240,7 @@ describe(
 
     it("7. Verify user with DeleteWorkspaceRole is able to delete workspace ", function () {
       cy.SignupFromAPI(testUser3, password);
-      cy.LogintoAppTestUser(testUser3, password);
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.wait(2000);
       // delete app
       homePage.SelectWorkspace(workspaceName);
@@ -263,6 +263,11 @@ describe(
         200,
       );
       // delete workspace
+
+      cy.LogintoAppTestUser(testUser3, password);
+
+      homePage.SelectWorkspace(workspaceName);
+
       cy.openWorkspaceOptionsPopup(workspaceName);
       cy.contains("Delete workspace").click();
       cy.contains("Are you sure").click();
