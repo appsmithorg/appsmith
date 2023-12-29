@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -102,13 +101,53 @@ public class ConsolidatedAPIServiceImplTest {
     MockDataService mockDataService;
 
     @Test
-    public void testPageLoadAPIReturnsErrorWhenBothPageIdAndApplicationIdMissing() {
+    public void testPageLoadResponseWhenPageIdAndApplicationIdMissing() {
+        User sampelUser = new User();
+        doReturn(Mono.just(sampelUser)).when(sessionUserService).getCurrentUser();
+
+        UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
+        sampleUserProfileDTO.setName("sampleUserProfileDTO");
+        doReturn(Mono.just(sampleUserProfileDTO)).when(userService).buildUserProfileDTO(any());
+
+        Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
+        sampleFeatureFlagMap.put("sampleFeatureFlag", true);
+        doReturn(Mono.just(sampleFeatureFlagMap)).when(userDataService).getFeatureFlagsForCurrentUser();
+
+        Tenant sampleTenant = new Tenant();
+        sampleTenant.setDisplayName("sampleTenant");
+        doReturn(Mono.just(sampleTenant)).when(tenantService).getTenantConfiguration();
+
+        ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
+        sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
+        doReturn(Mono.just(List.of(sampleProductAlertResponseDTO)))
+            .when(productAlertService)
+            .getSingleApplicableMessage();
+
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
-                consolidatedAPIService.getConsolidatedInfoForPageLoad(null, null, null, ApplicationMode.EDIT);
-        StepVerifier.create(consolidatedInfoForPageLoad).verifyErrorSatisfies(error -> {
-            assertTrue(error instanceof AppsmithException);
-            assertEquals("Please enter a valid parameter application id / page id.", error.getMessage());
-        });
+            consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
+        StepVerifier.create(consolidatedInfoForPageLoad)
+            .assertNext(consolidatedAPIResponseDTO -> {
+                assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
+                assertEquals(
+                    "sampleUserProfileDTO",
+                    consolidatedAPIResponseDTO.getV1UsersMeResp().getData().getName());
+
+                assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
+                assertEquals(
+                    "sampleTenant",
+                    consolidatedAPIResponseDTO.getV1TenantsCurrentResp().getData().getDisplayName());
+
+                assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
+                assertTrue(
+                    consolidatedAPIResponseDTO.getV1UsersFeaturesResp().getData().get("sampleFeatureFlag"));
+
+                assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
+                assertEquals(
+                    "sampleProductAlert",
+                    consolidatedAPIResponseDTO.getV1ProductAlertResp().getData().getTitle());
+            })
+            .verifyComplete();
     }
 
     @Test

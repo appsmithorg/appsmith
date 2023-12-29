@@ -40,6 +40,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -124,7 +125,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         return Mono.just(new ResponseDTO<T>(INTERNAL_SERVER_ERROR_STATUS,
             new ErrorDTO(INTERNAL_SERVER_ERROR_CODE, error.getMessage())));
     }
-    
+
     /**
      * This method is meant to be used by the client application at the time of 1st page load. Client currently makes
      * several API calls to fetch all the required data. This method consolidates all that data and returns them as
@@ -135,26 +136,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
             String defaultPageId, String applicationId, String branchName, @NotNull ApplicationMode mode) {
-        if (isBlank(applicationId) && isBlank(defaultPageId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "application id / page id"));
-        }
 
         /* This object will serve as a container to hold the response of this method*/
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
-
-        /* Get view mode - EDIT or PUBLISHED */
-        boolean isViewMode = ApplicationMode.PUBLISHED.equals(mode);
-
-        /* Fetch application id if not provided */
-        Mono<String> applicationIdMonoCache;
-        if (isBlank(applicationId)) {
-            applicationIdMonoCache = applicationPageService
-                    .getPage(defaultPageId, isViewMode)
-                    .map(PageDTO::getApplicationId)
-                    .cache();
-        } else {
-            applicationIdMonoCache = Mono.just(applicationId).cache();
-        }
 
         /* Get user profile data */
         Mono<ResponseDTO<UserProfileDTO>> userProfileDTOResponseDTOMono =
@@ -169,18 +153,6 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, Map.class))
                     .cache();
-
-        /* Check if release_server_dsl_migrations_enabled flag is true for the user */
-        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserResponseDTOMonoCache
-            .map(ResponseDTO::getData)
-                .map(flagsMap -> {
-                    if (!flagsMap.containsKey(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED)) {
-                        return false;
-                    }
-
-                    return (Boolean) flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED);
-                })
-                .cache();
 
         /* Get tenant config data */
         Mono<ResponseDTO<Tenant>> tenantResponseDTOMono = tenantService.getTenantConfiguration()
@@ -198,7 +170,37 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     return new ProductAlertResponseDTO();
                 })
             .map(this::getSuccessResponse)
-            .onErrorResume(error -> getErrorResponseMono(error, ProductAlertResponseDTO.class));;
+            .onErrorResume(error -> getErrorResponseMono(error, ProductAlertResponseDTO.class));
+
+        if (isBlank(defaultPageId) && isBlank(applicationId)) {
+
+            List<Mono<?>> listOfCommonResponseMono = List.of(userProfileDTOResponseDTOMono,
+                featureFlagsForCurrentUserResponseDTOMonoCache,
+                tenantResponseDTOMono, productAlertResponseDTOMono);
+
+            return Mono.zip(listOfCommonResponseMono, responseArray -> {
+               consolidatedAPIResponseDTO.setV1UsersMeResp((ResponseDTO<UserProfileDTO>) responseArray[0]);
+               consolidatedAPIResponseDTO.setV1UsersFeaturesResp((ResponseDTO<Map<String, Boolean>>) responseArray[1]);
+               consolidatedAPIResponseDTO.setV1TenantsCurrentResp((ResponseDTO<Tenant>) responseArray[2]);
+               consolidatedAPIResponseDTO.setV1ProductAlertResp((ResponseDTO<ProductAlertResponseDTO>) responseArray[3]);
+
+               return consolidatedAPIResponseDTO;
+            });
+        }
+
+        /* Get view mode - EDIT or PUBLISHED */
+        boolean isViewMode = ApplicationMode.PUBLISHED.equals(mode);
+
+        /* Fetch application id if not provided */
+        Mono<String> applicationIdMonoCache;
+        if (isBlank(applicationId)) {
+            applicationIdMonoCache = applicationPageService
+                .getPage(defaultPageId, isViewMode)
+                .map(PageDTO::getApplicationId)
+                .cache();
+        } else {
+            applicationIdMonoCache = Mono.just(applicationId).cache();
+        }
 
         /* Get all pages in application */
         Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache = applicationIdMonoCache
@@ -211,14 +213,14 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         Mono<ResponseDTO<Theme>> applicationThemeResponseDTOMono =
                 applicationIdMonoCache.flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName))
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, Theme.class));;
+                    .onErrorResume(error -> getErrorResponseMono(error, Theme.class));
 
         /* Get all themes */
         Mono<ResponseDTO<List>> ThemesListResponseDTOMono = applicationIdMonoCache.flatMap(
                 appId -> themeService.getApplicationThemes(appId, branchName).collectList())
             .map(res -> (List) res)
             .map(this::getSuccessResponse)
-            .onErrorResume(error -> getErrorResponseMono(error, List.class));;
+            .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
         /* Get all custom JS libraries installed in the application */
         Mono<ResponseDTO<List>> allJSLibsInContextDTOResponseDTOMono =
@@ -226,14 +228,29 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                         appId, CreatorContextType.APPLICATION, branchName, isViewMode))
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, List.class));;
+                    .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
-        /* Get current page */
-        Mono<ResponseDTO<PageDTO>> currentPageDTOResponseDTOMono = migrateDslMonoCache.flatMap(
-                migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+        /* Check if release_server_dsl_migrations_enabled flag is true for the user */
+        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserResponseDTOMonoCache
+            .map(ResponseDTO::getData)
+            .map(flagsMap -> {
+                if (!flagsMap.containsKey(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED)) {
+                    return false;
+                }
+
+                return (Boolean) flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED);
+            })
+            .cache();
+
+        Mono<ResponseDTO<PageDTO>> currentPageDTOResponseDTOMono = Mono.empty();
+        if (!isBlank(defaultPageId)) {
+            /* Get current page */
+            currentPageDTOResponseDTOMono = migrateDslMonoCache.flatMap(
+                    migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
                         defaultPageId, branchName, isViewMode, migrateDsl))
-            .map(this::getSuccessResponse)
-            .onErrorResume(error -> getErrorResponseMono(error, PageDTO.class));
+                .map(this::getSuccessResponse)
+                .onErrorResume(error -> getErrorResponseMono(error, PageDTO.class));
+        }
 
         /* Fetch view specific data */
         if (isViewMode) {
@@ -256,7 +273,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             /* This list contains the Mono objects corresponding to all the data points required for view mode. All
              * the Mono objects in this list will be evaluated via Mono.zip operator.
              */
-            List<Mono<?>> listOfMonoForPublishedApp = List.of(
+            List<Mono<?>> listOfMonoForPublishedApp = new ArrayList<>(List.of(
                 userProfileDTOResponseDTOMono,
                     tenantResponseDTOMono,
                     featureFlagsForCurrentUserResponseDTOMonoCache,
@@ -265,9 +282,12 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     ThemesListResponseDTOMono,
                     listOfActionViewResponseDTOMono,
                     listOfActionCollectionViewResponseDTOMono,
-                    currentPageDTOResponseDTOMono,
                     allJSLibsInContextDTOResponseDTOMono,
-                    productAlertResponseDTOMono);
+                    productAlertResponseDTOMono));
+
+            if (!isBlank(defaultPageId)) {
+                listOfMonoForPublishedApp.add(currentPageDTOResponseDTOMono);
+            }
 
             return Mono.zip(listOfMonoForPublishedApp, responseArray -> {
                 consolidatedAPIResponseDTO.setV1UsersMeResp((ResponseDTO<UserProfileDTO>) responseArray[0]);
@@ -279,9 +299,12 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 consolidatedAPIResponseDTO.setV1ActionsViewResp((ResponseDTO<List<ActionViewDTO>>) responseArray[6]);
                 consolidatedAPIResponseDTO.setV1CollectionsActionsViewResp(
                         (ResponseDTO<List<ActionCollectionViewDTO>>) responseArray[7]);
-                consolidatedAPIResponseDTO.setV1PublishedPageResp((ResponseDTO<PageDTO>) responseArray[8]);
-                consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((ResponseDTO<List<CustomJSLib>>) responseArray[9]);
-                consolidatedAPIResponseDTO.setV1ProductAlertResp((ResponseDTO<ProductAlertResponseDTO>) responseArray[10]);
+                consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((ResponseDTO<List<CustomJSLib>>) responseArray[8]);
+                consolidatedAPIResponseDTO.setV1ProductAlertResp((ResponseDTO<ProductAlertResponseDTO>) responseArray[9]);
+
+                if (!isBlank(defaultPageId)) {
+                    consolidatedAPIResponseDTO.setV1PublishedPageResp((ResponseDTO<PageDTO>) responseArray[10]);
+                }
 
                 return consolidatedAPIResponseDTO;
             });
@@ -404,14 +427,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             /* This list contains the Mono objects corresponding to all the data points required for edit mode. All
              * the Mono objects in this list will be evaluated via Mono.zip operator
              */
-            List<Mono<?>> listOfMonoForEditMode = List.of(
+            List<Mono<?>> listOfMonoForEditMode = new ArrayList<>(List.of(
                 userProfileDTOResponseDTOMono,
                     tenantResponseDTOMono,
                     featureFlagsForCurrentUserResponseDTOMonoCache,
                     applicationPagesDTOResponseDTOMonoCache,
                     applicationThemeResponseDTOMono,
                     ThemesListResponseDTOMono,
-                    currentPageDTOResponseDTOMono,
                     allJSLibsInContextDTOResponseDTOMono,
                     productAlertResponseDTOMono,
                     listOfActionResponseDTOMono,
@@ -420,7 +442,11 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     listOfPluginsResponseDTOMonoCache,
                     listOfDatasourcesResponseDTOMonoCache,
                     listOfFormConfigsResponseDTOMono,
-                    mockDataListResponseDTOMono);
+                    mockDataListResponseDTOMono));
+
+            if (!isBlank(defaultPageId)) {
+                listOfMonoForEditMode.add(currentPageDTOResponseDTOMono);
+            }
 
             return Mono.zip(listOfMonoForEditMode, responseArray -> {
                 consolidatedAPIResponseDTO.setV1UsersMeResp((ResponseDTO<UserProfileDTO>) responseArray[0]);
@@ -429,16 +455,19 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 consolidatedAPIResponseDTO.setV1PagesResp((ResponseDTO<ApplicationPagesDTO>) responseArray[3]);
                 consolidatedAPIResponseDTO.setV1ThemesApplicationCurrentModeResp((ResponseDTO<Theme>) responseArray[4]);
                 consolidatedAPIResponseDTO.setV1ThemesResp((ResponseDTO<List<Theme>>) responseArray[5]);
-                consolidatedAPIResponseDTO.setV1PageResp((ResponseDTO<PageDTO>) responseArray[6]);
-                consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((ResponseDTO<List<CustomJSLib>>) responseArray[7]);
-                consolidatedAPIResponseDTO.setV1ProductAlertResp((ResponseDTO<ProductAlertResponseDTO>) responseArray[8]);
-                consolidatedAPIResponseDTO.setV1ActionsResp((ResponseDTO<List<ActionDTO>>) responseArray[9]);
-                consolidatedAPIResponseDTO.setV1CollectionsActionsResp((ResponseDTO<List<ActionCollectionDTO>>) responseArray[10]);
-                consolidatedAPIResponseDTO.setV1PageDSLs((ResponseDTO<List<PageDTO>>) responseArray[11]);
-                consolidatedAPIResponseDTO.setV1PluginsResp((ResponseDTO<List<Plugin>>) responseArray[12]);
-                consolidatedAPIResponseDTO.setV1DatasourcesResp((ResponseDTO<List<Datasource>>) responseArray[13]);
-                consolidatedAPIResponseDTO.setV1PluginFormConfigsResp((ResponseDTO<Map<String, Map>>) responseArray[14]);
-                consolidatedAPIResponseDTO.setV1DatasourcesMockResp((ResponseDTO<List<MockDataSet>>) responseArray[15]);
+                consolidatedAPIResponseDTO.setV1LibrariesApplicationResp((ResponseDTO<List<CustomJSLib>>) responseArray[6]);
+                consolidatedAPIResponseDTO.setV1ProductAlertResp((ResponseDTO<ProductAlertResponseDTO>) responseArray[7]);
+                consolidatedAPIResponseDTO.setV1ActionsResp((ResponseDTO<List<ActionDTO>>) responseArray[8]);
+                consolidatedAPIResponseDTO.setV1CollectionsActionsResp((ResponseDTO<List<ActionCollectionDTO>>) responseArray[9]);
+                consolidatedAPIResponseDTO.setV1PageDSLs((ResponseDTO<List<PageDTO>>) responseArray[10]);
+                consolidatedAPIResponseDTO.setV1PluginsResp((ResponseDTO<List<Plugin>>) responseArray[11]);
+                consolidatedAPIResponseDTO.setV1DatasourcesResp((ResponseDTO<List<Datasource>>) responseArray[12]);
+                consolidatedAPIResponseDTO.setV1PluginFormConfigsResp((ResponseDTO<Map<String, Map>>) responseArray[13]);
+                consolidatedAPIResponseDTO.setV1DatasourcesMockResp((ResponseDTO<List<MockDataSet>>) responseArray[14]);
+
+                if (!isBlank(defaultPageId)) {
+                    consolidatedAPIResponseDTO.setV1PageResp((ResponseDTO<PageDTO>) responseArray[15]);
+                }
 
                 return consolidatedAPIResponseDTO;
             });
