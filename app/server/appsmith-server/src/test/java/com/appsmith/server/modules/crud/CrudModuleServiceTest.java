@@ -57,6 +57,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -474,11 +475,20 @@ class CrudModuleServiceTest {
 
         Mono<ModuleDTO> deletedModuleMono = crudModuleService.deleteModule(moduleIdRef.get());
 
+        // Verify that modifiedAt of the package gets updated upon deleting the module
+        PackageDetailsDTO packageDetails =
+                crudPackageService.getPackageDetails(packageId).block();
+        String modifiedAtBeforeDelete = packageDetails.getPackageData().getModifiedAt();
+
         StepVerifier.create(deletedModuleMono)
                 .assertNext(deletedModule -> {
                     assertThat(deletedModule.getId()).isNotEmpty();
                 })
                 .verifyComplete();
+        packageDetails = crudPackageService.getPackageDetails(packageId).block();
+        String modifiedAtAfterDelete = packageDetails.getPackageData().getModifiedAt();
+
+        assertThat(Instant.parse(modifiedAtBeforeDelete)).isBefore(Instant.parse(modifiedAtAfterDelete));
     }
 
     @WithUserDetails(value = "api_user")
@@ -760,6 +770,11 @@ class CrudModuleServiceTest {
 
         ModuleDTO createdModule = crudModuleService.createModule(moduleDTO).block();
 
+        // Capture the modifiedAt value before creating the private action
+        PackageDetailsDTO packageDetails =
+                crudPackageService.getPackageDetails(packageId).block();
+        String modifiedAtBeforeDelete = packageDetails.getPackageData().getModifiedAt();
+
         ModuleActionDTO privateModuleAction = new ModuleActionDTO();
         privateModuleAction.setName("firstPrivateModuleAction");
         privateModuleAction.setPluginId(datasource.getPluginId());
@@ -781,6 +796,12 @@ class CrudModuleServiceTest {
                     assertThat(createdModuleAction.isOnLoadMessageAllowed()).isFalse();
                 })
                 .verifyComplete();
+
+        // Verify that modifiedAt of the package gets updated upon creating private action
+        packageDetails = crudPackageService.getPackageDetails(packageId).block();
+        String modifiedAtAfterDelete = packageDetails.getPackageData().getModifiedAt();
+
+        assertThat(Instant.parse(modifiedAtBeforeDelete)).isBefore(Instant.parse(modifiedAtAfterDelete));
     }
 
     @WithUserDetails(value = "api_user")
@@ -819,6 +840,11 @@ class CrudModuleServiceTest {
         Mono<ActionCollectionDTO> moduleActionCollectionMono =
                 layoutCollectionService.createCollection(privateModuleActionCollection, null);
 
+        // Capture the modifiedAt value before creating the private action
+        PackageDetailsDTO packageDetails =
+                crudPackageService.getPackageDetails(packageId).block();
+        String modifiedAtBeforeDelete = packageDetails.getPackageData().getModifiedAt();
+
         StepVerifier.create(moduleActionCollectionMono)
                 .assertNext(createdModuleActionCollection -> {
                     assertThat(createdModuleActionCollection).isNotNull();
@@ -836,6 +862,12 @@ class CrudModuleServiceTest {
                             .isEqualTo("mockBody");
                 })
                 .verifyComplete();
+
+        // Verify that modifiedAt of the package gets updated upon creating private action
+        packageDetails = crudPackageService.getPackageDetails(packageId).block();
+        String modifiedAtAfterDelete = packageDetails.getPackageData().getModifiedAt();
+
+        assertThat(Instant.parse(modifiedAtBeforeDelete)).isBefore(Instant.parse(modifiedAtAfterDelete));
     }
 
     @WithUserDetails(value = "api_user")

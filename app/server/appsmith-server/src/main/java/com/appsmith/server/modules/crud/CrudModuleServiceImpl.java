@@ -28,6 +28,7 @@ import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.packages.metadata.PackageMetadataService;
 import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.repositories.ModuleRepository;
@@ -71,6 +72,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final ObjectMapper objectMapper;
     private final ModulePublicEntityService<NewAction> newActionModulePublicEntityService;
     private final ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService;
+    private final PackageMetadataService packageMetadataService;
 
     public CrudModuleServiceImpl(
             ModuleRepository repository,
@@ -85,7 +87,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             TransactionalOperator transactionalOperator,
             ObjectMapper objectMapper,
             ModulePublicEntityService<NewAction> newActionModulePublicEntityService,
-            ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService) {
+            ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService,
+            PackageMetadataService packageMetadataService) {
         super(repository);
         this.repository = repository;
         this.modulePermission = modulePermission;
@@ -100,6 +103,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         this.objectMapper = objectMapper;
         this.newActionModulePublicEntityService = newActionModulePublicEntityService;
         this.actionCollectionModulePublicEntityService = actionCollectionModulePublicEntityService;
+        this.packageMetadataService = packageMetadataService;
     }
 
     @Override
@@ -273,7 +277,10 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                             .then(this.setTransientFieldsFromModuleToModuleDTO(
                                     savedModule, savedModule.getUnpublishedModule()))
                             .flatMap(this::setModuleSettingsForCreator);
-                });
+                })
+                .flatMap(moduleDTO -> packageMetadataService
+                        .saveLastEditInformation(moduleDTO.getPackageId())
+                        .thenReturn(moduleDTO));
     }
 
     private ModulePublicEntityService<?> getModulePublicEntityService(ModuleDTO moduleDTO) {
@@ -357,7 +364,10 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                                                 updatedModule, unpublishedModule)
                                                         .flatMap(this::setModuleSettingsForCreator);
                                             }));
-                        }));
+                        }))
+                .flatMap(moduleDTO1 -> packageMetadataService
+                        .saveLastEditInformation(moduleDTO1.getPackageId())
+                        .thenReturn(moduleDTO1));
     }
 
     @Override
@@ -383,6 +393,9 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                     .then(setTransientFieldsFromModuleToModuleDTO(
                                             deletedModule, deletedModule.getUnpublishedModule())));
                         }))
+                .flatMap(moduleDTO -> packageMetadataService
+                        .saveLastEditInformation(moduleDTO.getPackageId())
+                        .thenReturn(moduleDTO))
                 .as(transactionalOperator::transactional);
     }
 

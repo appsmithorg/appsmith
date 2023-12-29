@@ -23,6 +23,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.modules.metadata.ModuleMetadataService;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -136,6 +137,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private ModulePermissionChecker modulePermissionChecker;
 
+    @MockBean
+    private ModuleMetadataService moduleMetadataService;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -153,7 +157,9 @@ public class ActionCollectionServiceImplTest {
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                modulePermissionChecker,
+                moduleMetadataService);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,

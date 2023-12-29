@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QPackage;
 import com.appsmith.server.repositories.PackageRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -12,12 +13,9 @@ import java.util.List;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
+@RequiredArgsConstructor
 public class PackagePermissionCheckerImpl implements PackagePermissionChecker {
     private final PackageRepository packageRepository;
-
-    public PackagePermissionCheckerImpl(PackageRepository packageRepository) {
-        this.packageRepository = packageRepository;
-    }
 
     @Override
     public Mono<Package> findById(String packageId, AclPermission permission) {

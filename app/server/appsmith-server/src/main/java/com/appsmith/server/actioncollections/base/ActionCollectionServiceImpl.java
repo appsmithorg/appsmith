@@ -11,6 +11,8 @@ import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.modules.metadata.ModuleMetadataService;
+import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -44,6 +46,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
+    private final ModulePermissionChecker modulePermissionChecker;
+    private final ModuleMetadataService moduleMetadataService;
 
     public ActionCollectionServiceImpl(
             Scheduler scheduler,
@@ -57,7 +61,9 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ModulePermissionChecker modulePermissionChecker,
+            ModuleMetadataService moduleMetadataService) {
         super(
                 scheduler,
                 validator,
@@ -73,6 +79,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 actionPermission);
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
+        this.modulePermissionChecker = modulePermissionChecker;
+        this.moduleMetadataService = moduleMetadataService;
     }
 
     @Override
@@ -247,5 +255,15 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                                 actionCollection, ResourceModes.VIEW == resourceMode)
                         .flatMap(actionCollectionDTO -> populateActionCollectionByViewMode(
                                 actionCollectionDTO, ResourceModes.VIEW == resourceMode)));
+    }
+
+    @Override
+    public Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO) {
+        if (isModuleContext(actionCollectionDTO.getContextType())) {
+            return moduleMetadataService
+                    .saveLastEditInformation(actionCollectionDTO.getModuleId())
+                    .then();
+        }
+        return super.saveLastEditInformationInParent(actionCollectionDTO);
     }
 }
