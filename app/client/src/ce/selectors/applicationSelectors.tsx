@@ -241,8 +241,9 @@ export const getSearchedApplications = createSelector(
     applicationsState.searchEntities?.applications,
 );
 export const getAppThemeSettings = (state: AppState) => {
-  return (
-    state.ui.applications.currentApplication?.applicationDetail?.themeSetting ||
-    defaultThemeSetting
-  );
+  return {
+    ...defaultThemeSetting,
+    ...state.ui.applications.currentApplication?.applicationDetail
+      ?.themeSetting,
+  };
 };

@@ -2331,6 +2331,110 @@ export const PARTIAL_IMPORT_EXPORT = {
 };
 
 export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
+
+export const CUSTOM_WIDGET_FEATURE = {
+  addEvent: {
+    addCTA: () => "Add",
+    cancelCTA: () => "Cancel",
+    addEventCTA: () => "Add Event",
+    nameLabel: () => "Name",
+    errors: {
+      restricted: () => "Event name is restricted",
+      duplicate: () => "Event name already exists",
+    },
+  },
+  editSource: {
+    editSourceCTA: () => "Edit source",
+    goToSourceCTA: () => "Go to source editor",
+  },
+  builder: {
+    header: () => "Custom Widget Builder",
+    close: () => "Close",
+    connectionLost: () =>
+      "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
+    editor: {
+      css: {
+        contextTooltip: () => "You can use following css variables",
+        placeholder: () =>
+          "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
+      },
+      html: {
+        placeholder: () =>
+          "<!-- no need to write html, head, body tags, it is handled by the widget -->",
+      },
+      js: {
+        placeholder: () =>
+          "// no need to write window onLoad, it is handled by the widget",
+      },
+    },
+  },
+  templateKey: {
+    blank: () => "Blank",
+    react: () => "React",
+    vue: () => "Vue",
+  },
+  template: {
+    modal: {
+      header: () => "Are you sure?",
+      body: () =>
+        "This will replace the current changes in the HTML, CSS and JS files.",
+      successCTA: () => "Replace",
+      cancelCTA: () => "Cancel",
+    },
+    buttonCTA: () => "Templates",
+    revert: () => "Revert to Original",
+  },
+  layout: {
+    tab: () => "Tabs",
+    split: () => "Splits",
+  },
+  referrences: {
+    title: () => "Referrences",
+    tooltip: {
+      open: () => "Open references",
+      close: () => "Close references",
+    },
+    liveModel: {
+      helpMessage: [
+        () => "- Use `appsmith.model` to access your model in javascript",
+        () =>
+          "- Use `appsmith.updateModel()` to update your model from javascript",
+      ],
+      label: () => "Live Model",
+    },
+    events: {
+      helpMessage: [
+        () =>
+          "- Use `appsmith.triggerEvent(&lt;EVENT_NAME&gt;)` to trigger an event",
+        () =>
+          "- `appsmith.triggerEvent()` also accepts context data as second arg",
+      ],
+      label: () => "Events",
+      emptyMessage: () =>
+        "You haven’t created any events. Return to the app editor to add events to this custom widget.",
+    },
+    help: {
+      message: () =>
+        "Learn how custom widgets work, and how to access data from the rest of your app within this widget.",
+      buttonCTA: () => "Documentation",
+    },
+  },
+  debugger: {
+    title: () => "Console",
+    emptyMessage: () => "Errors and logs will appear here",
+    helpDropdown: {
+      stackoverflow: () => "Search StackOverflow",
+    },
+  },
+  preview: {
+    eventFired: () => "Event fired:",
+    modelUpdated: () => "Model updated",
+  },
+};
+
+export const WIDGET_PANEL_EMPTY_MESSAGE = () =>
+  "We couldn’t find any widgets called";
+
 export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
 
 export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
