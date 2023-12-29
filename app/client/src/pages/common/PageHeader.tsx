@@ -1,5 +1,4 @@
-import type { RefObject } from "react";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useEffect } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -11,25 +10,8 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { Banner } from "@appsmith/utils/licenseHelpers";
-import {
-  getIsFetchingEntities,
-  getSearchedApplications,
-  getSearchedWorkspaces,
-} from "@appsmith/selectors/applicationSelectors";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { debounce } from "lodash";
 import bootIntercom from "utils/bootIntercom";
-import { viewerURL } from "@appsmith/RouteBuilder";
-import { getPackagesList } from "@appsmith/selectors/packageSelectors";
-import Fuse from "fuse.js";
-import {
-  resetSearchEntity,
-  searchEntities,
-  setFetchingApplications,
-} from "@appsmith/actions/applicationActions";
-import MainSearchBar from "./SearchBar/MainSearchBar";
-import MobileSearchBar from "./SearchBar/MobileSearchBar";
+import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -73,36 +55,11 @@ interface PageHeaderProps {
   hideEditProfileLink?: boolean;
 }
 
-function useOutsideClick<T extends HTMLElement>(
-  ref: RefObject<T>,
-  inputRef: RefObject<T>,
-  callback: () => void,
-) {
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        ref.current &&
-        !ref.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        callback();
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [ref, inputRef, callback]);
-}
-
 export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
   const dispatch = useDispatch();
 
   const isMobile = useIsMobileDevice();
-  const [showMobileSearchBar, setShowMobileSearchBar] = useState(false);
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   useEffect(() => {
     dispatch(getTemplateNotificationSeenAction());
@@ -116,156 +73,18 @@ export function PageHeader(props: PageHeaderProps) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [noSearchResults, setNoSearchResults] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchedPackages, setSearchedPackages] = useState([]);
-  const searchListContainerRef = useRef(null);
-  const isFetchingEntities = useSelector(getIsFetchingEntities);
-  const workspacesList = useSelector(getSearchedWorkspaces);
-  const applicationsList = useSelector(getSearchedApplications);
-  const fetchedPackages = useSelector(getPackagesList);
-  const prevIsFetchingEntitiesRef = useRef<boolean | undefined>(undefined);
-  const searchInputRef = useRef(null);
-  const fuzzy = new Fuse(fetchedPackages, {
-    keys: ["name"],
-    shouldSort: true,
-    threshold: 0.5,
-    location: 0,
-    distance: 100,
-  });
-  const canShowSearchDropdown =
-    (noSearchResults && !isFetchingEntities) ||
-    isFetchingEntities ||
-    !!(
-      workspacesList?.length ||
-      applicationsList?.length ||
-      searchedPackages?.length
-    );
-
-  useOutsideClick(searchListContainerRef, searchInputRef, () => {
-    setIsDropdownOpen(false);
-  });
-
-  function navigateToApplication(applicationId: string) {
-    const searchedApplication = applicationsList?.find(
-      (app: ApplicationPayload) => app.id === applicationId,
-    );
-
-    const defaultPageId = searchedApplication?.pages.find(
-      (page) => page.isDefault === true,
-    )?.id;
-    const viewURL = viewerURL({
-      pageId: defaultPageId,
-    });
-    setIsDropdownOpen(false);
-    window.location.href = `${viewURL}`;
-  }
-
-  const handleSearchDebounced = useCallback(
-    debounce((text: string) => {
-      if (text.trim().length !== 0) {
-        dispatch(searchEntities(text));
-      }
-    }, 1000),
-    [],
-  );
-
-  function handleSearchInput(text: string) {
-    setSearchInput(text);
-    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
-    else dispatch(setFetchingApplications(false));
-    handleSearchDebounced(text);
-    setSearchedPackages(fuzzy.search(text));
-    setIsDropdownOpen(true);
-  }
-
-  function handleInputClicked() {
-    if (searchInput?.trim()?.length || !noSearchResults) {
-      setIsDropdownOpen(false);
-      dispatch(setFetchingApplications(false));
-    }
-  }
-
-  useEffect(() => {
-    const prevIsFetchingEntities = prevIsFetchingEntitiesRef.current;
-    if (prevIsFetchingEntities && !isFetchingEntities) {
-      if (
-        !workspacesList?.length &&
-        !applicationsList?.length &&
-        !searchedPackages?.length
-      ) {
-        setNoSearchResults(true);
-      } else {
-        setNoSearchResults(false);
-      }
-    }
-    prevIsFetchingEntitiesRef.current = isFetchingEntities;
-  }, [isFetchingEntities]);
-
-  useEffect(() => {
-    if (!isDropdownOpen) {
-      dispatch(resetSearchEntity());
-    }
-  }, [isDropdownOpen]);
-
   return (
     <>
       <Banner />
-      {showMobileSearchBar && isMobile ? (
-        <StyledPageHeader
-          data-testid="t--appsmith-page-header"
-          hideShadow={props.hideShadow || false}
-          isBannerVisible={showBanner && (isHomePage || isLicensePage)}
-          isMobile={isMobile}
-          showSeparator={props.showSeparator || false}
-        >
-          <MobileSearchBar
-            applicationsList={applicationsList}
-            canShowSearchDropdown={canShowSearchDropdown}
-            handleInputClicked={handleInputClicked}
-            handleSearchInput={handleSearchInput}
-            isDropdownOpen={isDropdownOpen}
-            isFetchingApplications={isFetchingApplications}
-            isFetchingEntities={isFetchingEntities}
-            navigateToApplication={navigateToApplication}
-            noSearchResults={noSearchResults}
-            searchListContainerRef={searchListContainerRef}
-            searchedPackages={searchedPackages}
-            setIsDropdownOpen={setIsDropdownOpen}
-            setShowMobileSearchBar={setShowMobileSearchBar}
-            workspacesList={workspacesList}
-          />
-        </StyledPageHeader>
-      ) : (
-        <StyledPageHeader
-          data-testid="t--appsmith-page-header"
-          hideShadow={props.hideShadow || false}
-          isBannerVisible={showBanner && (isHomePage || isLicensePage)}
-          isMobile={isMobile}
-          showSeparator={props.showSeparator || false}
-        >
-          <MainSearchBar
-            applicationsList={applicationsList}
-            canShowSearchDropdown={canShowSearchDropdown}
-            handleInputClicked={handleInputClicked}
-            handleSearchInput={handleSearchInput}
-            isDropdownOpen={isDropdownOpen}
-            isFetchingApplications={isFetchingApplications}
-            isFetchingEntities={isFetchingEntities}
-            navigateToApplication={navigateToApplication}
-            noSearchResults={noSearchResults}
-            searchInput={searchInput}
-            searchInputRef={searchInputRef}
-            searchListContainerRef={searchListContainerRef}
-            searchedPackages={searchedPackages}
-            setIsDropdownOpen={setIsDropdownOpen}
-            setShowMobileSearchBar={setShowMobileSearchBar}
-            user={user}
-            workspacesList={workspacesList}
-          />
-        </StyledPageHeader>
-      )}
+      <StyledPageHeader
+        data-testid="t--appsmith-page-header"
+        hideShadow={props.hideShadow || false}
+        isBannerVisible={showBanner && (isHomePage || isLicensePage)}
+        isMobile={isMobile}
+        showSeparator={props.showSeparator || false}
+      >
+        <EntitySearchBar user={user} />
+      </StyledPageHeader>
     </>
   );
 }
