@@ -120,34 +120,45 @@ public class ConsolidatedAPIServiceImplTest {
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
         doReturn(Mono.just(List.of(sampleProductAlertResponseDTO)))
-            .when(productAlertService)
-            .getSingleApplicableMessage();
+                .when(productAlertService)
+                .getSingleApplicableMessage();
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
-            consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
+                consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
-            .assertNext(consolidatedAPIResponseDTO -> {
-                assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
-                assertEquals(
-                    "sampleUserProfileDTO",
-                    consolidatedAPIResponseDTO.getV1UsersMeResp().getData().getName());
+                .assertNext(consolidatedAPIResponseDTO -> {
+                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
+                    assertEquals(
+                            "sampleUserProfileDTO",
+                            consolidatedAPIResponseDTO
+                                    .getV1UsersMeResp()
+                                    .getData()
+                                    .getName());
 
-                assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
-                assertEquals(
-                    "sampleTenant",
-                    consolidatedAPIResponseDTO.getV1TenantsCurrentResp().getData().getDisplayName());
+                    assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
+                    assertEquals(
+                            "sampleTenant",
+                            consolidatedAPIResponseDTO
+                                    .getV1TenantsCurrentResp()
+                                    .getData()
+                                    .getDisplayName());
 
-                assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
-                assertTrue(
-                    consolidatedAPIResponseDTO.getV1UsersFeaturesResp().getData().get("sampleFeatureFlag"));
+                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getV1UsersFeaturesResp()
+                            .getData()
+                            .get("sampleFeatureFlag"));
 
-                assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
-                assertEquals(
-                    "sampleProductAlert",
-                    consolidatedAPIResponseDTO.getV1ProductAlertResp().getData().getTitle());
-            })
-            .verifyComplete();
+                    assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
+                    assertEquals(
+                            "sampleProductAlert",
+                            consolidatedAPIResponseDTO
+                                    .getV1ProductAlertResp()
+                                    .getData()
+                                    .getTitle());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -213,82 +224,117 @@ public class ConsolidatedAPIServiceImplTest {
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getV1ActionsViewResp());
                     assertEquals(
-                            1, consolidatedAPIResponseDTO.getV1ActionsViewResp().getData().size());
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getV1ActionsViewResp()
+                                    .getData()
+                                    .size());
                     assertEquals(
                             "sampleActionViewDTO",
                             consolidatedAPIResponseDTO
                                     .getV1ActionsViewResp()
-                                .getData()
+                                    .getData()
                                     .get(0)
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
                     assertEquals(
                             "sampleUserProfileDTO",
-                            consolidatedAPIResponseDTO.getV1UsersMeResp().getData().getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1UsersMeResp()
+                                    .getData()
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
                     assertEquals(
                             "sampleTenant",
-                            consolidatedAPIResponseDTO.getV1TenantsCurrentResp().getData().getDisplayName());
+                            consolidatedAPIResponseDTO
+                                    .getV1TenantsCurrentResp()
+                                    .getData()
+                                    .getDisplayName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
-                    assertTrue(
-                            consolidatedAPIResponseDTO.getV1UsersFeaturesResp().getData().get("sampleFeatureFlag"));
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getV1UsersFeaturesResp()
+                            .getData()
+                            .get("sampleFeatureFlag"));
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1PagesResp());
                     assertEquals(
                             "sampleWorkspaceId",
-                            consolidatedAPIResponseDTO.getV1PagesResp().getData().getWorkspaceId());
+                            consolidatedAPIResponseDTO
+                                    .getV1PagesResp()
+                                    .getData()
+                                    .getWorkspaceId());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1ThemesApplicationCurrentModeResp());
                     assertEquals(
                             "sampleTheme",
                             consolidatedAPIResponseDTO
-                                    .getV1ThemesApplicationCurrentModeResp().getData()
+                                    .getV1ThemesApplicationCurrentModeResp()
+                                    .getData()
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1ThemesResp());
-                    assertEquals(1, consolidatedAPIResponseDTO.getV1ThemesResp().getData().size());
+                    assertEquals(
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getV1ThemesResp()
+                                    .getData()
+                                    .size());
                     assertEquals(
                             "sampleTheme",
-                            consolidatedAPIResponseDTO.getV1ThemesResp().getData().get(0).getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1ThemesResp()
+                                    .getData()
+                                    .get(0)
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1CollectionsActionsViewResp());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsViewResp().getData()
+                                    .getV1CollectionsActionsViewResp()
+                                    .getData()
                                     .size());
                     assertEquals(
                             "sampleActionCollectionViewDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsViewResp().getData()
+                                    .getV1CollectionsActionsViewResp()
+                                    .getData()
                                     .get(0)
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1PublishedPageResp());
                     assertEquals(
                             "samplePageDTO",
-                            consolidatedAPIResponseDTO.getV1PublishedPageResp().getData().getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1PublishedPageResp()
+                                    .getData()
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1LibrariesApplicationResp());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp().getData()
+                                    .getV1LibrariesApplicationResp()
+                                    .getData()
                                     .size());
                     assertEquals(
                             "sampleJSLib",
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp().getData()
+                                    .getV1LibrariesApplicationResp()
+                                    .getData()
                                     .get(0)
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
                     assertEquals(
                             "sampleProductAlert",
-                            consolidatedAPIResponseDTO.getV1ProductAlertResp().getData().getTitle());
+                            consolidatedAPIResponseDTO
+                                    .getV1ProductAlertResp()
+                                    .getData()
+                                    .getTitle());
                 })
                 .verifyComplete();
     }
@@ -386,112 +432,169 @@ public class ConsolidatedAPIServiceImplTest {
                     assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
                     assertEquals(
                             "sampleUserProfileDTO",
-                            consolidatedAPIResponseDTO.getV1UsersMeResp().getData().getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1UsersMeResp()
+                                    .getData()
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
                     assertEquals(
                             "sampleTenant",
-                            consolidatedAPIResponseDTO.getV1TenantsCurrentResp().getData().getDisplayName());
+                            consolidatedAPIResponseDTO
+                                    .getV1TenantsCurrentResp()
+                                    .getData()
+                                    .getDisplayName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
-                    assertTrue(
-                            consolidatedAPIResponseDTO.getV1UsersFeaturesResp().getData().get("sampleFeatureFlag"));
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getV1UsersFeaturesResp()
+                            .getData()
+                            .get("sampleFeatureFlag"));
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1PagesResp());
                     assertEquals(
                             "sampleWorkspaceId",
-                            consolidatedAPIResponseDTO.getV1PagesResp().getData().getWorkspaceId());
+                            consolidatedAPIResponseDTO
+                                    .getV1PagesResp()
+                                    .getData()
+                                    .getWorkspaceId());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1ThemesApplicationCurrentModeResp());
                     assertEquals(
                             "sampleTheme",
                             consolidatedAPIResponseDTO
-                                    .getV1ThemesApplicationCurrentModeResp().getData()
+                                    .getV1ThemesApplicationCurrentModeResp()
+                                    .getData()
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1ThemesResp());
-                    assertEquals(1, consolidatedAPIResponseDTO.getV1ThemesResp().getData().size());
+                    assertEquals(
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getV1ThemesResp()
+                                    .getData()
+                                    .size());
                     assertEquals(
                             "sampleTheme",
-                            consolidatedAPIResponseDTO.getV1ThemesResp().getData().get(0).getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1ThemesResp()
+                                    .getData()
+                                    .get(0)
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1PagesResp());
                     assertEquals(
                             "sampleWorkspaceId",
-                            consolidatedAPIResponseDTO.getV1PagesResp().getData().getWorkspaceId());
+                            consolidatedAPIResponseDTO
+                                    .getV1PagesResp()
+                                    .getData()
+                                    .getWorkspaceId());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1LibrariesApplicationResp());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp().getData()
+                                    .getV1LibrariesApplicationResp()
+                                    .getData()
                                     .size());
                     assertEquals(
                             "sampleJSLib",
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp().getData()
+                                    .getV1LibrariesApplicationResp()
+                                    .getData()
                                     .get(0)
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
                     assertEquals(
                             "sampleProductAlert",
-                            consolidatedAPIResponseDTO.getV1ProductAlertResp().getData().getTitle());
+                            consolidatedAPIResponseDTO
+                                    .getV1ProductAlertResp()
+                                    .getData()
+                                    .getTitle());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1ActionsResp());
                     assertEquals(
-                            1, consolidatedAPIResponseDTO.getV1ActionsResp().getData().size());
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getV1ActionsResp()
+                                    .getData()
+                                    .size());
                     assertEquals(
                             "sampleActionDTO",
-                            consolidatedAPIResponseDTO.getV1ActionsResp().getData().get(0).getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1ActionsResp()
+                                    .getData()
+                                    .get(0)
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1CollectionsActionsResp());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsResp().getData()
+                                    .getV1CollectionsActionsResp()
+                                    .getData()
                                     .size());
                     assertEquals(
                             "sampleActionCollectionDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsResp().getData()
+                                    .getV1CollectionsActionsResp()
+                                    .getData()
                                     .get(0)
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1PageDSLs());
-                    assertEquals(1, consolidatedAPIResponseDTO.getV1PageDSLs().getData().size());
+                    assertEquals(
+                            1,
+                            consolidatedAPIResponseDTO.getV1PageDSLs().getData().size());
                     assertEquals(
                             "samplePageDTO",
-                            consolidatedAPIResponseDTO.getV1PageDSLs().getData().get(0).getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1PageDSLs()
+                                    .getData()
+                                    .get(0)
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1PluginsResp());
                     assertEquals(
-                            1, consolidatedAPIResponseDTO.getV1PluginsResp().getData().size());
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getV1PluginsResp()
+                                    .getData()
+                                    .size());
                     assertEquals(
                             "samplePlugin",
-                            consolidatedAPIResponseDTO.getV1PluginsResp().getData().get(0).getName());
+                            consolidatedAPIResponseDTO
+                                    .getV1PluginsResp()
+                                    .getData()
+                                    .get(0)
+                                    .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1PluginFormConfigsResp());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1PluginFormConfigsResp().getData()
+                                    .getV1PluginFormConfigsResp()
+                                    .getData()
                                     .keySet()
                                     .size());
                     assertTrue(consolidatedAPIResponseDTO
-                            .getV1PluginFormConfigsResp().getData()
+                            .getV1PluginFormConfigsResp()
+                            .getData()
                             .containsKey("samplePluginId"));
 
                     assertNotNull(consolidatedAPIResponseDTO.getV1DatasourcesMockResp());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1DatasourcesMockResp().getData()
+                                    .getV1DatasourcesMockResp()
+                                    .getData()
                                     .size());
                     assertEquals(
                             "sampleMockDataSet",
                             consolidatedAPIResponseDTO
-                                    .getV1DatasourcesMockResp().getData()
+                                    .getV1DatasourcesMockResp()
+                                    .getData()
                                     .get(0)
                                     .getName());
                 })
