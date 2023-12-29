@@ -1,0 +1,9 @@
+.editorLayoutFullWidth {
+  flex-basis: 100%;
+  width: 100%;
+}
+
+.editorLayoutPartialWidth {
+  flex-basis: calc(100% - 288px);
+  max-width: calc(100% - 288px);
+}

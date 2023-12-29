@@ -178,14 +178,11 @@ const checkForNeedToAddResistiveForce = (
       rightZoneComputedColumns <= minSpacePerBlock;
 
     // Apply transition if zones are below the minimum space, else remove transition
-    if (isLeftZoneLessThanMinimum) {
+    if (isLeftZoneLessThanMinimum || isRightZoneLessThanMinimum) {
       leftZoneDom.style.transition = "all 0.6s ease";
-    } else {
-      leftZoneDom.style.transition = "";
-    }
-    if (isRightZoneLessThanMinimum) {
       rightZoneDom.style.transition = "all 0.6s ease";
     } else {
+      leftZoneDom.style.transition = "";
       rightZoneDom.style.transition = "";
     }
   }
