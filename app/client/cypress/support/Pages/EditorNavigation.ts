@@ -54,7 +54,6 @@ class EditorNavigation {
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
-    PageLeftPane.expandCollapseItem("Widgets");
     hierarchy.forEach((level) => {
       PageLeftPane.expandCollapseItem(level);
     });
@@ -65,7 +64,6 @@ class EditorNavigation {
   NavigateToQuery(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
-    PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
@@ -73,7 +71,6 @@ class EditorNavigation {
   NavigateToJSObject(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
-    PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
