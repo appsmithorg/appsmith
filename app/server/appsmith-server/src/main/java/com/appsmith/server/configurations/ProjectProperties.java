@@ -15,29 +15,26 @@ import java.nio.file.Paths;
 @Getter
 @Slf4j
 public class ProjectProperties {
-
-    public static final String EDITION = "CE";
-    private String version = "UNKNOWN";
     private static final String INFO_JSON_PATH = "/opt/appsmith/info.json";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String getVersion() {
-        // Check if the version is "UNKNOWN" and attempt to read from /opt/appsmith/info.json
-        if ("UNKNOWN".equals(version)) {
-            try {
-                Path infoJsonPath = Paths.get(INFO_JSON_PATH);
-                if (Files.exists(infoJsonPath)) {
-                    String jsonContent = Files.readString(infoJsonPath);
-                    // Parse JSON content using the AppsmithInfo class
-                    BuildInfo buildInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
-                    version = buildInfo.getVersion();
-                    return version;
-                }
-            } catch (IOException e) {
-                // Ignore the exception and return "UNKNOWN" as the version
-                log.debug("Error reading version from info.json {}", e.getMessage());
+    public static final String EDITION = "CE";
+    private String version = "UNKNOWN";
+    private String commitId = "UNKNOWN";
+
+    public ProjectProperties() {
+        try {
+            Path infoJsonPath = Paths.get(INFO_JSON_PATH);
+            if (Files.exists(infoJsonPath)) {
+                String jsonContent = Files.readString(infoJsonPath);
+                // Parse JSON content using the AppsmithInfo class
+                BuildInfo buildInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
+                version = buildInfo.getVersion();
+                commitId = buildInfo.getCommitId();
             }
+        } catch (IOException e) {
+            // Ignore the exception and return "UNKNOWN" as the version
+            log.debug("Error reading version from info.json {}", e.getMessage());
         }
-        return version;
     }
 }

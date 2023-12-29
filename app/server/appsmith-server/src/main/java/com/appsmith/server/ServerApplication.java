@@ -1,9 +1,11 @@
 package com.appsmith.server;
 
+import com.appsmith.server.configurations.ProjectProperties;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.aop.ObservedAspect;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,12 +18,26 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_NEW_RELIC_ACCO
 
 @SpringBootApplication
 @EnableScheduling
+@Slf4j
 public class ServerApplication {
+
+    private final ProjectProperties projectProperties;
+
+    public ServerApplication(ProjectProperties projectProperties) {
+        this.projectProperties = projectProperties;
+        printBuildInfo();
+    }
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(ServerApplication.class)
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);
+    }
+
+    private void printBuildInfo() {
+        String version = projectProperties.getVersion();
+        String commitId = projectProperties.getCommitId();
+        log.info("Application started with build version {}, and commitSha {}", version, commitId);
     }
 
     @Bean

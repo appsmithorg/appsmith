@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -8,9 +9,13 @@ import lombok.Data;
  * and contains the version of the Appsmith server.
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildInfo {
     private String version;
 
     @JsonProperty("imageBuiltAt")
     private String buildTimestamp;
+
+    @JsonProperty("commitSha")
+    private String commitId;
 }
