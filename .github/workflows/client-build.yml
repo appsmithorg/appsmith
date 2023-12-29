@@ -293,8 +293,8 @@ jobs:
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
           cd $repodir/release/client
           cp ../../../../../build.tar ./
-          git add build.tar
           git lfs track "build.tar"
+          git add  build.tar
           git commit -m "Update Latest build.tar"
           git push
 
