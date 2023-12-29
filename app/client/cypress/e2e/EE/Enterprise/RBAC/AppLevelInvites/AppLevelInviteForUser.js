@@ -163,7 +163,10 @@ describe(
       cy.wait(3000);
       _.homePage.SelectWorkspace(workspaceId);
       cy.get(HomePage.appsContainer).contains(workspaceId);
-      _.agHelper.GetElement(this._appCard(appid)).first().trigger("mouseover");
+      _.agHelper
+        .GetElement(_.homePage._appCard(appid))
+        .first()
+        .trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
       _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
       _.agHelper.Sleep(2000);
