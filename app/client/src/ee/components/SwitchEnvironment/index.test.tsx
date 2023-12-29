@@ -216,7 +216,10 @@ describe("Switch Environment Component", () => {
     const { container, getByText, rerender } = render(
       <Provider store={store}>
         <Router>
-          <SwitchEnvironment viewMode={false} />
+          <SwitchEnvironment
+            editorId="64ba2f58abba6049fb4626da"
+            viewMode={false}
+          />
         </Router>
       </Provider>,
     );
@@ -234,7 +237,10 @@ describe("Switch Environment Component", () => {
     rerender(
       <Provider store={onlyStagingStore}>
         <Router>
-          <SwitchEnvironment viewMode={false} />
+          <SwitchEnvironment
+            editorId="64ba2f58abba6049fb4626da"
+            viewMode={false}
+          />
         </Router>
       </Provider>,
     );
@@ -248,7 +254,10 @@ describe("Switch Environment Component", () => {
     const { container } = render(
       <Provider store={noEnvAccess}>
         <Router>
-          <SwitchEnvironment viewMode={false} />
+          <SwitchEnvironment
+            editorId="64ba2f58abba6049fb4626da"
+            viewMode={false}
+          />
         </Router>
       </Provider>,
     );
