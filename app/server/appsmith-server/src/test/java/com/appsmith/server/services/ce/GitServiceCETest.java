@@ -130,7 +130,6 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -4382,11 +4381,7 @@ public class GitServiceCETest {
                             assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
                             // the analytics service should be triggered once for this event
                             verify(analyticsService, times(1))
-                                    .sendEvent(
-                                            eq(GIT_ADD_PROTECTED_BRANCH.getEventName()),
-                                            anyString(),
-                                            anyMap(),
-                                            anyBoolean());
+                                    .sendEvent(eq(GIT_ADD_PROTECTED_BRANCH.getEventName()), anyString(), anyMap());
                         }
                     }
                 })
