@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -99,6 +100,17 @@ public class ConsolidatedAPIServiceImplTest {
 
     @SpyBean
     MockDataService mockDataService;
+
+    @Test
+    public void testErrorWhenModeIsNullAndPageIdAvailable() {
+        Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad = consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null);
+        StepVerifier.create(consolidatedInfoForPageLoad)
+            .verifyErrorSatisfies(error -> {
+                assertTrue(error instanceof AppsmithException);
+                assertEquals("Please enter a valid parameter appMode.", error.getMessage());
+            });
+
+    }
 
     @Test
     public void testPageLoadResponseWhenPageIdAndApplicationIdMissing() {

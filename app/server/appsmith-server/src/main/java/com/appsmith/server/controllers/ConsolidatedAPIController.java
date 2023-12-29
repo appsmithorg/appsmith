@@ -37,7 +37,7 @@ public class ConsolidatedAPIController {
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoad(
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String defaultPageId,
-            @RequestParam(required = true) ApplicationMode mode,
+            @RequestParam(required = false) ApplicationMode mode,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, "

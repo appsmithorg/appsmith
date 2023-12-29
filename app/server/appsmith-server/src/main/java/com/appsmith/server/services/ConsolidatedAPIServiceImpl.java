@@ -30,7 +30,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.themes.base.ThemeService;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -51,6 +50,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -139,7 +139,12 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
      */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-            String defaultPageId, String applicationId, String branchName, @NotNull ApplicationMode mode) {
+            String defaultPageId, String applicationId, String branchName, ApplicationMode mode) {
+
+        /* if either of pageId or applicationId are provided then application mode must also be provided */
+        if (mode == null && (!isBlank(defaultPageId) || !isBlank(applicationId))) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, APP_MODE));
+        }
 
         /* This object will serve as a container to hold the response of this method*/
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
