@@ -124,18 +124,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         return Mono.just(new ResponseDTO<T>(INTERNAL_SERVER_ERROR_STATUS,
             new ErrorDTO(INTERNAL_SERVER_ERROR_CODE, error.getMessage())));
     }
-
-//    Mono<ResponseDTO<Object>> getErrorResponse(Throwable error) {
-//        if (error instanceof AppsmithException appsmithException) {
-//            return Mono.just(new ResponseDTO<>(appsmithException.getHttpStatus(),
-//                new ErrorDTO(appsmithException.getAppErrorCode(),
-//                    appsmithException.getErrorType(), appsmithException.getMessage(), appsmithException.getTitle())));
-//        }
-//
-//        return Mono.just(new ResponseDTO<>(INTERNAL_SERVER_ERROR_STATUS,
-//            new ErrorDTO(INTERNAL_SERVER_ERROR_CODE, error.getMessage())));
-//    }
-
+    
     /**
      * This method is meant to be used by the client application at the time of 1st page load. Client currently makes
      * several API calls to fetch all the required data. This method consolidates all that data and returns them as
