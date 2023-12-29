@@ -62,6 +62,7 @@ const JSSection = () => {
       {JSObjects && JSObjects.length > 0 && canCreateActions && (
         <Flex flexDirection="column" padding="spaces-3">
           <Button
+            className="t--add-item"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}
@@ -106,6 +107,7 @@ const JSSection = () => {
 
       {(!JSObjects || JSObjects.length === 0) && (
         <EmptyState
+          buttonClassName="t--add-item"
           buttonText={createMessage(PAGES_PANE_TEXTS.js_add_button)}
           description={createMessage(
             PAGES_PANE_TEXTS.js_blank_state_description,

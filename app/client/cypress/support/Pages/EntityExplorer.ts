@@ -192,6 +192,7 @@ export class EntityExplorer {
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     this.DragNDropWidget(
       widgetType,
       x,

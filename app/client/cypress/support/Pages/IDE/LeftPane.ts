@@ -10,6 +10,7 @@ export class LeftPane {
       "//div[text()='" +
       name +
       "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
+    addItem: () => "//button[contains(@class, 't--add-item')]",
   };
 
   constructor(listItemSelector: (name: string) => string, segments?: string[]) {
@@ -85,5 +86,10 @@ export class LeftPane {
 
   public assertSelected(name: string) {
     // TODO
+  }
+
+  public switchToAddNew() {
+    // for js it will directly add a new file
+    cy.xpath(this.locators.addItem()).click();
   }
 }

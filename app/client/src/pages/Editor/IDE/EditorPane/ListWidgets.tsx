@@ -52,6 +52,7 @@ const ListWidgets = () => {
         canManagePages && (
           <Flex flexDirection="column" padding="spaces-3">
             <Button
+              className="t--add-item"
               kind={"secondary"}
               onClick={addButtonClickHandler}
               size={"sm"}
@@ -84,6 +85,7 @@ const ListWidgets = () => {
       </Flex>
       {(!widgets || !widgets.children || widgets?.children?.length === 0) && (
         <EmptyState
+          buttonClassName={"t--add-item"}
           buttonText={createMessage(PAGES_PANE_TEXTS.widget_add_button)}
           description={createMessage(
             PAGES_PANE_TEXTS.widget_blank_state_description,
