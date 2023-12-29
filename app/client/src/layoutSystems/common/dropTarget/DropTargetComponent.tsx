@@ -49,7 +49,7 @@ import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import useCurrentAppState from "pages/Editor/IDE/hooks";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { EditorState as IDEAppState } from "entities/IDE/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 

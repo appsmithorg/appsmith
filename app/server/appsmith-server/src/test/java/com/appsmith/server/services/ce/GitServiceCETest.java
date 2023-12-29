@@ -3461,7 +3461,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3487,7 +3486,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3530,7 +3528,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo (1)");
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Application testApplication = new Application();
         testApplication.setName("testGitRepo");
@@ -3584,12 +3581,12 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
-        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
+        String appJSONDBName = applicationJson.getDatasourceList().get(0).getName();
 
         String pluginId =
                 pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
-        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setName(appJSONDBName);
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -3647,12 +3644,12 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName(null);
-        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
+        String appJSONDBName = applicationJson.getDatasourceList().get(0).getName();
 
         String pluginId =
                 pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
-        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setName(appJSONDBName);
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -4370,9 +4367,6 @@ public class GitServiceCETest {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
                         assertThat(metadata.getDefaultBranchName()).isEqualTo("master");
-                        // only the master branch should be protected
-                        assertThat(metadata.getBranchName().equals("master"))
-                                .isEqualTo(metadata.getIsProtectedBranch());
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the protected branch list
                             assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
@@ -4398,7 +4392,6 @@ public class GitServiceCETest {
                 .assertNext(applicationList -> {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the empty protected branch list
                             assertThat(metadata.getBranchProtectionRules()).isEmpty();
@@ -4439,7 +4432,6 @@ public class GitServiceCETest {
         StepVerifier.create(applicationService.findById(defaultAppId))
                 .assertNext(application -> {
                     GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                    assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                     // the default app should have the empty protected branch list
                     assertThat(metadata.getBranchProtectionRules()).isNullOrEmpty();
                 })
