@@ -24,6 +24,7 @@ import SegmentAddHeader from "./components/SegmentAddHeader";
 
 const StyledList = styled(List)`
   padding: 0;
+  gap: 0;
 `;
 
 const AddQuery = () => {
