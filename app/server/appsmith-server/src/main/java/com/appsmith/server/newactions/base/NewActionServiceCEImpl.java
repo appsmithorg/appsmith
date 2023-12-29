@@ -1861,4 +1861,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         newAction.setUnpublishedAction(action);
     }
+
+    @Override
+    public Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO) {
+        // Do nothing as this is already taken care for actions in the context of page
+        return Mono.empty().then();
+    }
 }
