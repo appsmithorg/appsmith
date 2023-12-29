@@ -531,7 +531,11 @@ export function generateHighlights(
         gap / 2 -
         HIGHLIGHT_SIZE / 2;
 
-      posX = Math.min(currentDimension.left + currentDimension.width, pos);
+      posX = Math.min(
+        currentDimension.left + currentDimension.width, // To the right of last child.
+        pos, // In the middle of the gap between the last child and the right edge of the layout.
+        layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE, // along the right edge of the layout.
+      );
     }
   } else {
     const gap: number = prevDimension

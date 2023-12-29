@@ -10,6 +10,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -32,6 +33,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Service
 @Primary
 public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl implements ImportApplicationService {
+
     public ImportApplicationServiceImpl(
             DatasourceService datasourceService,
             SessionUserService sessionUserService,
@@ -55,7 +57,8 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
             ImportableService<Datasource> datasourceImportableService,
             ImportableService<NewAction> newActionImportableService,
             ImportableService<ActionCollection> actionCollectionImportableService,
-            PermissionGroupService permissionGroupService) {
+            PermissionGroupService permissionGroupService,
+            UpdateLayoutService updateLayoutService) {
         super(
                 datasourceService,
                 sessionUserService,
@@ -79,6 +82,7 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
                 datasourceImportableService,
                 newActionImportableService,
                 actionCollectionImportableService,
-                permissionGroupService);
+                permissionGroupService,
+                updateLayoutService);
     }
 }

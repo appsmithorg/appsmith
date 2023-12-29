@@ -38,8 +38,8 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
     }
 
     // Requires datasourceIdToNameMap, pageIdToNameMap, pluginMap, collectionIdToNameMap
-    // Updates actionId to name map in exportable resources. Also directly updates required collection information in
-    // application json
+    // Updates actionId to name map in exportable resources.
+    // Also, directly updates required collection information in application json
     @Override
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
@@ -51,7 +51,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
         Flux<NewAction> actionFlux =
-                newActionService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+                newActionService.findByPageIdsForExport(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
 
         return actionFlux
                 .collectList()

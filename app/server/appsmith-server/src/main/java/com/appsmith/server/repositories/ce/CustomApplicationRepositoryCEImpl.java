@@ -208,9 +208,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
                         + "defaultApplicationId")
                 .is(defaultApplicationId);
-        Criteria deletionCriteria =
-                where("deleted").ne(true);
-        return queryAll(List.of(applicationIdCriteria, deletionCriteria), permission);*/
+        return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     /**
@@ -273,12 +271,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         String gitApplicationMetadata = "gitApplicationMetadata";
 
         Query query = new Query();
-        query.addCriteria(
-                where(gitApplicationMetadata + "." + "defaultApplicationId").is(defaultApplicationId));
-        query.addCriteria(where("deleted").ne(true));
-        query.equals(where("this." + gitApplicationMetadata + "." + "branchName")
-                .equals("this." + gitApplicationMetadata + "." + "defaultBranchName"));
-
+        query.addCriteria(where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
+                .is(defaultApplicationId));
+        query.addCriteria(notDeleted());
         return mongoOperations.findOne(query, Application.class);*/
     }
 

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
@@ -35,9 +36,12 @@ import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_AUTO_COMMIT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DEFAULT_BRANCHES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PROTECTED_BRANCHES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
@@ -197,6 +201,11 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_EXPORT_APPLICATIONS, EXPORT_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_CREATE_APPLICATION, APPLICATION_CREATE_PAGES);
         hierarchyGraph.addEdge(WORKSPACE_DELETE_APPLICATIONS, DELETE_APPLICATIONS);
+
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_APPLICATION, CONNECT_TO_GIT);
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_APPLICATION, MANAGE_PROTECTED_BRANCHES);
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_APPLICATION, MANAGE_DEFAULT_BRANCHES);
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_APPLICATION, MANAGE_AUTO_COMMIT);
 
         // If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION perm
         lateralGraph.addEdge(MANAGE_APPLICATIONS, READ_APPLICATIONS);

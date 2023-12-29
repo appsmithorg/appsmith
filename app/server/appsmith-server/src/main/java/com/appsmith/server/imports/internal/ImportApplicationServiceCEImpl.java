@@ -22,6 +22,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -81,6 +84,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     private final ImportableService<NewAction> newActionImportableService;
     private final ImportableService<ActionCollection> actionCollectionImportableService;
     private final PermissionGroupService permissionGroupService;
+    private final UpdateLayoutService updateLayoutService;
 
     @Override
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
@@ -578,6 +582,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
 
                     return applicationService.update(application.getId(), updateApplication);
                 })
+                .flatMap(application -> {
+                    return Flux.fromIterable(application.getPages())
+                            .map(ApplicationPage::getId)
+                            .flatMap(updateLayoutService::updatePageLayoutsByPageId)
+                            .collectList()
+                            .thenReturn(application);
+                })
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing application. Error: {}", errorMessage, throwable);
@@ -656,7 +667,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 applicationJson);
 
         return Flux.merge(pageIndependentImportables)
-                .thenMany(Flux.merge(pageDependentImportables))
+                .thenMany(Flux.defer(() -> Flux.merge(pageDependentImportables)))
                 .then();
     }
 

@@ -103,8 +103,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         }
                     }
                     // No need to handle the edge case of unpublished action not being present. This is not possible
-                    // because
-                    // every created action starts from an unpublishedAction state.
+                    // because every created action starts from an unpublishedAction state.
 
                     return Mono.just(collection);
                 });
@@ -709,11 +708,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     if (action.getId() == null) {
                         return createJsAction(actionCollection, action);
                     }
-                    // actionCollectionService would occur when the new collection is created by grouping existing
-                    // actions
-                    // actionCollectionService could be a future enhancement for js editor templates,
+                    // This would occur when the new collection is created by grouping existing actions
+                    // This could be a future enhancement for js editor templates,
                     // but is also useful for generic collections
-                    // We do not expect to have to update the action at actionCollectionService point
+                    // We do not expect to have to update the action at this point
                     return Mono.just(action);
                 })
                 .collectList()
@@ -740,8 +738,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     return actionCollectionMono
                             .map(actionCollection1 -> {
                                 actions.forEach(actionDTO -> {
-                                    // Update all the actions in the list to belong to actionCollectionService
-                                    // collection
+                                    // Update all the actions in the list to belong to this collection
                                     actionDTO.setCollectionId(actionCollection1.getId());
                                     if (StringUtils.isEmpty(
                                             actionDTO.getDefaultResources().getCollectionId())) {
