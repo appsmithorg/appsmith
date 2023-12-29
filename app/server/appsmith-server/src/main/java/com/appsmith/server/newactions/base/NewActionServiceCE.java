@@ -157,4 +157,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     NewAction generateActionDomain(ActionDTO action);
 
     void updateDefaultResourcesInAction(NewAction newAction);
+
+    Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
 }

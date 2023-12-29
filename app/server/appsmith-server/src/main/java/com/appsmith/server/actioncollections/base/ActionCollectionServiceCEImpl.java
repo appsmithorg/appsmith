@@ -408,7 +408,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
         return branchedCollectionId
                 .flatMap(this::deleteUnpublishedActionCollection)
-                .map(responseUtils::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources)
+                .flatMap(actionCollectionDTO ->
+                        saveLastEditInformationInParent(actionCollectionDTO).thenReturn(actionCollectionDTO));
     }
 
     @Override
@@ -788,5 +790,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         final Map<String, String> actionIds = actions.stream()
                 .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId));
         collectionDTO.setDefaultToBranchedActionIdsMap(actionIds);
+    }
+
+    @Override
+    public Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO) {
+        // Do nothing as this is already taken care for JS objects in the context of page
+        return Mono.empty().then();
     }
 }
