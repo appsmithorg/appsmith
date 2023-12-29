@@ -29,6 +29,8 @@ import {
   hasDeleteEnvironmentPermission,
   hasManageEnvironmentPermission,
 } from "@appsmith/utils/permissionHelpers";
+import { useEditorType } from "@appsmith/hooks";
+import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -77,9 +79,17 @@ export const ManageEnvironments = () => {
   const showRolesRedirect = showAdminSettings(user);
   const showCreateEnvButton =
     hasCreateEnvironmentPermission(workspacePermissions);
+  const editorType = useEditorType(location.pathname);
+  const { editorId } = useParentEntityInfo(editorType);
 
   useEffect(() => {
-    dispatch(fetchingEnvironmentConfigs(workspaceId, true));
+    dispatch(
+      fetchingEnvironmentConfigs({
+        workspaceId,
+        editorId,
+        fetchDatasourceMeta: true,
+      }),
+    );
   }, [dispatch, workspaceId]);
 
   const columns = [

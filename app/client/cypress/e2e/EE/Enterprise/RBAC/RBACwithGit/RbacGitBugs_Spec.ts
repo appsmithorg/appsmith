@@ -20,8 +20,8 @@ import EditorNavigation, {
 import PageList from "../../../../../support/Pages/PageList";
 
 describe(
-  "excludeForAirgap",
   "Validates RBAC with GIT bugs - 19151, 19148, 19143",
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     let workspaceName: any,
       appName: any,

@@ -30,10 +30,22 @@ public class PackagePublishingMetaDTO {
     Map<String, ModuleInstance> existingModuleInstanceIdToModuleInstanceMap = new ConcurrentHashMap<>();
     Map<String, Map<String, ModuleInstance>> existingComposedModuleInstanceRefToModuleInstanceMap =
             new ConcurrentHashMap<>();
+
+    // moduleInstanceId - Map <originActionId, newAction>
     Map<String, Map<String, NewAction>> existingComposedActionRefToNewActionMap = new ConcurrentHashMap<>();
-    Map<String, Map<String, List<NewAction>>> existingComposedCollectionRefToNewActionsMap = new ConcurrentHashMap<>();
-    Map<String, Map<String, ActionCollection>> existingComposedCollectionRefToActionCollectionMap =
+    // moduleInstanceId - Map <FQN, newAction>
+    Map<String, Map<String, NewAction>> existingInvalidComposedActionRefToNewActionMap = new ConcurrentHashMap<>();
+
+    // moduleInstanceId - Map <originCollectionId, actionCollection>
+    Map<String, Map<String, ActionCollection>> existingComposedCollectionRefToCollectionMap = new ConcurrentHashMap<>();
+    // moduleInstanceId - Map <FQN, actionCollection>
+    Map<String, Map<String, ActionCollection>> existingInvalidComposedCollectionRefToCollectionMap =
             new ConcurrentHashMap<>();
+
+    // moduleInstanceId - Map <originCollectionId, List<NewAction>>
+    Map<String, Map<String, List<NewAction>>> existingComposedCollectionRefToNewActionsMap = new ConcurrentHashMap<>();
+    // moduleInstanceId - Map <originCollectionId, List<NewAction>>
+    Map<String, Map<String, NewAction>> existingInvalidJSActionFQNToNewActionsMap = new ConcurrentHashMap<>();
 
     Set<String> autoUpgradedPageIds = ConcurrentHashMap.newKeySet();
 }

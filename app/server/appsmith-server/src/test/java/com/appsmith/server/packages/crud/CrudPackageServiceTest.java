@@ -260,7 +260,7 @@ class CrudPackageServiceTest {
                 .collectList();
 
         // get all packages in workspace home test
-        Mono<List<PackageDTO>> allPackagesMono = crudPackageService.getAllPackages();
+        Mono<List<PackageDTO>> allPackagesMono = crudPackageService.getAllEditablePackages();
 
         AtomicReference<String> packageId = new AtomicReference<>();
         StepVerifier.create(Mono.zip(allPackagesMono, defaultPermissionGroupsMono))

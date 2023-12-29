@@ -250,7 +250,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
-            echo 'tags_to_exclude=excludeForAirgap' >> "$GITHUB_ENV"
+            echo "CYPRESS_grepTags=-@tag.excludeForAirgap" >> $GITHUB_ENV
           else
             echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
             echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV

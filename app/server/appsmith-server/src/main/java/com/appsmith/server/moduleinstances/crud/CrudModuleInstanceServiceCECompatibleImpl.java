@@ -39,6 +39,12 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     }
 
     @Override
+    public Mono<CreateModuleInstanceResponseDTO> createOrphanModuleInstance(
+            ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
     public Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String defaultModuleInstanceId, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
@@ -61,8 +67,8 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     }
 
     @Override
-    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleId(
-            String sourceModuleId, Optional<AclPermission> permission) {
+    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
+            Module sourceModule, Optional<AclPermission> permission) {
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

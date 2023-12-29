@@ -310,6 +310,7 @@ export function* fetchAppAndPagesSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId: response.data.workspaceId,
+          editorId: response.data.application?.id,
         },
       });
 
@@ -720,6 +721,7 @@ export function* forkApplicationSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId: action.payload.workspaceId,
+          editorId: application.id,
         },
       });
 
@@ -784,7 +786,7 @@ export function* showReconnectDatasourcesModalSaga(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
 
-  yield put(setWorkspaceIdForImport(workspaceId));
+  yield put(setWorkspaceIdForImport({ editorId: application.id, workspaceId }));
   yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }

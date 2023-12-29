@@ -4,9 +4,8 @@ import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import { license } from "../../../../support/ee/ObjectsCore_EE";
 
 describe(
-  "excludeForAirgap",
   "License and Billing dashboard",
-  { tags: ["@tag.LicenseAndBilling"] },
+  { tags: ["@tag.LicenseAndBilling", "@tag.excludeForAirgap"] },
   function () {
     it("1. Admin Settings - Enterprise Plan", function () {
       cy.LogOut();

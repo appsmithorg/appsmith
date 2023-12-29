@@ -33,7 +33,7 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
         moduleInstanceDTO.setType(moduleInstance.getType());
         moduleInstanceDTO.setModuleUUID(moduleInstance.getModuleUUID());
         moduleInstanceDTO.setSourceModuleId(moduleInstance.getSourceModuleId());
-        moduleInstanceDTO.setContextType(moduleInstanceDTO.getContextType());
+        moduleInstanceDTO.setOriginModuleId(moduleInstance.getOriginModuleId());
         if (moduleInstanceDTO.getContextType() == CreatorContextType.PAGE) {
             moduleInstanceDTO.setContextId(moduleInstanceDTO.getPageId());
             moduleInstanceDTO.setApplicationId(moduleInstance.getApplicationId());
@@ -41,6 +41,7 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
             moduleInstanceDTO.setContextId(moduleInstanceDTO.getModuleId());
         }
         moduleInstanceDTO.setUserPermissions(moduleInstance.getUserPermissions());
+        moduleInstanceDTO.setGitSyncId(moduleInstance.getGitSyncId());
 
         return Mono.just(moduleInstanceDTO);
     }
@@ -63,14 +64,14 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
     }
 
     @Override
-    public void validateModuleInstanceDTO(ModuleInstanceDTO moduleInstanceDTO) {
+    public void validateModuleInstanceDTO(ModuleInstanceDTO moduleInstanceDTO, boolean isOrphan) {
         if (ValidationUtils.isEmptyParam(moduleInstanceDTO.getContextType())) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.CONTEXT_TYPE);
         }
         if (ValidationUtils.isEmptyParam(moduleInstanceDTO.getContextId())) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.CONTEXT_ID);
         }
-        if (ValidationUtils.isEmptyParam(moduleInstanceDTO.getSourceModuleId())) {
+        if (ValidationUtils.isEmptyParam(moduleInstanceDTO.getSourceModuleId()) && !isOrphan) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID);
         }
         if (ValidationUtils.isEmptyParam(moduleInstanceDTO.getName())) {

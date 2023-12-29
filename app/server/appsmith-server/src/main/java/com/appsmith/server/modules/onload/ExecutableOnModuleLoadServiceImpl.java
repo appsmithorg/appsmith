@@ -13,7 +13,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
-import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,6 @@ public class ExecutableOnModuleLoadServiceImpl implements ExecutableOnLoadServic
     private final ActionPermission actionPermission;
     private final PagePermission pagePermission;
     private final CrudModuleService moduleService;
-    private final CrudPackageService packageService;
 
     @Override
     public Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId) {

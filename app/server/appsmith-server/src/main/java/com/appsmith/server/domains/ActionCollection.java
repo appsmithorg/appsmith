@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ce.ActionCollectionCE;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,4 +35,23 @@ public class ActionCollection extends ActionCollectionCE {
 
     @JsonView(Views.Internal.class)
     String originActionCollectionId;
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        super.sanitiseToExportDBObject();
+
+        if (this.rootModuleInstanceId != null) {
+            this.setOriginActionCollectionId(null);
+            ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();
+            if (unpublishedCollection != null) {
+                unpublishedCollection.setBody(null);
+                unpublishedCollection.setVariables(null);
+            }
+            ActionCollectionDTO publishedCollection = this.getPublishedCollection();
+            if (publishedCollection != null) {
+                publishedCollection.setBody(null);
+                publishedCollection.setVariables(null);
+            }
+        }
+    }
 }

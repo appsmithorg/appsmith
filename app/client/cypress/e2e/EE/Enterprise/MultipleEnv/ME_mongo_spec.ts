@@ -25,8 +25,8 @@ let meDatasourceName: string,
   stagingEnv: string,
   meStagingOnlyQueryName: string;
 describe(
-  "excludeForAirgap",
   "Multiple environment datasource creation and test flow",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });

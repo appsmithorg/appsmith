@@ -6,15 +6,17 @@ import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.packages.base.BasePackageService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 public interface CrudPackageService extends BasePackageService, CrudPackageServiceCECompatible {
 
     Mono<PackageDTO> createPackage(PackageDTO packageToBeCreated, String workspaceId);
 
-    Mono<List<PackageDTO>> getAllPackages();
+    Mono<List<PackageDTO>> getAllEditablePackages();
 
     Mono<ConsumablePackagesAndModulesDTO> getAllPackagesForConsumer(String workspaceId);
 
@@ -25,4 +27,6 @@ public interface CrudPackageService extends BasePackageService, CrudPackageServi
     Mono<PackageDTO> updatePackage(PackageDTO packageResource, String packageId);
 
     Mono<PackageDTO> deletePackage(String packageId);
+
+    Flux<Package> getUniquePublishedReference(Set<String> packageIds);
 }

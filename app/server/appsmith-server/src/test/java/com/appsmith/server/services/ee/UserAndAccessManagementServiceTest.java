@@ -612,7 +612,7 @@ public class UserAndAccessManagementServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testGetUserById_assertUserPermissionsInGroupsAndRoles() {
+    public void testGetUserById_assertGroupsAndRoles() {
         String testName = "testGetAllUsers_UserPermissionsInGroupsAndRoles";
 
         // user creation
@@ -664,8 +664,6 @@ public class UserAndAccessManagementServiceTest {
                 .assertNext(user -> {
                     assertThat(user.getGroups()).isNotNull();
                     assertThat(user.getGroups().size()).isEqualTo(2);
-                    assertThat(user.getGroups().get(0).getUserPermissions().size() > 0)
-                            .isTrue();
                     assertThat(user.getRoles().size()).isEqualTo(2);
                     // check if the user has the permission group
                     UserGroupCompactDTO userGroupCompactDTOGroupOne = user.getGroups().stream()

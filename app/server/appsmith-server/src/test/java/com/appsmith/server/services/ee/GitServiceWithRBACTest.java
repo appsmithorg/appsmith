@@ -1604,7 +1604,6 @@ public class GitServiceWithRBACTest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(
                         Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))

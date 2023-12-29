@@ -358,6 +358,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout = false,
         displayName,
         iconSVG,
+        isSearchWildcard,
         key,
         searchTags,
         tags,
@@ -382,6 +383,7 @@ export const getWidgetCards = createSelector(
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
+        isSearchWildcard: isSearchWildcard,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);

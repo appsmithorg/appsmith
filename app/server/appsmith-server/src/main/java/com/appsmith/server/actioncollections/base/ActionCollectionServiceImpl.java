@@ -158,6 +158,13 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         return super.getActionCollectionsFromRepoByViewMode(params, viewMode);
     }
 
+    @Override
+    public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission) {
+        return super.findByPageIdsForExport(pageIds, permission)
+                .filter(actionCollection -> actionCollection.getRootModuleInstanceId() == null
+                        || Boolean.TRUE.equals(actionCollection.getIsPublic()));
+    }
+
     private Flux<ActionCollection> getActionsCollectionsForWorkflowId(String workflowId, Boolean viewMode) {
         Flux<ActionCollection> workflowActionsFromRepository;
 
