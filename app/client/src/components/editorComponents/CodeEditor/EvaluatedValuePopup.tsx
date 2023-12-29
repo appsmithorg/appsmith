@@ -34,12 +34,12 @@ import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
     enabled: true,
-    offset: "0, -150",
+    offset: "0, 15",
   },
   preventOverflow: {
     enabled: true,
     boundariesElement: "viewport",
-    padding: 38,
+    padding: 50,
   },
 };
 const Wrapper = styled.div`
