@@ -375,7 +375,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       cy.wait(2000);
     } else {
       assertHelper.AssertNetworkStatus("getMe");
-      assertHelper.AssertNetworkStatus("getReleaseItems");
+      assertHelper.AssertNetworkStatus("getAllWorkspaces");
     }
   });
 });
@@ -920,6 +920,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
   cy.intercept("GET", "/api/v1/applications/releaseItems").as(
     "getReleaseItems",
+  );
+  cy.intercept("GET", "/api/v1/workspaces/home").as(
+    "getAllWorkspaces",
   );
 
   cy.intercept("POST");

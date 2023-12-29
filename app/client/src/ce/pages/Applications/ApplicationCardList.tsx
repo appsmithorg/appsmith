@@ -9,10 +9,13 @@ import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
+  APPLICATIONS,
   APPLICATION_CARD_LIST_ZERO_STATE,
   createMessage,
 } from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 interface ApplicationCardListProps {
   applications: ApplicationPayload[];
@@ -47,7 +50,7 @@ function ApplicationCardList({
     <CardList
       isLoading={isFetchingApplications}
       isMobile={isMobile}
-      title="Applications"
+      title={createMessage(APPLICATIONS)}
     >
       {applications.map((application: any) => {
         return (
@@ -74,7 +77,7 @@ function ApplicationCardList({
         <NoAppsFound>
           <img
             className="mb-7"
-            src="https://assets.appsmith.com/no-applications.svg"
+            src={getAssetUrl(`${ASSETS_CDN_URL}/no-applications.svg`)}
           />
           <Text kind="heading-xs">
             {createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}

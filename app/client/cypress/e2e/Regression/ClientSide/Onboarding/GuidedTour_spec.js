@@ -31,8 +31,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
   it("2. Guided Tour", function () {
     // Start guided tour
     homePage.NavigateToHome();
-    cy.get(homePage._helpButton).click({ force: true });
-    cy.get(guidedTourLocators.welcomeTour).first().click();
+    agHelper.GetNClick(homePage._helpButton, 0)
+    agHelper.GetNClick(guidedTourLocators.welcomeTour, 0)
     cy.get(guidedTourLocators.startBuilding).click();
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");
     // Refresh the page to validate if the tour resumes

@@ -81,7 +81,7 @@ import type { IDEState } from "reducers/uiReducers/ideReducer";
     or done so by a module that is designed to be eventually pluggable */
 import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
-import type { SelectedWorkspaceReduxState } from "./uiReducers/selectedWorkspaceReducer";
+import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 
 export const reducerObject = {
   entities: entityReducer,

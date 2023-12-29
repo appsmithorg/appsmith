@@ -203,6 +203,7 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
 export const NEW_APPLICATION = () => `New application`;
 export const NEW_PACKAGE = () => `New package`;
+export const APPLICATIONS = () => `Applications`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";

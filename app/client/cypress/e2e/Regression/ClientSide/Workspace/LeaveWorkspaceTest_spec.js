@@ -9,7 +9,7 @@ describe(
     let newWorkspaceName;
 
     it("1. Only admin user can not leave workspace validation", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         newWorkspaceName = "LeaveWs" + uid;
@@ -28,7 +28,7 @@ describe(
     });
 
     it("2. Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
       homePage.LogOutviaAPI();
@@ -48,7 +48,7 @@ describe(
           Cypress.env("TESTPASSWORD1"),
           "App Viewer",
         );
-        agHelper.VisitNAssert("/applications", "getReleaseItems");
+        agHelper.VisitNAssert("/applications", "getAllWorkspaces");
         homePage.SelectWorkspace(newWorkspaceName);
         homePage.LeaveWorkspace(newWorkspaceName);
       });

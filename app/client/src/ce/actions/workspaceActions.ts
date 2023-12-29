@@ -4,6 +4,21 @@ import type {
   SaveWorkspaceRequest,
 } from "@appsmith/api/WorkspaceApi";
 
+interface FetchAllWorkspacesParams {
+  fetchEntities?: boolean;
+  workspaceId?: string;
+}
+
+export const fetchAllWorkspaces = (params?: FetchAllWorkspacesParams) => {
+  return {
+    type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+    payload: {
+      fetchEntities: params?.fetchEntities,
+      workspaceId: params?.workspaceId,
+    },
+  };
+};
+
 export const fetchWorkspace = (
   workspaceId: string,
   skipValidation?: boolean,

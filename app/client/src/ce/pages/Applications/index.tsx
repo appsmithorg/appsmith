@@ -59,6 +59,7 @@ import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
+  fetchAllWorkspaces,
   fetchUsersForWorkspace,
   resetCurrentWorkspace,
   saveWorkspace,
@@ -110,7 +111,7 @@ import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader"
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-// import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
+import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
@@ -128,7 +129,6 @@ import {
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
-import WorkflowCardList from "./WorkflowCardList";
 import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
@@ -281,7 +281,7 @@ export function LeftPaneSection(props: {
       },
       dispatch,
     );
-    dispatch({ type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT });
+    dispatch(fetchAllWorkspaces());
   };
 
   return (
@@ -627,12 +627,6 @@ export function ApplicationsSection(props: any) {
     );
   }
 
-  // let updatedWorkspaces;
-  // if (!isLoadingResources) {
-  //   updatedWorkspaces = workspaces;
-  // } else {
-  //   // updatedWorkspaces = loadingUserWorkspaces as any;
-  // }
   const activeWorkspace = workspaces.find(
     (workspace: Workspace) => workspace.id === activeWorkspaceId,
   );
@@ -1056,10 +1050,7 @@ export const mapDispatchToProps = (dispatch: any) => ({
     fetchEntities: boolean;
     workspaceId: string;
   }) => {
-    dispatch({
-      type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
-      payload: { workspaceId, fetchEntities },
-    });
+    dispatch(fetchAllWorkspaces({ workspaceId, fetchEntities }));
   },
   resetEditor: () => {
     dispatch(resetEditorRequest());

@@ -17,7 +17,7 @@ describe(
     it("1. Import application from json and validate data on pageload", function () {
       // import application
       homePage.NavigateToHome();
-      cy.get(homePageLocatores.createNew).first().click();
+      agHelper.GetNClick(homePageLocatores.createNew, 0)
       cy.get(homePageLocatores.workspaceImportAppOption).click({ force: true });
       cy.get(homePageLocatores.workspaceImportAppModal).should("be.visible");
       cy.xpath(homePageLocatores.uploadLogo).selectFile(
@@ -104,8 +104,7 @@ describe(
           cy.get("@guid").then((uid) => {
             newWorkspaceName = uid;
             homePage.CreateNewWorkspace(newWorkspaceName);
-            homePage.NavigateToHome();
-            cy.get(homePageLocatores.createNew).first().click();
+            agHelper.GetNClick(homePageLocatores.createNew, 0)
 
             cy.get(homePageLocatores.workspaceImportAppOption).click({
               force: true,
@@ -119,7 +118,7 @@ describe(
               { force: true },
             );
             if (!Cypress.env("AIRGAPPED"))
-              assertHelper.AssertNetworkStatus("@getReleaseItems");
+              assertHelper.AssertNetworkStatus("@getAllWorkspaces");
 
             // import exported application in new workspace
             // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });
