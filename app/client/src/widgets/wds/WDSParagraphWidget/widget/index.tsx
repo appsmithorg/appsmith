@@ -73,9 +73,6 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         isBold={this.props?.fontStyle?.includes("bold")}
         isItalic={this.props?.fontStyle?.includes("italic")}
         lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
-        style={{
-          paddingBottom: "0.5rem",
-        }}
         textAlign={this.props.textAlign}
         title={this.props.lineClamp ? this.props.text : undefined}
         variant={this.props.fontSize}

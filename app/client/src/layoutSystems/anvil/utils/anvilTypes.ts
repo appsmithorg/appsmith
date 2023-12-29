@@ -60,6 +60,7 @@ export interface LayoutComponentProps extends LayoutProps {
   layoutIndex: number; // Index of the layout component in the parent layout.
   layoutOrder: string[]; // Top - down hierarchy of layoutIds.
   parentDropTarget: string; // layoutId of the immediate drop target parent. Could be self as well.
+  className?: string;
   renderMode: RenderMode;
 }
 

@@ -343,7 +343,7 @@ public class GitFileUtils {
 
         // Send datasources
         applicationJson.getDatasourceList().forEach(datasource -> {
-            removeUnwantedFieldsFromBaseDomain(datasource);
+            removeUnwantedFieldsFromDatasource(datasource);
             resourceMap.put(datasource.getName(), datasource);
         });
         applicationReference.setDatasources(new HashMap<>(resourceMap));
@@ -477,6 +477,11 @@ public class GitFileUtils {
     private void removeUnwantedFieldsFromBaseDomain(BaseDomain baseDomain) {
         baseDomain.setPolicies(null);
         baseDomain.setUserPermissions(null);
+    }
+
+    private void removeUnwantedFieldsFromDatasource(DatasourceStorage datasource) {
+        datasource.setInvalids(null);
+        removeUnwantedFieldsFromBaseDomain(datasource);
     }
 
     private void removeUnwantedFieldsFromPage(NewPage page) {

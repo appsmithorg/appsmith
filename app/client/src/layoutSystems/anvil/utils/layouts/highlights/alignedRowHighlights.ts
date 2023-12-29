@@ -358,6 +358,7 @@ function generateHighlight(
         layoutDimension.width -
         gap / 2 -
         HIGHLIGHT_SIZE / 2,
+      layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE,
     );
   } else {
     // highlight before a widget.

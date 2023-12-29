@@ -1,0 +1,91 @@
+.wrapper {
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  border-top: 1px solid var(--ads-v2-color-gray-300);
+  background: #fff;
+}
+
+.debuggerTab {
+  padding-left: 12px !important;
+  cursor: pointer;
+}
+
+.debuggerBody.debuggerBody {
+  margin-top: 0;
+  height: 300px;
+  overflow: auto;
+}
+
+.debuggerItem {
+  padding: 0 12px;
+  border-bottom: 1px solid var(--ads-v2-color-gray-300);
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  min-height: 34px;
+}
+
+.debuggerItemMessage {
+  width: calc(100% - 48px);
+  padding: 8px 0px;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.debuggerItemHelp {
+  width: 24px;
+}
+
+.debuggerItemIcon {
+  width: 24px;
+  margin-right: 5px;
+}
+
+.debuggerItemHelpContent.debuggerItemHelpContent {
+  padding: 0;
+}
+
+.debuggerActions {
+  display: flex;
+  gap: 20px;
+  position: absolute;
+  right: 0;
+  top: 7px;
+  right: 10px;
+  cursor: pointer;
+}
+
+.debuggerCounter {
+  display: flex;
+  gap: 8px;
+  top: 12px;
+  font-size: 12px;
+}
+
+.debuggerCounterItem {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.debuggerEmptyContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ads-v2-color-gray-600);
+}
+
+.debuggerEmpty {
+  margin-top: 20px;
+  font-size: 13px;
+}
+
+.debuggerEmptyIcon {
+  font-size: 13px;
+}
