@@ -35,11 +35,11 @@ import {
   moveWidgetsToSection,
 } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { saveAnvilLayout } from "../actions/saveLayoutActions";
 import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "layoutSystems/anvil/utils/widgetAdditionUtils";
+import { updateAndSaveAnvilLayout } from "../../utils/anvilChecksUtils";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {
@@ -123,7 +123,7 @@ function* addSuggestedWidgetsAnvilSaga(
     };
 
     // Save the updated Anvil layout
-    yield put(saveAnvilLayout(updatedWidgets));
+    yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
     // Select the added widget
     yield put(
@@ -212,7 +212,7 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
     );
 
     // Save the updated Anvil layout
-    yield put(saveAnvilLayout(updatedWidgets));
+    yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
     // Select the newly added widget
     yield put(
@@ -319,7 +319,7 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
     } else {
       updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
     }
-    yield put(saveAnvilLayout(updatedWidgets));
+    yield call(updateAndSaveAnvilLayout, updatedWidgets);
     log.debug("Anvil : moving widgets took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
