@@ -132,10 +132,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         }
 
         return validateAndCreateActionCollectionDomain(collectionDTO, branchName)
-                .flatMap(actionCollection -> createCollection(actionCollection)
-                        .flatMap(actionCollectionDTO -> actionCollectionService
-                                .saveLastEditInformationInParent(actionCollectionDTO)
-                                .thenReturn(actionCollectionDTO)))
+                .flatMap(actionCollection -> createCollection(actionCollection))
                 .map(actionCollectionDTO -> responseUtils.updateCollectionDTOWithDefaultResources(actionCollectionDTO));
     }
 
@@ -504,11 +501,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService
                         .generateActionCollectionByViewMode(actionCollection, false)
-                        .flatMap(actionCollectionDTO1 -> actionCollectionService
-                                .populateActionCollectionByViewMode(actionCollection.getUnpublishedCollection(), false)
-                                .flatMap(actionCollectionDTO2 -> actionCollectionService
-                                        .saveLastEditInformationInParent(actionCollectionDTO2)
-                                        .thenReturn(actionCollectionDTO2))))
+                        .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
+                                actionCollection.getUnpublishedCollection(), false)))
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
                 .flatMap(branchedActionCollection -> sendErrorReportsFromPageToCollection(branchedActionCollection));
     }

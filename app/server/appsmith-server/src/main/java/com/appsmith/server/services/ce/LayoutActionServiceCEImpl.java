@@ -328,10 +328,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         return newActionService
                 .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getDeletePermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
-                .map(responseUtils::updateActionDTOWithDefaultResources)
-                .flatMap(actionDTO -> newActionService
-                        .saveLastEditInformationInParent(actionDTO)
-                        .thenReturn(actionDTO));
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
