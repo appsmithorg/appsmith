@@ -102,8 +102,8 @@ public class ConsolidatedAPIServiceImplTest {
 
     @Test
     public void testPageLoadResponseWhenPageIdAndApplicationIdMissing() {
-        User sampelUser = new User();
-        doReturn(Mono.just(sampelUser)).when(sessionUserService).getCurrentUser();
+        User sampleUser = new User();
+        doReturn(Mono.just(sampleUser)).when(sessionUserService).getCurrentUser();
 
         UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
         sampleUserProfileDTO.setName("sampleUserProfileDTO");
@@ -163,8 +163,8 @@ public class ConsolidatedAPIServiceImplTest {
 
     @Test
     public void testPageLoadResponseForViewMode() {
-        User sampelUser = new User();
-        doReturn(Mono.just(sampelUser)).when(sessionUserService).getCurrentUser();
+        User sampleUser = new User();
+        doReturn(Mono.just(sampleUser)).when(sessionUserService).getCurrentUser();
 
         UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
         sampleUserProfileDTO.setName("sampleUserProfileDTO");
@@ -341,8 +341,8 @@ public class ConsolidatedAPIServiceImplTest {
 
     @Test
     public void testPageLoadResponseForEditMode() {
-        User sampelUser = new User();
-        doReturn(Mono.just(sampelUser)).when(sessionUserService).getCurrentUser();
+        User sampleUser = new User();
+        doReturn(Mono.just(sampleUser)).when(sessionUserService).getCurrentUser();
 
         UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
         sampleUserProfileDTO.setName("sampleUserProfileDTO");
