@@ -9,19 +9,23 @@ import {
 import type { JSCollection } from "entities/JSCollection";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { ApiResponse } from "api/ApiResponses";
 
 export interface FetchJSCollectionsPayload {
   applicationId: string;
+  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
 }
 
 export const fetchJSCollections = ({
   applicationId,
+  v1CollectionsActionsResp,
 }: {
   applicationId: string;
+  v1CollectionsActionsResp?: ApiResponse<JSCollection[]>;
 }): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_INIT,
-    payload: { applicationId },
+    payload: { applicationId, v1CollectionsActionsResp },
   };
 };
 
@@ -146,12 +150,14 @@ export const fetchJSCollectionsForPageError = () => {
 
 export const fetchJSCollectionsForView = ({
   applicationId,
+  v1CollectionsActionsViewResp,
 }: {
   applicationId: string;
+  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
 }): ReduxAction<FetchJSCollectionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId },
+    payload: { applicationId, v1CollectionsActionsViewResp },
   };
 };
 
