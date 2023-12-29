@@ -32,7 +32,6 @@ import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
 import ReconnectSSHError from "../components/ReconnectSSHError";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -54,7 +53,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const isDeploying = useSelector(getIsDeploying);
-  const appId = useSelector(getCurrentApplicationId);
 
   const menuOptions = [
     {
@@ -115,9 +113,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(
-      setWorkspaceIdForImport({ editorId: appId || "", workspaceId: "" }),
-    );
+    dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   return (
