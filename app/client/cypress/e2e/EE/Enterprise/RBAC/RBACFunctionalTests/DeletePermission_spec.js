@@ -307,10 +307,7 @@ describe(
       cy.get(homePageLocators.searchInput).clear().type(appName2);
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
       cy.wait(2000);
-      cy.get(RBAC.appMoreIcon)
-        .should("have.length", 1)
-        .first()
-        .click({ force: true });
+      agHelper.GetNClick(RBAC.appMoreIcon, 0, true);
       cy.get(homePageLocators.deleteAppConfirm)
         .should("be.visible")
         .click({ force: true });
