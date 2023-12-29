@@ -13,13 +13,20 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
-export function* fetchCurrentTenantConfigSaga() {
+export function* fetchCurrentTenantConfigSaga(action?: {
+  payload?: { v1TenantsCurrentResp?: ApiResponse };
+}) {
+  const v1TenantsCurrentResp = action?.payload?.v1TenantsCurrentResp;
   try {
     const response: ApiResponse = yield call(
-      TenantApi.fetchCurrentTenantConfig,
+      getFromServerWhenNoPrefetchedResult,
+      v1TenantsCurrentResp,
+      () => call(TenantApi.fetchCurrentTenantConfig),
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const data: any = response.data;

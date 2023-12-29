@@ -135,6 +135,7 @@ import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applica
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -267,18 +268,20 @@ export function* getAllApplicationSaga() {
     });
   }
 }
-
+// v1
 export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const params = pickBy(action.payload, identity);
+    const { v1PagesResp, ...payload } = action.payload;
+    const params = pickBy(payload, identity);
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
     const response: FetchApplicationResponse = yield call(
-      PageApi.fetchAppAndPages,
-      params,
+      getFromServerWhenNoPrefetchedResult,
+      v1PagesResp,
+      () => call(PageApi.fetchAppAndPages, params),
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
