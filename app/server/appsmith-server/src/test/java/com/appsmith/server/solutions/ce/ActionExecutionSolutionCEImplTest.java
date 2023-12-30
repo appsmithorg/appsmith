@@ -330,9 +330,6 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null);
-
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("test body");
@@ -348,8 +345,11 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
