@@ -115,10 +115,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                                         where(FieldName.DELETED).exists(false),
                                         where(FieldName.DELETED).is(false)),
                         // New check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED_AT).exists(false),
-                                        where(FieldName.DELETED_AT).is(null)));
+                        where(FieldName.DELETED_AT).isNull());
     }
 
     @Deprecated
