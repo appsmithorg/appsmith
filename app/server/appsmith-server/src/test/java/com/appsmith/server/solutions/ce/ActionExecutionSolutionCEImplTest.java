@@ -85,7 +85,6 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     ActionPermission actionPermission;
 
-    @MockBean
     ObservationRegistry observationRegistry;
 
     @SpyBean
@@ -154,10 +153,6 @@ class ActionExecutionSolutionCEImplTest {
                 analyticsService,
                 datasourceStorageService,
                 environmentPermission);
-
-        ObservationRegistry.ObservationConfig mockObservationConfig =
-                Mockito.mock(ObservationRegistry.ObservationConfig.class);
-        Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
     @BeforeEach

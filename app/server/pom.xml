@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.9</version>
+        <version>3.2.0</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -32,7 +32,7 @@
         <logback.version>1.4.14</logback.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <mockito.version>4.4.0</mockito.version>
+        <mockito.version>5.2.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
         <okhttp3.version>4.10.0</okhttp3.version>
         <org.pf4j.version>3.10.0</org.pf4j.version>
@@ -46,8 +46,8 @@
         <snakeyaml.version>2.0</snakeyaml.version>
         <source.disabled>true</source.disabled>
         <spotless.version>2.36.0</spotless.version>
-        <spring-boot.version>3.0.9</spring-boot.version>
-        <testcontainers.version>1.17.3</testcontainers.version>
+        <spring-boot.version>3.2.0</spring-boot.version>
+        <testcontainers.version>1.19.3</testcontainers.version>
     </properties>
 
     <build>
@@ -77,7 +77,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.2.3</version>
                 <configuration>
                     <printSummary>true</printSummary>
                     <!-- Allow JUnit to access the test classes -->
@@ -85,19 +85,6 @@
                         --add-opens java.base/java.time=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED</argLine>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-commons</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

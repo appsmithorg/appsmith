@@ -227,7 +227,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-brave</artifactId>
-            <version>1.0.0</version>
+            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
@@ -390,15 +390,21 @@
             <artifactId>jgrapht-core</artifactId>
             <version>1.5.0</version>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
         </dependency>
 
         <dependency>
