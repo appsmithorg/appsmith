@@ -227,7 +227,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-brave</artifactId>
-            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
