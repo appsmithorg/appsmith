@@ -4,7 +4,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ApplicationConstants;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
@@ -238,25 +237,6 @@ public class MigrationHelperMethods {
         final List<T> domainObject =
                 mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
         return domainObject;
-    }
-
-    /**
-     * The method provides the criteria for any document to qualify as not deleted
-     * @return Criteria
-     */
-    public static Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
-                        // Older check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        // New check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED_AT).exists(false),
-                                        where(FieldName.DELETED_AT).is(null)));
     }
 
     /**

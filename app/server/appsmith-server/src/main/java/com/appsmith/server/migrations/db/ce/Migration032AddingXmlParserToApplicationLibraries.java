@@ -18,8 +18,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import static com.appsmith.server.constants.ApplicationConstants.XML_PARSER_LIBRARY_UID;
-import static com.appsmith.server.migrations.MigrationHelperMethods.notDeleted;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 /**
  *  Appsmith provides xmlParser v 3.17.5 and few other customJSLibraries by default, xmlParser has been
