@@ -85,8 +85,6 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     ActionPermission actionPermission;
 
-    ObservationRegistry observationRegistry;
-
     @SpyBean
     ObjectMapper objectMapper;
 
@@ -135,6 +133,9 @@ class ActionExecutionSolutionCEImplTest {
 
     @BeforeEach
     public void beforeEach() {
+        final var observationRegistry = Mockito.mock(ObservationRegistry.class);
+        Mockito.when(observationRegistry.isNoop()).thenReturn(true);
+
         actionExecutionSolution = new ActionExecutionSolutionCEImpl(
                 newActionService,
                 actionPermission,
