@@ -324,7 +324,7 @@ public class EnvManagerTest {
         file.deleteOnExit();
 
         Mockito.when(commonConfig.getEnvFilePath()).thenReturn(file.getAbsolutePath());
-        Mockito.when(fileUtils.createZip(any())).thenReturn(new byte[1024]);
+        Mockito.when(fileUtils.createZip(any(FileUtils.ZipSourceFile[].class))).thenReturn(new byte[1024]);
 
         ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
