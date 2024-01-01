@@ -391,11 +391,12 @@ export function generateHighlights(
         currentDimension.top -
         currentDimension.height;
       posY = Math.min(
-        currentDimension.top + currentDimension.height,
+        currentDimension.top + currentDimension.height, // Below the last child.
         layoutDimension.top +
           layoutDimension.height -
           gap / 2 -
-          HIGHLIGHT_SIZE / 2,
+          HIGHLIGHT_SIZE / 2, // In the middle of the gap between the last child and the bottom edge of the layout.
+        layoutDimension.top + layoutDimension.height - HIGHLIGHT_SIZE, // Along the bottom edge of the layout.
       );
     }
   } else {
