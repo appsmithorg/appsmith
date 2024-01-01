@@ -46,7 +46,7 @@ const EmptyState = ({
       {onClick && (
         <Button
           className={buttonClassName}
-          kind={"primary"}
+          kind={"secondary"}
           onClick={onClick}
           size={"sm"}
         >

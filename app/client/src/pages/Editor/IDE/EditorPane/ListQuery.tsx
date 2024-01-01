@@ -40,9 +40,15 @@ const ListQuery = () => {
   }, [pageId]);
 
   return (
-    <Flex flex="1" flexDirection="column" overflow="hidden">
+    <Flex
+      flex="1"
+      flexDirection="column"
+      gap="spaces-4"
+      overflow="hidden"
+      py="spaces-3"
+    >
       {Object.keys(files).length > 0 && canCreateActions && (
-        <Flex flexDirection={"column"} padding="spaces-3">
+        <Flex flexDirection={"column"} px="spaces-3">
           <Button
             className="t--add-item"
             kind={"secondary"}
@@ -54,15 +60,10 @@ const ListQuery = () => {
           </Button>
         </Flex>
       )}
-      <Flex
-        flexDirection={"column"}
-        gap="spaces-3"
-        overflowY="auto"
-        padding="spaces-3"
-      >
+      <Flex flexDirection={"column"} overflowY="auto" px="spaces-3">
         {Object.keys(files).map((key) => {
           return (
-            <Flex flexDirection={"column"} gap="spaces-2" key={key}>
+            <Flex flexDirection={"column"} key={key}>
               <Flex px="spaces-3" py="spaces-1">
                 <Text
                   className="overflow-hidden overflow-ellipsis whitespace-nowrap"
