@@ -84,14 +84,11 @@ public class OtlpTelemetry {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "spanName");
         }
 
-        SpanBuilder spanBuilder = tracer.spanBuilder(spanName)
-            .setSpanKind(SpanKind.SERVER);
+        SpanBuilder spanBuilder = tracer.spanBuilder(spanName).setSpanKind(SpanKind.SERVER);
 
         if (context != null) {
-            return spanBuilder.setParent(context)
-                .startSpan();
-        }
-        else {
+            return spanBuilder.setParent(context).startSpan();
+        } else {
             return spanBuilder.startSpan();
         }
     }
