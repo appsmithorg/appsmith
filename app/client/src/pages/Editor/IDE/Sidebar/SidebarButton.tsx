@@ -2,7 +2,7 @@ import React from "react";
 import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 import DatasourceStarterLayoutPrompt from "pages/Editor/Explorer/Datasources/DatasourceStarterLayoutPrompt";
-import { SidebarTopButtonTitles } from "entities/IDE/constants";
+import { SidebarTopButtonTitles } from "@appsmith/entities/IDE/constants";
 
 interface Props {
   title?: string;

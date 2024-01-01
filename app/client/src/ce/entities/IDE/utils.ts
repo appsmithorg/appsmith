@@ -1,3 +1,4 @@
+import { EditorState, IDEType } from "@appsmith/entities/IDE/constants";
 import { matchPath } from "react-router";
 import {
   APP_STATE_PATH,
@@ -6,8 +7,8 @@ import {
   BUILDER_PATH_DEPRECATED,
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
-} from "constants/routes";
-import { EditorState } from "./constants";
+} from "@appsmith/constants/routes/appRoutes";
+import { isEditorPath } from "../../pages/Editor/Explorer/helpers";
 
 export function getCurrentAppState(currentUrl: string): EditorState {
   const match = matchPath<{
@@ -41,4 +42,11 @@ export function getCurrentAppState(currentUrl: string): EditorState {
     }
   }
   return EditorState.EDITOR;
+}
+
+export function getIDETypeByUrl(path: string): IDEType {
+  if (isEditorPath(path)) {
+    return IDEType.App;
+  }
+  return IDEType.None;
 }

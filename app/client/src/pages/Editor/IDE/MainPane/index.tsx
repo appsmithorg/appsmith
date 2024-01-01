@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/react";
 import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/useRoutes";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { EditorViewMode } from "entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import FileTabs from "./FileTabs";
 
 const SentryRoute = Sentry.withSentryRouting(Route);

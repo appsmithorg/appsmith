@@ -68,3 +68,10 @@ export const BottomButtons: SidebarButton[] = [
     urlSuffix: "settings",
   },
 ];
+
+export enum IDEType {
+  None = "None",
+  App = "App",
+  Module = "Module",
+  Workflow = "Workflow",
+}

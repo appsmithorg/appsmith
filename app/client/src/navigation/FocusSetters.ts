@@ -13,7 +13,7 @@ import {
 } from "@appsmith/RouteBuilder";
 import { PluginType } from "../entities/Action";
 import type { QueryListState } from "./FocusSelectors";
-import { EditorEntityTab } from "entities/IDE/constants";
+import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 export function setSelectedDatasource(id: string | undefined) {
   if (id) {

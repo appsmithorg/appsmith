@@ -15,7 +15,7 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { contextSwitchingSaga } from "sagas/ContextSwitchingSaga";
+import FocusRetention from "sagas/ContextSwitchingSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
@@ -35,7 +35,7 @@ export function* handleRouteChange(
     // handled only on edit mode
     if (isAnEditorPath) {
       yield fork(logNavigationAnalytics, action.payload);
-      yield fork(contextSwitchingSaga, pathname, previousPath, state);
+      yield fork(FocusRetention.onRouteChange, pathname, previousPath, state);
       yield fork(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname);
       yield fork(updateRecentEntitySaga, entityInfo);

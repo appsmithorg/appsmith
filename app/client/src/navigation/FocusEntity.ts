@@ -20,7 +20,7 @@ import {
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { EditorState } from "../entities/IDE/constants";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 export enum FocusEntity {
   PAGE = "PAGE",

@@ -17,7 +17,7 @@ import {
   SAAS_EDITOR_API_ID_PATH,
 } from "../pages/Editor/SaaSEditor/constants";
 import { PluginType } from "../entities/Action";
-import { EditorEntityTab } from "../entities/IDE/constants";
+import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const match = matchPath<{ datasourceId?: string }>(path, [

@@ -1,5 +1,5 @@
 import { identifyEntityFromPath, FocusEntity } from "navigation/FocusEntity";
-import { EditorState } from "../entities/IDE/constants";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 describe("identifyEntityFromPath", () => {
   const oldUrlCases = [

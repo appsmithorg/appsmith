@@ -1,7 +1,10 @@
 import React from "react";
 import { Button, Flex } from "design-system";
 import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab, EditorViewMode } from "entities/IDE/constants";
+import {
+  EditorEntityTab,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
 import { useDispatch } from "react-redux";
 import { setIdeEditorViewMode } from "actions/ideActions";
 

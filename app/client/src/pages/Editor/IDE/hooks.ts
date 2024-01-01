@@ -3,10 +3,10 @@ import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorState,
-} from "entities/IDE/constants";
+} from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
-import { getCurrentAppState } from "entities/IDE/utils";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { getCurrentAppState } from "@appsmith/entities/IDE/utils";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);

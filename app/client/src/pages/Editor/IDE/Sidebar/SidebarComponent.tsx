@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
-import type { SidebarButton as SidebarButtonType } from "entities/IDE/constants";
+import type { SidebarButton as SidebarButtonType } from "@appsmith/entities/IDE/constants";
 import {
   AnnouncementPopover,
   AnnouncementPopoverTrigger,
   AnnouncementPopoverContent,
   Button,
 } from "design-system";
-import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
+import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
 
 const Container = styled.div`
   width: 50px;
