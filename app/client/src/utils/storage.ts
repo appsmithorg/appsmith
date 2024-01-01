@@ -116,10 +116,29 @@ export const getCopiedWidgets = async () => {
   return [];
 };
 
-// Function to save the current environment and the appId in indexedDB
-export const saveCurrentEnvironment = async (envId: string, appId: string) => {
+export const updateCurrentEnvironmentDetails = async () => {
   try {
-    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, appId });
+    const currentEnvDetails = await getSavedCurrentEnvironmentDetails(false);
+    if (currentEnvDetails.appId) {
+      await store.setItem(STORAGE_KEYS.CURRENT_ENV, {
+        envId: currentEnvDetails.envId,
+        editorId: currentEnvDetails.appId,
+      });
+    }
+    return true;
+  } catch (error) {
+    log.error("An error occurred when updating current env: ", error);
+    return false;
+  }
+};
+
+// Function to save the current environment and the appId in indexedDB
+export const saveCurrentEnvironment = async (
+  envId: string,
+  editorId: string,
+) => {
+  try {
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, editorId });
     return true;
   } catch (error) {
     log.error("An error occurred when storing current env: ", error);
@@ -128,22 +147,28 @@ export const saveCurrentEnvironment = async (envId: string, appId: string) => {
 };
 
 // Function to fetch the current environment and related appId from indexedDB
-export const getSavedCurrentEnvironmentDetails = async (): Promise<{
+export const getSavedCurrentEnvironmentDetails = async (
+  callUpdate = true,
+): Promise<{
   envId: string;
-  appId: string;
+  editorId: string;
+  appId?: string;
 }> => {
   try {
+    if (callUpdate) {
+      await updateCurrentEnvironmentDetails();
+    }
     return (
       (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
         envId: "",
-        appId: "",
+        editorId: "",
       }
     );
   } catch (error) {
     log.error("An error occurred when fetching current env: ", error);
     return {
       envId: "",
-      appId: "",
+      editorId: "",
     };
   }
 };
