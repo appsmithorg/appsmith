@@ -172,7 +172,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, APP_MODE));
         }
 
-        /* This object will serve as a container to hold the response of this method*/
+        /* This object will serve as a container to hold the response of this method */
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
 
         /* Get user profile data */
