@@ -87,7 +87,7 @@ export class CommonLocators {
   _dropHere = ".t--drop-target";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
-  _createNew = ".t--entity-add-btn.group.files button";
+  _createNew = ".t--add-item";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
   _errorTab = "[data-testid=t--tab-ERROR]";
