@@ -31,7 +31,6 @@ describe(
           forkWorkspaceName = "ForkApp" + uid;
           homePage.CreateNewWorkspace(forkWorkspaceName, true);
           homePage.SelectWorkspace(currentWorkspace);
-          cy.reload();
           homePage.ForkApplication(currentAppName, forkWorkspaceName);
 
           dataSources.FillMongoDatasourceFormWithURI();

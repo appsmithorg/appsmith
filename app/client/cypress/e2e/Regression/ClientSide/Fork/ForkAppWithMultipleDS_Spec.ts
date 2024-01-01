@@ -46,7 +46,6 @@ describe(
         homePage.CreateNewWorkspace(targetWorkspaceId, true);
         agHelper.PressEscape();
         homePage.SelectWorkspace(sourceWorkspaceId);
-        cy.reload();
         homePage.ForkApplication(appname, targetWorkspaceId);
       });
       // In the forked application, reconnect all datasources

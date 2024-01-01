@@ -28,7 +28,6 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
       fixture: "resetPassword.json",
     }).as("resetPwd");
     _.homePage.NavigateToHome();
-    cy.wait(2000);
     cy.get(homePage.profileMenu).click();
     cy.get(".t--edit-profile").click({ force: true });
 

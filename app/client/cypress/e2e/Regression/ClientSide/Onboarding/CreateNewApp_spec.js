@@ -30,7 +30,7 @@ describe(
       agHelper.GetNClick(commonlocators.homeIcon, 0, true)
       agHelper.GetNClick(homePage.createNewAppButton)
       agHelper.GetNClick(homePage.newButtonCreateApplication)
-      cy.wait(1000);
+      agHelper.WaitUntilEleAppear(commonlocators.globalSearchTrigger);
       // Check if explorer is visible, explorer is collapsed initialy in guided tour
       cy.get(explorerLocators.entityExplorer).should("be.visible");
     });
