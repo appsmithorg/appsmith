@@ -57,6 +57,6 @@ public class ConsolidatedAPIController {
                 .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, mode)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
-            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan));
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan));
     }
 }
