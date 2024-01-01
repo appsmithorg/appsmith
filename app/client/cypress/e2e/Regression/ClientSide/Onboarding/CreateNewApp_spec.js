@@ -27,7 +27,7 @@ describe(
       agHelper.GetNClick(guidedTourLocators.welcomeTour, 0)
       cy.get(guidedTourLocators.startBuilding).should("be.visible");
       // Go back to applications page
-      agHelper.GetNClick(commonlocators.homeIcon)
+      agHelper.GetNClick(commonlocators.homeIcon, 0, true)
       agHelper.GetNClick(homePage.createNewAppButton)
       agHelper.GetNClick(homePage.newButtonCreateApplication)
       cy.wait(1000);

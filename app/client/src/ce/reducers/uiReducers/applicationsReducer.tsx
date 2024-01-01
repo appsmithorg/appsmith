@@ -803,6 +803,14 @@ export const handlers = {
       searchEntities: action.payload,
     };
   },
+  [ReduxActionErrorTypes.SEARCH_WORKSPACE_ENTITIES_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isFetchingEntities: false,
+    };
+  },
   [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_RESET]: (
     state: ApplicationsReduxState,
   ) => {
