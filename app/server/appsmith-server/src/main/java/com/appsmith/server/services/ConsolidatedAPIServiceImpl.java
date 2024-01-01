@@ -25,11 +25,13 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.themes.base.ThemeService;
+import io.opentelemetry.api.trace.Span;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -45,10 +47,31 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static com.appsmith.server.constants.OtlpSpanNames.ACTIONS_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.ACTIONS_VIEW_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.ACTION_COLLECTIONS_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.ACTION_COLLECTIONS_VIEW_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.APPLICATION_ID_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.APPLICATION_PAGES_EDIT_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.APPLICATION_PAGES_VIEW_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.CURRENT_PAGE_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.CURRENT_THEME_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.CUSTOM_JS_LIB_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.DATASOURCES_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.FEATURE_FLAG_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.FORM_CONFIG_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.MOCK_DATA_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.PAGES_DSL_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.PLUGINS_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.PRODUCT_ALERT_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.TENANT_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.THEMES_LIST_SPAN;
+import static com.appsmith.server.constants.OtlpSpanNames.USER_PROFILE_SPAN;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
@@ -77,6 +100,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     private final ApplicationService applicationService;
     private final DatasourceService datasourceService;
     private final MockDataService mockDataService;
+    private final OtlpTelemetry otlpTelemetry;
 
     public ConsolidatedAPIServiceImpl(
             SessionUserService sessionUserService,
@@ -93,7 +117,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             PluginService pluginService,
             ApplicationService applicationService,
             DatasourceService datasourceService,
-            MockDataService mockDataService) {
+            MockDataService mockDataService,
+            OtlpTelemetry otlpTelemetry) {
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.userDataService = userDataService;
@@ -109,6 +134,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         this.applicationService = applicationService;
         this.datasourceService = datasourceService;
         this.mockDataService = mockDataService;
+        this.otlpTelemetry = otlpTelemetry;
     }
 
     <T> ResponseDTO<T> getSuccessResponse(T data) {
@@ -150,27 +176,43 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
 
         /* Get user profile data */
+        AtomicReference<Span> userProfileSpan = new AtomicReference<>();
         Mono<ResponseDTO<UserProfileDTO>> userProfileDTOResponseDTOMono = sessionUserService
                 .getCurrentUser()
                 .flatMap(userService::buildUserProfileDTO)
                 .map(this::getSuccessResponse)
-                .onErrorResume(error -> getErrorResponseMono(error, UserProfileDTO.class));
+                .onErrorResume(error -> getErrorResponseMono(error, UserProfileDTO.class))
+            .doOnSubscribe(subscription -> {
+                userProfileSpan.set(this.otlpTelemetry.startOTLPSpan(USER_PROFILE_SPAN, null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(userProfileSpan.get()));
 
         /* Get all feature flags data */
+        AtomicReference<Span> featureFlagsSpan = new AtomicReference<>();
         Mono<ResponseDTO<Map>> featureFlagsForCurrentUserResponseDTOMonoCache = userDataService
                 .getFeatureFlagsForCurrentUser()
                 .map(res -> (Map) res)
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, Map.class))
+            .doOnSubscribe(subscription -> {
+                featureFlagsSpan.set(this.otlpTelemetry.startOTLPSpan(FEATURE_FLAG_SPAN, null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(featureFlagsSpan.get()))
                 .cache();
 
         /* Get tenant config data */
+        AtomicReference<Span> tenantSpan = new AtomicReference<>();
         Mono<ResponseDTO<Tenant>> tenantResponseDTOMono = tenantService
                 .getTenantConfiguration()
                 .map(this::getSuccessResponse)
-                .onErrorResume(error -> getErrorResponseMono(error, Tenant.class));
+                .onErrorResume(error -> getErrorResponseMono(error, Tenant.class))
+            .doOnSubscribe(subscription -> {
+                tenantSpan.set(this.otlpTelemetry.startOTLPSpan(TENANT_SPAN, null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(tenantSpan.get()));
 
         /* Get any product alert info */
+        AtomicReference<Span> productAlertSpan = new AtomicReference<>();
         Mono<ResponseDTO<ProductAlertResponseDTO>> productAlertResponseDTOMono = productAlertService
                 .getSingleApplicableMessage()
                 .map(messages -> {
@@ -181,7 +223,11 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     return new ProductAlertResponseDTO();
                 })
                 .map(this::getSuccessResponse)
-                .onErrorResume(error -> getErrorResponseMono(error, ProductAlertResponseDTO.class));
+                .onErrorResume(error -> getErrorResponseMono(error, ProductAlertResponseDTO.class))
+            .doOnSubscribe(subscription -> {
+                productAlertSpan.set(this.otlpTelemetry.startOTLPSpan(PRODUCT_ALERT_SPAN, null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(productAlertSpan.get()));
 
         if (isBlank(defaultPageId) && isBlank(applicationId)) {
 
@@ -206,44 +252,71 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         boolean isViewMode = ApplicationMode.PUBLISHED.equals(mode);
 
         /* Fetch application id if not provided */
+        AtomicReference<Span> applicationIdSpan = new AtomicReference<>();
         Mono<String> applicationIdMonoCache;
         if (isBlank(applicationId)) {
             applicationIdMonoCache = applicationPageService
                     .getPage(defaultPageId, isViewMode)
                     .map(PageDTO::getApplicationId)
+                .doOnSubscribe(subscription -> {
+                    applicationIdSpan.set(this.otlpTelemetry.startOTLPSpan(APPLICATION_ID_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(applicationIdSpan.get()))
                     .cache();
         } else {
             applicationIdMonoCache = Mono.just(applicationId).cache();
         }
 
         /* Get all pages in application */
+        AtomicReference<Span> applicationPagesSpan = new AtomicReference<>();
         Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache = applicationIdMonoCache
                 .flatMap(appId -> newPageService.findApplicationPages(appId, null, branchName, mode))
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, ApplicationPagesDTO.class))
+            .doOnSubscribe(subscription -> {
+                applicationPagesSpan.set(this.otlpTelemetry.startOTLPSpan(ApplicationMode.PUBLISHED.equals(mode) ?
+                        APPLICATION_PAGES_VIEW_SPAN : APPLICATION_PAGES_EDIT_SPAN,
+                    null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(applicationPagesSpan.get()))
                 .cache();
 
         /* Get current theme */
+        AtomicReference<Span> currentThemeSpan = new AtomicReference<>();
         Mono<ResponseDTO<Theme>> applicationThemeResponseDTOMono = applicationIdMonoCache
                 .flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName))
                 .map(this::getSuccessResponse)
-                .onErrorResume(error -> getErrorResponseMono(error, Theme.class));
+                .onErrorResume(error -> getErrorResponseMono(error, Theme.class))
+            .doOnSubscribe(subscription -> {
+                currentThemeSpan.set(this.otlpTelemetry.startOTLPSpan(CURRENT_THEME_SPAN, null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(currentThemeSpan.get()));
 
         /* Get all themes */
+        AtomicReference<Span> themesListSpan = new AtomicReference<>();
         Mono<ResponseDTO<List>> ThemesListResponseDTOMono = applicationIdMonoCache
                 .flatMap(appId ->
                         themeService.getApplicationThemes(appId, branchName).collectList())
                 .map(res -> (List) res)
                 .map(this::getSuccessResponse)
-                .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                .onErrorResume(error -> getErrorResponseMono(error, List.class))
+            .doOnSubscribe(subscription -> {
+                themesListSpan.set(this.otlpTelemetry.startOTLPSpan(THEMES_LIST_SPAN, null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(themesListSpan.get()));
 
         /* Get all custom JS libraries installed in the application */
+        AtomicReference<Span> customJSLibSpan = new AtomicReference<>();
         Mono<ResponseDTO<List>> allJSLibsInContextDTOResponseDTOMono = applicationIdMonoCache
                 .flatMap(appId -> customJSLibService.getAllJSLibsInContext(
                         appId, CreatorContextType.APPLICATION, branchName, isViewMode))
                 .map(res -> (List) res)
                 .map(this::getSuccessResponse)
-                .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                .onErrorResume(error -> getErrorResponseMono(error, List.class))
+            .doOnSubscribe(subscription -> {
+                customJSLibSpan.set(this.otlpTelemetry.startOTLPSpan(CUSTOM_JS_LIB_SPAN, null));
+            })
+            .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(customJSLibSpan.get()));
 
         /* Check if release_server_dsl_migrations_enabled flag is true for the user */
         Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserResponseDTOMonoCache
@@ -260,32 +333,47 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         Mono<ResponseDTO<PageDTO>> currentPageDTOResponseDTOMono = Mono.empty();
         if (!isBlank(defaultPageId)) {
             /* Get current page */
+            AtomicReference<Span> currentPageSpan = new AtomicReference<>();
             currentPageDTOResponseDTOMono = migrateDslMonoCache
                     .flatMap(migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
                             defaultPageId, branchName, isViewMode, migrateDsl))
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, PageDTO.class));
+                    .onErrorResume(error -> getErrorResponseMono(error, PageDTO.class))
+                .doOnSubscribe(subscription -> {
+                    currentPageSpan.set(this.otlpTelemetry.startOTLPSpan(CURRENT_PAGE_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(currentPageSpan.get()));
         }
 
         /* Fetch view specific data */
         if (isViewMode) {
             /* Get list of all actions in view mode */
+            AtomicReference<Span> actionViewSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> listOfActionViewResponseDTOMono = applicationIdMonoCache
                     .flatMap(appId -> newActionService
                             .getActionsForViewMode(appId, branchName)
                             .collectList())
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                    .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                .doOnSubscribe(subscription -> {
+                    actionViewSpan.set(this.otlpTelemetry.startOTLPSpan(ACTIONS_VIEW_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionViewSpan.get()));
 
             /* Get list of all action collections in view mode */
+            AtomicReference<Span> actionCollectionViewSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> listOfActionCollectionViewResponseDTOMono = applicationIdMonoCache
                     .flatMap(appId -> actionCollectionService
                             .getActionCollectionsForViewMode(appId, branchName)
                             .collectList())
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                    .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                .doOnSubscribe(subscription -> {
+                    actionCollectionViewSpan.set(this.otlpTelemetry.startOTLPSpan(ACTION_COLLECTIONS_VIEW_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionCollectionViewSpan.get()));
 
             /* This list contains the Mono objects corresponding to all the data points required for view mode. All
              * the Mono objects in this list will be evaluated via Mono.zip operator.
@@ -329,6 +417,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             });
         } else {
             /* Get all actions in edit mode */
+            AtomicReference<Span> actionsSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> listOfActionResponseDTOMono = applicationIdMonoCache
                     .flatMap(appId -> {
                         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -339,9 +428,14 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     })
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                    .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                .doOnSubscribe(subscription -> {
+                    actionsSpan.set(this.otlpTelemetry.startOTLPSpan(ACTIONS_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionsSpan.get()));
 
             /* Get all action collections in edit mode */
+            AtomicReference<Span> actionCollectionsSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> listOfActionCollectionResponseDTOMono = applicationIdMonoCache.flatMap(appId -> {
                 MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                 params.add(APPLICATION_ID, appId);
@@ -350,10 +444,15 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                         .collectList()
                         .map(res -> (List) res)
                         .map(this::getSuccessResponse)
-                        .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                        .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                    .doOnSubscribe(subscription -> {
+                        actionCollectionsSpan.set(this.otlpTelemetry.startOTLPSpan(ACTION_COLLECTIONS_SPAN, null));
+                    })
+                    .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionCollectionsSpan.get()));
             });
 
             /* Get all pages in edit mode post apply migrate DSL changes */
+            AtomicReference<Span> pagesPostMigrateDSLSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> listOfAllPageResponseDTOMono = migrateDslMonoCache
                     .flatMap(migrateDsl -> applicationPagesDTOResponseDTOMonoCache
                             .map(ResponseDTO::getData)
@@ -364,15 +463,20 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                             .collect(Collectors.toList()))
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                    .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                .doOnSubscribe(subscription -> {
+                    pagesPostMigrateDSLSpan.set(this.otlpTelemetry.startOTLPSpan(PAGES_DSL_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(pagesPostMigrateDSLSpan.get()));
 
-            /* Get all workspace id */
+            /* Get workspace id */
             Mono<String> workspaceIdMonoCache = applicationPagesDTOResponseDTOMonoCache
                     .map(ResponseDTO::getData)
                     .map(ApplicationPagesDTO::getWorkspaceId)
                     .cache();
 
             /* Get all plugins in workspace */
+            AtomicReference<Span> pluginsSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> listOfPluginsResponseDTOMonoCache = workspaceIdMonoCache
                     .flatMap(workspaceId -> {
                         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -382,9 +486,14 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                .doOnSubscribe(subscription -> {
+                    pluginsSpan.set(this.otlpTelemetry.startOTLPSpan(PLUGINS_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(pluginsSpan.get()))
                     .cache();
 
             /* Get all datasources in workspace */
+            AtomicReference<Span> datasourcesSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> listOfDatasourcesResponseDTOMonoCache = workspaceIdMonoCache
                     .flatMap(workspaceId -> {
                         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -394,6 +503,10 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                .doOnSubscribe(subscription -> {
+                    datasourcesSpan.set(this.otlpTelemetry.startOTLPSpan(DATASOURCES_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(datasourcesSpan.get()))
                     .cache();
 
             /* Get form config for all relevant plugins by following this rule:
@@ -401,6 +514,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
              *   (b) include REST API and GraphQL API plugin always
              *   (c) ignore any other plugin
              *  */
+            AtomicReference<Span> formConfigSpan = new AtomicReference<>();
             Mono<ResponseDTO<Map>> listOfFormConfigsResponseDTOMono = Mono.zip(
                             listOfPluginsResponseDTOMonoCache, listOfDatasourcesResponseDTOMonoCache)
                     .map(tuple2 -> {
@@ -435,15 +549,24 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     })
                     .map(res -> (Map) res)
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, Map.class));
+                    .onErrorResume(error -> getErrorResponseMono(error, Map.class))
+                .doOnSubscribe(subscription -> {
+                    formConfigSpan.set(this.otlpTelemetry.startOTLPSpan(FORM_CONFIG_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(formConfigSpan.get()));
 
             /* List of mock datasources available to the user */
+            AtomicReference<Span> mockDataSpan = new AtomicReference<>();
             Mono<ResponseDTO<List>> mockDataListResponseDTOMono = mockDataService
                     .getMockDataSet()
                     .map(MockDataDTO::getMockdbs)
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, List.class));
+                    .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                .doOnSubscribe(subscription -> {
+                    mockDataSpan.set(this.otlpTelemetry.startOTLPSpan(MOCK_DATA_SPAN, null));
+                })
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(mockDataSpan.get()));
 
             /* This list contains the Mono objects corresponding to all the data points required for edit mode. All
              * the Mono objects in this list will be evaluated via Mono.zip operator

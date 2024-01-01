@@ -1,7 +1,10 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
@@ -72,11 +75,25 @@ public class OtlpTelemetry {
         return W3CTraceContextPropagator.getInstance().extract(Context.current(), model, getter);
     }
 
-    private Span startOTLPSpan(String spanName, Context context) {
-        return tracer.spanBuilder(spanName)
-                .setSpanKind(SpanKind.SERVER)
-                .setParent(context)
+    public Span startOTLPSpan(String spanName, Context context) {
+        if (tracer == null) {
+            return null;
+        }
+
+        if (isBlank(spanName)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "spanName");
+        }
+
+        SpanBuilder spanBuilder = tracer.spanBuilder(spanName)
+            .setSpanKind(SpanKind.SERVER);
+
+        if (context != null) {
+            return spanBuilder.setParent(context)
                 .startSpan();
+        }
+        else {
+            return spanBuilder.startSpan();
+        }
     }
     // we build traces using the client's trace context as the parent context, So that any other spans generated
     // from the server appear as a subspan of the client
