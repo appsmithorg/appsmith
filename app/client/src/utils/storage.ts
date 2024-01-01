@@ -119,7 +119,7 @@ export const getCopiedWidgets = async () => {
 export const updateCurrentEnvironmentDetails = async () => {
   try {
     const currentEnvDetails = await getSavedCurrentEnvironmentDetails(false);
-    if (currentEnvDetails.appId) {
+    if (currentEnvDetails.hasOwnProperty("appId")) {
       await store.setItem(STORAGE_KEYS.CURRENT_ENV, {
         envId: currentEnvDetails.envId,
         editorId: currentEnvDetails.appId,
@@ -146,7 +146,7 @@ export const saveCurrentEnvironment = async (
   }
 };
 
-// Function to fetch the current environment and related appId from indexedDB
+// Function to fetch the current environment and related editorId from indexedDB
 export const getSavedCurrentEnvironmentDetails = async (
   callUpdate = true,
 ): Promise<{
