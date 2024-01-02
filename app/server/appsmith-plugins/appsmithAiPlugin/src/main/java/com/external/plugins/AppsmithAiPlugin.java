@@ -81,6 +81,7 @@ public class AppsmithAiPlugin extends BasePlugin {
                     datasourceStorage.getDatasourceConfiguration().getProperties();
             ArrayList<String> files = new ArrayList<String>();
             ObjectMapper objectMapper = new ObjectMapper();
+            if (properties.isEmpty()) return Mono.just(datasourceStorage);
             Object fileObject = properties.get(0).getValue();
             if (fileObject == null) {
                 log.debug("No file uploaded. Skipping preSaveHook.");
