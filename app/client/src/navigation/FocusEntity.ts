@@ -40,9 +40,7 @@ export interface FocusEntityInfo {
   entity: FocusEntity;
   id: string;
   appState: EditorState;
-  params: {
-    pageId?: string;
-  };
+  params: MatchEntityFromPath;
 }
 
 const getMatchPaths = memoize((type: IDEType): string[] => {
@@ -50,13 +48,14 @@ const getMatchPaths = memoize((type: IDEType): string[] => {
   return EntityPaths.reduce((previousValue, currentValue) => {
     const toAdd = basePaths.map((b) => b + currentValue);
     return previousValue.concat(...toAdd);
-  }, [] as string[]);
+  }, [] as string[]).concat(basePaths);
 });
 
-function matchEntityFromPath(
-  path: string,
-  IDEType: IDEType,
-): match<{
+export interface MatchEntityFromPath {
+  applicationId?: string;
+  customSlug?: string;
+  applicationSlug?: string;
+  pageSlug?: string;
   apiId?: string;
   datasourceId?: string;
   pluginPackageName?: string;
@@ -67,7 +66,12 @@ function matchEntityFromPath(
   widgetIds?: string;
   selectedTab?: string;
   entity?: string;
-}> | null {
+}
+
+function matchEntityFromPath(
+  path: string,
+  IDEType: IDEType,
+): match<MatchEntityFromPath> | null {
   const matchPaths = getMatchPaths(IDEType);
   return matchPath(path, {
     path: matchPaths,
