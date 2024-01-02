@@ -43,10 +43,6 @@
             {
               "label": "Extract entities from image",
               "value": "IMAGE_ENTITY_EXTRACT"
-            },
-            {
-              "label": "Knowledge Retrieval",
-              "value": "KNOWLEDGE_RETRIEVE"
             }
           ]
         }
@@ -61,7 +57,6 @@
     "imageGeneration.json",
     "imageClassification.json",
     "imageCaptioning.json",
-    "imageEntityExtraction.json",
-    "knowledgeRetrieval.json"
+    "imageEntityExtraction.json"
   ]
 }
