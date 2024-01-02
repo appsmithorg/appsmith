@@ -330,7 +330,7 @@ public class ConsolidatedAPIServiceImplTest {
      * Disabling test because of some mockito related error showing up on EE TBP flow.
      * ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1704177910399739?thread_ts=1703839818.118209&cid=CGBPVEJ5C
      */
-    //@Test
+    // @Test
     /*public void testPageLoadResponseForEditMode() {
         User sampleUser = new User();
         doReturn(Mono.just(sampleUser)).when(sessionUserService).getCurrentUser();
