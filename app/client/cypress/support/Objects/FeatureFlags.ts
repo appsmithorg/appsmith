@@ -19,21 +19,20 @@ export const featureFlagIntercept = (
 
 
   cy.intercept("GET", "/api/v1/consolidated-api?*", (req) => {
-    req.reply((res) => {
+    req.reply((res:any) => {
       if (res) {
-        cy.log("intercept consolidate api ", req);
         const originalResponse = res.body;
-        if (originalResponse?.data?.v1UsersFeaturesResp) {
-          const updatedResponse = produce(res, (draft) => {
-            draft.body.data.v1UsersFeaturesResp["release_app_sidebar_enabled"] = true;
+        if (originalResponse?.data?.v1UsersFeaturesResp?.data) {
+          const updatedResponse = produce(res, (draft:any) => {
+            draft.body.data.v1UsersFeaturesResp.data["release_app_sidebar_enabled"] = true;
           })
       
-          res.send(updatedResponse)
+          return updatedResponse;
         }
-        res.send(res);
+        return res
       }
     });
-  });
+  }).as("getConsolidatedData");
 
   if (reload) {
     cy.reload();

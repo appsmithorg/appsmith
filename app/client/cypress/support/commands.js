@@ -996,7 +996,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "api/v1/applications/export/*").as("exportApplication");
   cy.intercept("GET", "/api/v1/workspaces/*/permissionGroups").as("getRoles");
   cy.intercept("GET", "/api/v1/users/me").as("getMe");
-  cy.intercept("GET", "/api/v1/consolidated-api?*").as("getConsolidatedData");
   cy.intercept("POST", "/api/v1/pages").as("createPage");
   cy.intercept("POST", "/api/v1/pages/clone/*").as("clonePage");
   cy.intercept("POST", "/api/v1/applications/clone/*").as("cloneApp");
