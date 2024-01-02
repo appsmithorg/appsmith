@@ -64,5 +64,6 @@ module.exports = {
     "@tag.Authentication",
     "@tag.Provisioning",
     "@tag.Templates",
+    "@tag.MainContainer",
   ],
 };
