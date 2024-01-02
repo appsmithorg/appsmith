@@ -8,7 +8,7 @@ export const getIDEFocusStrategy = (type: IDEType) => {
       return NoIDEFocusStrategy;
     case IDEType.App:
       return AppIDEFocusStrategy;
-    case IDEType.Module:
+    case IDEType.Package:
       // TODO
       break;
     case IDEType.Workflow:

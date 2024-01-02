@@ -9,14 +9,14 @@ import {
   identifyEntityFromPath,
 } from "navigation/FocusEntity";
 import { EditorState } from "@appsmith/entities/IDE/constants";
-import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { NavigationMethod } from "utils/history";
 import {
   datasourcesEditorURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
-} from "../../RouteBuilder";
+} from "@appsmith/RouteBuilder";
 
 function shouldSetState(
   prevPath: string,

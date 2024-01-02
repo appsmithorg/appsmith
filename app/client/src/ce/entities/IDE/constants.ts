@@ -10,12 +10,12 @@ import {
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
-} from "../../constants/routes/appRoutes";
+} from "@appsmith/constants/routes/appRoutes";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
-} from "../../../pages/Editor/SaaSEditor/constants";
+} from "pages/Editor/SaaSEditor/constants";
 
 export enum EditorState {
   DATA = "DATA",
@@ -91,7 +91,7 @@ export const BottomButtons: SidebarButton[] = [
 export enum IDEType {
   None = "None",
   App = "App",
-  Module = "Module",
+  Package = "Package",
   Workflow = "Workflow",
 }
 

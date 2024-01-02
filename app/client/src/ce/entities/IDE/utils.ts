@@ -8,7 +8,7 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "@appsmith/constants/routes/appRoutes";
-import { isEditorPath } from "../../pages/Editor/Explorer/helpers";
+import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 
 export function getCurrentAppState(currentUrl: string): EditorState {
   const match = matchPath<{
