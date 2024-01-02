@@ -325,7 +325,8 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
-  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (_state: AppState) =>
+    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
   (isAutoLayout, isWDSEnabled) => {
     const widgetConfigs = WidgetFactory.getConfigs();
 

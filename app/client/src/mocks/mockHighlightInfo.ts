@@ -26,6 +26,7 @@ export function mockAnvilHighlightInfo(
   data: Partial<AnvilHighlightInfo> = {},
 ): AnvilHighlightInfo {
   return {
+    layoutId: "",
     alignment: FlexLayerAlignment.Start,
     canvasId: "",
     dropZone: {},

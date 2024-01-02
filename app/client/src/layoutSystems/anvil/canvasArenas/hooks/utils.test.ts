@@ -10,6 +10,7 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 describe("Highlight selection algos", () => {
   describe("isWithinHorizontalDropZone", () => {
     const highlight: AnvilHighlightInfo = {
+      layoutId: "",
       isVertical: true,
       posX: 10,
       posY: 10,
@@ -44,6 +45,7 @@ describe("Highlight selection algos", () => {
   });
   describe("isWithinVerticalDropZone", () => {
     const highlight: AnvilHighlightInfo = {
+      layoutId: "",
       isVertical: false,
       posX: 10,
       posY: 10,
@@ -85,6 +87,7 @@ describe("Highlight selection algos", () => {
   describe("getViableDropPositions", () => {
     const highlights: AnvilHighlightInfo[] = [
       {
+        layoutId: "",
         isVertical: false,
         posX: 10,
         posY: 10,
@@ -97,6 +100,7 @@ describe("Highlight selection algos", () => {
         layoutOrder: [],
       },
       {
+        layoutId: "",
         isVertical: true,
         posX: 20,
         posY: 20,

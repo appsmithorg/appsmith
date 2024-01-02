@@ -90,6 +90,7 @@ const renderBlocksOnCanvas = (
  * Default highlight passed for AnvilOverlayWidgetTypes widgets
  */
 const overlayWidgetHighlight: AnvilHighlightInfo = {
+  layoutId: "",
   alignment: FlexLayerAlignment.Center,
   canvasId: MAIN_CONTAINER_WIDGET_ID,
   dropZone: {},

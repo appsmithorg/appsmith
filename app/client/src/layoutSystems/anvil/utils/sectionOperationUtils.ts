@@ -31,6 +31,7 @@ function getSectionLastColumnHighlight(
   // Return an object representing the highlight information for the last column
   return {
     ...defaultHighlightRenderInfo,
+    layoutId,
     canvasId: sectionWidget.widgetId,
     layoutOrder,
     rowIndex,
