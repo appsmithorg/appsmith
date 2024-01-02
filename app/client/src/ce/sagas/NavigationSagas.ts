@@ -35,7 +35,12 @@ export function* handleRouteChange(
     // handled only on edit mode
     if (isAnEditorPath) {
       yield fork(logNavigationAnalytics, action.payload);
-      yield fork(FocusRetention.onRouteChange, pathname, previousPath, state);
+      yield fork(
+        FocusRetention.onRouteChange.bind(FocusRetention),
+        pathname,
+        previousPath,
+        state,
+      );
       yield fork(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname);
       yield fork(updateRecentEntitySaga, entityInfo);

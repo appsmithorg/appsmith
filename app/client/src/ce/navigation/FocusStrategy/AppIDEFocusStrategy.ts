@@ -69,6 +69,8 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
     const prevEntityInfo = identifyEntityFromPath(previousPath);
     const currentEntityInfo = identifyEntityFromPath(currentPath);
+
+    // Only set the editor state if switching between pages or app states
     if (
       currentEntityInfo.entity === FocusEntity.CANVAS &&
       (prevEntityInfo.pageId !== currentEntityInfo.pageId ||
@@ -88,15 +90,14 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       entityInfo: currentEntityInfo,
       key: `${currentPath}#${branch}`,
     });
-    return entities.filter(
-      (entity) => entity.entityInfo.entity !== FocusEntity.NONE,
-    );
+    return entities;
   },
   *getEntitiesForStore(path: string) {
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
     const prevFocusEntityInfo = identifyEntityFromPath(path);
 
+    // If the entity has a parent defined, store the state of the parent as well.
     if (prevFocusEntityInfo.entity in FocusStoreHierarchy) {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
       if (parentEntity) {
@@ -116,6 +117,8 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       }
     }
 
+    // Store editor state if previous url was in editor.
+    // Does not matter if still in editor or not
     if (prevFocusEntityInfo.appState === EditorState.EDITOR) {
       entities.push({
         entityInfo: {
@@ -138,9 +141,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       });
     }
 
-    return entities.filter(
-      (entity) => entity.entityInfo.entity !== FocusEntity.NONE,
-    );
+    return entities;
   },
   getEntityParentUrl: (
     entityInfo: FocusEntityInfo,
@@ -167,10 +168,13 @@ export const AppIDEFocusStrategy: FocusStrategy = {
         pageId: entityInfo.pageId,
       });
     }
+    // We do not have to add any query params because this url is used as the key
     return parentUrl.split("?")[0];
   },
   *waitForPathLoad(currentPath: string, previousPath?: string) {
     if (previousPath) {
+      // When page is changing, there may be some items still not loaded,
+      // so wait till the page fetch is complete
       if (isPageChange(previousPath, currentPath)) {
         yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
       }

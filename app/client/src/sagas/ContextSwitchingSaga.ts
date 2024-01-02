@@ -30,20 +30,24 @@ export interface FocusPath {
 }
 
 export interface FocusStrategy {
-  getEntitiesForStore: (path: string) => Generator<any, Array<FocusPath>, any>;
-  waitForPathLoad: (
-    currentPath: string,
-    previousPath: string,
-  ) => Generator<any, void, any>;
+  /** based on the route change, what states need to be set in the upcoming route **/
   getEntitiesForSet: (
     previousPath: string,
     currentPath: string,
     state: AppsmithLocationState,
   ) => Generator<any, Array<FocusPath>, any>;
+  /** based on the route change, what states need to be stored for the previous route **/
+  getEntitiesForStore: (path: string) => Generator<any, Array<FocusPath>, any>;
+  /** For entities with hierarchy, return the parent entity path for storing its state  **/
   getEntityParentUrl: (
     entityInfo: FocusEntityInfo,
     parentEntity: FocusEntity,
   ) => string;
+  /** Define a wait (saga) before we start setting states  **/
+  waitForPathLoad: (
+    currentPath: string,
+    previousPath: string,
+  ) => Generator<any, void, any>;
 }
 
 /**
@@ -75,35 +79,27 @@ class FocusRetention {
     previousPath: string,
     state: AppsmithLocationState,
   ) {
-    _FocusRetention.updateFocusStrategy(currentPath);
+    this.updateFocusStrategy(currentPath);
     /* STORE THE UI STATE OF PREVIOUS URL */
     if (previousPath) {
       const toStore: Array<FocusPath> = yield call(
-        _FocusRetention.focusStrategy.getEntitiesForStore,
+        this.focusStrategy.getEntitiesForStore,
         previousPath,
       );
       for (const storePath of toStore) {
-        yield call(_FocusRetention.storeStateOfPath, storePath, previousPath);
+        yield call(this.storeStateOfPath, storePath, previousPath);
       }
     }
     /* RESTORE THE UI STATE OF THE NEW URL */
-    yield call(
-      _FocusRetention.focusStrategy.waitForPathLoad,
-      currentPath,
-      previousPath,
-    );
+    yield call(this.focusStrategy.waitForPathLoad, currentPath, previousPath);
     const setPaths: Array<FocusPath> = yield call(
-      _FocusRetention.focusStrategy.getEntitiesForSet,
+      this.focusStrategy.getEntitiesForSet,
       previousPath,
       currentPath,
       state,
     );
     for (const setPath of setPaths) {
-      yield call(
-        _FocusRetention.setStateOfPath,
-        setPath.key,
-        setPath.entityInfo,
-      );
+      yield call(this.setStateOfPath, setPath.key, setPath.entityInfo);
     }
   }
 
@@ -115,7 +111,7 @@ class FocusRetention {
     removeKeys.push(`${url}#${branch}`);
     const parentElement = FocusStoreHierarchy[entity.entity];
     if (parentElement) {
-      const parentPath = _FocusRetention.focusStrategy.getEntityParentUrl(
+      const parentPath = this.focusStrategy.getEntityParentUrl(
         entity,
         parentElement,
       );
@@ -124,6 +120,11 @@ class FocusRetention {
     for (const key of removeKeys) {
       yield put(removeFocusHistory(key));
     }
+  }
+
+  private updateFocusStrategy(currentPath: string) {
+    const ideType = getIDETypeByUrl(currentPath);
+    this.focusStrategy = getIDEFocusStrategy(ideType);
   }
 
   protected *storeStateOfPath(
@@ -187,11 +188,6 @@ class FocusRetention {
     }
   }
 
-  private updateFocusStrategy(currentPath: string) {
-    const ideType = getIDETypeByUrl(currentPath);
-    this.focusStrategy = getIDEFocusStrategy(ideType);
-  }
-
   private *getEntitySubType(entityInfo: FocusEntityInfo) {
     if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
       const action: Action | undefined = yield select(getAction, entityInfo.id);
@@ -218,6 +214,4 @@ class FocusRetention {
   }
 }
 
-const _FocusRetention = new FocusRetention();
-
-export default _FocusRetention;
+export default new FocusRetention();

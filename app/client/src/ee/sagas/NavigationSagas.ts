@@ -9,7 +9,7 @@ export default function* rootSaga() {
     takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange),
     takeEvery(
       ReduxActionTypes.REMOVE_FOCUS_HISTORY_REQUEST,
-      FocusRetention.handleRemoveFocusHistory,
+      FocusRetention.handleRemoveFocusHistory.bind(FocusRetention),
     ),
     // EE sagas called after this
   ]);
