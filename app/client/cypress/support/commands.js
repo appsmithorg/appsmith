@@ -1344,7 +1344,7 @@ Cypress.Commands.add("createSuperUser", () => {
 
   if (CURRENT_REPO === REPO.CE) {
     cy.get("#loading").should("not.exist");
-    cy.get("#sidebar").should("be.visible");
+    AppSidebar.assertVisible();
   }
 
   cy.LogOut();

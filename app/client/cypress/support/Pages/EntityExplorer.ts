@@ -118,6 +118,7 @@ export class EntityExplorer {
 
   public DeleteAllQueriesForDB(dsName: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
       cy.wrap($el)
         .invoke("text")
@@ -223,6 +224,7 @@ export class EntityExplorer {
   public CreateNewDsQuery(dsName: string, isQuery = true) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     cy.get(this.locator._createNew).last().click();
     const searchText = isQuery ? dsName + " query" : dsName;
     this.SearchAndClickOmnibar(searchText);

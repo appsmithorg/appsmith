@@ -110,8 +110,9 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
     EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
     PageLeftPane.assertAbsence("ChildPage1");
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ChildApi1");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.assertAbsence("ChildJSAction1");
   });
 
@@ -125,14 +126,14 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       true,
     );
     agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
     cy.switchGitBranch(parentBranchKey);
 
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.assertAbsence("ParentPageRenamed");
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ParentApiRenamed");
   });
 

@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const pagename = "ChildPage";
@@ -89,7 +90,6 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -107,7 +107,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       "response.body.responseMeta.status",
       201,
     );
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject is not duplicated
     PageLeftPane.assertPresence(jsObject);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -141,7 +141,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     gitSync.CreateGitBranch(tempBranch, true);
     cy.wait(2000);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject is not duplicated
     PageLeftPane.assertPresence(jsObject);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -167,7 +167,6 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       agHelper.AddDsl("JsObjecWithGitdsl");
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -223,14 +222,14 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
           }
 
           // verify jsObject data binding on Page 1
-          PageLeftPane.expandCollapseItem("Queries/JS");
+          PageLeftPane.switchSegment(PagePaneSegment.JS);
           PageLeftPane.assertPresence(jsObject);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );
           // switch to Page1 copy and verify jsObject data binding
           EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-          PageLeftPane.expandCollapseItem("Queries/JS");
+          PageLeftPane.switchSegment(PagePaneSegment.JS);
           // verify jsObject is not duplicated
           PageLeftPane.assertPresence(jsObject);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(

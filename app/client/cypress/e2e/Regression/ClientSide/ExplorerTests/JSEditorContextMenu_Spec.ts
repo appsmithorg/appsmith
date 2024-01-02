@@ -6,6 +6,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -17,7 +18,6 @@ describe(
 
     it("1. Validate JSObject creation & Run", () => {
       jsEditor.CreateJSObject('return "Hello World";');
-      PageLeftPane.expandCollapseItem("Queries/JS");
       PageLeftPane.assertPresence("JSObject1");
       jsEditor.ValidateDefaultJSObjProperties("JSObject1");
 
@@ -59,7 +59,7 @@ describe(
         toastToValidate: "moved to page",
       });
       EditorNavigation.SelectEntityByName(newPageId, EntityType.Page);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.JS);
       PageLeftPane.assertPresence("RenamedJSObjectCopy");
       jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
     });

@@ -7,7 +7,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const NAVIGATION_ATTRIBUTE = "data-navigate-to";
@@ -50,8 +49,6 @@ describe("1. CommandClickNavigation", { tags: ["@tag.IDE"] }, function () {
     });
 
     //Assert link and and style
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    PageLeftPane.expandCollapseItem("Widgets");
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "Container1",
     ]);
@@ -130,7 +127,6 @@ describe("1. CommandClickNavigation", { tags: ["@tag.IDE"] }, function () {
       repoName = repName;
     });
 
-    PageLeftPane.expandCollapseItem("Widgets");
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "Container1",
     ]);

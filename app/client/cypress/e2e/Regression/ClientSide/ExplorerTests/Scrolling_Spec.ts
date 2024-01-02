@@ -39,7 +39,7 @@ describe(
         PageLeftPane.expandCollapseItem("Modal6");
 
         // Setup to make the explorer scrollable
-        PageLeftPane.expandCollapseItem("Queries/JS");
+        PageLeftPane.switchSegment(PagePaneSegment.Queries);
         dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
           cy.log("Users DB created is " + $createdMockUsers);
           mockDBNameUsers = $createdMockUsers;
@@ -89,7 +89,7 @@ describe(
         PageLeftPane.expandCollapseItem("Modal6");
 
         // Setup to make the explorer scrollable
-        PageLeftPane.expandCollapseItem("Queries/JS");
+        PageLeftPane.switchSegment(PagePaneSegment.Queries);
         dataSources.CreateDataSource("Postgres");
         cy.get("@dsName").then(($createdMockUsers: any) => {
           mockDBNameUsers = $createdMockUsers;

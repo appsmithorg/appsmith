@@ -1,4 +1,6 @@
-import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -133,14 +135,12 @@ describe(
     it("4. Chart-Copy & Delete Verification", function () {
       //Copy Chart and verify all properties
       cy.wait(1000);
-      PageLeftPane.expandCollapseItem("Widgets");
-      PageLeftPane.expandCollapseItem("Container3");
+      EditorNavigation.SelectEntityByName("Container3", EntityType.Widget);
       _.propPane.CopyPasteWidgetFromPropertyPane("Test");
       _.deployMode.DeployApp();
       //Chart-Delete Verification"
       _.deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Widgets");
-      PageLeftPane.expandCollapseItem("Container3");
+      EditorNavigation.SelectEntityByName("Container3", EntityType.Widget);
       _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
       _.deployMode.DeployApp();
       cy.get(viewWidgetsPage.chartWidget).should("not.exist");

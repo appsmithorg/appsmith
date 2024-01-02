@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, query: string;
@@ -118,7 +119,7 @@ describe(
       "Verify Deletion of the datasource after all created queries are deleted",
       () => {
         deployMode.NavigateBacktoEditor("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
-        PageLeftPane.expandCollapseItem("Queries/JS");
+        PageLeftPane.switchSegment(PagePaneSegment.JS);
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "JSObject1",
           action: "Delete",

@@ -12,6 +12,7 @@ import { Widgets } from "../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 describe(
@@ -332,7 +333,7 @@ describe(
 
     after("Delete collection via curl & then data source", () => {
       //Deleting all queries created on this DB
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.DeleteAllQueriesForDB(dsName);
 
       //Deleting collection via Curl

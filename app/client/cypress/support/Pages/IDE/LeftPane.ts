@@ -43,14 +43,7 @@ export class LeftPane {
     if (!this.segments) {
       throw Error("No Segments configured");
     }
-    ObjectsRegistry.AggregateHelper.GetAttribute(
-      this.locators.segment(name),
-      "data-selected",
-    ).then(($value) => {
-      if ($value === "true") return;
-      else
-        ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
-    });
+    ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
   }
 
   public selectItem(

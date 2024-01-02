@@ -9,6 +9,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -69,7 +70,7 @@ myFun2: async () => {
     homePage.NavigateToHome();
     homePage.FilterApplication(workspaceName);
     homePage.ForkApplication(appName);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
@@ -126,7 +127,6 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     PageList.ClonePage("Page1");
-    PageLeftPane.expandCollapseItem("Queries/JS");
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.Sleep(3000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");

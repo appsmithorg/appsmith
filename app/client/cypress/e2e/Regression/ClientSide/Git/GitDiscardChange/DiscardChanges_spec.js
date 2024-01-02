@@ -79,17 +79,17 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     cy.wait("@getPage");
     // discard changes
     gitSync.DiscardChanges();
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     // verify query2 is not present
     PageLeftPane.assertAbsence(query2);
   });
 
   it("3. Add new JSObject , discard changes verify JSObject is deleted", () => {
     jsEditor.CreateJSObject('return "Success";');
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.assertPresence(jsObject);
     gitSync.DiscardChanges();
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject2 is deleted after discarding changes
     PageLeftPane.assertAbsence(jsObject);
   });

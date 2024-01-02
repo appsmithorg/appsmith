@@ -17,7 +17,7 @@ export class Sidebar {
       .should("have.attr", "data-selected", willFail ? "false" : "true");
   }
 
-  assertVisible() {
-    cy.get(this.locators.sidebar).should("be.visible");
+  assertVisible(timeout?: number) {
+    cy.get(this.locators.sidebar, { timeout }).should("be.visible");
   }
 }

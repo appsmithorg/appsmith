@@ -9,7 +9,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -116,7 +115,6 @@ describe(
           JSObject1.myFun2()
       }}}`,
       );
-      PageLeftPane.expandCollapseItem("Queries/JS");
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
       agHelper.AssertElementAbsence(locators._lintWarningElement);
     });

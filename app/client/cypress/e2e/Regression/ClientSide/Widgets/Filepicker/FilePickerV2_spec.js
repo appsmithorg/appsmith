@@ -77,7 +77,6 @@ describe(
       cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
       cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
-      PageLeftPane.expandCollapseItem("Queries/JS");
       cy.get(".t--entity-item:contains(Api1)").click();
       cy.focusCodeInput("[class*='t--actionConfiguration']");
       cy.wait(1000);

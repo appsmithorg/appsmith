@@ -14,7 +14,6 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsName: any;
@@ -43,7 +42,6 @@ describe(
       });
       cy.fixture("datasources").then((datasourceFormData: any) => {
         AppSidebar.navigate(AppSidebarButton.Editor);
-        PageLeftPane.expandCollapseItem("Queries/JS");
         apiPage.CreateAndFillApi(
           "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
           "Quotes",
@@ -208,7 +206,6 @@ describe(
       // agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       // jsEditor.ConfirmationClick("No");
       agHelper.AssertContains("cancelled");
-      PageLeftPane.expandCollapseItem("Queries/JS");
       cy.fixture("datasources").then((datasourceFormData) => {
         apiPage.CreateAndFillApi(
           datasourceFormData.randomCatfactUrl,
@@ -258,7 +255,6 @@ describe(
       homePage.ImportApp("JSObjOnLoadApp.json");
       homePage.AssertImportToast();
 
-      PageLeftPane.expandCollapseItem("Queries/JS");
       apiPage.CreateAndFillApi(
         "https://anapioficeandfire.com/api/books/{{this.params.id}}",
         "getBooks",

@@ -110,7 +110,6 @@ describe(
         300,
       );
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      PageLeftPane.expandCollapseItem("Widgets", true);
 
       //select all widgets and copy
       cy.get(`#div-selection-0`).click({
@@ -131,7 +130,6 @@ describe(
       cy.get("body").type(`{${modifierKey}}v`);
 
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      PageLeftPane.expandCollapseItem("Widgets", true);
 
       //verify that the two modal widget should have pasted on the main canvas
       _.agHelper.AssertElementVisibility(

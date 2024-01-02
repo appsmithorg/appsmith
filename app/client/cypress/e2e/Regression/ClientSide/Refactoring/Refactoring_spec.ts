@@ -14,6 +14,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -80,7 +81,7 @@ describe(
         refactorInput.inputWidget.oldName,
         refactorInput.inputWidget.newName,
       );
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.RenameEntityFromExplorer(
         refactorInput.query.oldName,
         refactorInput.query.newName,
@@ -89,6 +90,7 @@ describe(
         refactorInput.api.oldName,
         refactorInput.api.newName,
       );
+      PageLeftPane.switchSegment(PagePaneSegment.JS);
       entityExplorer.RenameEntityFromExplorer(
         refactorInput.jsObject.oldName,
         refactorInput.jsObject.newName,

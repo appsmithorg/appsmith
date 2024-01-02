@@ -15,6 +15,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 let jsName: any, dsName: any;
@@ -252,7 +253,7 @@ describe(
     it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
       deployMode.NavigateBacktoEditor();
       //agHelper.Sleep(2500);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "ParamsTest",
         action: "Delete",

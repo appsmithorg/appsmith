@@ -13,7 +13,6 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -96,8 +95,6 @@ describe(
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
       agHelper.RenameWithInPane("dropTable");
-
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("4. Inserting record - jsonbooks", () => {
@@ -200,7 +197,6 @@ describe(
     it("8. Validating JSON functions", () => {
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       //Verifying -> - returns results in json format
       query = `SELECT details -> 'title' AS "BookTitle" FROM jsonbooks;`;
       dataSources.CreateQueryForDS(dsName, query, "verifyJsonFunctions");
@@ -275,7 +271,6 @@ describe(
         entityType: entityItems.Query,
       });
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("9. Deleting records - jsonbooks", () => {
@@ -344,8 +339,6 @@ describe(
 
     it("13. Verify Deletion of all created queries", () => {
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
     });
 
@@ -423,8 +416,6 @@ describe(
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
       agHelper.RenameWithInPane("dropEnum");
-
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("18. Inserting record - jsonbooks", () => {
@@ -625,7 +616,6 @@ describe(
         entityType: entityItems.Query,
       });
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("23. Deleting records - jsonbooks", () => {
@@ -691,14 +681,11 @@ describe(
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0"); //Success response for dropped table!
       });
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
       dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
     });
 
     it("27. Verify Deletion of all created queries", () => {
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
     });
 
@@ -707,7 +694,6 @@ describe(
     it("28. Verify Deletion of datasource", () => {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     });
   },

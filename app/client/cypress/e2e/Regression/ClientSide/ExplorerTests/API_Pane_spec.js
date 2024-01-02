@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -21,18 +22,35 @@ describe(
     it("1. Empty Message validation for Widgets/API/Queries", function () {
       homePage.CreateNewWorkspace("EmptyMsgCheck", true);
       homePage.CreateAppInWorkspace("EmptyMsgCheck");
-      PageLeftPane.expandCollapseItem("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("No widget to display"),
+        locator._visibleTextSpan("Drag & drop widgets to create your app"),
       );
       agHelper.AssertElementVisibility(locator._visibleTextSpan("New widget"));
-
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("No query/JS to display"),
+        locator._visibleTextSpan(
+          "Write your first query or API to access data",
+        ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("New query/JS"),
+        locator._visibleTextSpan("No queries to display"),
+      );
+      agHelper.AssertElementVisibility(
+        locator._visibleTextSpan("New query / API"),
+      );
+
+      PageLeftPane.switchSegment(PagePaneSegment.JS);
+      agHelper.AssertElementVisibility(
+        locator._visibleTextSpan(
+          "Use JS to transform your data or write business logic",
+        ),
+      );
+      agHelper.AssertElementVisibility(
+        locator._visibleTextSpan("No JS objects to display"),
+      );
+      agHelper.AssertElementVisibility(
+        locator._visibleTextSpan("New JS Object"),
       );
     });
 
@@ -47,7 +65,7 @@ describe(
         testdata.Get,
       );
       cy.ResponseStatusCheck(testdata.successStatusCode);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       ee.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "FirstAPI",
         action: "Show bindings",
@@ -64,7 +82,7 @@ describe(
       cy.Createpage(pageid);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.Sleep(); //for the selected entity to settle loading!
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       ee.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "FirstAPI",
         action: "Edit name",
@@ -82,7 +100,7 @@ describe(
         toastToValidate: "action moved to page",
       });
       cy.wait(500);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       PageLeftPane.assertPresence("SecondAPI");
       ee.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "SecondAPI",
