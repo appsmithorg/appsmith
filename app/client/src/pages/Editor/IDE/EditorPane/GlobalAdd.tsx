@@ -73,7 +73,7 @@ const GlobalAdd = () => {
           <Button
             className={"t--close-add-editor-button"}
             isIconButton
-            kind="secondary"
+            kind="tertiary"
             onClick={() => history.goBack()}
             size="sm"
             startIcon={"close-line"}

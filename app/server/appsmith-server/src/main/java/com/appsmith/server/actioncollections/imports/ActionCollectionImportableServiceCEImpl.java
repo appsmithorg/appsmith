@@ -216,13 +216,15 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                     actionCollection.setApplicationId(importedApplication.getId());
 
                                     // Check if the action has gitSyncId and if it's already in DB
-                                    if (actionCollection.getGitSyncId() != null
-                                            && actionsCollectionsInCurrentApp.containsKey(
-                                                    actionCollection.getGitSyncId())) {
+                                    if (existingAppContainsCollection(
+                                            actionsCollectionsInCurrentApp, actionCollection)) {
 
                                         // Since the resource is already present in DB, just update resource
                                         ActionCollection existingActionCollection =
-                                                actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+                                                getExistingCollectionForImportedCollection(
+                                                        mappedImportableResourcesDTO,
+                                                        actionsCollectionsInCurrentApp,
+                                                        actionCollection);
 
                                         Set<Policy> existingPolicy = existingActionCollection.getPolicies();
                                         copyNestedNonNullProperties(actionCollection, existingActionCollection);
@@ -267,8 +269,10 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                             if (actionsCollectionsInBranches.containsKey(
                                                     actionCollection.getGitSyncId())) {
                                                 ActionCollection branchedActionCollection =
-                                                        actionsCollectionsInBranches.get(
-                                                                actionCollection.getGitSyncId());
+                                                        getExistingCollectionForImportedCollection(
+                                                                mappedImportableResourcesDTO,
+                                                                actionsCollectionsInBranches,
+                                                                actionCollection);
                                                 actionCollectionService.populateDefaultResources(
                                                         actionCollection,
                                                         branchedActionCollection,
@@ -318,6 +322,19 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
                 });
+    }
+
+    protected ActionCollection getExistingCollectionForImportedCollection(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp,
+            ActionCollection actionCollection) {
+        return actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+    }
+
+    protected boolean existingAppContainsCollection(
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp, ActionCollection actionCollection) {
+        return actionCollection.getGitSyncId() != null
+                && actionsCollectionsInCurrentApp.containsKey(actionCollection.getGitSyncId());
     }
 
     protected void populateDomainMappedReferences(
