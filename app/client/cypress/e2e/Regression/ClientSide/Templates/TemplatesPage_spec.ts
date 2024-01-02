@@ -16,7 +16,7 @@ describe(
             body: data,
           },
         ).as("fetchAllTemplates");
-        cy.visit("/templates", { timeout: 60000 });
+        agHelper.VisitNAssert("/templates");
         agHelper.RefreshPage(); //is important for below intercept to go thru!
         cy.wait("@fetchAllTemplates").then(({ request, response }) => {
           if (response) {
