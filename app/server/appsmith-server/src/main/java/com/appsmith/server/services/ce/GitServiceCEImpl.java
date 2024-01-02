@@ -3160,6 +3160,11 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<Application> addAnalyticsForGitOperation(
+            AnalyticsEvents eventName, String branchName, Application application) {
+        return addAnalyticsForGitOperation(eventName, application, null, null, null, false, null, branchName);
+    }
+
+    private Mono<Application> addAnalyticsForGitOperation(
             AnalyticsEvents eventName,
             Application application,
             String errorType,
@@ -3187,12 +3192,29 @@ public class GitServiceCEImpl implements GitServiceCE {
             Boolean isRepoPrivate,
             Boolean isSystemGenerated,
             Boolean isMergeable) {
+
+        String branchName = application.getGitApplicationMetadata() != null
+                ? application.getGitApplicationMetadata().getBranchName()
+                : null;
+        return addAnalyticsForGitOperation(
+                event, application, errorType, errorMessage, isRepoPrivate, isSystemGenerated, isMergeable, branchName);
+    }
+
+    private Mono<Application> addAnalyticsForGitOperation(
+            AnalyticsEvents event,
+            Application application,
+            String errorType,
+            String errorMessage,
+            Boolean isRepoPrivate,
+            Boolean isSystemGenerated,
+            Boolean isMergeable,
+            String branchName) {
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         Map<String, Object> analyticsProps = new HashMap<>();
         if (gitData != null) {
             analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultApplicationId());
             analyticsProps.put("appId", gitData.getDefaultApplicationId());
-            analyticsProps.put(FieldName.BRANCH_NAME, gitData.getBranchName());
+            analyticsProps.put(FieldName.BRANCH_NAME, branchName);
             analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
             analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
             if (event == AnalyticsEvents.GIT_COMMIT) {
@@ -3341,30 +3363,6 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     /**
-     * Sends Analytics event for a single branch when that branch is protected or un-protected.
-     * @param application Application object
-     * @param branchName String, name of the branch
-     * @param isProtected boolean, true if branch is protected. false otherwise
-     * @return an empty mono
-     */
-    private Mono<Void> sendAnalyticsForBranchProtection(
-            Application application, String branchName, boolean isProtected) {
-        AnalyticsEvents event = isProtected ? GIT_ADD_PROTECTED_BRANCH : GIT_REMOVE_PROTECTED_BRANCH;
-
-        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-        Map<String, Object> analyticsProps = new HashMap<>();
-        analyticsProps.put("appId", gitData.getDefaultApplicationId());
-        analyticsProps.put("orgId", application.getWorkspaceId());
-        analyticsProps.put("branch", branchName);
-        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
-        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
-
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(user -> analyticsService.sendEvent(event.getEventName(), user.getUsername(), analyticsProps));
-    }
-
-    /**
      * Sends one or more analytics events when there's a change in protected branches.
      * If n number of branches are un-protected and m number of branches are protected, it'll send m+n number of
      * events. It receives the list of branches before and after the action.
@@ -3384,16 +3382,16 @@ public class GitServiceCEImpl implements GitServiceCE {
         List<String> itemsRemoved = new ArrayList<>(oldProtectedBranches); // add all old items
         itemsRemoved.removeAll(newProtectedBranches); // remove the items that are also present in new list
 
-        List<Mono<Void>> eventSenderMonos = new ArrayList<>();
+        List<Mono<Application>> eventSenderMonos = new ArrayList<>();
 
         // send an analytics event for each removed branch
         for (String branchName : itemsRemoved) {
-            eventSenderMonos.add(sendAnalyticsForBranchProtection(application, branchName, false));
+            eventSenderMonos.add(addAnalyticsForGitOperation(GIT_REMOVE_PROTECTED_BRANCH, branchName, application));
         }
 
-        // send an analytics event for each removed branch
+        // send an analytics event for each newly protected branch
         for (String branchName : itemsAdded) {
-            eventSenderMonos.add(sendAnalyticsForBranchProtection(application, branchName, true));
+            eventSenderMonos.add(addAnalyticsForGitOperation(GIT_ADD_PROTECTED_BRANCH, branchName, application));
         }
 
         return Flux.merge(eventSenderMonos).then();
