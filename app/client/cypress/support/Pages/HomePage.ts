@@ -389,7 +389,7 @@ export class HomePage {
     this.agHelper.TypeText(this._username, uname);
     this.agHelper.TypeText(this._password, pswd);
     this.agHelper.GetNClick(this._submitBtn);
-    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
     this.agHelper.Sleep(3000);
     if (role != "App Viewer") {
       this.agHelper.AssertElementVisibility(this._homePageAppCreateBtn);
@@ -419,7 +419,7 @@ export class HomePage {
         );
       }
     });
-    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
     this.agHelper.Sleep(3000);
   }
 
