@@ -1,5 +1,5 @@
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
-
+import produce from "immer";
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
@@ -16,6 +16,25 @@ export const featureFlagIntercept = (
     errorDisplay: "",
   };
   cy.intercept("GET", "/api/v1/users/features", response);
+
+
+  cy.intercept("GET", "/api/v1/consolidated-api?*", (req) => {
+    req.reply((res) => {
+      if (res) {
+        cy.log("intercept consolidate api ", req);
+        const originalResponse = res.body;
+        if (originalResponse?.data?.v1UsersFeaturesResp) {
+          const updatedResponse = produce(res, (draft) => {
+            draft.body.data.v1UsersFeaturesResp["release_app_sidebar_enabled"] = true;
+          })
+      
+          res.send(updatedResponse)
+        }
+        res.send(res);
+      }
+    });
+  });
+
   if (reload) {
     cy.reload();
     cy.wait(2000); //for the page to re-load finish for CI runs
