@@ -4,6 +4,7 @@ import { useCurrentEditorState } from "../hooks";
 import { EditorEntityTab, EditorViewMode } from "entities/IDE/constants";
 import { useDispatch } from "react-redux";
 import { setIdeEditorViewMode } from "actions/ideActions";
+import { TabComponent } from "./TabComponent";
 
 const FileTabs = () => {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ const FileTabs = () => {
       padding="spaces-2"
       width="100%"
     >
-      <Flex flex="1" />
+      <TabComponent segment={segment} />
       <Button
         isIconButton
         kind="tertiary"
