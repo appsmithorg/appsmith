@@ -644,11 +644,11 @@ export const handlers = {
   }),
   [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ workspaceId: string }>,
+    action: ReduxAction<string>,
   ) => {
     return {
       ...state,
-      workspaceIdForImport: action.payload.workspaceId,
+      workspaceIdForImport: action.payload,
     };
   },
   [ReduxActionTypes.SET_PAGE_ID_FOR_IMPORT]: (

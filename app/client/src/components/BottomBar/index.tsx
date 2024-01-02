@@ -6,27 +6,12 @@ import ManualUpgrades from "./ManualUpgrades";
 import { Button } from "design-system";
 import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
 import { Container, Wrapper } from "./components";
-import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useDispatch } from "react-redux";
-import { softRefreshActions } from "actions/pluginActionActions";
 
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
-  const appId = useSelector(getCurrentApplicationId) || "";
-  const dispatch = useDispatch();
-
-  const onChangeEnv = () => {
-    dispatch(softRefreshActions());
-  };
-
   return (
     <Container>
       <Wrapper>
-        <SwitchEnvironment
-          editorId={appId}
-          onChangeEnv={onChangeEnv}
-          viewMode={viewMode}
-        />
+        <SwitchEnvironment viewMode={viewMode} />
         {!viewMode && <QuickGitActions />}
       </Wrapper>
       {!viewMode && (
