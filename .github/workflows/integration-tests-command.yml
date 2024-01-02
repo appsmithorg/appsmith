@@ -2,13 +2,8 @@ name: Appsmith External Integration Test Workflow
 
 on:
   # This workflow is only triggered by the ok to test command dispatch
-  workflow_dispatch:
-    inputs:
-      tags:
-      description: "Tags"
-      required: false
-      type: string
-      default: ""
+  repository_dispatch:
+    types: [ok-to-test-command]
 
 jobs:
   tag-check:
@@ -50,7 +45,7 @@ jobs:
             echo "tags=$tags" >> $GITHUB_OUTPUT
             echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Check for tag.All format 
         if: [[ $tags_All != "" ]]
         uses: peter-evans/create-or-update-comment@v3
