@@ -13,6 +13,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -55,7 +56,6 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -64,7 +64,6 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
-import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -159,9 +158,6 @@ public class GitServiceCETest {
     WorkspaceService workspaceService;
 
     @Autowired
-    WorkspaceRepository workspaceRepository;
-
-    @Autowired
     ApplicationPageService applicationPageService;
 
     @SpyBean
@@ -217,9 +213,6 @@ public class GitServiceCETest {
 
     @Autowired
     ApplicationPermission applicationPermission;
-
-    @Autowired
-    WorkspacePermission workspacePermission;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -292,9 +285,7 @@ public class GitServiceCETest {
         });
 
         return stringifiedFile
-                .map(data -> {
-                    return gson.fromJson(data, ApplicationJson.class);
-                })
+                .map(data -> gson.fromJson(data, ApplicationJson.class))
                 .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
     }
 
@@ -4196,7 +4187,7 @@ public class GitServiceCETest {
      * create application permission from the workspace for the api_user.
      * @return Created Application
      */
-    private Application createApplicationAndRemoveCreateAppPermissionFromWorkspace() {
+    private Application createApplicationAndRemovePermissionFromApplication(AclPermission permission) {
         User apiUser = userService.findByEmail("api_user").block();
 
         Workspace toCreate = new Workspace();
@@ -4210,41 +4201,40 @@ public class GitServiceCETest {
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
 
-        // remove create application permission from the workspace for the api user
-        Set<Policy> existingPolicies = workspace.getPolicies();
-        Set<Policy> newPoliciesWithoutExport = existingPolicies.stream()
-                .filter(policy -> !policy.getPermission()
-                        .equals(workspacePermission
-                                .getApplicationCreatePermission()
-                                .getValue()))
+        // remove permission from the application for the api user
+        Set<Policy> newPoliciesWithoutPermission = application1.getPolicies().stream()
+                .filter(policy -> !policy.getPermission().equals(permission.getValue()))
                 .collect(Collectors.toSet());
-        workspace.setPolicies(newPoliciesWithoutExport);
-        workspaceRepository.save(workspace).block();
-        return application1;
+        application1.setPolicies(newPoliciesWithoutPermission);
+        return applicationRepository.save(application1).block();
     }
 
     @WithUserDetails("api_user")
     @Test
     public void ConnectApplicationToGit_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
-        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Application application =
+                createApplicationAndRemovePermissionFromApplication(applicationPermission.getGitConnectPermission());
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono =
                 gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier.create(applicationMono)
-                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Connect to Git"))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, application.getId()))
                 .verify();
     }
 
     @WithUserDetails("api_user")
     @Test
     public void detachRemote_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
-        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Application application =
+                createApplicationAndRemovePermissionFromApplication(applicationPermission.getGitConnectPermission());
         Mono<Application> applicationMono = gitService.detachRemote(application.getId());
 
         StepVerifier.create(applicationMono)
-                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Disconnect from Git"))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, application.getId()))
                 .verify();
     }
 
@@ -4404,12 +4394,14 @@ public class GitServiceCETest {
     @WithUserDetails("api_user")
     @Test
     public void updateProtectedBranches_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
-        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Application application = createApplicationAndRemovePermissionFromApplication(
+                applicationPermission.getManageProtectedBranchPermission());
         Mono<List<String>> updateProtectedBranchesMono =
                 gitService.updateProtectedBranches(application.getId(), List.of());
 
         StepVerifier.create(updateProtectedBranchesMono)
-                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Protect branch"))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, application.getId()))
                 .verify();
     }
 
@@ -4561,6 +4553,21 @@ public class GitServiceCETest {
                             .isFalse();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void toggleAutoCommit_WhenUserDoesNotHavePermission_ExceptionThrown() {
+        Application testApplication = createApplicationAndRemovePermissionFromApplication(
+                applicationPermission.getManageAutoCommitPermission());
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsIsNullMono =
+                gitService.toggleAutoCommitEnabled(testApplication.getId());
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsIsNullMono)
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, testApplication.getId()))
+                .verify();
     }
 
     @Test

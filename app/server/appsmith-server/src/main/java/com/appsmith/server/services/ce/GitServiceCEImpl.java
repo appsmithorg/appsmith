@@ -713,14 +713,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 GitUtils.isRepoPrivate(browserSupportedUrl).cache();
 
         Mono<Application> connectApplicationMono = profileMono
-                .then(getApplicationById(defaultApplicationId))
-                .flatMap(application ->
-                        // Check if the user has permission to create app on the workspace, if yes then proceed
-                        checkPermissionOnWorkspace(
-                                        application.getWorkspaceId(),
-                                        workspacePermission.getApplicationCreatePermission(),
-                                        "Connect to Git")
-                                .thenReturn(application))
+                .then(getApplicationById(defaultApplicationId, applicationPermission.getGitConnectPermission()))
                 .zipWith(isPrivateRepoMono)
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
@@ -1132,13 +1125,7 @@ public class GitServiceCEImpl implements GitServiceCE {
      */
     @Override
     public Mono<Application> detachRemote(String defaultApplicationId) {
-
-        Mono<Application> disconnectMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> checkPermissionOnWorkspace(
-                                application.getWorkspaceId(),
-                                workspacePermission.getApplicationCreatePermission(),
-                                "Disconnect from Git")
-                        .thenReturn(application))
+        Mono<Application> disconnectMono = getApplicationById(defaultApplicationId, AclPermission.CONNECT_TO_GIT)
                 .flatMap(defaultApplication -> {
                     if (Optional.ofNullable(defaultApplication.getGitApplicationMetadata())
                                     .isEmpty()
@@ -1566,12 +1553,17 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     public Mono<Application> getApplicationById(String applicationId) {
-        return applicationService
-                .findById(applicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
+        return getApplicationById(applicationId, applicationPermission.getEditPermission());
     }
 
+    public Mono<Application> getApplicationById(String applicationId, AclPermission aclPermission) {
+        return applicationService
+                .findById(applicationId, aclPermission)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
+    }
+
+    @Deprecated
     protected Mono<Workspace> checkPermissionOnWorkspace(
             String workspaceId, AclPermission aclPermission, String operationName) {
         return workspaceService
@@ -3240,14 +3232,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames) {
-        return getApplicationById(defaultApplicationId)
-                .flatMap(application ->
-                        // Check if the user has permission to create app on the workspace, if yes then proceed
-                        checkPermissionOnWorkspace(
-                                        application.getWorkspaceId(),
-                                        workspacePermission.getApplicationCreatePermission(),
-                                        "Protect branch")
-                                .thenReturn(application))
+        return getApplicationById(defaultApplicationId, applicationPermission.getManageProtectedBranchPermission())
                 .flatMap(rootApplication -> {
                     GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
                     String defaultBranchName = metadata.getDefaultBranchName();
@@ -3299,12 +3284,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<Boolean> toggleAutoCommitEnabled(String defaultApplicationId) {
-        return getApplicationById(defaultApplicationId)
-                .flatMap(application -> checkPermissionOnWorkspace(
-                                application.getWorkspaceId(),
-                                workspacePermission.getApplicationCreatePermission(),
-                                "Configure auto commit")
-                        .thenReturn(application))
+        return getApplicationById(defaultApplicationId, applicationPermission.getManageAutoCommitPermission())
                 .map(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (!application.getId().equals(gitApplicationMetadata.getDefaultApplicationId())) {
