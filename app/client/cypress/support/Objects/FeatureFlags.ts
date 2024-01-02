@@ -1,5 +1,27 @@
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
 import produce from "immer";
+// release_app_sidebar_enabled: false,
+// rollout_app_sidebar_enabled:false,
+// rollout_consolidated_page_load_fetch_enabled: true,
+
+
+// req.reply((res) => {
+//   if (res) {
+//     if (res.statusCode === 200) {
+//       // Modify the response body to have empty data
+//       res.send({
+//         responseMeta: {
+//           status: 200,
+//           success: true,
+//         },
+//         data: {},
+//         errorDisplay: "",
+//       });
+//     }
+//   } else {
+//     // Do nothing or handle the case where the response object is not present
+//   }
+// });
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
@@ -12,6 +34,7 @@ export const featureFlagIntercept = (
     data: {
       ...flags,
       release_app_sidebar_enabled: true,
+      rollout_consolidated_page_load_fetch_enabled:true,
     },
     errorDisplay: "",
   };
@@ -23,13 +46,13 @@ export const featureFlagIntercept = (
       if (res) {
         const originalResponse = res.body;
         if (originalResponse?.data?.v1UsersFeaturesResp?.data) {
-          const updatedResponse = produce(res, (draft:any) => {
-            draft.body.data.v1UsersFeaturesResp.data["release_app_sidebar_enabled"] = true;
+          const updatedResponse = produce(originalResponse, (draft: any) => {
+            draft.data.v1UsersFeaturesResp.data = { ...draft.data.v1UsersFeaturesResp.data, ...flags };
+            draft.data.v1UsersFeaturesResp.data["release_app_sidebar_enabled"] = true;
+            draft.data.v1UsersFeaturesResp.data["rollout_consolidated_page_load_fetch_enabled"] = true;
           })
-      
-          return updatedResponse;
+          return res.send(updatedResponse);
         }
-        return res
       }
     });
   }).as("getConsolidatedData");
