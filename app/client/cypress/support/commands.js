@@ -327,7 +327,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
       cy.get(signupPage.getStartedSubmit).click({ force: true });
     }
   });
-  // cy.wait("@getMe");
+  cy.wait("@getConsolidatedData");
   cy.wait(3000);
   initLocalstorage();
 });
@@ -374,7 +374,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      cy.wait(5000);
+      assertHelper.AssertNetworkStatus("getConsolidatedData");
       assertHelper.AssertNetworkStatus("applications");
       assertHelper.AssertNetworkStatus("getReleaseItems");
     }
