@@ -20,6 +20,12 @@ import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPos
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { RenderMode } from "constants/WidgetConstants";
 import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { useSelector } from "react-redux";
+import {
+  getAnvilHighlightShown,
+  getShouldHighLightCellSelector,
+} from "layoutSystems/anvil/integrations/selectors";
+import { Colors } from "constants/Colors";
 
 export const FLEX_LAYOUT_PADDING = 4;
 
@@ -88,7 +94,6 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     width,
     wrap,
   } = props;
-
   /** POSITIONS OBSERVER LOGIC */
   // Create a ref so that this DOM node can be
   // observed by the observer for changes in size
@@ -145,13 +150,20 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     width,
     wrap,
   ]);
-
+  const shouldHighlightCell = useSelector((state) =>
+    getShouldHighLightCellSelector(state, layoutId, layoutType),
+  );
+  const highlightShown = useSelector(getAnvilHighlightShown);
+  highlightShown?.rowIndex;
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
     return {
       position: position || "relative",
+      ...(shouldHighlightCell
+        ? { background: Colors.HIGHLIGHT_FILL_CELL }
+        : {}),
     };
-  }, [border, isDropTarget, position, renderMode]);
+  }, [border, isDropTarget, position, renderMode, shouldHighlightCell]);
 
   const _className = useMemo(() => {
     return `${className} layout-${layoutId} layout-index-${layoutIndex} ${

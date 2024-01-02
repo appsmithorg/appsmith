@@ -289,6 +289,7 @@ describe("rowHighlights tests", () => {
   });
   describe("getHighlightsForRow", () => {
     const baseHighlight: AnvilHighlightInfo = {
+      layoutId: "",
       alignment: FlexLayerAlignment.Start,
       canvasId: "",
       dropZone: {},

@@ -10,6 +10,17 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { getClosestHighlight } from "./utils";
 import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
+import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
+import { useDispatch } from "react-redux";
+
+const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
+  return {
+    type: AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN,
+    payload: {
+      highlight,
+    },
+  };
+};
 
 /**
  * Function to render UX to denote that the widget type cannot be dropped in the layout
@@ -117,7 +128,7 @@ export const useCanvasDragging = (
     layoutElementPositions,
     mainCanvasLayoutId,
   } = anvilDragStates;
-
+  const dispatch = useDispatch();
   /**
    * Provides auto-scroll functionality
    */
@@ -197,6 +208,7 @@ export const useCanvasDragging = (
           slidingArenaRef.current.style.color = "unset";
           slidingArenaRef.current.innerText = "";
           canvasIsDragging = false;
+          dispatch(setHighlightsDrawn());
         }
       };
 
@@ -258,6 +270,7 @@ export const useCanvasDragging = (
               allHighlightsRef.current,
             );
             if (processedHighlight) {
+              dispatch(setHighlightsDrawn(processedHighlight));
               currentRectanglesToDraw = processedHighlight;
               // Render blocks on the canvas based on the highlight
               renderBlocksOnCanvas(

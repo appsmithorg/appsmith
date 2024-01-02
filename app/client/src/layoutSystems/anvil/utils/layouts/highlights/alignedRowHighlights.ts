@@ -59,6 +59,7 @@ export const deriveAlignedRowHighlights =
      * Step 2: Construct a base highlight.
      */
     const baseHighlight: AnvilHighlightInfo = {
+      layoutId: layoutProps.layoutId,
       alignment: FlexLayerAlignment.Start,
       canvasId,
       dropZone: {},
@@ -139,6 +140,7 @@ function getInitialHighlights(
       baseHighlight,
       index,
       alignment,
+      layoutProps.layoutId,
       alignmentDimension,
       undefined,
       undefined,
@@ -254,6 +256,7 @@ export function getHighlightsForWidgets(
         baseHighlight,
         childCount,
         alignment as FlexLayerAlignment,
+        layoutProps.layoutId,
         dimension,
         undefined,
         undefined,
@@ -291,6 +294,7 @@ export function getHighlightsForWidgets(
               baseHighlight,
               childCount,
               alignment as FlexLayerAlignment,
+              layoutProps.layoutId,
               dimension,
               currentDimension,
               tallestDimension,
@@ -310,6 +314,7 @@ export function getHighlightsForWidgets(
               baseHighlight,
               childCount,
               alignment as FlexLayerAlignment,
+              layoutProps.layoutId,
               dimension,
               currentDimension,
               tallestDimension,
@@ -330,6 +335,7 @@ export function getHighlightsForWidgets(
 }
 
 function generateHighlight(
+  layoutId: string,
   baseHighlight: AnvilHighlightInfo,
   childCount: number,
   alignment: FlexLayerAlignment,
@@ -375,6 +381,7 @@ function generateHighlight(
 
   return {
     ...baseHighlight,
+    layoutId,
     alignment,
     dropZone: {
       left: Math.max(
@@ -404,6 +411,7 @@ function updateHighlights(
   baseHighlight: AnvilHighlightInfo,
   childCount: number,
   alignment: FlexLayerAlignment,
+  layoutId: string,
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition | undefined,
   tallestWidget: LayoutElementPosition | undefined,
@@ -414,7 +422,9 @@ function updateHighlights(
   const prevHighlight: AnvilHighlightInfo | undefined = arr.length
     ? arr[arr.length - 1]
     : undefined;
+
   const curr: AnvilHighlightInfo = generateHighlight(
+    layoutId,
     baseHighlight,
     childCount,
     alignment as FlexLayerAlignment,

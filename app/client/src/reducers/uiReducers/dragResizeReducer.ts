@@ -4,6 +4,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
+import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 
 const initialState: WidgetDragResizeState = {
   isDragging: false,
@@ -17,6 +18,7 @@ const initialState: WidgetDragResizeState = {
   entityExplorerAncestry: [],
   isAutoCanvasResizing: false,
   anvil: {
+    highlightShown: undefined,
     isDistributingSpace: false,
   },
   isDraggingDisabled: false,
@@ -123,6 +125,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.anvil.isDistributingSpace = false;
   },
+  [AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ highlight?: AnvilHighlightInfo }>,
+  ) => {
+    state.anvil.highlightShown = action.payload.highlight;
+  },
 });
 
 export interface DraggingGroupCenter {
@@ -144,6 +152,7 @@ export interface WidgetDragResizeState {
   autoLayoutDragDetails: any;
   isResizing: boolean;
   anvil: {
+    highlightShown?: AnvilHighlightInfo;
     isDistributingSpace: boolean;
   };
   lastSelectedWidget?: string;

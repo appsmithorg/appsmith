@@ -37,6 +37,7 @@ export const deriveColumnHighlights =
     const { layoutStyle } = layoutProps;
 
     const baseHighlight: AnvilHighlightInfo = {
+      layoutId: layoutProps.layoutId,
       alignment:
         layoutStyle && layoutStyle["justifyContent"]
           ? (layoutStyle["justifyContent"] as FlexLayerAlignment)

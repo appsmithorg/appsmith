@@ -117,6 +117,7 @@ export interface HighlightRenderInfo {
 }
 
 export interface HighlightDropInfo {
+  layoutId: string;
   alignment: FlexLayerAlignment; // Alignment of the child in the layout.
   canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
   layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
