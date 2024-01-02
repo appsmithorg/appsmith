@@ -13,6 +13,8 @@ import {
   VIEWER_CUSTOM_PATH,
   BUILDER_CUSTOM_PATH,
   BASE_URL,
+  CUSTOM_WIDGETS_EDITOR_ID_PATH,
+  CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
 } from "constants/routes";
 import Navigation from "pages/AppViewer/Navigation";
 import type { RouteComponentProps } from "react-router";
@@ -29,6 +31,12 @@ export const Routes = () => {
       <Route component={undefined} path={USER_AUTH_URL} />
       <Route path={SETUP} />
       <Route path={SIGNUP_SUCCESS_URL} />
+      <Route component={undefined} exact path={CUSTOM_WIDGETS_EDITOR_ID_PATH} />
+      <Route
+        component={undefined}
+        exact
+        path={CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM}
+      />
       <Route component={AppEditorHeader} path={BUILDER_PATH_DEPRECATED} />
       <Route component={Navigation} path={VIEWER_PATH_DEPRECATED} />
       <Route component={AppEditorHeader} path={BUILDER_PATH} />
