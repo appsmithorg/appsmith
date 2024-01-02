@@ -36,7 +36,7 @@ jobs:
         id: checkAll
         run: |
           tags="${{ github.event.client_payload.slash_command.args.named.tags }}"
-          if [[ $tags == *"ALL"* || $tags == *"All"* && $tags != "@tag.All" ]]; then
+          if [[ ($tags == *"ALL"* || $tags == *"All"* ) && $tags != "@tag.All" ]]; then
             echo "tags_All=$tags" >> $GITHUB_OUTPUT
           elif [[ $tags == *"@tag.All"* ]]; then
             echo "tags=" >> $GITHUB_OUTPUT
@@ -47,7 +47,7 @@ jobs:
           fi
 
       - name: Check for tag.All format 
-        if: [[ $tags_All != "" ]]
+        if: steps.checkAll.outputs.tags_All != ''
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
