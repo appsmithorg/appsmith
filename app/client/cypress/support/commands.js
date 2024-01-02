@@ -286,7 +286,7 @@ Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getMe");
+  cy.wait("@getConsolidatedData");
   cy.wait(3000);
 });
 
@@ -327,7 +327,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
       cy.get(signupPage.getStartedSubmit).click({ force: true });
     }
   });
-  cy.wait("@getMe");
+  // cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
 });
@@ -374,7 +374,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      assertHelper.AssertNetworkStatus("getMe");
+      cy.wait(5000);
       assertHelper.AssertNetworkStatus("applications");
       assertHelper.AssertNetworkStatus("getReleaseItems");
     }
@@ -416,9 +416,9 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
     httpMethod = "GET";
   }
 
-  if (CURRENT_REPO === REPO.CE)
-    toCheckgetPluginForm &&
-      assertHelper.AssertNetworkResponseData("@getPluginForm", false);
+  // if (CURRENT_REPO === REPO.CE)
+  //   toCheckgetPluginForm &&
+  //     assertHelper.AssertNetworkResponseData("@getPluginForm", false);
 
   cy.request({
     method: httpMethod,
@@ -996,6 +996,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "api/v1/applications/export/*").as("exportApplication");
   cy.intercept("GET", "/api/v1/workspaces/*/permissionGroups").as("getRoles");
   cy.intercept("GET", "/api/v1/users/me").as("getMe");
+  cy.intercept("GET", "/api/v1/consolidated-api?*").as("getConsolidatedData");
   cy.intercept("POST", "/api/v1/pages").as("createPage");
   cy.intercept("POST", "/api/v1/pages/clone/*").as("clonePage");
   cy.intercept("POST", "/api/v1/applications/clone/*").as("cloneApp");

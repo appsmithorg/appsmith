@@ -49,7 +49,7 @@ describe(
     it("2. Should check smartlook is not initialised when enableTelemtry is false", function () {
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.wait(3000);
-      cy.wait("@getMe");
+      cy.wait("@getConsolidatedData");
       cy.window().then((window) => {
         expect(window.smartlook).to.be.equal(undefined);
       });
@@ -69,7 +69,7 @@ describe(
     it("3. Should check Sentry is not initialised when enableTelemtry is false", function () {
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.wait(3000);
-      cy.wait("@getMe");
+      cy.wait("@getConsolidatedData");
       cy.window().then((window) => {
         expect(window.Sentry).to.be.equal(undefined);
       });
