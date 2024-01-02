@@ -70,8 +70,8 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "3. Verify if schema (table and column) exist in query editor and searching works",
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         agHelper.RefreshPage();
         dataSources.CreateMockDB("Users");
@@ -87,8 +87,8 @@ describe(
     );
 
     it(
-      "excludeForAirgap",
       "4. Verify if collapsible opens when refresh button is opened.",
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         agHelper.RefreshPage();
         dataSources.CreateMockDB("Users");

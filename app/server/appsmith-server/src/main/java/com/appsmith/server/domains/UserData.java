@@ -33,6 +33,7 @@ public class UserData extends BaseDomain {
 
     // Role of the user in their workspace, example, Designer, Developer, Product Lead etc.
     @JsonView(Views.Public.class)
+    @Deprecated
     private String role;
 
     // The development proficiency of the user for example, Beginner, Novice, Intermediate, Advanced.
@@ -50,11 +51,6 @@ public class UserData extends BaseDomain {
     // The version where this user has last viewed the release notes.
     @JsonView(Views.Public.class)
     private String releaseNotesViewedVersion;
-
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private List<String> recentlyUsedOrgIds;
 
     // list of workspace ids that were recently accessed by the user
     @Deprecated
@@ -77,11 +73,6 @@ public class UserData extends BaseDomain {
 
     @JsonView(Views.Public.class)
     Map<String, Object> userClaims;
-
-    // list of template ids that were recently forked by the user
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private List<String> recentlyUsedTemplateIds;
 
     // Status of user's consent on sharing email for Intercom communications
     @JsonView(Views.Internal.class)

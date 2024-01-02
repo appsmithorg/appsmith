@@ -1,4 +1,8 @@
 // import { Text, TextType } from "design-system-old";
+import {
+  ADD_PAGE_FROM_TEMPLATE_MODAL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
 
@@ -22,7 +26,7 @@ interface TemplateModalHeaderProps {
 function TemplateModalHeader(props: TemplateModalHeaderProps) {
   return (
     <HeaderWrapper className={props.className}>
-      <BackText>Add page(s) from template</BackText>
+      <BackText>{createMessage(ADD_PAGE_FROM_TEMPLATE_MODAL.title)}</BackText>
     </HeaderWrapper>
   );
 }

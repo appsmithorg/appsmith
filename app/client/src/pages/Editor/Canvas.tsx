@@ -57,7 +57,7 @@ const Canvas = (props: CanvasProps) => {
   const wdsThemeProps = {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode,
+    colorMode: themeSetting.colorMode.toLowerCase(),
     fontFamily: themeSetting.fontFamily as FontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
