@@ -421,7 +421,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
            6. Extract and save pages in the application
            7. Extract and save actions in the application
         */
-        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson); // pack
 
         // check for validation error and raise exception if error found
         String errorField = validateApplicationJson(importedDoc);
@@ -859,5 +859,192 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         return applicationService
                 .findById(applicationId, Optional.empty())
                 .flatMap(application -> sendImportExportApplicationAnalyticsEvent(application, event));
+    }
+
+    @Override
+    public void performAuxiliaryImportTasks(ImportableContextJson importableContextJson) {
+        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+        Application importedApplication = applicationJson.getExportedApplication();
+        importedApplication.setServerSchemaVersion(applicationJson.getServerSchemaVersion());
+        importedApplication.setClientSchemaVersion(applicationJson.getClientSchemaVersion());
+    }
+
+    @Override
+    public Mono<Void> contextSpecificImportedEntities(
+            ImportableContextJson importableContextJson,
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        return applicationSpecificImportedEntities(
+                (ApplicationJson) importableContextJson, importingMetaDTO, mappedImportableResourcesDTO);
+    }
+
+    @Override
+    public Mono<Application> getImportContextMono(
+            ImportableContext importableContext,
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<User> currentUserMono) {
+        Mono<Application> importApplicationMono = Mono.just((Application) importableContext)
+                .map(application -> {
+                    if (application.getApplicationVersion() == null) {
+                        application.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
+                    }
+                    application.setViewMode(false);
+                    application.setForkWithConfiguration(null);
+                    application.setExportWithConfiguration(null);
+                    application.setWorkspaceId(importingMetaDTO.getWorkspaceId());
+                    application.setIsPublic(null);
+                    application.setPolicies(null);
+                    application.setPages(null);
+                    application.setPublishedPages(null);
+                    return application;
+                })
+                .map(application -> {
+                    application.setUnpublishedCustomJSLibs(
+                            new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                    return application;
+                });
+
+        importApplicationMono = importApplicationMono.zipWith(currentUserMono).map(objects -> {
+            Application application = objects.getT1();
+            application.setModifiedBy(objects.getT2().getUsername());
+            return application;
+        });
+
+        if (StringUtils.isEmpty(importingMetaDTO.getApplicationId())) {
+            importApplicationMono = importApplicationMono.flatMap(application -> {
+                return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
+            });
+        } else {
+            Mono<Application> existingApplicationMono = applicationService
+                    .findById(
+                            importingMetaDTO.getApplicationId(),
+                            importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
+                    .switchIfEmpty(Mono.defer(() -> {
+                        log.error(
+                                "No application found with id: {} and permission: {}",
+                                importingMetaDTO.getApplicationId(),
+                                importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                FieldName.APPLICATION,
+                                importingMetaDTO.getApplicationId()));
+                    }))
+                    .cache();
+
+            // this can be a git sync, import page from template, update app with json, restore snapshot
+            if (importingMetaDTO.getAppendToApp()) { // we don't need to do anything with the imported application
+                importApplicationMono = existingApplicationMono;
+            } else {
+                importApplicationMono = importApplicationMono
+                        .zipWith(existingApplicationMono)
+                        .map(objects -> {
+                            Application newApplication = objects.getT1();
+                            Application existingApplication = objects.getT2();
+                            // This method sets the published mode properties in the imported
+                            // application.When a user imports an application from the git repo,
+                            // since the git only stores the unpublished version, the current
+                            // deployed version in the newly imported app is not updated.
+                            // This function sets the initial deployed version to the same as the
+                            // edit mode one.
+                            setPublishedApplicationProperties(newApplication);
+                            setPropertiesToExistingApplication(newApplication, existingApplication);
+                            return existingApplication;
+                        })
+                        .flatMap(application -> {
+                            Mono<Application> parentApplicationMono;
+                            if (application.getGitApplicationMetadata() != null) {
+                                parentApplicationMono = applicationService.findById(
+                                        application.getGitApplicationMetadata().getDefaultApplicationId());
+                            } else {
+                                parentApplicationMono = Mono.just(application);
+                            }
+                            return Mono.zip(Mono.just(application), parentApplicationMono);
+                        })
+                        .flatMap(objects -> {
+                            Application application = objects.getT1();
+                            Application parentApplication = objects.getT2();
+                            application.setPolicies(parentApplication.getPolicies());
+                            return applicationService
+                                    .save(application)
+                                    .onErrorResume(DuplicateKeyException.class, error -> {
+                                        if (error.getMessage() != null) {
+                                            return applicationPageService.createOrUpdateSuffixedApplication(
+                                                    application, application.getName(), 0);
+                                        }
+                                        throw error;
+                                    });
+                        });
+            }
+        }
+        return importApplicationMono
+                .elapsed()
+                .map(tuples -> {
+                    log.debug("time to create or update application object: {}", tuples.getT1());
+                    return tuples.getT2();
+                })
+                .onErrorResume(error -> {
+                    log.error("Error while creating or updating application object", error);
+                    return Mono.error(error);
+                });
+    }
+
+    @Override
+    public Mono<Application> updateImportableContext(ImportableContext importableContext) {
+        return Mono.just((Application) importableContext).flatMap(application -> {
+            log.info("Imported application with id {}", application.getId());
+            // Need to update the application object with updated pages and publishedPages
+            Application updateApplication = new Application();
+            updateApplication.setPages(application.getPages());
+            updateApplication.setPublishedPages(application.getPublishedPages());
+
+            return applicationService.update(application.getId(), updateApplication);
+        });
+    }
+
+    @Override
+    public Mono<Application> updateImportableEntities(
+            ImportableContext importableContext,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            ImportingMetaDTO importingMetaDTO) {
+        return Mono.just((Application) importableContext).flatMap(application -> {
+            return newActionImportableService
+                    .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO, false)
+                    .then(newPageImportableService.updateImportedEntities(
+                            application, importingMetaDTO, mappedImportableResourcesDTO, false))
+                    .thenReturn(application);
+        });
+    }
+
+    @Override
+    public Map<String, Object> createImportAnalyticsData(
+            ImportableContextJson importableContextJson, ImportableContext importableContext, Stopwatch stopwatch) {
+        Application application = (Application) importableContext;
+        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+
+        int jsObjectCount = CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
+                ? 0
+                : applicationJson.getActionCollectionList().size();
+        int actionCount = CollectionUtils.isEmpty(applicationJson.getActionList())
+                ? 0
+                : applicationJson.getActionList().size();
+
+        final Map<String, Object> data = Map.of(
+                FieldName.APPLICATION_ID,
+                application.getId(),
+                FieldName.WORKSPACE_ID,
+                application.getWorkspaceId(),
+                "pageCount",
+                applicationJson.getPageList().size(),
+                "actionCount",
+                actionCount,
+                "JSObjectCount",
+                jsObjectCount,
+                FieldName.FLOW_NAME,
+                stopwatch.getFlow(),
+                "executionTime",
+                stopwatch.getExecutionTime());
+
+        return data;
     }
 }
