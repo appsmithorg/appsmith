@@ -77,6 +77,7 @@ import { validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ProductAlert } from "reducers/uiReducers/usersReducer";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
@@ -84,6 +85,8 @@ import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
 import ConsolidatedApi from "api/ConsolidatedApi";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { fetchFeatureFlags } from "@appsmith/sagas/userSagas";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -100,34 +103,34 @@ export interface DeployConsolidatedApi {
   v1TenantsCurrentResp: ApiResponse;
   v1UsersFeaturesResp: ApiResponse<FeatureFlags>;
   v1UsersMeResp: ApiResponse;
-  v1PagesResp?: FetchApplicationResponse;
-  v1ActionsViewResp?: ApiResponse<ActionViewMode[]>;
-  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
-  v1LibrariesApplicationResp?: ApiResponse;
-  v1PublishedPageResp?: FetchPageResponse;
-  v1ThemesApplicationCurrentModeResp?: ApiResponse<AppTheme[]>;
-  v1ThemesResp?: ApiResponse<AppTheme>;
+  v1PagesResp: FetchApplicationResponse;
+  v1ActionsViewResp: ApiResponse<ActionViewMode[]>;
+  v1CollectionsActionsViewResp: ApiResponse<JSCollection[]>;
+  v1LibrariesApplicationResp: ApiResponse;
+  v1PublishedPageResp: FetchPageResponse;
+  v1ThemesApplicationCurrentModeResp: ApiResponse<AppTheme[]>;
+  v1ThemesResp: ApiResponse<AppTheme>;
 }
 export interface EditConsolidatedApi {
   v1ProductAlertResp: ApiResponse<ProductAlert>;
   v1TenantsCurrentResp: ApiResponse;
   v1UsersFeaturesResp: ApiResponse<FeatureFlags>;
   v1UsersMeResp: ApiResponse;
-  v1PagesResp?: FetchApplicationResponse;
-  v1ActionsViewResp?: ApiResponse<ActionViewMode[]>;
-  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
-  v1LibrariesApplicationResp?: ApiResponse;
-  v1PublishedPageResp?: FetchPageResponse;
-  v1ThemesApplicationCurrentModeResp?: ApiResponse<AppTheme[]>;
-  v1ThemesResp?: ApiResponse<AppTheme>;
-  v1DatasourcesResp?: ApiResponse<Datasource[]>;
-  v1PageDSLs?: ApiResponse<FetchPageResponseData[]>;
-  v1PluginsResp?: ApiResponse<Plugin[]>;
-  v1DatasourcesMockResp?: ApiResponse;
-  v1PluginFormConfigsResp?: ApiResponse<PluginFormPayload>[];
-  v1ActionsResp?: ApiResponse<Action[]>;
-  v1CollectionsActionsResp?: ApiResponse<JSCollection[]>;
-  v1PageResp?: FetchPageResponse;
+  v1PagesResp: FetchApplicationResponse;
+  v1ActionsViewResp: ApiResponse<ActionViewMode[]>;
+  v1CollectionsActionsViewResp: ApiResponse<JSCollection[]>;
+  v1LibrariesApplicationResp: ApiResponse;
+  v1PublishedPageResp: FetchPageResponse;
+  v1ThemesApplicationCurrentModeResp: ApiResponse<AppTheme[]>;
+  v1ThemesResp: ApiResponse<AppTheme>;
+  v1DatasourcesResp: ApiResponse<Datasource[]>;
+  v1PageDSLs: ApiResponse<FetchPageResponseData[]>;
+  v1PluginsResp: ApiResponse<Plugin[]>;
+  v1DatasourcesMockResp: ApiResponse;
+  v1PluginFormConfigsResp: ApiResponse<PluginFormPayload>[];
+  v1ActionsResp: ApiResponse<Action[]>;
+  v1CollectionsActionsResp: ApiResponse<JSCollection[]>;
+  v1PageResp: FetchPageResponse;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
 export function* failFastApiCalls(
@@ -186,8 +189,17 @@ export function* reportSWStatus() {
     });
   }
 }
+function* isConsolidatedFetchFeatureFlagEnabled() {
+  yield call(fetchFeatureFlags);
 
-function* getInitResponses({
+  const consolidatedApiFetch: boolean = yield select(
+    selectFeatureFlagCheck,
+    FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled,
+  );
+  return consolidatedApiFetch;
+}
+
+export function* getInitResponses({
   applicationId,
   mode,
   pageId,
@@ -207,24 +219,34 @@ function* getInitResponses({
     },
     identity,
   );
-  let response: any;
+  let response: InitConsolidatedApi | undefined;
 
-  try {
-    response = yield ConsolidatedApi.getConsolidatedPageLoadData(params);
+  const isConsolidatedApiFetchEnabled = yield call(
+    isConsolidatedFetchFeatureFlagEnabled,
+  );
 
-    const isValidResponse: boolean = yield validateResponse(response);
+  if (!!isConsolidatedApiFetchEnabled) {
+    try {
+      const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
+        yield ConsolidatedApi.getConsolidatedPageLoadData(params);
 
-    if (!isValidResponse) {
-      throw new Error("Axion connection aborted error");
+      const isValidResponse: boolean = yield validateResponse(
+        initConsolidatedApiResponse,
+      );
+      response = initConsolidatedApiResponse.data;
+
+      if (!isValidResponse) {
+        throw new Error("Axion connection aborted error");
+      }
+    } catch (e) {
+      log.error(e);
+      Sentry.captureMessage(
+        `consolidated api failure for ${JSON.stringify(
+          params,
+        )} errored message response ${e}`,
+      );
+      throw e;
     }
-  } catch (e) {
-    log.error(e);
-    Sentry.captureMessage(
-      `consolidated api failure for ${JSON.stringify(
-        params,
-      )} errored message response ${e}`,
-    );
-    throw e;
   }
 
   const {
@@ -233,7 +255,9 @@ function* getInitResponses({
     v1UsersFeaturesResp,
     v1UsersMeResp,
     ...rest
-  } = response.data;
+  } = response || {};
+  //actions originating from INITIALIZE_CURRENT_PAGE should update user details
+  //other actions are not necessary
 
   if (!shouldInitialiseUserDetails) {
     return rest;
@@ -243,10 +267,15 @@ function* getInitResponses({
   yield put(getCurrentUser(v1UsersMeResp));
   // v1/users/features
   // tie to v1UsersFeaturesResp
-  yield put(fetchFeatureFlagsInit(v1UsersFeaturesResp));
+  // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
+  // do not fetch this again
+  if (isConsolidatedApiFetchEnabled) {
+    yield put(fetchFeatureFlagsInit(v1UsersFeaturesResp));
+  }
   // v1/tenants/current
   // tie to v1TenantsCurrentResp
   yield put(getCurrentTenant(false, v1TenantsCurrentResp));
+
   // v1/product-alert/alert
   // tie to v1ProductAlertResp
   yield put(fetchProductAlertInit(v1ProductAlertResp));
@@ -259,25 +288,26 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       ...action.payload,
     });
 
-    action.payload = { ...action.payload, allResponses };
-
     const engine: AppEngine = AppEngineFactory.create(
       action.payload.mode,
       action.payload.mode,
     );
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
+
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
+      allResponses,
     );
+    yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
+
     yield call(
       engine.loadAppEntities,
       toLoadPageId,
       applicationId,
-      action.payload.allResponses,
+      allResponses,
     );
-    yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
