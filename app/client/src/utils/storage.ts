@@ -116,29 +116,35 @@ export const getCopiedWidgets = async () => {
   return [];
 };
 
-export const updateCurrentEnvironmentDetails = async () => {
+export const migrateAppIdToEditorId = async (values: {
+  envId: string;
+  appId?: string;
+}): Promise<{
+  envId: string;
+  editorId: string;
+}> => {
   try {
-    const currentEnvDetails = await getSavedCurrentEnvironmentDetails(false);
-    if (currentEnvDetails.hasOwnProperty("appId")) {
-      await store.setItem(STORAGE_KEYS.CURRENT_ENV, {
-        envId: currentEnvDetails.envId,
-        editorId: currentEnvDetails.appId,
-      });
-    }
-    return true;
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, {
+      envId: values.envId,
+      editorId: values.appId,
+    });
+    return {
+      envId: values.envId || "",
+      editorId: values.appId || "",
+    };
   } catch (error) {
     log.error("An error occurred when updating current env: ", error);
-    return false;
+    return {
+      envId: "",
+      editorId: "",
+    };
   }
 };
 
 // Function to save the current environment and the appId in indexedDB
-export const saveCurrentEnvironment = async (
-  envId: string,
-  editorId: string,
-) => {
+export const saveCurrentEnvironment = async (envId: string, appId: string) => {
   try {
-    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, editorId });
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, appId });
     return true;
   } catch (error) {
     log.error("An error occurred when storing current env: ", error);
@@ -147,19 +153,22 @@ export const saveCurrentEnvironment = async (
 };
 
 // Function to fetch the current environment and related editorId from indexedDB
-export const getSavedCurrentEnvironmentDetails = async (
-  callUpdate = true,
-): Promise<{
+export const getSavedCurrentEnvironmentDetails = async (): Promise<{
   envId: string;
   editorId: string;
   appId?: string;
 }> => {
   try {
-    if (callUpdate) {
-      await updateCurrentEnvironmentDetails();
+    let values = (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) as {
+      envId: string;
+      editorId: string;
+      appId?: string;
+    };
+    if (values.hasOwnProperty("appId")) {
+      values = await migrateAppIdToEditorId(values);
     }
     return (
-      (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
+      values || {
         envId: "",
         editorId: "",
       }
