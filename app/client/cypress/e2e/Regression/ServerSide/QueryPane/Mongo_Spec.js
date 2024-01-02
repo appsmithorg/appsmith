@@ -365,7 +365,6 @@ describe(
           id.split(":")[1].trim().replace(/['"]+/g, ""),
         );
       });
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",
@@ -440,7 +439,6 @@ describe(
         //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
       });
 
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
       cy.get(queryLocators.suggestedWidgetChart).click().wait(1000);
       cy.wait("@updateLayout").then(({ response }) => {

@@ -10,6 +10,9 @@ import {
   deployMode,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Generate New CRUD Page Inside from entity explorer",
@@ -197,10 +200,9 @@ describe(
       cy.get("span:contains('Got it')").click();
 
       //Bug verification starts
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.selectEntityByName("ListFiles");
+      EditorNavigation.SelectEntityByName("ListFiles", EntityType.Query);
       cy.wait(2000);
-      cy.selectEntityByName("Page3");
+      EditorNavigation.SelectEntityByName("Page3", EntityType.Page);
       cy.wait(1000);
       deployMode.DeployApp();
       cy.wait(3000);

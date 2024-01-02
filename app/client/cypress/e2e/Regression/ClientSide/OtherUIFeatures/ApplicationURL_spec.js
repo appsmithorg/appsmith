@@ -1,4 +1,3 @@
-const explorer = require("../../../../locators/explorerlocators.json");
 import {
   agHelper,
   assertHelper,
@@ -84,7 +83,6 @@ describe("Slug URLs", () => {
               `/applications/${application.id}/pages/${currentPageId}`,
             );
           });
-          cy.get(explorer.addWidget).click();
           cy.dragAndDropToCanvas("textwidget", { x: 300, y: 700 });
           cy.get(".t--widget-textwidget").should("exist");
           cy.updateCodeInput(

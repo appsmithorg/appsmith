@@ -5,7 +5,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const generatePage = require("../../../../../locators/GeneratePage.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
@@ -306,8 +305,6 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       toastToValidate: "moved to page",
     });
     agHelper.WaitUntilAllToastsDisappear();
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
-    cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");

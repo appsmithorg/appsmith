@@ -1,4 +1,3 @@
-import explorer from "../../../../../locators/explorerlocators.json";
 import publish from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
@@ -13,7 +12,6 @@ describe(
   () => {
     it("1 => Check if code scanner widget can be dropped on the canvas", () => {
       // Drop the widget
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 100 });
 
       // Widget should be on the canvas

@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -41,7 +46,7 @@ describe(
       );
       cy.get(commonlocators.toastAction).should("not.be.visible");
       cy.wait(2000);
-      cy.CheckAndUnfoldWidgets();
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1Copy",
         action: "Show bindings",

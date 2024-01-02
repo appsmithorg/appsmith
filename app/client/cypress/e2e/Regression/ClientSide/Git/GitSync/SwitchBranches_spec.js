@@ -1,5 +1,4 @@
 import commonLocators from "../../../../../locators/commonlocators.json";
-import explorer from "../../../../../locators/explorerlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 import {
@@ -140,7 +139,6 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
       EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");
       cy.commitAndPush();

@@ -6,7 +6,6 @@ import EditorNavigation, {
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
@@ -90,7 +89,6 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
 
   it("4. When modal is open, it should paste inside the modal", () => {
     //add modal widget
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 700 });
     cy.get(".t--modal-widget").should("exist");
 

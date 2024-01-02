@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -39,7 +44,7 @@ describe(
       cy.get('.t--widget-propertypane-toggle [name="warning"]').should(
         "not.exist",
       );
-      cy.CheckAndUnfoldWidgets();
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1Copy",
         action: "Show bindings",
@@ -56,7 +61,7 @@ describe(
       featureFlagIntercept({
         release_table_serverside_filtering_enabled: true,
       });
-      cy.CheckAndUnfoldWidgets();
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1Copy",
         action: "Show bindings",

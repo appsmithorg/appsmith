@@ -2289,8 +2289,8 @@ export const PAGES_PANE_TEXTS = {
   widget_blank_state_description: () =>
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
-  js_add_button: () => "New JS Object",
-  widget_add_button: () => "New Widget",
+  js_add_button: () => "New JS object",
+  widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
   widgets_create_tab_title: () => "Drag & drop a widget",
   queries_create_from_existing: () => "From existing datasource",

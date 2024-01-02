@@ -50,7 +50,7 @@ describe(
         locator._visibleTextSpan("No JS objects to display"),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("New JS Object"),
+        locator._visibleTextSpan("New JS object"),
       );
     });
 

@@ -1,11 +1,9 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const {
   agHelper,
-  entityExplorer,
   propPane,
 } = require("../../../../support/Objects/ObjectsCore");
 import EditorNavigation, {
@@ -20,7 +18,6 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("1. checks undo/redo for new widgets", function () {
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("checkboxwidget", { x: 200, y: 200 });
 
     cy.get("body").click();

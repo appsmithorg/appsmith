@@ -1,8 +1,7 @@
 {
-  "createNew": ".t--entity-add-btn.group.files > button",
   "searchHit": ".t--searchHit",
   "filterButton": ".t--filter-button",
   "category": ".t--global-search-category",
-  "blankDatasource": ".ads-v2-menu__menu-item span:contains('New datasource')",
+  "blankDatasource": ".ads-v2-listitem span:contains('New datasource')",
   "fileOperation": ".t--file-operation"
 }

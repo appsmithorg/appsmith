@@ -1,5 +1,9 @@
 /// <reference types="Cypress" />
 
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 import homePage from "../../../../locators/HomePage";
 
@@ -471,9 +475,11 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
 
     //Page 2 Validations:
 
-    cy.selectEntityByName("Change color and font");
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName(
+      "Change color and font",
+      EntityType.Page,
+    );
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     cy.get(widgetsPage.bold)
       .invoke("attr", "data-selected")

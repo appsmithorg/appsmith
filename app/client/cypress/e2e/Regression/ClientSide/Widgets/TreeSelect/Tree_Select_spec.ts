@@ -1,5 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import explorer from "../../../../../locators/explorerlocators.json";
+
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 
 describe(
@@ -11,7 +11,6 @@ describe(
     });
 
     it("1. Add new widget", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("singleselecttreewidget", { x: 300, y: 300 });
       cy.get(".t--widget-singleselecttreewidget").should("exist");
     });

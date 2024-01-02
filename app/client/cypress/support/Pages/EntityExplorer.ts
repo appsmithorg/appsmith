@@ -133,7 +133,6 @@ export class EntityExplorer {
   }
 
   public SearchWidgetPane(widgetType: string) {
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
     this.agHelper.Sleep();
     this.agHelper.ClearTextField(this.locator._entityExplorersearch);
     this.agHelper.TypeText(

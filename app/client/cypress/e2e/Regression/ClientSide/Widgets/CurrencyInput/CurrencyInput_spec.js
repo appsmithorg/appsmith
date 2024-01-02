@@ -1,5 +1,4 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const explorer = require("../../../../../locators/explorerlocators.json");
 const themelocators = require("../../../../../locators/ThemeLocators.json");
 
 const widgetName = "currencyinputwidget";
@@ -14,7 +13,6 @@ describe(
     });
 
     it("1. Add new dropdown widget", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(`.t--widget-${widgetName}`).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });

@@ -10,6 +10,8 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 describe(
@@ -92,8 +94,7 @@ describe(
       cy.get(appPage.confirmButton).closest("div").click({ force: true });
       cy.get(appPage.closeButton).closest("div").click({ force: true });
       cy.xpath(appPage.pagebutton).click({ force: true });
-      //cy.xpath(appPage.datasourcesbutton).click({ force: true });
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       cy.xpath(appPage.postApi).click({ force: true });
       cy.ResponseCheck("Test");
       // cy.ResponseCheck("Task completed");

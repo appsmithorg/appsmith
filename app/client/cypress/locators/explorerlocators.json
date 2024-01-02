@@ -3,7 +3,6 @@
   "NoQueryMsg": "p:contains('No DB Queries yet.')",
   "NoWidgetsMsg": "p:contains('icon above to add widgets')",
   "AddPage": ".pages .t--entity-add-btn",
-  "addEntityJSEditor": ".js_actions .t--entity-add-btn",
   "createQueryMenu": ".file-ops",
   "entityExplorer": ".t--entity-explorer",
   "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
@@ -17,12 +16,9 @@
   "property": ".language-appsmith-binding",
   "editNameField": ".editing input",
   "editEntityField": ".bp3-editable-text-input",
-  "addWidget": ".widgets .t--entity-add-btn button",
   "closeWidgets": ".t--close-widgets-sidebar",
   "dropHere": "#div-dragarena-0",
   "editEntity": ".t--entity-name input",
   "activeTab": "span:contains('Active')",
-  "createNew": ".t--entity-add-btn.group.files button",
-  "blankAPI": "span:contains('New blank API')",
-  "addQuery": ".files .t--entity-add-btn"
+  "blankAPI": "span:contains('New blank API')"
 }

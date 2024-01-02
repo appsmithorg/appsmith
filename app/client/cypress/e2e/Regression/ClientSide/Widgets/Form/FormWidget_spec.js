@@ -6,7 +6,6 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -29,7 +28,6 @@ describe(
     });
 
     it("2. Add Multiple widgets in Form", function () {
-      cy.get(explorer.addWidget).click();
       cy.get(commonlocators.entityExplorersearch).should("be.visible");
       cy.dragAndDropToWidget("multiselectwidgetv2", "formwidget", {
         x: 100,

@@ -2,6 +2,8 @@
 import {
   AppSidebar,
   AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -140,7 +142,8 @@ describe("GlobalSearch", function () {
 
   it("7. Api actions should have API as prefix", () => {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    cy.get(globalSearchLocators.createNew).click({ force: true });
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
     cy.get(globalSearchLocators.blankDatasource).first().click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
     cy.get(datasourceLocators.datasourceTitleLocator).click();
@@ -153,8 +156,9 @@ describe("GlobalSearch", function () {
     cy.saveDatasource();
 
     AppSidebar.navigate(AppSidebarButton.Editor);
-    cy.get(globalSearchLocators.createNew).click({ force: true });
-    cy.get(".ads-v2-menu__menu-item span:contains('omnibarApiDatasource')")
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
+    cy.get(".ads-v2-listitem span:contains('omnibarApiDatasource')")
       .first()
       .click();
     cy.wait("@createNewApi");

@@ -4,7 +4,6 @@ import {
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -15,7 +14,6 @@ describe(
   { tags: ["@tag.IDE"] },
   function () {
     it("1. Drag and drop form widget and validate", function () {
-      cy.get(explorer.addWidget).click({ force: true });
       cy.get(commonlocators.entityExplorersearch).should("be.visible");
       cy.get(commonlocators.entityExplorersearch).clear().type("form");
       cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
@@ -48,7 +46,7 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       _.deployMode.DeployApp();
       _.deployMode.NavigateBacktoEditor();
-      cy.CheckAndUnfoldEntityItem("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       _.entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "FormTest",
         action: "Show bindings",

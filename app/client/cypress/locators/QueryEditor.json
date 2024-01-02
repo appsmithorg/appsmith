@@ -1,5 +1,4 @@
 {
-  "addNewQueryBtn": ".dbqueries .t--entity-add-btn",
   "queryEditorIcon": ".t--nav-link-query-editor",
   "templateMenu": ".t--template-menu",
   "runQuery": "//span[text()='Run']/ancestor::button",
@@ -7,7 +6,6 @@
   "deleteQuery": ".t--delete-query",
   "queryMoreAction": "[data-testid=more-action-trigger]",
   "deleteUsingContext": ".t--apiFormDeleteBtn",
-  "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]",
   "addDatasource": ".t--add-datasource",
   "editDatasourceButton": ".t--edit-datasource",
   "queryNameField": ".t--action-name-edit-field input",

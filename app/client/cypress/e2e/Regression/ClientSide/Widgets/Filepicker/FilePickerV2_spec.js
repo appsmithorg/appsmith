@@ -3,7 +3,6 @@ import {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
-const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -16,7 +15,6 @@ describe(
   { tags: ["@tag.Widget", "@tag.Filepicker"] },
   () => {
     it("1. Drag & drop FilePicker/Text widgets", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(widgetsPage.filepickerwidgetv2).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });

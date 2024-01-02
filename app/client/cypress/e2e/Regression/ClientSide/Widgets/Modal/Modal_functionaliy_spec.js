@@ -5,7 +5,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -23,7 +22,6 @@ describe(
     });
 
     it("1. Add new Modal", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
       cy.get(".t--modal-widget").should("exist");
     });
@@ -96,7 +94,6 @@ describe(
     it("6. It should paste modal widget on main Container even when copied in group and paste when a container is selected", () => {
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-      cy.get(explorer.addWidget).click();
       //add an additional modal widget and a container widget
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.MODAL,

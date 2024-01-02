@@ -1,7 +1,5 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 import {
   agHelper,
   propPane,
@@ -118,7 +116,6 @@ describe(
     });
 
     it("5. Check isDirty meta property", function () {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
       cy.openPropertyPane("textwidget");
       propPane.UpdatePropertyFieldValue("Text", "{{CBGTest.isDirty}}");
