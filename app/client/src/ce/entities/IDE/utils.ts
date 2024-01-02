@@ -50,3 +50,14 @@ export function getIDETypeByUrl(path: string): IDEType {
   }
   return IDEType.None;
 }
+
+export function getBaseUrlsForIDEType(type: IDEType): string[] {
+  switch (type) {
+    case IDEType.None:
+      return [];
+    case IDEType.App:
+      return [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH];
+    default:
+      throw Error(`Base urls for IDE type ${type} not defined`);
+  }
+}

@@ -1,5 +1,5 @@
 import { select, take } from "redux-saga/effects";
-import type { FocusStrategy } from "sagas/FocusRetentionSaga";
+import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
 import type { AppsmithLocationState } from "utils/history";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
@@ -50,10 +50,15 @@ function shouldSetState(
 const isPageChange = (prevPath: string, currentPath: string) => {
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currentPath);
-  if (prevFocusEntityInfo.pageId === "" || currFocusEntityInfo.pageId === "") {
+  if (
+    prevFocusEntityInfo.params.pageId === "" ||
+    currFocusEntityInfo.params.pageId === ""
+  ) {
     return false;
   }
-  return prevFocusEntityInfo.pageId !== currFocusEntityInfo.pageId;
+  return (
+    prevFocusEntityInfo.params.pageId !== currFocusEntityInfo.params.pageId
+  );
 };
 
 export const AppIDEFocusStrategy: FocusStrategy = {
@@ -73,15 +78,16 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // Only set the editor state if switching between pages or app states
     if (
       currentEntityInfo.entity === FocusEntity.CANVAS &&
-      (prevEntityInfo.pageId !== currentEntityInfo.pageId ||
+      (prevEntityInfo.params.pageId !== currentEntityInfo.params.pageId ||
         prevEntityInfo.appState !== currentEntityInfo.appState)
     ) {
       entities.push({
-        key: `EDITOR_STATE.${currentEntityInfo.pageId}#${branch}`,
+        key: `EDITOR_STATE.${currentEntityInfo.params.pageId}#${branch}`,
         entityInfo: {
-          id: `EDITOR.${currentEntityInfo.pageId}`,
+          id: `EDITOR.${currentEntityInfo.params.pageId}`,
           appState: EditorState.EDITOR,
           entity: FocusEntity.EDITOR,
+          params: {},
         },
       });
     }
@@ -94,7 +100,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
   },
   *getEntitiesForStore(path: string) {
     const branch: string | undefined = yield select(getCurrentGitBranch);
-    const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
+    const entities: Array<FocusPath> = [];
     const prevFocusEntityInfo = identifyEntityFromPath(path);
 
     // If the entity has a parent defined, store the state of the parent as well.
@@ -109,8 +115,8 @@ export const AppIDEFocusStrategy: FocusStrategy = {
           entityInfo: {
             entity: parentEntity,
             id: "",
-            pageId: prevFocusEntityInfo.pageId,
             appState: prevFocusEntityInfo.appState,
+            params: prevFocusEntityInfo.params,
           },
           key: `${parentPath}#${branch}`,
         });
@@ -123,11 +129,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       entities.push({
         entityInfo: {
           entity: FocusEntity.EDITOR,
-          id: `EDITOR.${prevFocusEntityInfo.pageId}`,
-          pageId: prevFocusEntityInfo.pageId,
+          id: `EDITOR.${prevFocusEntityInfo.params.pageId}`,
           appState: EditorState.EDITOR,
+          params: prevFocusEntityInfo.params,
         },
-        key: `EDITOR_STATE.${prevFocusEntityInfo.pageId}#${branch}`,
+        key: `EDITOR_STATE.${prevFocusEntityInfo.params.pageId}#${branch}`,
       });
     }
 
@@ -150,22 +156,22 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     let parentUrl: string = "";
     if (parentEntity === FocusEntity.WIDGET_LIST) {
       parentUrl = widgetListURL({
-        pageId: entityInfo.pageId,
+        pageId: entityInfo.params.pageId,
       });
     }
     if (parentEntity === FocusEntity.DATASOURCE_LIST) {
       parentUrl = datasourcesEditorURL({
-        pageId: entityInfo.pageId,
+        pageId: entityInfo.params.pageId,
       });
     }
     if (parentEntity === FocusEntity.JS_OBJECT_LIST) {
       parentUrl = jsCollectionListURL({
-        pageId: entityInfo.pageId,
+        pageId: entityInfo.params.pageId,
       });
     }
     if (parentEntity === FocusEntity.QUERY_LIST) {
       parentUrl = queryListURL({
-        pageId: entityInfo.pageId,
+        pageId: entityInfo.params.pageId,
       });
     }
     // We do not have to add any query params because this url is used as the key

@@ -52,7 +52,11 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
 
     yield all(waitForEffects);
 
-    const { entity, id, pageId } = entityInfo;
+    const {
+      entity,
+      id,
+      params: { pageId },
+    } = entityInfo;
     let recentEntities: RecentEntity[] = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntities,
     );
