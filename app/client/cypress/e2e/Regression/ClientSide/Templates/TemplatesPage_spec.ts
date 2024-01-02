@@ -16,7 +16,7 @@ describe(
             body: data,
           },
         ).as("fetchAllTemplates");
-        templates.SwitchToTemplatesTab();
+        cy.visit("/templates", { timeout: 60000 });
         agHelper.RefreshPage(); //is important for below intercept to go thru!
         cy.wait("@fetchAllTemplates").then(({ request, response }) => {
           if (response) {

@@ -13,8 +13,7 @@ describe(
     let TEMPLATES_COUNT: number;
 
     before(() => {
-      homePage.NavigateToHome();
-      templates.SwitchToTemplatesTab();
+      cy.visit("/templates", { timeout: 60000 });
       templates
         .GetTemplatesCardsList()
         .then((cards) => (TEMPLATES_COUNT = cards.length));
