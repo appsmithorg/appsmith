@@ -98,7 +98,7 @@ public class ChatCommand implements AnthropicCommand {
     }
 
     /**
-     * This is the kind of format we want to build from the messages as a input.
+     * This is the kind of format we want to build from the messages as a prompt.
      * Example Prompt: `\n\nHuman: ${query}\n\nAssistant:`
      * Lastly, we leave it with an additional Assistant: so that it can respond back as an assistant
      */
