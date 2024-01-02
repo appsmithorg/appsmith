@@ -865,9 +865,6 @@ export const ApplictionsMainPage = (props: any) => {
 
   useEffect(() => {
     setActiveWorkspaceId(urlHash ? urlHash : workspaces[0]?.id);
-  }, [location, fetchedWorkspaces]);
-
-  useEffect(() => {
     if (
       activeWorkspaceId &&
       fetchedWorkspaceId &&
@@ -885,7 +882,7 @@ export const ApplictionsMainPage = (props: any) => {
       dispatch(fetchAllApplicationsOfWorkspace(activeWorkspaceId));
       dispatch(fetchUsersForWorkspace(activeWorkspaceId));
     }
-  }, [activeWorkspaceId, fetchedWorkspaceId]);
+  }, [urlHash, fetchedWorkspaces, activeWorkspaceId]);
 
   const packagesOfWorkspace = activeWorkspaceId
     ? fetchedPackages.filter((pkg) => pkg.workspaceId === activeWorkspaceId)
