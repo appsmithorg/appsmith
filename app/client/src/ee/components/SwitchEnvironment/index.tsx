@@ -66,14 +66,11 @@ export interface SwitchEnvironmentProps {
   setCurrentEnvDetails: (currentEnvDetails: CurrentEnvironmentDetails) => void;
   createTempDatasource?: (data: any) => void;
   postgresPluginId?: string;
-  editorId: string;
-  onChangeEnv?: () => void;
 }
 
 const SwitchEnvironment = ({
   createTempDatasource,
   defaultEnvironment,
-  editorId,
   environmentList,
   postgresPluginId,
   setCurrentEnvDetails,
@@ -178,7 +175,7 @@ const SwitchEnvironment = ({
 
   // Show ramps if feature is not enabled or
   if (!isMultipleEnvEnabled)
-    return <CE_SwitchEnvironment editorId={editorId} viewMode={viewMode} />;
+    return <CE_SwitchEnvironment viewMode={viewMode} />;
   // skip the render if no environments are present
   if (environmentList.length <= 0) return null;
 
