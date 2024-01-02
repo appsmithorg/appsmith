@@ -106,8 +106,6 @@ jobs:
 
   build-docker-image:
     needs: [tag-check, client-build, server-build, rts-build]
-    with:
-      my-string-input: "Hello, World!"
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
