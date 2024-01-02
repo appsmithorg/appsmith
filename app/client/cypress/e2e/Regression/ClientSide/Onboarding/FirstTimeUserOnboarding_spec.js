@@ -196,7 +196,7 @@ describe("FirstTimeUserOnboarding", function () {
     agHelper.AssertElementVisibility(OnboardingLocator.widgetSidebar);
     agHelper.AssertElementVisibility(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
-    agHelper.RefreshPage("getPage");
+    agHelper.RefreshPage("getConsolidatedData");
     agHelper.AssertElementEnabledDisabled(
       debuggerHelper.locators._helpButton,
       0,

@@ -153,7 +153,7 @@ describe(
 
         agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
-        agHelper.RefreshPage("viewPage");
+        agHelper.RefreshPage("getConsolidatedData");
         // agHelper.AssertElementVisibility(
         //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
         // );

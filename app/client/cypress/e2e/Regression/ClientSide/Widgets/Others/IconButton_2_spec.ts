@@ -123,7 +123,7 @@ describe(
       agHelper.WaitUntilEleAppear(
         locators._widgetInDeployed("iconbuttonwidget"),
       );
-      assertHelper.AssertNetworkResponseData("@viewPage");
+      assertHelper.AssertNetworkResponseData("@getConsolidatedData");
       assertHelper.AssertDocumentReady();
       agHelper.Sleep(3000); //for view page to complete loading & then navigate back
       deployMode.NavigateBacktoEditor();

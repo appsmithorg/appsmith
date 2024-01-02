@@ -67,8 +67,8 @@ describe("Slug URLs", () => {
 
       cy.SearchApp(applicationName);
 
-      cy.wait("@getPagesForCreateApp").then((intercept) => {
-        const { application, pages } = intercept.response.body.data;
+      cy.wait("@getConsolidatedData").then((intercept) => {
+        const { application, pages } = intercept.response.body.data.v1PagesResp.data;
         const defaultPage = pages.find((p) => p.isDefault);
 
         cy.location().should((loc) => {
@@ -103,8 +103,8 @@ describe("Slug URLs", () => {
 
           cy.get(".t--upgrade-confirm").click({ force: true });
 
-          cy.wait("@getPagesForCreateApp").then((intercept) => {
-            const { application, pages } = intercept.response.body.data;
+          cy.wait("@getConsolidatedData").then((intercept) => {
+            const { application, pages } = intercept.response.body.data.v1PagesResp.data;
             const currentPage = pages.find((p) => p.id === currentPageId);
 
             cy.location().should((loc) => {

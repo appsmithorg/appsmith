@@ -127,7 +127,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       cy.Createpage(newPage);
       cy.get(`.t--entity-item:contains(${newPage})`).click();
-      cy.wait("@getPage");
+      cy.wait("@getConsolidatedData");
       // create a get api call
 
       apiPage.CreateAndFillApi(datasourceFormData["echoApiUrl"], "get_data");
@@ -185,7 +185,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
         201,
       );
       cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
-      cy.wait("@getPage");
+      cy.wait("@getConsolidatedData");
     });
   });
 
@@ -203,7 +203,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(`.t--entity-item:contains(${newPage})`).first().click();
-    cy.wait("@getPage");
+    cy.wait("@getConsolidatedData");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
       .find(".bp3-input")
@@ -214,13 +214,13 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       .should("have.value", "This is a test");
 
     cy.get(`.t--entity-item:contains(${pageName})`).first().click();
-    cy.wait("@getPage");
+    cy.wait("@getConsolidatedData");
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
 
     cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
-    cy.wait("@getPage");
+    cy.wait("@getConsolidatedData");
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
@@ -241,7 +241,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
-    agHelper.RefreshPage("viewPage");
+    agHelper.RefreshPage("getConsolidatedData");
     cy.get(".bp3-input")
       .first()
       .invoke("val")
@@ -444,7 +444,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     });
 
     EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
-    cy.wait("@getPage");
+    cy.wait("@getConsolidatedData");
     cy.get(homePageLocators.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
@@ -469,7 +469,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     gitSync.CreateGitBranch(tempBranch1, true);
     // delete page from page settings
     EditorNavigation.SelectEntityByName("Child_Page Copy", EntityType.Page);
-    cy.wait("@getPage");
+    cy.wait("@getConsolidatedData");
     cy.Deletepage("Child_Page Copy");
     cy.get(homePageLocators.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");

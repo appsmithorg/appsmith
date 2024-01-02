@@ -77,7 +77,7 @@ describe(
       agHelper.Sleep(2000);
       homePage.EditAppFromAppHover();
       agHelper.AssertElementAbsence(locators._loading);
-      assertHelper.AssertNetworkStatus("@getPagesForCreateApp");
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
       agHelper.GetNClick(inviteModal.locators._shareButton, 0, true);
       agHelper.GetNClick(homePage._sharePublicToggle, 0, true);
       agHelper.Sleep(5000);
