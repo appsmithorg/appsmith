@@ -3,6 +3,7 @@ import { APP_MODE } from "entities/App";
 import type AppEngine from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 import { call } from "redux-saga/effects";
+import { getInitResponses } from "sagas/InitSagas";
 import { startAppEngine } from "sagas/InitSagas";
 
 jest.mock("../../api/Api", () => ({
@@ -21,22 +22,32 @@ describe("tests the sagas in initSagas", () => {
       },
     };
     const gen = startAppEngine(action);
+    const someInitResponse = {
+      v1PagesResp: { responseMeta: {}, data: {}, code: "232" },
+    } as any;
+
+    expect(gen.next().value).toStrictEqual(
+      call(getInitResponses, action.payload),
+    );
+
     const engine: AppEngine = AppEngineFactory.create(
       APP_MODE.EDIT,
       APP_MODE.EDIT,
     );
-    expect(JSON.stringify(gen.next().value)).toStrictEqual(
+    expect(JSON.stringify(gen.next(someInitResponse).value)).toStrictEqual(
       JSON.stringify(call(engine.setupEngine, action.payload)),
     );
     expect(JSON.stringify(gen.next().value)).toStrictEqual(
-      JSON.stringify(call(engine.loadAppData, action.payload)),
+      JSON.stringify(
+        call(engine.loadAppData, action.payload, someInitResponse),
+      ),
     );
     expect(
       JSON.stringify(
         gen.next({
           applicationId: action.payload.applicationId,
           toLoadPageId: action.payload.pageId,
-        }).value,
+        } as any).value,
       ),
     ).toStrictEqual(
       JSON.stringify(
@@ -49,6 +60,7 @@ describe("tests the sagas in initSagas", () => {
           engine.loadAppEntities,
           action.payload.pageId,
           action.payload.applicationId,
+          someInitResponse,
         ),
       ),
     );
