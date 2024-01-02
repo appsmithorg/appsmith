@@ -1,5 +1,5 @@
 import { select, take } from "redux-saga/effects";
-import type { FocusStrategy } from "sagas/ContextSwitchingSaga";
+import type { FocusStrategy } from "sagas/FocusRetentionSaga";
 import type { AppsmithLocationState } from "utils/history";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntityInfo } from "navigation/FocusEntity";

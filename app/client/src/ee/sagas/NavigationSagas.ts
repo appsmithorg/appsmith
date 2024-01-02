@@ -3,7 +3,7 @@ export * from "ce/sagas/NavigationSagas";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { all, takeEvery } from "redux-saga/effects";
 import { handleRouteChange } from "ce/sagas/NavigationSagas";
-import FocusRetention from "sagas/ContextSwitchingSaga";
+import FocusRetention from "sagas/FocusRetentionSaga";
 export default function* rootSaga() {
   yield all([
     takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange),

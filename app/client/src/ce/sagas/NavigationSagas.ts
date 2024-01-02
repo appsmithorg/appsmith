@@ -15,7 +15,7 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import FocusRetention from "sagas/ContextSwitchingSaga";
+import FocusRetention from "sagas/FocusRetentionSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";

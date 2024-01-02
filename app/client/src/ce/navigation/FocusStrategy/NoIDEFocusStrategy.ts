@@ -1,4 +1,4 @@
-import type { FocusStrategy } from "../../../sagas/ContextSwitchingSaga";
+import type { FocusStrategy } from "../../../sagas/FocusRetentionSaga";
 
 export const NoIDEFocusStrategy: FocusStrategy = {
   *getEntitiesForSet() {
