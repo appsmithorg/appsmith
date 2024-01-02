@@ -205,7 +205,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("launchApp", () => {
   cy.get(homePage.appView).should("be.visible").first().click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForViewApp").should(
+  cy.wait("@getConsolidatedData").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200

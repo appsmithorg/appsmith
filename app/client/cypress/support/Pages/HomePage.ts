@@ -452,7 +452,7 @@ export class HomePage {
   public LaunchAppFromAppHover() {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     this.agHelper.AssertElementAbsence(this.locator._loading);
-    this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
+    this.assertHelper.AssertNetworkStatus("getConsolidatedData");
   }
 
   public EditAppFromAppHover(appName = "") {

@@ -94,7 +94,7 @@ describe(
     });
 
     it("4. Open the app without login and validate public access of Application", function () {
-      agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
+      agHelper.VisitNAssert(currentUrl, "@getConsolidatedData");
       agHelper.Sleep(3000);
       agHelper.GetText(locators._emptyPageTxt).then((text) => {
         expect(text).to.equal("This page seems to be blank");
@@ -114,7 +114,7 @@ describe(
         Cypress.env("TESTUSERNAME2"),
         Cypress.env("TESTPASSWORD2"),
       );
-      agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
+      agHelper.VisitNAssert(currentUrl, "@getConsolidatedData");
       agHelper.GetText(locators._emptyPageTxt).then((text) => {
         expect(text).to.equal("This page seems to be blank");
       });
@@ -152,11 +152,11 @@ describe(
       );
       agHelper.Sleep(); //for CI
       agHelper.VisitNAssert(currentUrl);
-      assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
+      assertHelper.AssertNetworkStatus("@getConsolidatedData", 404);
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
-      assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
+      assertHelper.AssertNetworkStatus("@getConsolidatedData", 404);
       agHelper.AssertContains("Sign in to your account", "be.visible");
     });
 

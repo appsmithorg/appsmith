@@ -41,7 +41,7 @@ describe(
         cy.log(currentUrl);
       });
       homePage.Signout(false).then(() => {
-        agHelper.VisitNAssert(currentUrl, "getPagesForViewApp");
+        agHelper.VisitNAssert(currentUrl, "getConsolidatedData");
         agHelper.AssertCSS(
           autoLayout.getAutoLayoutLayerClassName("0", 0),
           "flex-wrap",
