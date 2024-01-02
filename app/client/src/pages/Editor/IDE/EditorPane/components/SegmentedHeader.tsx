@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { useCurrentEditorState } from "../../hooks";
 import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const Container = styled(Flex)`
   button {
@@ -22,6 +24,9 @@ const Container = styled(Flex)`
 `;
 
 const SegmentedHeader = () => {
+  const isGlobalAddPaneEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_global_add_pane_enabled,
+  );
   const pageId = useSelector(getCurrentPageId);
   const onAddButtonClick = () => {
     history.push(globalAddURL({ pageId }));
@@ -62,6 +67,7 @@ const SegmentedHeader = () => {
       padding="spaces-2"
     >
       <SegmentedControl
+        id="editor-pane-segment-control"
         onChange={onSegmentChange}
         options={[
           {
@@ -79,14 +85,16 @@ const SegmentedHeader = () => {
         ]}
         value={segment}
       />
-      <Button
-        className={"t--add-editor-button"}
-        isIconButton
-        kind="primary"
-        onClick={onAddButtonClick}
-        size="sm"
-        startIcon="add-line"
-      />
+      {isGlobalAddPaneEnabled ? (
+        <Button
+          className={"t--add-editor-button"}
+          isIconButton
+          kind="primary"
+          onClick={onAddButtonClick}
+          size="sm"
+          startIcon="add-line"
+        />
+      ) : null}
     </Container>
   );
 };
