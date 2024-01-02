@@ -202,7 +202,6 @@ export function* fetchPageListSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId,
-          editorId: applicationId,
         },
       });
       yield put({
