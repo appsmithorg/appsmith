@@ -34,6 +34,7 @@ jobs:
         run: |
           if [ "${{github.event_name}}" == "workflow_dispatch" ]; then
             if [[ "${{inputs.tags}}" != "" ]]; then
+              tags=${{inputs.tags}}
               if [[ ($tags == *"ALL"* || $tags == *"All"*) && $tags != "@tag.All" ]]; then
                 echo "Please use `/ok-to-test tags="@tag.All"`" >> $GITHUB_OUTPUT
                 exit 1  
