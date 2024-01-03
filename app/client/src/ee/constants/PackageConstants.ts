@@ -9,4 +9,5 @@ export type PackageMetadata = Pick<
 >;
 
 export const DEFAULT_PACKAGE_COLOR = "#9747FF1A";
+export const DEFAULT_PACKAGE_ICON = "package";
 export const DEFAULT_PACKAGE_PREFIX = "Untitled Package ";
