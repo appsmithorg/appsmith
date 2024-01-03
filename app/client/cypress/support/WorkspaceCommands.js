@@ -267,7 +267,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     }
   });
   homePageTS.CreateNewWorkspace("", toNavigateToHome); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
-  //agHelper.Sleep(2000); //for workspace to open
   cy.get("@workspaceName").then((workspaceName) => {
     localStorage.setItem("workspaceName", workspaceName);
     homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
@@ -281,7 +280,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("applicationId", applicationId);
     localStorage.setItem("appName", appName);
 
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.AssertElementAbsence("#loading", Cypress.config().pageLoadTimeout);
 
     cy.url().then((url) => {
