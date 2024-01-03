@@ -8,7 +8,7 @@ import { getAbsolutePixels } from "utils/helpers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
-import { getClosestHighlight } from "./utils";
+import { getClosestHighlight, getVerticalHighlights } from "./utils";
 import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
@@ -45,12 +45,56 @@ const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
   slidingArena.innerText = "Pls drop the widget anywhere on the canvas";
 };
 
+const renderVerticalHighlights = (
+  stickyCanvas: HTMLCanvasElement,
+  blocksToRender: AnvilHighlightInfo[],
+) => {
+  // Calculating offset based on the position of the canvas
+  const topOffset = getAbsolutePixels(stickyCanvas.style.top);
+  const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
+
+  const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
+  canvasCtx.stroke();
+  canvasCtx.beginPath();
+
+  // Styling the rectangle
+  canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL_PREVIEW;
+  canvasCtx.lineWidth = 1;
+  canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
+  canvasCtx.setLineDash([]);
+  blocksToRender.forEach((blockToRender) => {
+    // Extracting dimensions of the block to render
+    const { height, posX, posY, width } = blockToRender;
+
+    // Drawing a rectangle on the canvas
+    if (canvasCtx.roundRect) {
+      // Using roundRect method if available (not supported in Firefox)
+      canvasCtx.roundRect(
+        posX - leftOffset,
+        posY - topOffset,
+        width,
+        height,
+        4,
+      );
+    } else {
+      // Using rect method as a fallback
+      canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
+    }
+
+    // Filling and stroking the rectangle
+  });
+  canvasCtx.fill();
+  canvasCtx.closePath();
+  canvasCtx.stroke();
+};
+
 /**
  * Function to stroke a rectangle on the canvas that looks like a highlight/drop area.
  */
 const renderBlocksOnCanvas = (
   stickyCanvas: HTMLCanvasElement,
   blockToRender: AnvilHighlightInfo,
+  transparentBlocksToRender: AnvilHighlightInfo[],
 ) => {
   // Calculating offset based on the position of the canvas
   const topOffset = getAbsolutePixels(stickyCanvas.style.top);
@@ -61,8 +105,8 @@ const renderBlocksOnCanvas = (
   // Clearing previous drawings on the canvas
   canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
   canvasCtx.stroke();
+  renderVerticalHighlights(stickyCanvas, transparentBlocksToRender);
   canvasCtx.beginPath();
-
   // Styling the rectangle
   canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
   canvasCtx.lineWidth = 1;
@@ -270,13 +314,19 @@ export const useCanvasDragging = (
               e,
               allHighlightsRef.current,
             );
+            const processedVerticalHighlights = getVerticalHighlights(
+              e,
+              allHighlightsRef.current,
+            );
             if (processedHighlight) {
               dispatch(setHighlightsDrawn(processedHighlight));
               currentRectanglesToDraw = processedHighlight;
+
               // Render blocks on the canvas based on the highlight
               renderBlocksOnCanvas(
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
+                processedVerticalHighlights || [],
               );
               // Store information for auto-scroll functionality
               scrollObj.lastMouseMoveEvent = {
