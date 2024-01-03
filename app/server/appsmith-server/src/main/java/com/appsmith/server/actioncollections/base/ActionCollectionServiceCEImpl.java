@@ -106,8 +106,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         }
                     }
                     // No need to handle the edge case of unpublished action not being present. This is not possible
-                    // because
-                    // every created action starts from an unpublishedAction state.
+                    // because every created action starts from an unpublishedAction state.
 
                     return Mono.just(collection);
                 });
@@ -122,25 +121,27 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
+        setGitSyncIdInActionCollection(collection);
+        return repository.save(collection);
+    }
+
+    protected void setGitSyncIdInActionCollection(ActionCollection collection) {
         if (collection.getGitSyncId() == null) {
             collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
         }
-        return repository.save(collection);
     }
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
         collections.forEach(collection -> {
-            if (collection.getGitSyncId() == null) {
-                collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-            }
+            setGitSyncIdInActionCollection(collection);
         });
         return repository.saveAll(collections);
     }
 
     @Override
     public Mono<ActionCollection> findByIdAndBranchName(String id, String branchName) {
-        // TODO sanitise resonse for default IDs
+        // TODO sanitise response for default IDs
         return this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getReadPermission());
     }
 
@@ -364,7 +365,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(toDelete -> {
                     Mono<ActionCollection> modifiedActionCollectionMono;
 
-                    if (toDelete.getPublishedCollection() != null) {
+                    if (toDelete.getPublishedCollection() != null
+                            && toDelete.getPublishedCollection().getName() != null) {
                         toDelete.getUnpublishedCollection().setDeletedAt(Instant.now());
                         modifiedActionCollectionMono = Flux.fromIterable(toDelete.getUnpublishedCollection()
                                         .getDefaultToBranchedActionIdsMap()
@@ -406,7 +408,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
         return branchedCollectionId
                 .flatMap(this::deleteUnpublishedActionCollection)
-                .map(responseUtils::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources)
+                .flatMap(actionCollectionDTO ->
+                        saveLastEditInformationInParent(actionCollectionDTO).thenReturn(actionCollectionDTO));
     }
 
     @Override
@@ -483,6 +487,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        return repository.findByPageIds(pageIds, permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission) {
         return repository.findByPageIds(pageIds, permission);
     }
 
@@ -578,9 +587,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> create(ActionCollection collection) {
-        if (collection.getGitSyncId() == null) {
-            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-        }
+        setGitSyncIdInActionCollection(collection);
         return super.create(collection);
     }
 
@@ -703,11 +710,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     if (action.getId() == null) {
                         return createJsAction(actionCollection, action);
                     }
-                    // actionCollectionService would occur when the new collection is created by grouping existing
-                    // actions
-                    // actionCollectionService could be a future enhancement for js editor templates,
+                    // This would occur when the new collection is created by grouping existing actions
+                    // This could be a future enhancement for js editor templates,
                     // but is also useful for generic collections
-                    // We do not expect to have to update the action at actionCollectionService point
+                    // We do not expect to have to update the action at this point
                     return Mono.just(action);
                 })
                 .collectList()
@@ -734,8 +740,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     return actionCollectionMono
                             .map(actionCollection1 -> {
                                 actions.forEach(actionDTO -> {
-                                    // Update all the actions in the list to belong to actionCollectionService
-                                    // collection
+                                    // Update all the actions in the list to belong to this collection
                                     actionDTO.setCollectionId(actionCollection1.getId());
                                     if (StringUtils.isEmpty(
                                             actionDTO.getDefaultResources().getCollectionId())) {
@@ -785,5 +790,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         final Map<String, String> actionIds = actions.stream()
                 .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId));
         collectionDTO.setDefaultToBranchedActionIdsMap(actionIds);
+    }
+
+    @Override
+    public Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO) {
+        // Do nothing as this is already taken care for JS objects in the context of page
+        return Mono.empty().then();
     }
 }

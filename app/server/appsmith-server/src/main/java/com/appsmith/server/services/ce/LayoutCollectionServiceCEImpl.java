@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ContextTypeUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -39,6 +40,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -49,8 +51,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
     private final UpdateLayoutService updateLayoutService;
-    private final RefactoringService refactoringService;
-    private final ActionCollectionService actionCollectionService;
+    protected final RefactoringService refactoringService;
+    protected final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
@@ -68,29 +70,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        final String pageId = collectionDTO.getPageId();
-        Mono<NewPage> pageMono = newPageService
-                .findById(pageId, pagePermission.getActionCreatePermission())
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
-                .cache();
-
-        String applicationId = collectionDTO.getApplicationId();
-        if (StringUtils.isEmpty(applicationId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
-        }
+        validateApplicationId(collectionDTO);
 
         // First check if the collection name is allowed
         // If the collection name is unique, the action name will be guaranteed to be unique within that collection
-        return pageMono.flatMap(page -> {
-                    Layout layout = page.getUnpublishedPage().getLayouts().get(0);
-                    CreatorContextType contextType = collectionDTO.getContextType() == null
-                            ? CreatorContextType.PAGE
-                            : collectionDTO.getContextType();
-                    // Check against widget names and action names
-                    return refactoringService.isNameAllowed(
-                            page.getId(), contextType, layout.getId(), collectionDTO.getName());
-                })
+        return checkIfNameAllowedBasedOnContext(collectionDTO)
                 .flatMap(isNameAllowed -> {
                     // If the name is allowed, return list of actionDTOs for further processing
                     if (Boolean.TRUE.equals(isNameAllowed)) {
@@ -117,12 +101,46 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         .thenReturn(updatedCollection));
     }
 
+    private void validateApplicationId(ActionCollectionDTO collectionDTO) {
+        if (isPageContext(collectionDTO.getContextType())) {
+            String applicationId = collectionDTO.getApplicationId();
+            if (StringUtils.isEmpty(applicationId)) {
+                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID);
+            }
+        }
+    }
+
+    protected Mono<Boolean> checkIfNameAllowedBasedOnContext(ActionCollectionDTO collectionDTO) {
+        final String pageId = collectionDTO.getPageId();
+        Mono<NewPage> pageMono = newPageService
+                .findById(pageId, pagePermission.getActionCreatePermission())
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
+                .cache();
+        return pageMono.flatMap(page -> {
+            Layout layout = page.getUnpublishedPage().getLayouts().get(0);
+            CreatorContextType contextType = ContextTypeUtils.getDefaultContextIfNull(collectionDTO.getContextType());
+            // Check against widget names and action names
+            return refactoringService.isNameAllowed(page.getId(), contextType, layout.getId(), collectionDTO.getName());
+        });
+    }
+
     @Override
     public Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collectionDTO, String branchName) {
         if (collectionDTO.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        return validateAndCreateActionCollectionDomain(collectionDTO, branchName)
+                .flatMap(actionCollection -> createCollection(actionCollection)
+                        .flatMap(actionCollectionDTO -> actionCollectionService
+                                .saveLastEditInformationInParent(actionCollectionDTO)
+                                .thenReturn(actionCollectionDTO)))
+                .map(actionCollectionDTO -> responseUtils.updateCollectionDTOWithDefaultResources(actionCollectionDTO));
+    }
+
+    protected Mono<ActionCollection> validateAndCreateActionCollectionDomain(
+            ActionCollectionDTO collectionDTO, String branchName) {
         if (StringUtils.isEmpty(collectionDTO.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
@@ -162,9 +180,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     updatedActionCollection.setWorkspaceId(collectionDTO.getWorkspaceId());
                     updatedActionCollection.setApplicationId(branchedPage.getApplicationId());
 
-                    return createCollection(updatedActionCollection);
-                })
-                .map(collectionDTO1 -> responseUtils.updateCollectionDTOWithDefaultResources(collectionDTO1));
+                    return Mono.just(updatedActionCollection);
+                });
     }
 
     @Override
@@ -311,8 +328,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        final String pageId = actionCollectionDTO.getPageId();
-
         Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
                 .findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission())
                 .cache();
@@ -334,9 +349,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getActions())
                         .flatMap(actionDTO -> {
                             actionDTO.setDeletedAt(null);
-                            actionDTO.setPageId(branchedActionCollection
-                                    .getUnpublishedCollection()
-                                    .getPageId());
+                            setContextId(branchedActionCollection, actionDTO);
+                            actionDTO.setContextType(actionCollectionDTO.getContextType());
                             actionDTO.setApplicationId(branchedActionCollection.getApplicationId());
                             if (actionDTO.getId() == null) {
                                 actionDTO.setCollectionId(branchedActionCollection.getId());
@@ -384,9 +398,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         .flatMap(actionDTO -> {
                             actionDTO.setCollectionId(branchedActionCollection.getId());
                             actionDTO.setDeletedAt(Instant.now());
-                            actionDTO.setPageId(branchedActionCollection
-                                    .getUnpublishedCollection()
-                                    .getPageId());
+                            setContextId(branchedActionCollection, actionDTO);
                             if (actionDTO.getId() == null) {
                                 actionDTO.getDatasource().setWorkspaceId(actionCollectionDTO.getWorkspaceId());
                                 actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
@@ -478,7 +490,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     actionCollectionDTO.setDefaultToBranchedArchivedActionIdsMap(tuple.getT2());
                     return branchedActionCollectionMono.map(dbActionCollection -> {
                         actionCollectionDTO.setId(null);
-                        actionCollectionDTO.setPageId(null);
+                        resetContextId(actionCollectionDTO);
                         copyNewFieldValuesIntoOldObject(
                                 actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
                         return dbActionCollection;
@@ -486,30 +498,73 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject)
-                .flatMap(savedActionCollection -> updateLayoutService
-                        .updatePageLayoutsByPageId(
-                                savedActionCollection.getUnpublishedCollection().getPageId())
-                        .thenReturn(savedActionCollection))
+                .flatMap(savedActionCollection ->
+                        updateLayoutBasedOnContext(savedActionCollection).thenReturn(savedActionCollection))
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(
                         savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService
                         .generateActionCollectionByViewMode(actionCollection, false)
-                        .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
-                                actionCollection.getUnpublishedCollection(), false)))
+                        .flatMap(actionCollectionDTO1 -> actionCollectionService
+                                .populateActionCollectionByViewMode(actionCollection.getUnpublishedCollection(), false)
+                                .flatMap(actionCollectionDTO2 -> actionCollectionService
+                                        .saveLastEditInformationInParent(actionCollectionDTO2)
+                                        .thenReturn(actionCollectionDTO2))))
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
-                .zipWith(
-                        newPageService.findById(pageId, pagePermission.getEditPermission()),
-                        (branchedActionCollection, newPage) -> {
-                            // redundant check
-                            if (newPage.getUnpublishedPage().getLayouts().size() > 0) {
-                                // redundant check as the collection lies inside a layout. Maybe required for testcases
-                                branchedActionCollection.setErrorReports(newPage.getUnpublishedPage()
-                                        .getLayouts()
-                                        .get(0)
-                                        .getLayoutOnLoadActionErrors());
-                            }
+                .flatMap(branchedActionCollection -> sendErrorReportsFromPageToCollection(branchedActionCollection));
+    }
 
-                            return branchedActionCollection;
-                        });
+    private Mono<ActionCollectionDTO> sendErrorReportsFromPageToCollection(
+            ActionCollectionDTO branchedActionCollection) {
+        if (isPageContext(branchedActionCollection.getContextType())) {
+            final String pageId = branchedActionCollection.getPageId();
+            return newPageService
+                    .findById(pageId, pagePermission.getEditPermission())
+                    .flatMap(newPage -> {
+                        // Your conditional check
+                        if (newPage.getUnpublishedPage().getLayouts().size() > 0) {
+                            // redundant check as the collection lies inside a layout. Maybe required for
+                            // testcases
+                            branchedActionCollection.setErrorReports(newPage.getUnpublishedPage()
+                                    .getLayouts()
+                                    .get(0)
+                                    .getLayoutOnLoadActionErrors());
+
+                            // Continue processing or return a different observable if needed
+                            return Mono.just(branchedActionCollection);
+                        } else {
+                            // Return the original branchedActionCollection
+                            return Mono.just(branchedActionCollection);
+                        }
+                    })
+                    .map(updatedBranchedActionCollection -> {
+                        // Additional mapping or processing if needed
+                        return updatedBranchedActionCollection;
+                    });
+        } else {
+            // Handle the case where contextType is not PAGE
+            // You might want to return the original branchedActionCollection or handle it as needed
+            return Mono.just(branchedActionCollection);
+        }
+    }
+
+    protected Mono<String> updateLayoutBasedOnContext(ActionCollection savedActionCollection) {
+        if (isPageContext(savedActionCollection.getUnpublishedCollection().getContextType())) {
+            return updateLayoutService.updatePageLayoutsByPageId(
+                    savedActionCollection.getUnpublishedCollection().getPageId());
+        }
+        return Mono.empty();
+    }
+
+    protected void resetContextId(ActionCollectionDTO actionCollectionDTO) {
+        if (isPageContext(actionCollectionDTO.getContextType())) {
+            actionCollectionDTO.setPageId(null);
+        }
+    }
+
+    protected void setContextId(ActionCollection branchedActionCollection, ActionDTO actionDTO) {
+        if (isPageContext(branchedActionCollection.getUnpublishedCollection().getContextType())) {
+            actionDTO.setPageId(
+                    branchedActionCollection.getUnpublishedCollection().getPageId());
+        }
     }
 }

@@ -378,7 +378,9 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (isModalOpen && workspaceId && environmentsFetched) {
       dispatch(
-        initDatasourceConnectionDuringImportRequest(workspaceId as string),
+        initDatasourceConnectionDuringImportRequest({
+          workspaceId: workspaceId as string,
+        }),
       );
     }
   }, [workspaceId, isModalOpen, environmentsFetched]);

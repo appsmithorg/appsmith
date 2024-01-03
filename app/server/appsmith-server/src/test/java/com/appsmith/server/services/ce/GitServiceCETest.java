@@ -56,6 +56,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -118,6 +119,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -128,7 +130,11 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -226,6 +232,9 @@ public class GitServiceCETest {
 
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @SpyBean
+    AnalyticsService analyticsService;
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
@@ -2822,7 +2831,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createBranch_BranchHasCustomNavigationSettings_SrcBranchRemainsUnchanged()
+    public void createBranch_BranchHasCustomApplicationSettings_SrcBranchRemainsUnchanged()
             throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2856,6 +2865,15 @@ public class GitServiceCETest {
                     appNavigationSetting.setOrientation("top");
                     branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+
+                    Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+                    themeSettings.setSizing(1);
+                    themeSettings.setDensity(1);
+                    themeSettings.setBorderRadius("#000000");
+                    themeSettings.setAccentColor("#FFFFFF");
+                    themeSettings.setFontFamily("#000000");
+                    themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication -> applicationService.update(
@@ -2875,6 +2893,14 @@ public class GitServiceCETest {
                                     .getOrientation())
                             .isEqualTo("top");
                     assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
+                    Application.ThemeSetting themes =
+                            branchedApp.getApplicationDetail().getThemeSetting();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
@@ -3444,7 +3470,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3470,7 +3495,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3513,7 +3537,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo (1)");
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Application testApplication = new Application();
         testApplication.setName("testGitRepo");
@@ -3567,12 +3590,12 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
-        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
+        String appJSONDBName = applicationJson.getDatasourceList().get(0).getName();
 
         String pluginId =
                 pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
-        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setName(appJSONDBName);
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -3630,12 +3653,12 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName(null);
-        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
+        String appJSONDBName = applicationJson.getDatasourceList().get(0).getName();
 
         String pluginId =
                 pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
-        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setName(appJSONDBName);
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -4353,12 +4376,12 @@ public class GitServiceCETest {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
                         assertThat(metadata.getDefaultBranchName()).isEqualTo("master");
-                        // only the master branch should be protected
-                        assertThat(metadata.getBranchName().equals("master"))
-                                .isEqualTo(metadata.getIsProtectedBranch());
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the protected branch list
                             assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
+                            // the analytics service should be triggered once for this event
+                            verify(analyticsService, times(1))
+                                    .sendEvent(eq(GIT_ADD_PROTECTED_BRANCH.getEventName()), anyString(), anyMap());
                         }
                     }
                 })
@@ -4381,7 +4404,6 @@ public class GitServiceCETest {
                 .assertNext(applicationList -> {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the empty protected branch list
                             assertThat(metadata.getBranchProtectionRules()).isEmpty();
@@ -4422,7 +4444,6 @@ public class GitServiceCETest {
         StepVerifier.create(applicationService.findById(defaultAppId))
                 .assertNext(application -> {
                     GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                    assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                     // the default app should have the empty protected branch list
                     assertThat(metadata.getBranchProtectionRules()).isNullOrEmpty();
                 })
@@ -4550,6 +4571,48 @@ public class GitServiceCETest {
                     assertThat(gitApplicationMetadata.getAutoCommitConfig()).isNotNull();
                     assertThat(gitApplicationMetadata.getAutoCommitConfig().getEnabled())
                             .isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_WhenLocalRepoDoesNotExist_RepoIsClonedFromRemote()
+            throws IOException, GitAPIException {
+        List<GitBranchDTO> branchList = List.of(
+                createGitBranchDTO("defaultBranch", false),
+                createGitBranchDTO("origin/defaultBranch", false),
+                createGitBranchDTO("origin/feature1", false));
+
+        Mockito.when(gitExecutor.listBranches(any(Path.class)))
+                .thenReturn(Mono.error(new RepositoryNotFoundException("repo not found"))) // throw exception first
+                .thenReturn(Mono.just(branchList)); // return list of branches later
+
+        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+
+        Mockito.when(gitExecutor.fetchRemote(
+                        any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("status"));
+
+        Application application1 = createApplicationConnectedToGit(
+                "listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
+
+        Mono<List<GitBranchDTO>> listMono =
+                gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+
+        StepVerifier.create(listMono)
+                .assertNext(listBranch -> {
+                    assertThat(listBranch.size()).isEqualTo(3);
                 })
                 .verifyComplete();
     }

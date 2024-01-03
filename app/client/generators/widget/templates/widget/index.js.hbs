@@ -1,11 +1,43 @@
 import React from "react";
 
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import {{name}}Component from "../component";
 
+import IconSVG from "../icon.svg";
+
 class {{suffixed name}} extends BaseWidget<{{suffixed name}}Props, WidgetState> {
+  static type = "{{widgetTypeFormat name}}";
+
+  static getConfig() {
+    return {
+      name: "{{name}}", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      needsMeta: false, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0, // Index of the property pane "General" section
+        active: false,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "{{name}}",
+      rows: 1,
+      columns: 3,
+      version: 1,
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [];
   }
@@ -26,12 +58,8 @@ class {{suffixed name}} extends BaseWidget<{{suffixed name}}Props, WidgetState> 
     return {};
   }
 
-  getPageView() {
+  getWidgetView() {
     return <{{name}}Component />;
-  }
-
-  static getWidgetType(): string {
-    return "{{widgetTypeFormat name}}";
   }
 }
 

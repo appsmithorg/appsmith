@@ -14,6 +14,7 @@ import history from "utils/history";
 import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import {
   getCurrentApplication,
+  getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
@@ -25,6 +26,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -116,4 +118,16 @@ export const useHeaderActions = (
   }
 
   return {};
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const useParentEntityInfo = (editorType: string) => {
+  const appId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+
+  return {
+    editorId: appId || "",
+    parentEntityId: pageId || "",
+    parentEntityType: ActionParentEntityType.PAGE,
+  };
 };

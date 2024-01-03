@@ -16,13 +16,20 @@ import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReduce
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { basePathForActiveAction } from "@appsmith/constants/routes/appRoutes";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+
+export interface UseConvertToModulesOptionsProps {
+  id: string;
+  moduleType: MODULE_TYPE;
+  canDelete: boolean;
+}
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -142,8 +149,6 @@ export const useAppWideAndOtherDatasource = () => {
     otherDS,
   };
 };
-
-export const MAX_DATASOURCE_SUGGESTIONS = 3;
 
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
@@ -266,9 +271,10 @@ export const useEntityEditState = (entityId: string) => {
 
 export function useActiveAction() {
   const location = useLocation();
+  const path = basePathForActiveAction;
 
   const baseMatch = matchPath<{ apiId: string }>(location.pathname, {
-    path: [BUILDER_PATH, BUILDER_PATH_DEPRECATED],
+    path,
     strict: false,
     exact: false,
   });
@@ -317,4 +323,11 @@ export const useCloseMenuOnScroll = (
       scrollContainer?.removeEventListener("scroll", onClose);
     };
   }, [open]);
+};
+
+export const useConvertToModuleOptions = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  props: UseConvertToModulesOptionsProps,
+) => {
+  return undefined;
 };

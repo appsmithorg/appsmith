@@ -4,6 +4,9 @@ import {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "utils/generators";
+import ButtonWidget from "widgets/ButtonWidget/widget";
+import IconButtonWidget from "widgets/IconButtonWidget/widget";
+import TextWidget from "widgets/TextWidget/widget";
 
 export const modalPreset = (
   title: string,
@@ -32,6 +35,7 @@ export const modalPreset = (
                 {
                   widgetId: title,
                   alignment: FlexLayerAlignment.Start,
+                  widgetType: TextWidget.type,
                 },
               ],
               layoutStyle: {
@@ -49,6 +53,7 @@ export const modalPreset = (
                 {
                   widgetId: icon,
                   alignment: FlexLayerAlignment.Start,
+                  widgetType: IconButtonWidget.type,
                 },
               ],
               layoutStyle: {
@@ -81,10 +86,12 @@ export const modalPreset = (
             {
               widgetId: button2,
               alignment: FlexLayerAlignment.End,
+              widgetType: ButtonWidget.type,
             },
             {
               widgetId: button1,
               alignment: FlexLayerAlignment.End,
+              widgetType: ButtonWidget.type,
             },
           ],
           layoutStyle: {

@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let guid: string;
-describe("General Settings", () => {
+describe("General Settings", { tags: ["@tag.Settings"] }, () => {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid: any) => {

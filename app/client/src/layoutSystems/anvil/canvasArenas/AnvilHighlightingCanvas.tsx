@@ -2,7 +2,11 @@ import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 import React from "react";
-import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+  HighlightPayload,
+} from "../utils/anvilTypes";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 
@@ -12,7 +16,7 @@ export interface AnvilHighlightingCanvasProps {
   deriveAllHighlightsFn: (
     layoutElementPositions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-  ) => AnvilHighlightInfo[];
+  ) => HighlightPayload;
   onDrop: (renderedBlock: AnvilHighlightInfo) => void;
 }
 

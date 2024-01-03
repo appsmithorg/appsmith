@@ -1,8 +1,8 @@
 import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Checks for analytics for enableTelemtry",
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     before(() => {
       homePage.NavigateToHome();

@@ -12,6 +12,7 @@ import type {
   ExecutePluginActionSuccessPayload,
   UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
+import { klona } from "klona";
 
 export interface ActionData {
   isLoading: boolean;
@@ -388,6 +389,10 @@ export const handlers = {
     draftMetaState.forEach((a) => {
       a.data = undefined;
     });
+  },
+
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 };
 

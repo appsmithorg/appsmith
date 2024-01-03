@@ -231,8 +231,9 @@ export class AggregateHelper {
     let saveStatus = this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     if (!saveStatus)
-      cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
-        "not.exist",
+      this.AssertElementAbsence(
+        this.locator._saveStatusContainer,
+        Cypress.config("defaultCommandTimeout"),
       ); //adding timeout since waiting more time is not worth it!
 
     //this.AssertNetworkStatus("@sucessSave", 200);
@@ -398,13 +399,15 @@ export class AggregateHelper {
           force: boolean;
           waitAfterClick: boolean;
           sleepTime: number;
+          type?: "click" | "invoke";
         }> = 0,
   ) {
     const button = this.locator._buttonByText(btnVisibleText);
     let index: number,
       force = true,
       waitAfterClick = true,
-      waitTime = 1000;
+      waitTime = 1000,
+      type = "click";
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
@@ -421,15 +424,23 @@ export class AggregateHelper {
           ? indexOrOptions.waitAfterClick
           : true;
       waitTime = indexOrOptions.sleepTime || 1000;
+      type = indexOrOptions?.type || "click";
     }
 
-    return this.ScrollIntoView(button, index)
-      .click({ force })
-      .then(() => {
+    const element = this.ScrollIntoView(button, index);
+    if (type == "invoke") {
+      return element.invoke("click").then(() => {
         if (waitAfterClick) {
           return this.Sleep(waitTime);
         }
       });
+    }
+
+    return element.click({ force }).then(() => {
+      if (waitAfterClick) {
+        return this.Sleep(waitTime);
+      }
+    });
   }
 
   public clickMultipleButtons(btnVisibleText: string, waitAfterClick = true) {
@@ -515,6 +526,13 @@ export class AggregateHelper {
     // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0)
     //or
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
+  }
+
+  public WaitForCondition(conditionFn: any) {
+    cy.waitUntil(() => conditionFn, {
+      timeout: Cypress.config("pageLoadTimeout"),
+      interval: 1000,
+    });
   }
 
   public AssertNetworkDataSuccess(aliasName: string, expectedRes = true) {
@@ -1502,6 +1520,12 @@ export class AggregateHelper {
       .scrollIntoView()
       .should(visibility == true ? "be.visible" : "not.be.visible");
     //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
+  }
+
+  IsElementVisible(selector: ElementType) {
+    return this.GetElement(selector).then(($element) =>
+      Cypress.$($element).length > 0 ? true : false,
+    ) as Cypress.Chainable<boolean>;
   }
 
   public CheckForErrorToast(error: string) {

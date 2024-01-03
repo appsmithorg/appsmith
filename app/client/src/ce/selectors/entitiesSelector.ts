@@ -15,7 +15,7 @@ import type { Action } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
-import { find, get, sortBy } from "lodash";
+import { find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -28,7 +28,7 @@ import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
 } from "api/PluginApi";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -44,10 +44,14 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
-import { getCurrentWorkflowActions } from "@appsmith/selectors/workflowSelectors";
+import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+import {
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
+} from "@appsmith/selectors/workflowSelectors";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -55,6 +59,41 @@ export const getEntities = (state: AppState): AppState["entities"] =>
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
+
+export const getPlugins = (state: AppState) => state.entities.plugins.list;
+
+export enum PluginCategory {
+  Integrations = "Integrations",
+  Databases = "Databases",
+  APIs = "APIs",
+  Others = "Others",
+}
+
+export type DatasourceGroupByPluginCategory = Record<
+  PluginCategory,
+  Datasource[]
+>;
+
+export const getDatasourcesGroupedByPluginCategory = createSelector(
+  getDatasources,
+  getPlugins,
+  (datasources, plugins): DatasourceGroupByPluginCategory => {
+    const groupedPlugins = keyBy(plugins, "id");
+    return <DatasourceGroupByPluginCategory>groupBy(datasources, (d) => {
+      const plugin = groupedPlugins[d.pluginId];
+      if (
+        plugin.type === PluginType.SAAS ||
+        plugin.type === PluginType.REMOTE ||
+        plugin.type === PluginType.AI
+      ) {
+        return PluginCategory.Integrations;
+      }
+      if (plugin.type === PluginType.DB) return PluginCategory.Databases;
+      if (plugin.type === PluginType.API) return PluginCategory.APIs;
+      return PluginCategory.Others;
+    });
+  },
+);
 
 // Returns non temp datasources
 export const getSavedDatasources = (state: AppState): Datasource[] => {
@@ -88,6 +127,7 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  getAnvilSpaceDistributionStatus,
   // cannot import other selectors, breaks the app
   (state) => {
     const gitMetaData =
@@ -106,6 +146,7 @@ export const getShouldShowWidgetName = createSelector(
     isDragging,
     isPreviewMode,
     isAutoCanvasResizing,
+    isDistributingSpace,
     isProtectedMode,
   ) => {
     return (
@@ -113,6 +154,7 @@ export const getShouldShowWidgetName = createSelector(
       !isDragging &&
       !isPreviewMode &&
       !isAutoCanvasResizing &&
+      !isDistributingSpace &&
       !isProtectedMode
     );
   },
@@ -374,8 +416,6 @@ export const getDatasourcesByPluginId = (
 ): Datasource[] => {
   return state.entities.datasources.list.filter((d) => d.pluginId === id);
 };
-
-export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
 export const getPluginByPackageName = (state: AppState, name: string) =>
   state.entities.plugins.list.find((p) => p.packageName === name);
@@ -968,31 +1008,41 @@ export const selectFilesForExplorer = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
   getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, workflowEntities, datasourceIdToNameMap) => {
-    const files = [...actions, ...jsActions, ...workflowEntities].reduce(
-      (acc, file) => {
-        let group = "";
-        if (file.config.pluginType === PluginType.JS) {
-          group = "JS Objects";
-        } else if (file.config.pluginType === PluginType.API) {
-          group = isEmbeddedRestDatasource(file.config.datasource)
-            ? "APIs"
-            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-        } else {
-          group = datasourceIdToNameMap[file.config.datasource.id];
-        }
-        acc = acc.concat({
-          type: file.config.pluginType,
-          entity: file,
-          group,
-        });
-        return acc;
-      },
-      [] as Array<ExplorerFileEntity>,
-    );
+  (
+    actions,
+    jsActions,
+    workflowActions,
+    workflowJsActions,
+    datasourceIdToNameMap,
+  ) => {
+    const files = [
+      ...actions,
+      ...jsActions,
+      ...workflowActions,
+      ...workflowJsActions,
+    ].reduce((acc, file) => {
+      let group = "";
+      if (file.config.pluginType === PluginType.JS) {
+        group = "JS Objects";
+      } else if (file.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(file.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[file.config.datasource.id];
+      }
+      acc = acc.concat({
+        type: file.config.pluginType,
+        entity: file,
+        group,
+      });
+      return acc;
+    }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
+      (file) => file.entity.config?.isMainJSCollection,
       (file) => file.group?.toLowerCase(),
       (file) => file.entity.config?.name?.toLowerCase(),
     ]);
@@ -1012,6 +1062,7 @@ export const selectFilesForExplorer = createSelector(
           entity: {
             id: file.entity.config.id,
             name: file.entity.config.name,
+            isMainJSCollection: file.entity?.config?.isMainJSCollection,
           },
         });
         return acc;
@@ -1349,8 +1400,8 @@ export const getModuleInstanceEntities = () => {
   return null;
 };
 
-interface PagePaneData {
-  [key: string]: { id: string; name: string; type: string }[];
+export interface PagePaneData {
+  [key: string]: { id: string; name: string; type: PluginType }[];
 }
 
 const GroupAndSortPagePaneData = (
@@ -1384,7 +1435,7 @@ const GroupAndSortPagePaneData = (
   data = Object.keys(data)
     .sort()
     .reduce(function (acc, key) {
-      acc[key] = data[key];
+      acc[key] = sortBy(data[key], (file) => file.name);
       return acc;
     }, {} as PagePaneData);
   return data;
@@ -1410,6 +1461,14 @@ export const getQueryModuleInstances = () => {
   return [];
 };
 
+export const getJSModuleInstancesData = (_: AppState) => {
+  return [] as Array<{
+    config: JSCollection;
+    data: unknown;
+    name: string;
+  }>;
+};
+
 export const getAllJSCollections = createSelector(
   getCurrentJSCollections,
   getCurrentModuleJSCollections,
@@ -1417,3 +1476,7 @@ export const getAllJSCollections = createSelector(
     return [...moduleInstanceJSCollections, ...currentContextJSCollections];
   },
 );
+
+export const getIsActionConverting = (state: AppState, actionId: string) => {
+  return false;
+};
