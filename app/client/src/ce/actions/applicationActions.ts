@@ -197,9 +197,10 @@ export const resetCurrentApplication = () => {
   };
 };
 
-export const initDatasourceConnectionDuringImportRequest = (
-  payload: string,
-) => ({
+export const initDatasourceConnectionDuringImportRequest = (payload: {
+  workspaceId: string;
+  isPartialImport?: boolean;
+}) => ({
   type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
   payload,
 });
