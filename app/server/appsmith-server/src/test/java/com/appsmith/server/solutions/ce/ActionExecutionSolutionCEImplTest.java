@@ -295,7 +295,7 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), null);
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
@@ -353,7 +353,7 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), null);
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
