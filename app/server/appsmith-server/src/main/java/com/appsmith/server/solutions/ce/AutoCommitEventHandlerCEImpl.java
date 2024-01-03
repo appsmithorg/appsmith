@@ -148,7 +148,10 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             autoCommitEvent.getAuthorEmail(),
                                             false,
                                             false)
-                                    .map(commitResponse -> Boolean.TRUE);
+                                    .then(triggerAnalyticsEvent(
+                                            AnalyticsEvents.GIT_COMMIT,
+                                            autoCommitEvent,
+                                            Map.of("isAutoCommit", Boolean.TRUE)));
                         })
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
                         .flatMap(result -> {
@@ -164,7 +167,15 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             autoCommitEvent.getPublicKey(),
                                             autoCommitEvent.getPrivateKey(),
                                             autoCommitEvent.getBranchName())
-                                    .map(pushResponse -> Boolean.TRUE);
+                                    .flatMap(pushResponse -> {
+                                        if (!pushResponse.contains("REJECTED")) { // push was successful
+                                            return triggerAnalyticsEvent(
+                                                    AnalyticsEvents.GIT_PUSH,
+                                                    autoCommitEvent,
+                                                    Map.of("isAutoCommit", Boolean.TRUE));
+                                        }
+                                        return Mono.just(Boolean.TRUE);
+                                    });
                         })
                         .defaultIfEmpty(Boolean.FALSE))
                 .flatMap(result -> {
@@ -190,30 +201,24 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                 .finishAutoCommit(autoCommitEvent.getApplicationId())
                 .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
                 .flatMap(r -> releaseFileLock(autoCommitEvent.getApplicationId()))
-                .then(triggerAnalyticsEvent(autoCommitEvent, isCommitMade))
                 .thenReturn(isCommitMade);
     }
 
-    private Mono<Boolean> triggerAnalyticsEvent(AutoCommitEvent autoCommitEvent, boolean isCommitted) {
-        if (isCommitted) {
-            Map<String, Object> analyticsProps = new HashMap<>();
-            analyticsProps.put("appId", autoCommitEvent.getApplicationId());
-            analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
-            analyticsProps.put("orgId", autoCommitEvent.getWorkspaceId());
-            analyticsProps.put("isSystemGenerated", true);
-            analyticsProps.put("isAutoCommit", true);
-            analyticsProps.put("repoUrl", autoCommitEvent.getRepoUrl());
+    private Mono<Boolean> triggerAnalyticsEvent(
+            AnalyticsEvents analyticsEvent, AutoCommitEvent autoCommitEvent, Map<String, Object> attributes) {
+        Map<String, Object> analyticsProps = new HashMap<>();
+        analyticsProps.put("appId", autoCommitEvent.getApplicationId());
+        analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
+        analyticsProps.put("orgId", autoCommitEvent.getWorkspaceId());
+        analyticsProps.put("isSystemGenerated", true);
+        analyticsProps.put("repoUrl", autoCommitEvent.getRepoUrl());
 
-            return analyticsService
-                    .sendEvent(
-                            AnalyticsEvents.GIT_COMMIT.getEventName(),
-                            autoCommitEvent.getAuthorEmail(),
-                            analyticsProps,
-                            Boolean.TRUE)
-                    .thenReturn(Boolean.TRUE);
-        } else {
-            return Mono.just(Boolean.FALSE);
-        }
+        analyticsProps.putAll(attributes);
+
+        return analyticsService
+                .sendEvent(
+                        analyticsEvent.getEventName(), autoCommitEvent.getAuthorEmail(), analyticsProps, Boolean.TRUE)
+                .thenReturn(Boolean.TRUE);
     }
 
     /**
