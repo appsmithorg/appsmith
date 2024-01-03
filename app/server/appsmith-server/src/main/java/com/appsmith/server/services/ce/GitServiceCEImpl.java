@@ -1127,7 +1127,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      */
     @Override
     public Mono<Application> detachRemote(String defaultApplicationId) {
-        Mono<Application> disconnectMono = getApplicationById(defaultApplicationId, AclPermission.CONNECT_TO_GIT)
+        Mono<Application> disconnectMono = getApplicationById(
+                        defaultApplicationId, applicationPermission.getGitConnectPermission())
                 .flatMap(defaultApplication -> {
                     if (Optional.ofNullable(defaultApplication.getGitApplicationMetadata())
                                     .isEmpty()
