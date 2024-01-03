@@ -136,7 +136,7 @@ describe("Slug URLs", () => {
   it("4. Checks redirect url", () => {
     cy.url().then((url) => {
       cy.LogOut(false);
-      agHelper.VisitNAssert(url + "?embed=true&a=b", "signUpLogin");
+      agHelper.VisitNAssert(url + "?embed=true&a=b", "getConsolidatedData");
       agHelper.Sleep(2000);
       // cy.location().should((loc) => {
       //   expect(loc.search).to.eq(

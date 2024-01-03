@@ -279,7 +279,7 @@ Cypress.Commands.add("LogOutUser", () => {
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
   goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
-  cy.wait("@signUpLogin")
+  cy.wait("@getConsolidatedData")
     .its("response.body.responseMeta.status")
     .should("eq", 200);
   cy.get(loginPage.username).should("be.visible");
@@ -312,7 +312,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
 
   cy.visit("/user/signup", { timeout: 60000 });
   cy.wait(4000); //for sign up page to open fully
-  cy.wait("@signUpLogin")
+  cy.wait("@getConsolidatedData")
     .its("response.body.responseMeta.status")
     .should("eq", 200);
   cy.get(signupPage.username).should("be.visible");

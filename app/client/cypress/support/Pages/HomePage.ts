@@ -384,7 +384,7 @@ export class HomePage {
     this.agHelper.Sleep(); //waiting for window to load
     this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
-    this.agHelper.VisitNAssert("/user/login", "signUpLogin");
+    this.agHelper.VisitNAssert("/user/login", "getConsolidatedData");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.TypeText(this._username, uname);
     this.agHelper.TypeText(this._password, pswd);
@@ -402,7 +402,7 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
+    this.agHelper.VisitNAssert("/user/signup", "getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);

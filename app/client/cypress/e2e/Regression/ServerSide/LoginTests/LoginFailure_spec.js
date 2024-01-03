@@ -15,7 +15,7 @@ describe("Login failure", function () {
       .then((url) => {
         urlWithoutQueryParams = url.split("?")[0];
         homePage.LogOutviaAPI();
-        agHelper.VisitNAssert(urlWithoutQueryParams, "signUpLogin");
+        agHelper.VisitNAssert(urlWithoutQueryParams, "getConsolidatedData");
         // agHelper.Sleep(3000); //for page redirect to complete
         // assertHelper.AssertNetworkStatus("signUpLogin");
       })
