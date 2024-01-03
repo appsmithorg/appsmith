@@ -107,11 +107,24 @@ public class DatabricksPlugin extends BasePlugin {
                                     "Error checking validity of Databricks connection : " + error.getMessage());
                         }
 
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(true);
+
                         try {
 
                             // We can proceed since the connection is valid.
                             Statement statement = connection.createStatement();
-                            ResultSet resultSet = statement.executeQuery(query);
+                            boolean hasResultSet = statement.execute(query);
+
+                            if (!hasResultSet) {
+                                // This must be an update/delete/insert kind of query which did not return any results.
+                                // Lets set sample response and return back.
+                                Map<String, Object> successResponse = Map.of("success", true);
+                                result.setBody(objectMapper.valueToTree(successResponse));
+                                return Mono.just(result);
+                            }
+
+                            ResultSet resultSet = statement.getResultSet();
 
                             ResultSetMetaData metaData = resultSet.getMetaData();
                             int colCount = metaData.getColumnCount();
@@ -138,16 +151,24 @@ public class DatabricksPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
+
+                            String sqlState = e.getSQLState();
+                            // Databricks returns true on isValid check even if the connection is stale.
+                            // This scenario in particular happens when the connection was established before
+                            // the cluster restarts. The sql state here corresponds to bad connection link
+                            // and hence the correct action is to throw a StaleConnectionException.
+                            if (sqlState != null && sqlState.equals("08S01")) {
+                                return Mono.error(new StaleConnectionException(CONNECTION_CLOSED_ERROR_MSG));
+                            }
+
                             return Mono.error(new AppsmithPluginException(
                                     QUERY_EXECUTION_FAILED,
                                     QUERY_EXECUTION_FAILED_ERROR_MSG,
                                     e.getMessage(),
-                                    "SQLSTATE: " + e.getSQLState()));
+                                    "SQLSTATE: " + sqlState));
                         }
 
-                        ActionExecutionResult result = new ActionExecutionResult();
                         result.setBody(objectMapper.valueToTree(rowsList));
-                        result.setIsExecutionSuccess(true);
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)

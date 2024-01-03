@@ -28,7 +28,9 @@ describe(
       //Table widget test with invalid binding value
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.testJsontext("tabledata", JSON.stringify(testdata.defaultdataBinding));
-      cy.evaluateErrorMessage(testdata.tableWidgetErrorMsg);
+      cy.evaluateErrorMessage(
+        `This value does not evaluate to type Array<Object>`,
+      );
     });
   },
 );

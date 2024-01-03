@@ -20,9 +20,9 @@ import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import BaseWidget from "widgets/BaseWidget";
 import type { ReactNode } from "react";
 import React from "react";
-import ContainerComponent from "widgets/ContainerWidget/component";
+import { ContainerComponent } from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { Elevations, anvilWidgets } from "widgets/anvil/constants";
 
 class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   static type = anvilWidgets.SECTION_WIDGET;
@@ -83,7 +83,11 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
 
   getWidgetView(): ReactNode {
     return (
-      <ContainerComponent {...this.props} noScroll>
+      <ContainerComponent
+        elevatedBackground={this.props.elevatedBackground}
+        elevation={Elevations.SECTION_ELEVATION}
+        {...this.props}
+      >
         <LayoutProvider {...this.props} />
       </ContainerComponent>
     );

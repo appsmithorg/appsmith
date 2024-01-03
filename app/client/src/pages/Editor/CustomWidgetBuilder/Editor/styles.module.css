@@ -1,0 +1,22 @@
+.contentRight {
+  display: flex;
+  width: 50%;
+  flex-direction: column;
+  border-width: 1px;
+  border-top: none;
+  border-right: none;
+}
+
+.contentRightBody {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.headerControls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+}

@@ -47,6 +47,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.441.0",
     "@aws-sdk/lib-storage": "^3.441.0",
+    "@babel/standalone": "^7.23.6",
     "@blueprintjs/core": "^3.43.0",
     "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "3.22.0",
@@ -77,6 +78,7 @@
     "@shared/dsl": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
     "@tinymce/tinymce-react": "^3.13.0",
+    "@types/babel__standalone": "^7.1.7",
     "@types/google.maps": "^3.51.0",
     "@types/react-page-visibility": "^6.4.1",
     "@types/web": "^0.0.99",

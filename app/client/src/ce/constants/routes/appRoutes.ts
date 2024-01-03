@@ -1,6 +1,9 @@
 // Leaving this require here. The path-to-regexp module has a commonJS version and an ESM one.
 // We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
+
+import { matchPath } from "react-router";
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { match } = require("path-to-regexp");
 
@@ -27,6 +30,14 @@ export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
 
 export const WIDGETS_EDITOR_BASE_PATH = `/widgets`;
 export const WIDGETS_EDITOR_ID_PATH = `${WIDGETS_EDITOR_BASE_PATH}/:widgetIds`;
+
+/*
+ * CUSTOM WIDGET BUILDER PATHS
+ */
+export const CUSTOM_WIDGETS_EDITOR_ID_PATH = `${BUILDER_PATH}${WIDGETS_EDITOR_ID_PATH}/builder`;
+export const CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM = `${BUILDER_CUSTOM_PATH}${WIDGETS_EDITOR_ID_PATH}/builder`;
+/* */
+
 export const API_EDITOR_BASE_PATH = `/api`;
 export const API_EDITOR_ID_PATH = `${API_EDITOR_BASE_PATH}/:apiId`;
 export const API_EDITOR_ID_ADD_PATH = `${API_EDITOR_BASE_PATH}/:apiId/add`;
@@ -61,12 +72,19 @@ export const APP_STATE_PATH = `/:appState`;
 
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
-export const matchDatasourcePath = match(
-  `${BUILDER_PATH}${DATA_SOURCES_EDITOR_ID_PATH}`,
-);
-export const matchSAASGsheetsPath = match(
-  `${BUILDER_PATH}${SAAS_GSHEET_EDITOR_ID_PATH}`,
-);
+export const matchDatasourcePath = (pathname: string) =>
+  matchPath(pathname, {
+    path: [`${BUILDER_PATH}${DATA_SOURCES_EDITOR_ID_PATH}`],
+    strict: false,
+    exact: false,
+  });
+
+export const matchSAASGsheetsPath = (pathname: string) =>
+  matchPath(pathname, {
+    path: [`${BUILDER_PATH}${SAAS_GSHEET_EDITOR_ID_PATH}`],
+    strict: false,
+    exact: false,
+  });
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
 export const matchQueryBuilderPath = match(

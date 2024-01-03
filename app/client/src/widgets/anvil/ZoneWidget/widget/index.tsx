@@ -19,9 +19,9 @@ import BaseWidget from "widgets/BaseWidget";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import ContainerComponent from "widgets/ContainerWidget/component";
+import { ContainerComponent } from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { Elevations, anvilWidgets } from "widgets/anvil/constants";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
@@ -82,7 +82,11 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
 
   getWidgetView(): ReactNode {
     return (
-      <ContainerComponent {...this.props} noScroll>
+      <ContainerComponent
+        elevatedBackground={this.props.elevatedBackground}
+        elevation={Elevations.ZONE_ELEVATION}
+        {...this.props}
+      >
         <LayoutProvider {...this.props} />
       </ContainerComponent>
     );
