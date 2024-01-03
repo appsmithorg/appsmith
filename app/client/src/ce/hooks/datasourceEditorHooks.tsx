@@ -27,6 +27,8 @@ import {
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { isEnabledForPreviewData } from "utils/editorContextUtils";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -55,6 +57,13 @@ export const useHeaderActions = (
   const showGenerateButton = useShowPageGenerationOnHeader(
     datasource as Datasource,
   );
+
+  const plugin = useSelector((state: AppState) =>
+    getPlugin(state, datasource?.pluginId || ""),
+  );
+
+  const isPluginAllowedToPreviewData =
+    !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
 
   if (editorType === EditorNames.APPLICATION) {
     const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
@@ -90,6 +99,7 @@ export const useHeaderActions = (
         datasource={datasource as Datasource}
         disabled={!canCreateDatasourceActions || !isPluginAuthorized}
         eventFrom="datasource-pane"
+        isNewQuerySecondaryButton={!!isPluginAllowedToPreviewData}
         pluginType={pluginType}
       />
     );

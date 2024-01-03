@@ -62,7 +62,10 @@ import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 import { toast, Callout } from "design-system";
 import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isEnabledForPreviewData,
+} from "utils/editorContextUtils";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
@@ -95,7 +98,6 @@ import {
   selectFeatureFlags,
 } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
@@ -1154,8 +1156,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
-    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
-    (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
+    !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
 
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
   const isPagePaneSegmentsEnabled = selectFeatureFlagCheck(

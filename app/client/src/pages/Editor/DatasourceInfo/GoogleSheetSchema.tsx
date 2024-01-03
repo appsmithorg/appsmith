@@ -499,7 +499,7 @@ function GoogleSheetSchema(props: Props) {
           <Button
             className="t--datasource-generate-page"
             key="datasource-generate-page"
-            kind="secondary"
+            kind="primary"
             onClick={onGsheetGeneratePage}
             size="md"
           >

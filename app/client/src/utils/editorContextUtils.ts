@@ -19,6 +19,7 @@ import store from "store";
 import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import {
+  DATASOURCES_ALLOWED_FOR_PREVIEW_MODE,
   MOCK_DB_TABLE_NAMES,
   SQL_DATASOURCES,
 } from "constants/QueryEditorConstants";
@@ -286,3 +287,17 @@ export function getDefaultTemplateActionConfig(
     return null;
   }
 }
+
+export const isEnabledForPreviewData = (
+  datasource: Datasource,
+  plugin: Plugin,
+) => {
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
+
+  return (
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
+    (plugin?.name === PluginName.MONGO &&
+      !!(datasource as Datasource)?.isMock) ||
+    isGoogleSheetPlugin
+  );
+};
