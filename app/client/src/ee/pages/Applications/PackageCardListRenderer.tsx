@@ -17,6 +17,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { Package } from "@appsmith/constants/PackageConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export interface PackageCardListRendererProps {
   createPackage: () => void;
@@ -55,7 +57,7 @@ function PackageCardListRenderer({
           <NoAppsFound>
             <img
               className="mb-7"
-              src="https://assets.appsmith.com/no-packages.svg"
+              src={getAssetUrl(`${ASSETS_CDN_URL}/no-packages.svg`)}
             />
             <Text kind="heading-xs">{createMessage(EMPTY_PACKAGE_LIST)}</Text>
           </NoAppsFound>

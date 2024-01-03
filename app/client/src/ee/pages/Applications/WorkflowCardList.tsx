@@ -1,10 +1,7 @@
 export * from "ce/pages/Applications/WorkflowCardList";
-
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import WorkflowCardListRenderer from "./WorkflowCardListRenderer";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { hasManageWorkspaceWorkflowPermission } from "@appsmith/utils/permissionHelpers";
 import {
   getIsCreatingWorkflow,
@@ -17,6 +14,7 @@ import { createWorkflowFromWorkspace } from "@appsmith/actions/workflowActions";
 function WorkflowCardList({
   isMobile,
   workflows = [],
+  workspace,
   workspaceId,
 }: WorkflowCardListProps) {
   const dispatch = useDispatch();
@@ -25,13 +23,10 @@ function WorkflowCardList({
     getIsCreatingWorkflow(state, workspaceId),
   );
   const isFetchingWorkflows = useSelector(getIsFetchingWorkflows);
-  const workspaces = useSelector(getFetchedWorkspaces);
   const onCreateNewWorkflow = useCallback(() => {
     dispatch(createWorkflowFromWorkspace({ workspaceId }));
   }, [createWorkflowFromWorkspace, dispatch, workspaceId]);
 
-  const currentUserWorkspace = workspaces.find((w) => w.id === workspaceId);
-  const workspace = currentUserWorkspace;
   const canManageWorkflows = hasManageWorkspaceWorkflowPermission(
     workspace?.userPermissions,
   );

@@ -37,25 +37,6 @@ const DEFAULT_USER_WORKSPACES = [
   },
 ];
 
-// const DEFAULT_USERS = [];
-
-// const DEFAULT_PACKAGES = [
-//   {
-//     id: "pkg",
-//     userPermissions: [],
-//     name: "Package 1",
-//     workspaceId: DEFAULT_WORKSPACE_ID,
-//   },
-// ];
-// const DEFAULT_WORKFLOWS = [
-//   {
-//     id: "wf",
-//     userPermissions: [],
-//     name: "Workflow 1",
-//     workspaceId: DEFAULT_WORKSPACE_ID,
-//   },
-// ];
-
 const setQueryModuleFeatureFlag = (value: boolean) => {
   const moduleFeatureSelectorsFactory = moduleFeatureSelectors as jest.Mocked<
     typeof moduleFeatureSelectors
@@ -107,20 +88,12 @@ const mockfetchedWorkspacesList = (workspaces = DEFAULT_USER_WORKSPACES) => {
   const workspacesSelectorsFactory = workspaceSelectors as jest.Mocked<
     typeof workspaceSelectors
   >;
-  // const applicationSelectorsFactory = applicationSelectors as jest.Mocked<
-  //   typeof applicationSelectors
-  // >;
 
   workspacesSelectorsFactory.getFetchedWorkspaces.mockImplementation(
     // eslint-disable-next-line
     // @ts-ignore
     () => workspaces,
   );
-  // applicationSelectorsFactory.getUserApplicationsWorkspacesList.mockImplementation(
-  //   // eslint-disable-next-line
-  //   // @ts-ignore
-  //   () => userWorkspaces,
-  // );
 };
 
 describe("WorkspaceAction", () => {
