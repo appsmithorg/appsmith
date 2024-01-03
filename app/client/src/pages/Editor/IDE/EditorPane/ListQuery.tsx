@@ -59,7 +59,12 @@ const ListQuery = () => {
           </Button>
         </Flex>
       )}
-      <Flex flexDirection={"column"} overflowY="auto" px="spaces-3">
+      <Flex
+        flexDirection={"column"}
+        gap="spaces-4"
+        overflowY="auto"
+        px="spaces-3"
+      >
         {Object.keys(files).map((key) => {
           return (
             <Flex flexDirection={"column"} key={key}>
