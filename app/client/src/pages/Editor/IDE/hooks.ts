@@ -69,7 +69,7 @@ export const useCurrentEditorState = () => {
         break;
       default:
         setSelectedSegment(EditorEntityTab.UI);
-        setSelectedSegmentState(EditorEntityTabState.Edit);
+        setSelectedSegmentState(EditorEntityTabState.Add);
         break;
     }
   }, [location.pathname]);
