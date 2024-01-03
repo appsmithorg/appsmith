@@ -2,7 +2,7 @@ import CE_SwitchEnvironment from "ce/components/SwitchEnvironment";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import type { CurrentEnvironmentDetails } from "@appsmith/reducers/environmentReducer";
 import type { EnvironmentType } from "@appsmith/configs/types";
 import {
@@ -16,16 +16,13 @@ import {
   ENVIRONMENT_QUERY_KEY,
   envSwitcherWalkthroughConfig,
 } from "@appsmith/utils/Environments";
-import { softRefreshActions } from "actions/pluginActionActions";
 import {
   START_SWITCH_ENVIRONMENT,
   createMessage,
 } from "@appsmith/constants/messages";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import { isDatasourceInViewMode } from "selectors/ui";
-import { useLocation } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   getFeatureWalkthroughShown,
   saveCurrentEnvironment,
@@ -66,12 +63,16 @@ export interface SwitchEnvironmentProps {
   setCurrentEnvDetails: (currentEnvDetails: CurrentEnvironmentDetails) => void;
   createTempDatasource?: (data: any) => void;
   postgresPluginId?: string;
+  editorId: string;
+  onChangeEnv?: () => void;
 }
 
 const SwitchEnvironment = ({
   createTempDatasource,
   defaultEnvironment,
+  editorId,
   environmentList,
+  onChangeEnv,
   postgresPluginId,
   setCurrentEnvDetails,
   viewMode,
@@ -83,17 +84,15 @@ const SwitchEnvironment = ({
   const isMultipleEnvEnabled = useFeatureFlag(
     FEATURE_FLAG.release_datasource_environments_enabled,
   );
-  const appId: string = useSelector(getCurrentApplicationId);
   const workspaceId: string = useSelector(getCurrentWorkspaceId);
-  const dispatch = useDispatch();
-  const location = useLocation();
+
   //listen to url change and disable switch environment if datasource page is open
   useEffect(() => {
     setDiableSwitchEnvironment(
       !!matchDatasourcePath(window.location.pathname) ||
         !!matchSAASGsheetsPath(window.location.pathname),
     );
-  }, [location.pathname]);
+  }, [window.location.pathname]);
   //URL for datasource edit and review page is same
   //this parameter helps us to differentiate between the two.
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
@@ -139,7 +138,7 @@ const SwitchEnvironment = ({
   }, [renderWalkthrough]);
 
   useEffect(() => {
-    !!selectedEnv && saveCurrentEnvironment(selectedEnv.id, appId);
+    !!selectedEnv && saveCurrentEnvironment(selectedEnv.id, editorId);
   }, [environmentList.length]);
 
   // function to set the selected environment
@@ -158,7 +157,7 @@ const SwitchEnvironment = ({
       setCurrentEnvDetails({
         id: env.id,
         name: env.name,
-        appId,
+        editorId,
         workspaceId,
         editingId: env.id,
       });
@@ -169,13 +168,15 @@ const SwitchEnvironment = ({
         kind: "info",
         autoClose: 500,
       });
-      dispatch(softRefreshActions());
+      if (onChangeEnv) {
+        onChangeEnv();
+      }
     }
   };
 
   // Show ramps if feature is not enabled or
   if (!isMultipleEnvEnabled)
-    return <CE_SwitchEnvironment viewMode={viewMode} />;
+    return <CE_SwitchEnvironment editorId={editorId} viewMode={viewMode} />;
   // skip the render if no environments are present
   if (environmentList.length <= 0) return null;
 

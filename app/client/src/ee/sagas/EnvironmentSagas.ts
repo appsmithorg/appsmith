@@ -21,7 +21,6 @@ import {
 } from "@appsmith/utils/Environments";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { toast } from "design-system";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   getSavedCurrentEnvironmentDetails,
   resetCurrentEnvironment,
@@ -35,11 +34,14 @@ export const LOCKED_ENVIRONMENTS_ENUM = ["production", "staging"];
 
 const fetchStoredEnv = (
   envs: EnvironmentType[],
-  storedEnvDetails: { appId: string; envId: string },
-  appId: string,
+  storedEnvDetails: { editorId: string; envId: string },
+  editorId: string,
 ) => {
   // if the env is already set in the indexDb is not from same app, override it
-  if (storedEnvDetails.appId.length > 0 && storedEnvDetails.appId !== appId)
+  if (
+    storedEnvDetails.editorId.length > 0 &&
+    storedEnvDetails.editorId !== editorId
+  )
     return undefined;
 
   const storedEnvId = storedEnvDetails.envId;
@@ -58,13 +60,18 @@ const fetchStoredEnv = (
 function* FetchEnvironmentsInitSaga(
   action: ReduxAction<{
     workspaceId: string;
+    editorId: string;
     fetchDatasourceMeta?: boolean;
   }>,
 ) {
   try {
+    const { editorId, fetchDatasourceMeta, workspaceId } = action.payload;
     const response: ApiResponse<EnvironmentType[]> = yield call(
       EnvironmentApi.fetchEnvironmentConfigs,
-      action.payload,
+      {
+        workspaceId,
+        fetchDatasourceMeta,
+      },
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -73,15 +80,12 @@ function* FetchEnvironmentsInitSaga(
       // list of env for which execute permission is present
       const executableEnvs = getFilteredEnvListWithPermissions(response.data);
 
-      // Get current application ID
-      const appId: string = yield select(getCurrentApplicationId);
-
       // Prepare current environment details
       let currentEnvData: CurrentEnvironmentDetails = {
         id: "",
         name: "",
-        appId,
-        workspaceId: action.payload.workspaceId,
+        editorId,
+        workspaceId,
         editingId: "",
       };
 
@@ -103,19 +107,22 @@ function* FetchEnvironmentsInitSaga(
           : executableEnvs[0];
 
         // check indexDb if the default environment is already set
-        const storedEnvDetails: { appId: string; envId: string } =
-          yield getSavedCurrentEnvironmentDetails() || { appId: "", envId: "" };
+        const storedEnvDetails: { editorId: string; envId: string } =
+          yield getSavedCurrentEnvironmentDetails() || {
+            editorId: "",
+            envId: "",
+          };
 
         // Check if there was any environment set in previous session and if it is valid for current session.
         // If not, update the environemnt to selected environment.
         const storedEnv = fetchStoredEnv(
           executableEnvs,
           storedEnvDetails,
-          appId,
+          editorId,
         );
         if (!storedEnv) {
           // Save the current environment details in indexDb
-          saveCurrentEnvironment(selectedEnv.id, appId);
+          saveCurrentEnvironment(selectedEnv.id, editorId);
           if (isMultipleEnvEnabled(featureFlags)) {
             // Set new if there is no query param
             queryParams.set(
@@ -182,7 +189,7 @@ function* FetchEnvironmentsInitSaga(
         payload: response?.responseMeta,
       });
     }
-  } catch {
+  } catch (e: any) {
     yield put({
       type: ReduxActionTypes.FETCH_ENVIRONMENT_FAILED,
       payload: {
@@ -194,23 +201,20 @@ function* FetchEnvironmentsInitSaga(
 
 // function to fetch workspace id and start fetching the envs
 function* fetchWorkspaceIdandInitSaga(
-  actionPayload: ReduxAction<{ workspaceId: string } | string>,
+  action: ReduxAction<{ workspaceId: string; editorId: string }>,
 ) {
-  const action = actionPayload.type;
-  let workspaceId = "";
+  const editorId = action.payload?.editorId;
+  const workspaceId = action.payload?.workspaceId;
 
-  // in case the action triggering this saga is SET_WORKSPACE_ID_FOR_IMPORT, payload is workspaceId
-  if (action === ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT) {
-    workspaceId = actionPayload.payload as string;
-  } else {
-    // in case the action triggering this saga is SET_CURRENT_WORKSPACE_ID, payload is {workspaceId: string}
-    workspaceId = (actionPayload.payload as Record<string, string>)
-      ?.workspaceId;
-  }
-
-  if (!workspaceId) return;
+  if (!workspaceId || !editorId) return;
   // fetch the envs for the workspace, sending fetchDatasourceMeta as true to fetch the info about the configured envs (for showing walkthrough)
-  yield put(fetchingEnvironmentConfigs(workspaceId, true));
+  yield put(
+    fetchingEnvironmentConfigs({
+      workspaceId,
+      editorId,
+      fetchDatasourceMeta: true,
+    }),
+  );
 }
 
 // Saga to handle creating a new environment
