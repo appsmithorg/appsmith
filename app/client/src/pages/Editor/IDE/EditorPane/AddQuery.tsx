@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Button, Flex, List, Text } from "design-system";
+import { Flex, List, Text } from "design-system";
 import type { ListItemProps } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import keyBy from "lodash/keyBy";
@@ -20,9 +20,11 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import SegmentAddHeader from "./components/SegmentAddHeader";
 
 const StyledList = styled(List)`
   padding: 0;
+  gap: 0;
 `;
 
 const AddQuery = () => {
@@ -94,33 +96,19 @@ const AddQuery = () => {
   }, [pageId]);
 
   return (
-    <>
-      <Flex
-        alignItems="center"
-        borderBottom={"1px solid var(--ads-v2-color-border)"}
-        justifyContent="space-between"
-        px="spaces-4"
-        py="spaces-2"
-      >
-        <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
-          {createMessage(PAGES_PANE_TEXTS.query_create_tab_title)}
-        </Text>
-        <Button
-          isIconButton
-          kind={"tertiary"}
-          onClick={closeButtonClickHandler}
-          size={"sm"}
-          startIcon={"close-line"}
-        />
-      </Flex>
+    <Flex flexDirection="column" gap={"spaces-4"}>
+      <SegmentAddHeader
+        onCloseClick={closeButtonClickHandler}
+        titleMessage={PAGES_PANE_TEXTS.query_create_tab_title}
+      />
       <Flex
         flexDirection="column"
-        gap="spaces-3"
+        gap="spaces-4"
         overflow="scroll"
+        pr="spaces-2"
         px="spaces-3"
-        py="spaces-4"
       >
-        <Flex flexDirection="column" gap="spaces-2">
+        <Flex flexDirection="column">
           {/* From source */}
           <Text
             className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
@@ -134,7 +122,7 @@ const AddQuery = () => {
             items={getListItems(fromExistingSources)}
           />
         </Flex>
-        <Flex flexDirection="column" gap="spaces-2">
+        <Flex flexDirection="column">
           {/* From source */}
           <Text
             className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
@@ -149,7 +137,7 @@ const AddQuery = () => {
           />
         </Flex>
       </Flex>
-    </>
+    </Flex>
   );
 };
 

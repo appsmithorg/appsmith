@@ -56,6 +56,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -118,6 +119,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -128,7 +130,11 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -226,6 +232,9 @@ public class GitServiceCETest {
 
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @SpyBean
+    AnalyticsService analyticsService;
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
@@ -3461,7 +3470,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3487,7 +3495,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3530,7 +3537,6 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo (1)");
-        applicationJson.setDatasourceList(new ArrayList<>());
 
         Application testApplication = new Application();
         testApplication.setName("testGitRepo");
@@ -3584,12 +3590,12 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
-        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
+        String appJSONDBName = applicationJson.getDatasourceList().get(0).getName();
 
         String pluginId =
                 pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
-        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setName(appJSONDBName);
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -3647,12 +3653,12 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName(null);
-        applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
+        String appJSONDBName = applicationJson.getDatasourceList().get(0).getName();
 
         String pluginId =
                 pluginRepository.findByPackageName("mongo-plugin").block().getId();
         Datasource datasource = new Datasource();
-        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setName(appJSONDBName);
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -4373,6 +4379,9 @@ public class GitServiceCETest {
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the protected branch list
                             assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
+                            // the analytics service should be triggered once for this event
+                            verify(analyticsService, times(1))
+                                    .sendEvent(eq(GIT_ADD_PROTECTED_BRANCH.getEventName()), anyString(), anyMap());
                         }
                     }
                 })

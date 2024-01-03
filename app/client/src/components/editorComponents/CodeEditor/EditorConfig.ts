@@ -16,6 +16,8 @@ export const EditorModes = {
   JAVASCRIPT: "javascript",
   GRAPHQL: "graphql",
   GRAPHQL_WITH_BINDING: "graphql-js",
+  HTMLMIXED: "htmlmixed",
+  CSS: "css",
   ...editorSQLModes,
 } as const;
 

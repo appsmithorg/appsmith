@@ -627,8 +627,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 group(fieldName(QNewAction.newAction.pluginType)).count().as("count");
         MatchOperation filterStates = match(where(fieldName(QNewAction.newAction.applicationId))
                 .is(applicationId)
-                .and(fieldName(QNewAction.newAction.deleted))
-                .ne(Boolean.TRUE));
+                .andOperator(notDeleted()));
         ProjectionOperation projectionOperation = project("count").and("_id").as("pluginType");
         Aggregation aggregation = newAggregation(filterStates, countByPluginType, projectionOperation);
         return mongoOperations.aggregate(
