@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { Button, Flex } from "design-system";
 import WidgetEntity from "pages/Editor/Explorer/Widgets/WidgetEntity";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import {
   getCurrentPageId,
@@ -11,21 +11,16 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
-import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EmptyState } from "./EmptyState";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { getSelectedWidgets } from "selectors/ui";
 
 const ListWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
-  const selectedWidgets = useSelector(getSelectedWidgets);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const dispatch = useDispatch();
 
   const canManagePages = getHasManagePagePermission(
     isFeatureEnabled,
@@ -37,12 +32,8 @@ const ListWidgets = () => {
   }, [widgets?.children]);
 
   const addButtonClickHandler = useCallback(() => {
-    if (selectedWidgets.length) {
-      dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
-    } else {
-      history.push(builderURL({ pageId }));
-    }
-  }, [widgets]);
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
 
   return (
     <Flex flexDirection="column" gap="spaces-4" overflow="hidden" py="spaces-3">
