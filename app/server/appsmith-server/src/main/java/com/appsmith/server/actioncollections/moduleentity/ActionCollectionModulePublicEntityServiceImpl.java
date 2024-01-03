@@ -9,7 +9,6 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -31,13 +30,12 @@ public class ActionCollectionModulePublicEntityServiceImpl extends ActionCollect
     private final ActionCollectionService actionCollectionService;
 
     @Override
-    public Mono<ModuleConsumable> createPublicEntity(
-            String workspaceId, Module module, ModuleConsumable moduleConsumable) {
+    public Mono<Reusable> createPublicEntity(String workspaceId, Module module, Reusable moduleConsumable) {
         return this.createModuleActionCollection(
                 Optional.of(workspaceId), module.getId(), (ActionCollectionDTO) moduleConsumable, true);
     }
 
-    private Mono<ModuleConsumable> createModuleActionCollection(
+    private Mono<Reusable> createModuleActionCollection(
             Optional<String> workspaceIdOptional,
             String moduleId,
             ActionCollectionDTO actionCollectionDTO,
@@ -53,9 +51,7 @@ public class ActionCollectionModulePublicEntityServiceImpl extends ActionCollect
                             policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
                     moduleActionCollection.setPolicies(childActionCollectionPolicies);
 
-                    return layoutCollectionService
-                            .createCollection(moduleActionCollection)
-                            .map(collectionDTO -> (ModuleConsumable) collectionDTO);
+                    return layoutCollectionService.createCollection(moduleActionCollection);
                 });
     }
 

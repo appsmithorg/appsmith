@@ -2,6 +2,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Action } from "entities/Action";
 import { createSelector } from "reselect";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 const DEFAULT_INPUT_EVAL_VALUES = {};
 
@@ -63,5 +64,6 @@ export const getModuleInputsEvalValues = (state: AppState) =>
 export const getModuleInstanceActions = (state: AppState) =>
   state.entities.moduleInstanceEntities.actions;
 
-export const getModuleInstanceJSCollections = (state: AppState) =>
-  state.entities.moduleInstanceEntities.jsCollections;
+export const getModuleInstanceJSCollections = (
+  state: AppState,
+): JSCollectionData[] => state.entities.moduleInstanceEntities.jsCollections;

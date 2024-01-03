@@ -1,5 +1,6 @@
 package com.appsmith.server.modules.crud;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Policy;
@@ -14,6 +15,7 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QModule;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
@@ -154,6 +156,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             moduleDTO.setPackageUUID(module.getPackageUUID());
             moduleDTO.setUserPermissions(module.getUserPermissions());
             moduleDTO.setEntity(null);
+            moduleDTO.setOriginModuleId(module.getOriginModuleId());
 
             moduleDTO.setSettingsForm(settingsForm);
 
@@ -265,15 +268,24 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                     ModuleConsumable publicEntity =
                             savedModule.getUnpublishedModule().getEntity();
 
-                    // Since this entity is being created by default,
-                    // we can set the name to be same as the module name
-                    publicEntity.setName(savedModule.getUnpublishedModule().getName());
+                    Reusable reusable;
+                    if (publicEntity instanceof ActionDTO) {
+                        reusable = (ActionDTO) publicEntity;
+                        // Since this entity is being created by default,
+                        // we can set the name to be same as the module name
+                        publicEntity.setName(savedModule.getUnpublishedModule().getName());
+                    } else if (publicEntity instanceof ActionCollectionDTO) {
+                        reusable = (ActionCollectionDTO) publicEntity;
+                        publicEntity.setName(savedModule.getUnpublishedModule().getName());
+                    } else {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
 
                     ModulePublicEntityService<?> modulePublicEntityService =
                             getModulePublicEntityService(savedModule.getUnpublishedModule());
 
                     return modulePublicEntityService
-                            .createPublicEntity(workspaceId, module, publicEntity)
+                            .createPublicEntity(workspaceId, module, reusable)
                             .then(this.setTransientFieldsFromModuleToModuleDTO(
                                     savedModule, savedModule.getUnpublishedModule()))
                             .flatMap(this::setModuleSettingsForCreator);
@@ -459,5 +471,13 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 completeFieldName(QModule.module.publishedModule.name),
                 completeFieldName(QModule.module.moduleUUID));
         return repository.findAllByIds(moduleIdsSet, projectionFields, permissionOptional);
+    }
+
+    @Override
+    public Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId) {
+        return repository
+                .findConsumableModuleByPackageIdAndOriginModuleId(
+                        packageId, originModuleId, Optional.of(modulePermission.getReadPermission()))
+                .flatMap(module -> generateModuleByViewMode(module, ResourceModes.VIEW));
     }
 }

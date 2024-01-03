@@ -18,4 +18,6 @@ public interface CrudModuleServiceCECompatible extends BaseModuleServiceCECompat
     Flux<String> findPackageIdsByModuleIds(Set<String> ids, Optional<AclPermission> permission);
 
     Flux<Module> findExportableModuleDataByIds(Set<String> moduleIdsSet, Optional<AclPermission> permissionOptional);
+
+    Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId);
 }

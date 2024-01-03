@@ -40,4 +40,9 @@ public class CrudModuleServiceCECompatibleImpl extends BaseModuleServiceImpl imp
             Set<String> moduleIdsSet, Optional<AclPermission> permissionOptional) {
         return Flux.empty();
     }
+
+    @Override
+    public Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
 }
