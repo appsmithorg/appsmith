@@ -11,7 +11,7 @@ import {
   saasEditorApiIdURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
-import { PluginType } from "../entities/Action";
+import { PluginType } from "../../entities/Action";
 import type { QueryListState } from "./FocusSelectors";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 

@@ -11,12 +11,12 @@ import {
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
-} from "../constants/routes";
+} from "constants/routes";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
-} from "../pages/Editor/SaaSEditor/constants";
-import { PluginType } from "../entities/Action";
+} from "pages/Editor/SaaSEditor/constants";
+import { PluginType } from "../../entities/Action";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {

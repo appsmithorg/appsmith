@@ -75,13 +75,13 @@ import {
   getSelectedJSObjectId,
   getSelectedQueryId,
   getSelectedSegment,
-} from "./FocusSelectors";
+} from "@appsmith/navigation/FocusSelectors";
 import {
   setSelectedDatasource,
   setSelectedJSObject,
   setSelectedQuery,
   setSelectedSegment,
-} from "./FocusSetters";
+} from "@appsmith/navigation/FocusSetters";
 import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
 
 export enum FocusElement {
