@@ -142,9 +142,12 @@ export const migrateAppIdToEditorId = async (values: {
 };
 
 // Function to save the current environment and the appId in indexedDB
-export const saveCurrentEnvironment = async (envId: string, appId: string) => {
+export const saveCurrentEnvironment = async (
+  envId: string,
+  editorId: string,
+) => {
   try {
-    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, appId });
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, editorId });
     return true;
   } catch (error) {
     log.error("An error occurred when storing current env: ", error);
@@ -156,7 +159,6 @@ export const saveCurrentEnvironment = async (envId: string, appId: string) => {
 export const getSavedCurrentEnvironmentDetails = async (): Promise<{
   envId: string;
   editorId: string;
-  appId?: string;
 }> => {
   try {
     let values = (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) as {
