@@ -680,7 +680,7 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
 Cypress.Commands.add("NavigateToJSEditor", () => {
   PageLeftPane.switchSegment(PagePaneSegment.JS);
   PageLeftPane.switchToAddNew();
-  cy.get("span:contains('New JS Object')").eq(0).click({ force: true });
+  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
 });
 
 Cypress.Commands.add("importCurl", () => {
