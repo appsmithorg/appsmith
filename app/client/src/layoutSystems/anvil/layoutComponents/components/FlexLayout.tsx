@@ -154,7 +154,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
   }, [border, isDropTarget, position, renderMode]);
 
   const _className = useMemo(() => {
-    return `${className} layout-${layoutId} layout-index-${layoutIndex} ${
+    return `${className ?? ""} layout-${layoutId} layout-index-${layoutIndex} ${
       isContainer ? "make-container" : ""
     }`;
   }, [isContainer, layoutId, layoutIndex]);
