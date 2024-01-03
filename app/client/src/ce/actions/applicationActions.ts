@@ -198,9 +198,10 @@ export const resetCurrentApplication = () => {
   };
 };
 
-export const initDatasourceConnectionDuringImportRequest = (
-  payload: string,
-) => ({
+export const initDatasourceConnectionDuringImportRequest = (payload: {
+  workspaceId: string;
+  isPartialImport?: boolean;
+}) => ({
   type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
   payload,
 });
@@ -259,3 +260,7 @@ export const setFetchingApplications = (payload: boolean) => ({
   type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
   payload,
 });
+
+export const fetchAllPackages = () => {
+  return {};
+};

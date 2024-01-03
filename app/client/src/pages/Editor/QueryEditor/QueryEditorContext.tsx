@@ -18,6 +18,7 @@ interface QueryEditorContextContextProps {
   closeEditorLink?: React.ReactNode;
   actionRightPaneAdditionSections?: React.ReactNode;
   showSuggestedWidgets?: boolean;
+  notification?: string | React.ReactNode;
 }
 
 type QueryEditorContextProviderProps =
@@ -34,6 +35,7 @@ export function QueryEditorContextProvider({
   children,
   closeEditorLink,
   moreActionsMenu,
+  notification,
   onCreateDatasourceClick,
   onEntityNotFoundBackClick,
   saveActionName,
@@ -50,6 +52,7 @@ export function QueryEditorContextProvider({
       onEntityNotFoundBackClick,
       saveActionName,
       showSuggestedWidgets,
+      notification,
     }),
     [
       actionRightPaneBackLink,
@@ -61,6 +64,7 @@ export function QueryEditorContextProvider({
       onEntityNotFoundBackClick,
       saveActionName,
       showSuggestedWidgets,
+      notification,
     ],
   );
 
