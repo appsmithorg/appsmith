@@ -526,7 +526,10 @@ export function* partialImportSaga(
 
       if (workspaceId && environmentsFetched) {
         yield put(
-          initDatasourceConnectionDuringImportRequest(workspaceId as string),
+          initDatasourceConnectionDuringImportRequest({
+            workspaceId: workspaceId as string,
+            isPartialImport: true,
+          }),
         );
       }
 
