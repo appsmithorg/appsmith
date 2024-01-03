@@ -388,38 +388,44 @@ function* eagerPageInitSaga() {
   const search = window.location.search;
 
   if (isEditorPath(url)) {
-    const {
-      params: { applicationId, pageId },
-    } = matchBuilderPath(url);
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-    if (pageId) {
-      yield put(
-        initEditor({
-          pageId,
-          applicationId,
-          branch,
-          mode: APP_MODE.EDIT,
-          shouldInitialiseUserDetails: true,
-        }),
-      );
-      return;
+    const matchObj = matchBuilderPath(url);
+    if (matchObj) {
+      const {
+        params: { applicationId, pageId },
+      } = matchObj;
+      const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+      if (pageId) {
+        yield put(
+          initEditor({
+            pageId,
+            applicationId,
+            branch,
+            mode: APP_MODE.EDIT,
+            shouldInitialiseUserDetails: true,
+          }),
+        );
+        return;
+      }
     }
   } else if (isViewerPath(url)) {
-    const {
-      params: { applicationId, pageId },
-    } = matchViewerPath(url);
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-    if (applicationId || pageId) {
-      yield put(
-        initAppViewer({
-          applicationId,
-          branch,
-          pageId,
-          mode: APP_MODE.PUBLISHED,
-          shouldInitialiseUserDetails: true,
-        }),
-      );
-      return;
+    const matchObj = matchViewerPath(url);
+    if (matchObj) {
+      const {
+        params: { applicationId, pageId },
+      } = matchObj;
+      const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+      if (applicationId || pageId) {
+        yield put(
+          initAppViewer({
+            applicationId,
+            branch,
+            pageId,
+            mode: APP_MODE.PUBLISHED,
+            shouldInitialiseUserDetails: true,
+          }),
+        );
+        return;
+      }
     }
   }
 
