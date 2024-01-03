@@ -119,7 +119,8 @@ public class DatabricksPlugin extends BasePlugin {
                             if (!hasResultSet) {
                                 // This must be an update/delete/insert kind of query which did not return any results.
                                 // Lets set sample response and return back.
-                                result.setBody("{\"success\": true}");
+                                Map<String, Object> successResponse = Map.of("success", true);
+                                result.setBody(objectMapper.valueToTree(successResponse));
                                 return Mono.just(result);
                             }
 
