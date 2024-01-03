@@ -168,11 +168,26 @@ export const getVerticalHighlights = (
   const verticalHighlights = highlights.filter(
     (highlight: AnvilHighlightInfo) => highlight.isVertical,
   );
-  return verticalHighlights.filter((highlight: AnvilHighlightInfo) => {
-    return (
-      pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height
-    );
+  const allValidVerticalHighlights = verticalHighlights
+    .filter((highlight: AnvilHighlightInfo) => {
+      return (
+        pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height
+      );
+    })
+    .sort((each1, each2) => each1.posX - each2.posX);
+  const allHighlightsLeftToPos = allValidVerticalHighlights.filter((each) => {
+    return each.posX < pos.x;
   });
+  const allHighlightsRightToPos = allValidVerticalHighlights.filter((each) => {
+    return each.posX > pos.x;
+  });
+  const nearestLeftHighlightToPos = allHighlightsLeftToPos.length
+    ? [allHighlightsLeftToPos[allHighlightsLeftToPos.length - 1]]
+    : [];
+  const nearestRightHighlightToPos = allHighlightsRightToPos.length
+    ? [allHighlightsRightToPos[0]]
+    : [];
+  return [...nearestLeftHighlightToPos, ...nearestRightHighlightToPos];
 };
 
 export function getViableDropPositions(
