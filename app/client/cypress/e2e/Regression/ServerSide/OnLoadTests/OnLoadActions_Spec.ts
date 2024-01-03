@@ -140,7 +140,7 @@ describe(
       cy.wait("@getConsolidatedData").then(($response) => {
       
         const respBody = JSON.stringify($response.response?.body);
-        const { v1PublishedPageResp } = JSON.parse(respBody)?.data?.v1PublishedPageResp.data;
+        const { v1PublishedPageResp } = JSON.parse(respBody)?.data;
         const _randomFlora =
           v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[0];
         const _randomUser =
@@ -200,7 +200,7 @@ describe(
       agHelper.Sleep(5000); //for all api's to ccomplete call!
       cy.wait("@getConsolidatedData").then(($response) => {
         const respBody = JSON.stringify($response.response?.body);
-        const { v1PublishedPageResp } = JSON.parse(respBody)?.data?.v1PublishedPageResp?.data;
+        const { v1PublishedPageResp } = JSON.parse(respBody)?.data;
 
         const _randomFlora =
           v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[0];
