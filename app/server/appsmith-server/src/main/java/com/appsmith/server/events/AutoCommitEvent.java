@@ -15,8 +15,16 @@ public class AutoCommitEvent {
     private String workspaceId;
     private String repoName;
     private String authorName;
+
+    @ToString.Exclude
     private String authorEmail;
+
+    @ToString.Exclude
     private String repoUrl;
+
+    @ToString.Exclude
     private String privateKey;
+
+    @ToString.Exclude
     private String publicKey;
 }
