@@ -197,9 +197,10 @@ export const resetCurrentApplication = () => {
   };
 };
 
-export const initDatasourceConnectionDuringImportRequest = (
-  payload: string,
-) => ({
+export const initDatasourceConnectionDuringImportRequest = (payload: {
+  workspaceId: string;
+  isPartialImport?: boolean;
+}) => ({
   type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
   payload,
 });
@@ -244,3 +245,7 @@ export const setIsAppSidebarPinned = (payload: boolean) => ({
   type: ReduxActionTypes.SET_APP_SIDEBAR_PINNED,
   payload,
 });
+
+export const fetchAllPackages = () => {
+  return {};
+};
