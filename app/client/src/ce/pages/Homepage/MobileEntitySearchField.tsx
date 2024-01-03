@@ -1,13 +1,6 @@
-import { DEFAULT_PACKAGE_ICON } from "@appsmith/constants/PackageConstants";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { Button, Icon, SearchInput, Spinner, Text } from "design-system";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { getApplicationIcon } from "utils/AppsmithUtils";
-import { Size, type AppIconName, AppIcon } from "design-system-old";
-import history from "utils/history";
-import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
@@ -18,6 +11,8 @@ import {
 import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
+import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
+import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
 
 const SearchListContainer = styled.div`
   width: 100%;
@@ -31,29 +26,6 @@ const SearchListContainer = styled.div`
   flex-direction: column;
   padding: 12px;
   overflow-y: auto;
-`;
-
-const SearchListItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  cursor: pointer;
-  &:hover {
-    background-color: var(--ads-v2-color-bg-muted);
-    border-radius: 4px;
-  }
-`;
-
-const CircleAppIcon = styled(AppIcon)`
-  display: flex;
-  align-items: center;
-  svg {
-    width: 16px;
-    height: 16px;
-    path {
-      fill: var(--ads-v2-color-fg);
-    }
-  }
 `;
 
 const MobileSearchInput = styled(SearchInput)`
@@ -176,83 +148,14 @@ function MobileEntitySearchField(props: any) {
             </div>
           ) : (
             <>
-              {!!workspacesList?.length && (
-                <div className="mb-2">
-                  <Text className="!mb-2 !block" kind="body-s">
-                    Workspaces
-                  </Text>
-                  {workspacesList.map((workspace: Workspace) => (
-                    <SearchListItem
-                      key={workspace.id}
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        window.location.href = `${window.location.pathname}#${workspace?.id}`;
-                      }}
-                    >
-                      <Icon
-                        className="!mr-2"
-                        color="var(--ads-v2-color-fg)"
-                        name="group-2-line"
-                        size="md"
-                      />
-                      <Text className="truncate" kind="body-m">
-                        {workspace.name}
-                      </Text>
-                    </SearchListItem>
-                  ))}
-                </div>
-              )}
-              {!!applicationsList?.length && (
-                <div className="mb-2">
-                  <Text className="!mb-2 !block" kind="body-s">
-                    Applications
-                  </Text>
-                  {applicationsList.map((application: ApplicationPayload) => (
-                    <SearchListItem
-                      key={application.id}
-                      onClick={() => navigateToApplication(application.id)}
-                    >
-                      <CircleAppIcon
-                        className="!mr-1"
-                        color="var(--ads-v2-color-fg)"
-                        name={
-                          application?.icon ||
-                          (getApplicationIcon(application.id) as AppIconName)
-                        }
-                        size={Size.xxs}
-                      />
-                      <Text className="truncate" kind="body-m">
-                        {application.name}
-                      </Text>
-                    </SearchListItem>
-                  ))}
-                </div>
-              )}
-              {!!searchedPackages?.length && (
-                <div>
-                  <Text className="!mb-2 !block" kind="body-s">
-                    Packages
-                  </Text>
-                  {searchedPackages.map((pkg: any) => (
-                    <SearchListItem
-                      key={pkg.id}
-                      onClick={() =>
-                        history.push(`${BASE_PACKAGE_EDITOR_PATH}/${pkg.id}`)
-                      }
-                    >
-                      <Icon
-                        className="!mr-2"
-                        color="var(--ads-v2-color-fg)"
-                        name={pkg.icon || DEFAULT_PACKAGE_ICON}
-                        size="md"
-                      />
-                      <Text className="truncate" kind="body-m">
-                        {pkg.name}
-                      </Text>
-                    </SearchListItem>
-                  ))}
-                </div>
-              )}
+              <WorkspaceSearchItems
+                setIsDropdownOpen={setIsDropdownOpen}
+                workspacesList={workspacesList}
+              />
+              <ApplicationSearchItem
+                applicationsList={applicationsList}
+                navigateToApplication={navigateToApplication}
+              />
             </>
           )}
         </SearchListContainer>
