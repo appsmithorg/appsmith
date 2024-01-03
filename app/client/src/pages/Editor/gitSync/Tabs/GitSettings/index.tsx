@@ -5,7 +5,12 @@ import styled from "styled-components";
 import { Divider, ModalBody } from "design-system";
 import GitDefaultBranch from "./GitDefaultBranch";
 import GitProtectedBranches from "./GitProtectedBranches";
-import { useIsGitAdmin } from "../../hooks/useIsGitAdmin";
+import {
+  useHasConnectToGitPermission,
+  useHasManageDefaultBranchPermission,
+  useHasManageProtectedBranchesPermission,
+  useHasManageAutoCommitPermission,
+} from "../../hooks/gitPermissionHooks";
 
 const Container = styled.div`
   overflow: auto;
@@ -19,20 +24,23 @@ const StyledDivider = styled(Divider)`
 `;
 
 function GitSettings() {
-  const isGitAdmin = useIsGitAdmin();
+  const isManageProtectedBranchesPermitted =
+    useHasManageProtectedBranchesPermission();
+  const isManageDefaultBranchPermitted = useHasManageDefaultBranchPermission();
+  const isConnectToGitPermitted = useHasConnectToGitPermission();
+  const isManageAutoCommitPermitted = useHasManageAutoCommitPermission();
 
   return (
     <ModalBody>
       <Container>
         <GitUserSettings />
-        {isGitAdmin ? (
-          <>
-            <StyledDivider />
-            <GitDefaultBranch />
-            <GitProtectedBranches />
-          </>
-        ) : null}
-        {isGitAdmin && <DangerZone />}
+        {(isManageDefaultBranchPermitted ||
+          isManageProtectedBranchesPermitted) && <StyledDivider />}
+        {isManageDefaultBranchPermitted && <GitDefaultBranch />}
+        {isManageProtectedBranchesPermitted && <GitProtectedBranches />}
+        {(isConnectToGitPermitted || isManageAutoCommitPermitted) && (
+          <DangerZone />
+        )}
       </Container>
     </ModalBody>
   );

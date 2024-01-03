@@ -4,8 +4,11 @@ import { render, screen } from "test/testUtils";
 import GitSettings from ".";
 import type { AppState } from "@appsmith/reducers";
 
-jest.mock("../../hooks/useIsGitAdmin", () => ({
-  useIsGitAdmin: () => false,
+jest.mock("../../hooks/gitPermissionHooks", () => ({
+  useHasManageProtectedBranchesPermission: () => false,
+  useHasManageDefaultBranchPermission: () => false,
+  useHasConnectToGitPermission: () => false,
+  useHasManageAutoCommitPermission: () => false,
 }));
 
 describe("GitSettings test for git admin disabled", () => {
