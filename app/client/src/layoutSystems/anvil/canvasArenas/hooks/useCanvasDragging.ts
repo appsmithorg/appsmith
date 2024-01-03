@@ -250,7 +250,7 @@ export const useCanvasDragging = (
 
         const onMouseMove = (e: any) => {
           if (
-            isDragging &&
+            isCurrentDraggedCanvas &&
             canvasIsDragging &&
             slidingArenaRef.current &&
             stickyCanvasRef.current
@@ -353,7 +353,16 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, anvilDragStates]);
+  }, [
+    isDragging,
+    activateOverlayWidgetDrop,
+    allowToDrop,
+    draggedBlocks,
+    isCurrentDraggedCanvas,
+    isDragging,
+    layoutElementPositions,
+    mainCanvasLayoutId,
+  ]);
 
   return {
     showCanvas: isDragging,
