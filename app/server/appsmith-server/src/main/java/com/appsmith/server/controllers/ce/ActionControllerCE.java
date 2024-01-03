@@ -97,11 +97,16 @@ public class ActionControllerCE {
             @RequestBody Flux<Part> partFlux,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
-            @RequestHeader(value = OtlpTelemetry.OTLP_HEADER_KEY, required = false) String traceparent) {
+            @RequestHeader(value = OtlpTelemetry.OTLP_HEADER_KEY, required = false) String traceparent,
+            ServerWebExchange serverWebExchange) {
         Span span = this.otlpTelemetry.startOtlpSpanFromTraceparent("action service execute", traceparent);
 
         return actionExecutionSolution
-                .executeAction(partFlux, branchName, environmentId)
+                .executeAction(
+                        partFlux,
+                        branchName,
+                        environmentId,
+                        serverWebExchange.getRequest().getHeaders())
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null))
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(span));
     }

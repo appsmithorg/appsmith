@@ -332,7 +332,7 @@ public class ActionExecutionSolutionCETest {
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+                actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
         return actionExecutionResultMono;
     }
 
@@ -527,7 +527,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -580,7 +581,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -627,7 +629,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -674,7 +677,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -719,7 +723,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setViewMode(false);
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, null);
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -764,7 +768,7 @@ public class ActionExecutionSolutionCETest {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
-                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
                 });
 
         StepVerifier.create(resultMono)
@@ -1916,7 +1920,7 @@ public class ActionExecutionSolutionCETest {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
-                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
                 });
 
         Mockito.doReturn(Mono.empty())

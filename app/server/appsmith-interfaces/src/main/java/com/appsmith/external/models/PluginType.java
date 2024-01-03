@@ -6,5 +6,6 @@ public enum PluginType {
     JS,
     SAAS,
     REMOTE,
-    AI
+    AI,
+    INTERNAL,
 }
