@@ -362,18 +362,18 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad();
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).to.eq(col1Text);
       });
-      table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col2Text);
       });
-      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col3Text);
       });
 

@@ -346,12 +346,7 @@ function ReconnectDatasourceModal() {
       if (queryAppId) {
         const app = applications.find((app: any) => app.id === queryAppId);
         if (app) {
-          dispatch(
-            setWorkspaceIdForImport({
-              editorId: appId || "",
-              workspaceId: app.workspaceId,
-            }),
-          );
+          dispatch(setWorkspaceIdForImport(app.workspaceId));
           dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
           const defaultPageId = getDefaultPageId(app.pages);
           if (pageIdForImport) {
@@ -429,9 +424,7 @@ function ReconnectDatasourceModal() {
   const onClose = () => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-    dispatch(
-      setWorkspaceIdForImport({ editorId: appId || "", workspaceId: "" }),
-    );
+    dispatch(setWorkspaceIdForImport(""));
     dispatch(setPageIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");

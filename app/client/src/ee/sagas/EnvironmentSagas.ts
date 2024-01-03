@@ -58,7 +58,6 @@ const fetchStoredEnv = (
 function* FetchEnvironmentsInitSaga(
   action: ReduxAction<{
     workspaceId: string;
-    editorId: string;
     fetchDatasourceMeta?: boolean;
   }>,
 ) {
@@ -195,11 +194,8 @@ function* FetchEnvironmentsInitSaga(
 
 // function to fetch workspace id and start fetching the envs
 function* fetchWorkspaceIdandInitSaga(
-  actionPayload: ReduxAction<
-    { workspaceId: string; editorId: string } | string
-  >,
+  actionPayload: ReduxAction<{ workspaceId: string } | string>,
 ) {
-  const editorId = (actionPayload.payload as Record<string, string>)?.editorId;
   const action = actionPayload.type;
   let workspaceId = "";
 
@@ -212,15 +208,9 @@ function* fetchWorkspaceIdandInitSaga(
       ?.workspaceId;
   }
 
-  if (!workspaceId || !editorId) return;
+  if (!workspaceId) return;
   // fetch the envs for the workspace, sending fetchDatasourceMeta as true to fetch the info about the configured envs (for showing walkthrough)
-  yield put(
-    fetchingEnvironmentConfigs({
-      workspaceId,
-      editorId,
-      fetchDatasourceMeta: true,
-    }),
-  );
+  yield put(fetchingEnvironmentConfigs(workspaceId, true));
 }
 
 // Saga to handle creating a new environment
