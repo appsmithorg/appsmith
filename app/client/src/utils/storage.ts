@@ -166,7 +166,7 @@ export const getSavedCurrentEnvironmentDetails = async (): Promise<{
       editorId: string;
       appId?: string;
     };
-    if (values.hasOwnProperty("appId")) {
+    if (values && values.hasOwnProperty("appId")) {
       values = await migrateAppIdToEditorId(values);
     }
     return (
