@@ -980,9 +980,12 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
 }
 
 export function* initDatasourceConnectionDuringImport(
-  action: ReduxAction<string>,
+  action: ReduxAction<{
+    workspaceId: string;
+    isPartialImport?: boolean;
+  }>,
 ) {
-  const workspaceId = action.payload;
+  const workspaceId = action.payload.workspaceId;
 
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
@@ -1014,7 +1017,10 @@ export function* initDatasourceConnectionDuringImport(
     ),
   );
 
-  yield put(initDatasourceConnectionDuringImportSuccess());
+  if (!action.payload.isPartialImport) {
+    // This is required for reconnect datasource modal popup
+    yield put(initDatasourceConnectionDuringImportSuccess());
+  }
 }
 
 export function* uploadNavigationLogoSaga(
