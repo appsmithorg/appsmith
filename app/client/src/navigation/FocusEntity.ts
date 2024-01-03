@@ -8,7 +8,6 @@ import { getBaseUrlsForIDEType } from "@appsmith/entities/IDE/utils";
 import { memoize } from "lodash";
 
 export enum FocusEntity {
-  PAGE = "PAGE",
   API = "API",
   CANVAS = "CANVAS",
   DATASOURCE_LIST = "DATASOURCE_LIST",

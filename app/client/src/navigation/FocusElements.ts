@@ -91,7 +91,6 @@ export enum FocusElement {
   EntityExplorerWidth = "EntityExplorerWidth",
   ExplorerSwitchIndex = "ExplorerSwitchIndex",
   DatasourceViewMode = "DatasourceViewMode",
-  DatasourceAccordions = "DatasourceAccordions",
   SelectedDatasource = "SelectedDatasource",
   DebuggerContext = "DebuggerContext",
   ApiRightPaneTabs = "ApiRightPaneTabs",
@@ -141,7 +140,6 @@ export type Config = ConfigRedux | ConfigURL;
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.NONE]: [],
   [FocusEntity.APP_STATE]: [],
-  [FocusEntity.PAGE]: [],
   [FocusEntity.CANVAS]: [],
   [FocusEntity.QUERY_ADD]: [],
   [FocusEntity.API]: [],

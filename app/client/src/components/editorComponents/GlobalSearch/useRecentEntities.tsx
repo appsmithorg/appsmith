@@ -35,7 +35,7 @@ const useResentEntities = (): Array<
       (recentEntities || emptyArr)
         .map((entity) => {
           const { id, pageId, type } = entity;
-          if (type === FocusEntity.PAGE) {
+          if (type === FocusEntity.EDITOR) {
             if (!pages) return null;
             const result = pages.find((page) => page.pageId === id);
             if (result) {
