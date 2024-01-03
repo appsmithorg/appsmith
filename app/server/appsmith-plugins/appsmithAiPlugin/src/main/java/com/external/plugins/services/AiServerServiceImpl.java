@@ -3,8 +3,6 @@ package com.external.plugins.services;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.plugins.dtos.AiServerRequestDTO;
-import com.external.plugins.dtos.AiServerUploadDTO;
-import com.external.plugins.dtos.AiServerUploadResponseDTO;
 import com.external.plugins.utils.RequestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -25,47 +23,7 @@ public class AiServerServiceImpl implements AiServerService {
 
     @Override
     public Mono<ArrayList<String>> createDatasource(ArrayList<String> files) {
-        URI uri = RequestUtils.createUploadURI();
-
-        AiServerUploadDTO aiServerRequestDTO = new AiServerUploadDTO();
-        aiServerRequestDTO.setFiles(files);
-
-        return RequestUtils.makeRequest(HttpMethod.POST, uri, BodyInserters.fromValue(aiServerRequestDTO))
-                .flatMap(responseEntity -> {
-                    HttpStatusCode statusCode = responseEntity.getStatusCode();
-
-                    if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR, errorMessage));
-                    }
-
-                    if (statusCode.is4xxClientError()) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(
-                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ERROR, errorMessage));
-                    }
-                    Object stingifiedBody = new String(responseEntity.getBody());
-                    AiServerUploadResponseDTO responseBody;
-                    try {
-                        responseBody =
-                                this.objectMapper.readValue(responseEntity.getBody(), AiServerUploadResponseDTO.class);
-                    } catch (IOException exception) {
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, stingifiedBody));
-                    }
-                    if (!statusCode.is2xxSuccessful()) {
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, stingifiedBody));
-                    }
-                    return Mono.just(responseBody.getFileIds());
-                });
+        return Mono.just(files);
     }
 
     @Override
