@@ -19,7 +19,6 @@ import {
   TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
 } from "../constants";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-
 import {
   HorizontalLine,
   SubheadingText,
