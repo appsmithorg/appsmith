@@ -8,7 +8,6 @@ import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
 import {
@@ -46,10 +45,9 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
         codeMirrorTernService.setEntityInformation(editor, entityInformation);
       }
 
-      const entityType = entityInformation?.entityType;
       let shouldShow = false;
 
-      if (entityType === ENTITY_TYPE.JSACTION) {
+      if (additionalData?.isJsEditor) {
         if (additionalData?.enableAIAssistance) {
           shouldShow = !isAISlashCommand(editor);
         } else {

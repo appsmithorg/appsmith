@@ -1,4 +1,5 @@
 import { get, set, split, unset } from "lodash";
+import { klona } from "klona";
 
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -47,7 +48,7 @@ interface MetaWidgetPropertyUpdate {
   value: unknown;
 }
 
-const initialState: MetaWidgetsReduxState = {};
+export const initialState: MetaWidgetsReduxState = {};
 
 const metaWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.MODIFY_META_WIDGETS]: (
@@ -138,6 +139,9 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
           set(state, path, propertyValue);
       });
     }
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 });
 

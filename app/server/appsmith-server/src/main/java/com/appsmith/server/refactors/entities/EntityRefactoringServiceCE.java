@@ -22,7 +22,8 @@ public interface EntityRefactoringServiceCE<T> {
 
     Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName);
 
-    default Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+    default Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         return Flux.empty();
     }
 }

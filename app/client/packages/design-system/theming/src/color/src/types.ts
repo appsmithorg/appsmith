@@ -32,6 +32,14 @@ export interface ColorModeTheme {
     bgWarningActive: string;
     bgWarningSubtleHover: string;
     bgWarningSubtleActive: string;
+    // Elevation
+    bgElevation1: string;
+    bgElevation2: string;
+    bgElevation3: string;
+    // Shadow
+    shadowElevation1: string;
+    shadowElevation2: string;
+    shadowElevation3: string;
     // fg
     fg: string;
     fgAccent: string;

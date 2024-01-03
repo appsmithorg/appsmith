@@ -182,7 +182,8 @@ describe(
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
-      agHelper.AssertElementVisibility(locators._autoHeightHandles);
+      agHelper.AssertElementExist(locators._autoHeightOverlay);
+      agHelper.AssertElementExist(locators._autoHeightHandles);
       agHelper.AssertElementVisibility(locators._autoHeightMin);
       agHelper.AssertElementVisibility(locators._autoHeightMax);
       propPane.SelectPropertiesDropDown("Height", "Fixed");

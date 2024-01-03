@@ -9,6 +9,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
 import { denormalize } from "utils/canvasStructureHelpers";
+import { klona } from "klona";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -44,6 +45,9 @@ const canvasWidgetsStructureReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return denormalize("0", action.payload.widgets);
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
   },
 });
 

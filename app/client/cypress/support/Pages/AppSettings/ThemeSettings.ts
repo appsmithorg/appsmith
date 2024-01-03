@@ -2,6 +2,7 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class ThemeSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private assertHelper = ObjectsRegistry.AssertHelper;
   public locators = {
     _changeThemeBtn: ".t--change-theme-btn",
     _themeCard: (themeName: string) =>
@@ -49,5 +50,6 @@ export class ThemeSettings {
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex);
       // this.agHelper.TypeText(this._colorInputField(type), colorIndex); //not working!
     }
+    this.assertHelper.AssertNetworkStatus("updateTheme");
   }
 }
