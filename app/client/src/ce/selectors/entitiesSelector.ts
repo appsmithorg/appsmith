@@ -1400,8 +1400,14 @@ export const getModuleInstanceEntities = () => {
   return null;
 };
 
+export interface PagePaneDataObject {
+  id: string;
+  name: string;
+  type: PluginType;
+}
+
 export interface PagePaneData {
-  [key: string]: { id: string; name: string; type: PluginType }[];
+  [key: string]: PagePaneDataObject[];
 }
 
 const GroupAndSortPagePaneData = (
