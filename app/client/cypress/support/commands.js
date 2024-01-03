@@ -924,6 +924,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/workspaces/home").as(
     "getAllWorkspaces",
   );
+  cy.intercept("GET", "/api/v1/applications/home?workspaceId=*").as(
+    "getApplicationsOfWorkspace",
+  );
 
   cy.intercept("POST");
   cy.intercept("GET", "/api/v1/pages/*").as("getPage");

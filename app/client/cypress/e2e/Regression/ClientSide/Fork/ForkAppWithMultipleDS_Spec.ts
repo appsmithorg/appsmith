@@ -13,7 +13,6 @@ describe(
   function () {
     it("1. Bug Id: 24708  - fork and test the forked application", function () {
       // Create a new workspace and fork application
-      homePage.NavigateToHome();
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         sourceWorkspaceId = "source-" + uid;
@@ -47,7 +46,6 @@ describe(
         homePage.CreateNewWorkspace(targetWorkspaceId, true);
         agHelper.PressEscape();
         homePage.SelectWorkspace(sourceWorkspaceId);
-        cy.reload();
         homePage.ForkApplication(appname, targetWorkspaceId);
       });
       // In the forked application, reconnect all datasources

@@ -28,8 +28,7 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
       fixture: "resetPassword.json",
     }).as("resetPwd");
     _.homePage.NavigateToHome();
-    cy.wait(2000);
-    cy.get(homePage.profileMenu).click();
+    _.agHelper.GetNClick(homePage.profileMenu, 0);
     cy.get(".t--edit-profile").click({ force: true });
 
     // Waiting as the input onchange has a debounce

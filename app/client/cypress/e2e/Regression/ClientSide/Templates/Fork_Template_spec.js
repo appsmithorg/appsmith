@@ -8,7 +8,7 @@ describe(
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   () => {
     it("1. Fork a template to an workspace", () => {
-      _.templates.SwitchToTemplatesTab();
+      _.agHelper.VisitNAssert("/templates");
 
       _.agHelper.GetNClick(templateLocators.templateCard);
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
@@ -21,7 +21,7 @@ describe(
     });
 
     it("2. Update query param on opening fork modal in template detailed view", () => {
-      _.templates.SwitchToTemplatesTab();
+      _.agHelper.VisitNAssert("/templates");
       cy.get(templateLocators.templateCard).first().click();
       _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
@@ -36,7 +36,7 @@ describe(
       cy.intercept("/api/v1/applications/new", {
         fixture: "Templates/MockAppViewerUser.json",
       });
-      _.templates.SwitchToTemplatesTab();
+      _.agHelper.VisitNAssert("/templates");
       _.agHelper.Sleep(2000);
       _.agHelper.CheckForErrorToast(
         "Internal server error while processing request",
@@ -56,7 +56,7 @@ describe(
           cy.get(_.dataSources._skiptoApplicationBtn).click();
         }
       });
-      cy.get(templateLocators.templatesTab).click();
+      _.agHelper.VisitNAssert("/templates");
       cy.wait(1000);
 
       cy.xpath("//h1[text()='Customer Messaging Tool']")

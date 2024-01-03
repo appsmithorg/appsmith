@@ -755,5 +755,6 @@ export class HomePage {
       .GetElement(this._leftPanel)
       .contains("span", workspaceName)
       .click({ force: true });
+    cy.wait('@getApplicationsOfWorkspace');
   }
 }

@@ -78,13 +78,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
   const [showModal, setShowModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const isMobile = useIsMobileDevice();
-  // const query =
-  //   props.search &&
-  //   props.search.queryFn &&
-  //   _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
-
   const dispatch = useDispatch();
-
   const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
 
   const handleMultipleDelete = () => {
@@ -114,17 +108,6 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
       isMobile={isMobile}
       isVisible={!!(isEnabledMultipleSelection || props.add)}
     >
-      {/* <SearchContainer isMobile={isMobile}>
-        {props.search && (
-          <SearchInput
-            data-testid="t--application-search-input"
-            defaultValue={props.search.defaultValue}
-            isDisabled={isFetchingApplications}
-            onChange={query || noop}
-            placeholder={props.search.placeholder}
-          />
-        )}
-      </SearchContainer> */}
       {isEnabledMultipleSelection && (
         <MultipleDeleteWrapper>
           <Button

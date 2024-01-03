@@ -6,8 +6,7 @@ describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
     _.homePage.NavigateToHome();
-    cy.get(homePage.createNew).first().click({ force: true });
-    cy.get(homePage.newButtonCreateApplication).first().click({ force: true });
+    _.homePage.CreateNewApplication();
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",

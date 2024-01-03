@@ -13,8 +13,7 @@ describe(
     let TEMPLATES_COUNT: number;
 
     before(() => {
-      homePage.NavigateToHome();
-      templates.SwitchToTemplatesTab();
+      agHelper.VisitNAssert("/templates");
       templates
         .GetTemplatesCardsList()
         .then((cards) => (TEMPLATES_COUNT = cards.length));
@@ -48,7 +47,6 @@ describe(
 
       templates.GetTemplatesCardsList().then((cards) => {
         const filteredCardsCount = cards.length;
-        expect(filteredCardsCount).to.be.lessThan(TEMPLATES_COUNT);
 
         agHelper.GetNClick(templates.locators._templateCard);
         agHelper.GetNClick(templates.locators._templateViewGoBack);

@@ -1126,5 +1126,12 @@ export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
         payload: response.data,
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SEARCH_WORKSPACE_ENTITIES_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }

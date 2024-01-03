@@ -304,6 +304,10 @@ export function* createWorkspaceSaga(
         type: ReduxActionTypes.CREATE_WORKSPACE_SUCCESS,
         payload: response.data,
       });
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+        payload: response.data,
+      });
       yield call(resolve);
     }
 
