@@ -12,6 +12,4 @@ export interface Package {
   userPermissions: string[];
 }
 
-export const DEFAULT_PACKAGE_ICON = "package";
-
 export type PackageMetadata = Package;
