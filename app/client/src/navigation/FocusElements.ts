@@ -28,16 +28,12 @@ import {
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import {
-  getAllDatasourceCollapsibleState,
   getDefaultSelectedWidgetIds,
   getDsViewModeValues,
   getSelectedWidgets,
 } from "selectors/ui";
 
-import {
-  setAllDatasourceCollapsible,
-  setDatasourceViewMode,
-} from "actions/datasourceActions";
+import { setDatasourceViewMode } from "actions/datasourceActions";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
 import {
@@ -168,12 +164,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getDsViewModeValues,
       setter: setDatasourceViewMode,
       defaultValue: { datasourceId: "", viewMode: true },
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.DatasourceAccordions,
-      selector: getAllDatasourceCollapsibleState,
-      setter: setAllDatasourceCollapsible,
     },
   ],
   [FocusEntity.JS_OBJECT]: [
