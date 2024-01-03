@@ -245,3 +245,7 @@ export const setIsAppSidebarPinned = (payload: boolean) => ({
   type: ReduxActionTypes.SET_APP_SIDEBAR_PINNED,
   payload,
 });
+
+export const fetchAllPackages = () => {
+  return {};
+};
