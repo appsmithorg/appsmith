@@ -13,6 +13,7 @@ import { getWidgetNameComponent } from "./utils";
 import type { KonvaEventListener } from "konva/lib/Node";
 import type { Group } from "konva/lib/Group";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import Konva from "konva";
 
 export function getMainContainerAnvilCanvasDOMElement() {
   return document.getElementById(CANVAS_VIEWPORT) as HTMLDivElement | null;
@@ -81,7 +82,10 @@ export const updateSelectedWidgetPositions = (props: {
   const layer = stage.getLayers()[0];
   // Clean up the layer so that we can update all the widget names
   layer.destroyChildren();
-
+  // update global for new layers
+  Konva.pixelRatio = window.devicePixelRatio * 2;
+  // update pixel ratio of existing canvas
+  layer.canvas.setPixelRatio(Konva.pixelRatio);
   // For each selected widget, draw the widget name
   if (selectedWidgetNameData && selectedWidgetNameData.length > 0) {
     widgetNamePositions.current.selected = {};
