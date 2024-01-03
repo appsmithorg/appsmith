@@ -160,9 +160,7 @@ export function renderDatasourceSection(
               return (
                 <FieldWrapper key={reactKey}>
                   <Key>{configProperty.key}: </Key>{" "}
-                  {typeof configProperty.value !== "object" && (
-                    <Value>{configProperty.value}</Value>
-                  )}
+                  <Value>{configProperty.value}</Value>
                 </FieldWrapper>
               );
             }
@@ -212,7 +210,7 @@ export function renderDatasourceSection(
                         </div>
                         <ValueWrapper>
                           <Key>Value: </Key>
-                          {typeof value !== "object" && <Value>{value}</Value>}
+                          <Value>{value}</Value>
                         </ValueWrapper>
                       </div>
                     ),
@@ -223,8 +221,7 @@ export function renderDatasourceSection(
 
             return (
               <FieldWrapper key={reactKey}>
-                <Key>{label}: </Key>{" "}
-                {typeof value !== "object" && <Value>{value}</Value>}
+                <Key>{label}: </Key> <Value>{value}</Value>
               </FieldWrapper>
             );
           } catch (e) {
