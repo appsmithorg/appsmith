@@ -144,6 +144,7 @@
     "marked": "^4.0.18",
     "memoize-one": "^6.0.0",
     "micro-memoize": "^4.0.10",
+    "million": "^2.6.4",
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",
     "nanoid": "^2.0.4",
@@ -240,6 +241,8 @@
   "devDependencies": {
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
     "@babel/helper-string-parser": "^7.19.4",
+    "@babel/plugin-proposal-decorators": "^7.23.7",
+    "@babel/plugin-syntax-decorators": "^7.23.3",
     "@craco/craco": "^7.0.0",
     "@cypress/grep": "^4.0.1",
     "@faker-js/faker": "^7.4.0",
