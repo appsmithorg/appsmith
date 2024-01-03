@@ -46,4 +46,9 @@ public class CrudPackageServiceCECompatibleImpl extends BasePackageServiceImpl
     public Flux<Package> getAllPublishedPackagesByUniqueRef(String workspaceId, List<ExportableModule> packageList) {
         return Flux.empty();
     }
+
+    @Override
+    public Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
 }

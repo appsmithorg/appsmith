@@ -23,4 +23,7 @@ public interface CustomModuleRepository extends AppsmithRepository<Module> {
             String creatorId, String layoutId, AclPermission permission, ResourceModes resourceModes);
 
     Flux<Module> findAllByIds(Set<String> ids, List<String> projectionFields, Optional<AclPermission> permission);
+
+    Mono<Module> findConsumableModuleByPackageIdAndOriginModuleId(
+            String packageId, String originModuleId, Optional<AclPermission> permission);
 }

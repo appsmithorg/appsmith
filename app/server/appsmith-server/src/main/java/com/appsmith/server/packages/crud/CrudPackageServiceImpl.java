@@ -401,4 +401,13 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         int randomColorIndex = (int) (System.currentTimeMillis() % ApplicationConstants.APP_CARD_COLORS.length);
         return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
     }
+
+    @Override
+    public Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version) {
+        return repository
+                .findPackageBySourcePackageIdAndVersion(
+                        sourcePackageId, version, Optional.of(packagePermission.getReadPermission()))
+                .flatMap(aPackage ->
+                        setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getPublishedPackage()));
+    }
 }

@@ -126,4 +126,15 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
 
         return queryAll(List.of(sourcePackageCriteria, packageRefCriteria), aclPermission);
     }
+
+    @Override
+    public Mono<Package> findPackageBySourcePackageIdAndVersion(
+            String sourcePackageId, String version, Optional<AclPermission> permission) {
+        Criteria sourcePackageCriteria = Criteria.where(fieldName(QPackage.package$.sourcePackageId))
+                .is(sourcePackageId)
+                .and(fieldName(QPackage.package$.version))
+                .is(version);
+
+        return queryOne(List.of(sourcePackageCriteria), null, permission);
+    }
 }

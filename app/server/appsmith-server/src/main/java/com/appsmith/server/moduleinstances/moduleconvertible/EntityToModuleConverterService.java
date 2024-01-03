@@ -1,0 +1,3 @@
+package com.appsmith.server.moduleinstances.moduleconvertible;
+
+public interface EntityToModuleConverterService extends EntityToModuleConverterServiceCECompatible {}

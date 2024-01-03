@@ -5,6 +5,8 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.ConvertToModuleRequestDTO;
+import com.appsmith.server.dtos.CreateExistingEntityToModuleResponseDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -14,6 +16,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
+import com.appsmith.server.moduleinstances.moduleconvertible.EntityToModuleConverterService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -41,14 +44,17 @@ public class ModuleInstanceController {
     private final CrudModuleInstanceService crudModuleInstanceService;
     private final LayoutModuleInstanceService layoutModuleInstanceService;
     private final RefactoringService refactoringService;
+    private final EntityToModuleConverterService entityToModuleConverterService;
 
     public ModuleInstanceController(
             CrudModuleInstanceService crudModuleInstanceService,
             LayoutModuleInstanceService layoutModuleInstanceService,
-            RefactoringService refactoringService) {
+            RefactoringService refactoringService,
+            EntityToModuleConverterService entityToModuleConverterService) {
         this.crudModuleInstanceService = crudModuleInstanceService;
         this.layoutModuleInstanceService = layoutModuleInstanceService;
         this.refactoringService = refactoringService;
+        this.entityToModuleConverterService = entityToModuleConverterService;
     }
 
     @JsonView(Views.Public.class)
@@ -133,5 +139,15 @@ public class ModuleInstanceController {
         return refactoringService
                 .refactorCompositeEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/convert")
+    public Mono<ResponseDTO<CreateExistingEntityToModuleResponseDTO>> convertQueryToModule(
+            @RequestBody ConvertToModuleRequestDTO convertToModuleRequestDTO,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return entityToModuleConverterService
+                .convertExistingEntityToModule(convertToModuleRequestDTO, branchName)
+                .map(converted -> new ResponseDTO<>(HttpStatus.OK.value(), converted, "Operation successful"));
     }
 }
