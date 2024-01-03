@@ -11,11 +11,17 @@ export class LeftPane {
       name +
       "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
     addItem: () => "//button[contains(@class, 't--add-item')]",
+    selector: "",
   };
 
-  constructor(listItemSelector: (name: string) => string, segments?: string[]) {
+  constructor(
+    listItemSelector: (name: string) => string,
+    selector: string,
+    segments?: string[],
+  ) {
     this.listItemSelector = listItemSelector;
     this.segments = segments;
+    this.locators.selector = selector;
   }
 
   public assertAbsence(name: string) {

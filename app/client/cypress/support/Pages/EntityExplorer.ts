@@ -103,6 +103,7 @@ export class EntityExplorer {
 
   public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.xpath(this._contextMenu(widgetNameinLeftSidebar))
       .last()
       .click({ force: true });

@@ -23,6 +23,7 @@ const pagePaneListItemSelector = (name: string) =>
 
 export const PageLeftPane = new LeftPane(
   pagePaneListItemSelector,
+  ".ide-pages-pane",
   Object.values(PagePaneSegment),
 );
 
@@ -70,7 +71,7 @@ class EditorNavigation {
 
   NavigateToJSObject(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }

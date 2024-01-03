@@ -8,8 +8,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -70,7 +68,6 @@ myFun2: async () => {
     homePage.NavigateToHome();
     homePage.FilterApplication(workspaceName);
     homePage.ForkApplication(appName);
-    PageLeftPane.switchSegment(PagePaneSegment.JS);
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });

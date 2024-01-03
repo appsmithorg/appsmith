@@ -135,12 +135,16 @@ describe(
     it("4. Chart-Copy & Delete Verification", function () {
       //Copy Chart and verify all properties
       cy.wait(1000);
-      EditorNavigation.SelectEntityByName("Container3", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Test", EntityType.Widget, {}, [
+        "Container3",
+      ]);
       _.propPane.CopyPasteWidgetFromPropertyPane("Test");
       _.deployMode.DeployApp();
       //Chart-Delete Verification"
       _.deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Container3", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("TestCopy", EntityType.Widget, {}, [
+        "Container3",
+      ]);
       _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
       _.deployMode.DeployApp();
       cy.get(viewWidgetsPage.chartWidget).should("not.exist");
