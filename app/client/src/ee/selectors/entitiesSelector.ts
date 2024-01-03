@@ -33,6 +33,7 @@ import type { ActionResponse } from "api/ActionAPI";
 import { PluginType, type Action } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
+import type { JSCollection } from "entities/JSCollection";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -64,7 +65,7 @@ export const getCurrentModuleJSCollections = createSelector(
   getModuleInstanceJSCollections,
   (moduleId, moduleJSCollections, moduleInstanceJSCollections) => {
     if (!!moduleId) return moduleJSCollections;
-    return moduleInstanceJSCollections || [];
+    return moduleInstanceJSCollections;
   },
 );
 
@@ -185,6 +186,28 @@ export const getQueryModuleInstances = createSelector(
       },
     );
     return queryModuleInstances.filter((instance) => !!instance);
+  },
+);
+
+export const getJSModuleInstancesData = createSelector(
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInstances, moduleInstanceEntities) => {
+    const JSModuleInstances = Object.values(moduleInstances).map((instance) => {
+      if (instance.type === MODULE_TYPE.JS) {
+        const getPublicAction = moduleInstanceEntities.jsCollections.find(
+          (entity: ActionData) =>
+            entity.config.moduleInstanceId === instance.id,
+        );
+
+        return {
+          config: getPublicAction.config as JSCollection,
+          data: getPublicAction?.data,
+          name: instance.name,
+        };
+      }
+    });
+    return JSModuleInstances.filter((instance) => !!instance);
   },
 );
 
