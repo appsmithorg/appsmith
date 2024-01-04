@@ -1,5 +1,5 @@
 import { call, put } from "redux-saga/effects";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -61,7 +61,7 @@ export default class WorkflowEditorEngine {
 
   public *setupEngine() {
     yield put({ type: ReduxActionTypes.START_EVALUATION });
-    CodemirrorTernService.resetServer();
+    getCodeMirrorTernService().resetServer();
   }
 
   *loadPageThemesAndActions(workflowId: string) {
