@@ -153,28 +153,6 @@ export const getClosestHighlight = (
   return sortedHighlights[0];
 };
 
-export const getVerticalHighlights = (
-  e: MouseEvent,
-  highlights: AnvilHighlightInfo[],
-) => {
-  if (!highlights || !highlights.length) return;
-
-  // Current mouse coordinates.
-  const pos: XYCord = {
-    x: e.offsetX,
-    y: e.offsetY,
-  };
-  // Filter out vertical highlights.
-  const verticalHighlights = highlights.filter(
-    (highlight: AnvilHighlightInfo) => highlight.isVertical,
-  );
-  return verticalHighlights.filter((highlight: AnvilHighlightInfo) => {
-    return (
-      pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height
-    );
-  });
-};
-
 export function getViableDropPositions(
   arr: AnvilHighlightInfo[],
   pos: XYCord,

@@ -235,7 +235,6 @@ export const Colors = {
   APPSMITH_BEIGE: "#faf5ed",
 
   HIGHLIGHT_FILL: "#C273EF",
-  HIGHLIGHT_FILL_PREVIEW: "rgba(194,115,239, 0.3)",
   HIGHLIGHT_FILL_CELL: "rgba(194,115,239, 0.2)",
   HIGHLIGHT_OUTLINE: "rgba(255, 255, 255, 0.5)",
 };
