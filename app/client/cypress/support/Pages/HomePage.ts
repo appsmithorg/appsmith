@@ -161,6 +161,7 @@ export class HomePage {
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
+    this.SelectWorkspace(workspaceName);
     this.agHelper.GetElement(this._optionsIcon).click({ force: true });
   }
 
