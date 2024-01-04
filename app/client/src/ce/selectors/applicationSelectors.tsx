@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import { groupBy } from "lodash";
+import { groupBy, memoize } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import type { WorkflowMetadata } from "@appsmith/constants/WorkflowConstants";
 import type {
@@ -14,6 +14,7 @@ import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import {
   NAVIGATION_SETTINGS,
   SIDEBAR_WIDTH,
+  type ThemeSetting,
   defaultThemeSetting,
 } from "constants/AppConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
@@ -332,10 +333,17 @@ export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
   return state.ui.applications.currentPluginIdForCreateNewApp;
 };
 
+const getMemoizedThemeObj = memoize(
+  (themeSetting: ThemeSetting | undefined) => {
+    return {
+      ...defaultThemeSetting,
+      ...themeSetting,
+    };
+  },
+);
+
 export const getAppThemeSettings = (state: AppState) => {
-  return {
-    ...defaultThemeSetting,
-    ...state.ui.applications.currentApplication?.applicationDetail
-      ?.themeSetting,
-  };
+  return getMemoizedThemeObj(
+    state.ui.applications.currentApplication?.applicationDetail?.themeSetting,
+  );
 };
