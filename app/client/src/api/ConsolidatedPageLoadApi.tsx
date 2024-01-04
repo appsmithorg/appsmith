@@ -5,7 +5,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { APP_MODE } from "entities/App";
 import type { InitConsolidatedApi } from "sagas/InitSagas";
 
-class ConsolidatedApi extends Api {
+class ConsolidatedPageLoadApi extends Api {
   static url = "/v1/consolidated-api";
 
   static async getConsolidatedPageLoadData(params: {
@@ -13,8 +13,8 @@ class ConsolidatedApi extends Api {
     defaultPageId?: string;
     mode?: APP_MODE;
   }): Promise<AxiosPromise<ApiResponse<InitConsolidatedApi>>> {
-    return Api.get(ConsolidatedApi.url, params);
+    return Api.get(ConsolidatedPageLoadApi.url, params);
   }
 }
 
-export default ConsolidatedApi;
+export default ConsolidatedPageLoadApi;

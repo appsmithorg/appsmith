@@ -25,7 +25,6 @@ export interface AppEnginePayload {
   branch?: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
-  allResponses?: InitConsolidatedApi;
 }
 
 export interface IAppEngine {
@@ -54,16 +53,16 @@ export default abstract class AppEngine {
   abstract loadAppEntities(
     toLoadPageId: string,
     applicationId: string,
-    allResponses?: InitConsolidatedApi,
+    allResponses: InitConsolidatedApi,
   ): any;
   abstract loadGit(applicationId: string): any;
   abstract startPerformanceTracking(): any;
   abstract stopPerformanceTracking(): any;
   abstract completeChore(): any;
 
-  *loadAppData(payload: AppEnginePayload) {
-    const { allResponses, applicationId, branch, pageId } = payload;
-    const v1PagesResp = allResponses?.v1PagesResp;
+  *loadAppData(payload: AppEnginePayload, allResponses: InitConsolidatedApi) {
+    const { applicationId, branch, pageId } = payload;
+    const { v1PagesResp } = allResponses;
     // pick up all truthy params from the oneApi applicationId, mode, pageId
     // and if applicationId and pageId are both provided delete applicationId
     // when in edit

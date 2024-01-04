@@ -108,7 +108,7 @@ export default class AppEditorEngine extends AppEngine {
   private *loadPageThemesAndActions(
     toLoadPageId: string,
     applicationId: string,
-    allResponses?: EditConsolidatedApi,
+    allResponses: EditConsolidatedApi,
   ) {
     const {
       v1ActionsResp,
@@ -117,11 +117,11 @@ export default class AppEditorEngine extends AppEngine {
       v1PageResp,
       v1ThemesApplicationCurrentModeResp,
       v1ThemesResp,
-    } = allResponses || {};
+    } = allResponses;
     const initActionsCalls = [
       // check from the feature flags response for release_server_dsl_migrations_enabled
       // if it is true or truthy set the migrateDSL parameter to true
-      // v1/page/:pageId?migrateDSL=!!release_server_dsl_migrations_enabled
+      // v1/pages/:pageId?migrateDSL=!!release_server_dsl_migrations_enabled
       // tie response to v1PageResp
       setupPage(toLoadPageId, true, v1PageResp),
       // params applicationId
