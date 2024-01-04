@@ -106,6 +106,11 @@ function GitDisconnect() {
     }
   };
 
+  const showAutoCommit =
+    isAutocommitFeatureEnabled && isManageAutoCommitPermitted;
+  const showDisconnect = isConnectToGitPermitted;
+  const showDivider = showAutoCommit && showDisconnect;
+
   return (
     <Container>
       <HeadContainer>
@@ -114,31 +119,29 @@ function GitDisconnect() {
         </SectionTitle>
       </HeadContainer>
       <ZoneContainer>
-        {isAutocommitFeatureEnabled && isManageAutoCommitPermitted ? (
-          <>
-            <BodyContainer>
-              <BodyInnerContainer>
-                <Text kind="heading-xs" renderAs="p">
-                  {createMessage(AUTOCOMMIT)}
-                </Text>
-                <Text renderAs="p">{createMessage(AUTOCOMMIT_MESSAGE)}</Text>
-              </BodyInnerContainer>
-              <Button
-                data-testid="t--git-disconnect-btn"
-                isLoading={isAutocommitToggling || gitMetadataLoading}
-                kind={isAutocommitEnabled ? "error" : "secondary"}
-                onClick={handleToggleAutocommit}
-                size="md"
-              >
-                {isAutocommitEnabled
-                  ? createMessage(AUTOCOMMIT_DISABLE)
-                  : createMessage(AUTOCOMMIT_ENABLE)}
-              </Button>
-            </BodyContainer>
-            <StyledDivider />
-          </>
-        ) : null}
-        {isConnectToGitPermitted ? (
+        {showAutoCommit && (
+          <BodyContainer>
+            <BodyInnerContainer>
+              <Text kind="heading-xs" renderAs="p">
+                {createMessage(AUTOCOMMIT)}
+              </Text>
+              <Text renderAs="p">{createMessage(AUTOCOMMIT_MESSAGE)}</Text>
+            </BodyInnerContainer>
+            <Button
+              data-testid="t--git-disconnect-btn"
+              isLoading={isAutocommitToggling || gitMetadataLoading}
+              kind={isAutocommitEnabled ? "error" : "secondary"}
+              onClick={handleToggleAutocommit}
+              size="md"
+            >
+              {isAutocommitEnabled
+                ? createMessage(AUTOCOMMIT_DISABLE)
+                : createMessage(AUTOCOMMIT_ENABLE)}
+            </Button>
+          </BodyContainer>
+        )}
+        {showDivider && <StyledDivider />}
+        {isConnectToGitPermitted && (
           <BodyContainer>
             <BodyInnerContainer>
               <Text kind="heading-xs" renderAs="p">
@@ -155,7 +158,7 @@ function GitDisconnect() {
               {createMessage(DISCONNECT_GIT)}
             </Button>
           </BodyContainer>
-        ) : null}
+        )}
       </ZoneContainer>
     </Container>
   );

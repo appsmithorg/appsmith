@@ -30,6 +30,8 @@ function GitSettings() {
   const isConnectToGitPermitted = useHasConnectToGitPermission();
   const isManageAutoCommitPermitted = useHasManageAutoCommitPermission();
 
+  // console.log({ isManageDefaultBranchPermitted });
+
   return (
     <ModalBody>
       <Container>
