@@ -1,28 +1,30 @@
 import { useSelector } from "react-redux";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
   hasConnectToGitPermission,
   hasManageProtectedBranchesPermission,
   hasManageDefaultBranchPermission,
   hasManageAutoCommitPermission,
 } from "@appsmith/utils/permissionHelpers";
+import { getCurrentApplication } from "selectors/editorSelectors";
 
 export const useHasConnectToGitPermission = () => {
-  const workspace = useSelector(getCurrentAppWorkspace);
-  return hasConnectToGitPermission(workspace.userPermissions);
+  const currentApplication = useSelector(getCurrentApplication);
+  return hasConnectToGitPermission(currentApplication?.userPermissions);
 };
 
 export const useHasManageProtectedBranchesPermission = () => {
-  const workspace = useSelector(getCurrentAppWorkspace);
-  return hasManageProtectedBranchesPermission(workspace.userPermissions);
+  const currentApplication = useSelector(getCurrentApplication);
+  return hasManageProtectedBranchesPermission(
+    currentApplication?.userPermissions,
+  );
 };
 
 export const useHasManageDefaultBranchPermission = () => {
-  const workspace = useSelector(getCurrentAppWorkspace);
-  return hasManageDefaultBranchPermission(workspace.userPermissions);
+  const currentApplication = useSelector(getCurrentApplication);
+  return hasManageDefaultBranchPermission(currentApplication?.userPermissions);
 };
 
 export const useHasManageAutoCommitPermission = () => {
-  const workspace = useSelector(getCurrentAppWorkspace);
-  return hasManageAutoCommitPermission(workspace.userPermissions);
+  const currentApplication = useSelector(getCurrentApplication);
+  return hasManageAutoCommitPermission(currentApplication?.userPermissions);
 };
