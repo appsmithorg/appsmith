@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -74,10 +75,15 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(
             @PathVariable String pluginId,
             @RequestBody TriggerRequestDTO triggerRequestDTO,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
+            ServerWebExchange serverWebExchange) {
         log.debug("Trigger received for PLugin {}", pluginId);
         return pluginTriggerSolution
-                .trigger(pluginId, environmentId, triggerRequestDTO)
+                .trigger(
+                        pluginId,
+                        environmentId,
+                        triggerRequestDTO,
+                        serverWebExchange.getRequest().getHeaders())
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 }
