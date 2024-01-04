@@ -144,6 +144,8 @@ export function EditableText(props: EditableTextProps) {
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
   const [value, setStateValue] = useState(defaultValue);
+  const [errorMessage, setErrorMessage] = useState<string | boolean>("");
+  const [error, setError] = useState<boolean>(false);
   const inputValRef = useRef("");
 
   const setValue = useCallback((value) => {
@@ -200,12 +202,17 @@ export function EditableText(props: EditableTextProps) {
         finalVal = valueTransform(_value);
       }
       setValue(finalVal);
+      const errorMessage = isInvalid && isInvalid(finalVal);
+      if (errorMessage) {
+        setError(true);
+        setErrorMessage(errorMessage);
+      } else {
+        setError(false);
+      }
     },
-    [valueTransform],
+    [valueTransform, isInvalid],
   );
 
-  const errorMessage = isInvalid && isInvalid(value);
-  const error = errorMessage ? errorMessage : undefined;
   const showEditIcon = !(
     disabled ||
     minimal ||
