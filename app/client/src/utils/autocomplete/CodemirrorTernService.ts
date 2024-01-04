@@ -1205,6 +1205,10 @@ export const createCompletionHeader = (name: string): Completion<any> => ({
   isHeader: true,
 });
 
+export default new CodeMirrorTernService({
+  async: true,
+});
+
 function dotToBracketNotationAtToken(token: CodeMirror.Token) {
   return (cm: CodeMirror.Editor, hints: Hints, curr: Hint) => {
     let completion = curr.text;
@@ -1230,15 +1234,4 @@ function dotToBracketNotationAtToken(token: CodeMirror.Token) {
     }
     cm.replaceRange(completion, hints.from, hints.to);
   };
-}
-
-let codeMirrorTernService: CodeMirrorTernService;
-
-export function getCodeMirrorTernService() {
-  if (!codeMirrorTernService) {
-    codeMirrorTernService = new CodeMirrorTernService({
-      async: true,
-    });
-  }
-  return codeMirrorTernService;
 }
