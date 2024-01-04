@@ -49,6 +49,9 @@ describe("API Bugs", { tags: ["@tag.Datasource"] }, function () {
     const apiUrl = `http://host.docker.internal:5001/v1/{{true ? 'mock-api' : 'mock-apis'}}?records=10`;
 
     apiPage.CreateAndFillApi(apiUrl, "BindingExpressions");
+    agHelper.VerifyEvaluatedValue(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    );
     apiPage.RunAPI();
     agHelper.AssertElementAbsence(
       locators._specificToast(
