@@ -60,12 +60,6 @@ export class EntityExplorer {
     "//span[text()='" + spanText + "']";
   _adsPopup = "div[role='menu']";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
-  _entityExplorer = ".t--entity-explorer";
-  private _overlaySearch = "[data-testId='t--search-file-operation']";
-  _allQueriesforDB = (dbName: string) =>
-    "//span[text()='" +
-    dbName +
-    "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
   _widgetTagsList =
     "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
   _widgetCards = ".t--widget-card-draggable";
@@ -120,17 +114,22 @@ export class EntityExplorer {
   public DeleteAllQueriesForDB(dsName: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
-    this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
-      cy.wrap($el)
-        .invoke("text")
-        .then(($query) => {
-          this.ActionContextMenuByEntityName({
-            entityNameinLeftSidebar: $query as string,
-            action: "Delete",
-            entityType: EntityItems.Query,
+    this.agHelper
+      .GetElement(this._visibleTextSpan(dsName))
+      .parent()
+      .siblings()
+      .each(($el: any) => {
+        cy.wrap($el)
+          .find(".t--entity-name")
+          .invoke("text")
+          .then(($query) => {
+            this.ActionContextMenuByEntityName({
+              entityNameinLeftSidebar: $query as string,
+              action: "Delete",
+              entityType: EntityItems.Query,
+            });
           });
-        });
-    });
+      });
   }
 
   public SearchWidgetPane(widgetType: string) {
@@ -225,14 +224,8 @@ export class EntityExplorer {
     AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
-    cy.get(this.locator._createNew).last().click();
-    const searchText = isQuery ? dsName + " query" : dsName;
-    this.SearchAndClickOmnibar(searchText);
-  }
-
-  public SearchAndClickOmnibar(searchText: string) {
-    this.agHelper.UpdateInputValue(this._overlaySearch, searchText);
-    let overlayItem = this._visibleTextSpan(searchText);
+    PageLeftPane.switchToAddNew();
+    let overlayItem = this._visibleTextSpan(dsName);
     this.agHelper.GetNClick(overlayItem);
   }
 

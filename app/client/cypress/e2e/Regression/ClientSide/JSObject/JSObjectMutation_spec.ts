@@ -95,7 +95,7 @@ describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
   });
 
   it("6. Bug 27978 Check assignment should not get overridden by evaluation", () => {
-    _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 400, 400);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 400, 400);
     _.propPane.TypeTextIntoField(
       "Text",
       `{{JSObject1.data.length ? 'id-' + JSObject1.data[0].id : 'Not Set' }}`,

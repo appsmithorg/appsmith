@@ -307,7 +307,7 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       //Tooltip
-      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 300);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
       propPane.UpdatePropertyFieldValue("Text", "Tooltip text");
       EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
       propPane.EnterJSContext(

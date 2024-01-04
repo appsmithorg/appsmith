@@ -747,6 +747,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
 Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
@@ -767,6 +769,8 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   "dragAndDropToWidgetBySelector",
   (widgetType, destinationSelector, { x, y }) => {
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)

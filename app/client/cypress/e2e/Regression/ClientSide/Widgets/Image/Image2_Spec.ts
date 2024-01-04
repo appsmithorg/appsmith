@@ -24,7 +24,7 @@ describe(
     const pngImg = "https://assets.appsmith.com/widgets/default.png";
 
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.IMAGE);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
     });
 
     it("1. Verify Image Preview for different types of images (png, jpg, gif, svg, webp)", function () {
@@ -76,7 +76,7 @@ describe(
         "Image",
         "{{Button1.isDisabled ?'" + jpgImg + "':'" + gifImg + "'}}",
       );
-      entityExplorer.DragNDropWidget(draggableWidgets.BUTTON, 200, 400);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 400);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
       agHelper.AssertElementExist(image(gifImg));
       agHelper.AssertContains("Unable to display the image", "not.exist");

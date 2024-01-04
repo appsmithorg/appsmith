@@ -27,9 +27,17 @@ describe(
      * Adding switch group, checkbox group and text widgets
      */
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.SWITCHGROUP, 300, 300);
-      entityExplorer.DragNDropWidget(draggableWidgets.CHECKBOXGROUP, 300, 500);
-      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 700);
+      entityExplorer.DragDropWidgetNVerify(
+        draggableWidgets.SWITCHGROUP,
+        300,
+        300,
+      );
+      entityExplorer.DragDropWidgetNVerify(
+        draggableWidgets.CHECKBOXGROUP,
+        300,
+        500,
+      );
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 700);
       propPane.UpdatePropertyFieldValue(
         "Text",
         "{{SwitchGroup1.selectedValues[0]}}",

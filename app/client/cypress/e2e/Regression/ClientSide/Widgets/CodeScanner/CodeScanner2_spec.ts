@@ -22,7 +22,7 @@ describe(
     });
 
     it("1. Verify properties in Always scan mode", () => {
-      entityExplorer.DragNDropWidget(draggableWidgets.CODESCANNER);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.CODESCANNER);
       agHelper.AssertAttribute(
         propPane._mode("Always on"),
         "data-selected",
@@ -79,7 +79,7 @@ describe(
         "c) Verify that the scanned data is correctly displayed on the app's screen",
       () => {
         //Add an action in onCodeDetected event
-        entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
+        entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 500);
         propPane.TypeTextIntoField("Text", "{{CodeScanner1.value}}");
         EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
         propPane.EnterJSContext(

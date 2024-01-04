@@ -12,7 +12,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Video"] },
   function () {
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.VIDEO);
     });
 
     it("1. Video Widget play functionality validation", function () {

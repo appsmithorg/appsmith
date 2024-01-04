@@ -19,7 +19,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Datepicker"] },
   () => {
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.DATEPICKER);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.DATEPICKER);
     });
 
     afterEach(() => {

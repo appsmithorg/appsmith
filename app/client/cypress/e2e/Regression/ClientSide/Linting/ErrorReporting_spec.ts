@@ -11,6 +11,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
@@ -340,6 +342,7 @@ describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",

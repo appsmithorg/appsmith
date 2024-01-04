@@ -17,7 +17,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.SELECT);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT);
     });
 
     it("1. Validate Label properties - Text , Position , Alignment , Width(in columns)", function () {
@@ -103,7 +103,7 @@ describe(
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Tooltip", "{{Input1.text}}");
       propPane.UpdatePropertyFieldValue("Placeholder", "{{Input1.text}}");
-      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 200);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 300, 200);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2),
       );
@@ -302,8 +302,8 @@ describe(
 
     it("9. Validate Validation required property", function () {
       deployMode.NavigateBacktoEditor();
-      entityExplorer.DragNDropWidget(draggableWidgets.FORM, 300, 400);
-      entityExplorer.DragNDropWidget(draggableWidgets.SELECT, 200, 500);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM, 300, 400);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 200, 500);
       EditorNavigation.SelectEntityByName("Select2", EntityType.Widget);
       agHelper.AssertExistingToggleState("Required", "false");
       propPane.TogglePropertyState("Required", "On");

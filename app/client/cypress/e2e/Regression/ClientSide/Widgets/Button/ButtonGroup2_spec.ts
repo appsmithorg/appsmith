@@ -159,7 +159,7 @@ describe(
     });
 
     it("5. Assert On click button group ", function () {
-      entityExplorer.DragNDropWidget(draggableWidgets.MODAL, 250, 250);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 250, 250);
       agHelper.ClickButton("Close");
       EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
       agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 0);
