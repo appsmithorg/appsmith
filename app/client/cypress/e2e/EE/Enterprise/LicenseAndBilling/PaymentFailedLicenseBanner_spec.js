@@ -23,7 +23,7 @@ describe(
         licenseStatus: "IN_GRACE_PERIOD",
         expiry: (new Date().getTime() + 2 * 24 * 60 * 60 * 1000) / 1000,
       });
-      agHelper.RefreshPage("getReleaseItems");
+      agHelper.RefreshPage("getAllWorkspaces");
       cy.get(LicenseLocators.billingBanner).contains(
         "Your most recent payment has failed. Update your payment methods or your instances will stop working",
       );
@@ -36,7 +36,7 @@ describe(
 
     it("3. should not have banner in paid license", () => {
       cy.interceptLicenseApi({ licenseStatus: "ACTIVE", licenseType: "PAID" });
-      agHelper.RefreshPage("getReleaseItems");
+      agHelper.RefreshPage("getAllWorkspaces");
       cy.get(LicenseLocators.billingBanner).should("not.exist");
     });
 
@@ -52,7 +52,7 @@ describe(
         licenseStatus: "IN_GRACE_PERIOD",
       });
       agHelper.Sleep(3000);
-      agHelper.RefreshPage("getReleaseItems");
+      agHelper.RefreshPage("getAllWorkspaces");
       agHelper.AssertElementAbsence(LicenseLocators.billingBanner);
     });
   },
