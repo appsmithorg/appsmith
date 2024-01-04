@@ -50,7 +50,15 @@ describe(
       ],
       Buttons: ["Button", "Button Group", "Icon button", "Menu button"],
       Select: ["Multi TreeSelect", "MultiSelect", "Select", "TreeSelect"],
-      Display: ["Chart", "Iframe", "List", "Map Chart", "Stats Box", "Table"],
+      Display: [
+        "Chart",
+        "Custom",
+        "Iframe",
+        "List",
+        "Map Chart",
+        "Stats Box",
+        "Table",
+      ],
       Layout: ["Container", "Divider", "Form", "JSON Form", "Modal", "Tabs"],
       Media: ["Audio", "Document Viewer", "Image", "Video"],
       Toggles: [
@@ -185,7 +193,8 @@ describe(
       agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
       agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
-      agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
+      agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
+      agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
 

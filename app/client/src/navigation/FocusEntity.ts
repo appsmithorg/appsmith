@@ -39,11 +39,13 @@ export enum FocusEntity {
   LIBRARY = "LIBRARY",
   SETTINGS = "SETTINGS",
   WIDGET_LIST = "WIDGET_LIST",
+  EDITOR = "EDITOR",
   QUERY_ADD = "QUERY_ADD",
+  DATASOURCE_CREATE = "DATASOURCE_CREATE",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
-  [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
+  [FocusEntity.PROPERTY_PANE]: FocusEntity.WIDGET_LIST,
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,
   [FocusEntity.JS_OBJECT]: FocusEntity.JS_OBJECT_LIST,
   [FocusEntity.QUERY]: FocusEntity.QUERY_LIST,
@@ -159,7 +161,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   }
   if (match.params.selectedTab) {
     return {
-      entity: FocusEntity.DATASOURCE,
+      entity: FocusEntity.DATASOURCE_CREATE,
       id: match.params.selectedTab,
       pageId: match.params.pageId,
       appState: EditorState.DATA,

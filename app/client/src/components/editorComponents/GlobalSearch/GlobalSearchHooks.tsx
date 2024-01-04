@@ -42,11 +42,13 @@ import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;
   query?: string;
+  showModules?: boolean;
 }
 
 export const useFilteredFileOperations = ({
   canCreateActions,
   query = "",
+  showModules = true,
 }: FilterFileOperationsProps) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
@@ -79,7 +81,7 @@ export const useFilteredFileOperations = ({
     allDatasources,
     canCreateActions,
     canCreateDatasource,
-    moduleOptions,
+    moduleOptions: showModules ? moduleOptions : [],
     plugins,
     recentlyUsedDSMap,
     query,
@@ -158,6 +160,7 @@ export const useFilteredAndSortedFileOperations = ({
       integrationEditorURL({
         pageId,
         selectedTab: INTEGRATION_TABS.NEW,
+        generateEditorPath: true,
       }),
     );
   };

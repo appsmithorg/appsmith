@@ -34,6 +34,7 @@ describe(
       );
       agHelper.AssertElementExist(appSettings.locators._sideNavbar);
       AppSidebar.navigate(AppSidebarButton.Editor);
+      EditorNavigation.ShowCanvas();
       agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
       agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
       agHelper.AssertElementExist(locators._fixedLayout);

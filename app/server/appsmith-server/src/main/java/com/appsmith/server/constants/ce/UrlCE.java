@@ -18,7 +18,6 @@ public class UrlCE {
     public static final String APPLICATION_URL = BASE_URL + VERSION + "/" + Entity.APPLICATIONS;
     public static final String PAGE_URL = BASE_URL + VERSION + "/" + Entity.PAGES;
     public static final String CONFIG_URL = BASE_URL + VERSION + "/configs";
-    public static final String GROUP_URL = BASE_URL + VERSION + "/groups";
     public static final String COLLECTION_URL = BASE_URL + VERSION + "/collections";
     public static final String ACTION_COLLECTION_URL = COLLECTION_URL + "/actions";
     public static final String IMPORT_URL = BASE_URL + VERSION + "/import";
@@ -38,6 +37,7 @@ public class UrlCE {
     public static final String CUSTOM_JS_LIB_URL = BASE_URL + VERSION + "/libraries";
     public static final String PRODUCT_ALERT = BASE_URL + VERSION + "/product-alert";
     public static final String SEARCH_ENTITY_URL = BASE_URL + VERSION + "/search-entities";
+    public static final String CONSOLIDATED_API_URL = BASE_URL + VERSION + "/consolidated-api";
 
     // Sub-paths
     public static final String MOCKS = "/mocks";

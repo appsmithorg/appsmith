@@ -38,8 +38,8 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
     }
 
     // Requires datasourceIdToNameMap, pageIdToNameMap, pluginMap, collectionIdToNameMap
-    // Updates actionId to name map in exportable resources. Also directly updates required collection information in
-    // application json
+    // Updates actionId to name map in exportable resources.
+    // Also, directly updates required collection information in application json
     @Override
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
@@ -51,7 +51,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
         Flux<NewAction> actionFlux =
-                newActionService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+                newActionService.findByPageIdsForExport(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
 
         return actionFlux
                 .collectList()
@@ -117,18 +117,21 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             newAction.setWorkspaceId(null);
             newAction.setPolicies(null);
             newAction.setApplicationId(null);
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                    newAction.getPublishedAction(),
-                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                    mappedExportableResourcesDTO.getPluginMap(),
-                    null,
-                    true));
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                    newAction.getUnpublishedAction(),
-                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                    mappedExportableResourcesDTO.getPluginMap(),
-                    null,
-                    true));
+            if (hasExportableDatasource(newAction)) {
+                // Only add the datasource for this action to dbNamesUsed if it is not a module action
+                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                        newAction.getPublishedAction(),
+                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                        mappedExportableResourcesDTO.getPluginMap(),
+                        null,
+                        true));
+                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                        newAction.getUnpublishedAction(),
+                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                        mappedExportableResourcesDTO.getPluginMap(),
+                        null,
+                        true));
+            }
 
             // Set unique id for action
             if (newAction.getUnpublishedAction() != null) {
@@ -171,5 +174,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             }
         });
         return dbNamesUsedInActions;
+    }
+
+    protected boolean hasExportableDatasource(NewAction newAction) {
+        return true;
     }
 }

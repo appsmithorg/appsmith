@@ -17,7 +17,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -31,6 +30,7 @@ import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/util
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { ExplorerModuleInstanceEntity } from "@appsmith/pages/Editor/Explorer/ModuleInstanceEntity";
 import { FilesContext } from "./FilesContextProvider";
+import { selectFilesForExplorer as default_selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -41,8 +41,14 @@ const StyledText = styled(Text)`
 function Files() {
   // Import the context
   const context = useContext(FilesContext);
-  const { canCreateActions, editorId, parentEntityId, parentEntityType } =
-    context;
+  const {
+    canCreateActions,
+    editorId,
+    parentEntityId,
+    parentEntityType,
+    selectFilesForExplorer = default_selectFilesForExplorer,
+    showModules = true,
+  } = context;
 
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
@@ -51,7 +57,11 @@ function Files() {
   const [isMenuOpen, openMenu] = useState(false);
   const [query, setQuery] = useState("");
 
-  const fileOperations = useFilteredFileOperations({ query, canCreateActions });
+  const fileOperations = useFilteredFileOperations({
+    query,
+    canCreateActions,
+    showModules,
+  });
 
   const onCreate = useCallback(() => {
     openMenu(true);
@@ -107,6 +117,7 @@ function Files() {
               isActive={entity.id === activeActionId}
               key={entity.id}
               parentEntityId={parentEntityId}
+              parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
               type={type}
@@ -119,6 +130,7 @@ function Files() {
               isActive={entity.id === activeActionId}
               key={entity.id}
               parentEntityId={parentEntityId}
+              parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
               type={type}

@@ -1,10 +1,11 @@
 import API from "api/Api";
 import type { AxiosPromise } from "axios";
 import type { JSCollection } from "entities/JSCollection";
-import type { ApiResponse } from "../../api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
-import type { ActionContextType, PluginType } from "entities/Action";
+import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;
@@ -16,11 +17,13 @@ export interface MoveJSCollectionRequest {
   name: string;
 }
 export interface UpdateJSObjectNameRequest {
-  pageId: string;
+  pageId?: string;
   actionCollectionId: string;
-  layoutId: string;
+  layoutId?: string;
   newName: string;
   oldName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
 }
 
 export interface CreateJSCollectionRequest {
@@ -34,7 +37,8 @@ export interface CreateJSCollectionRequest {
   applicationId: string;
   pluginType: PluginType;
   workflowId?: string;
-  contextType?: ActionContextType;
+  contextType?: ActionParentEntityTypeInterface;
+  moduleId?: string;
 }
 
 export interface SetFunctionPropertyPayload {

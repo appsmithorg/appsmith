@@ -34,7 +34,6 @@
   "actionCollection": {
     "id": "testCollectionId",
     "applicationId": "testApplicationId",
-    "organizationId": "testOrganizationId",
     "unpublishedCollection": {
       "pageId": "testPageIdUnpublished",
       "defaultResources": {

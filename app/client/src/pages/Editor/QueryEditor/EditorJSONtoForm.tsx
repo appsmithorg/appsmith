@@ -91,6 +91,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryResponseTabView from "./QueryResponseView";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -331,7 +332,9 @@ export function EditorJSONtoForm(props: Props) {
     actionRightPaneBackLink,
     closeEditorLink,
     moreActionsMenu,
+    notification,
     saveActionName,
+    showSuggestedWidgets = true,
   } = useContext(QueryEditorContext);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
@@ -364,6 +367,13 @@ export function EditorJSONtoForm(props: Props) {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
+  const showSchema = useShowSchema(currentActionConfig?.pluginId || "");
+
+  const showRightPane =
+    showSchema ||
+    showSuggestedWidgets ||
+    Boolean(actionRightPaneAdditionSections);
 
   // get the current action's plugin name
   const currentActionPluginName = useSelector((state: AppState) =>
@@ -673,6 +683,7 @@ export function EditorJSONtoForm(props: Props) {
             </Button>
           </ActionsWrapper>
         </StyledFormRow>
+        {notification}
         <Wrapper>
           <div className="flex flex-1">
             <SecondaryWrapper>
@@ -783,19 +794,23 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
-          <SidebarWrapper show={shouldOpenActionPaneByDefault}>
-            <ActionRightPane
-              actionName={actionName}
-              actionRightPaneBackLink={actionRightPaneBackLink}
-              additionalSections={actionRightPaneAdditionSections}
-              context={DatasourceStructureContext.QUERY_EDITOR}
-              datasourceId={props.datasourceId}
-              hasConnections={hasDependencies}
-              hasResponse={!!actionResponse}
-              pluginId={props.pluginId}
-              suggestedWidgets={actionResponse?.suggestedWidgets}
-            />
-          </SidebarWrapper>
+          {showRightPane && (
+            <SidebarWrapper show={shouldOpenActionPaneByDefault}>
+              <ActionRightPane
+                actionName={actionName}
+                actionRightPaneBackLink={actionRightPaneBackLink}
+                additionalSections={actionRightPaneAdditionSections}
+                context={DatasourceStructureContext.QUERY_EDITOR}
+                datasourceId={props.datasourceId}
+                hasConnections={hasDependencies}
+                hasResponse={!!actionResponse}
+                pluginId={props.pluginId}
+                showSchema={showSchema}
+                showSuggestedWidgets={showSuggestedWidgets}
+                suggestedWidgets={actionResponse?.suggestedWidgets}
+              />
+            </SidebarWrapper>
+          )}
         </Wrapper>
       </QueryFormContainer>
     </>

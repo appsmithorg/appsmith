@@ -35,13 +35,12 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import DatasourceStarterLayoutPrompt from "./Datasources/DatasourceStarterLayoutPrompt";
 import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 import { FilesContextProvider } from "./Files/FilesContextProvider";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -165,7 +164,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
         canCreateActions={canCreateActions}
         editorId={applicationId}
         parentEntityId={pageId}
-        parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+        parentEntityType={ActionParentEntityType.PAGE}
       >
         <Files />
       </FilesContextProvider>
@@ -177,8 +176,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      {/* Shows first time users only */}
-      <DatasourceStarterLayoutPrompt />
+
       {!isAppSidebarEnabled && (
         <>
           <Datasources
