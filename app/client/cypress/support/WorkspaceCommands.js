@@ -289,7 +289,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     cy.url().then((url) => {
       if (url.indexOf("/applications") > -1) {
         homePageTS.EditAppFromAppHover(appName);
-        agHelper.Sleep(2000); //for app to open
       }
     });
   });
