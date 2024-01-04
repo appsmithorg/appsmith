@@ -11,7 +11,10 @@ import {
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constants";
-import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
+// import { DebuggerLogType } from "../../types";
+// import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+// import { Severity } from "entities/AppsmithConsole";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { Spinner } from "design-system";
 import {
   CUSTOM_WIDGET_FEATURE,
@@ -50,7 +53,7 @@ export default function JSEditor(props: ContentProps) {
 
   useEffect(() => {
     ["LIB/node-forge", "LIB/moment", "base64-js", "LIB/lodash"].forEach((d) => {
-      getCodeMirrorTernService().removeDef(d);
+      CodemirrorTernService.removeDef(d);
     });
   }, []);
 
