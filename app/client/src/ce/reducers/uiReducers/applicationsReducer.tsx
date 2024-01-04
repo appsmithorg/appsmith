@@ -495,11 +495,11 @@ export const handlers = {
   }),
   [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<string>,
+    action: ReduxAction<{ workspaceId: string }>,
   ) => {
     return {
       ...state,
-      workspaceIdForImport: action.payload,
+      workspaceIdForImport: action.payload.workspaceId,
     };
   },
   [ReduxActionTypes.SET_PAGE_ID_FOR_IMPORT]: (
