@@ -93,7 +93,7 @@ describe(
       // Creating a query
       dataSources.CreateDataSource("Postgres");
       dataSources.CreateQueryAfterDSSaved(
-        'SELECT * FROM public."astronauts" LIMIT 10;',
+        'SELECT * FROM public."country" LIMIT 10;',
       );
       // Going to HomePage where the button widget is located and opeing it's property pane.
       cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
