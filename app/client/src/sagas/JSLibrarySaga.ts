@@ -21,7 +21,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
 import { EvalWorker } from "./EvaluationsSaga";
@@ -171,7 +171,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
   }
 
   try {
-    CodemirrorTernService.updateDef(defs["!name"], defs);
+    getCodeMirrorTernService().updateDef(defs["!name"], defs);
     AnalyticsUtil.logEvent("DEFINITIONS_GENERATION", { url, success: true });
   } catch (e) {
     toast.show(
@@ -281,7 +281,9 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
     }
 
     try {
-      CodemirrorTernService.removeDef(`LIB/${accessor[accessor.length - 1]}`);
+      getCodeMirrorTernService().removeDef(
+        `LIB/${accessor[accessor.length - 1]}`,
+      );
     } catch (e) {
       log.debug(`Failed to remove definitions for ${name}`, e);
     }
@@ -367,7 +369,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       for (const lib of libraries) {
         try {
           const defs = JSON.parse(lib.defs);
-          CodemirrorTernService.updateDef(defs["!name"], defs);
+          getCodeMirrorTernService().updateDef(defs["!name"], defs);
         } catch (e) {
           toast.show(
             createMessage(

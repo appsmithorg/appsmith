@@ -2,7 +2,8 @@ import type {
   Completion,
   DataTreeDefEntityInformation,
 } from "../CodemirrorTernService";
-import CodemirrorTernService, {
+import {
+  getCodeMirrorTernService,
   createCompletionHeader,
 } from "../CodemirrorTernService";
 import { AutocompleteDataType } from "../AutocompleteDataType";
@@ -84,7 +85,7 @@ describe("Tern server", () => {
     ];
 
     testCases.forEach((testCase) => {
-      const { value } = CodemirrorTernService.getFocusedDocValueAndPos(
+      const { value } = getCodeMirrorTernService().getFocusedDocValueAndPos(
         testCase.input,
       );
       expect(value).toBe(testCase.expectedOutput);
@@ -152,7 +153,10 @@ describe("Tern server", () => {
         type: "string",
         string: "",
       });
-      const request = CodemirrorTernService.buildRequest(testCase.input, {});
+      const request = getCodeMirrorTernService().buildRequest(
+        testCase.input,
+        {},
+      );
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
   });
@@ -219,9 +223,9 @@ describe("Tern server", () => {
       });
 
       const mockAddFile = jest.fn();
-      CodemirrorTernService.server.addFile = mockAddFile;
+      getCodeMirrorTernService().server.addFile = mockAddFile;
 
-      const value: any = CodemirrorTernService.requestCallback(
+      const value: any = getCodeMirrorTernService().requestCallback(
         null,
         testCase.input.requestCallbackData as any,
         MockCodemirrorEditor as unknown as CodeMirror.Editor,
@@ -359,7 +363,7 @@ describe("Tern server sorting", () => {
   ];
 
   it("shows best match results", () => {
-    CodemirrorTernService.setEntityInformation(
+    getCodeMirrorTernService().setEntityInformation(
       MockCodemirrorEditor as unknown as CodeMirror.Editor,
       {
         entityName: "sameEntity",
@@ -367,7 +371,7 @@ describe("Tern server sorting", () => {
         expectedType: AutocompleteDataType.OBJECT,
       },
     );
-    CodemirrorTernService.defEntityInformation = defEntityInformation;
+    getCodeMirrorTernService().defEntityInformation = defEntityInformation;
     const sortedCompletions = AutocompleteSorter.sort(
       _.shuffle(completions),
       {

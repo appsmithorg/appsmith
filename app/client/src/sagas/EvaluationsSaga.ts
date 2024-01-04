@@ -85,7 +85,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
-import { initiateLinting, lintWorker } from "./LintingSagas";
+import { initiateLinting } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -582,11 +582,8 @@ function* evalAndLintingHandler(
 
 function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
-  yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
-  const [evalWorkerListenerChannel] = yield all([
-    call(evalWorker.start),
-    call(lintWorker.start),
-  ]);
+  yield all([call(evalWorker.shutdown)]);
+  const [evalWorkerListenerChannel] = yield all([call(evalWorker.start)]);
 
   const isFFFetched = yield select(getFeatureFlagsFetched);
   if (!isFFFetched) {

@@ -11,7 +11,7 @@ import { get } from "lodash";
 import { FocusEntity } from "navigation/FocusEntity";
 import { select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "./selectors";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
 
 function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
   const recentEntities = action.payload || [];
@@ -59,10 +59,12 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
     }
   }
 
-  CodemirrorTernService.updateRecentEntities(Array.from(recentEntityNames));
+  getCodeMirrorTernService().updateRecentEntities(
+    Array.from(recentEntityNames),
+  );
 }
 function* handleResetTernRecentEntities() {
-  CodemirrorTernService.updateRecentEntities([]);
+  getCodeMirrorTernService().updateRecentEntities([]);
 }
 export default function* ternSagas() {
   yield takeLatest(

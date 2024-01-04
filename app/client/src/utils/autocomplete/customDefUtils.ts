@@ -3,18 +3,18 @@ import { isEmpty } from "lodash";
 import { debug } from "loglevel";
 import type { AdditionalDynamicDataTree } from "./customTreeTypeDefCreator";
 import { customTreeTypeDefCreator } from "./customTreeTypeDefCreator";
-import CodemirrorTernService from "./CodemirrorTernService";
+import { getCodeMirrorTernService } from "./CodemirrorTernService";
 
 class CustomDef {
   private static lastCustomDataDef: AdditionalDynamicDataTree | undefined;
 
   update(customData?: AdditionalDynamicDataTree) {
+    const codeMirrorTernService = getCodeMirrorTernService();
     if (customData && !isEmpty(customData)) {
       const customDataDef = customTreeTypeDefCreator(customData);
       if (!equal(CustomDef.lastCustomDataDef, customDataDef)) {
         const start = performance.now();
-
-        CodemirrorTernService.updateDef("customDataTree", customDataDef);
+        codeMirrorTernService.updateDef("customDataTree", customDataDef);
 
         debug(
           "Tern: updateDef for customDataTree took",
@@ -26,7 +26,7 @@ class CustomDef {
       }
     } else if (CustomDef.lastCustomDataDef) {
       const start = performance.now();
-      CodemirrorTernService.removeDef("customDataTree");
+      codeMirrorTernService.removeDef("customDataTree");
       debug(
         "Tern: removeDef for customDataTree took",
         (performance.now() - start).toFixed(),
