@@ -17,6 +17,7 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
+import AppIDEFocusElements from "../FocusElements/AppIDE";
 
 function shouldSetState(
   prevPath: string,
@@ -62,6 +63,7 @@ const isPageChange = (prevPath: string, currentPath: string) => {
 };
 
 export const AppIDEFocusStrategy: FocusStrategy = {
+  focusElements: AppIDEFocusElements,
   getEntitiesForSet: function* (
     previousPath: string,
     currentPath: string,

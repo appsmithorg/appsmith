@@ -8,8 +8,8 @@ import {
   FocusStoreHierarchy,
   identifyEntityFromPath,
 } from "navigation/FocusEntity";
-import type { Config } from "navigation/FocusElements";
-import { ConfigType, FocusElementsConfig } from "navigation/FocusElements";
+import type { FocusElementConfig } from "navigation/FocusElements";
+import { FocusElementConfigType } from "navigation/FocusElements";
 import {
   removeFocusHistory,
   storeFocusHistory,
@@ -30,6 +30,7 @@ export interface FocusPath {
 }
 
 export interface FocusStrategy {
+  focusElements: Record<FocusEntity, FocusElementConfig[]>;
   /** based on the route change, what states need to be set in the upcoming route **/
   getEntitiesForSet: (
     previousPath: string,
@@ -131,7 +132,8 @@ class FocusRetention {
     focusPath: FocusPath,
     fromPath: string,
   ): Generator<StrictEffect, void, FocusState | undefined> {
-    const selectors = FocusElementsConfig[focusPath.entityInfo.entity];
+    const selectors =
+      this.focusStrategy.focusElements[focusPath.entityInfo.entity];
     const state: Record<string, any> = {};
     for (const selectorInfo of selectors) {
       state[selectorInfo.name] = yield call(
@@ -151,7 +153,7 @@ class FocusRetention {
   protected *setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
     const focusHistory: FocusState = yield select(getCurrentFocusInfo, key);
 
-    const selectors = FocusElementsConfig[entityInfo.entity];
+    const selectors = this.focusStrategy.focusElements[entityInfo.entity];
 
     if (focusHistory) {
       for (const selectorInfo of selectors) {
@@ -198,17 +200,17 @@ class FocusRetention {
     }
   }
 
-  private *getState(config: Config, previousURL: string): unknown {
-    if (config.type === ConfigType.Redux) {
+  private *getState(config: FocusElementConfig, previousURL: string): unknown {
+    if (config.type === FocusElementConfigType.Redux) {
       return yield select(config.selector);
-    } else if (config.type === ConfigType.URL) {
+    } else if (config.type === FocusElementConfigType.URL) {
       return config.selector(previousURL);
     }
   }
-  private *setState(config: Config, value: unknown): unknown {
-    if (config.type === ConfigType.Redux) {
+  private *setState(config: FocusElementConfig, value: unknown): unknown {
+    if (config.type === FocusElementConfigType.Redux) {
       yield put(config.setter(value));
-    } else if (config.type === ConfigType.URL) {
+    } else if (config.type === FocusElementConfigType.URL) {
       config.setter(value);
     }
   }
