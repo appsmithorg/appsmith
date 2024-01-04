@@ -27,7 +27,7 @@ public interface ImportServiceCE {
 
     Mono<? extends ImportableContextDTO> extractAndSaveContext(String workspaceId, Part filePart, String contextId);
 
-    Mono<? extends ImportableContext> importContextInWorkspaceFromJson(
+    Mono<? extends ImportableContext> importNewContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson contextJson);
 
     Mono<? extends ImportableContext> updateNonGitConnectedContextFromJson(
@@ -37,5 +37,8 @@ public interface ImportServiceCE {
             String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName);
 
     Mono<? extends ImportableContextDTO> getContextImportDTO(
-            String workspaceId, String contextId, ImportableContext importableContext);
+            String workspaceId,
+            String contextId,
+            ImportableContext importableContext,
+            ImportableContextJson importableContextJson);
 }

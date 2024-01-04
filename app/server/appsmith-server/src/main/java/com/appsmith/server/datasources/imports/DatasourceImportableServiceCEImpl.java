@@ -13,8 +13,10 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableContext;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -50,6 +52,28 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         this.datasourceService = datasourceService;
         this.workspaceService = workspaceService;
         this.sequenceService = sequenceService;
+    }
+
+    @Override
+    public Mono<Void> importEntities(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableContext> importContextMono,
+            ImportableContextJson importableContextJson,
+            boolean isPartialImport,
+            boolean isContextAgnostic) {
+        return importContextMono.flatMap(importableContext -> {
+            Application application = (Application) importableContext;
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            return importEntities(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson,
+                    isPartialImport);
+        });
     }
 
     // Requires pluginMap to be present in importable resources.

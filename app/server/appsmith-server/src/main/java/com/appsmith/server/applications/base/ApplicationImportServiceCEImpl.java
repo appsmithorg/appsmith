@@ -57,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
@@ -138,6 +139,51 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             return importApplicationInWorkspace(
                     workspaceId, (ApplicationJson) applicationJson, null, null, false, permissionProvider);
         });
+    }
+
+    @Override
+    public ImportApplicationPermissionProvider getImportContextPermissionProviderForImportingContext(
+            Set<String> userPermissionGroups) {
+        return ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
+                .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
+                .permissionRequiredToCreateDatasource(true)
+                .permissionRequiredToEditDatasource(true)
+                .currentUserPermissionGroups(userPermissionGroups)
+                .build();
+    }
+
+    @Override
+    public ImportApplicationPermissionProvider getImportContextPermissionProviderForUpdatingContext(
+            Set<String> userPermissions) {
+        return ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
+                .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .allPermissionsRequired()
+                .currentUserPermissionGroups(userPermissions)
+                .build();
+    }
+
+    @Override
+    public void dehydrateNameForContextUpdate(String applicationId, ImportableContextJson importableContextJson) {
+        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+        if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
+            // Remove the application name from JSON file as updating the application name is not
+            // supported
+            // via JSON import. This is to avoid name conflict during the import flow within the
+            // workspace
+            applicationJson.getExportedApplication().setName(null);
+            applicationJson.getExportedApplication().setSlug(null);
+        }
     }
 
     @Override
@@ -1018,7 +1064,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-            ImportableContextJson importableContextJson, ImportableContext importableContext, Stopwatch stopwatch) {
+            ImportableContextJson importableContextJson, ImportableContext importableContext) {
+
         Application application = (Application) importableContext;
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
 
@@ -1039,12 +1086,53 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 "actionCount",
                 actionCount,
                 "JSObjectCount",
-                jsObjectCount,
-                FieldName.FLOW_NAME,
-                stopwatch.getFlow(),
-                "executionTime",
-                stopwatch.getExecutionTime());
+                jsObjectCount);
 
         return data;
+    }
+
+    @Override
+    public Flux<Void> obtainContextSpecificImportables(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableContext> importedContextMono,
+            ImportableContextJson importableContextJson) {
+
+        return importedContextMono.flatMapMany(importableContext -> {
+            Application application = (Application) importableContext;
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+
+            // Updates pageNametoIdMap and pageNameMap in importable resources.
+            // Also directly updates required information in DB
+            Mono<Void> importedPagesMono = newPageImportableService.importEntities(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson,
+                    false);
+
+            // Directly updates required theme information in DB
+            Mono<Void> importedThemesMono = themeImportableService.importEntities(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson,
+                    false,
+                    true);
+
+            List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson);
+            List<Mono<Void>> allContextDependentImportables =
+                    new ArrayList<>(List.of(importedPagesMono, importedThemesMono));
+            allContextDependentImportables.addAll(pageDependentImportables);
+            return Flux.merge(allContextDependentImportables);
+        });
     }
 }

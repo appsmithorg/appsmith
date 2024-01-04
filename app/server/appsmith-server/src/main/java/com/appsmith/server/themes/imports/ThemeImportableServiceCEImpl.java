@@ -2,9 +2,11 @@ package com.appsmith.server.themes.imports;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableContext;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
@@ -112,5 +114,27 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         }
                     }
                 });
+    }
+
+    @Override
+    public Mono<Void> importEntities(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableContext> importContextMono,
+            ImportableContextJson importableContextJson,
+            boolean isPartialImport,
+            boolean isContextAgnostic) {
+        return importContextMono.flatMap(importableContext -> {
+            Application application = (Application) importableContext;
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            return importEntities(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson,
+                    isPartialImport);
+        });
     }
 }

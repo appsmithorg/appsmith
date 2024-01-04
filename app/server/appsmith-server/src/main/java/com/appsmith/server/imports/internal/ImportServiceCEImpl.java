@@ -2,11 +2,14 @@ package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.applications.imports.ApplicationImportService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ImportableJsonType;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ImportableContextDTO;
@@ -20,6 +23,7 @@ import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportServiceCE;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.migrations.ContextSchemaMigration;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -48,23 +52,35 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
+    private final PermissionGroupRepository permissionGroupRepository;
     private final TransactionalOperator transactionalOperator;
     private final AnalyticsService analyticsService;
+    private final ImportableService<Plugin> pluginImportableService;
+    private final ImportableService<Datasource> datasourceImportableService;
+    private final ImportableService<Theme> themeImportableService;
     private final Map<ImportableJsonType, ContextBasedImportService<?, ?, ?>> serviceFactory = new HashMap<>();
 
     public ImportServiceCEImpl(
             ApplicationImportService applicationImportService,
-            WorkspaceService workspaceService,
             SessionUserService sessionUserService,
+            WorkspaceService workspaceService,
             ImportableService<CustomJSLib> customJSLibImportableService,
+            PermissionGroupRepository permissionGroupRepository,
             TransactionalOperator transactionalOperator,
-            AnalyticsService analyticsService) {
+            AnalyticsService analyticsService,
+            ImportableService<Plugin> pluginImportableService,
+            ImportableService<Datasource> datasourceImportableService,
+            ImportableService<Theme> themeImportableService) {
         this.applicationImportService = applicationImportService;
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.customJSLibImportableService = customJSLibImportableService;
+        this.permissionGroupRepository = permissionGroupRepository;
         this.transactionalOperator = transactionalOperator;
         this.analyticsService = analyticsService;
+        this.pluginImportableService = pluginImportableService;
+        this.datasourceImportableService = datasourceImportableService;
+        this.themeImportableService = themeImportableService;
         serviceFactory.put(APPLICATION, applicationImportService);
     }
 
@@ -114,26 +130,32 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     @Override
     public Mono<? extends ImportableContextDTO> extractAndSaveContext(
             String workspaceId, Part filePart, String contextId) {
+
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         Mono<ImportableContextDTO> importedContextMono = extractImportableContextJson(filePart)
-                .flatMap(contextJson -> {
+                .zipWhen(contextJson -> {
                     if (StringUtils.isEmpty(contextId)) {
-                        return importContextInWorkspaceFromJson(workspaceId, contextJson);
+                        return importNewContextInWorkspaceFromJson(workspaceId, contextJson);
                     } else {
                         return updateNonGitConnectedContextFromJson(workspaceId, contextId, contextJson);
                     }
                 })
-                .flatMap(context -> getContextImportDTO(context.getWorkspaceId(), context.getId(), context));
+                .flatMap(tuple2 -> {
+                    ImportableContext context = tuple2.getT2();
+                    ImportableContextJson importableContextJson = tuple2.getT1();
+                    return getContextImportDTO(
+                            context.getWorkspaceId(), context.getId(), context, importableContextJson);
+                });
 
         return Mono.create(
                 sink -> importedContextMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     @Override
-    public Mono<? extends ImportableContext> importContextInWorkspaceFromJson(
+    public Mono<? extends ImportableContext> importNewContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson contextJson) {
 
         // workspace id must be present and valid
@@ -141,7 +163,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        return getContextBasedImportService(contextJson).importContextInWorkspaceFromJson(workspaceId, contextJson);
+        ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(contextJson);
+        return permissionGroupRepository
+                .getCurrentUserPermissionGroups()
+                .map(contextBasedImportService::getImportContextPermissionProviderForImportingContext)
+                .flatMap(permissionProvider ->
+                        importApplicationInWorkspace(workspaceId, contextJson, null, null, false, permissionProvider));
     }
 
     @Override
@@ -164,8 +191,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 return Mono.error(new AppsmithException(
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
-                return getContextBasedImportService(importableContextJson)
-                        .updateNonGitConnectedContextFromJson(workspaceId, contextId, importableContextJson)
+                ContextBasedImportService<?, ?, ?> contextBasedImportService =
+                        getContextBasedImportService(importableContextJson);
+                contextBasedImportService.dehydrateNameForContextUpdate(contextId, importableContextJson);
+                return permissionGroupRepository
+                        .getCurrentUserPermissionGroups()
+                        .map(contextBasedImportService::getImportContextPermissionProviderForUpdatingContext)
+                        .flatMap(permissionProvider -> importApplicationInWorkspace(
+                                workspaceId, importableContextJson, contextId, null, false, permissionProvider))
                         .onErrorResume(error -> {
                             if (error instanceof AppsmithException) {
                                 return Mono.error(error);
@@ -190,8 +223,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     @Override
     public Mono<? extends ImportableContextDTO> getContextImportDTO(
-            String workspaceId, String contextId, ImportableContext importableContext) {
-        return applicationImportService.getImportableContextDTO(workspaceId, contextId, importableContext);
+            String workspaceId,
+            String contextId,
+            ImportableContext importableContext,
+            ImportableContextJson importableContextJson) {
+        return getContextBasedImportService(importableContextJson)
+                .getImportableContextDTO(workspaceId, contextId, importableContext);
     }
 
     /**
@@ -250,8 +287,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }
 
-        // take a look at permission provider
-        // QQ should I add permission for
         ImportingMetaDTO importingMetaDTO =
                 new ImportingMetaDTO(workspaceId, contextId, branchName, appendToContext, permissionProvider);
 
@@ -321,7 +356,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     User user = tuple.getT2();
                     stopwatch.stopTimer();
                     stopwatch.stopAndLogTimeInMillis();
-                    return sendImportRelatedAnalyticsEvent(importableContextJson, importableContext, stopwatch, user);
+                    return sendImportRelatedAnalyticsEvent(importedDoc, importableContext, stopwatch, user);
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
@@ -372,26 +407,27 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             Mono<? extends ImportableContext> importedContextMono,
             ImportableContextJson importableContextJson) {
 
-        List<Mono<Void>> pageIndependentImportables = getPageIndependentImportables(
+        List<Mono<Void>> pageIndependentImportables = obtainContextAgnosticImportables(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedContextMono,
                 importableContextJson);
 
-        List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedContextMono,
-                importableContextJson);
+        Flux<Void> pageDependentImportables = getContextBasedImportService(importableContextJson)
+                .obtainContextSpecificImportables(
+                        importingMetaDTO,
+                        mappedImportableResourcesDTO,
+                        workspaceMono,
+                        importedContextMono,
+                        importableContextJson);
 
         return Flux.merge(pageIndependentImportables)
-                .thenMany(Flux.merge(pageDependentImportables))
+                .thenMany(pageDependentImportables)
                 .then();
     }
 
-    protected List<Mono<Void>> getPageIndependentImportables(
+    protected List<Mono<Void>> obtainContextAgnosticImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -399,84 +435,38 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             ImportableContextJson importableContextJson) {
 
         // Updates plugin map in importable resources
-        //        Mono<Void> installedPluginsMono = pluginImportableService.importEntities(
-        //            importingMetaDTO,
-        //            mappedImportableResourcesDTO,
-        //            workspaceMono,
-        //            importedApplicationMono,
-        //            importableContextJson,
-        //            false);
-        //
-        //        // Directly updates required theme information in DB
-        //        Mono<Void> importedThemesMono = themeImportableService.importEntities(
-        //            importingMetaDTO,
-        //            mappedImportableResourcesDTO,
-        //            workspaceMono,
-        //            importedApplicationMono,
-        //            importableContextJson,
-        //            false);
-        //
-        //        // Updates pageNametoIdMap and pageNameMap in importable resources.
-        //        // Also directly updates required information in DB
-        //        Mono<Void> importedPagesMono = newPageImportableService.importEntities(
-        //            importingMetaDTO,
-        //            mappedImportableResourcesDTO,
-        //            workspaceMono,
-        //            importedApplicationMono,
-        //            importableContextJson,
-        //            false);
-        //
-        //        // Requires pluginMap to be present in importable resources.
-        //        // Updates datasourceNameToIdMap in importable resources.
-        //        // Also directly updates required information in DB
-        //        Mono<Void> importedDatasourcesMono =
-        // installedPluginsMono.then(datasourceImportableService.importEntities(
-        //            importingMetaDTO,
-        //            mappedImportableResourcesDTO,
-        //            workspaceMono,
-        //            importedApplicationMono,
-        //            importableContextJson,
-        //            false));
-        //
-        //        return List.of(importedDatasourcesMono, importedPagesMono, importedThemesMono);
-        return List.of(Mono.empty());
-    }
+        Mono<Void> installedPluginsMono = pluginImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                importableContextJson,
+                false,
+                true);
 
-    protected List<Mono<Void>> getPageDependentImportables(
-            ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importedApplicationMono,
-            ImportableContextJson importableContextJson) {
+        // Directly updates required theme information in DB
+        Mono<Void> importedThemesMono = themeImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                importableContextJson,
+                false,
+                true);
 
-        // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap to be present in importable
-        // resources.
-        // Updates actionResultDTO in importable resources.
+        // Requires pluginMap to be present in importable resources.
+        // Updates datasourceNameToIdMap in importable resources.
         // Also directly updates required information in DB
-        //        Mono<Void> importedNewActionsMono = newActionImportableService.importEntities(
-        //            importingMetaDTO,
-        //            mappedImportableResourcesDTO,
-        //            workspaceMono,
-        //            importedApplicationMono,
-        //            importableContextJson,
-        //            false);
-        //
-        //        // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in
-        // importable
-        //        // resources.
-        //        // Updates actionCollectionResultDTO in importable resources.
-        //        // Also directly updates required information in DB
-        //        Mono<Void> importedActionCollectionsMono = actionCollectionImportableService.importEntities(
-        //            importingMetaDTO,
-        //            mappedImportableResourcesDTO,
-        //            workspaceMono,
-        //            importedApplicationMono,
-        //            importableContextJson,
-        //            false);
-        //
-        //        Mono<Void> combinedActionImportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
-        //        return List.of(combinedActionImportablesMono);
-        return List.of(Mono.empty());
+        Mono<Void> importedDatasourcesMono = installedPluginsMono.then(datasourceImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                importableContextJson,
+                false,
+                true));
+
+        return List.of(importedDatasourcesMono, importedThemesMono);
     }
 
     /**
@@ -508,8 +498,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             ImportableContext importableContext,
             Stopwatch stopwatch,
             User currentUser) {
-        Map<String, Object> analyticsData = getContextBasedImportService(importableContextJson)
-                .createImportAnalyticsData(importableContextJson, importableContext, stopwatch);
+
+        Map<String, Object> analyticsData = new HashMap<>(getContextBasedImportService(importableContextJson)
+                .createImportAnalyticsData(importableContextJson, importableContext));
+        analyticsData.put(FieldName.FLOW_NAME, stopwatch.getFlow());
+        analyticsData.put("executionTime", stopwatch.getExecutionTime());
+
         return analyticsService
                 .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), analyticsData)
                 .thenReturn(importableContext);

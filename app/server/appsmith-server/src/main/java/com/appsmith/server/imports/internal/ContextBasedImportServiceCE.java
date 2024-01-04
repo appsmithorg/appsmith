@@ -1,15 +1,18 @@
 package com.appsmith.server.imports.internal;
 
-import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.server.domains.ImportableContext;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface ContextBasedImportServiceCE<
         T extends ImportableContext, U extends ImportableContextDTO, V extends ImportableContextJson> {
@@ -17,6 +20,14 @@ public interface ContextBasedImportServiceCE<
     V extractImportableContextJson(String jsonString);
 
     Mono<T> importContextInWorkspaceFromJson(String workspaceId, ImportableContextJson importableContextJson);
+
+    ImportApplicationPermissionProvider getImportContextPermissionProviderForImportingContext(
+            Set<String> userPermissions);
+
+    ImportApplicationPermissionProvider getImportContextPermissionProviderForUpdatingContext(
+            Set<String> userPermissions);
+
+    void dehydrateNameForContextUpdate(String contextId, ImportableContextJson importableContextJson);
 
     Mono<T> updateNonGitConnectedContextFromJson(
             String workspaceId, String importableContextId, ImportableContextJson importableContextJson);
@@ -47,5 +58,12 @@ public interface ContextBasedImportServiceCE<
     Mono<T> updateImportableContext(ImportableContext importableContext);
 
     Map<String, Object> createImportAnalyticsData(
-            ImportableContextJson importableContextJson, ImportableContext importableContext, Stopwatch stopwatch);
+            ImportableContextJson importableContextJson, ImportableContext importableContext);
+
+    Flux<Void> obtainContextSpecificImportables(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableContext> importedContextMono,
+            ImportableContextJson importableContextJson);
 }

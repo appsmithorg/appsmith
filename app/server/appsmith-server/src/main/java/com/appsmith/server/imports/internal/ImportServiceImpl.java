@@ -1,9 +1,13 @@
 package com.appsmith.server.imports.internal;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.applications.imports.ApplicationImportService;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -15,17 +19,25 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
 
     public ImportServiceImpl(
             ApplicationImportService applicationImportService,
-            WorkspaceService workspaceService,
             SessionUserService sessionUserService,
+            WorkspaceService workspaceService,
             ImportableService<CustomJSLib> customJSLibImportableService,
+            PermissionGroupRepository permissionGroupRepository,
             TransactionalOperator transactionalOperator,
-            AnalyticsService analyticsService) {
+            AnalyticsService analyticsService,
+            ImportableService<Plugin> pluginImportableService,
+            ImportableService<Datasource> datasourceImportableService,
+            ImportableService<Theme> themeImportableService) {
         super(
                 applicationImportService,
-                workspaceService,
                 sessionUserService,
+                workspaceService,
                 customJSLibImportableService,
+                permissionGroupRepository,
                 transactionalOperator,
-                analyticsService);
+                analyticsService,
+                pluginImportableService,
+                datasourceImportableService,
+                themeImportableService);
     }
 }
