@@ -50,6 +50,7 @@ jobs:
       - name: Print tags_All value
         run: |
           echo "tags_All=${{ steps.setup.outputs.tags_All }}"
+          echo "tags=${{inputs.tags}}"
 
       - name: Check for tag.All format 
         if: steps.setup.outputs.tags_All != ''
