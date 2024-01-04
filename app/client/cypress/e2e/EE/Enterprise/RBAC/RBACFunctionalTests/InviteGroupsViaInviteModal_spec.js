@@ -17,7 +17,7 @@ describe(
 
     before(() => {
       cy.AddIntercepts();
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       cy.get(locators.AdminSettingsEntryLink).should("be.visible");
       cy.get(locators.AdminSettingsEntryLink).click();
       featureFlagIntercept({ license_gac_enabled: true });

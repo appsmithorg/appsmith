@@ -32,7 +32,7 @@ describe(
 
     before(() => {
       cy.AddIntercepts();
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.GetNClick(auditLogslocators.AdminSettingsEntryLink);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
@@ -54,7 +54,7 @@ describe(
         appid = uid;
         homePage.CreateNewWorkspace(workspaceId);
         homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
-        agHelper.VisitNAssert("/applications", "getReleaseItems");
+        agHelper.VisitNAssert("/applications", "getAllWorkspaces");
         homePage.SelectWorkspace(workspaceId);
         cy.InviteGroupToWorkspace(workspaceId, GroupName, "Developer");
         agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
