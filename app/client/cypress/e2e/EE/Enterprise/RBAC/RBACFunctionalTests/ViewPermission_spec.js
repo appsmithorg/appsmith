@@ -204,7 +204,7 @@ describe(
     });
 
     it("2.Verify user with make Public permission, is able to make app public", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.ClearNType(homePageLocators.searchInput, AppName2);
       cy.wait(2000);
       cy.get(homePageLocators.applicationCard).trigger("mouseover");
