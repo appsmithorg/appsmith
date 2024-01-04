@@ -48,7 +48,7 @@ jobs:
           fi
           
       - name: Check for tag.All format 
-        if: steps.checkAll.outputs.tags_All != ''
+        if: steps.setup.outputs.tags_All != ''
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
