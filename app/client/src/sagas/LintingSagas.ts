@@ -26,7 +26,7 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-export let lintWorker: Linter;
+export const lintWorker = new Linter();
 
 function* updateLintGlobals(
   action: ReduxAction<{ add?: boolean; libs: JSLibrary[] }>,
@@ -129,12 +129,6 @@ export default function* lintTreeSagaWatcher() {
 }
 
 export function* setupSaga(): any {
-  const mode = yield select(getAppMode);
-  if (mode === APP_MODE.PUBLISHED) return;
-  if (!lintWorker) {
-    lintWorker = new Linter();
-    yield call(lintWorker.start);
-  }
   const featureFlags = yield select(selectFeatureFlags);
   yield call(lintWorker.setup, featureFlags);
 }
