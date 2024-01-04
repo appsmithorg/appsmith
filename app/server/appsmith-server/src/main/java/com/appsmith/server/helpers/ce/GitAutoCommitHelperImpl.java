@@ -105,6 +105,10 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                     autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
                                     autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
                                     autoCommitEvent.setRepoUrl(gitApplicationMetadata.getRemoteUrl());
+                                    autoCommitEvent.setPrivateKey(
+                                            gitApplicationMetadata.getGitAuth().getPrivateKey());
+                                    autoCommitEvent.setPublicKey(
+                                            gitApplicationMetadata.getGitAuth().getPublicKey());
                                     // it's a synchronous call, no need to return anything
                                     autoCommitEventHandler.publish(autoCommitEvent);
                                     return Boolean.TRUE;
