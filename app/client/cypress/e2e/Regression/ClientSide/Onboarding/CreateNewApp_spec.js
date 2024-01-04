@@ -24,12 +24,12 @@ describe(
       });
 
       _.agHelper.GetNClick(_.homePage._helpButton);
-      _.agHelper.GetNClick(guidedTourLocators.welcomeTour, 0)
+      _.agHelper.GetNClick(guidedTourLocators.welcomeTour, 0);
       cy.get(guidedTourLocators.startBuilding).should("be.visible");
       // Go back to applications page
-      _.agHelper.GetNClick(commonlocators.homeIcon, 0, true)
-      _.agHelper.GetNClick(homePage.createNewAppButton)
-      _.agHelper.GetNClick(homePage.newButtonCreateApplication)
+      _.agHelper.GetNClick(commonlocators.homeIcon, 0, true);
+      _.agHelper.GetNClick(homePage.createNewAppButton);
+      _.agHelper.GetNClick(homePage.newButtonCreateApplication);
       _.agHelper.WaitUntilEleAppear(commonlocators.globalSearchTrigger);
       // Check if explorer is visible, explorer is collapsed initialy in guided tour
       cy.get(explorerLocators.entityExplorer).should("be.visible");
