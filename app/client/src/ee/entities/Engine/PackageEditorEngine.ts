@@ -1,6 +1,6 @@
 import { call, put } from "redux-saga/effects";
 
-import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -44,7 +44,7 @@ export default class PackageEditorEngine {
 
   public *setupEngine() {
     yield put({ type: ReduxActionTypes.START_EVALUATION });
-    getCodeMirrorTernService().resetServer();
+    CodemirrorTernService.resetServer();
   }
 
   *loadPluginsAndDatasources() {
