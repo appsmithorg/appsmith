@@ -34,7 +34,7 @@ jobs:
         run: |
           if [ "${{github.event_name}}" == "workflow_dispatch" ]; then
             if [[ (${{inputs.tags}} == *"ALL"* || ${{inputs.tags}} == *"All"* ) && ${{inputs.tags}} != *"@tag.All"* ]]; then
-               echo "tags_All=$tags" >> $GITHUB_OUTPUT
+               echo "tags_All=${{inputs.tags}}" >> $GITHUB_OUTPUT
             elif [ "${{inputs.tags}}" != ""]; then
               echo "tags=${{inputs.tags}}" >> $GITHUB_OUTPUT
               echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]" >> $GITHUB_OUTPUT
