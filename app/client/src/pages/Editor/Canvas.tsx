@@ -37,7 +37,6 @@ const Wrapper = styled.section<{
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
-  height: 100%;
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
@@ -58,7 +57,7 @@ const Canvas = (props: CanvasProps) => {
   const wdsThemeProps = {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode,
+    colorMode: themeSetting.colorMode.toLowerCase(),
     fontFamily: themeSetting.fontFamily as FontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
@@ -83,12 +82,14 @@ const Canvas = (props: CanvasProps) => {
     : `mx-auto`;
   const paddingBottomClass = props.enableMainCanvasResizer ? "" : "pb-52";
 
+  const height = layoutSystemType === LayoutSystemTypes.ANVIL ? "h-full" : "";
+
   const renderChildren = () => {
     return (
       <Wrapper
         $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
         background={isWDSEnabled ? "" : backgroundForCanvas}
-        className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+        className={`relative t--canvas-artboard ${height} ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
           canvasWidth,
         )}`}
         data-testid={"t--canvas-artboard"}

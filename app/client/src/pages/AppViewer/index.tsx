@@ -38,7 +38,10 @@ import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import BottomBar from "components/BottomBar";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import {
+  getAppThemeSettings,
+  getCurrentApplication,
+} from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import {
@@ -111,11 +114,22 @@ function AppViewer(props: Props) {
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
   );
-  const { theme } = useTheme({
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const themeSetting = useSelector(getAppThemeSettings);
+  const themeProps = {
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
     fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  });
+  };
+  const wdsThemeProps = {
+    borderRadius: themeSetting.borderRadius,
+    seedColor: themeSetting.accentColor,
+    colorMode: themeSetting.colorMode.toLowerCase(),
+    fontFamily: themeSetting.fontFamily as FontFamily,
+    userSizing: themeSetting.sizing,
+    userDensity: themeSetting.density,
+  };
+  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
   const focusRef = useWidgetFocus();
 
   const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
@@ -213,8 +227,6 @@ function AppViewer(props: Props) {
       document.body.style.fontFamily = "inherit";
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
-
-  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const renderChildren = () => {
     return (
