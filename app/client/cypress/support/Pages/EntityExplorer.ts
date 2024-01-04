@@ -193,6 +193,7 @@ export class EntityExplorer {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.switchToAddNew();
+    cy.get("body").type("{esc}");
     this.DragNDropWidget(
       widgetType,
       x,

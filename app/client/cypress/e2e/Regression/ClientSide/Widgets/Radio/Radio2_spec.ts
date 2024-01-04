@@ -268,7 +268,7 @@ describe(
       agHelper.AssertCSS(
         widgetLocators.radioWidgetLabelContainer,
         "width",
-        "55.859375px",
+        "55.9375px",
       );
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);

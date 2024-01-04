@@ -111,6 +111,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject is not duplicated
     PageLeftPane.assertPresence(jsObject);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -123,11 +124,13 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.latestDeployPreview();
     cy.wait(2000);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
     // switch to Page1 and validate data binding
     cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -145,6 +148,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject is not duplicated
     PageLeftPane.assertPresence(jsObject);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -172,6 +176,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(1000);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -214,6 +219,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
             cy.get(".t--page-switch-tab")
               .contains("Page1")
               .click({ force: true });
+            EditorNavigation.ShowCanvas();
             cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
               "be.visible",
             );
@@ -225,6 +231,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
           // verify jsObject data binding on Page 1
           PageLeftPane.switchSegment(PagePaneSegment.JS);
           PageLeftPane.assertPresence(jsObject);
+          EditorNavigation.ShowCanvas();
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );
@@ -233,6 +240,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
           PageLeftPane.switchSegment(PagePaneSegment.JS);
           // verify jsObject is not duplicated
           PageLeftPane.assertPresence(jsObject);
+          EditorNavigation.ShowCanvas();
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );

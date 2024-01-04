@@ -438,7 +438,7 @@ export class ApiPage {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.switchToAddNew();
-    this.agHelper.GetNClickByContains(this._fileOperation, "GraphQL API");
+    this.agHelper.GetNClickByContains(".ads-v2-listitem", "GraphQL API");
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);

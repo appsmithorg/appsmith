@@ -14,6 +14,8 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsName: any;
@@ -223,10 +225,7 @@ describe(
 
       EditorNavigation.SelectEntityByName("Quotes", EntityType.Query);
       apiPage.ToggleOnPageLoadRun(false);
-      EditorNavigation.SelectEntityByName(
-        "WhatTrumpThinks",
-        EntityType.JSObject,
-      );
+      EditorNavigation.SelectEntityByName("WhatTrumpThinks", EntityType.Api);
       apiPage.ToggleOnPageLoadRun(false);
 
       EditorNavigation.SelectEntityByName(
@@ -411,6 +410,7 @@ describe(
         jsName as string,
         EntityType.JSObject,
       );
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "getCitiesList",
         action: "Delete",

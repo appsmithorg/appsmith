@@ -190,14 +190,15 @@ describe(
 
     after("Delete Mysql query, JSObject, API & Datasource", () => {
       entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "QueryRefactorRenamed",
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1Renamed",
         action: "Delete",
         entityType: entityItems.JSObject,
+      });
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "QueryRefactorRenamed",
+        action: "Delete",
+        entityType: entityItems.Query,
       });
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "RefactorAPIRenamed",

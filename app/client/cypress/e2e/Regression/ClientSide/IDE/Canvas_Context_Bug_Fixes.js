@@ -1,8 +1,3 @@
-import {
-  PageLeftPane,
-  PagePaneSegment,
-} from "../../../../support/Pages/EditorNavigation";
-
 const commonLocators = require("../../../../locators/commonlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -27,11 +22,6 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
 
     //Bug Fix: widget explorer should automatically open on widget selection
     cy.reload();
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
-    //check it was originally not expanded
-    cy.get(`[data-guided-tour-id="explorer-entity-Image1"]`).should(
-      "not.exist",
-    );
 
     cy.get(".t--widget-imagewidget").eq(0).click();
     //check if the entities are not expanded

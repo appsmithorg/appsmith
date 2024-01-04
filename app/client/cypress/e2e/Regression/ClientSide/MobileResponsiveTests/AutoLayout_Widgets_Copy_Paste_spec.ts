@@ -91,6 +91,7 @@ describe(
       agHelper.GetNClick(locators._selectionCanvas("0"), 0, true);
 
       agHelper.AssertElementLength(locators._selectedWidget, 0);
+      cy.focused().blur();
       //paste
       agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
       agHelper.Sleep();
@@ -150,6 +151,7 @@ describe(
       cy.focused().blur();
 
       agHelper.AssertElementLength(locators._selectedWidget, 0);
+      cy.focused().blur();
       //paste
       agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
       agHelper.Sleep();

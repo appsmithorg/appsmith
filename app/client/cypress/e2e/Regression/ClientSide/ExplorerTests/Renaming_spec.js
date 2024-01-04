@@ -12,6 +12,7 @@ import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 const firstApiName = "First";
 const secondApiName = "Second";
@@ -97,13 +98,16 @@ describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
     entityExplorer.ValidateDuplicateMessageToolTip(firstApiName);
     cy.get("body").click(0, 0);
     cy.wait(2000);
-    cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+    entityExplorer.ActionContextMenuByEntityName({
+      action: "Delete",
+      entityNameinLeftSidebar: secondApiName,
+      entityType: EntityItems.Api,
     });
-    cy.deleteActionAndConfirm();
-    cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
+    entityExplorer.ActionContextMenuByEntityName({
+      action: "Delete",
+      entityNameinLeftSidebar: firstApiName,
+      entityType: EntityItems.JSObject,
     });
-    cy.deleteActionAndConfirm();
   });
 });
