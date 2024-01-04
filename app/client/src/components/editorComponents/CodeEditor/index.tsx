@@ -164,7 +164,7 @@ import {
   resetActiveEditorField,
   setActiveEditorField,
 } from "actions/activeFieldActions";
-import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -548,7 +548,7 @@ class CodeEditor extends Component<Props, State> {
 
   debouncedArgHints = _.debounce(() => {
     this.setState({
-      ternToolTipActive: CodeMirrorTernService.updateArgHints(this.editor),
+      ternToolTipActive: getCodeMirrorTernService().updateArgHints(this.editor),
     });
   }, 200);
 
@@ -686,7 +686,7 @@ class CodeEditor extends Component<Props, State> {
     });
 
     if (this.state.ternToolTipActive) {
-      CodeMirrorTernService.closeArgHints();
+      getCodeMirrorTernService().closeArgHints();
     }
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
       property: expression,
@@ -704,7 +704,9 @@ class CodeEditor extends Component<Props, State> {
     }
     if (this.state.ternToolTipActive) {
       this.setState({
-        ternToolTipActive: CodeMirrorTernService.updateArgHints(this.editor),
+        ternToolTipActive: getCodeMirrorTernService().updateArgHints(
+          this.editor,
+        ),
       });
     }
   };
@@ -913,7 +915,7 @@ class CodeEditor extends Component<Props, State> {
     // @ts-expect-error: Types are not available
     this.editor.closeHint();
 
-    CodeMirrorTernService.closeArgHints();
+    getCodeMirrorTernService().closeArgHints();
   }
 
   private handleKeydown = (e: KeyboardEvent) => {

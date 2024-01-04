@@ -18,6 +18,7 @@ export enum NavigationMethod {
   PackageSidebar = "PackageSidebar",
   SegmentControl = "SegmentControl",
   EditorTabs = "EditorTabs",
+  WorkflowSidebar = "WorkflowSidebar",
 }
 
 export interface AppsmithLocationState {
