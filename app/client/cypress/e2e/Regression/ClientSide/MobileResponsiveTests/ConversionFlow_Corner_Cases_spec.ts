@@ -70,8 +70,8 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load",
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         PageList.AddNewPage("Add page from template");
         agHelper.AssertElementVisibility(template.templateDialogBox);

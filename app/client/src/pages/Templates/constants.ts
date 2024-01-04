@@ -37,5 +37,6 @@ export const useCases = [
   { label: "Software Development" },
 ];
 
-export const TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE = "Building Block";
+export const TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE = "Building Blocks";
 export const TEMPLATE_ALL_FILTER_FUNCTION_VALUE = "All";
+export const BUILDING_BLOCK_THUMBNAIL_ALT_TEXT = "Building Block Thumbnail";

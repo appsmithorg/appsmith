@@ -343,7 +343,7 @@ public class GitFileUtils {
 
         // Send datasources
         applicationJson.getDatasourceList().forEach(datasource -> {
-            removeUnwantedFieldsFromBaseDomain(datasource);
+            removeUnwantedFieldsFromDatasource(datasource);
             resourceMap.put(datasource.getName(), datasource);
         });
         applicationReference.setDatasources(new HashMap<>(resourceMap));
@@ -479,6 +479,11 @@ public class GitFileUtils {
         baseDomain.setUserPermissions(null);
     }
 
+    private void removeUnwantedFieldsFromDatasource(DatasourceStorage datasource) {
+        datasource.setInvalids(null);
+        removeUnwantedFieldsFromBaseDomain(datasource);
+    }
+
     private void removeUnwantedFieldsFromPage(NewPage page) {
         // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
         // be same, so we only commit unpublished PageDTO.
@@ -499,8 +504,7 @@ public class GitFileUtils {
 
     private void removeUnwantedFieldFromAction(NewAction action) {
         // As we are publishing the app and then committing to git we expect the published and unpublished ActionDTO
-        // will
-        // be same, so we only commit unpublished ActionDTO.
+        // will be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
         removeUnwantedFieldsFromBaseDomain(action);
     }

@@ -117,6 +117,8 @@ public class AutoCommitEventHandlerImplTest {
         autoCommitEvent.setAuthorEmail("testauthor@example.com");
         autoCommitEvent.setWorkspaceId("test-workspace-id");
         autoCommitEvent.setRepoUrl("git@example.com:exampleorg/example-repo.git");
+        autoCommitEvent.setPrivateKey("private-key");
+        autoCommitEvent.setPublicKey("public-key");
         return autoCommitEvent;
     }
 
@@ -187,6 +189,14 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getAuthorEmail(),
                         false,
                         false))
+                .thenReturn(Mono.just("success"));
+
+        Mockito.when(gitExecutor.pushApplication(
+                        baseRepoSuffix,
+                        autoCommitEvent.getRepoUrl(),
+                        autoCommitEvent.getPublicKey(),
+                        autoCommitEvent.getPrivateKey(),
+                        autoCommitEvent.getBranchName()))
                 .thenReturn(Mono.just("success"));
 
         StepVerifier.create(autoCommitEventHandler

@@ -61,7 +61,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<NewPage> newPageExportableService;
     protected final ExportableService<NewAction> newActionExportableService;
-    private final ExportableService<ActionCollection> actionCollectionExportableService;
+    protected final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ExportableService<Theme> themeExportableService;
     private final ExportableService<CustomJSLib> customJSLibExportableService;
 
@@ -192,9 +192,6 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                 exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
 
         newPageExportableService.sanitizeEntities(exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
-
-        newActionExportableService.sanitizeEntities(
-                exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
 
         return Mono.empty().then();
     }

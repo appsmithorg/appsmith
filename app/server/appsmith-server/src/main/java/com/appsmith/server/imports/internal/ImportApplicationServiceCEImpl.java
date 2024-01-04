@@ -26,12 +26,14 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -93,6 +95,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     private final ImportableService<Datasource> datasourceImportableService;
     private final ImportableService<NewAction> newActionImportableService;
     private final ImportableService<ActionCollection> actionCollectionImportableService;
+    private final PermissionGroupService permissionGroupService;
+    private final UpdateLayoutService updateLayoutService;
 
     @Override
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
@@ -205,8 +209,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 return Mono.error(new AppsmithException(
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
+                Mono<Set<String>> permissionGroupIdsMono = permissionGroupService.getSessionUserPermissionGroupIds();
                 return getPermissionProviderForUpdateNonGitConnectedAppFromJson()
-                        .flatMap(permissionProvider -> {
+                        .zipWith(permissionGroupIdsMono)
+                        .flatMap(tuple2 -> {
+                            ImportApplicationPermissionProvider permissionProvider = tuple2.getT1();
+                            Set<String> permissionGroups = tuple2.getT2();
+
                             if (!StringUtils.isEmpty(applicationId)
                                     && applicationJson.getExportedApplication() != null) {
                                 // Remove the application name from JSON file as updating the application name is not
@@ -223,7 +232,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                                             applicationId,
                                             null,
                                             false,
-                                            permissionProvider)
+                                            permissionProvider,
+                                            permissionGroups)
                                     .onErrorResume(error -> {
                                         if (error instanceof AppsmithException) {
                                             return Mono.error(error);
@@ -268,7 +278,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     .currentUserPermissionGroups(userPermissionGroups)
                     .build();
 
-            return importApplicationInWorkspace(workspaceId, importedDoc, null, null, false, permissionProvider);
+            return importApplicationInWorkspace(
+                    workspaceId, importedDoc, null, null, false, permissionProvider, userPermissionGroups);
         });
     }
 
@@ -303,7 +314,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     .currentUserPermissionGroups(userPermissionGroups)
                     .build();
             return importApplicationInWorkspace(
-                    workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
+                    workspaceId,
+                    importedDoc,
+                    applicationId,
+                    branchName,
+                    false,
+                    permissionProvider,
+                    userPermissionGroups);
         });
     }
 
@@ -326,7 +343,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     .currentUserPermissionGroups(userPermissionGroups)
                     .build();
             return importApplicationInWorkspace(
-                    workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
+                    workspaceId,
+                    importedDoc,
+                    applicationId,
+                    branchName,
+                    false,
+                    permissionProvider,
+                    userPermissionGroups);
         });
     }
 
@@ -408,11 +431,11 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             if (importingMetaDTO.getAppendToApp()) { // we don't need to do anything with the imported application
                 importApplicationMono = existingApplicationMono;
             } else {
-                importApplicationMono = importApplicationMono
-                        .zipWith(existingApplicationMono)
+                importApplicationMono = Mono.zip(importApplicationMono, existingApplicationMono)
                         .map(objects -> {
                             Application newApplication = objects.getT1();
                             Application existingApplication = objects.getT2();
+
                             // This method sets the published mode properties in the imported
                             // application.When a user imports an application from the git repo,
                             // since the git only stores the unpublished version, the current
@@ -477,7 +500,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             String applicationId,
             String branchName,
             boolean appendToApp,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportApplicationPermissionProvider permissionProvider,
+            Set<String> permissionGroups) {
         /*
            1. Migrate resource to latest schema
            2. Fetch workspace by id
@@ -504,8 +528,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }
 
-        ImportingMetaDTO importingMetaDTO =
-                new ImportingMetaDTO(workspaceId, applicationId, branchName, appendToApp, permissionProvider);
+        ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
+                workspaceId, applicationId, branchName, appendToApp, permissionProvider, permissionGroups);
 
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
@@ -567,6 +591,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     updateApplication.setPublishedPages(application.getPublishedPages());
 
                     return applicationService.update(application.getId(), updateApplication);
+                })
+                .flatMap(application -> {
+                    return Flux.fromIterable(application.getPages())
+                            .map(ApplicationPage::getId)
+                            .flatMap(updateLayoutService::updatePageLayoutsByPageId)
+                            .collectList()
+                            .thenReturn(application);
                 })
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
@@ -646,7 +677,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 applicationJson);
 
         return Flux.merge(pageIndependentImportables)
-                .thenMany(Flux.merge(pageDependentImportables))
+                .thenMany(Flux.defer(() -> Flux.merge(pageDependentImportables)))
                 .then();
     }
 
@@ -886,7 +917,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     .currentUserPermissionGroups(userPermissionGroups)
                     .build();
             return importApplicationInWorkspace(
-                    workspaceId, applicationJson, applicationId, branchName, true, permissionProvider);
+                    workspaceId,
+                    applicationJson,
+                    applicationId,
+                    branchName,
+                    true,
+                    permissionProvider,
+                    userPermissionGroups);
         });
     }
 

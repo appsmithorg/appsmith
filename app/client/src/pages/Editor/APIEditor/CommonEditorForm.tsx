@@ -505,6 +505,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     actionRightPaneAdditionSections,
     actionRightPaneBackLink,
     moreActionsMenu,
+    notification,
     saveActionName,
     showRightPaneTabbedSection = true,
   } = useContext(ApiEditorContext);
@@ -610,6 +611,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               </Button>
             </ActionButtons>
           </FormRow>
+          {notification}
           <FormRow className="api-info-row">
             <div>
               {/* eslint-disable-next-line */}
