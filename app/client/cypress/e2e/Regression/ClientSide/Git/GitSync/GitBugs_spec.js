@@ -94,6 +94,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(1000);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );

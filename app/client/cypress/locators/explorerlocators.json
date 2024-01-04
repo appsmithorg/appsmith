@@ -4,7 +4,6 @@
   "NoWidgetsMsg": "p:contains('icon above to add widgets')",
   "AddPage": ".pages .t--entity-add-btn",
   "createQueryMenu": ".file-ops",
-  "entityExplorer": ".t--entity-explorer",
   "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
   "datsourceEntityPopover": "//div[contains(@class,'t--entity datasource')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
   "editName": ".single-select >div:contains('Edit name')",

@@ -1,3 +1,5 @@
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -10,7 +12,7 @@ describe("Preview mode functionality", function () {
   it("1. Checks entity explorer and property pane visiblity", function () {
     _.agHelper.GetNClick(_.locators._previewModeToggle("edit"));
     // in preview mode, entity explorer and property pane are not visible
-    cy.get(".t--entity-explorer").should("not.be.visible");
+    cy.get(PageLeftPane.locators.selector).should("not.be.visible");
     cy.get(".t--property-pane-sidebar").should("not.be.visible");
 
     //checks if widgets can be selected or not

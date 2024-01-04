@@ -62,6 +62,7 @@ describe("Widget error state", function () {
   it("3. Undoing widget deletion should show errors if present + Bug 2760", function () {
     cy.deleteWidget();
     _.debuggerHelper.AssertVisibleErrorMessagesCount(0);
+    cy.focused().blur();
     cy.get("body").type(`{${modifierKey}}z`);
     _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
 

@@ -111,8 +111,7 @@ describe(
       cy.xpath(appPage.deleteTaskText).should("be.visible");
       cy.get(appPage.confirmButton).closest("div").click({ force: true });
       cy.xpath(appPage.pagebutton).click({ force: true });
-      //cy.xpath(appPage.datasourcesbutton).click({ force: true });
-      cy.xpath(appPage.deleteApi).click({ force: true });
+      EditorNavigation.SelectEntityByName("delete_proposal", EntityType.Api);
       cy.ResponseCheck("Dan.Wyman@hotmail.com");
       cy.ResponseCheck("Recusan");
     });

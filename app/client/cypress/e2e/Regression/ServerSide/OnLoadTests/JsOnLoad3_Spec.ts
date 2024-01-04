@@ -221,7 +221,7 @@ describe(
         `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data,'success'), () => showAlert('Oh No!','error'))}}`,
       );
 
-      EditorNavigation.SelectEntityByName("Quotes", EntityType.JSObject);
+      EditorNavigation.SelectEntityByName("Quotes", EntityType.Query);
       apiPage.ToggleOnPageLoadRun(false);
       EditorNavigation.SelectEntityByName(
         "WhatTrumpThinks",
