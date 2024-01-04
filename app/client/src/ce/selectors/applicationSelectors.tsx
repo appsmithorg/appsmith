@@ -229,6 +229,17 @@ export const getApplicationByIdFromWorkspaces = createSelector(
     return application;
   },
 );
+
+export const getSearchedWorkspaces = createSelector(
+  getApplicationsState,
+  (applicationsState): Workspace[] | undefined =>
+    applicationsState.searchEntities?.workspaces,
+);
+export const getSearchedApplications = createSelector(
+  getApplicationsState,
+  (applicationsState): ApplicationPayload[] | undefined =>
+    applicationsState.searchEntities?.applications,
+);
 export const getAppThemeSettings = (state: AppState) => {
   return {
     ...defaultThemeSetting,
@@ -236,15 +247,3 @@ export const getAppThemeSettings = (state: AppState) => {
       ?.themeSetting,
   };
 };
-
-export const getSearchedWorkspaces = createSelector(
-  getApplicationsState,
-  (applicationsState): Workspace[] | undefined =>
-    applicationsState.searchEntities?.workspaces,
-);
-
-export const getSearchedApplications = createSelector(
-  getApplicationsState,
-  (applicationsState): ApplicationPayload[] | undefined =>
-    applicationsState.searchEntities?.applications,
-);
