@@ -6,7 +6,7 @@ import type { EnvironmentType } from "@appsmith/configs/types";
 export interface CurrentEnvironmentDetails {
   id: string; // current environment id
   name: string; // current environment name
-  appId: string; // app for which the environment is being set
+  editorId: string; // editor for which the environment is being set
   workspaceId: string; // workspace for which the environment is being set
   editingId: string; // environment id being edited in ds editor mode
 }
@@ -44,7 +44,7 @@ export const initialEnvironmentState: EnvironmentsReduxState = {
   currentEnvironmentDetails: {
     id: "",
     name: "",
-    appId: "",
+    editorId: "",
     workspaceId: "",
     editingId: "",
   },
