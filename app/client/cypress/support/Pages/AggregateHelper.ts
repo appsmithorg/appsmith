@@ -1196,6 +1196,7 @@ export class AggregateHelper {
     const { apiOrQuery, directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
       this.UpdateCodeInput(propFieldName, valueToEnter, apiOrQuery);
+      this.GetNClick(propFieldName);
     } else if (inputFieldName && !propFieldName && !directInput) {
       this.UpdateCodeInput(
         this.locator._inputFieldByName(inputFieldName),
