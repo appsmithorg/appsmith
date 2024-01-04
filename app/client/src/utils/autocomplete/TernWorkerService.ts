@@ -2,15 +2,7 @@ import type { Def, Server } from "tern";
 import type { CallbackFn } from "./types";
 import { TernWorkerAction } from "./types";
 
-const ternWorker = new Worker(
-  new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
-  {
-    // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
-    // relies on it to find workers in the list of all requests.
-    name: "TernWorker",
-    type: "module",
-  },
-);
+let ternWorker: Worker;
 
 function getFile(ts: any, name: string, c: CallbackFn) {
   const buf = ts.docs[name];
@@ -25,6 +17,17 @@ interface TernWorkerServerConstructor {
 }
 
 function TernWorkerServer(this: any, ts: any) {
+  if (!ternWorker) {
+    ternWorker = new Worker(
+      new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
+      {
+        // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
+        // relies on it to find workers in the list of all requests.
+        name: "TernWorker",
+        type: "module",
+      },
+    );
+  }
   const worker = (ts.worker = ternWorker);
   worker.postMessage({
     type: TernWorkerAction.INIT,

@@ -32,7 +32,6 @@ import log from "loglevel";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
@@ -46,6 +45,7 @@ import type {
   JSVarMutatedEvents,
 } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { getCodeMirrorTernService } from "utils/autocomplete/CodemirrorTernService";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -233,7 +233,7 @@ export function* updateTernDefinitions(
     jsData,
     configTree,
   );
-  CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
+  getCodeMirrorTernService().updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();
   log.debug("Tern", { updates });
   log.debug("Tern definitions updated took ", (end - start).toFixed(2));
