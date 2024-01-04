@@ -147,7 +147,7 @@ export class ApiPage {
       inputFieldName: "",
       apiOrQuery: "api",
     });
-    this.agHelper.Sleep(500); //Is needed for the entered url value to be registered, else failing locally & CI
+    this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
     if (evaluatedValue) {
       this.agHelper.VerifyEvaluatedValue(evaluatedValue);
     }
