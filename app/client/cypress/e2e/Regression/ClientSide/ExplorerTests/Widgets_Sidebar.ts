@@ -3,10 +3,6 @@ import {
   agHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import {
-  PageLeftPane,
-  PagePaneSegment,
-} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Entity explorer tests related to widgets and validation",
@@ -86,8 +82,6 @@ describe(
     };
 
     it("1. All widget tags should be visible and open by default.", () => {
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
-
       agHelper.AssertElementLength(
         entityExplorer._widgetTagsList,
         Object.keys(WIDGET_TAGS).length,

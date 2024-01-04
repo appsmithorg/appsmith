@@ -76,7 +76,7 @@ describe(
     });
 
     it("3. Non unique data identifier should throw error- (data type issue)", () => {
-      EditorNavigation.SelectEntityByName("List2", EntityType.Query);
+      EditorNavigation.SelectEntityByName("List2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Items", JSON.stringify(data));
       // clicking on the data identifier dropdown
       propPane.RemoveText("dataidentifier");

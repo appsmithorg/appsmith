@@ -1,9 +1,9 @@
 import {
   agHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
   locators,
-  deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
@@ -65,6 +65,7 @@ describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
     PageLeftPane.assertPresence("Text3");
   });
   it("3. Validate visibility", () => {
+    EditorNavigation.SelectEntityByName("Statbox1", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("Visible", "Off");
     // Ensure that the widget isnt visible once deployed
@@ -142,6 +143,7 @@ describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
   });
 
   it("6. Rename, copy-paste and delete the widget", () => {
+    EditorNavigation.SelectEntityByName("Statbox1", EntityType.Widget);
     entityExplorer.RenameEntityFromExplorer("Statbox1", "Stats", true);
     propPane.CopyPasteWidgetFromPropertyPane("Stats");
     entityExplorer.DeleteWidgetFromEntityExplorer("Stats");

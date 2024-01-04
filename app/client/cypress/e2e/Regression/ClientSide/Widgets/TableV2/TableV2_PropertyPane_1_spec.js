@@ -9,8 +9,6 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -44,8 +42,6 @@ describe(
       // Drag and drop table widget
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
       table.AddSampleTableData();
-      // close Widget side bar
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(widgetsPage.tabedataField).should("not.be.empty");
       cy.get(`${widgetsPage.tabedataField} .CodeMirror`)
         .first()

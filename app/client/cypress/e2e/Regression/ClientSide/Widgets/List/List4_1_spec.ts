@@ -9,6 +9,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../../fixtures/listdsl.json");
@@ -75,6 +76,7 @@ describe(
       );
       //checks currentItem binding
       // Open property pane
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.expandCollapseItem("List1");
       PageLeftPane.expandCollapseItem("Container1");
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [

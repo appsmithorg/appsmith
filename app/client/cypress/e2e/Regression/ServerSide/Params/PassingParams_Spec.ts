@@ -260,6 +260,7 @@ describe(
         entityType: entityItems.Query,
       });
       assertHelper.AssertNetworkStatus("@deleteAction", 200);
+      PageLeftPane.switchSegment(PagePaneSegment.JS);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",

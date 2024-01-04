@@ -9,6 +9,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -135,14 +137,15 @@ describe(
     after(() => {
       //deleting all test data
       entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Api1",
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
-      entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
         action: "Delete",
         entityType: entityItems.JSObject,
+      });
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Api1",
+        action: "Delete",
+        entityType: entityItems.Api,
       });
     });
   },

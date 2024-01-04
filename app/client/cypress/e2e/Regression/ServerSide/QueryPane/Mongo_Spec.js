@@ -439,7 +439,9 @@ describe(
         //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
       });
 
-      cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+      cy.get("@entity").then((entityN) =>
+        EditorNavigation.SelectEntityByName(entityN, EntityType.Query),
+      );
       cy.get(queryLocators.suggestedWidgetChart).click().wait(1000);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("2nd Response is :" + JSON.stringify(response.body));
@@ -447,7 +449,9 @@ describe(
       });
 
       cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
-      cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+      cy.get("@entity").then((entityN) =>
+        EditorNavigation.SelectEntityByName(entityN, EntityType.Query),
+      );
 
       //Update document - Single document
       cy.wait(2000);

@@ -147,6 +147,7 @@ describe(
 
       //unselect all widgets
       agHelper.GetNClick(locators._selectionCanvas("0"), 0, true);
+      cy.focused().blur();
 
       agHelper.AssertElementLength(locators._selectedWidget, 0);
       //paste

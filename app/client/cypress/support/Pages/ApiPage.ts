@@ -435,11 +435,10 @@ export class ApiPage {
   }
 
   CreateGraphqlApi(apiName = "") {
-    cy.get(this.locator._createNew).click({ force: true });
-    this.agHelper.GetNClickByContains(
-      this._fileOperation,
-      "New blank GraphQL API",
-    );
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
+    this.agHelper.GetNClickByContains(this._fileOperation, "GraphQL API");
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);
