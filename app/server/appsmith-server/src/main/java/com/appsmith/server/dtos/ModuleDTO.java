@@ -32,7 +32,7 @@ public class ModuleDTO implements Identifiable {
     private String moduleUUID;
 
     @Transient
-    @JsonView(Views.Export.class)
+    @JsonView(Views.Public.class)
     private String originModuleId;
 
     @JsonView(Views.Public.class)

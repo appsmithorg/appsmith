@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackageDTO;
+import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.dtos.PackagePublishingMetaDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -25,6 +26,7 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
+import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
@@ -50,6 +52,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +74,8 @@ import static org.mockito.Mockito.doReturn;
 @Slf4j
 @DirtiesContext
 class CrudPackageServiceTest {
+    @Autowired
+    private PackageRepository packageRepository;
 
     @Autowired
     CrudPackageService crudPackageService;
@@ -247,6 +252,7 @@ class CrudPackageServiceTest {
                     assertThat(createdPackage.getId()).isNotEmpty();
                     assertThat(createdPackage.getName()).isEqualTo(secondPackage.getName());
                     assertThat(createdPackage.getCustomJSLibs()).hasSize(0);
+                    assertThat(createdPackage.getModifiedAt()).isNotEmpty();
                 })
                 .verifyComplete();
 
@@ -433,6 +439,16 @@ class CrudPackageServiceTest {
                     assertThat(publishPackageStatus.booleanValue()).isTrue();
                 })
                 .verifyComplete();
+
+        // Verify that lastPublishedAt is greater than modifiedAt
+        PackageDetailsDTO packageDetailsDTO =
+                crudPackageService.getPackageDetails(packageId.get()).block();
+        assertThat(packageDetailsDTO.getPackageData().getModifiedAt()).isNotEmpty();
+        assertThat(packageDetailsDTO.getPackageData().getLastPublishedAt()).isNotEmpty();
+        Instant modifiedAt = Instant.parse(packageDetailsDTO.getPackageData().getModifiedAt());
+        Instant lastPublishedAt =
+                Instant.parse(packageDetailsDTO.getPackageData().getLastPublishedAt());
+        assertThat(lastPublishedAt.isAfter(modifiedAt));
     }
 
     @WithUserDetails(value = "api_user")
