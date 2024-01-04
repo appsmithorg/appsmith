@@ -164,7 +164,7 @@ describe(
       _.homePage.SelectWorkspace(workspaceId);
       cy.get(HomePage.appsContainer).contains(workspaceId);
       _.agHelper
-        .GetElement(_.homePage._appCard(appid))
+        .GetElement(_.homePage._appCard(appid + "Internal Apps"))
         .first()
         .trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
