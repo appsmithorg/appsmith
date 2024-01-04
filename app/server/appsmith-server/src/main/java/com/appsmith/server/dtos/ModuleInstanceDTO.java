@@ -42,6 +42,10 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     String sourceModuleId;
 
+    @Transient
+    @JsonView(Views.Internal.class)
+    String originModuleId;
+
     @JsonView(Views.Public.class)
     String name;
 
@@ -77,6 +81,14 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
+    Boolean isValid;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
+    Set<String> invalids = new HashSet<>();
+
     @Transient
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
@@ -87,6 +99,11 @@ public class ModuleInstanceDTO implements Identifiable {
 
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
+
+    // This is the same as the primary domain's git sync id
+    @Transient
+    @JsonView(Views.Internal.class)
+    String gitSyncId;
 
     public void sanitiseForExport() {
         this.setDefaultResources(null);

@@ -250,10 +250,16 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
-            echo 'tags_to_exclude=excludeForAirgap' >> "$GITHUB_ENV"
+            echo "CYPRESS_grepTags=-@tag.excludeForAirgap" >> $GITHUB_ENV
           else
             echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
+            echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
           fi
+        
+      - name: Print the tags
+        run: |
+          echo "tags_to_exclude: ${{ env.tags_to_exclude }}"
+          echo "_grepTags: ${{ env.CYPRESS_grepTags }}"
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -382,7 +388,7 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-          CYPRESS_grepTags: ${{ inputs.tags }} # This is a comma separated list of tags to run a subset of the suite
+          CYPRESS_grepTags: ${{ env.CYPRESS_grepTags }} # This is a comma separated list of tags to run a subset of the suite
           CYPRESS_SKIP_FLAKY: true
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep

@@ -1387,11 +1387,11 @@ __metadata:
   linkType: hard
 
 "@babel/parser@npm:^7.1.0, @babel/parser@npm:^7.13.16, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.20.7, @babel/parser@npm:^7.22.10, @babel/parser@npm:^7.22.15, @babel/parser@npm:^7.22.7, @babel/parser@npm:^7.23.0":
-  version: 7.23.0
-  resolution: "@babel/parser@npm:7.23.0"
+  version: 7.23.6
+  resolution: "@babel/parser@npm:7.23.6"
   bin:
     parser: ./bin/babel-parser.js
-  checksum: 453fdf8b9e2c2b7d7b02139e0ce003d1af21947bbc03eb350fb248ee335c9b85e4ab41697ddbdd97079698de825a265e45a0846bb2ed47a2c7c1df833f42a354
+  checksum: 140801c43731a6c41fd193f5c02bc71fd647a0360ca616b23d2db8be4b9739b9f951a03fc7c2db4f9b9214f4b27c1074db0f18bc3fa653783082d5af7c8860d5
   languageName: node
   linkType: hard
 
@@ -2700,6 +2700,13 @@ __metadata:
   dependencies:
     regenerator-runtime: ^0.14.0
   checksum: 164d9802424f06908e62d29b8fd3a87db55accf82f46f964ac481dcead11ff7df8391e3696e5fa91a8ca10ea8845bf650acd730fa88cf13f8026cd8d5eec6936
+  languageName: node
+  linkType: hard
+
+"@babel/standalone@npm:^7.23.6":
+  version: 7.23.6
+  resolution: "@babel/standalone@npm:7.23.6"
+  checksum: 0383eef22f6645e8b367bc8b90017175a2a5b450a84ac04895aee09fe771379fdc7c0f8ef138c82d5f9322db39397717058b1bdb5c866a6405af05b93384513d
   languageName: node
   linkType: hard
 
@@ -11167,16 +11174,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.1.7":
-  version: 7.20.0
-  resolution: "@types/babel__core@npm:7.20.0"
+"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.1.7":
+  version: 7.20.5
+  resolution: "@types/babel__core@npm:7.20.5"
   dependencies:
     "@babel/parser": ^7.20.7
     "@babel/types": ^7.20.7
     "@types/babel__generator": "*"
     "@types/babel__template": "*"
     "@types/babel__traverse": "*"
-  checksum: 49b601a0a7637f1f387442c8156bd086cfd10ff4b82b0e1994e73a6396643b5435366fb33d6b604eade8467cca594ef97adcbc412aede90bb112ebe88d0ad6df
+  checksum: a3226f7930b635ee7a5e72c8d51a357e799d19cbf9d445710fa39ab13804f79ab1a54b72ea7d8e504659c7dfc50675db974b526142c754398d7413aa4bc30845
   languageName: node
   linkType: hard
 
@@ -11186,6 +11193,15 @@ __metadata:
   dependencies:
     "@babel/types": ^7.0.0
   checksum: 20effbbb5f8a3a0211e95959d06ae70c097fb6191011b73b38fe86deebefad8e09ee014605e0fd3cdaedc73d158be555866810e9166e1f09e4cfd880b874dcb0
+  languageName: node
+  linkType: hard
+
+"@types/babel__standalone@npm:^7.1.7":
+  version: 7.1.7
+  resolution: "@types/babel__standalone@npm:7.1.7"
+  dependencies:
+    "@types/babel__core": ^7.1.0
+  checksum: a745f3deb215668ebefc1f2e7f50d36c9098f225a9460df884f336ea9f1c1af0b9a705b4ab4a19122985e4f73f95cd82614fc2e45e1f33ea288cb03bdee2b234
   languageName: node
   linkType: hard
 
@@ -13829,6 +13845,7 @@ __metadata:
     "@aws-sdk/lib-storage": ^3.441.0
     "@babel/helper-create-regexp-features-plugin": ^7.18.6
     "@babel/helper-string-parser": ^7.19.4
+    "@babel/standalone": ^7.23.6
     "@blueprintjs/core": ^3.43.0
     "@blueprintjs/datetime": ^3.23.6
     "@blueprintjs/icons": 3.22.0
@@ -13870,6 +13887,7 @@ __metadata:
     "@testing-library/react-hooks": ^7.0.2
     "@testing-library/user-event": 13.5.0
     "@tinymce/tinymce-react": ^3.13.0
+    "@types/babel__standalone": ^7.1.7
     "@types/codemirror": ^0.0.96
     "@types/deep-diff": ^1.0.0
     "@types/dom-mediacapture-record": ^1.0.11
@@ -13964,7 +13982,7 @@ __metadata:
     cypress-xpath: ^1.6.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.28"
+    design-system: "npm:@appsmithorg/design-system@2.1.30"
     design-system-old: "npm:@appsmithorg/design-system-old@1.1.14"
     diff: ^5.0.0
     dotenv: ^8.1.0
@@ -18192,9 +18210,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.28":
-  version: 2.1.28
-  resolution: "@appsmithorg/design-system@npm:2.1.28"
+"design-system@npm:@appsmithorg/design-system@2.1.30":
+  version: 2.1.30
+  resolution: "@appsmithorg/design-system@npm:2.1.30"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -18224,7 +18242,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: c84bd04ee3b66509d1c3a9ca777315de0e196f470f34bafe2dae0fc218b4569b16ab3bd024bf212a49c1a995e124a67a60912eab57b63e2c0af43fb055b24612
+  checksum: b41c9a2f85db6c7ed59c74cabfb874a27d9df9fdaa11dd2e33a687be5df653c3d8f6547e332af625f7061b168ae1375068255535d8e31642b69ea8c0ca8e415e
   languageName: node
   linkType: hard
 

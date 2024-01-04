@@ -18,6 +18,13 @@ import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { noop } from "lodash";
 import { klona } from "klona";
+import { getPackageById } from "@appsmith/selectors/packageSelectors";
+import type { Package } from "@appsmith/constants/PackageConstants";
+
+const DEFAULT_PACKAGE = {
+  id: "test",
+  name: "Package 1",
+} as Package;
 
 const DEFAULT_MODULE_INSTANCE = {
   id: "test-module-instance",
@@ -128,6 +135,7 @@ const DEFAULT_ACTION = {
 
 let onFormValuesChangeTrigger = noop;
 
+jest.mock("@appsmith/selectors/packageSelectors");
 jest.mock("@appsmith/selectors/moduleInstanceSelectors", () => ({
   ...jest.requireActual("@appsmith/selectors/moduleInstanceSelectors"),
   getModuleInstanceById: jest.fn(),
@@ -169,6 +177,8 @@ describe("QueryModuleInstanceEditor", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    (getPackageById as jest.Mock).mockReturnValue(DEFAULT_PACKAGE);
   });
 
   it("renders loading spinner when module is missing", () => {

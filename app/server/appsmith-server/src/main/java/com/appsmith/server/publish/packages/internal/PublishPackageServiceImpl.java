@@ -33,6 +33,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -151,7 +152,7 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                 .then(Mono.defer(() -> Mono.zip(existingNewActionsMono, existingActionCollectionsMono)))
                 .thenReturn(true);
 
-        Map<String, Module> sourceModuleIdToPublishedModuleMap =
+        Map<String, Module> originModuleIdToPublishedModuleMap =
                 publishingMetaDTO.getOriginModuleIdToPublishedModuleMap();
         // For each module instance, simulate instantiation again using the new published module
         Mono<Void> updatedModuleInstancesMono = Flux.fromIterable(publishingMetaDTO
@@ -159,7 +160,20 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                         .values())
                 .flatMap(existingModuleInstance -> {
                     Module publishedModule =
-                            sourceModuleIdToPublishedModuleMap.get(existingModuleInstance.getOriginModuleId());
+                            originModuleIdToPublishedModuleMap.get(existingModuleInstance.getOriginModuleId());
+
+                    if (publishedModule == null) {
+                        // The instance did not have an origin module reference, attempt to find this using the UUID
+
+                        Optional<Module> moduleOptional = originModuleIdToPublishedModuleMap.values().stream()
+                                .filter(publishedModule1 ->
+                                        publishedModule1.getModuleUUID().equals(existingModuleInstance.getModuleUUID()))
+                                .findFirst();
+
+                        // TODO: Throw error if we still can't find a module, or skip. Let's see.
+
+                        publishedModule = moduleOptional.get();
+                    }
 
                     ModuleInstanceDTO moduleInstanceRequest =
                             prepareCreateModuleInstanceRequest(publishedModule, existingModuleInstance);

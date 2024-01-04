@@ -26,8 +26,8 @@ let meDatasourceName: string,
   meDSStagingOnlyName: string;
 
 describe(
-  "excludeForAirgap",
   "Multiple environment datasource creation and test flow",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       // Need to remove the previous user preference for the callout
@@ -157,7 +157,7 @@ describe(
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
       agHelper.Sleep(2000);
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       // verify generate crud option is not present on prod
       multipleEnv.SwitchEnv(prodEnv);
       cy.get(dataSources._datasourceCardGeneratePageBtn).should("not.exist");
@@ -168,7 +168,7 @@ describe(
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       agHelper.Sleep(2000);
       deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
+        locators._widgetInDeployed(draggableWidgets.TABLE),
         true,
         true,
         true,
@@ -177,10 +177,10 @@ describe(
       agHelper.GetNClickByContains(locators._deployedPage, "Public.city");
       agHelper.AssertElementExist(dataSources._selectedRow);
 
-      table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
         expect($cellData).to.eq("A Corua (La Corua)");
       });
-      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("87");
       });
 
@@ -197,10 +197,10 @@ describe(
       multipleEnv.SwitchEnv(prodEnv);
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
         expect($cellData).to.eq("A Corua (La Corua)");
       });
-      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("87");
       });
 

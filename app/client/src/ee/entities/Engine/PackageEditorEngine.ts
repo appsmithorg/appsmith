@@ -30,6 +30,7 @@ export default class PackageEditorEngine {
       type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
       payload: {
         workspaceId: response.packageData.workspaceId,
+        editorId: packageId,
       },
     });
 

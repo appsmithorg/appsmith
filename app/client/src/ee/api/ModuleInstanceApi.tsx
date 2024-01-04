@@ -11,6 +11,8 @@ import type {
 } from "@appsmith/actions/moduleInstanceActions";
 import type { JSCollection } from "entities/JSCollection";
 import type { Action } from "entities/Action";
+import type { MODULE_TYPE, Module } from "@appsmith/constants/ModuleConstants";
+import type { Package } from "@appsmith/constants/PackageConstants";
 interface RunModuleInstancePayload {
   moduleInstanceId: string;
   actionId: string;
@@ -34,6 +36,27 @@ export interface RefactorModuleInstancePayload {
   pageId: string;
   oldName: string;
   newName: string;
+}
+
+export interface ConvertEntityToInstancePayload {
+  packageId?: string;
+  publicEntityId: string;
+  moduleType: MODULE_TYPE;
+}
+
+export interface ConvertEntityToInstanceResponse {
+  moduleInstanceData: {
+    moduleInstance: ModuleInstance;
+    entities: {
+      actions: Action[];
+      jsCollections: JSCollection[];
+    };
+  };
+  module: Module;
+  packageData: Package;
+  originalEntityId: string;
+  originPackageId: string;
+  originModuleId: string;
 }
 
 class ModuleInstancesApi extends Api {
@@ -87,6 +110,14 @@ class ModuleInstancesApi extends Api {
   ): Promise<AxiosPromise<ApiResponse<any>>> {
     const url = `${ModuleInstancesApi.moduleInstancesUrl}/refactor`;
     return Api.put(url, payload);
+  }
+
+  static async convertEntityToInstance(
+    payload: ConvertEntityToInstancePayload,
+  ): Promise<AxiosPromise<ApiResponse<ConvertEntityToInstanceResponse>>> {
+    const url = `${ModuleInstancesApi.moduleInstancesUrl}/convert`;
+
+    return Api.post(url, payload);
   }
 }
 

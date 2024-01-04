@@ -31,7 +31,18 @@ public class CrudModuleServiceCECompatibleImpl extends BaseModuleServiceImpl imp
     }
 
     @Override
-    public Flux<Module> findUniqueReferencesByIds(Set<String> ids, Optional<AclPermission> permission) {
+    public Flux<String> findPackageIdsByModuleIds(Set<String> ids, Optional<AclPermission> permission) {
         return Flux.empty();
+    }
+
+    @Override
+    public Flux<Module> findExportableModuleDataByIds(
+            Set<String> moduleIdsSet, Optional<AclPermission> permissionOptional) {
+        return Flux.empty();
+    }
+
+    @Override
+    public Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

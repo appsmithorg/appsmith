@@ -289,7 +289,7 @@ public class SeedMongoData {
                                    is no logged in user. Hence, we use retrieveById which simply queries the DB to fetch
                                    non-deleted object with the given ID parameter.
                                 */
-                                return permissionGroupRepository.retrieveById(defaultPermissionGroup);
+                                return permissionGroupRepository.findById(defaultPermissionGroup);
                             })
                             .flatMap(defaultPermissionGroup -> {
                                 Set<String> userIds =
@@ -339,7 +339,6 @@ public class SeedMongoData {
                     userRole.setUsername(API_USER_EMAIL);
                     userRole.setRoleName(roleName);
                     userRoles.add(userRole);
-                    workspace.setUserRoles(userRoles);
 
                     log.debug("In the workspaceFlux. Create Workspace: {}", workspace);
                     return workspace;

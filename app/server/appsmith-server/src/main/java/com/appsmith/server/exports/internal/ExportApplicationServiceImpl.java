@@ -75,6 +75,9 @@ public class ExportApplicationServiceImpl extends ExportApplicationServiceCEImpl
                     newActionExportableService.sanitizeEntities(
                             exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
 
+                    actionCollectionExportableService.sanitizeEntities(
+                            exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
+
                     return Mono.empty().then();
                 }));
     }

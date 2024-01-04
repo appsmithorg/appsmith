@@ -63,5 +63,7 @@ module.exports = {
     "@tag.LicenseAndBilling",
     "@tag.Authentication",
     "@tag.Provisioning",
+    "@tag.Templates",
+    "@tag.MainContainer",
   ],
 };

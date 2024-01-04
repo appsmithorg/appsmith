@@ -1,14 +1,13 @@
 package com.appsmith.server.newactions.moduleentity;
 
 import com.appsmith.external.helpers.Reusable;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.dtos.ModuleActionDTO;
-import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -31,14 +30,13 @@ public class NewActionModulePublicEntityServiceImpl extends NewActionModulePubli
     private final PluginService pluginService;
 
     @Override
-    public Mono<ModuleConsumable> createPublicEntity(
-            String workspaceId, Module module, ModuleConsumable moduleConsumable) {
+    public Mono<Reusable> createPublicEntity(String workspaceId, Module module, Reusable moduleConsumable) {
 
-        return createModuleAction(Optional.of(workspaceId), module.getId(), (ModuleActionDTO) moduleConsumable, true);
+        return createModuleAction(Optional.of(workspaceId), module.getId(), (ActionDTO) moduleConsumable, true);
     }
 
-    private Mono<ModuleConsumable> createModuleAction(
-            Optional<String> workspaceIdOptional, String moduleId, ModuleActionDTO moduleActionDTO, boolean isPublic) {
+    private Mono<Reusable> createModuleAction(
+            Optional<String> workspaceIdOptional, String moduleId, ActionDTO moduleActionDTO, boolean isPublic) {
         return modulePermissionChecker
                 .checkIfCreateExecutableAllowedAndReturnModuleAndWorkspaceId(moduleId, workspaceIdOptional)
                 .flatMap(tuple -> {
@@ -50,9 +48,7 @@ public class NewActionModulePublicEntityServiceImpl extends NewActionModulePubli
                             policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
                     moduleAction.setPolicies(childActionPolicies);
 
-                    return newActionService
-                            .validateAndSaveActionToRepository(moduleAction)
-                            .map(actionDTO -> (ModuleConsumable) actionDTO);
+                    return newActionService.validateAndSaveActionToRepository(moduleAction);
                 });
     }
 

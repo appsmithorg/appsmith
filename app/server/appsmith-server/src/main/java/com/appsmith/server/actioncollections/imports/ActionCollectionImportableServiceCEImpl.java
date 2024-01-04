@@ -18,6 +18,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,15 +35,10 @@ import java.util.Set;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
+@RequiredArgsConstructor
 public class ActionCollectionImportableServiceCEImpl implements ImportableServiceCE<ActionCollection> {
     private final ActionCollectionService actionCollectionService;
     private final ActionCollectionRepository repository;
-
-    public ActionCollectionImportableServiceCEImpl(
-            ActionCollectionService actionCollectionService, ActionCollectionRepository repository) {
-        this.actionCollectionService = actionCollectionService;
-        this.repository = repository;
-    }
 
     // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable resources.
     // Updates actionCollectionResultDTO in importable resources.
@@ -220,16 +216,22 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                     actionCollection.setApplicationId(importedApplication.getId());
 
                                     // Check if the action has gitSyncId and if it's already in DB
-                                    if (actionCollection.getGitSyncId() != null
-                                            && actionsCollectionsInCurrentApp.containsKey(
-                                                    actionCollection.getGitSyncId())) {
+                                    if (existingAppContainsCollection(
+                                            actionsCollectionsInCurrentApp, actionCollection)) {
 
                                         // Since the resource is already present in DB, just update resource
                                         ActionCollection existingActionCollection =
-                                                actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+                                                getExistingCollectionForImportedCollection(
+                                                        mappedImportableResourcesDTO,
+                                                        actionsCollectionsInCurrentApp,
+                                                        actionCollection);
 
                                         Set<Policy> existingPolicy = existingActionCollection.getPolicies();
                                         copyNestedNonNullProperties(actionCollection, existingActionCollection);
+
+                                        populateDomainMappedReferences(
+                                                mappedImportableResourcesDTO, existingActionCollection);
+
                                         // Update branchName
                                         existingActionCollection
                                                 .getDefaultResources()
@@ -267,8 +269,10 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                             if (actionsCollectionsInBranches.containsKey(
                                                     actionCollection.getGitSyncId())) {
                                                 ActionCollection branchedActionCollection =
-                                                        actionsCollectionsInBranches.get(
-                                                                actionCollection.getGitSyncId());
+                                                        getExistingCollectionForImportedCollection(
+                                                                mappedImportableResourcesDTO,
+                                                                actionsCollectionsInBranches,
+                                                                actionCollection);
                                                 actionCollectionService.populateDefaultResources(
                                                         actionCollection,
                                                         branchedActionCollection,
@@ -296,6 +300,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                     actionCollection.getApplicationId() + "_" + new ObjectId());
                                         }
 
+                                        populateDomainMappedReferences(mappedImportableResourcesDTO, actionCollection);
+
                                         // it's new actionCollection
                                         newActionCollections.add(actionCollection);
                                         resultDTO.getSavedActionCollectionIds().add(actionCollection.getId());
@@ -316,6 +322,24 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
                 });
+    }
+
+    protected ActionCollection getExistingCollectionForImportedCollection(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp,
+            ActionCollection actionCollection) {
+        return actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+    }
+
+    protected boolean existingAppContainsCollection(
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp, ActionCollection actionCollection) {
+        return actionCollection.getGitSyncId() != null
+                && actionsCollectionsInCurrentApp.containsKey(actionCollection.getGitSyncId());
+    }
+
+    protected void populateDomainMappedReferences(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO, ActionCollection actionCollection) {
+        // Nothing needs to be copied into the action collection from mapped resources
     }
 
     private NewPage updatePageInActionCollection(ActionCollectionDTO collectionDTO, Map<String, NewPage> pageNameMap) {

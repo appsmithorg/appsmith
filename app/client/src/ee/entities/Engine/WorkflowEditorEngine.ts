@@ -37,6 +37,7 @@ export default class WorkflowEditorEngine {
       type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
       payload: {
         workspaceId: response.data.workspaceId,
+        editorId: workflowId,
       },
     });
 

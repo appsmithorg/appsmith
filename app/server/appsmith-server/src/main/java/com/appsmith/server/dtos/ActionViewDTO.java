@@ -24,6 +24,9 @@ public class ActionViewDTO extends ActionViewCE_DTO {
     String moduleInstanceId;
 
     @JsonView(Views.Public.class)
+    String rootModuleInstanceId;
+
+    @JsonView(Views.Public.class)
     Boolean executeOnLoad;
 
     @JsonView(Views.Public.class)

@@ -59,9 +59,9 @@ public class PackageController {
     @JsonView(Views.Public.class)
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<List<PackageDTO>>> getAllPackages() {
+    public Mono<ResponseDTO<List<PackageDTO>>> getAllEditablePackages() {
         return crudPackageService
-                .getAllPackages()
+                .getAllEditablePackages()
                 .map(packageDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), packageDTOS, null));
     }
 

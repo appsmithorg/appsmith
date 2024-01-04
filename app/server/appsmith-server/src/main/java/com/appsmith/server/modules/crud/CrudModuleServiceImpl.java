@@ -1,5 +1,6 @@
 package com.appsmith.server.modules.crud;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Policy;
@@ -14,6 +15,7 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QModule;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
@@ -28,6 +30,7 @@ import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.packages.metadata.PackageMetadataService;
 import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.repositories.ModuleRepository;
@@ -71,6 +74,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final ObjectMapper objectMapper;
     private final ModulePublicEntityService<NewAction> newActionModulePublicEntityService;
     private final ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService;
+    private final PackageMetadataService packageMetadataService;
 
     public CrudModuleServiceImpl(
             ModuleRepository repository,
@@ -85,7 +89,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             TransactionalOperator transactionalOperator,
             ObjectMapper objectMapper,
             ModulePublicEntityService<NewAction> newActionModulePublicEntityService,
-            ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService) {
+            ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService,
+            PackageMetadataService packageMetadataService) {
         super(repository);
         this.repository = repository;
         this.modulePermission = modulePermission;
@@ -100,6 +105,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         this.objectMapper = objectMapper;
         this.newActionModulePublicEntityService = newActionModulePublicEntityService;
         this.actionCollectionModulePublicEntityService = actionCollectionModulePublicEntityService;
+        this.packageMetadataService = packageMetadataService;
     }
 
     @Override
@@ -150,6 +156,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             moduleDTO.setPackageUUID(module.getPackageUUID());
             moduleDTO.setUserPermissions(module.getUserPermissions());
             moduleDTO.setEntity(null);
+            moduleDTO.setOriginModuleId(module.getOriginModuleId());
 
             moduleDTO.setSettingsForm(settingsForm);
 
@@ -261,19 +268,31 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                     ModuleConsumable publicEntity =
                             savedModule.getUnpublishedModule().getEntity();
 
-                    // Since this entity is being created by default,
-                    // we can set the name to be same as the module name
-                    publicEntity.setName(savedModule.getUnpublishedModule().getName());
+                    Reusable reusable;
+                    if (publicEntity instanceof ActionDTO) {
+                        reusable = (ActionDTO) publicEntity;
+                        // Since this entity is being created by default,
+                        // we can set the name to be same as the module name
+                        publicEntity.setName(savedModule.getUnpublishedModule().getName());
+                    } else if (publicEntity instanceof ActionCollectionDTO) {
+                        reusable = (ActionCollectionDTO) publicEntity;
+                        publicEntity.setName(savedModule.getUnpublishedModule().getName());
+                    } else {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
 
                     ModulePublicEntityService<?> modulePublicEntityService =
                             getModulePublicEntityService(savedModule.getUnpublishedModule());
 
                     return modulePublicEntityService
-                            .createPublicEntity(workspaceId, module, publicEntity)
+                            .createPublicEntity(workspaceId, module, reusable)
                             .then(this.setTransientFieldsFromModuleToModuleDTO(
                                     savedModule, savedModule.getUnpublishedModule()))
                             .flatMap(this::setModuleSettingsForCreator);
-                });
+                })
+                .flatMap(moduleDTO -> packageMetadataService
+                        .saveLastEditInformation(moduleDTO.getPackageId())
+                        .thenReturn(moduleDTO));
     }
 
     private ModulePublicEntityService<?> getModulePublicEntityService(ModuleDTO moduleDTO) {
@@ -357,7 +376,10 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                                                 updatedModule, unpublishedModule)
                                                         .flatMap(this::setModuleSettingsForCreator);
                                             }));
-                        }));
+                        }))
+                .flatMap(moduleDTO1 -> packageMetadataService
+                        .saveLastEditInformation(moduleDTO1.getPackageId())
+                        .thenReturn(moduleDTO1));
     }
 
     @Override
@@ -383,6 +405,9 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                     .then(setTransientFieldsFromModuleToModuleDTO(
                                             deletedModule, deletedModule.getUnpublishedModule())));
                         }))
+                .flatMap(moduleDTO -> packageMetadataService
+                        .saveLastEditInformation(moduleDTO.getPackageId())
+                        .thenReturn(moduleDTO))
                 .as(transactionalOperator::transactional);
     }
 
@@ -431,9 +456,28 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Flux<Module> findUniqueReferencesByIds(Set<String> ids, Optional<AclPermission> permission) {
-        List<String> projectionFields =
-                List.of(completeFieldName(QModule.module.packageUUID), completeFieldName(QModule.module.moduleUUID));
-        return repository.findAllByIds(ids, projectionFields, permission);
+    public Flux<String> findPackageIdsByModuleIds(Set<String> ids, Optional<AclPermission> permission) {
+        List<String> projectionFields = List.of(completeFieldName(QModule.module.packageId));
+        return repository.findAllByIds(ids, projectionFields, permission).map(module -> module.getPackageId());
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Flux<Module> findExportableModuleDataByIds(
+            Set<String> moduleIdsSet, Optional<AclPermission> permissionOptional) {
+        List<String> projectionFields = List.of(
+                completeFieldName(QModule.module.packageId),
+                completeFieldName(QModule.module.packageUUID),
+                completeFieldName(QModule.module.publishedModule.name),
+                completeFieldName(QModule.module.moduleUUID));
+        return repository.findAllByIds(moduleIdsSet, projectionFields, permissionOptional);
+    }
+
+    @Override
+    public Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId) {
+        return repository
+                .findConsumableModuleByPackageIdAndOriginModuleId(
+                        packageId, originModuleId, Optional.of(modulePermission.getReadPermission()))
+                .flatMap(module -> generateModuleByViewMode(module, ResourceModes.VIEW));
     }
 }

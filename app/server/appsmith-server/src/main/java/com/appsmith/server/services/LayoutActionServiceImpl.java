@@ -11,8 +11,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.modules.metadata.ModuleMetadataService;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
-import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -37,7 +37,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
     private final DatasourcePermission datasourcePermission;
     private final ModuleEntityService<NewAction> newActionModuleEntityService;
     private final CrudWorkflowEntityService crudWorkflowEntityService;
-    private final ModulePermissionChecker modulePermissionChecker;
+    private final ModuleMetadataService moduleMetadataService;
 
     public LayoutActionServiceImpl(
             AnalyticsService analyticsService,
@@ -53,7 +53,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             DatasourcePermission datasourcePermission,
             ModuleEntityService<NewAction> newActionModuleEntityService,
             CrudWorkflowEntityService crudWorkflowEntityService,
-            ModulePermissionChecker modulePermissionChecker) {
+            ModuleMetadataService moduleMetadataService) {
 
         super(
                 analyticsService,
@@ -71,7 +71,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
         this.datasourcePermission = datasourcePermission;
         this.newActionModuleEntityService = newActionModuleEntityService;
         this.crudWorkflowEntityService = crudWorkflowEntityService;
-        this.modulePermissionChecker = modulePermissionChecker;
+        this.moduleMetadataService = moduleMetadataService;
     }
 
     @Override
@@ -99,8 +99,11 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
         CreatorContextType contextType = getDefaultContextIfNull(action.getContextType());
         switch (contextType) {
             case WORKFLOW:
-            case MODULE:
                 return this.createSingleAction(action, Boolean.FALSE);
+            case MODULE:
+                return this.createSingleAction(action, Boolean.FALSE).flatMap(createdActionDTO -> moduleMetadataService
+                        .saveLastEditInformation(createdActionDTO.getModuleId())
+                        .thenReturn(createdActionDTO));
             default:
                 return super.createSingleActionWithBranch(action, branchName);
         }

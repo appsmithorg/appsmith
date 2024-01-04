@@ -3,9 +3,8 @@ import commonlocators from "../../../../locators/commonlocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Trial License",
-  { tags: ["@tag.LicenseAndBilling"] },
+  { tags: ["@tag.LicenseAndBilling", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       cy.interceptLicenseApi({

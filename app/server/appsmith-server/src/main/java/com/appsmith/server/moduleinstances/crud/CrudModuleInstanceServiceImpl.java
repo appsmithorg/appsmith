@@ -61,6 +61,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.modules.helpers.ModuleUtils.transformModuleInputsToModuleInstance;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Service
@@ -137,15 +138,14 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<CreateModuleInstanceResponseDTO> createModuleInstance(
             ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
-        validateModuleInstanceDTO(moduleInstanceReqDTO);
-        Mono<Module> refModuleMono = moduleRepository
+        validateModuleInstanceDTO(moduleInstanceReqDTO, false);
+        Mono<Module> sourceModuleMono = moduleRepository
                 .findById(
                         moduleInstanceReqDTO.getSourceModuleId(), modulePermission.getCreateModuleInstancePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND,
                         FieldName.MODULE_ID,
-                        moduleInstanceReqDTO.getSourceModuleId())))
-                .cache();
+                        moduleInstanceReqDTO.getSourceModuleId())));
 
         final ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO = new ModuleInstantiatingMetaDTO();
 
@@ -154,7 +154,11 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
         return cachedNewPageMono
                 .zipWhen(page -> generateModuleInstance(
-                        moduleInstanceReqDTO, branchName, refModuleMono, moduleInstantiatingMetaDTO, cachedNewPageMono))
+                        moduleInstanceReqDTO,
+                        branchName,
+                        sourceModuleMono,
+                        moduleInstantiatingMetaDTO,
+                        cachedNewPageMono))
                 .flatMap(tuple2 -> {
                     NewPage page = tuple2.getT1();
                     ModuleInstance moduleInstance = tuple2.getT2();
@@ -332,50 +336,26 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         return packageMono.then(updateEntityNamesMapMono).then(sourceModuleMono).flatMap(sourceModule -> {
             ModuleInstance moduleInstance = new ModuleInstance();
             moduleInstance.setType(sourceModule.getType());
+            moduleInstance.setSourceModuleId(sourceModule.getId());
+            moduleInstance.setModuleUUID(sourceModule.getModuleUUID());
+            moduleInstance.setOriginModuleId(sourceModule.getOriginModuleId());
+
+            ModuleInstanceDTO unpublishedModuleInstanceDTO = prepareUnpublishedModuleInstanceFromRequest(
+                    moduleInstanceReqDTO, sourceModule.getPublishedModule());
+
+            moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
+            moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
             moduleInstance.setId(new ObjectId().toString());
-            moduleInstantiatingMetaDTO.setOldToNewModuleEntityRefactorDTOsMap(
-                    sourceToInstantiatedEntityRefactorDTOsMap);
 
-            return cachedPageMono
-                    .flatMap(page -> {
-                        if (Boolean.TRUE.equals(moduleInstantiatingMetaDTO.isSimulation())) {
-                            return Mono.just(page);
-                        }
-                        Layout layout = page.getUnpublishedPage().getLayouts().get(0);
-                        return refactoringService
-                                .isNameAllowed(
-                                        page.getId(),
-                                        CreatorContextType.PAGE,
-                                        layout.getId(),
-                                        moduleInstanceReqDTO.getName())
-                                .flatMap(allowed -> {
-                                    if (Boolean.FALSE.equals(allowed)) {
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.DUPLICATE_KEY_USER_ERROR,
-                                                moduleInstanceReqDTO.getName(),
-                                                FieldName.NAME));
-                                    }
-                                    return Mono.just(page);
-                                });
-                    })
+            return generateBareBonesModuleInstanceAndReturnPage(
+                            moduleInstantiatingMetaDTO,
+                            moduleInstanceReqDTO,
+                            branchName,
+                            moduleInstance,
+                            cachedPageMono)
                     .map(page -> {
-                        moduleInstance.setApplicationId(page.getApplicationId());
-                        moduleInstance.setSourceModuleId(sourceModule.getId());
-                        moduleInstance.setModuleUUID(sourceModule.getModuleUUID());
-                        moduleInstance.setOriginModuleId(sourceModule.getOriginModuleId());
-
-                        ModuleInstanceDTO unpublishedModuleInstanceDTO = prepareUnpublishedModuleInstanceFromRequest(
-                                moduleInstanceReqDTO, sourceModule.getPublishedModule());
-
-                        moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
-                        moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
-
-                        DefaultResources defaultResources = new DefaultResources();
-                        defaultResources.setBranchName(branchName);
-                        defaultResources.setModuleInstanceId(moduleInstance.getId());
-                        defaultResources.setPageId(moduleInstanceReqDTO.getContextId());
-
-                        moduleInstance.setDefaultResources(defaultResources);
+                        moduleInstantiatingMetaDTO.setOldToNewModuleEntityRefactorDTOsMap(
+                                sourceToInstantiatedEntityRefactorDTOsMap);
 
                         moduleInstantiatingMetaDTO.setRootModuleInstanceId(moduleInstance.getId());
                         moduleInstantiatingMetaDTO.setRootModuleInstanceName(moduleInstanceReqDTO.getName());
@@ -383,13 +363,6 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                         moduleInstantiatingMetaDTO.setContextId(moduleInstanceReqDTO.getContextId());
                         moduleInstantiatingMetaDTO.setSourceModuleId(sourceModule.getId());
                         moduleInstantiatingMetaDTO.setPage(page);
-
-                        Set<Policy> policies = policyGenerator.getAllChildPolicies(
-                                page.getPolicies(), Page.class, ModuleInstance.class);
-
-                        moduleInstance.setPolicies(policies);
-
-                        extractAndSetJsonPathKeys(moduleInstance);
 
                         Mono<Integer> evalVersionMono = applicationService
                                 .findById(page.getApplicationId())
@@ -407,6 +380,107 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                         return moduleInstance;
                     });
         });
+    }
+
+    private Mono<ModuleInstance> saveModuleInstance(ModuleInstance moduleInstance) {
+        return repository.save(moduleInstance).flatMap(repository::setUserPermissionsInObject);
+    }
+
+    private Mono<NewPage> generateBareBonesModuleInstanceAndReturnPage(
+            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,
+            ModuleInstanceDTO moduleInstanceReqDTO,
+            String branchName,
+            ModuleInstance moduleInstance,
+            Mono<NewPage> cachedPageMono) {
+        return cachedPageMono
+                .flatMap(page -> {
+                    if (Boolean.TRUE.equals(moduleInstantiatingMetaDTO.isSimulation())) {
+                        return Mono.just(page);
+                    }
+                    Layout layout = page.getUnpublishedPage().getLayouts().get(0);
+                    return refactoringService
+                            .isNameAllowed(
+                                    page.getId(),
+                                    CreatorContextType.PAGE,
+                                    layout.getId(),
+                                    moduleInstanceReqDTO.getName())
+                            .flatMap(allowed -> {
+                                if (!allowed) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                                            moduleInstanceReqDTO.getName(),
+                                            FieldName.NAME));
+                                }
+                                return Mono.just(page);
+                            });
+                })
+                .map(page -> {
+                    moduleInstance.setApplicationId(page.getApplicationId());
+
+                    DefaultResources defaultResources = new DefaultResources();
+                    defaultResources.setBranchName(branchName);
+                    defaultResources.setModuleInstanceId(moduleInstance.getId());
+                    defaultResources.setPageId(moduleInstanceReqDTO.getContextId());
+
+                    if (moduleInstanceReqDTO.getGitSyncId() == null) {
+                        moduleInstance.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
+                    } else {
+                        moduleInstance.setGitSyncId(moduleInstanceReqDTO.getGitSyncId());
+                    }
+                    moduleInstance.setDefaultResources(defaultResources);
+
+                    generateAndSetModuleInstancePolicies(page, moduleInstance);
+
+                    extractAndSetJsonPathKeys(moduleInstance);
+
+                    return page;
+                });
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<CreateModuleInstanceResponseDTO> createOrphanModuleInstance(
+            ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
+
+        validateModuleInstanceDTO(moduleInstanceReqDTO, true);
+
+        ModuleInstanceDTO unpublishedModuleInstanceDTO =
+                prepareUnpublishedModuleInstanceFromRequest(moduleInstanceReqDTO, null);
+
+        ModuleInstance moduleInstance = new ModuleInstance();
+
+        moduleInstance.setType(moduleInstanceReqDTO.getType());
+        moduleInstance.setModuleUUID(moduleInstanceReqDTO.getModuleUUID());
+
+        moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
+        moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
+
+        Mono<NewPage> cachedNewPageMono =
+                getNewPageMono(moduleInstanceReqDTO.getContextId(), branchName).cache();
+
+        final ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO = new ModuleInstantiatingMetaDTO();
+
+        return generateBareBonesModuleInstanceAndReturnPage(
+                        moduleInstantiatingMetaDTO, moduleInstanceReqDTO, branchName, moduleInstance, cachedNewPageMono)
+                .flatMap(page -> saveModuleInstance(moduleInstance))
+                .flatMap(savedModuleInstance ->
+                        generateModuleInstanceByViewMode(savedModuleInstance, ResourceModes.EDIT))
+                .flatMap(moduleInstanceDTO -> {
+                    final CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                            new CreateModuleInstanceResponseDTO();
+                    createModuleInstanceResponseDTO.setModuleInstance(moduleInstanceDTO);
+                    createModuleInstanceResponseDTO.setEntities(new ModuleInstanceEntitiesDTO());
+
+                    return Mono.just(createModuleInstanceResponseDTO);
+                });
+    }
+
+    @Override
+    public void generateAndSetModuleInstancePolicies(NewPage page, ModuleInstance moduleInstance) {
+        Set<Policy> policies =
+                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, ModuleInstance.class);
+
+        moduleInstance.setPolicies(policies);
     }
 
     private void setContextId(ModuleInstanceDTO moduleInstance, String contextId, CreatorContextType contextType) {
@@ -430,8 +504,15 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         this.setContextId(
                 moduleInstanceDTO, moduleInstanceReqDTO.getContextId(), moduleInstanceReqDTO.getContextType());
 
-        Map<String, String> inputs = ModuleUtils.transformModuleInputsToModuleInstance(sourceModuleDTO);
-        moduleInstanceDTO.setInputs(inputs);
+        if (moduleInstanceReqDTO.getInputs() == null && sourceModuleDTO != null) {
+            Map<String, String> inputs = transformModuleInputsToModuleInstance(sourceModuleDTO);
+            moduleInstanceDTO.setInputs(inputs);
+        } else {
+            moduleInstanceDTO.setInputs(moduleInstanceReqDTO.getInputs());
+        }
+
+        moduleInstanceDTO.setIsValid(moduleInstanceReqDTO.getIsValid() == null || moduleInstanceReqDTO.getIsValid());
+        moduleInstanceDTO.setInvalids(moduleInstanceReqDTO.getInvalids());
 
         return moduleInstanceDTO;
     }
@@ -596,8 +677,8 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleId(
-            String sourceModuleId, Optional<AclPermission> permission) {
-        return repository.findAllUnpublishedByOriginModuleId(sourceModuleId, permission);
+    public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
+            Module sourceModule, Optional<AclPermission> permission) {
+        return repository.findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, permission);
     }
 }

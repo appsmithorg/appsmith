@@ -19,6 +19,7 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -44,6 +45,7 @@ import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
+import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -119,6 +121,9 @@ class CrudModuleInstanceServiceTest {
 
     @Autowired
     CrudModuleService crudModuleService;
+
+    @Autowired
+    ModuleRepository moduleRepository;
 
     @Autowired
     UserService userService;
@@ -636,13 +641,16 @@ class CrudModuleInstanceServiceTest {
     void testAutoUpgradeShouldUpgradeAnyOlderVersionsMissedInPreviousUpgrade() {
         // Create a module
         ModuleDTO moduleReqDTO = createModuleRequestDTO();
-        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
+        ModuleDTO createdModuleDTO =
+                crudModuleService.createModule(moduleReqDTO).block();
 
         // Publish the package
-        publishPackageService.publishPackage(createdModule.getPackageId()).block();
+        publishPackageService.publishPackage(createdModuleDTO.getPackageId()).block();
 
         // Fetch the published module DTO
-        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
+        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModuleDTO.getModuleUUID());
+
+        Module sourceModule = moduleRepository.findById(sourceModuleDTO.getId()).block();
 
         // Create a module instance from the newly created and published module
         ModuleInstanceDTO firstModuleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
@@ -666,6 +674,7 @@ class CrudModuleInstanceServiceTest {
                 .block();
         dbSecondModuleInstance.setOriginModuleId(
                 "originModuleId changed to something else to keep it out of auto upgrade");
+        dbSecondModuleInstance.setModuleUUID("moduleUUID changed to something else to keep it out of auto upgrade");
         dbSecondModuleInstance =
                 moduleInstanceRepository.save(dbSecondModuleInstance).block();
 
@@ -684,7 +693,7 @@ class CrudModuleInstanceServiceTest {
 
         // Verify the new module instance has the correct input values
         Mono<List<ModuleInstance>> moduleInstancesMono = moduleInstanceRepository
-                .findAllUnpublishedByOriginModuleId(createdModule.getId(), Optional.empty())
+                .findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, Optional.empty())
                 .collectList();
 
         // Verify that after publish package only one module instance is impacted
@@ -706,7 +715,7 @@ class CrudModuleInstanceServiceTest {
                         .getModuleInstance()
                         .getId())
                 .block();
-        dbSecondModuleInstance.setOriginModuleId(createdModule.getId());
+        dbSecondModuleInstance.setOriginModuleId(createdModuleDTO.getId());
         dbSecondModuleInstance =
                 moduleInstanceRepository.save(dbSecondModuleInstance).block();
 
@@ -718,7 +727,7 @@ class CrudModuleInstanceServiceTest {
 
         // Fetch all module instances by moduleUUID after the package is published
         moduleInstancesMono = moduleInstanceRepository
-                .findAllUnpublishedByOriginModuleId(createdModule.getId(), Optional.empty())
+                .findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, Optional.empty())
                 .collectList();
 
         // Verify that two module instances are impacted by the package-publish event

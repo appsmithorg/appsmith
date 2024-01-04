@@ -421,6 +421,12 @@ export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>
   `Unable to update module instance name to ${name}`;
 export const NEW_REUSABLE_QUERY_BUTTON_TEXT = () => "New reusable query";
 export const NEW_REUSABLE_API_BUTTON_TEXT = () => "New reusable API";
+export const CONVERT_MODULE_CTA_TEXT = () => "Create Module";
+export const CONVERT_ENTITY_UNPUBLISHED_CHANGES_WARN = () =>
+  "The package has unsaved changes. Please publish it first.";
+export const CANNOT_CREATE_MODULE_WARN = () =>
+  "You do not have permission to add module into this package";
+export const GO_TO_MODULE = () => "Go to Module";
 // Modules end
 
 //Worflows start

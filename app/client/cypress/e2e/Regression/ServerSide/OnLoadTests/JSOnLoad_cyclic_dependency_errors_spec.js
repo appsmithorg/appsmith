@@ -39,8 +39,8 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "1. Create Users Sample DB Query & Simulate cyclic depedency",
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         //Step1 : Create Mock Users DB
         dataSources.CreateMockDB("Users").then(() => {

@@ -18,9 +18,12 @@ import {
   createNewAPIActionForPackage,
   createNewJSCollectionForPackage,
   createNewQueryActionForPackage,
+  createQueryModule,
   saveActionNameForPackage,
   saveJSObjectNameForPackage,
 } from "./moduleActions";
+import { EditorNames } from "@appsmith/hooks";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export const createNewQueryBasedOnParentEntity = (
   entityId: string,
@@ -92,5 +95,29 @@ export const saveJSObjectNameBasedOnParentEntity = (
       return saveJSObjectNameForPackage({ id, name });
     default:
       return CE_saveJSObjectNameBasedOnParentEntity(id, name);
+  }
+};
+
+export const createNewApiActionBasedOnEditorType = (
+  editorType: string,
+  editorId: string,
+  parentEntityId: string,
+  parentEntityType: ActionParentEntityTypeInterface,
+  apiType: string,
+): any => {
+  if (editorType === EditorNames.PACKAGE && !parentEntityId && editorId) {
+    return createQueryModule({
+      type: MODULE_TYPE.QUERY,
+      from: "API_PANE",
+      packageId: editorId,
+      apiType,
+    });
+  } else if (parentEntityId) {
+    return createNewAPIBasedOnParentEntity(
+      parentEntityId,
+      "API_PANE",
+      apiType,
+      parentEntityType,
+    );
   }
 };

@@ -19,6 +19,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
+import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleMetadata;
 import com.appsmith.server.dtos.PackageDTO;
@@ -46,6 +47,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PACKAGES;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.completeFieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -151,6 +154,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                             workspace.getPolicies(), Workspace.class, Package.class);
                     newPackage.setPolicies(policies);
                     newPackage.setModifiedBy(currentUser.getUsername());
+                    newPackage.setLastEditedAt(Instant.now());
 
                     return createSuffixedPackage(newPackage, packageToBeCreated.getName(), 0)
                             .flatMap(createdPackage -> setTransientFieldsFromPackageToPackageDTO(
@@ -175,8 +179,13 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
+    public Flux<Package> getAllPublishedPackagesByUniqueRef(String workspaceId, List<ExportableModule> packageList) {
+        return repository.findAllPublishedByUniqueReference(workspaceId, packageList, Optional.empty());
+    }
+
+    @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<List<PackageDTO>> getAllPackages() {
+    public Mono<List<PackageDTO>> getAllEditablePackages() {
         return repository
                 .findAllUserPackages(packagePermission.getEditPermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.EDIT))
@@ -291,8 +300,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     if (updateObj.getUpdateObject().isEmpty()) {
                         return setTransientFieldsFromPackageToPackageDTO(dbPackage, dbPackage.getUnpublishedPackage());
                     }
-                    updateObj.set(fieldName(QPackage.package$.updatedAt), Instant.now());
+                    Instant currentInstant = Instant.now();
+                    updateObj.set(fieldName(QPackage.package$.updatedAt), currentInstant);
                     updateObj.set(fieldName(QPackage.package$.modifiedBy), currentUser.getUsername());
+                    updateObj.set(fieldName(QPackage.package$.lastEditedAt), currentInstant);
 
                     return repository
                             .updateAndReturn(packageId, updateObj, Optional.of(packagePermission.getEditPermission()))
@@ -316,6 +327,16 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                 .then(repository.archiveById(aPackage.getId()))
                 .as(transactionalOperator::transactional)
                 .then(setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getUnpublishedPackage())));
+    }
+
+    @Override
+    public Flux<Package> getUniquePublishedReference(Set<String> packageIds) {
+        List<String> projectionFields = List.of(
+                completeFieldName(QPackage.package$.id),
+                completeFieldName(QPackage.package$.publishedPackage.name),
+                completeFieldName(QPackage.package$.packageUUID),
+                completeFieldName(QPackage.package$.version));
+        return repository.findAllByIds(new ArrayList<>(packageIds), projectionFields);
     }
 
     @Override
@@ -356,19 +377,6 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         return updateObj;
     }
 
-    private Mono<PackageDTO> setTransientFieldsFromPackageToPackageDTO(Package aPackage, PackageDTO packageDTO) {
-        packageDTO.setWorkspaceId(aPackage.getWorkspaceId());
-        packageDTO.setId(aPackage.getId());
-        packageDTO.setPackageUUID(aPackage.getPackageUUID());
-        packageDTO.setUserPermissions(aPackage.getUserPermissions());
-        packageDTO.setModifiedAt(aPackage.getLastUpdateTime());
-        packageDTO.setModifiedBy(aPackage.getModifiedBy());
-        packageDTO.setLastPublishedAt(aPackage.getLastPublishedTime());
-        packageDTO.setPolicies(aPackage.getPolicies());
-
-        return Mono.just(packageDTO);
-    }
-
     private Mono<Package> createSuffixedPackage(Package requestedPackage, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         requestedPackage.getUnpublishedPackage().setName(actualName);
@@ -395,5 +403,14 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     public String getRandomPackageCardColor() {
         int randomColorIndex = (int) (System.currentTimeMillis() % ApplicationConstants.APP_CARD_COLORS.length);
         return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
+    }
+
+    @Override
+    public Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version) {
+        return repository
+                .findPackageBySourcePackageIdAndVersion(
+                        sourcePackageId, version, Optional.of(packagePermission.getReadPermission()))
+                .flatMap(aPackage ->
+                        setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getPublishedPackage()));
     }
 }

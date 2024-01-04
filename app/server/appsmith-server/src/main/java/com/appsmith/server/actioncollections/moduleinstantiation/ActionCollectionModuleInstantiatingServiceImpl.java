@@ -136,6 +136,17 @@ public class ActionCollectionModuleInstantiatingServiceImpl
                             originCollectionIdToNewActionsMap.put(
                                     toBeInstantiatedActionCollection.getOriginActionCollectionId(),
                                     collectionIdToActionsMap.get(toBeInstantiatedActionCollection.getId()));
+
+                            List<String> newActionIds =
+                                    collectionIdToActionsMap.get(toBeInstantiatedActionCollection.getId()).stream()
+                                            .map(NewAction::getId)
+                                            .toList();
+
+                            Map<String, String> defaultToBranchedActionIdsMap = newActionIds.stream()
+                                    .collect(Collectors.toMap(newActionId -> newActionId, newActionId -> newActionId));
+                            toBeInstantiatedActionCollection
+                                    .getUnpublishedCollection()
+                                    .setDefaultToBranchedActionIdsMap(defaultToBranchedActionIdsMap);
                         }
                         return newCollectionIdToNewCollectionMap.values().stream()
                                 .toList();

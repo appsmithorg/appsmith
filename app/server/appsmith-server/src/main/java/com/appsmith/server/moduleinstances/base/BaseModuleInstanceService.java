@@ -11,7 +11,7 @@ public interface BaseModuleInstanceService {
 
     Mono<ModuleInstanceDTO> generateModuleInstanceByViewMode(ModuleInstance moduleInstance, ResourceModes resourceMode);
 
-    void validateModuleInstanceDTO(ModuleInstanceDTO moduleInstanceDTO);
+    void validateModuleInstanceDTO(ModuleInstanceDTO moduleInstanceDTO, boolean isOrphan);
 
     ModuleInstance extractAndSetJsonPathKeys(ModuleInstance moduleInstance);
 }

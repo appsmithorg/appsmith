@@ -60,7 +60,7 @@ public class ApiKeyAuthenticationConverter implements ServerAuthenticationConver
                                     return Mono.error(new AppsmithException(AppsmithError.API_KEY_NOT_MAPPED));
                                 }
                                 UserApiKey matchedUserApiKey = userApiKeys.get(0);
-                                return userRepository.retrieveById(matchedUserApiKey.getUserId());
+                                return userRepository.findById(matchedUserApiKey.getUserId());
                             });
                     return userMono;
                 })

@@ -1,12 +1,16 @@
 import React from "react";
 import { Container, Wrapper } from "components/BottomBar/components";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
+import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
+import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
+import { useSelector } from "react-redux";
 
 export default function BottomBar() {
+  const packageId = useSelector(getCurrentPackageId) || "";
   return (
     <Container>
       <Wrapper>
-        <div data-testid="t--switch-env" />
+        <SwitchEnvironment editorId={packageId} viewMode={false} />
       </Wrapper>
       <Wrapper>
         <DebuggerTrigger />

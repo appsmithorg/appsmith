@@ -4,6 +4,7 @@ import com.appsmith.server.dtos.ModuleDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,6 +12,22 @@ import java.util.stream.Collectors;
 public class ModuleUtils {
     public static final String MODULE_ENTITY_NAME_SEPARATOR_PREFIX = "_$";
     public static final String MODULE_ENTITY_NAME_SEPARATOR_SUFFIX = "$_";
+
+    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+    private static final int STRING_LENGTH = 10;
+
+    public static String generateUniqueIdForInputField() {
+        StringBuilder uniqueId = new StringBuilder(STRING_LENGTH);
+        SecureRandom random = new SecureRandom();
+
+        for (int i = 0; i < STRING_LENGTH; i++) {
+            int index = random.nextInt(ALPHABET.length());
+            char randomChar = ALPHABET.charAt(index);
+            uniqueId.append(randomChar);
+        }
+
+        return uniqueId.toString();
+    }
 
     public static void getSettingsForModuleCreator(JsonNode pluginSettingsNode, JsonNode moduleInstanceSettingsNode) {
         Iterator<JsonNode> pluginSettingsIterator = pluginSettingsNode.iterator();

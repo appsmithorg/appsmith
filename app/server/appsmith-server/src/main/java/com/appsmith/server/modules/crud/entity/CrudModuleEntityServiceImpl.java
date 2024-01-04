@@ -14,11 +14,13 @@ import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.modules.metadata.ModuleMetadataService;
 import com.appsmith.server.modules.moduleentity.ModuleEntityService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.solutions.ActionPermission;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -28,6 +30,7 @@ import java.util.Optional;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
 @Service
+@RequiredArgsConstructor
 public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompatibleImpl
         implements CrudModuleEntityService {
     private final ModuleRepository moduleRepository;
@@ -37,21 +40,7 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
     private final ActionPermission actionPermission;
     private final ModuleEntityService<NewAction> newActionModuleEntityService;
     private final ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
-
-    public CrudModuleEntityServiceImpl(
-            ModuleRepository moduleRepository,
-            NewActionService newActionService,
-            ModulePermission modulePermission,
-            ActionPermission actionPermission,
-            ModuleEntityService<NewAction> newActionModuleEntityService,
-            ModuleEntityService<ActionCollection> actionCollectionModuleEntityService) {
-        this.moduleRepository = moduleRepository;
-        this.newActionService = newActionService;
-        this.modulePermission = modulePermission;
-        this.actionPermission = actionPermission;
-        this.newActionModuleEntityService = newActionModuleEntityService;
-        this.actionCollectionModuleEntityService = actionCollectionModuleEntityService;
-    }
+    private final ModuleMetadataService moduleMetadataService;
 
     /**
      * Updates a module's action (API, Query), whether it is public or private. When dealing with Query modules, this method is used to update the public entity as there are no private entities in Query modules.
@@ -92,7 +81,9 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
 
             return newActionService
                     .updateUnpublishedActionWithoutAnalytics(dbAction.getId(), moduleActionDTO, Optional.empty())
-                    .flatMap(moduleActionTuple -> Mono.just(moduleActionTuple.getT1()));
+                    .flatMap(moduleActionTuple -> moduleMetadataService
+                            .saveLastEditInformation(moduleId)
+                            .thenReturn(moduleActionTuple.getT1()));
         });
     }
 

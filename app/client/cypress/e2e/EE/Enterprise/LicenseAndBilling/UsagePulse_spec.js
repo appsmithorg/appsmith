@@ -6,9 +6,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Usage pulse",
-  { tags: ["@tag.LicenseAndBilling"] },
+  { tags: ["@tag.LicenseAndBilling", "@tag.excludeForAirgap"] },
   function () {
     beforeEach(() => {
       cy.intercept("POST", "/api/v1/usage-pulse").as("usagePulse");

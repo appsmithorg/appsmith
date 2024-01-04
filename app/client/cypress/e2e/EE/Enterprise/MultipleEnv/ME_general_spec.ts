@@ -8,8 +8,8 @@ import {
 let prodEnv: string, stagingEnv: string;
 
 describe(
-  "excludeForAirgap",
   "Tests general functionality of multi environment",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });

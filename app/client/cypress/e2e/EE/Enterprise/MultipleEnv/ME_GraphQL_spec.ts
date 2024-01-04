@@ -28,8 +28,8 @@ let GRAPHQL_VARIABLES = `{
   }`;
 
 describe(
-  "excludeForAirgap",
   "GraphQL Datasource for Staging & Prod verifications",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     let prodEnv: string,
       stagingEnv: string,

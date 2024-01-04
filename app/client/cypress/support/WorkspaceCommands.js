@@ -6,6 +6,7 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "../support/Objects/Registry";
+import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;
@@ -273,6 +274,9 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("workspaceName", workspaceName);
     homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
   });
+
+  featureFlagIntercept({ release_custom_widgets_enabled: true });
+
   cy.get("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);

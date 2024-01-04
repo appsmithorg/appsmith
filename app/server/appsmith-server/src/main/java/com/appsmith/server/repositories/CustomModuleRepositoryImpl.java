@@ -84,4 +84,17 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 Optional.empty(),
                 NO_RECORD_LIMIT);
     }
+
+    @Override
+    public Mono<Module> findConsumableModuleByPackageIdAndOriginModuleId(
+            String packageId, String originModuleId, Optional<AclPermission> permission) {
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria packageIdAndOriginModuleIdCriterion = where(fieldName(QModule.module.packageId))
+                .is(packageId)
+                .and(fieldName(QModule.module.originModuleId))
+                .is(originModuleId);
+
+        criteria.add(packageIdAndOriginModuleIdCriterion);
+        return queryOne(criteria, null, permission);
+    }
 }

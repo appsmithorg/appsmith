@@ -39,28 +39,90 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                         .getExistingModuleInstanceIdToModuleInstanceMap()
                         .keySet())
                 .flatMap(moduleInstanceId -> {
-                    Map<String, Map<String, List<NewAction>>> collectionIdToActionsMap =
+                    Map<String, Map<String, List<NewAction>>> existingComposedCollectionRefToNewActionsMap =
                             publishingMetaDTO.getExistingComposedCollectionRefToNewActionsMap();
                     Map<String, List<NewAction>> originCollectionIdToActionsMap = new ConcurrentHashMap<>();
-                    collectionIdToActionsMap.put(moduleInstanceId, originCollectionIdToActionsMap);
+                    existingComposedCollectionRefToNewActionsMap.put(moduleInstanceId, originCollectionIdToActionsMap);
+
+                    Map<String, Map<String, NewAction>> existingInvalidComposedCollectionRefToNewActionsMap =
+                            publishingMetaDTO.getExistingInvalidJSActionFQNToNewActionsMap();
+                    Map<String, NewAction> invalidActionFQNToActionsMap = new ConcurrentHashMap<>();
+                    existingInvalidComposedCollectionRefToNewActionsMap.put(
+                            moduleInstanceId, invalidActionFQNToActionsMap);
+
                     return actionCollectionService
                             .findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(moduleInstanceId, null)
                             .flatMap(actionCollection -> {
                                 return newActionService
                                         .findAllJSActionsByCollectionIds(List.of(actionCollection.getId()), null)
                                         .collectList()
-                                        .doOnNext(newActions -> originCollectionIdToActionsMap.put(
-                                                actionCollection.getOriginActionCollectionId(), newActions))
+                                        .doOnNext(newActions -> {
+                                            if (actionCollection.getOriginActionCollectionId() != null) {
+                                                originCollectionIdToActionsMap.put(
+                                                        actionCollection.getOriginActionCollectionId(), newActions);
+                                            } else {
+                                                newActions.stream().forEach(newAction -> {
+                                                    invalidActionFQNToActionsMap.put(
+                                                            newAction
+                                                                    .getUnpublishedAction()
+                                                                    .getFullyQualifiedName(),
+                                                            newAction);
+                                                });
+                                            }
+                                        })
                                         .thenReturn(actionCollection);
                             })
-                            .collectMap(
-                                    ActionCollection::getOriginActionCollectionId, actionCollection -> actionCollection)
-                            .doOnNext(map -> publishingMetaDTO
-                                    .getExistingComposedCollectionRefToActionCollectionMap()
-                                    .put(moduleInstanceId, map));
+                            .collect(Collectors.partitioningBy(
+                                    actionCollection -> actionCollection.getOriginActionCollectionId() == null))
+                            .doOnNext(map -> {
+                                // We have partitioned all existing composed collections on the basis of origin id
+                                // A collection that does not have origin id is an orphan public entity that needs to be
+                                // deleted post-upgrade.
+                                // Hence, we record both these kinds of collections in separate maps
+
+                                if (map.containsKey(false)) {
+                                    // These collections are valid
+                                    List<ActionCollection> actionCollections = map.get(false);
+                                    storeValidCollections(publishingMetaDTO, moduleInstanceId, actionCollections);
+                                }
+
+                                if (map.containsKey(true)) {
+                                    // These collections are invalid
+                                    List<ActionCollection> invalidCollections = map.get(true);
+                                    storeInvalidCollections(publishingMetaDTO, moduleInstanceId, invalidCollections);
+                                }
+                            });
                 })
                 .collectList()
                 .thenReturn(true);
+    }
+
+    private void storeInvalidCollections(
+            PackagePublishingMetaDTO publishingMetaDTO,
+            String moduleInstanceId,
+            List<ActionCollection> actionCollections) {
+        Map<String, ActionCollection> invalidNameToCollectionMap = actionCollections.stream()
+                .collect(Collectors.toMap(
+                        actionCollection ->
+                                actionCollection.getUnpublishedCollection().getName(),
+                        actionCollection -> actionCollection));
+
+        publishingMetaDTO
+                .getExistingInvalidComposedCollectionRefToCollectionMap()
+                .put(moduleInstanceId, invalidNameToCollectionMap);
+    }
+
+    private void storeValidCollections(
+            PackagePublishingMetaDTO publishingMetaDTO,
+            String moduleInstanceId,
+            List<ActionCollection> actionCollections) {
+        Map<String, ActionCollection> validOriginIdToCollectionMap = actionCollections.stream()
+                .collect(Collectors.toMap(
+                        ActionCollection::getOriginActionCollectionId, actionCollection -> actionCollection));
+
+        publishingMetaDTO
+                .getExistingComposedCollectionRefToCollectionMap()
+                .put(moduleInstanceId, validOriginIdToCollectionMap);
     }
 
     @Override
@@ -77,11 +139,22 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                 simulatedModuleInstanceDTO.getOriginCollectionIdToActionsMap();
 
         Map<String, ActionCollection> originCollectionIdToExistingCollectionMap = publishingMetaDTO
-                .getExistingComposedCollectionRefToActionCollectionMap()
+                .getExistingComposedCollectionRefToCollectionMap()
                 .get(existingModuleInstance.getId());
+
+        Map<String, ActionCollection> invalidCollectionNameToExistingCollectionMap = publishingMetaDTO
+                .getExistingInvalidComposedCollectionRefToCollectionMap()
+                .get(existingModuleInstance.getId());
+
+        Set<String> invalidCollectionIds = invalidCollectionNameToExistingCollectionMap.values().stream()
+                .map(ActionCollection::getId)
+                .collect(Collectors.toSet());
 
         Map<String, ActionCollection> originCollectionIdToSimulatedCollectionMap =
                 simulatedModuleInstanceDTO.getOriginToCollectionMap();
+
+        Map<String, NewAction> invalidJSActionFQNToNewActionMap =
+                publishingMetaDTO.getExistingInvalidJSActionFQNToNewActionsMap().get(existingModuleInstance.getId());
 
         HashSet<String> toBeRemovedOriginCollectionIds =
                 new HashSet<>(originCollectionIdToExistingCollectionMap.keySet());
@@ -232,6 +305,7 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                             originCollectionIdToExistingCollectionMap.get(toBeRemovedOriginCollectionId);
                     return actionCollection.getId();
                 })
+                .concatWith(Flux.fromIterable(invalidCollectionIds))
                 .flatMap(actionCollectionService::deleteWithoutPermissionUnpublishedActionCollection)
                 .collectList()
                 .thenReturn(true);
@@ -242,16 +316,41 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                             originCollectionIdToSimulatedCollectionMap.get(toBeAddedOriginCollectionId);
                     simulatedActionCollection.setRootModuleInstanceId(existingModuleInstance.getId());
                     simulatedActionCollection.setModuleInstanceId(existingModuleInstance.getId());
+
+                    if (invalidCollectionNameToExistingCollectionMap.containsKey(
+                            simulatedActionCollection.getUnpublishedCollection().getName())) {
+                        ActionCollection existingInvalidActionCollection =
+                                invalidCollectionNameToExistingCollectionMap.get(simulatedActionCollection
+                                        .getUnpublishedCollection()
+                                        .getName());
+                        // Copy git sync id from invalid collection
+                        simulatedActionCollection.setGitSyncId(existingInvalidActionCollection.getGitSyncId());
+                    }
+
                     List<NewAction> newActionsToSave = originCollectionIdToSimulatedJSActionsMap.get(
                             simulatedActionCollection.getOriginActionCollectionId());
                     return Flux.fromIterable(newActionsToSave)
                             .map(newAction -> {
-                                newAction.setRootModuleInstanceId(existingModuleInstance.getRootModuleInstanceId());
+                                newAction.setRootModuleInstanceId(existingModuleInstance.getId());
                                 newAction.setModuleInstanceId(existingModuleInstance.getId());
                                 DefaultResources defaultResources = newAction.getDefaultResources();
                                 defaultResources.setModuleInstanceId(existingModuleInstance.getId());
                                 newAction.setDefaultResources(defaultResources);
-                                newAction.getUnpublishedAction().setDefaultResources(defaultResources);
+                                ActionDTO actionDTO = newAction.getUnpublishedAction();
+                                actionDTO.getDefaultResources().setModuleInstanceId(existingModuleInstance.getId());
+
+                                if (Boolean.TRUE.equals(newAction.getIsPublic())) {
+                                    NewAction existingInvalidNewAction =
+                                            invalidJSActionFQNToNewActionMap.get(actionDTO.getFullyQualifiedName());
+                                    ActionDTO invalidActionDTO = existingInvalidNewAction.getUnpublishedAction();
+
+                                    newAction.setGitSyncId(existingInvalidNewAction.getGitSyncId());
+
+                                    // Retain specific properties from the old public action
+                                    actionDTO.setExecuteOnLoad(invalidActionDTO.getExecuteOnLoad());
+                                    actionDTO.setUserSetOnLoad(invalidActionDTO.getUserSetOnLoad());
+                                    actionDTO.setConfirmBeforeExecute(invalidActionDTO.getConfirmBeforeExecute());
+                                }
                                 return newAction;
                             })
                             .collectList()

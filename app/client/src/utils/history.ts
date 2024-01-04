@@ -16,6 +16,9 @@ export enum NavigationMethod {
   ContextSwitching = "ContextSwitching",
   AppSidebar = "AppSidebar",
   PackageSidebar = "PackageSidebar",
+  SegmentControl = "SegmentControl",
+  EditorTabs = "EditorTabs",
+  WorkflowSidebar = "WorkflowSidebar",
 }
 
 export interface AppsmithLocationState {

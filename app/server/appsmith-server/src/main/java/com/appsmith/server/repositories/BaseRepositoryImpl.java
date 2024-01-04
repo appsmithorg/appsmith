@@ -89,22 +89,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     @Override
     public Mono<T> findById(ID id) {
         Assert.notNull(id, "The given id must not be null!");
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-                    return mongoOperations
-                            .query(entityInformation.getJavaType())
-                            .inCollection(entityInformation.getCollectionName())
-                            .matching(query)
-                            .one();
-                });
-    }
-
-    @Override
-    public Mono<T> retrieveById(ID id) {
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
 
@@ -159,13 +143,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
                     return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
                 });
-    }
-
-    @Override
-    public Flux<T> findAll(Example example) {
-
-        Assert.notNull(example, "Example must not be null!");
-        return findAll(example, Sort.unsorted());
     }
 
     @Override

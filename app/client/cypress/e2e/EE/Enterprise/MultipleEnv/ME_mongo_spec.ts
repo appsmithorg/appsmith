@@ -25,8 +25,8 @@ let meDatasourceName: string,
   stagingEnv: string,
   meStagingOnlyQueryName: string;
 describe(
-  "excludeForAirgap",
   "Multiple environment datasource creation and test flow",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });
@@ -169,24 +169,19 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       agHelper.Sleep();
-      deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
-        true,
-        true,
-        true,
-      );
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       featureFlagIntercept({ release_datasource_environments_enabled: true });
       // Check for env switcher
       agHelper.AssertElementExist(multipleEnv.env_switcher);
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.SelectTableRow(1);
-      table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+      table.SelectTableRow(1, 0, true, "v2");
+      table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).to.not.be.empty;
       });
-      table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(1, 2, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("45");
       });
-      table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Track Jacket");
       });
 
@@ -204,14 +199,14 @@ describe(
       multipleEnv.SwitchEnv(stagingEnv); //Assert data is changed for Staging env
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.SelectTableRow(1);
-      table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+      table.SelectTableRow(1, 0, true, "v2");
+      table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).to.be.empty;
       });
-      table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(1, 2, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("45");
       });
-      table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Women's T-shirt");
       });
 

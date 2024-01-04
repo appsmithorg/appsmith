@@ -1,3 +1,4 @@
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import type {
   ModuleInstance,
   ModuleInstanceCreatorType,
@@ -63,6 +64,13 @@ export interface RunQueryModuleInstancePayload {
 export interface SetModuleInstanceActiveJSActionPayload {
   jsCollectionId: string;
   jsActionId: string;
+}
+
+export interface ConvertEntityToInstanceActionPayload {
+  publicEntityId: string;
+  packageId?: string;
+  moduleType: MODULE_TYPE;
+  initiatedFromPathname: string;
 }
 
 export const createQueryModuleInstance = (
@@ -134,6 +142,15 @@ export const setModuleInstanceActiveJSAction = (
 ) => {
   return {
     type: ReduxActionTypes.SET_MODULE_INSTANCE_ACTIVE_JS_ACTION,
+    payload,
+  };
+};
+
+export const convertEntityToInstance = (
+  payload: ConvertEntityToInstanceActionPayload,
+) => {
+  return {
+    type: ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_INIT,
     payload,
   };
 };

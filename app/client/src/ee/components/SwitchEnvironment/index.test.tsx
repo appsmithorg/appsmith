@@ -64,7 +64,7 @@ const store = mockStore({
     currentEnvironmentDetails: {
       id: "64ba2f58abba6049fb4626de",
       name: "production",
-      appId: "64ba2f58abba6049fb4626da",
+      editorId: "64ba2f58abba6049fb4626da",
       workspaceId: "64ba2f58abba6049fb4626da",
       editingId: "64ba2f58abba6049fb4626de",
     },
@@ -128,7 +128,7 @@ const onlyStagingStore = mockStore({
     currentEnvironmentDetails: {
       id: "64ba2f58abba6049fb4626df",
       name: "staging",
-      appId: "64ba2f58abba6049fb4626da",
+      editorId: "64ba2f58abba6049fb4626da",
       workspaceId: "64ba2f58abba6049fb4626da",
       editingId: "64ba2f58abba6049fb4626df",
     },
@@ -192,7 +192,7 @@ const noEnvAccess = mockStore({
     currentEnvironmentDetails: {
       id: "",
       name: "",
-      appId: "64ba2f58abba6049fb4626da",
+      editorId: "64ba2f58abba6049fb4626da",
       workspaceId: "64ba2f58abba6049fb4626da",
       editingId: "",
     },
@@ -216,7 +216,10 @@ describe("Switch Environment Component", () => {
     const { container, getByText, rerender } = render(
       <Provider store={store}>
         <Router>
-          <SwitchEnvironment viewMode={false} />
+          <SwitchEnvironment
+            editorId="64ba2f58abba6049fb4626da"
+            viewMode={false}
+          />
         </Router>
       </Provider>,
     );
@@ -234,7 +237,10 @@ describe("Switch Environment Component", () => {
     rerender(
       <Provider store={onlyStagingStore}>
         <Router>
-          <SwitchEnvironment viewMode={false} />
+          <SwitchEnvironment
+            editorId="64ba2f58abba6049fb4626da"
+            viewMode={false}
+          />
         </Router>
       </Provider>,
     );
@@ -248,7 +254,10 @@ describe("Switch Environment Component", () => {
     const { container } = render(
       <Provider store={noEnvAccess}>
         <Router>
-          <SwitchEnvironment viewMode={false} />
+          <SwitchEnvironment
+            editorId="64ba2f58abba6049fb4626da"
+            viewMode={false}
+          />
         </Router>
       </Provider>,
     );

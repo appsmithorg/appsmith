@@ -13,7 +13,6 @@ import {
   HeaderSection,
   HeaderWrapper,
 } from "pages/Editor/commons/EditorHeaderComponents";
-import { LockEntityExplorer } from "pages/Editor/commons/LockEntityExplorer";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import EditorName from "pages/Editor/EditorName";
 import { GetNavigationMenuData } from "./WorkflowEditorName/NavigationMenuData";
@@ -62,7 +61,7 @@ export function WorkflowEditorHeader() {
         data-testid="t--appsmith-workflow-editor-header"
       >
         <HeaderSection className="space-x-2">
-          <LockEntityExplorer />
+          <div />
 
           <AppsmithLink />
 
