@@ -5,6 +5,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.events.AutoCommitEvent;
@@ -159,8 +160,15 @@ public class GitAutoCommitHelperImplTest {
     public void autoCommitApplication_WhenAllConditionsMatched_AutoCommitTriggered() {
         Application application = new Application();
         application.setWorkspaceId("sample-workspace-id");
-        application.setGitApplicationMetadata(new GitApplicationMetadata());
-        application.getGitApplicationMetadata().setRepoName("test-repo-name");
+        GitApplicationMetadata metaData = new GitApplicationMetadata();
+        metaData.setRepoName("test-repo-name");
+
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPrivateKey("private-key");
+        gitAuth.setPublicKey("public-key");
+        metaData.setGitAuth(gitAuth);
+
+        application.setGitApplicationMetadata(metaData);
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
@@ -184,6 +192,8 @@ public class GitAutoCommitHelperImplTest {
         autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
         autoCommitEvent.setWorkspaceId(application.getWorkspaceId());
         autoCommitEvent.setRepoName(application.getGitApplicationMetadata().getRepoName());
+        autoCommitEvent.setPrivateKey(gitAuth.getPrivateKey());
+        autoCommitEvent.setPublicKey(gitAuth.getPublicKey());
 
         StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {
