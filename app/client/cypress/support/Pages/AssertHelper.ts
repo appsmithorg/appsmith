@@ -97,7 +97,7 @@ export class AssertHelper {
     }
   }
 
-  public processNetworkStatus(
+  private processNetworkStatus(
     response: any,
     expectedStatus: number | number[],
   ) {
