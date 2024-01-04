@@ -30,19 +30,20 @@ function GitSettings() {
   const isConnectToGitPermitted = useHasConnectToGitPermission();
   const isManageAutoCommitPermitted = useHasManageAutoCommitPermission();
 
-  // console.log({ isManageDefaultBranchPermitted });
+  const showDivider =
+    isManageDefaultBranchPermitted || isManageProtectedBranchesPermitted;
+  const showDangerZone = isConnectToGitPermitted || isManageAutoCommitPermitted;
+  const showDefaultBranch = isManageDefaultBranchPermitted;
+  const showProtectedBranches = isManageProtectedBranchesPermitted;
 
   return (
     <ModalBody>
       <Container>
         <GitUserSettings />
-        {(isManageDefaultBranchPermitted ||
-          isManageProtectedBranchesPermitted) && <StyledDivider />}
-        {isManageDefaultBranchPermitted && <GitDefaultBranch />}
-        {isManageProtectedBranchesPermitted && <GitProtectedBranches />}
-        {(isConnectToGitPermitted || isManageAutoCommitPermitted) && (
-          <DangerZone />
-        )}
+        {showDivider && <StyledDivider />}
+        {showDefaultBranch && <GitDefaultBranch />}
+        {showProtectedBranches && <GitProtectedBranches />}
+        {showDangerZone && <DangerZone />}
       </Container>
     </ModalBody>
   );

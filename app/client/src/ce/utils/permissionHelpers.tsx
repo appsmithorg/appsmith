@@ -116,7 +116,7 @@ export const hasManageWorkspaceEnvironmentPermission = (
 ) => false;
 
 export const hasConnectToGitPermission = (permissions: string[] = []) => {
-  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_WORKSPACE);
+  return isPermitted(permissions, PERMISSION_TYPE.CONNECT_TO_GIT);
 };
 
 export const hasManageProtectedBranchesPermission = (
