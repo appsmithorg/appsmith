@@ -16,7 +16,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width="260px"
+      width="255px"
     >
       <Pages />
       {/* divider is inside the Pages component */}
