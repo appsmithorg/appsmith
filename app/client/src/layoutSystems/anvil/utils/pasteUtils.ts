@@ -245,7 +245,7 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
         let groupIndex = 0;
         for (const each of group) {
           const { alignment, widgetId } = each;
-          if (groupIndex > 1 && !layoutId) {
+          if (groupIndex > 0 && !layoutId) {
             layoutId =
               allWidgets[newParentId].layout[0].layout[
                 parentLayoutLength + index
@@ -264,7 +264,8 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
                 : [parentLayout.layoutId],
               // If groupIndex = 0 => insert a new entry at the end of the parent layout.
               // Else => add to the last entry in the parent layout.
-              rowIndex: groupIndex ? groupIndex : parentLayoutLength + index,
+              rowIndex:
+                groupIndex > 0 ? groupIndex : parentLayoutLength + index,
             },
             isMainCanvas,
             isSection,
@@ -412,12 +413,12 @@ function extractContainingLayouts(
       const childIndex: number = childWidgets.indexOf(each);
       if (childIndex !== -1) {
         arr.push(layout.layout[childIndex] as WidgetLayoutProps);
-      }
-      if (arr.length) {
-        res.push(arr);
         indices.push(index);
       }
     });
+    if (arr.length) {
+      res.push(arr);
+    }
   } else {
     (layout.layout as LayoutProps[]).forEach((each: LayoutProps) => {
       extractContainingLayouts(
@@ -464,7 +465,7 @@ function addWidgetInPosition(
   newWidgetId: string,
   layout: LayoutProps,
 ): LayoutProps {
-  let updatedLayout: LayoutProps = { ...layout };
+  const updatedLayout: LayoutProps = { ...layout };
   const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
     updatedLayout.layoutType,
   );

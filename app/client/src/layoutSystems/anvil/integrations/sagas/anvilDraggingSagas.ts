@@ -294,7 +294,6 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
     const isSection = draggedOn === "SECTION";
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    console.log("####", { payload: actionPayload.payload });
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       handleWidgetMovement,
       allWidgets,
