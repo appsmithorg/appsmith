@@ -12,7 +12,7 @@ import {
 } from "@appsmith/selectors/moduleInstanceSelectors";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import SettingsForm from "./SettingsForm";
-import type { Action } from "entities/Action";
+import type { Action, PluginType } from "entities/Action";
 import {
   runQueryModuleInstance,
   updateModuleInstanceOnPageLoadSettings,
@@ -21,6 +21,7 @@ import {
 import Loader from "../../ModuleEditor/Loader";
 import ResponseView from "./ResponseView";
 import { hasExecuteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
+import useModuleFallbackSettingsForm from "../../ModuleEditor/useModuleFallbackSettingsForm";
 
 export interface QueryModuleInstanceEditorProps {
   moduleInstanceId: string;
@@ -52,6 +53,11 @@ function QueryModuleInstanceEditor({
   const publicAction = useSelector((state) =>
     getModuleInstancePublicAction(state, moduleInstanceId),
   );
+  const fallbackSettings = useModuleFallbackSettingsForm({
+    pluginId: publicAction?.pluginId || "",
+    pluginType: (publicAction?.pluginType as PluginType) || "",
+    interfaceType: "CREATOR",
+  });
 
   const isExecutePermitted = hasExecuteModuleInstancePermission(
     moduleInstance?.userPermissions,
@@ -88,6 +94,9 @@ function QueryModuleInstanceEditor({
     return <Loader />;
   }
 
+  const moduleSettings =
+    module.settingsForm?.length === 0 ? fallbackSettings : module?.settingsForm;
+
   return (
     <Container>
       <Header moduleInstance={moduleInstance}>
@@ -116,7 +125,7 @@ function QueryModuleInstanceEditor({
           <SettingsForm
             initialValues={publicAction}
             onFormValuesChange={onSettingsFormChange}
-            settings={module.settingsForm}
+            settings={moduleSettings}
           />
         </StyledSettingsWrapper>
       </Body>
