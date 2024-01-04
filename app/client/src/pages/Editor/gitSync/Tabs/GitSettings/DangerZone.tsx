@@ -28,6 +28,10 @@ import {
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import {
+  useHasConnectToGitPermission,
+  useHasManageAutoCommitPermission,
+} from "../../hooks/gitPermissionHooks";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -65,6 +69,8 @@ const StyledDivider = styled(Divider)`
 `;
 
 function GitDisconnect() {
+  const isConnectToGitPermitted = useHasConnectToGitPermission();
+  const isManageAutoCommitPermitted = useHasManageAutoCommitPermission();
   const isAutocommitFeatureEnabled = useFeatureFlag(
     FEATURE_FLAG.release_git_autocommit_feature_enabled,
   );
@@ -108,7 +114,7 @@ function GitDisconnect() {
         </SectionTitle>
       </HeadContainer>
       <ZoneContainer>
-        {isAutocommitFeatureEnabled ? (
+        {isAutocommitFeatureEnabled && isManageAutoCommitPermitted ? (
           <>
             <BodyContainer>
               <BodyInnerContainer>
@@ -132,22 +138,24 @@ function GitDisconnect() {
             <StyledDivider />
           </>
         ) : null}
-        <BodyContainer>
-          <BodyInnerContainer>
-            <Text kind="heading-xs" renderAs="p">
+        {isConnectToGitPermitted ? (
+          <BodyContainer>
+            <BodyInnerContainer>
+              <Text kind="heading-xs" renderAs="p">
+                {createMessage(DISCONNECT_GIT)}
+              </Text>
+              <Text renderAs="p">{createMessage(DISCONNECT_GIT_MESSAGE)}</Text>
+            </BodyInnerContainer>
+            <Button
+              data-testid="t--git-disconnect-btn"
+              kind="error"
+              onClick={handleDisconnect}
+              size="md"
+            >
               {createMessage(DISCONNECT_GIT)}
-            </Text>
-            <Text renderAs="p">{createMessage(DISCONNECT_GIT_MESSAGE)}</Text>
-          </BodyInnerContainer>
-          <Button
-            data-testid="t--git-disconnect-btn"
-            kind="error"
-            onClick={handleDisconnect}
-            size="md"
-          >
-            {createMessage(DISCONNECT_GIT)}
-          </Button>
-        </BodyContainer>
+            </Button>
+          </BodyContainer>
+        ) : null}
       </ZoneContainer>
     </Container>
   );
