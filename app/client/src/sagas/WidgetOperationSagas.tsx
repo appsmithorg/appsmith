@@ -187,6 +187,7 @@ import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constan
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import { pasteSagas } from "layoutSystems/anvil/utils/pasteUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1477,6 +1478,12 @@ function* pasteWidgetSaga(
 
   let copiedWidgetGroups = copiedWidgets ? [...copiedWidgets] : [];
   const shouldGroup: boolean = action.payload.groupWidgets;
+
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+    yield call(pasteSagas, copiedWidgetGroups);
+    return;
+  }
 
   const newlyCreatedWidgetIds: string[] = [];
   const evalTree: DataTree = yield select(getDataTree);

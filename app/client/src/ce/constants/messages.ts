@@ -2427,3 +2427,5 @@ export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
   title: () => "Add page(s) from a template",
   buildingBlocksTitle: () => "Building Blocks",
 };
+
+export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;

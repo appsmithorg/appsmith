@@ -17,7 +17,6 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { defaultHighlightRenderInfo } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { addWidgetsToChildTemplate } from "./layouts/update/additionUtils";
 import { updateAndSaveAnvilLayout } from "./anvilChecksUtils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -25,6 +24,11 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import history from "utils/history";
+import { PASTE_FAILED, createMessage } from "@appsmith/constants/messages";
+import { toast } from "design-system";
+import { areWidgetsWhitelisted } from "./layouts/whitelistUtils";
+import { anvilWidgets } from "widgets/anvil/constants";
+import { handleWidgetMovement } from "../integrations/sagas/anvilDraggingSagas";
 
 interface CopiedWidgetData {
   widgetId: string;
@@ -46,7 +50,11 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
    * Get new parentId to paste widgets into.
    */
 
-  const newParentId: string | null = getNewParentId(allWidgets, selectedWidget);
+  const newParentId: string | null = getNewParentId(
+    allWidgets,
+    selectedWidget,
+    originalWidgets,
+  );
 
   if (!newParentId) throw new Error("Invalid pasting parent");
 
@@ -59,11 +67,18 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
   }: { migrants: CopiedWidgetData[]; residents: CopiedWidgetData[] } =
     splitWidgets(originalWidgets, newParentId);
 
+  console.log("####", {
+    originalWidgets,
+    selectedWidget,
+    newParentId,
+    migrants,
+    residents,
+  });
   /**
    * Track mapping between original and new widgetIds.
    */
-  const widgetIdMap: { [key: string]: string } = {};
-  const reverseWidgetIdMap: { [key: string]: string } = {};
+  let widgetIdMap: { [key: string]: string } = {};
+  let reverseWidgetIdMap: { [key: string]: string } = {};
 
   /**
    * For each resident, add them next to the original copied widget.
@@ -83,7 +98,11 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
           /**
            * Create new widgets and add to new parent and all widgets.
            */
-          yield call(
+          const res: {
+            map: { [key: string]: string };
+            reverseMap: { [key: string]: string };
+            widgets: CanvasWidgetsReduxState;
+          } = yield call(
             addPastedWidgets,
             resident,
             allWidgets,
@@ -91,19 +110,25 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
             reverseWidgetIdMap,
             newParentId,
           );
+          allWidgets = res.widgets;
+          widgetIdMap = res.map;
+          reverseWidgetIdMap = res.reverseMap;
 
           // Update layout of new parent.
           allWidgets = {
             ...allWidgets,
             [newParentId]: {
               ...allWidgets[newParentId],
-              layout: addWidgetInPosition(
-                widgetId,
-                widgetIdMap[widgetId],
-                allWidgets[newParentId].layout[0],
-              ),
+              layout: [
+                addWidgetInPosition(
+                  widgetId,
+                  widgetIdMap[widgetId],
+                  allWidgets[newParentId].layout[0],
+                ),
+              ],
             },
           };
+          console.log("####", { widgetIdMap, reverseWidgetIdMap, allWidgets });
         }),
       ),
     );
@@ -128,38 +153,20 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
      *    => add all widgets to the end of the new parent.
      */
 
-    /**
-     * Get a mapping of original widgets to their parent layout.
-     */
-    const widgetLayoutMap: { [key: string]: LayoutProps } =
-      getContainingLayoutMapping(allWidgets, migrants);
-
-    // const layoutWidgetGrouping: { [key: string]: string[] } = Object.keys(
-    //   widgetLayoutMap,
-    // ).reduce((acc: { [key: string]: string[] }, curr: string) => {
-    //   const layoutId: string = widgetLayoutMap[curr].layoutId;
-    //   if (acc[layoutId]) {
-    //     acc[layoutId].push(curr);
-    //   } else {
-    //     acc[layoutId] = [curr];
-    //   }
-    //   return acc;
-    // }, {});
-
-    const insertedLayouts: { [key: string]: string } = {};
-
     const parentWidget = allWidgets[newParentId];
-    let parentLayout: LayoutProps = parentWidget.layout[0];
 
     yield all(
       migrants.map((migrant: CopiedWidgetData) =>
         call(function* () {
-          const { widgetId } = migrant;
           /**
            * 1. Create new widgets.
            * 2. Add to newWidgets to new parent and update all widgets.
            */
-          yield call(
+          const res: {
+            map: { [key: string]: string };
+            reverseMap: { [key: string]: string };
+            widgets: CanvasWidgetsReduxState;
+          } = yield call(
             addPastedWidgets,
             migrant,
             allWidgets,
@@ -167,130 +174,113 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
             reverseWidgetIdMap,
             newParentId,
           );
-
-          /**
-           * Get childTemplate of new parent.
-           */
-          const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
-            parentLayout.layoutType,
-          );
-
-          const insertItem: WidgetLayoutProps = {
-            widgetId: widgetIdMap[widgetId],
-            widgetType: allWidgets[widgetIdMap[widgetId]].type,
-            alignment:
-              Comp.rendersWidgets && parentLayout.layout.length
-                ? (
-                    parentLayout.layout[
-                      parentLayout.layout.length - 1
-                    ] as WidgetLayoutProps
-                  ).alignment
-                : FlexLayerAlignment.Start,
-          };
-
-          const childTemplate: LayoutProps | null = Comp.getChildTemplate(
-            parentLayout,
-            [insertItem],
-          );
-
-          if (!childTemplate || !widgetLayoutMap[widgetId]) {
-            /**
-             * New parent doesn't use child templates.
-             * => Insert widget at the end of the parent.
-             */
-            parentLayout = Comp.addChild(parentLayout, [insertItem], {
-              ...defaultHighlightRenderInfo,
-              canvasId: newParentId,
-              layoutOrder: [parentLayout.layoutId],
-              rowIndex: parentLayout.layout.length,
-              alignment: insertItem.alignment,
-            });
-          } else if (
-            childTemplate.layoutType === widgetLayoutMap[widgetId].layoutType
-          ) {
-            /**
-             * New parent uses childTemplate and layoutType matches.
-             */
-            const oldLayoutId: string = widgetLayoutMap[widgetId].layoutId;
-
-            // Check if a matching new layout has already been created.
-            if (insertedLayouts[oldLayoutId]) {
-              parentLayout = {
-                ...parentLayout,
-                layout: (parentLayout.layout as LayoutProps[]).map(
-                  (each: LayoutProps) => {
-                    if (each.layoutId === insertedLayouts[oldLayoutId]) {
-                      const layoutComp: typeof BaseLayoutComponent =
-                        LayoutFactory.get(each.layoutType);
-                      return layoutComp.addChild(each, [insertItem], {
-                        ...defaultHighlightRenderInfo,
-                        canvasId: newParentId,
-                        layoutOrder: [each.layoutId],
-                        rowIndex: each.layout.length,
-                        alignment: insertItem.alignment,
-                      });
-                    }
-                    return each;
-                  },
-                ),
-              };
-            } else {
-              /**
-               * Create new layout using ChildTemplate.
-               * and add to parent.
-               */
-              parentLayout = addWidgetsToChildTemplate(
-                parentLayout,
-                Comp,
-                [insertItem],
-                {
-                  ...defaultHighlightRenderInfo,
-                  canvasId: newParentId,
-                  layoutOrder: [parentLayout.layoutId],
-                  rowIndex: parentLayout.layout.length,
-                  alignment: insertItem.alignment,
-                },
-              );
-              insertedLayouts[oldLayoutId] = (
-                parentLayout.layout[
-                  parentLayout.layout.length - 1
-                ] as LayoutProps
-              ).layoutId;
-            }
-          } else {
-            /**
-             * Create new layout using ChildTemplate.
-             * and add to parent.
-             */
-            parentLayout = addWidgetsToChildTemplate(
-              parentLayout,
-              Comp,
-              [insertItem],
-              {
-                ...defaultHighlightRenderInfo,
-                canvasId: newParentId,
-                layoutOrder: [parentLayout.layoutId],
-                rowIndex: parentLayout.layout.length,
-                alignment: insertItem.alignment,
-              },
-            );
-          }
+          allWidgets = res.widgets;
+          widgetIdMap = res.map;
+          reverseWidgetIdMap = res.reverseMap;
         }),
       ),
     );
 
-    allWidgets = {
-      ...allWidgets,
-      [newParentId]: {
-        ...allWidgets[newParentId],
-        layout: parentLayout,
-      },
-    };
+    /**
+     * Pasted widgets are added to new parent.
+     * Now, add them to the layout of the new parent.
+     */
+
+    const isMainCanvas = parentWidget.widgetId === MAIN_CONTAINER_WIDGET_ID;
+    const isSection = parentWidget.type === anvilWidgets.SECTION_WIDGET;
+
+    /**
+     * Get childTemplate of new parent.
+     */
+    const parentLayout: LayoutProps | null = getParentLayout(parentWidget);
+    if (!parentLayout) return;
+    const parentLayoutLength: number = parentLayout.layout.length;
+    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+      parentLayout.layoutType,
+    );
+
+    const childTemplate: LayoutProps | null =
+      Comp.getChildTemplate(parentLayout);
+
+    if (!childTemplate) {
+      /**
+       * New parent doesn't use child templates.
+       * => Insert all widgets at the end of the parent.
+       */
+      const movedWidgetIds: string[] = migrants.map(
+        (each: CopiedWidgetData) => widgetIdMap[each.widgetId],
+      );
+      allWidgets = yield call(
+        handleWidgetMovement,
+        allWidgets,
+        movedWidgetIds,
+        {
+          ...defaultHighlightRenderInfo,
+          alignment: FlexLayerAlignment.Start,
+          canvasId: newParentId,
+          layoutOrder: [parentLayout.layoutId],
+          rowIndex: parentLayoutLength,
+        },
+        isMainCanvas,
+        isSection,
+      );
+    } else {
+      /**
+       * New parent uses a template.
+       * => Use the template and the grouping status of copied widgets
+       * to insert new entires in the new parent.
+       */
+
+      /**
+       * Group copied widgets based on grouping status in original layouts.
+       */
+      const widgetGrouping: WidgetLayoutProps[][] = getContainingLayoutMapping(
+        allWidgets,
+        migrants,
+      );
+
+      let index = 0;
+      let layoutId = "";
+      for (const group of widgetGrouping) {
+        let groupIndex = 0;
+        for (const each of group) {
+          const { alignment, widgetId } = each;
+          if (groupIndex > 1 && !layoutId) {
+            layoutId =
+              allWidgets[newParentId].layout[0].layout[
+                parentLayoutLength + index
+              ].layoutId;
+          }
+          allWidgets = yield call(
+            handleWidgetMovement,
+            allWidgets,
+            [widgetIdMap[widgetId]],
+            {
+              ...defaultHighlightRenderInfo,
+              alignment,
+              canvasId: newParentId,
+              layoutOrder: layoutId
+                ? [parentLayout.layoutId, layoutId]
+                : [parentLayout.layoutId],
+              // If groupIndex = 0 => insert a new entry at the end of the parent layout.
+              // Else => add to the last entry in the parent layout.
+              rowIndex: groupIndex ? groupIndex : parentLayoutLength + index,
+            },
+            isMainCanvas,
+            isSection,
+          );
+          groupIndex += 1;
+        }
+        index += 1;
+        layoutId = "";
+      }
+    }
   }
 
   /**
    * Save state
    */
+  console.log("####", { parent: allWidgets[newParentId] });
   yield call(updateAndSaveAnvilLayout, allWidgets);
 
   const pageId: string = yield select(getCurrentPageId);
@@ -315,6 +305,7 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
 export function getNewParentId(
   allWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps,
+  copiedWidgets: CopiedWidgetData[],
 ): string | null {
   /**
    * Return selectedWidget if it is the MainCanvas.
@@ -326,12 +317,13 @@ export function getNewParentId(
    * Return selectedWidget if it has a layout property.
    * => it is a container widget (Section / Zone / Modal).
    */
-  if (!!selectedWidget.layout) return selectedWidget.widgetId;
-  else {
+  if (!!selectedWidget.layout) {
+    if (!prePasteValidations(selectedWidget, copiedWidgets)) return null;
+    return selectedWidget.widgetId;
+  } else {
     /**
      * Selected widget is a non-layout widget.
-     */
-    /**
+     *
      * If the widget doesn't have a valid parent, return null.
      */
     if (!selectedWidget.parentId || !allWidgets[selectedWidget.parentId])
@@ -342,6 +334,7 @@ export function getNewParentId(
     const parentId: string | null = getNewParentId(
       allWidgets,
       allWidgets[selectedWidget.parentId],
+      copiedWidgets,
     );
     return parentId;
   }
@@ -372,12 +365,12 @@ function splitWidgets(
 function getContainingLayoutMapping(
   allWidgets: CanvasWidgetsReduxState,
   copiedWidgets: CopiedWidgetData[],
-): { [key: string]: LayoutProps } {
-  let widgetLayoutMap: { [key: string]: LayoutProps } = {};
+): WidgetLayoutProps[][] {
+  let widgetGrouping: WidgetLayoutProps[][] = [];
   const parentMap: { [key: string]: string[] } = {};
 
   /**
-   * Extract all affected parents.
+   * Group widgets by similar parents.
    */
   copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
     if (parentMap[copiedWidget.parentId]) {
@@ -391,22 +384,23 @@ function getContainingLayoutMapping(
     const parent: FlattenedWidgetProps = allWidgets[key];
     if (!parent || !parent.layout) return;
 
-    const containingLayouts: { [key: string]: LayoutProps } =
-      extractContainingLayouts(parent.layout[0], parentMap[key]);
-    widgetLayoutMap = {
-      ...widgetLayoutMap,
-      ...containingLayouts,
-    };
+    const containingLayouts: WidgetLayoutProps[][] = extractContainingLayouts(
+      parent.layout[0],
+      parentMap[key],
+    );
+    widgetGrouping = [...widgetGrouping, ...containingLayouts];
   });
-  return widgetLayoutMap;
+  return widgetGrouping;
 }
 
 function extractContainingLayouts(
   layout: LayoutProps,
   widgetIds: string[],
-  res: { [key: string]: LayoutProps } = {},
-): { [key: string]: LayoutProps } {
+  res: WidgetLayoutProps[][] = [],
+): WidgetLayoutProps[][] {
   if (!widgetIds?.length) return res;
+  const arr: WidgetLayoutProps[] = [];
+  const indices: number[] = [];
   const widgets: string[] = [...widgetIds];
   const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layout.layoutType);
 
@@ -414,14 +408,25 @@ function extractContainingLayouts(
     const childWidgets: string[] = (layout.layout as WidgetLayoutProps[]).map(
       (each: WidgetLayoutProps) => each.widgetId,
     );
-    widgets.forEach((each: string) => {
-      if (childWidgets.indexOf(each) !== -1) {
-        res[each] = layout;
+    widgets.forEach((each: string, index: number) => {
+      const childIndex: number = childWidgets.indexOf(each);
+      if (childIndex !== -1) {
+        arr.push(layout.layout[childIndex] as WidgetLayoutProps);
+      }
+      if (arr.length) {
+        res.push(arr);
+        indices.push(index);
       }
     });
   } else {
     (layout.layout as LayoutProps[]).forEach((each: LayoutProps) => {
-      extractContainingLayouts(each, widgetIds, res);
+      extractContainingLayouts(
+        each,
+        widgets.filter(
+          (each: string, index: number) => !indices.includes(index),
+        ),
+        res,
+      );
     });
   }
   return res;
@@ -459,17 +464,20 @@ function addWidgetInPosition(
   newWidgetId: string,
   layout: LayoutProps,
 ): LayoutProps {
-  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layout.layoutType);
+  let updatedLayout: LayoutProps = { ...layout };
+  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+    updatedLayout.layoutType,
+  );
 
   if (Comp.rendersWidgets) {
-    const widgetLayouts = layout.layout as WidgetLayoutProps[];
+    const widgetLayouts = updatedLayout.layout as WidgetLayoutProps[];
     /**
      * Find location of original widget.
      */
     const index = widgetLayouts.findIndex(
       (item: WidgetLayoutProps) => item.widgetId === oldWidgetId,
     );
-    if (index === undefined) return layout;
+    if (index === -1) return updatedLayout;
     const insertItem: WidgetLayoutProps = {
       ...widgetLayouts[index],
       widgetId: newWidgetId,
@@ -477,21 +485,21 @@ function addWidgetInPosition(
     /**
      * Add new widget after the original widget (index + 1)
      */
-    return Comp.addChild(layout, [insertItem], {
+    return Comp.addChild(updatedLayout, [insertItem], {
       ...defaultHighlightRenderInfo,
       canvasId: "",
-      layoutOrder: [layout.layoutId],
+      layoutOrder: [updatedLayout.layoutId],
       rowIndex: index + 1,
       alignment: insertItem.alignment,
     });
   } else {
-    const layoutProps = layout.layout as LayoutProps[];
-    layout.layout = layoutProps.map((item: LayoutProps) => {
+    const layoutProps = updatedLayout.layout as LayoutProps[];
+    updatedLayout.layout = layoutProps.map((item: LayoutProps) => {
       return addWidgetInPosition(oldWidgetId, newWidgetId, item);
     });
   }
 
-  return layout;
+  return updatedLayout;
 }
 
 function* addPastedWidgets(
@@ -501,14 +509,17 @@ function* addPastedWidgets(
   reverseWidgetIdMap: { [key: string]: string },
   newParentId: string,
 ) {
+  let widgets: CanvasWidgetsReduxState = { ...allWidgets };
+  const map: { [key: string]: string } = { ...widgetIdMap };
+  const reverseMap: { [key: string]: string } = { ...reverseWidgetIdMap };
   const { list, widgetId } = arr;
   const newList: FlattenedWidgetProps[] = [];
 
   const evalTree: DataTree = yield select(getDataTree);
 
   AnalyticsUtil.logEvent("WIDGET_PASTE", {
-    widgetName: allWidgets[widgetId].widgetName,
-    widgetType: allWidgets[widgetId].type,
+    widgetName: widgets[widgetId].widgetName,
+    widgetType: widgets[widgetId].type,
   });
 
   /**
@@ -521,8 +532,8 @@ function* addPastedWidgets(
     newWidget.widgetId = generateReactKey();
 
     // Map old and new widgets
-    widgetIdMap[each.widgetId] = newWidget.widgetId;
-    reverseWidgetIdMap[newWidget.widgetId] = each.widgetId;
+    map[each.widgetId] = newWidget.widgetId;
+    reverseMap[newWidget.widgetId] = each.widgetId;
 
     // Add new widget to the list.
     newList.push(newWidget);
@@ -533,41 +544,97 @@ function* addPastedWidgets(
    */
   newList.forEach((widget: FlattenedWidgetProps) => {
     widget.parentId = newParentId;
-    widget.widgetName = getNextWidgetName(allWidgets, widget.type, evalTree, {
+    widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree, {
       prefix: widget.widgetName,
       startWithoutIndex: true,
     });
 
     if (widget.children?.length) {
       widget.children = widget.children.map((child: string) => {
-        return widgetIdMap[child];
+        return map[child];
       });
     }
 
     if (widget.layout) {
-      widget.layout = [
-        updateLayoutProps(cloneDeep(widget.layout[0]), widgetIdMap),
-      ];
+      widget.layout = [updateLayoutProps(cloneDeep(widget.layout[0]), map)];
     }
 
     /**
      * Add widget to all widgets.
      */
-    allWidgets = {
-      ...allWidgets,
+    widgets = {
+      ...widgets,
       [widget.widgetId]: widget,
     };
   });
 
+  console.log("####", { newList });
+
   /**
    * Add widgets after original widget and update new parent.
    */
-  const parentWidget: FlattenedWidgetProps = allWidgets[newParentId];
-  allWidgets = {
-    ...allWidgets,
+  const parentWidget: FlattenedWidgetProps = widgets[newParentId];
+  widgets = {
+    ...widgets,
     [newParentId]: {
       ...parentWidget,
-      children: [...(parentWidget?.children || []), widgetIdMap[widgetId]],
+      children: [...(parentWidget?.children || []), map[widgetId]],
     },
   };
+
+  console.log("####", { newParentId, parent: widgets[newParentId] });
+
+  return { widgets, map, reverseMap };
+}
+
+function showErrorToast(message: string): void {
+  toast.show(createMessage(PASTE_FAILED, message), {
+    kind: "error",
+  });
+}
+
+function getParentLayout(parent: FlattenedWidgetProps): LayoutProps | null {
+  if (!parent || !parent.layout) return null;
+  // TODO: @Preet - remove this hard coding.
+  return parent.layout[0];
+}
+
+function prePasteValidations(
+  parentWidget: FlattenedWidgetProps,
+  copiedWidgets: CopiedWidgetData[],
+): boolean {
+  /**
+   * Check copied widgets for presence of same layout widgets or presence of the parent widget itself.
+   */
+  let matchingParent = false,
+    matchingType = false;
+  const widgetTypes: string[] = copiedWidgets.map((data: CopiedWidgetData) => {
+    const type = data.list[0].type;
+    if (type === parentWidget.type) matchingType = true;
+    if (data.widgetId === parentWidget.widgetId) matchingParent = true;
+    return type;
+  });
+  if (matchingParent) {
+    showErrorToast(
+      `Cannot paste ${parentWidget.type} widgets into themselves.`,
+    );
+    return false;
+  }
+  if (matchingType) {
+    showErrorToast(`Cannot nest ${parentWidget.type} widgets.`);
+    return false;
+  }
+  /**
+   * Check if all copied widgets are whitelisted by the new parent layout.
+   */
+  const parentLayout = getParentLayout(parentWidget);
+  if (
+    parentLayout?.allowedWidgetTypes &&
+    !areWidgetsWhitelisted(widgetTypes, parentLayout?.allowedWidgetTypes)
+  ) {
+    showErrorToast("Some widgets are not allowed in this layout");
+    return false;
+  }
+
+  return true;
 }

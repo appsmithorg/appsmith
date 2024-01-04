@@ -106,12 +106,19 @@ export const getDraggedBlocks = (
       },
     ];
   } else {
-    return selectedWidgets.map((eachWidgetId) => ({
-      parentId: allWidgets[eachWidgetId].parentId,
-      responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
-      type: allWidgets[eachWidgetId].type,
-      widgetId: eachWidgetId,
-    }));
+    return selectedWidgets
+      .map((eachWidgetId) => {
+        if (allWidgets[eachWidgetId]) {
+          return {
+            parentId: allWidgets[eachWidgetId].parentId,
+            responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
+            type: allWidgets[eachWidgetId].type,
+            widgetId: eachWidgetId,
+          };
+        }
+        return;
+      })
+      .filter(Boolean) as DraggedWidget[];
   }
 };
 
