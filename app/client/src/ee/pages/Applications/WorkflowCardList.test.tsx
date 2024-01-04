@@ -86,6 +86,14 @@ const DEFAULT_USER_WORKSPACES: Workspace[] = [
   },
 ];
 
+const USER_WITH_NO_PERMISSIONS_WORKSPACES: Workspace[] = [
+  {
+    id: DEFAULT_WORKSPACE_ID,
+    name: "Test Workspace",
+    userPermissions: [],
+  },
+];
+
 describe("WorkflowCardList", () => {
   it("should not render anything if feature flag is disabled", async () => {
     setWorkflowsFeatureFlag(false);
@@ -147,7 +155,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
-            workspace={DEFAULT_USER_WORKSPACES[0]}
+            workspace={USER_WITH_NO_PERMISSIONS_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
