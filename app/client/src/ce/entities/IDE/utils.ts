@@ -1,4 +1,5 @@
-import { EditorState, IDEType } from "@appsmith/entities/IDE/constants";
+import type { IDEType } from "@appsmith/entities/IDE/constants";
+import { EditorState, IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { matchPath } from "react-router";
 import {
   APP_STATE_PATH,
@@ -46,16 +47,16 @@ export function getCurrentAppState(currentUrl: string): EditorState {
 
 export function getIDETypeByUrl(path: string): IDEType {
   if (isEditorPath(path)) {
-    return IDEType.App;
+    return IDE_TYPE.App;
   }
-  return IDEType.None;
+  return IDE_TYPE.None;
 }
 
 export function getBaseUrlsForIDEType(type: IDEType): string[] {
   switch (type) {
-    case IDEType.None:
+    case IDE_TYPE.None:
       return [];
-    case IDEType.App:
+    case IDE_TYPE.App:
       return [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH];
     default:
       throw Error(`Base urls for IDE type ${type} not defined`);

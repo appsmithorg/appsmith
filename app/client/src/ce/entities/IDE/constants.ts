@@ -88,12 +88,12 @@ export const BottomButtons: SidebarButton[] = [
   },
 ];
 
-export enum IDEType {
-  None = "None",
-  App = "App",
-  Package = "Package",
-  Workflow = "Workflow",
-}
+export const IDE_TYPE = {
+  None: "None",
+  App: "App",
+} as const;
+
+export type IDEType = keyof typeof IDE_TYPE;
 
 export const EntityPaths: string[] = [
   API_EDITOR_ID_ADD_PATH,

@@ -2,7 +2,8 @@ import type { match } from "react-router";
 import { matchPath } from "react-router";
 import { ADD_PATH, CURL_IMPORT_PAGE_PATH } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { IDEType } from "@appsmith/entities/IDE/constants";
+import type { IDEType } from "@appsmith/entities/IDE/constants";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { EditorState, EntityPaths } from "@appsmith/entities/IDE/constants";
 import { getBaseUrlsForIDEType } from "@appsmith/entities/IDE/utils";
 import { memoize } from "lodash";
@@ -80,7 +81,7 @@ function matchEntityFromPath(
 
 export function identifyEntityFromPath(
   path: string,
-  type = IDEType.App,
+  type: IDEType = IDE_TYPE.App,
 ): FocusEntityInfo {
   const match = matchEntityFromPath(path, type);
   if (!match) {

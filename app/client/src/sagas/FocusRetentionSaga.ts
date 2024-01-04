@@ -22,7 +22,7 @@ import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { getIDEFocusStrategy } from "@appsmith/navigation/FocusStrategy";
-import { IDEType } from "@appsmith/entities/IDE/constants";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 
 export interface FocusPath {
   key: string;
@@ -66,7 +66,7 @@ class FocusRetention {
   private focusStrategy: FocusStrategy;
 
   constructor() {
-    this.focusStrategy = getIDEFocusStrategy(IDEType.None);
+    this.focusStrategy = getIDEFocusStrategy(IDE_TYPE.None);
     this.updateFocusStrategy = this.updateFocusStrategy.bind(this);
     this.storeStateOfPath = this.storeStateOfPath.bind(this);
     this.setStateOfPath = this.setStateOfPath.bind(this);

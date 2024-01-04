@@ -1,19 +1,16 @@
-import { IDEType } from "@appsmith/entities/IDE/constants";
+import type { IDEType } from "@appsmith/entities/IDE/constants";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
 import { NoIDEFocusStrategy } from "./NoIDEFocusStrategy";
 
 export const getIDEFocusStrategy = (type: IDEType) => {
   switch (type) {
-    case IDEType.None:
+    case IDE_TYPE.None:
       return NoIDEFocusStrategy;
-    case IDEType.App:
+    case IDE_TYPE.App:
       return AppIDEFocusStrategy;
-    case IDEType.Package:
-      // TODO
-      break;
-    case IDEType.Workflow:
-      // TODO
-      break;
+    // Add EE cases below
+    default:
+      throw Error("Ide focus strategy not defined");
   }
-  throw Error("Ide focus strategy not defined");
 };
