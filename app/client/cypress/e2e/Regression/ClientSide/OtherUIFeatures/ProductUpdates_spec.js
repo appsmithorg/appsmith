@@ -14,7 +14,7 @@ describe("Check for product updates button and modal", function () {
       .then((state) => {
         const { newReleasesCount, releaseItems } = state.ui.releases;
         if (Array.isArray(releaseItems) && releaseItems.length > 0) {
-          agHelper.GetNClick(HomePage.helpButton,0)
+          agHelper.GetNClick(HomePage.helpButton, 0);
           cy.get(".t--product-updates-btn")
             .contains("What's new?")
             .click({ force: true });
