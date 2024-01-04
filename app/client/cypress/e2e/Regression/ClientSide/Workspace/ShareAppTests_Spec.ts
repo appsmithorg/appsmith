@@ -152,11 +152,16 @@ describe(
       );
       agHelper.Sleep(); //for CI
       agHelper.VisitNAssert(currentUrl);
-      assertHelper.AssertNetworkStatus("@getConsolidatedData", 404);
+      cy.get("@getConsolidatedData").then((interception: any) => {
+        assertHelper.processNetworkStatus(interception.response.body.data.v1PagesResp, 404);
+      });
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
-      assertHelper.AssertNetworkStatus("@getConsolidatedData", 404);
+      cy.get("@getConsolidatedData").then((interception: any) => {
+        assertHelper.processNetworkStatus(interception.response.body.data.v1PagesResp, 404);
+      });
+  
       agHelper.AssertContains("Sign in to your account", "be.visible");
     });
 
