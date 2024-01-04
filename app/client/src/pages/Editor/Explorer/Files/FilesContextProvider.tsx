@@ -7,6 +7,7 @@ export enum ActionEntityContextMenuItemsEnum {
   COPY = "Copy",
   MOVE = "Move",
   DELETE = "Delete",
+  CONVERT_QUERY_MODULE_INSTANCE = "Create Module",
 }
 
 export const defaultMenuItems = [
@@ -15,6 +16,7 @@ export const defaultMenuItems = [
   ActionEntityContextMenuItemsEnum.SHOW_BINDING,
   ActionEntityContextMenuItemsEnum.COPY,
   ActionEntityContextMenuItemsEnum.MOVE,
+  ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
 ];
 
 interface FilesContextContextProps {

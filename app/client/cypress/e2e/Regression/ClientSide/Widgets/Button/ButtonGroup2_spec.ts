@@ -150,7 +150,7 @@ describe(
       agHelper.GetNClick(buttongroupwidgetlocators.menu);
       agHelper.GetNClick(buttongroupwidgetlocators.menuSettingInPropPane, 0);
       propPane.TogglePropertyState("Disabled", "On");
-      propPane.TogglePropertyState("Visible", "On", "updateLayout", false);
+      propPane.TogglePropertyState("Visible", "On", "updateLayout");
       agHelper.GetNClick(propPane._goBackToProperty);
       deployMode.DeployApp();
       agHelper.ClickButton("More");
