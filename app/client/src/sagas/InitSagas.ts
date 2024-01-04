@@ -84,9 +84,10 @@ import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
-import ConsolidatedApi from "api/ConsolidatedApi";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlags } from "@appsmith/sagas/userSagas";
+import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
+import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -228,7 +229,7 @@ export function* getInitResponses({
   if (!!isConsolidatedApiFetchEnabled) {
     try {
       const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
-        yield ConsolidatedApi.getConsolidatedPageLoadData(params);
+        yield ConsolidatedPageLoadApi.getConsolidatedPageLoadData(params);
 
       const isValidResponse: boolean = yield validateResponse(
         initConsolidatedApiResponse,
@@ -236,7 +237,8 @@ export function* getInitResponses({
       response = initConsolidatedApiResponse.data;
 
       if (!isValidResponse) {
-        throw new Error("Axion connection aborted error");
+        // its only invalid when there is a axios related error
+        throw new Error("Error occured " + axiosConnectionAbortedCode);
       }
     } catch (e) {
       log.error(e);
