@@ -298,3 +298,9 @@ export const selectFilesForPackageExplorer = createSelector(
     return groupedFiles.files;
   },
 );
+
+export const getIsActionConverting = (state: AppState, actionId: string) => {
+  const action = state.entities.actions.find((a) => a.config.id === actionId);
+
+  return action?.isConverting || false;
+};

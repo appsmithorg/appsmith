@@ -22,6 +22,7 @@ import Loader from "../../ModuleEditor/Loader";
 import ResponseView from "./ResponseView";
 import { hasExecuteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
 import useModuleFallbackSettingsForm from "../../ModuleEditor/useModuleFallbackSettingsForm";
+import { getPackageById } from "@appsmith/selectors/packageSelectors";
 
 export interface QueryModuleInstanceEditorProps {
   moduleInstanceId: string;
@@ -49,6 +50,9 @@ function QueryModuleInstanceEditor({
   );
   const module = useSelector((state) =>
     getModuleById(state, moduleInstance?.sourceModuleId || ""),
+  );
+  const pkg = useSelector((state) =>
+    getPackageById(state, module?.packageId || ""),
   );
   const publicAction = useSelector((state) =>
     getModuleInstancePublicAction(state, moduleInstanceId),
@@ -99,7 +103,11 @@ function QueryModuleInstanceEditor({
 
   return (
     <Container>
-      <Header moduleInstance={moduleInstance}>
+      <Header
+        moduleId={module.originModuleId}
+        moduleInstance={moduleInstance}
+        packageId={pkg.originPackageId}
+      >
         <Button
           className="t--run-module-instance"
           data-guided-tour-id="run-module-instance"

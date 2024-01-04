@@ -17,6 +17,7 @@ import type { ModuleInstanceReducerState } from "./entityReducers/moduleInstance
 import type { ModuleInstancePaneState } from "./uiReducers/moduleInstancePaneReducer";
 import type { WorkflowsReducerState } from "./entityReducers/workflowsReducer";
 import type { ModuleInstanceEntitiesReducerState } from "./entityReducers/moduleInstanceEntitiesReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 const appReducer = combineReducers({
   ...CE_AppReducer,
@@ -39,6 +40,7 @@ export interface AppState extends CE_AppState {
     moduleInstances: ModuleInstanceReducerState;
     workflows: WorkflowsReducerState;
     moduleInstanceEntities: ModuleInstanceEntitiesReducerState;
+    actions: ActionDataState;
   };
   ui: CE_AppState["ui"] & {
     moduleInstancePane: ModuleInstancePaneState;

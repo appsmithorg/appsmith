@@ -44,6 +44,7 @@ export interface Module extends CE_Module {
   settingsForm: PluginSettings[];
   type: MODULE_TYPE;
   userPermissions: string[];
+  originModuleId?: string;
 }
 
 export enum MODULE_ENTITY_TYPE {
