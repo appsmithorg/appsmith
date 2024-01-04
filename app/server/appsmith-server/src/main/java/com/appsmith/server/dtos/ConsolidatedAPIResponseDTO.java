@@ -37,6 +37,8 @@ public class ConsolidatedAPIResponseDTO {
 
     /* v1/actions/view */
     ResponseDTO<List<ActionViewDTO>> publishedActions;
+
+    /* v1/actions */
     ResponseDTO<List<ActionDTO>> unpublishedActions;
 
     /* v1/collections/actions/view */
