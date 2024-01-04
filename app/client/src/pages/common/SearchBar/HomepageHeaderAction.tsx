@@ -172,15 +172,15 @@ const HomepageHeaderAction = ({
                   {createMessage(WHATS_NEW)}
                 </MenuItem>
                 <VersionData>
-                  <span>
+                  <div className="mb-1">
                     {createMessage(
                       APPSMITH_DISPLAY_VERSION,
                       appVersion.edition,
                       appVersion.id,
                     )}
-                  </span>
+                  </div>
                   {howMuchTimeBefore !== "" && (
-                    <span>Released {howMuchTimeBefore} ago</span>
+                    <div>Released {howMuchTimeBefore} ago</div>
                   )}
                 </VersionData>
               </>
