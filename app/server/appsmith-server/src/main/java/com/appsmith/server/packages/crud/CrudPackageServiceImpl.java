@@ -154,6 +154,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                             workspace.getPolicies(), Workspace.class, Package.class);
                     newPackage.setPolicies(policies);
                     newPackage.setModifiedBy(currentUser.getUsername());
+                    newPackage.setLastEditedAt(Instant.now());
 
                     return createSuffixedPackage(newPackage, packageToBeCreated.getName(), 0)
                             .flatMap(createdPackage -> setTransientFieldsFromPackageToPackageDTO(
@@ -299,8 +300,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     if (updateObj.getUpdateObject().isEmpty()) {
                         return setTransientFieldsFromPackageToPackageDTO(dbPackage, dbPackage.getUnpublishedPackage());
                     }
-                    updateObj.set(fieldName(QPackage.package$.updatedAt), Instant.now());
+                    Instant currentInstant = Instant.now();
+                    updateObj.set(fieldName(QPackage.package$.updatedAt), currentInstant);
                     updateObj.set(fieldName(QPackage.package$.modifiedBy), currentUser.getUsername());
+                    updateObj.set(fieldName(QPackage.package$.lastEditedAt), currentInstant);
 
                     return repository
                             .updateAndReturn(packageId, updateObj, Optional.of(packagePermission.getEditPermission()))

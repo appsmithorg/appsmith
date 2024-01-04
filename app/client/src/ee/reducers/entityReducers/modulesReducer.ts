@@ -8,6 +8,7 @@ import type {
 } from "@appsmith/api/PackageApi";
 import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
 import { klona } from "klona";
+import type { ConvertEntityToInstanceResponse } from "@appsmith/api/ModuleInstanceApi";
 
 type ID = string;
 
@@ -87,6 +88,14 @@ const modulesReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
+  },
+
+  [ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_SUCCESS]: (
+    draftState: ModulesReducerState,
+    action: ReduxAction<ConvertEntityToInstanceResponse>,
+  ) => {
+    const { module } = action.payload;
+    draftState[module.id] = module;
   },
 });
 

@@ -3,7 +3,6 @@ import type { RouteComponentProps } from "react-router";
 import Helmet from "react-helmet";
 import { ThemeProvider } from "styled-components";
 import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
-import WorkflowMainContainer from "./WorkflowMainContainer";
 import { ThemeMode, getTheme } from "selectors/themeSelectors";
 import {
   getCurrentWorkflowName,
@@ -14,6 +13,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "design-system";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { setCurrentWorkflow } from "@appsmith/actions/workflowActions";
+import WorkflowIDE from "./WorkflowIDE";
 
 const theme = getTheme(ThemeMode.LIGHT);
 
@@ -57,8 +57,9 @@ function WorkflowEditor({ match }: WorkflowEditorProps) {
           <meta charSet="utf-8" />
           <title>{`${currentWorkflowName} | Editor | Appsmith`}</title>
         </Helmet>
+
         <GlobalHotKeys>
-          <WorkflowMainContainer />
+          <WorkflowIDE />
         </GlobalHotKeys>
       </div>
     </ThemeProvider>

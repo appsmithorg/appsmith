@@ -17,6 +17,8 @@ import { getAction } from "@appsmith/selectors/entitiesSelector";
 import Loader from "./Loader";
 import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import useModuleFallbackSettingsForm from "./useModuleFallbackSettingsForm";
+import type { PluginType } from "entities/Action";
 
 interface ModuleApiEditorRouteParams {
   packageId: string;
@@ -33,6 +35,11 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
   const isPackageEditorInitialized = useSelector(getIsPackageEditorInitialized);
   const module = useSelector((state) => getModuleById(state, moduleId));
   const action = useSelector((state) => getAction(state, apiId));
+  const fallbackSettings = useModuleFallbackSettingsForm({
+    pluginId: action?.pluginId || "",
+    pluginType: (action?.pluginType as PluginType) || "",
+    interfaceType: "CREATOR",
+  });
 
   const isEditorInitialized = isPackageEditorInitialized && Boolean(action);
 
@@ -87,6 +94,9 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
     return <Loader />;
   }
 
+  const moduleSettings =
+    module?.settingsForm.length === 0 ? fallbackSettings : module?.settingsForm;
+
   return (
     <ApiEditorContextProvider
       actionRightPaneAdditionSections={actionRightPaneAdditionSections}
@@ -94,7 +104,7 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       saveActionName={onSaveName}
-      settingsConfig={module?.settingsForm}
+      settingsConfig={moduleSettings}
       showRightPaneTabbedSection={false}
     >
       <Editor {...props} isEditorInitialized={isPackageEditorInitialized} />

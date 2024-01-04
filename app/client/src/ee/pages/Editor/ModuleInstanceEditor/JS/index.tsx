@@ -46,6 +46,7 @@ import { startExecutingJSFunction } from "actions/jsPaneActions";
 import styled from "styled-components";
 import { Text } from "design-system";
 import { extractFunctionParams } from "./utils";
+import { getPackageById } from "@appsmith/selectors/packageSelectors";
 
 export interface JSModuleInstanceEditorProps {
   moduleInstanceId: string;
@@ -78,6 +79,9 @@ function JSModuleInstanceEditor({
   );
   const module = useSelector((state) =>
     getModuleById(state, moduleInstance?.sourceModuleId || ""),
+  );
+  const pkg = useSelector((state) =>
+    getPackageById(state, module?.packageId || ""),
   );
   const publicJSCollectionData = useSelector((state) =>
     getModuleInstancePublicJSCollectionData(state, moduleInstanceId),
@@ -209,7 +213,11 @@ function JSModuleInstanceEditor({
 
   return (
     <Container>
-      <Header moduleInstance={moduleInstance}>
+      <Header
+        moduleId={module.originModuleId}
+        moduleInstance={moduleInstance}
+        packageId={pkg.originPackageId}
+      >
         {/* This is disabled on a temporary basis. Once the UX is finalized; this can be enabled */}
 
         <StyledJSFunctionRunWrapper>

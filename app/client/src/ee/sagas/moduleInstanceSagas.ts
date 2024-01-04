@@ -1,5 +1,8 @@
 import { builderURL, moduleInstanceEditorURL } from "@appsmith/RouteBuilder";
-import type { RunQueryModuleInstancePayload } from "@appsmith/actions/moduleInstanceActions";
+import type {
+  ConvertEntityToInstanceActionPayload,
+  RunQueryModuleInstancePayload,
+} from "@appsmith/actions/moduleInstanceActions";
 import type {
   CreateQueryModuleInstancePayload,
   DeleteModuleInstancePayload,
@@ -10,6 +13,10 @@ import type {
   UpdateModuleInstancePayload,
   UpdateModuleInstanceSettingsPayload,
 } from "@appsmith/actions/moduleInstanceActions";
+import type {
+  ConvertEntityToInstancePayload,
+  ConvertEntityToInstanceResponse,
+} from "@appsmith/api/ModuleInstanceApi";
 import ModuleInstanceApi from "@appsmith/api/ModuleInstanceApi";
 import ModuleInstancesApi, {
   type CreateModuleInstanceResponse,
@@ -29,7 +36,7 @@ import {
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 import { runActionSaga } from "sagas/ActionExecution/PluginActionSaga";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
@@ -50,6 +57,9 @@ import type { JSCollection } from "entities/JSCollection";
 import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import { updateActionData } from "actions/pluginActionActions";
+import { fetchAllPackagesSaga } from "./packagesSagas";
+import { getPackagesList } from "@appsmith/selectors/packageSelectors";
+import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
 
 export interface RefactorModuleInstanceNameProps {
   id: string;
@@ -195,6 +205,7 @@ export function* setupModuleInstanceSaga(
 ) {
   try {
     const { contextId, contextType, viewMode } = action.payload;
+    const packagesList: PackageMetadata[] = yield select(getPackagesList);
 
     yield call(fetchModuleInstancesSaga, {
       type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,
@@ -205,6 +216,10 @@ export function* setupModuleInstanceSaga(
       type: ReduxActionTypes.FETCH_MODULE_INSTANCE_ENTITIES_INIT,
       payload: { contextId, contextType, viewMode },
     });
+
+    if (!packagesList.length) {
+      yield fork(fetchAllPackagesSaga);
+    }
 
     yield put({
       type: ReduxActionTypes.SETUP_MODULE_INSTANCE_SUCCESS,
@@ -462,6 +477,56 @@ function* saveModuleInstanceNameSaga(
   }
 }
 
+function* convertEntityToInstanceSaga(
+  action: ReduxAction<ConvertEntityToInstanceActionPayload>,
+) {
+  const { initiatedFromPathname, moduleType, packageId, publicEntityId } =
+    action.payload;
+
+  try {
+    const payload: ConvertEntityToInstancePayload = {
+      publicEntityId,
+      packageId,
+      moduleType,
+    };
+
+    const response: ApiResponse<ConvertEntityToInstanceResponse> = yield call(
+      ModuleInstanceApi.convertEntityToInstance,
+      payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield fork(fetchAllPackagesSaga);
+
+      yield put({
+        type: ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_SUCCESS,
+        payload: { ...response?.data, originalEntityId: publicEntityId },
+      });
+
+      if (location.pathname === initiatedFromPathname) {
+        const redirectUrl = moduleInstanceEditorURL({
+          moduleInstanceId: response.data.moduleInstanceData.moduleInstance.id,
+        });
+
+        if (redirectUrl) {
+          history.push(redirectUrl);
+        }
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CONVERT_ENTITY_TO_INSTANCE_ERROR,
+      payload: {
+        publicEntityId,
+        moduleType,
+      },
+    });
+
+    log.error(error);
+  }
+}
+
 // Watcher Saga
 export default function* moduleInstanceSaga() {
   yield all([
@@ -508,6 +573,10 @@ export default function* moduleInstanceSaga() {
     takeLatest(
       ReduxActionTypes.RUN_QUERY_MODULE_INSTANCE_INIT,
       runQueryModuleInstanceSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_INIT,
+      convertEntityToInstanceSaga,
     ),
   ]);
 }

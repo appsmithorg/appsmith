@@ -55,9 +55,6 @@ public class Package extends BranchAwareDomain {
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     public String getLastUpdateTime() {
-        if (lastEditedAt == null || lastEditedAt.isBefore(updatedAt)) {
-            lastEditedAt = updatedAt;
-        }
         return (lastEditedAt != null) ? ISO_FORMATTER.format(lastEditedAt) : null;
     }
 

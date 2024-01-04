@@ -1,7 +1,11 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import actionsReducer from "./actionsReducer";
 import type { ActionDataState } from "./actionsReducer";
 import type { Action } from "entities/Action";
+import { klona } from "klona";
 
 const DEFAULT_ACTIONS = [
   {
@@ -109,5 +113,79 @@ describe("actionsReducer", () => {
     expect(
       updatedState.some((action) => action.config.id === additionalAction.id),
     ).toBe(true);
+  });
+
+  it("should handle CONVERT_ENTITY_TO_INSTANCE_INIT", () => {
+    const initialState: ActionDataState = DEFAULT_ACTIONS.map((a) => ({
+      config: a,
+      isLoading: false,
+    }));
+
+    const entityId = DEFAULT_ACTIONS[0].id;
+
+    const action = {
+      type: ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_INIT,
+      payload: {
+        publicEntityId: entityId,
+      },
+    };
+
+    const state: ActionDataState = actionsReducer(initialState, action);
+
+    state.forEach((a) => {
+      if (a.config.id === entityId) {
+        expect(a.isConverting).toBe(true);
+      } else {
+        expect(a.isConverting).toBe(undefined);
+      }
+    });
+  });
+
+  it("should handle CONVERT_ENTITY_TO_INSTANCE_SUCCESS", () => {
+    const initialState: ActionDataState = DEFAULT_ACTIONS.map((a) => ({
+      config: a,
+      isLoading: false,
+    }));
+
+    const entityId = DEFAULT_ACTIONS[0].id;
+
+    const action = {
+      type: ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_SUCCESS,
+      payload: {
+        originalEntityId: entityId,
+      },
+    };
+
+    const state: ActionDataState = actionsReducer(initialState, action);
+
+    const entity = state.find((a) => a.config.id === entityId);
+    expect(entity).toBe(undefined);
+  });
+
+  it("should handle CONVERT_ENTITY_TO_INSTANCE_ERROR", () => {
+    const initialState: ActionDataState = klona(DEFAULT_ACTIONS).map((a) => ({
+      config: a,
+      isLoading: false,
+    }));
+
+    const entityId = DEFAULT_ACTIONS[0].id;
+    initialState[0].isConverting = true;
+
+    const action = {
+      type: ReduxActionErrorTypes.CONVERT_ENTITY_TO_INSTANCE_ERROR,
+      payload: {
+        publicEntityId: entityId,
+      },
+    };
+
+    const state: ActionDataState = actionsReducer(initialState, action);
+
+    state.forEach((a) => {
+      if (a.config.id === entityId) {
+        expect(a.isConverting).toBe(false);
+      } else {
+        expect(a.isConverting).toBe(undefined);
+      }
+    });
   });
 });

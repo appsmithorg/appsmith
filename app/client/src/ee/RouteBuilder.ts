@@ -18,6 +18,9 @@ export const moduleEditorURL = ({ moduleId }: URLBuilderParams): string =>
 export const currentPackageEditorURL = (): string =>
   urlBuilder.build({ generateEditorPath: true });
 
+export const currentWorkflowEditorURL = (): string =>
+  urlBuilder.build({ generateEditorPath: true });
+
 // URL builder for workflow editor
 export const workflowEditorURL = ({ workflowId }: URLBuilderParams): string =>
   urlBuilder.build({ workflowId });

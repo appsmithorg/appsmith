@@ -1,17 +1,19 @@
 import React from "react";
 import styled from "styled-components";
-import { Link } from "design-system";
+import { Button, Link } from "design-system";
 
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import ModuleInstanceNameEditor from "./ModuleInstanceNameEditor";
 import { useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL, moduleEditorURL } from "@appsmith/RouteBuilder";
 import type { AppsmithLocationState } from "utils/history";
 import EditorContextMenu from "./EditorContextMenu";
 import { deleteModuleInstance } from "@appsmith/actions/moduleInstanceActions";
 import { hasDeleteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
+import { GO_TO_MODULE, createMessage } from "@appsmith/constants/messages";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -39,10 +41,17 @@ const StyledBackLink = styled(Link)`
 
 interface HeaderProps {
   moduleInstance: ModuleInstance;
+  packageId?: string;
+  moduleId?: string;
   children: React.ReactNode;
 }
 
-function Header({ children, moduleInstance }: HeaderProps) {
+function Header({
+  children,
+  moduleId,
+  moduleInstance,
+  packageId,
+}: HeaderProps) {
   const history = useHistory<AppsmithLocationState>();
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
@@ -52,6 +61,12 @@ function Header({ children, moduleInstance }: HeaderProps) {
 
   const onDelete = () => {
     dispatch(deleteModuleInstance({ id: moduleInstance.id }));
+  };
+
+  const onGoToModuleClick = () => {
+    urlBuilder.setPackageParams({ packageId });
+    const url = moduleEditorURL({ moduleId });
+    history.push(url);
   };
 
   const isDeletePermitted = hasDeleteModuleInstancePermission(
@@ -77,6 +92,11 @@ function Header({ children, moduleInstance }: HeaderProps) {
             isDeletePermitted={isDeletePermitted}
             onDelete={onDelete}
           />
+          {moduleId && packageId && (
+            <Button kind="secondary" onClick={onGoToModuleClick} size="md">
+              {createMessage(GO_TO_MODULE)}
+            </Button>
+          )}
           {children}
         </StyledSubheaderSection>
       </StyledSubheader>

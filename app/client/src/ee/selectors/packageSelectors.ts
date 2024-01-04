@@ -72,3 +72,6 @@ export const getFirstModule = (state: AppState) => {
 
 export const getModulesMetadata = (state: AppState) =>
   state.ui.explorer.modulesMetadata;
+
+export const getPackageById = (state: AppState, id: string) =>
+  state.entities.packages[id];
