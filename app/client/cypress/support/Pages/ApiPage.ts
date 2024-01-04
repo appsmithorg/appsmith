@@ -132,6 +132,7 @@ export class ApiPage {
   ) {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
     this.EnterURL(url);
+    this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
     this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }

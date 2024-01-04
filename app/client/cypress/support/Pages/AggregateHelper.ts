@@ -1283,7 +1283,7 @@ export class AggregateHelper {
           this.Sleep(200);
         }
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateFieldInput(selector: string, value: string) {
@@ -1291,7 +1291,7 @@ export class AggregateHelper {
       .find("input")
       .invoke("attr", "value", value)
       .trigger("input");
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public ValidateFieldInputValue(selector: string, value: string) {
@@ -1302,7 +1302,7 @@ export class AggregateHelper {
       .then((inputValue) => {
         expect(inputValue).to.equal(value);
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateTextArea(selector: string, value: string) {
@@ -1311,7 +1311,7 @@ export class AggregateHelper {
       .first()
       .invoke("val", value)
       .trigger("input");
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public TypeIntoTextArea(selector: string, value: string) {
@@ -1319,7 +1319,7 @@ export class AggregateHelper {
       .find("textarea")
       .first()
       .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public UpdateInputValue(selector: string, value: string, force = false) {
