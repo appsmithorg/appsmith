@@ -12,6 +12,7 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.IS_API_ACCESSIBLE_TO_ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
@@ -129,6 +131,16 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
         return Mono.just(new ResponseDTO<T>(
                 INTERNAL_SERVER_ERROR_STATUS, new ErrorDTO(INTERNAL_SERVER_ERROR_CODE, error.getMessage())));
+    }
+
+    Mono<Boolean> checkApiAccessIfAnonymousUser(Mono<User> userProfileMono, String api) {
+        return userProfileMono.flatMap(userProfile -> {
+            if (!userProfile.getIsAnonymous() || IS_API_ACCESSIBLE_TO_ANONYMOUS_USER.get(api)) {
+                return Mono.just(true);
+            }
+
+            return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
+        });
     }
 
     /**
@@ -484,7 +496,6 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             if (!isBlank(defaultPageId)) {
                 listOfMonoForEditMode.add(currentPageDTOResponseDTOMono);
             }
-
             return Mono.zip(listOfMonoForEditMode, responseArray -> {
                 consolidatedAPIResponseDTO.setUserProfile((ResponseDTO<UserProfileDTO>) responseArray[0]);
                 consolidatedAPIResponseDTO.setTenantConfig((ResponseDTO<Tenant>) responseArray[1]);

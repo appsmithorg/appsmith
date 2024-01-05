@@ -71,6 +71,6 @@ public class ConsolidatedAPIResponseDTO {
     /* v1/plugins/{pluginId}/form - for all plugins used in app */
     ResponseDTO<Map<String, Map>> pluginFormConfigs;
 
-    /* v1/datasources/mock */
+    /* v1/datasources/mocks */
     ResponseDTO<List<MockDataSet>> mockDatasources;
 }
