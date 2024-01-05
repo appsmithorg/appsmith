@@ -18,7 +18,6 @@ import {
   deleteNavigationLogoSaga,
   deleteMultipleApplicationSaga,
   fetchAllApplicationsOfWorkspaceSaga,
-  searchWorkspaceEntitiesSaga,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
@@ -59,10 +58,6 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.DELETE_NAVIGATION_LOGO_INIT,
       deleteNavigationLogoSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
-      searchWorkspaceEntitiesSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
     takeLatest(

@@ -18,7 +18,7 @@ export interface SearchEntitiesResponse {
   limit: number;
 }
 
-export interface MockedSearchApiResponse extends ApiResponse {
+export interface SearchApiResponse extends ApiResponse {
   data: {
     applications: FetchApplicationsResponse[];
     workspaces: FetchWorkspacesResponse[];
@@ -31,7 +31,7 @@ export class SearchApi extends Api {
   static async searchAllEntities(params: {
     keyword: string;
     limit?: number;
-  }): Promise<AxiosPromise<MockedSearchApiResponse>> {
+  }): Promise<AxiosPromise<SearchApiResponse>> {
     const { keyword, limit = 10 } = params;
     return Api.get(`${SearchApi.searchURL}?keyword=${keyword}&size=${limit}`);
   }

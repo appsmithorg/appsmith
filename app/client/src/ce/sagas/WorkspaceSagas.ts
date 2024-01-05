@@ -44,7 +44,9 @@ import { toast } from "design-system";
 import {
   fetchUsersForWorkspace,
   resetCurrentWorkspace,
+  resetSearchEntity,
 } from "@appsmith/actions/workspaceActions";
+import { SearchApi, type SearchApiResponse } from "@appsmith/api/SearchApi";
 
 export function* fetchAllWorkspacesSaga(
   action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,
@@ -389,5 +391,32 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
     }
   } catch (error) {
     log.error("Error occured while removing the logo", error);
+  }
+}
+
+export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
+  if (!action.payload || !action.payload.trim()) {
+    yield put(resetSearchEntity());
+    return;
+  }
+  try {
+    const response: SearchApiResponse = yield call(
+      SearchApi.searchAllEntities,
+      { keyword: action.payload },
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SEARCH_WORKSPACE_ENTITIES_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
