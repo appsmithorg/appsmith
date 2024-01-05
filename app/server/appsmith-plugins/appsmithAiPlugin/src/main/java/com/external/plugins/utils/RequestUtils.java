@@ -1,7 +1,5 @@
 package com.external.plugins.utils;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +16,9 @@ import java.time.Duration;
 import java.util.Map;
 
 import static com.external.plugins.constants.AppsmithAiConstants.AI_SERVER_HOST;
-import static com.external.plugins.constants.AppsmithAiConstants.CHAT;
-import static com.external.plugins.constants.AppsmithAiConstants.CHAT_ENDPOINT;
 import static com.external.plugins.constants.AppsmithAiConstants.DATA;
-import static com.external.plugins.constants.AppsmithAiConstants.EMBEDDINGS;
-import static com.external.plugins.constants.AppsmithAiConstants.EMBEDDINGS_ENDPOINT;
 import static com.external.plugins.constants.AppsmithAiConstants.EXCHANGE_STRATEGIES;
-import static com.external.plugins.constants.AppsmithAiConstants.MODEL;
-import static com.external.plugins.constants.AppsmithAiConstants.MODELS_ENDPOINT;
-import static com.external.plugins.constants.AppsmithAiConstants.OPEN_AI_HOST;
 import static com.external.plugins.constants.AppsmithAiConstants.QUERY_PATH;
-import static com.external.plugins.constants.AppsmithAiConstants.VISION;
-import static com.external.plugins.constants.AppsmithAiConstants.VISION_ENDPOINT;
 
 public class RequestUtils {
     private static final WebClient webClient = createWebClient();
@@ -48,20 +37,6 @@ public class RequestUtils {
 
     public static URI createUploadURI() {
         return URI.create(AI_SERVER_HOST + "/assistant/upload");
-    }
-
-    public static URI createUriFromCommand(String command) {
-        if (CHAT.equals(command)) {
-            return URI.create(OPEN_AI_HOST + CHAT_ENDPOINT);
-        } else if (EMBEDDINGS.equals(command)) {
-            return URI.create(OPEN_AI_HOST + EMBEDDINGS_ENDPOINT);
-        } else if (VISION.equals(command)) {
-            return URI.create(OPEN_AI_HOST + VISION_ENDPOINT);
-        } else if (MODEL.equals(command)) {
-            return URI.create(OPEN_AI_HOST + MODELS_ENDPOINT);
-        } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
-        }
     }
 
     public static Mono<ResponseEntity<byte[]>> makeRequest(
