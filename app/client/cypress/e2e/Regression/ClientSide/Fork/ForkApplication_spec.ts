@@ -54,8 +54,8 @@ describe(
         .should("eq", 200);
       cy.wait("@getWorkspace");
       // check that forked application has same dsl
-      cy.get("@getPage").then((httpResponse) => {
-        const data = httpResponse.response.body.data;
+      cy.get("@getConsolidatedData").then((httpResponse) => {
+        const data = httpResponse.response.body.data?.pageWithMigratedDsl?.data;
         forkedApplicationDsl = data.layouts[0].dsl;
         cy.log(JSON.stringify(forkedApplicationDsl));
         cy.log(JSON.stringify(parentApplicationDsl));

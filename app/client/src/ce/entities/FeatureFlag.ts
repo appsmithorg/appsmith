@@ -91,7 +91,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_one_click_learning_popover_enabled: false,
   release_side_by_side_ide_enabled: false,
   release_global_add_pane_enabled: false,
-  rollout_consolidated_page_load_fetch_enabled: true,
+  rollout_consolidated_page_load_fetch_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

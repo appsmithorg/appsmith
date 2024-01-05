@@ -162,7 +162,6 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
@@ -174,21 +173,22 @@ import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
-    | { workspaceId?: string; v1DatasourcesResp?: ApiResponse<Datasource[]> }
+    | { workspaceId?: string; datasources?: ApiResponse<Datasource[]> }
     | undefined
   >,
 ) {
   try {
     let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
-    const v1DatasourcesResp = action.payload?.v1DatasourcesResp;
+    const datasources = action.payload?.datasources;
     const response: ApiResponse<Datasource[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1DatasourcesResp,
+      datasources,
       async () => DatasourcesApi.fetchDatasources(workspaceId),
     );
 
@@ -240,13 +240,13 @@ function* fetchDatasourceStructureOnLoad() {
 }
 
 function* fetchMockDatasourcesSaga(action?: {
-  payload?: { v1DatasourcesMockResp?: ApiResponse };
+  payload?: { mockDatasources?: ApiResponse };
 }) {
-  const v1DatasourcesMockResp = action?.payload?.v1DatasourcesMockResp;
+  const mockDatasources = action?.payload?.mockDatasources;
   try {
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1DatasourcesMockResp,
+      mockDatasources,
       async () => DatasourcesApi.fetchMockDatasources(),
     );
 

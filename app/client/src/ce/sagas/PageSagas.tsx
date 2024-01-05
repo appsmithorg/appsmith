@@ -206,6 +206,7 @@ export function* fetchPageListSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId,
+          editorId: applicationId,
         },
       });
       yield put({
@@ -378,7 +379,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id, isFirstLoad, v1PageResp } = pageRequestAction.payload;
+    const { id, isFirstLoad, pageWithMigratedDsl } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -393,7 +394,7 @@ export function* fetchPageSaga(
     }
     const fetchPageResponse: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PageResp,
+      pageWithMigratedDsl,
       () => call(PageApi.fetchPage, params),
     );
 
@@ -428,11 +429,11 @@ export function* fetchPublishedPageSaga(
     pageId: string;
     bustCache: boolean;
     firstLoad: boolean;
-    v1PublishedPageResp?: FetchPageResponse;
+    pageWithMigratedDsl?: FetchPageResponse;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId, v1PublishedPageResp } =
+    const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
       pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
@@ -448,7 +449,7 @@ export function* fetchPublishedPageSaga(
 
     const response: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PublishedPageResp,
+      pageWithMigratedDsl,
       () => call(PageApi.fetchPublishedPage, request),
     );
 
@@ -1200,7 +1201,7 @@ export function* setDataUrl() {
 
 export function* fetchPageDSLSaga(
   pageId: string,
-  v1PageDSL?: ApiResponse<FetchPageResponseData>,
+  pageDSL?: ApiResponse<FetchPageResponseData>,
 ) {
   try {
     const layoutSystemType: LayoutSystemTypes =
@@ -1220,7 +1221,7 @@ export function* fetchPageDSLSaga(
     }
     const fetchPageResponse: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PageDSL,
+      pageDSL,
       () => call(PageApi.fetchPage, params),
     );
 
@@ -1264,22 +1265,22 @@ export function* fetchPageDSLSaga(
 }
 
 export function* populatePageDSLsSaga(action?: {
-  payload?: { v1PageDSLs?: ApiResponse<FetchPageResponseData[]> };
+  payload?: { pagesWithMigratedDsl?: ApiResponse<FetchPageResponseData[]> };
 }) {
-  const { v1PageDSLs } = action?.payload || {};
+  const { pagesWithMigratedDsl } = action?.payload || {};
   try {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
     const pageDSLs: unknown = yield all(
       pageIds.map((pageId: string) => {
-        if (!v1PageDSLs) {
+        if (!pagesWithMigratedDsl) {
           return call(fetchPageDSLSaga, pageId);
         }
-        const { data } = v1PageDSLs;
+        const { data } = pagesWithMigratedDsl;
         const v1PageDSL = data?.find?.((v: any) => v?.id === pageId);
         return call(fetchPageDSLSaga, pageId, {
-          ...v1PageDSLs,
+          ...pagesWithMigratedDsl,
           data: v1PageDSL,
         } as ApiResponse<FetchPageResponseData>);
       }),
@@ -1462,11 +1463,11 @@ export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
 
 export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
-    const { id, isFirstLoad, v1PageResp } = action.payload;
+    const { id, isFirstLoad, pageWithMigratedDsl } = action.payload;
 
     yield call(fetchPageSaga, {
       type: ReduxActionTypes.FETCH_PAGE_INIT,
-      payload: { id, isFirstLoad, v1PageResp },
+      payload: { id, isFirstLoad, pageWithMigratedDsl },
     });
 
     yield put({
@@ -1485,16 +1486,16 @@ export function* setupPublishedPageSaga(
     pageId: string;
     bustCache: boolean;
     firstLoad: boolean;
-    v1PublishedPageResp?: FetchPageResponse;
+    pageWithMigratedDsl?: FetchPageResponse;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId, v1PublishedPageResp } =
+    const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
       action.payload;
 
     yield call(fetchPublishedPageSaga, {
       type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: { bustCache, firstLoad, pageId, v1PublishedPageResp },
+      payload: { bustCache, firstLoad, pageId, pageWithMigratedDsl },
     });
 
     yield put({

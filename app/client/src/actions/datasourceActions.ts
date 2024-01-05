@@ -275,7 +275,7 @@ export const setDatasourceCollapsible = (key: string, isOpen: boolean) => {
 
 export const fetchDatasources = (payload?: {
   workspaceId?: string;
-  v1DatasourcesResp?: ApiResponse<Datasource[]>;
+  datasources?: ApiResponse<Datasource[]>;
 }) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
@@ -283,10 +283,10 @@ export const fetchDatasources = (payload?: {
   };
 };
 
-export const fetchMockDatasources = (v1DatasourcesMockResp?: ApiResponse) => {
+export const fetchMockDatasources = (mockDatasources?: ApiResponse) => {
   return {
     type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
-    payload: { v1DatasourcesMockResp },
+    payload: { mockDatasources },
   };
 };
 

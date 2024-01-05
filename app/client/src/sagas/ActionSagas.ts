@@ -311,7 +311,7 @@ export function* fetchActionDatasourceStructure(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, v1ActionsResp } = action.payload;
+  const { applicationId, unpublishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
@@ -319,7 +319,7 @@ export function* fetchActionsSaga(
   try {
     const response: ApiResponse<Action[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1ActionsResp,
+      unpublishedActions,
       async () => ActionAPI.fetchActions({ applicationId }),
     );
 
@@ -349,7 +349,7 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, v1ActionsViewResp } = action.payload;
+  const { applicationId, publishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
@@ -357,7 +357,7 @@ export function* fetchActionsForViewModeSaga(
   try {
     const response: ApiResponse<ActionViewMode[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1ActionsViewResp,
+      publishedActions,
       async () => ActionAPI.fetchActionsForViewMode(applicationId),
     );
 

@@ -273,14 +273,14 @@ export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const { v1PagesResp, ...payload } = action.payload;
+    const { pages, ...payload } = action.payload;
     const params = pickBy(payload, identity);
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
     const response: FetchApplicationResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PagesResp,
+      pages,
       () => call(PageApi.fetchAppAndPages, params),
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
@@ -320,6 +320,7 @@ export function* fetchAppAndPagesSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId: response.data.workspaceId,
+          editorId: response.data.application?.id,
         },
       });
 
@@ -738,6 +739,7 @@ export function* forkApplicationSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId: action.payload.workspaceId,
+          editorId: application.id,
         },
       });
 
@@ -802,7 +804,7 @@ export function* showReconnectDatasourcesModalSaga(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
 
-  yield put(setWorkspaceIdForImport(workspaceId));
+  yield put(setWorkspaceIdForImport({ editorId: application.id, workspaceId }));
   yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
@@ -983,9 +985,12 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
 }
 
 export function* initDatasourceConnectionDuringImport(
-  action: ReduxAction<string>,
+  action: ReduxAction<{
+    workspaceId: string;
+    isPartialImport?: boolean;
+  }>,
 ) {
-  const workspaceId = action.payload;
+  const workspaceId = action.payload.workspaceId;
 
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
@@ -1017,7 +1022,10 @@ export function* initDatasourceConnectionDuringImport(
     ),
   );
 
-  yield put(initDatasourceConnectionDuringImportSuccess());
+  if (!action.payload.isPartialImport) {
+    // This is required for reconnect datasource modal popup
+    yield put(initDatasourceConnectionDuringImportSuccess());
+  }
 }
 
 export function* uploadNavigationLogoSaga(

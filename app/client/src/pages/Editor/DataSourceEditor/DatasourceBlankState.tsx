@@ -6,9 +6,6 @@ import {
   createMessage,
   DATASOURCE_BLANK_STATE_MESSAGE,
 } from "@appsmith/constants/messages";
-import { Redirect } from "react-router";
-import { useSelector } from "react-redux";
-import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 
 const Container = styled.div`
   height: 100%;
@@ -33,12 +30,6 @@ const BlankStateIllustration = importSvg(
 );
 
 const DatasourceBlankState = () => {
-  const firstDatasourceId = useSelector(getFirstDatasourceId);
-
-  if (firstDatasourceId) {
-    return <Redirect to={`${location.pathname}/${firstDatasourceId}`} />;
-  }
-
   return (
     <Container className="t--data-blank-state">
       <Content>

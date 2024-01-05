@@ -84,9 +84,10 @@ import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
-import ConsolidatedApi from "api/ConsolidatedApi";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlags } from "@appsmith/sagas/userSagas";
+import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
+import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -99,38 +100,37 @@ export interface ReduxURLChangeAction {
   payload: ApplicationPagePayload | ApplicationPayload | Page;
 }
 export interface DeployConsolidatedApi {
-  v1ProductAlertResp: ApiResponse<ProductAlert>;
-  v1TenantsCurrentResp: ApiResponse;
-  v1UsersFeaturesResp: ApiResponse<FeatureFlags>;
-  v1UsersMeResp: ApiResponse;
-  v1PagesResp: FetchApplicationResponse;
-  v1ActionsViewResp: ApiResponse<ActionViewMode[]>;
-  v1CollectionsActionsViewResp: ApiResponse<JSCollection[]>;
-  v1LibrariesApplicationResp: ApiResponse;
-  v1PublishedPageResp: FetchPageResponse;
-  v1ThemesApplicationCurrentModeResp: ApiResponse<AppTheme[]>;
-  v1ThemesResp: ApiResponse<AppTheme>;
+  productAlert: ApiResponse<ProductAlert>;
+  tenantConfig: ApiResponse;
+  featureFlags: ApiResponse<FeatureFlags>;
+  userProfile: ApiResponse;
+  pages: FetchApplicationResponse;
+  publishedActions: ApiResponse<ActionViewMode[]>;
+  publishedActionCollections: ApiResponse<JSCollection[]>;
+  customJSLibraries: ApiResponse;
+  pageWithMigratedDsl: FetchPageResponse;
+  currentTheme: ApiResponse<AppTheme[]>;
+  themes: ApiResponse<AppTheme>;
 }
 export interface EditConsolidatedApi {
-  v1ProductAlertResp: ApiResponse<ProductAlert>;
-  v1TenantsCurrentResp: ApiResponse;
-  v1UsersFeaturesResp: ApiResponse<FeatureFlags>;
-  v1UsersMeResp: ApiResponse;
-  v1PagesResp: FetchApplicationResponse;
-  v1ActionsViewResp: ApiResponse<ActionViewMode[]>;
-  v1CollectionsActionsViewResp: ApiResponse<JSCollection[]>;
-  v1LibrariesApplicationResp: ApiResponse;
-  v1PublishedPageResp: FetchPageResponse;
-  v1ThemesApplicationCurrentModeResp: ApiResponse<AppTheme[]>;
-  v1ThemesResp: ApiResponse<AppTheme>;
-  v1DatasourcesResp: ApiResponse<Datasource[]>;
-  v1PageDSLs: ApiResponse<FetchPageResponseData[]>;
-  v1PluginsResp: ApiResponse<Plugin[]>;
-  v1DatasourcesMockResp: ApiResponse;
-  v1PluginFormConfigsResp: ApiResponse<PluginFormPayload>[];
-  v1ActionsResp: ApiResponse<Action[]>;
-  v1CollectionsActionsResp: ApiResponse<JSCollection[]>;
-  v1PageResp: FetchPageResponse;
+  productAlert: ApiResponse<ProductAlert>;
+  tenantConfig: ApiResponse;
+  featureFlags: ApiResponse<FeatureFlags>;
+  userProfile: ApiResponse;
+  pages: FetchApplicationResponse;
+  publishedActions: ApiResponse<ActionViewMode[]>;
+  publishedActionCollections: ApiResponse<JSCollection[]>;
+  customJSLibraries: ApiResponse;
+  pageWithMigratedDsl: FetchPageResponse;
+  currentTheme: ApiResponse<AppTheme[]>;
+  themes: ApiResponse<AppTheme>;
+  datasources: ApiResponse<Datasource[]>;
+  pagesWithMigratedDsl: ApiResponse<FetchPageResponseData[]>;
+  plugins: ApiResponse<Plugin[]>;
+  mockDatasources: ApiResponse;
+  pluginFormConfigs: ApiResponse<PluginFormPayload>[];
+  unpublishedActions: ApiResponse<Action[]>;
+  unpublishedActionCollections: ApiResponse<JSCollection[]>;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
 export function* failFastApiCalls(
@@ -228,7 +228,7 @@ export function* getInitResponses({
   if (!!isConsolidatedApiFetchEnabled) {
     try {
       const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
-        yield ConsolidatedApi.getConsolidatedPageLoadData(params);
+        yield ConsolidatedPageLoadApi.getConsolidatedPageLoadData(params);
 
       const isValidResponse: boolean = yield validateResponse(
         initConsolidatedApiResponse,
@@ -236,7 +236,8 @@ export function* getInitResponses({
       response = initConsolidatedApiResponse.data;
 
       if (!isValidResponse) {
-        throw new Error("Axion connection aborted error");
+        // its only invalid when there is a axios related error
+        throw new Error("Error occured " + axiosConnectionAbortedCode);
       }
     } catch (e) {
       log.error(e);
@@ -249,13 +250,8 @@ export function* getInitResponses({
     }
   }
 
-  const {
-    v1ProductAlertResp,
-    v1TenantsCurrentResp,
-    v1UsersFeaturesResp,
-    v1UsersMeResp,
-    ...rest
-  } = response || {};
+  const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
+    response || {};
   //actions originating from INITIALIZE_CURRENT_PAGE should update user details
   //other actions are not necessary
 
@@ -263,22 +259,22 @@ export function* getInitResponses({
     return rest;
   }
   // v1/users/me
-  // tie to v1UsersMeResp
-  yield put(getCurrentUser(v1UsersMeResp));
+  // tie to userProfile
+  yield put(getCurrentUser(userProfile));
   // v1/users/features
-  // tie to v1UsersFeaturesResp
+  // tie to featureFlags
   // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
   // do not fetch this again
   if (isConsolidatedApiFetchEnabled) {
-    yield put(fetchFeatureFlagsInit(v1UsersFeaturesResp));
+    yield put(fetchFeatureFlagsInit(featureFlags));
   }
   // v1/tenants/current
-  // tie to v1TenantsCurrentResp
-  yield put(getCurrentTenant(false, v1TenantsCurrentResp));
+  // tie to tenantConfig
+  yield put(getCurrentTenant(false, tenantConfig));
 
   // v1/product-alert/alert
-  // tie to v1ProductAlertResp
-  yield put(fetchProductAlertInit(v1ProductAlertResp));
+  // tie to productAlert
+  yield put(fetchProductAlertInit(productAlert));
   return rest;
 }
 
@@ -294,7 +290,9 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
-
+    const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
+      ...action.payload,
+    });
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
@@ -388,38 +386,44 @@ function* eagerPageInitSaga() {
   const search = window.location.search;
 
   if (isEditorPath(url)) {
-    const {
-      params: { applicationId, pageId },
-    } = matchBuilderPath(url);
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-    if (pageId) {
-      yield put(
-        initEditor({
-          pageId,
-          applicationId,
-          branch,
-          mode: APP_MODE.EDIT,
-          shouldInitialiseUserDetails: true,
-        }),
-      );
-      return;
+    const matchObj = matchBuilderPath(url);
+    if (matchObj) {
+      const {
+        params: { applicationId, pageId },
+      } = matchObj;
+      const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+      if (pageId) {
+        yield put(
+          initEditor({
+            pageId,
+            applicationId,
+            branch,
+            mode: APP_MODE.EDIT,
+            shouldInitialiseUserDetails: true,
+          }),
+        );
+        return;
+      }
     }
   } else if (isViewerPath(url)) {
-    const {
-      params: { applicationId, pageId },
-    } = matchViewerPath(url);
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-    if (applicationId || pageId) {
-      yield put(
-        initAppViewer({
-          applicationId,
-          branch,
-          pageId,
-          mode: APP_MODE.PUBLISHED,
-          shouldInitialiseUserDetails: true,
-        }),
-      );
-      return;
+    const matchObj = matchViewerPath(url);
+    if (matchObj) {
+      const {
+        params: { applicationId, pageId },
+      } = matchObj;
+      const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+      if (applicationId || pageId) {
+        yield put(
+          initAppViewer({
+            applicationId,
+            branch,
+            pageId,
+            mode: APP_MODE.PUBLISHED,
+            shouldInitialiseUserDetails: true,
+          }),
+        );
+        return;
+      }
     }
   }
 
