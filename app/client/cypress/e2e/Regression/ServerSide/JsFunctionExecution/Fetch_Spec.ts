@@ -8,7 +8,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Tests fetch calls", () => {
+describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
   it("1. Ensures that cookies are not passed with fetch calls", function () {
     jsEditor.CreateJSObject(
       `export default {

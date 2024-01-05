@@ -1,24 +1,16 @@
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
-  getForkableWorkspaces,
   getTemplatesSelector,
   isFetchingTemplatesSelector,
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import StartWithTemplateFilters from "./StartWithTemplateFilter";
 import { StartWithTemplateContent } from "./StartWithTemplateContent";
-import {
-  getApplicationByIdFromWorkspaces,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
-import {
-  importTemplateIntoApplicationViaOnboardingFlow,
-  setActiveLoadingTemplateId,
-} from "actions/templateActions";
-import type { Template } from "api/TemplatesApi";
+import StartWithTemplateFilters from "./StartWithTemplateFilter";
 
 const FiltersWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
@@ -29,53 +21,37 @@ const FiltersWrapper = styled.div`
   .filter-wrapper {
     height: 100%;
   }
+  padding-left: 12px;
+  padding-right: 12px;
 `;
 
 const TemplateContentWrapper = styled.div`
   flex-grow: 1;
   overflow: auto;
+  height: 75vh;
+  padding-bottom: 24px;
 `;
 
 interface StartWithTemplatesProps {
-  currentApplicationIdForCreateNewApp: string;
+  initialFilters?: Record<string, string[]>;
+  isForkingEnabled?: boolean;
+  isModalLayout?: boolean;
   setSelectedTemplate: (id: string) => void;
+  onForkTemplateClick: (template: TemplateInterface) => void;
 }
 
 const StartWithTemplates = ({
-  currentApplicationIdForCreateNewApp,
+  initialFilters,
+  isForkingEnabled = false,
+  isModalLayout,
+  onForkTemplateClick,
   setSelectedTemplate,
 }: StartWithTemplatesProps) => {
-  const dispatch = useDispatch();
-  const workspaceList = useSelector(getForkableWorkspaces);
   const allTemplates = useSelector(getTemplatesSelector);
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const isLoading = isFetchingApplications || isFetchingTemplates;
-  const application = useSelector((state) =>
-    getApplicationByIdFromWorkspaces(
-      state,
-      currentApplicationIdForCreateNewApp,
-    ),
-  );
-
-  const onForkTemplateClick = (template: Template) => {
-    const title = template.title;
-    AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
-    // When fork template is clicked to add a new app using the template
-    if (!isImportingTemplate && application) {
-      dispatch(setActiveLoadingTemplateId(template.id));
-      dispatch(
-        importTemplateIntoApplicationViaOnboardingFlow(
-          template.id,
-          template.title,
-          template.pages.map((p) => p.name),
-          application.id,
-          application.workspaceId,
-        ),
-      );
-    }
-  };
 
   const getTemplateById = (id: string) => {
     return allTemplates.find((template) => template.id === id);
@@ -89,7 +65,7 @@ const StartWithTemplates = ({
         title: template.title,
       });
       // When template is clicked to view the template details
-      if (!isImportingTemplate) setSelectedTemplate(id);
+      if (!isImportingTemplate && setSelectedTemplate) setSelectedTemplate(id);
     }
   };
 
@@ -97,7 +73,9 @@ const StartWithTemplates = ({
     <>
       <TemplateContentWrapper>
         <StartWithTemplateContent
-          isForkingEnabled={!!workspaceList.length}
+          filterWithAllowPageImport={isModalLayout}
+          isForkingEnabled={isForkingEnabled}
+          isModalLayout={!!isModalLayout}
           onForkTemplateClick={onForkTemplateClick}
           onTemplateClick={onTemplateClick}
         />
@@ -105,7 +83,7 @@ const StartWithTemplates = ({
 
       {!isLoading && (
         <FiltersWrapper>
-          <StartWithTemplateFilters />
+          <StartWithTemplateFilters initialFilters={initialFilters} />
         </FiltersWrapper>
       )}
     </>

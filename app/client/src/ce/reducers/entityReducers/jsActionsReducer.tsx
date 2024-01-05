@@ -7,6 +7,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
+import { klona } from "klona";
 
 export const initialState: JSCollectionDataState = [];
 
@@ -90,7 +91,13 @@ export const handlers = {
         return {
           ...jsCollection,
           isLoading: false,
-          config: action.payload.data,
+          config: action.payload.data.isPublic
+            ? {
+                ...action.payload.data,
+                isMainJSCollection: true,
+                displayName: "Main",
+              }
+            : action.payload.data,
           activeJSActionId:
             findIndex(jsCollection.config.actions, {
               id: jsCollection.activeJSActionId,
@@ -110,7 +117,13 @@ export const handlers = {
         return {
           ...a,
           isLoading: false,
-          config: action.payload.data,
+          config: action.payload.data.isPublic
+            ? {
+                ...action.payload.data,
+                isMainJSCollection: true,
+                displayName: "Main",
+              }
+            : action.payload.data,
         };
       return a;
     }),
@@ -132,7 +145,16 @@ export const handlers = {
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.data.id)
-        return { isLoading: false, config: action.payload.data };
+        return {
+          isLoading: false,
+          config: action.payload.data.isPublic
+            ? {
+                ...action.payload.data,
+                isMainJSCollection: true,
+                displayName: "Main",
+              }
+            : action.payload.data,
+        };
       return a;
     }),
   [ReduxActionTypes.COPY_JS_ACTION_INIT]: (
@@ -462,6 +484,9 @@ export const handlers = {
       }
       return jsCollection;
     }),
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
+  },
 };
 
 const jsActionsReducer = createReducer(initialState, handlers);

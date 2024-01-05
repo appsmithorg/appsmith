@@ -37,7 +37,7 @@ import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSOBJECT;
 @RequiredArgsConstructor
 public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactoringServiceCE<ActionCollection> {
 
-    private final ActionCollectionService actionCollectionService;
+    protected final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
     private final AstService astService;
@@ -86,7 +86,7 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
         return astService
                 .replaceValueInMustacheKeys(
                         new HashSet<>(Collections.singletonList(
-                                new MustacheBindingToken(unpublishedCollection.getBody(), 0, true))),
+                                new MustacheBindingToken(unpublishedCollection.getBody(), 0, false))),
                         oldName,
                         newName,
                         evalVersion,
@@ -154,16 +154,17 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
-        return getExistingEntities(contextId, contextType, layoutId).map(ActionCollectionDTO::getName);
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        return getExistingEntities(contextId, contextType, layoutId, viewMode).map(ActionCollectionDTO::getName);
     }
 
     protected Flux<ActionCollectionDTO> getExistingEntities(
-            String contextId, CreatorContextType contextType, String layoutId) {
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (StringUtils.hasText(contextId)) {
             params.add(FieldName.PAGE_ID, contextId);
         }
-        return actionCollectionService.getActionCollectionsByViewMode(params, false);
+        return actionCollectionService.getActionCollectionsByViewMode(params, viewMode);
     }
 }

@@ -37,7 +37,6 @@ import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 import reactor.util.function.Tuples;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -106,7 +105,6 @@ public class ThemeServiceTest {
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Theme Service Test workspace");
-        workspace.setUserRoles(new ArrayList<>());
         this.workspace = workspaceService.create(workspace).block();
     }
 

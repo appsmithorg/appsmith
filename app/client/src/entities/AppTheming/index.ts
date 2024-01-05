@@ -60,21 +60,23 @@ export interface AppTheme {
   // styles for specific widgets
   stylesheet: AppThemeStylesheet;
   // current values for the theme
-  properties: {
-    colors: {
-      primaryColor: string;
-      backgroundColor: string;
-      [key: string]: string;
-    };
-    borderRadius: {
-      [key: string]: string;
-    };
-    boxShadow: {
-      [key: string]: string;
-    };
-    fontFamily: {
-      [key: string]: string;
-    };
+  properties: AppThemeProperties;
+}
+
+export interface AppThemeProperties {
+  colors: {
+    primaryColor: string;
+    backgroundColor: string;
+    [key: string]: string;
+  };
+  borderRadius: {
+    [key: string]: string;
+  };
+  boxShadow: {
+    [key: string]: string;
+  };
+  fontFamily: {
+    [key: string]: string;
   };
 }
 

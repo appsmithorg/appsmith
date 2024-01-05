@@ -17,7 +17,7 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
 
-describe("Git discard changes:", function () {
+describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   let datasourceName;
   let repoName;
   const query1 = "get_employees";

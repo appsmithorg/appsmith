@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.models.ChatMessage;
 import com.external.plugins.models.ChatRequestDTO;
 import com.external.plugins.models.OpenAIRequestDTO;
+import com.external.plugins.utils.MessageUtils;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -90,7 +91,8 @@ public class ChatCommand implements OpenAICommand {
 
         chatRequestDTO.setModel(model);
         // this will change to objects
-        List<ChatMessage> chatMessages = transformToMessages(formData.get(MESSAGES));
+        List<ChatMessage> chatMessages =
+                transformToMessages(MessageUtils.extractMessages((Map<String, Object>) formData.get(MESSAGES)));
         verifyRoleForChatMessages(chatMessages);
 
         Float temperature = getTemperatureFromFormData(formData);

@@ -268,11 +268,13 @@ export interface ActionOperation {
   pluginId?: string;
   focusEntityType?: FocusEntity;
   dsName?: string;
+  entityExplorerTitle?: string;
 }
 
 export const actionOperations: ActionOperation[] = [
   {
     title: "New blank API",
+    entityExplorerTitle: "REST API",
     desc: "Create a new API",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (
@@ -290,6 +292,7 @@ export const actionOperations: ActionOperation[] = [
   },
   {
     title: "New blank GraphQL API",
+    entityExplorerTitle: "GraphQL API",
     desc: "Create a new API",
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
@@ -308,6 +311,7 @@ export const actionOperations: ActionOperation[] = [
   },
   {
     title: "New JS Object",
+    entityExplorerTitle: "Import from cURL",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),

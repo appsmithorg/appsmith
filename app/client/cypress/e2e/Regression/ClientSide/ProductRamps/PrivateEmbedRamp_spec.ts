@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Private embed in-app ramp", () => {
+describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
   function checkRampTextInAppSettings() {
     _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
     _.agHelper.AssertElementAbsence(

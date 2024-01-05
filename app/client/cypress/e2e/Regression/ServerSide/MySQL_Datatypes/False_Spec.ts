@@ -10,7 +10,7 @@ import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, query: string;
 
-describe("MySQL Datatype tests", function () {
+describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   before("Create Mysql DS & Create mysqlDTs table", function () {
     featureFlagIntercept({
       ab_gsheet_schema_enabled: true,

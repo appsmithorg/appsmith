@@ -75,6 +75,7 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
+import type { IDEState } from "reducers/uiReducers/ideReducer";
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
@@ -144,6 +145,7 @@ export interface AppState {
     actionSelector: ActionSelectorReduxState;
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;
+    ide: IDEState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

@@ -62,6 +62,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
+    Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission);
+
     Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
 
@@ -76,4 +78,6 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection);
 
     Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection);
+
+    Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO);
 }

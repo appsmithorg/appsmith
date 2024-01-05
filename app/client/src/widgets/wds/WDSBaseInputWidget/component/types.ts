@@ -20,6 +20,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   isLoading?: boolean;
   placeholder?: string;
   isDisabled?: boolean;
+  isReadOnly?: boolean;
   isRequired?: boolean;
   defaultValue?: string | number;
   onValueChange?: (value: string) => void;

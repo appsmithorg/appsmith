@@ -1,33 +1,34 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ADD_PAGE_FROM_TEMPLATE_MODAL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import React, { useEffect } from "react";
-import Masonry from "react-masonry-css";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import {
   getSearchedTemplateList,
   getTemplateFilterSelector,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
-import Template from "../Template";
+import BuildingBlock from "../BuildingBlock";
+import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 import RequestTemplate from "../Template/RequestTemplate";
 import LoadingScreen from "../TemplatesModal/LoadingScreen";
-import { Wrapper, SubheadingText, HorizontalLine } from "./StyledComponents";
 import {
-  TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
   TEMPLATE_ALL_FILTER_FUNCTION_VALUE,
+  TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
 } from "../constants";
-
-const breakpointColumnsObject = {
-  default: 4,
-  3000: 3,
-  1500: 3,
-  1024: 2,
-  800: 1,
-};
+import {
+  HorizontalLine,
+  SubheadingText,
+  TemplateGrid,
+  Wrapper,
+} from "./StyledComponents";
 
 interface StartWithTemplateListProps {
   isForkingEnabled: boolean;
+  isModalLayout?: boolean;
   templates: TemplateInterface[];
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
@@ -63,29 +64,25 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
   );
 
   return (
-    <Wrapper>
+    <Wrapper isModalLayout={props.isModalLayout}>
       {showBuildingBlocksSection && (
         <>
-          <SubheadingText kind="heading-m">Building blocks</SubheadingText>
+          <SubheadingText kind="heading-m">
+            {createMessage(ADD_PAGE_FROM_TEMPLATE_MODAL.buildingBlocksTitle)}
+          </SubheadingText>
 
-          <Masonry
-            breakpointCols={breakpointColumnsObject}
-            className="grid"
-            columnClassName="grid_column"
-          >
+          <TemplateGrid>
             {buildingBlocks.map((template) => (
-              <Template
-                hideForkTemplateButton={props.isForkingEnabled}
-                isBuildingBlock
+              <BuildingBlock
+                buildingBlock={template}
+                hideForkTemplateButton={!props.isForkingEnabled}
                 key={template.id}
                 onClick={props.onTemplateClick}
                 onForkTemplateClick={props.onForkTemplateClick}
-                size="large"
-                template={template}
               />
             ))}
-            {onlyBuildingBlocksFilterSet && <RequestTemplate />}
-          </Masonry>
+            {onlyBuildingBlocksFilterSet && <RequestTemplate isBuildingBlock />}
+          </TemplateGrid>
         </>
       )}
 
@@ -93,25 +90,20 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
 
       {!onlyBuildingBlocksFilterSet && (
         <>
-          <SubheadingText kind="heading-m">Templates</SubheadingText>
+          <SubheadingText kind="heading-m">Use case templates</SubheadingText>
 
-          <Masonry
-            breakpointCols={breakpointColumnsObject}
-            className="grid"
-            columnClassName="grid_column"
-          >
+          <TemplateGrid>
             {useCaseTemplates.map((template) => (
-              <Template
-                hideForkTemplateButton={props.isForkingEnabled}
+              <FixedHeightTemplate
+                hideForkTemplateButton={!props.isForkingEnabled}
                 key={template.id}
                 onClick={props.onTemplateClick}
                 onForkTemplateClick={props.onForkTemplateClick}
-                size="large"
                 template={template}
               />
             ))}
             <RequestTemplate />
-          </Masonry>
+          </TemplateGrid>
         </>
       )}
     </Wrapper>
@@ -119,6 +111,7 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
 }
 
 interface StartWithTemplateContentProps {
+  isModalLayout?: boolean;
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
   stickySearchBar?: boolean;
@@ -130,18 +123,11 @@ export function StartWithTemplateContent(props: StartWithTemplateContentProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const isLoading = isFetchingApplications || isFetchingTemplates;
-  const dispatch = useDispatch();
 
   const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
   const templates = useSelector(getSearchedTemplateList).filter((template) =>
     filterWithAllowPageImport ? !!template.allowPageImport : true,
   );
-
-  useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
-    });
-  }, []);
 
   if (isLoading) {
     return <LoadingScreen text="Loading templates" />;
@@ -150,6 +136,7 @@ export function StartWithTemplateContent(props: StartWithTemplateContentProps) {
   return (
     <StartWithTemplateList
       isForkingEnabled={props.isForkingEnabled}
+      isModalLayout={props.isModalLayout}
       onForkTemplateClick={props.onForkTemplateClick}
       onTemplateClick={props.onTemplateClick}
       templates={templates}

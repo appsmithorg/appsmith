@@ -8,9 +8,13 @@ import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
 
-export enum ACTION_PARENT_ENTITY_TYPE {
-  PAGE = "PAGE",
-}
+export const CreateNewActionKey = {
+  PAGE: "pageId",
+} as const;
+
+export const ActionParentEntityType = {
+  PAGE: "PAGE",
+} as const;
 
 export const getPageDependencyActions = (
   currentWorkspaceId: string = "",

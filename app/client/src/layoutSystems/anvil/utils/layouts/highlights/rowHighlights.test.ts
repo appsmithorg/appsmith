@@ -26,6 +26,7 @@ import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutCompon
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
 import { registerLayoutComponents } from "../layoutUtils";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("rowHighlights tests", () => {
   beforeAll(() => {
@@ -59,9 +60,21 @@ describe("rowHighlights tests", () => {
   describe("extractMetaInformation", () => {
     it("should find the tallest widget in a row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          widgetId: "1",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "2",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "3",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         "0": {
@@ -113,10 +126,26 @@ describe("rowHighlights tests", () => {
     });
     it("should identify wrapping and determine information for each wrapped row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
-        { widgetId: "4", alignment: FlexLayerAlignment.Start },
+        {
+          widgetId: "1",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "2",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "3",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "4",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         "0": {
@@ -178,10 +207,26 @@ describe("rowHighlights tests", () => {
     });
     it("should identify reverse wrapping", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
-        { widgetId: "4", alignment: FlexLayerAlignment.Start },
+        {
+          widgetId: "1",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "2",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "3",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "4",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         "0": {
@@ -257,9 +302,21 @@ describe("rowHighlights tests", () => {
     };
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          widgetId: "1",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "2",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "3",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: {
@@ -324,8 +381,7 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
     });
@@ -333,9 +389,21 @@ describe("rowHighlights tests", () => {
   describe("deriveRowHighlights", () => {
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          widgetId: "1",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "2",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "3",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: {
@@ -376,7 +444,7 @@ describe("rowHighlights tests", () => {
         data,
         getDimensions,
       );
-      const highlights = deriveRowHighlights(
+      const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
         [],
@@ -405,16 +473,27 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
     });
     it("should derive highlights for a wrapped row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          widgetId: "1",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "2",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "3",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: {
@@ -450,12 +529,8 @@ describe("rowHighlights tests", () => {
           offsetTop: 70,
         },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
-      const res: RowMetaInformation = extractMetaInformation(
-        data,
-        getDimensions,
-      );
-      const highlights = deriveRowHighlights(
+
+      const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
         [],
@@ -484,8 +559,7 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
 
@@ -494,9 +568,21 @@ describe("rowHighlights tests", () => {
     });
     it("should derive highlights for a reverse wrapped row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          widgetId: "1",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "2",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
+        {
+          widgetId: "3",
+          alignment: FlexLayerAlignment.Start,
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: {
@@ -532,12 +618,8 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
-      const res: RowMetaInformation = extractMetaInformation(
-        data,
-        getDimensions,
-      );
-      const highlights = deriveRowHighlights(
+
+      const { highlights } = deriveRowHighlights(
         { ...baseProps, layout: data },
         "0",
         [],
@@ -566,8 +648,7 @@ describe("rowHighlights tests", () => {
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
       expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
+        (highlights[1].posX - highlights[0].posX) *
           HORIZONTAL_DROP_ZONE_MULTIPLIER,
       );
 
@@ -582,7 +663,7 @@ describe("rowHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layout: [],
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 100,
@@ -593,7 +674,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -621,7 +702,7 @@ describe("rowHighlights tests", () => {
         layoutStyle: {
           justifyContent: "center",
         },
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 100,
@@ -632,7 +713,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -664,7 +745,7 @@ describe("rowHighlights tests", () => {
         layoutStyle: {
           justifyContent: "end",
         },
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 100,
@@ -675,7 +756,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -709,7 +790,7 @@ describe("rowHighlights tests", () => {
        */
       const layoutOne: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: false,
-      });
+      }).layout as LayoutComponentProps;
       const button1: string = (layoutOne.layout[0] as WidgetLayoutProps)
         .widgetId;
       const input1: string = (layoutOne.layout[1] as WidgetLayoutProps)
@@ -723,7 +804,7 @@ describe("rowHighlights tests", () => {
        */
       const layoutTwo: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: false,
-      });
+      }).layout as LayoutComponentProps;
       const button2: string = (layoutTwo.layout[0] as WidgetLayoutProps)
         .widgetId;
       const input2: string = (layoutTwo.layout[1] as WidgetLayoutProps)
@@ -741,7 +822,7 @@ describe("rowHighlights tests", () => {
           layout: [layoutOne, layoutTwo],
         },
         false,
-      );
+      ).layout as LayoutComponentProps;
       /**
        * Create a map of widget positions.
        */
@@ -803,7 +884,7 @@ describe("rowHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],
@@ -835,7 +916,7 @@ describe("rowHighlights tests", () => {
        */
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
-      });
+      }).layout as LayoutComponentProps;
       const button1: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       /**
@@ -871,7 +952,7 @@ describe("rowHighlights tests", () => {
       /**
        * Calculate highlights when the first child widget is being dragged.
        */
-      const res: AnvilHighlightInfo[] = deriveRowHighlights(
+      const { highlights: res } = deriveRowHighlights(
         layout,
         "0",
         [],

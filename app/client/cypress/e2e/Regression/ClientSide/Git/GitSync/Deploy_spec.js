@@ -3,7 +3,7 @@ import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
-describe("Git sync modal: deploy tab", function () {
+describe("Git sync modal: deploy tab", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

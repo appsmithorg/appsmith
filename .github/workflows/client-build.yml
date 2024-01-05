@@ -34,13 +34,14 @@ defaults:
 
 jobs:
   client-build:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: appsmith-self-hosted-deployment-runner-8cpu-16gb-ram
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' 
     defaults:
       run:
         working-directory: app/client
@@ -73,10 +74,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-tags: true
+      - name: Get changed files in the client folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v41
+        with:
+          files: 'app/client/**'
+
+      - name: Run step if any file(s) in the client folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+        run: |
+          echo "One or more files in the server folder has changed."
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
       # get all the files changes in the cypress/e2e folder
       - name: Get added files in cypress/e2e folder
-        if: inputs.pr != 0
+        if: inputs.pr != 0 && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: files
         uses: umani/changed-files@v4.1.0
         with:
@@ -86,7 +100,7 @@ jobs:
 
       # Check all the newly added files are in ts
       - name: Check the newly added files are written in ts
-        if: inputs.check-test-files == 'true' && inputs.pr != 0
+        if: inputs.check-test-files == 'true' && inputs.pr != 0 && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: check_files
         run: |
           files=(${{steps.files.outputs.files_created}})
@@ -101,7 +115,7 @@ jobs:
 
       # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
-        if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
+        if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0 && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ inputs.pr }}
@@ -109,11 +123,11 @@ jobs:
             <b>Below new test files are written in js 🔴 </b>
             <b>Expected format ts. Please fix and retrigger ok-to-test:</b>
             <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
-      - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
+      - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0 && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: exit 1
 
       - name: Get all the added or changed files in client/src folder
-        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: client_files
         uses: umani/changed-files@v4.1.0
         with:
@@ -123,7 +137,7 @@ jobs:
 
       # Check all the newly added files are in ts
       - name: ADS compliant check
-        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: ads_check
         run: |
           comment_files=""
@@ -142,7 +156,7 @@ jobs:
 
       # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
-        if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ inputs.pr }}
@@ -155,6 +169,7 @@ jobs:
       # Create a run record exactly at the time of merge to release to
       # ensure we compare run details with code at this point
       - name: Create Perf Meta
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
         run: |
           PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
@@ -164,6 +179,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: actions/cache@v3
         with:
           path: |
@@ -172,15 +188,16 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
       # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'
+      - if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/setup-node@v3
         with:
           node-version-file: app/client/package.json
@@ -189,7 +206,7 @@ jobs:
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/cache@v3
         id: cache-dependencies
         with:
@@ -198,16 +215,18 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --immutable
+        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        run: |
+          npm install -g yarn
+          yarn install --immutable
 
       # Type checking before starting the build
       - name: Run type check
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: yarn run check-types
 
       - name: Set the build environment based on the branch
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
         run: |
           set +o pipefail
@@ -229,6 +248,7 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
@@ -246,13 +266,14 @@ jobs:
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v3
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        if: steps.cache-dependencies.outputs.cache-hit != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: actions/cache@v3
         with:
           path: |
@@ -260,8 +281,30 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-client
 
       - name: Pack the client build directory
+        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           tar -cvf ./build.tar -C build .
+
+      - name: Fetch client build from cache
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/client
+          git lfs pull ./build.tar        
+          mv ./build.tar ../../../../../build.tar
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
@@ -269,6 +312,31 @@ jobs:
         with:
           name: client-build
           path: app/client/build.tar
+
+      - name: Put release build in cache
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          pwd
+          mkdir cacherepo
+          cd ./cacherepo
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          cd cibuildcache/
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd $repodir/release/client
+          cp ../../../../../build.tar ./
+          git lfs track "build.tar"
+          git add  build.tar
+          git commit -m "Update Latest build.tar"
+          git push
 
       # Set status = success
       - name: Save the status of the run

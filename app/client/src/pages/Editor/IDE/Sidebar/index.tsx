@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
-import useCurrentAppState from "../hooks";
+import { useCurrentAppState } from "../hooks";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";

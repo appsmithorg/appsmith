@@ -1,3 +1,12 @@
+import {
+  HTTP_PROTOCOL_INPUT_PLACEHOLDER,
+  createMessage,
+} from "@appsmith/constants/messages";
+import {
+  HTTP_PROTOCOL,
+  HTTP_PROTOCOL_VERSIONS,
+} from "constants/ApiEditorConstants/CommonApiConstants";
+
 export default [
   {
     sectionName: "",
@@ -32,11 +41,23 @@ export default [
         initialValue: true,
       },
       {
+        label: "Protocol",
+        configProperty: "actionConfiguration.httpVersion",
+        name: "actionConfiguration.httpVersion",
+        controlType: "DROP_DOWN",
+        subtitle:
+          "Select the protocol that best suits your security and performance requirements.",
+        initialValue: HTTP_PROTOCOL.HTTP11.label,
+        options: HTTP_PROTOCOL_VERSIONS,
+        placeholder: createMessage(HTTP_PROTOCOL_INPUT_PLACEHOLDER),
+      },
+      {
         label: "API timeout (in milliseconds)",
         subtitle: "Maximum time after which the API will return",
         controlType: "INPUT_TEXT",
         configProperty: "actionConfiguration.timeoutInMillisecond",
         dataType: "NUMBER",
+        width: "270px",
       },
     ],
   },

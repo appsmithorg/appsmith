@@ -91,8 +91,8 @@ describe("Autocomplete bug fixes", { tags: ["@tag.JS"] }, function () {
   });
 
   it(
-    "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
@@ -106,8 +106,8 @@ describe("Autocomplete bug fixes", { tags: ["@tag.JS"] }, function () {
   );
 
   it(
-    "excludeForAirgap",
     "8. No autocomplete for Removed libraries",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
       AppSidebar.navigate(AppSidebarButton.Libraries);

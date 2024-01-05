@@ -194,8 +194,8 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = update.parsedBody;
-    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-    if (parsedBody) {
+    if (parsedBody && !!jsAction) {
+      const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
       // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
       if (data.nameChangedActions.length) {

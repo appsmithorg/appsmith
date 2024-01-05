@@ -1,0 +1,49 @@
+.widgetName {
+  font-weight: 500;
+  flex-grow: 1;
+}
+.headerControlsRight {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+  flex-basis: 288px;
+  width: 288px;
+  flex-grow: 0;
+  border-left: 1px solid var(--ads-v2-color-gray-300);
+  height: 49px;
+  border-bottom: 1px solid var(--ads-v2-color-gray-300);
+}
+
+.headerControlsLeft {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 0.5rem;
+  padding-right: 1rem;
+  flex-basis: calc(100% - 288px);
+  width: calc(100% - 288px);
+  flex-grow: 0;
+  gap: 1rem;
+}
+
+.referenceTrigger {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-weight: 500;
+}
+
+.layoutControl {
+  flex-grow: 0;
+  flex-basis: 100px;
+}
+
+.templateMenu {
+  flex-grow: 0;
+}

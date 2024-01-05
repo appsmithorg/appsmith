@@ -24,7 +24,7 @@ import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "@appsmith/RouteBuilder";
 import TemplateViewHeader from "./TemplateViewHeader";
-
+import { registerEditorWidgets } from "utils/editor/EditorUtils";
 const breakpointColumnsObject = {
   default: 4,
   3000: 3,
@@ -148,6 +148,9 @@ export function TemplateView({
     history.push(TEMPLATES_PATH);
   };
 
+  useEffect(() => {
+    registerEditorWidgets();
+  }, []);
   useEffect(() => {
     dispatch(getTemplateInformation(templateId));
     dispatch(getSimilarTemplatesInit(templateId));

@@ -2,7 +2,7 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 
 const widgetName = "radiogroupwidget";
 
-describe("Radio Group Widget", () => {
+describe("Radio Group Widget", { tags: ["@tag.Widget", "@tag.Radio"] }, () => {
   it("Drag & drop Radio group & Text widgets", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });

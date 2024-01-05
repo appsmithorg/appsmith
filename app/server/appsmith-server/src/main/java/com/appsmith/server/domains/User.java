@@ -37,10 +37,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private String hashedEmail;
 
-    // TODO: This is deprecated in favour of groups
-    @JsonView(Views.Public.class)
-    private Set<Role> roles;
-
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonView(Views.Public.class)
     private String password;
@@ -63,26 +59,11 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private Boolean emailVerified;
 
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private String currentOrganizationId;
-
     @JsonView(Views.Public.class)
     private String currentWorkspaceId;
 
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private Set<String> organizationIds;
-
     @JsonView(Views.Public.class)
     private Set<String> workspaceIds;
-
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private String examplesOrganizationId;
 
     @JsonView(Views.Public.class)
     private String examplesWorkspaceId;

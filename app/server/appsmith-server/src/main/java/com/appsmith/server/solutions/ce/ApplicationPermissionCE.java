@@ -12,4 +12,12 @@ public interface ApplicationPermissionCE {
     AclPermission getCanCommentPermission();
 
     AclPermission getPageCreatePermission();
+
+    AclPermission getGitConnectPermission();
+
+    AclPermission getManageProtectedBranchPermission();
+
+    AclPermission getManageDefaultBranchPermission();
+
+    AclPermission getManageAutoCommitPermission();
 }

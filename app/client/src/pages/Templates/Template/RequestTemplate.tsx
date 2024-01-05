@@ -8,6 +8,7 @@ import {
   createMessage,
   COULDNT_FIND_TEMPLATE_DESCRIPTION,
   REQUEST_TEMPLATE,
+  REQUEST_BUILDING_BLOCK,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -50,7 +51,15 @@ const StyledImage = styled.img`
 const REQUEST_TEMPLATE_URL =
   "https://app.appsmith.com/app/request-templates/request-list-6241c12fc99df2369931a714";
 
-function RequestTemplate() {
+interface RequestTemplateProps {
+  isBuildingBlock?: boolean;
+}
+
+function RequestTemplate(props: RequestTemplateProps) {
+  const REQUEST_TEXT = props.isBuildingBlock
+    ? createMessage(REQUEST_BUILDING_BLOCK)
+    : createMessage(REQUEST_TEMPLATE);
+
   const onClick = () => {
     AnalyticsUtil.logEvent("REQUEST_NEW_TEMPLATE");
     window.open(REQUEST_TEMPLATE_URL);
@@ -66,7 +75,7 @@ function RequestTemplate() {
         {createMessage(COULDNT_FIND_TEMPLATE_DESCRIPTION)}
       </Text>
       <Button className="button" onClick={onClick} size="md">
-        {createMessage(REQUEST_TEMPLATE)}
+        {REQUEST_TEXT}
       </Button>
     </Wrapper>
   );

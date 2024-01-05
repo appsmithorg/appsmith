@@ -12,6 +12,7 @@ export interface User {
   photoId?: string;
   isSuperUser: boolean;
   role?: string;
+  proficiency?: string;
   useCase?: string;
   isConfigurable: boolean;
   enableTelemetry: boolean;

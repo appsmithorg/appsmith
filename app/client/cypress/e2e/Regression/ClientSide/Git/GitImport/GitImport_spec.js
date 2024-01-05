@@ -21,7 +21,7 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
 
-describe("Git import flow ", function () {
+describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace();

@@ -8,7 +8,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test", function () {
+describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   before(() => {
     agHelper.AddDsl("layoutdsl");
   });

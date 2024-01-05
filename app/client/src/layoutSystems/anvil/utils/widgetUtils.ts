@@ -1,5 +1,5 @@
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
-import type { SizeConfig } from "WidgetProvider/constants";
+import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
 import { MOBILE_BREAKPOINT } from "./constants";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import WidgetFactory from "WidgetProvider/factory";
@@ -19,14 +19,14 @@ export const getResponsiveMinWidth = (
 ): Record<string, string> | undefined => {
   if (!config) {
     return isFillWidget
-      ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
+      ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "auto" }
       : undefined;
   }
   if (!isFillWidget) return config;
   const minWidth = config["base"];
   return {
     ...config,
-    base: "100%",
+    base: `max(100%, ${minWidth})`, // using a max between 100% and minWidth because zones can go below mobile breakpoints even on larger screens.
     [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] ?? minWidth,
   };
 };
@@ -57,6 +57,7 @@ export const defaultSizeConfig: SizeConfig = {
 export const getWidgetSizeConfiguration = (
   type: string,
   props: BaseWidgetProps,
+  isPreviewMode: boolean,
 ): SizeConfig => {
   let res: SizeConfig = defaultSizeConfig;
 
@@ -65,7 +66,7 @@ export const getWidgetSizeConfiguration = (
   if (!widgetSize) return res;
 
   if (isFunction(widgetSize)) {
-    res = widgetSize(props);
+    res = widgetSize(props, isPreviewMode);
   } else if (Object.keys(widgetSize).length) {
     res = widgetSize;
   }
@@ -87,3 +88,8 @@ export const getWidgetSizeConfiguration = (
         },
   };
 };
+
+export function isLargeWidget(type: string): boolean {
+  const config: AnvilConfig | null = WidgetFactory.getWidgetAnvilConfig(type);
+  return config && config.isLargeWidget;
+}

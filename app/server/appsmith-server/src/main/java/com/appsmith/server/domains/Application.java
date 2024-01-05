@@ -38,11 +38,6 @@ public class Application extends ImportableContext {
     @NotNull @JsonView(Views.Public.class)
     String name;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
-
     @JsonView(Views.Public.class)
     String workspaceId;
 
@@ -201,10 +196,6 @@ public class Application extends ImportableContext {
     @JsonView(Views.Public.class)
     String forkedFromTemplateTitle;
 
-    @JsonView(Views.Internal.class)
-    @Deprecated
-    String defaultPermissionGroup;
-
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
@@ -251,6 +242,16 @@ public class Application extends ImportableContext {
                         application.getPublishedApplicationDetail().getNavigationSetting() == null
                                 ? null
                                 : new NavigationSetting());
+        this.getUnpublishedApplicationDetail()
+                .setThemeSetting(
+                        application.getUnpublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new ThemeSetting());
+        this.getPublishedApplicationDetail()
+                .setThemeSetting(
+                        application.getPublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new ThemeSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -269,7 +270,6 @@ public class Application extends ImportableContext {
     @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
-        this.setOrganizationId(null);
         this.setModifiedBy(null);
         this.setCreatedBy(null);
         this.setLastDeployedAt(null);
@@ -280,7 +280,6 @@ public class Application extends ImportableContext {
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
-        this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
         this.setExportWithConfiguration(null);
         this.setForkWithConfiguration(null);
@@ -322,18 +321,6 @@ public class Application extends ImportableContext {
     public static class AppLayout implements Serializable {
         @JsonView(Views.Public.class)
         Type type;
-
-        /**
-         * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
-         * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
-         */
-        @JsonView(Views.Internal.class)
-        @Deprecated(forRemoval = true)
-        Integer width = null;
-
-        public AppLayout(Type type) {
-            this.type = type;
-        }
 
         public enum Type {
             DESKTOP,
@@ -410,6 +397,38 @@ public class Application extends ImportableContext {
             FIXED,
             AUTO,
             ANVIL
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class ThemeSetting {
+
+        @JsonView(Views.Public.class)
+        private String accentColor;
+
+        @JsonView(Views.Public.class)
+        private String borderRadius;
+
+        @JsonView(Views.Public.class)
+        private float sizing = 1;
+
+        @JsonView(Views.Public.class)
+        private float density = 1;
+
+        @JsonView(Views.Public.class)
+        private String fontFamily;
+
+        @JsonView(Views.Public.class)
+        Type colorMode;
+
+        public ThemeSetting(Type colorMode) {
+            this.colorMode = colorMode;
+        }
+
+        public enum Type {
+            LIGHT,
+            DARK
         }
     }
 }

@@ -15,9 +15,9 @@ export const PageViewWrapper = styled.div<{
   ${({ isPreview }) => (isPreview ? "width: 100%;" : "")};
 `;
 
-export const PageView = styled.div<{ width: number }>`
+export const PageView = styled.div<{ width: string }>`
   height: 100%;
   position: relative;
-  width: ${(props) => props.width}px;
+  width: ${(props) => props.width};
   margin: 0 auto;
 `;

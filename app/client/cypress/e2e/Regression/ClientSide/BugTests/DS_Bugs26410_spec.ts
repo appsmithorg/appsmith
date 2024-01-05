@@ -4,9 +4,8 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
-  "excludeForAirgap",
   "Fix UQI query switching",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", " @tag.excludeForAirgap"] },
   function () {
     it("1. The command of the Mongo query must be preserved and should not default to initial value after changed.", function () {
       dataSources.NavigateToDSCreateNew();
