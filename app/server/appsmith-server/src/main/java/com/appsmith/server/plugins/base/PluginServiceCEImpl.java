@@ -159,7 +159,11 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<Plugin> create(Plugin plugin) {
-        return Mono.error(new UnsupportedOperationException("No creating plugins via API allowed."));
+        if (plugin.getId() != null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
+        }
+
+        return super.create(plugin);
     }
 
     @Override
