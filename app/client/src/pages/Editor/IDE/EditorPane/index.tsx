@@ -7,8 +7,10 @@ import { SentryRoute } from "@appsmith/AppRouter";
 import { ADD_PATH } from "constants/routes";
 import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
+import { useEditorPaneWidth } from "../hooks";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
+  const width = useEditorPaneWidth();
   return (
     <Flex
       className="ide-pages-pane"
@@ -16,7 +18,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width="260px"
+      width={width + "px"}
     >
       <Pages />
       {/* divider is inside the Pages component */}

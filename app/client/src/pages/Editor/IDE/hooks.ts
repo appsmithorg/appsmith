@@ -3,10 +3,14 @@ import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorState,
+  EditorViewMode,
 } from "entities/IDE/constants";
 import { useLocation } from "react-router";
 import { getCurrentAppState } from "entities/IDE/utils";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { useSelector } from "react-redux";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -78,4 +82,25 @@ export const useCurrentEditorState = () => {
     segment: selectedSegment,
     segmentMode: selectedSegmentState,
   };
+};
+
+export const useEditorPaneWidth = (): number => {
+  const [width, setWidth] = useState(255);
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
+  const { segment } = useCurrentEditorState();
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
+  useEffect(() => {
+    if (
+      isSideBySideEnabled &&
+      editorMode === EditorViewMode.HalfScreen &&
+      segment !== EditorEntityTab.UI
+    ) {
+      setWidth(255 + propertyPaneWidth);
+    } else {
+      setWidth(255);
+    }
+  }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
+
+  return width;
 };

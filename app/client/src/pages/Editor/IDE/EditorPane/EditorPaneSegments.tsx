@@ -19,13 +19,23 @@ import { JSSection } from "./JS_Section";
 import { WidgetsSection } from "./WidgetsSection";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 import SegmentedHeader from "./components/SegmentedHeader";
+import { useSelector } from "react-redux";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { EditorViewMode } from "entities/IDE/constants";
+import EditorTabs from "../EditorTabs";
+import JSEditor from "../../JSEditor";
 
 const EditorPaneSegments = () => {
   const { path } = useRouteMatch();
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
 
   return (
     <Flex flexDirection="column" gap="spacing-2" overflow="hidden">
       <SegmentedHeader />
+      {isSideBySideEnabled && editorMode === EditorViewMode.HalfScreen ? (
+        <EditorTabs />
+      ) : null}
       <EntityProperties />
       <Flex
         className="ide-pages-pane__content"
@@ -45,10 +55,14 @@ const EditorPaneSegments = () => {
             ]}
           />
           <SentryRoute
-            component={JSSection}
+            component={
+              isSideBySideEnabled && editorMode === EditorViewMode.HalfScreen
+                ? JSEditor
+                : JSSection
+            }
             path={[
-              `${path}${JS_COLLECTION_EDITOR_PATH}`,
               `${path}${JS_COLLECTION_ID_PATH}`,
+              `${path}${JS_COLLECTION_EDITOR_PATH}`,
             ]}
           />
           <SentryRoute

@@ -6,7 +6,7 @@ import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/useRoutes";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { EditorViewMode } from "entities/IDE/constants";
-import FileTabs from "./FileTabs";
+import EditorTabs from "../EditorTabs";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 export const MainPane = (props: { id: string }) => {
@@ -21,7 +21,7 @@ export const MainPane = (props: { id: string }) => {
       id={props.id}
     >
       {isSideBySideEnabled && editorMode === EditorViewMode.FullScreen ? (
-        <FileTabs />
+        <EditorTabs />
       ) : null}
       <Switch key={BUILDER_PATH}>
         {routes.map((route) => (
