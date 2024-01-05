@@ -67,8 +67,8 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
 
     private Boolean checkIfDatasourceIdExists(TriggerRequestDTO triggerRequestDTO) {
         Map<String, Object> triggerParameters = triggerRequestDTO.getParameters();
-        return !triggerParameters.containsKey(DATASOURCE_ID)
-                && StringUtils.isEmpty((String) triggerParameters.get(DATASOURCE_ID));
+        return triggerParameters.containsKey(DATASOURCE_ID)
+                && StringUtils.isNotEmpty((String) triggerParameters.get(DATASOURCE_ID));
     }
 
     protected void setHeadersToTriggerRequest(
