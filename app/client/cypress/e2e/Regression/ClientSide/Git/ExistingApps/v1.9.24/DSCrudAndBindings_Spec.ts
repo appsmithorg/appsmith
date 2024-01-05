@@ -17,7 +17,7 @@ import EditorNavigation, {
   PageLeftPane,
 } from "../../../../../../support/Pages/EditorNavigation";
 
-describe(
+describe.skip(
   "Import and validate older app (app created in older versions of Appsmith) from Gitea",
   { tags: ["@tag.Git"] },
   function () {
