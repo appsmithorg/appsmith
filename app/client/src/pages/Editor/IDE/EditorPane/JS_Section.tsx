@@ -22,6 +22,7 @@ import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers"
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 
 const JSContainer = styled(Flex)`
+  gap: var(--ads-v2-spaces-4);
   & .t--entity-item {
     grid-template-columns: 0 auto 1fr auto auto auto auto auto;
     height: 32px;
@@ -58,9 +59,10 @@ const JSSection = () => {
       className="ide-pages-pane__content-js"
       flexDirection="column"
       overflow="hidden"
+      py="spaces-3"
     >
       {JSObjects && JSObjects.length > 0 && canCreateActions && (
-        <Flex flexDirection="column" padding="spaces-3">
+        <Flex flexDirection="column" px="spaces-3">
           <Button
             kind={"secondary"}
             onClick={addButtonClickHandler}
@@ -77,13 +79,7 @@ const JSSection = () => {
         parentEntityId={pageId}
         parentEntityType={ActionParentEntityType.PAGE}
       >
-        <Flex
-          flex="1"
-          flexDirection="column"
-          gap="spaces-2"
-          overflowY="auto"
-          padding="spaces-3"
-        >
+        <Flex flex="1" flexDirection="column" overflowY="auto" px="spaces-3">
           {JSObjects &&
             JSObjects.map((JSobject) => {
               return (

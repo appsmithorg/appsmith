@@ -55,6 +55,10 @@ const DatasourceIcon = styled.img`
   align-self: flex-start;
 `;
 
+const StyledList = styled(List)`
+  gap: 0;
+`;
+
 const DataSidePane = () => {
   const editorType = useEditorType(history.location.pathname);
   const pageId = useSelector(getCurrentPageId) as string;
@@ -118,7 +122,7 @@ const DataSidePane = () => {
         {Object.entries(groupedDatasources).map(([key, value]) => (
           <SubListContainer key={key}>
             <Text kind="heading-xs">{key}</Text>
-            <List
+            <StyledList
               items={value.map((data) => ({
                 className: "t--datasource",
                 title: data.name,

@@ -163,7 +163,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     public boolean shouldCacheContextForThisPlugin(Plugin plugin) {
         // !(a || b) => (!a) & (!b)
         return !PluginConstants.PackageName.REST_API_PLUGIN.equals(plugin.getPackageName())
-                && !PluginConstants.PackageName.GRAPH_QL_PLUGIN.equals(plugin.getPackageName());
+                && !PluginConstants.PackageName.GRAPHQL_PLUGIN.equals(plugin.getPackageName());
     }
 
     public Mono<Object> updateDatasourceAndSetAuthentication(Object connection, DatasourceStorage datasourceStorage) {

@@ -23,7 +23,7 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
     <div
       className={className}
       id={getAnvilCanvasId(props.widgetId)}
-      onClickCapture={handleOnClickCapture}
+      onClick={handleOnClickCapture}
     >
       <LayoutProvider {...props} />
     </div>

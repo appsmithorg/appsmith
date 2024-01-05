@@ -290,7 +290,7 @@ jobs:
           cp ../../../../../server.jar ./
           git lfs track "server.jar"
           git add  server.jar
-          git commit -m "Update Latest Server.jar"
+          git commit --allow-empty -m "Update Latest Server.jar"
           git push
 
       - name: Save the status of the run

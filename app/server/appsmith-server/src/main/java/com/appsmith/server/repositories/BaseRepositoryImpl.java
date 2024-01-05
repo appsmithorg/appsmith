@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
 
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -67,19 +68,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
         super(entityInformation, mongoOperations);
         this.entityInformation = entityInformation;
         this.mongoOperations = mongoOperations;
-    }
-
-    private Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED_AT).exists(false),
-                                        where(FieldName.DELETED_AT).is(null)));
     }
 
     private Criteria getIdCriteria(Object id) {

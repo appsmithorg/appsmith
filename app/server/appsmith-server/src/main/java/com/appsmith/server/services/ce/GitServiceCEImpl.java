@@ -100,6 +100,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.GitConstants.CONFLICTED_SUCCESS_MESSAGE;
 import static com.appsmith.external.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
 import static com.appsmith.external.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
@@ -3158,6 +3160,11 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<Application> addAnalyticsForGitOperation(
+            AnalyticsEvents eventName, String branchName, Application application) {
+        return addAnalyticsForGitOperation(eventName, application, null, null, null, false, null, branchName);
+    }
+
+    private Mono<Application> addAnalyticsForGitOperation(
             AnalyticsEvents eventName,
             Application application,
             String errorType,
@@ -3185,12 +3192,29 @@ public class GitServiceCEImpl implements GitServiceCE {
             Boolean isRepoPrivate,
             Boolean isSystemGenerated,
             Boolean isMergeable) {
+
+        String branchName = application.getGitApplicationMetadata() != null
+                ? application.getGitApplicationMetadata().getBranchName()
+                : null;
+        return addAnalyticsForGitOperation(
+                event, application, errorType, errorMessage, isRepoPrivate, isSystemGenerated, isMergeable, branchName);
+    }
+
+    private Mono<Application> addAnalyticsForGitOperation(
+            AnalyticsEvents event,
+            Application application,
+            String errorType,
+            String errorMessage,
+            Boolean isRepoPrivate,
+            Boolean isSystemGenerated,
+            Boolean isMergeable,
+            String branchName) {
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         Map<String, Object> analyticsProps = new HashMap<>();
         if (gitData != null) {
             analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultApplicationId());
             analyticsProps.put("appId", gitData.getDefaultApplicationId());
-            analyticsProps.put(FieldName.BRANCH_NAME, gitData.getBranchName());
+            analyticsProps.put(FieldName.BRANCH_NAME, branchName);
             analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
             analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
             if (event == AnalyticsEvents.GIT_COMMIT) {
@@ -3254,11 +3278,17 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     if (branchNames.isEmpty()
                             || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
+                        // keep a copy of old protected branches as it's required to send analytics event later
+                        List<String> oldProtectedBranches = metadata.getBranchProtectionRules() != null
+                                ? metadata.getBranchProtectionRules()
+                                : List.of();
+
                         // user wants to unprotect all branches or user wants to protect only default branch
                         metadata.setBranchProtectionRules(branchNames);
                         return applicationService
                                 .save(rootApplication)
                                 .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
+                                .then(sendBranchProtectionAnalytics(rootApplication, oldProtectedBranches, branchNames))
                                 .thenReturn(branchNames);
                     } else {
                         // user want to protect multiple branches, not allowed
@@ -3330,5 +3360,40 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .getGitApplicationMetadata()
                                 .getAutoCommitConfig()
                                 .getEnabled()));
+    }
+
+    /**
+     * Sends one or more analytics events when there's a change in protected branches.
+     * If n number of branches are un-protected and m number of branches are protected, it'll send m+n number of
+     * events. It receives the list of branches before and after the action.
+     * For example, if user has "main" and "develop" branches as protected and wants to include "staging" branch as
+     * protected as well, then oldProtectedBranches will be ["main", "develop"] and newProtectedBranches will be
+     * ["main", "develop", "staging"]
+     * @param application Application object of the root application
+     * @param oldProtectedBranches List of branches that were protected before this action.
+     * @param newProtectedBranches List of branches that are going to be protected.
+     * @return An empty Mono
+     */
+    protected Mono<Void> sendBranchProtectionAnalytics(
+            Application application, List<String> oldProtectedBranches, List<String> newProtectedBranches) {
+        List<String> itemsAdded = new ArrayList<>(newProtectedBranches); // add all new items
+        itemsAdded.removeAll(oldProtectedBranches); // remove the items that were present earlier
+
+        List<String> itemsRemoved = new ArrayList<>(oldProtectedBranches); // add all old items
+        itemsRemoved.removeAll(newProtectedBranches); // remove the items that are also present in new list
+
+        List<Mono<Application>> eventSenderMonos = new ArrayList<>();
+
+        // send an analytics event for each removed branch
+        for (String branchName : itemsRemoved) {
+            eventSenderMonos.add(addAnalyticsForGitOperation(GIT_REMOVE_PROTECTED_BRANCH, branchName, application));
+        }
+
+        // send an analytics event for each newly protected branch
+        for (String branchName : itemsAdded) {
+            eventSenderMonos.add(addAnalyticsForGitOperation(GIT_ADD_PROTECTED_BRANCH, branchName, application));
+        }
+
+        return Flux.merge(eventSenderMonos).then();
     }
 }

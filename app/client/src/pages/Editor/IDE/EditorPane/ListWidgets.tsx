@@ -45,12 +45,12 @@ const ListWidgets = () => {
   }, [widgets]);
 
   return (
-    <Flex flexDirection="column" overflow="hidden">
+    <Flex flexDirection="column" gap="spaces-4" overflow="hidden" py="spaces-3">
       {widgets &&
         widgets.children &&
         widgets.children.length > 0 &&
         canManagePages && (
-          <Flex flexDirection="column" padding="spaces-3">
+          <Flex flexDirection="column" px="spaces-3">
             <Button
               kind={"secondary"}
               onClick={addButtonClickHandler}
@@ -61,13 +61,7 @@ const ListWidgets = () => {
             </Button>
           </Flex>
         )}
-      <Flex
-        flex="1"
-        flexDirection={"column"}
-        gap="spaces-3"
-        overflowY="auto"
-        padding="spaces-3"
-      >
+      <Flex flex="1" flexDirection={"column"} overflowY="auto" px="spaces-3">
         {widgets?.children?.map((child) => (
           <WidgetEntity
             childWidgets={child.children}
