@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilCanvasActivationStates } from "./useCanvasActivationStates";
 import { canActivateCanvasForDraggedWidget } from "../utils";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {
@@ -36,6 +37,7 @@ const checkIfMousePositionIsInsideBlock = (
 // This buffer will make sure main canvas is not deactivated
 // until its about the below pixel distance from the main canvas border.
 const MAIN_CANVAS_BUFFER = 20;
+const SECTION_BUFFER = 20;
 
 export const useCanvasActivation = ({
   activateOverlayWidgetDrop,
@@ -158,6 +160,13 @@ export const useCanvasActivation = ({
               currentCanvasPositions.top -= MAIN_CANVAS_BUFFER;
               currentCanvasPositions.width += 2 * MAIN_CANVAS_BUFFER;
               currentCanvasPositions.height += 2 * MAIN_CANVAS_BUFFER;
+            }
+            const layoutInfo = allLayouts[each];
+            if (layoutInfo.layoutType === LayoutComponentTypes.SECTION) {
+              currentCanvasPositions.top += SECTION_BUFFER;
+              currentCanvasPositions.height -= 2 * SECTION_BUFFER;
+              currentCanvasPositions.width += 2 * SECTION_BUFFER;
+              currentCanvasPositions.left -= SECTION_BUFFER;
             }
             if (currentCanvasPositions) {
               return checkIfMousePositionIsInsideBlock(

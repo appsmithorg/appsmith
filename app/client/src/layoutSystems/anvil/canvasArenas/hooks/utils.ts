@@ -152,7 +152,7 @@ export const getClosestHighlight = (
   // Return the closest highlight.
   return sortedHighlights[0];
 };
-
+const PaddingForHorizontalDropZone = 8;
 export function getViableDropPositions(
   arr: AnvilHighlightInfo[],
   pos: XYCord,
@@ -160,31 +160,20 @@ export function getViableDropPositions(
   if (!arr) return [];
 
   // Filter out vertical highlights.
-  const verticalHighlights = arr.filter(
-    (highlight: AnvilHighlightInfo) => highlight.isVertical,
+  const verticalSelection = arr.filter(
+    (highlight: AnvilHighlightInfo) =>
+      highlight.isVertical &&
+      pos.y >= highlight.posY &&
+      pos.y <= highlight.posY + highlight.height,
   );
-
-  // Filter out horizontal highlights.
-  const horizontalHighlights = arr.filter(
-    (highlight: AnvilHighlightInfo) => !highlight.isVertical,
-  );
-
-  /**
-   * Each vertical highlight has a drop zone on the left and right.
-   *
-   * <-- left --> | <-- right -->
-   *
-   * If the mouse is within the drop zone, the highlight is a viable drop position.
-   */
-  const verticalSelection = verticalHighlights.filter(
-    (highlight: AnvilHighlightInfo) => {
-      return (
-        pos.y >= highlight.posY &&
-        pos.y <= highlight.posY + highlight.height &&
-        isWithinHorizontalDropZone(pos, highlight)
-      );
-    },
-  );
+  const isInsideACell = verticalSelection.length > 0;
+  const isInsideCellTriggerZone =
+    isInsideACell &&
+    verticalSelection[0].posY + PaddingForHorizontalDropZone < pos.y &&
+    pos.y <
+      verticalSelection[0].posY +
+        verticalSelection[0].height -
+        PaddingForHorizontalDropZone;
 
   /**
    * Each horizontal highlight has a drop zone on the top and bottom.
@@ -205,15 +194,15 @@ export function getViableDropPositions(
    * If there are also some contending vertical highlights sharing a drop zone,
    * then vertical highlights get priority and the a fraction of the drop zone of horizontal highlights is considered.
    */
-  const horizontalSelection = horizontalHighlights.filter(
-    (highlight: AnvilHighlightInfo) => {
-      return (
-        pos.x >= highlight.posX &&
-        pos.x <= highlight.posX + highlight.width &&
-        isWithinVerticalDropZone(pos, highlight, verticalSelection?.length > 0)
-      );
-    },
-  );
+  const horizontalSelection = isInsideCellTriggerZone
+    ? []
+    : arr.filter((highlight: AnvilHighlightInfo) => {
+        return (
+          !highlight.isVertical &&
+          pos.x >= highlight.posX &&
+          pos.x <= highlight.posX + highlight.width
+        );
+      });
 
   return [...verticalSelection, ...horizontalSelection];
 }
