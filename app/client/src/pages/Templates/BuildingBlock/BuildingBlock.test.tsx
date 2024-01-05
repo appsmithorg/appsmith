@@ -7,9 +7,14 @@ import { templateIdUrl } from "@appsmith/RouteBuilder";
 
 import BuildingBlock from ".";
 import history from "utils/history";
-import type { Template } from "api/TemplatesApi";
 import { lightTheme } from "selectors/themeSelectors";
-import { BUILDING_BLOCK_THUMBNAIL_ALT_TEXT } from "../constants";
+import {
+  BUILDING_BLOCK_THUMBNAIL_ALT_TEXT,
+  MOCK_BUILDING_BLOCK_DESCRIPTION,
+  MOCK_BUILDING_BLOCK_ID,
+  MOCK_BUILDING_BLOCK_TITLE,
+  mockBuildingBlock,
+} from "../constants";
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
@@ -21,30 +26,6 @@ jest.mock("react-redux", () => {
 });
 
 const onForkTemplateClick = jest.fn();
-
-const MOCK_BUILDING_BLOCK_TITLE = "Test Building Block";
-const MOCK_BUILDING_BLOCK_DESCRIPTION =
-  "Description of the test building block";
-const MOCK_BUILDING_BLOCK_ID = "mockId";
-
-const mockBuildingBlock: Template = {
-  id: MOCK_BUILDING_BLOCK_ID,
-  userPermissions: ["read", "write"],
-  title: MOCK_BUILDING_BLOCK_TITLE,
-  description: MOCK_BUILDING_BLOCK_DESCRIPTION,
-  appUrl: "https://mockapp.com",
-  gifUrl: "https://mockapp.com/mock.gif",
-  screenshotUrls: [
-    "https://mockapp.com/screenshot1.jpg",
-    "https://mockapp.com/screenshot2.jpg",
-  ],
-  widgets: [],
-  functions: ["Function1", "Function2"],
-  useCases: ["UseCase1", "UseCase2"],
-  datasources: ["Datasource1", "Datasource2"],
-  pages: [],
-  allowPageImport: true,
-};
 
 const BaseBuildingBlockRender = () => (
   <ThemeProvider theme={lightTheme}>
