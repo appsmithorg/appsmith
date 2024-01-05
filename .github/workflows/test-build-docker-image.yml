@@ -35,7 +35,7 @@ jobs:
           if [ "${{github.event_name}}" == "workflow_dispatch" ]; then
             if [[ "${{inputs.tags}}" != "" ]]; then 
               if [[ ("${{inputs.tags}}" == *ALL* || "${{inputs.tags}}" == *ALL* ||  "${{inputs.tags}}" == *all*) && "${{inputs.tags}}" != "@tag.All" ]]; then 
-                echo "tags_All = ${{inputs.tags}}" >> $GITHUB_OUTPUT
+                echo "tags_All=${{inputs.tags}}" >> $GITHUB_OUTPUT
               else
                 echo "tags=${{inputs.tags}}" >> $GITHUB_OUTPUT
                 echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]" >> $GITHUB_OUTPUT
@@ -53,6 +53,10 @@ jobs:
         run: |
           echo "tags_All=${{ steps.setup.outputs.tags_All }}"
           echo "tags=${{inputs.tags}}"
+
+      - name: Stop the workflow run if given @tag.All format is wrong
+        if: steps.setup.outputs.tags_All != ''
+        run: exit 1
 
 
   server-build:
