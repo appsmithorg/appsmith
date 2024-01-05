@@ -51,7 +51,11 @@ const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
 const renderBlocksOnCanvas = (
   stickyCanvas: HTMLCanvasElement,
   blockToRender: AnvilHighlightInfo,
+  shouldDraw: boolean,
 ) => {
+  if (!shouldDraw) {
+    return;
+  }
   // Calculating offset based on the position of the canvas
   const topOffset = getAbsolutePixels(stickyCanvas.style.top);
   const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
@@ -157,6 +161,7 @@ export const useCanvasDragging = (
       )?.highlights;
     }
   };
+  const canvasIsDragging = useRef(false);
 
   useEffect(() => {
     // Effect to handle changes in isCurrentDraggedCanvas
@@ -176,6 +181,7 @@ export const useCanvasDragging = (
         slidingArenaRef.current.style.backgroundColor = "unset";
         slidingArenaRef.current.style.color = "unset";
         slidingArenaRef.current.innerText = "";
+        canvasIsDragging.current = false;
       } else {
         // If currently dragged, set the z-index to activate the canvas
         slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.activated;
@@ -189,7 +195,6 @@ export const useCanvasDragging = (
         slidingArenaRef.current,
       );
 
-      let canvasIsDragging = false;
       let currentRectanglesToDraw: AnvilHighlightInfo;
       const scrollObj: any = {};
       const resetCanvasState = () => {
@@ -208,7 +213,7 @@ export const useCanvasDragging = (
           slidingArenaRef.current.style.backgroundColor = "unset";
           slidingArenaRef.current.style.color = "unset";
           slidingArenaRef.current.innerText = "";
-          canvasIsDragging = false;
+          canvasIsDragging.current = false;
           dispatch(setHighlightsDrawn());
         }
       };
@@ -217,7 +222,7 @@ export const useCanvasDragging = (
         const onMouseUp = () => {
           if (
             isDragging &&
-            canvasIsDragging &&
+            canvasIsDragging.current &&
             (currentRectanglesToDraw || activateOverlayWidgetDrop) &&
             allowToDrop
           ) {
@@ -238,12 +243,12 @@ export const useCanvasDragging = (
           if (
             isCurrentDraggedCanvas &&
             isDragging &&
-            !canvasIsDragging &&
+            !canvasIsDragging.current &&
             slidingArenaRef.current
           ) {
             // Calculate highlights when the mouse enters the canvas
             calculateHighlights();
-            canvasIsDragging = true;
+            canvasIsDragging.current = true;
             onMouseMove(e);
           }
         };
@@ -251,7 +256,7 @@ export const useCanvasDragging = (
         const onMouseMove = (e: any) => {
           if (
             isCurrentDraggedCanvas &&
-            canvasIsDragging &&
+            canvasIsDragging.current &&
             slidingArenaRef.current &&
             stickyCanvasRef.current
           ) {
@@ -277,6 +282,7 @@ export const useCanvasDragging = (
               renderBlocksOnCanvas(
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
+                canvasIsDragging.current,
               );
               // Store information for auto-scroll functionality
               scrollObj.lastMouseMoveEvent = {
