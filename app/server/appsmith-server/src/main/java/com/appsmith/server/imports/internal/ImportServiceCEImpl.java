@@ -166,9 +166,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(contextJson);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
-                .map(contextBasedImportService::getImportContextPermissionProviderForImportingContext)
-                .flatMap(permissionProvider ->
-                        importApplicationInWorkspace(workspaceId, contextJson, null, null, false, permissionProvider));
+                .zipWhen(userPermissionGroup -> {
+                    return Mono.just(contextBasedImportService.getImportContextPermissionProviderForImportingContext(
+                            userPermissionGroup));
+                })
+                .flatMap(tuple2 -> {
+                    Set<String> userPermissionGroup = tuple2.getT1();
+                    ImportApplicationPermissionProvider permissionProvider = tuple2.getT2();
+                    return importApplicationInWorkspace(
+                            workspaceId, contextJson, null, null, false, permissionProvider, userPermissionGroup);
+                });
     }
 
     @Override
@@ -196,9 +203,23 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 contextBasedImportService.dehydrateNameForContextUpdate(contextId, importableContextJson);
                 return permissionGroupRepository
                         .getCurrentUserPermissionGroups()
-                        .map(contextBasedImportService::getImportContextPermissionProviderForUpdatingContext)
-                        .flatMap(permissionProvider -> importApplicationInWorkspace(
-                                workspaceId, importableContextJson, contextId, null, false, permissionProvider))
+                        .zipWhen(userPermissionGroup -> {
+                            return Mono.just(
+                                    contextBasedImportService.getImportContextPermissionProviderForUpdatingContext(
+                                            userPermissionGroup));
+                        })
+                        .flatMap(tuple2 -> {
+                            Set<String> userPermissionGroup = tuple2.getT1();
+                            ImportApplicationPermissionProvider permissionProvider = tuple2.getT2();
+                            return importApplicationInWorkspace(
+                                    workspaceId,
+                                    importableContextJson,
+                                    contextId,
+                                    null,
+                                    false,
+                                    permissionProvider,
+                                    userPermissionGroup);
+                        })
                         .onErrorResume(error -> {
                             if (error instanceof AppsmithException) {
                                 return Mono.error(error);
@@ -221,18 +242,22 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 getContextBasedImportService(importableContextJson);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
-                .map(userPermissionGroups -> {
-                    return contextBasedImportService.getImportContextPermissionProviderForConnectingToGit(
-                            userPermissionGroups);
+                .zipWhen(userPermissionGroups -> {
+                    return Mono.just(contextBasedImportService.getImportContextPermissionProviderForConnectingToGit(
+                            userPermissionGroups));
                 })
-                .flatMap(contextPermissionProvider -> {
+                .flatMap(tuple2 -> {
+                    Set<String> userPermissionGroup = tuple2.getT1();
+                    ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
+
                     return importApplicationInWorkspace(
                             workspaceId,
                             importableContextJson,
                             contextId,
                             branchName,
                             false,
-                            contextPermissionProvider);
+                            contextPermissionProvider,
+                            userPermissionGroup);
                 });
     }
 
@@ -247,18 +272,22 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 getContextBasedImportService(importableContextJson);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
-                .map(userPermissionGroups -> {
-                    return contextBasedImportService.getImportContextPermissionProviderForRestoringSnapshot(
-                            userPermissionGroups);
+                .zipWhen(userPermissionGroups -> {
+                    return Mono.just(contextBasedImportService.getImportContextPermissionProviderForRestoringSnapshot(
+                            userPermissionGroups));
                 })
-                .flatMap(contextPermissionProvider -> {
+                .flatMap(tuple2 -> {
+                    Set<String> userPermissionGroup = tuple2.getT1();
+                    ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
+
                     return importApplicationInWorkspace(
                             workspaceId,
                             importableContextJson,
                             contextId,
                             branchName,
                             false,
-                            contextPermissionProvider);
+                            contextPermissionProvider,
+                            userPermissionGroup);
                 });
     }
 
@@ -286,14 +315,24 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         contextBasedImportService.updateContextJsonWithRequiredPagesToImport(importableContextJson, pagesToImport);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
-                .map(userPermissionGroups -> {
-                    return contextBasedImportService
-                            .getImportContextPermissionProviderForMergingImportableContextWithJson(
-                                    userPermissionGroups);
+                .zipWhen(userPermissionGroups -> {
+                    return Mono.just(
+                            contextBasedImportService
+                                    .getImportContextPermissionProviderForMergingImportableContextWithJson(
+                                            userPermissionGroups));
                 })
-                .flatMap(contextPermissionProvider -> {
+                .flatMap(tuple2 -> {
+                    Set<String> userPermissionGroup = tuple2.getT1();
+                    ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
+
                     return importApplicationInWorkspace(
-                            workspaceId, importableContextJson, contextId, branchName, true, contextPermissionProvider);
+                            workspaceId,
+                            importableContextJson,
+                            contextId,
+                            branchName,
+                            true,
+                            contextPermissionProvider,
+                            userPermissionGroup);
                 });
     }
 
@@ -323,7 +362,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String contextId,
             String branchName,
             boolean appendToContext,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportApplicationPermissionProvider permissionProvider,
+            Set<String> permissionGroups) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
@@ -337,10 +377,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
          * Step 6: get application specific import entities
          * Step 7: get allImportEntities like plugins, datasource, action and other stuffs
          * Step 8: get update page and new action with already created references.
-         */
-
-        /**
-         * Auxiliary tasks -- make importable entities (plugin, database, actions, & collections, import context agnostic
          */
 
         // step 1: Schema Migration
@@ -363,8 +399,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }
 
-        ImportingMetaDTO importingMetaDTO =
-                new ImportingMetaDTO(workspaceId, contextId, branchName, appendToContext, permissionProvider);
+        ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
+                workspaceId, contextId, branchName, appendToContext, permissionProvider, permissionGroups);
 
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
         contextBasedImportService.performAuxiliaryImportTasks(importedDoc);
