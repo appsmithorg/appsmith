@@ -29,10 +29,6 @@
               "value": "TEXT_ENTITY_EXTRACT"
             },
             {
-              "label": "Generate Image",
-              "value": "IMAGE_GENERATE"
-            },
-            {
               "label": "Classify Image",
               "value": "IMAGE_CLASSIFY"
             },
@@ -54,7 +50,6 @@
     "textClassification.json",
     "textSummarization.json",
     "textEntityExtraction.json",
-    "imageGeneration.json",
     "imageClassification.json",
     "imageCaptioning.json",
     "imageEntityExtraction.json"
