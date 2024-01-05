@@ -249,7 +249,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
-
                     return importApplicationInWorkspace(
                             workspaceId,
                             importableContextJson,
@@ -279,7 +278,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
-
                     return importApplicationInWorkspace(
                             workspaceId,
                             importableContextJson,
@@ -324,7 +322,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
-
                     return importApplicationInWorkspace(
                             workspaceId,
                             importableContextJson,
