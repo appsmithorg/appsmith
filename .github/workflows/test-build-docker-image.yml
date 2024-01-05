@@ -34,7 +34,7 @@ jobs:
         run: |
           if [ "${{github.event_name}}" == "workflow_dispatch" ]; then
             if [[ "${{inputs.tags}}" != "" &&  ("${{inputs.tags}}" == *ALL* || "${{inputs.tags}}" == *ALL*) ]]; then 
-              if[[ "${{inputs.tags}}" != "@tag.All" ]]; then 
+              if [[ "${{inputs.tags}}" != "@tag.All" ]]; then 
                 echo "tags_All = ${{inputs.tags}}" >> $GITHUB_OUTPUT
               fi
             fi
