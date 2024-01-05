@@ -208,9 +208,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         /* Fetch application id if not provided */
         Mono<String> applicationIdMonoCache;
         if (isBlank(applicationId)) {
-            applicationIdMonoCache = applicationPageService
-                    .getPage(defaultPageId, isViewMode)
-                    .map(PageDTO::getApplicationId)
+            applicationIdMonoCache = newPageService
+                    .findRootApplicationIdFromNewPage(branchName, defaultPageId)
                     .cache();
         } else {
             applicationIdMonoCache = Mono.just(applicationId).cache();
