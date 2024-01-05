@@ -100,17 +100,17 @@ export interface ReduxURLChangeAction {
   payload: ApplicationPagePayload | ApplicationPayload | Page;
 }
 export interface DeployConsolidatedApi {
-  productAlert: ApiResponse<ProductAlert>;
-  tenantConfig: ApiResponse;
-  featureFlags: ApiResponse<FeatureFlags>;
-  userProfile: ApiResponse;
-  pages: FetchApplicationResponse;
-  publishedActions: ApiResponse<ActionViewMode[]>;
-  publishedActionCollections: ApiResponse<JSCollection[]>;
-  customJSLibraries: ApiResponse;
-  pageWithMigratedDsl: FetchPageResponse;
-  currentTheme: ApiResponse<AppTheme[]>;
-  themes: ApiResponse<AppTheme>;
+  v1ProductAlertResp: ApiResponse<ProductAlert>;
+  v1TenantsCurrentResp: ApiResponse;
+  v1UsersFeaturesResp: ApiResponse<FeatureFlags>;
+  v1UsersMeResp: ApiResponse;
+  v1PagesResp: FetchApplicationResponse;
+  v1ActionsViewResp: ApiResponse<ActionViewMode[]>;
+  v1CollectionsActionsViewResp: ApiResponse<JSCollection[]>;
+  v1LibrariesApplicationResp: ApiResponse;
+  v1PublishedPageResp: FetchPageResponse;
+  v1ThemesApplicationCurrentModeResp: ApiResponse<AppTheme[]>;
+  v1ThemesResp: ApiResponse<AppTheme>;
 }
 export interface EditConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
@@ -131,7 +131,6 @@ export interface EditConsolidatedApi {
   pluginFormConfigs: ApiResponse<PluginFormPayload>[];
   unpublishedActions: ApiResponse<Action[]>;
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
-  pageWithMigratedDsl: FetchPageResponse;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
 export function* failFastApiCalls(
@@ -251,8 +250,13 @@ export function* getInitResponses({
     }
   }
 
-  const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
-    response || {};
+  const {
+    v1ProductAlertResp,
+    v1TenantsCurrentResp,
+    v1UsersFeaturesResp,
+    v1UsersMeResp,
+    ...rest
+  } = response || {};
   //actions originating from INITIALIZE_CURRENT_PAGE should update user details
   //other actions are not necessary
 
@@ -260,22 +264,22 @@ export function* getInitResponses({
     return rest;
   }
   // v1/users/me
-  // tie to userProfile
-  yield put(getCurrentUser(userProfile));
+  // tie to v1UsersMeResp
+  yield put(getCurrentUser(v1UsersMeResp));
   // v1/users/features
-  // tie to featureFlags
+  // tie to v1UsersFeaturesResp
   // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
   // do not fetch this again
   if (isConsolidatedApiFetchEnabled) {
-    yield put(fetchFeatureFlagsInit(featureFlags));
+    yield put(fetchFeatureFlagsInit(v1UsersFeaturesResp));
   }
   // v1/tenants/current
-  // tie to tenantConfig
-  yield put(getCurrentTenant(false, tenantConfig));
+  // tie to v1TenantsCurrentResp
+  yield put(getCurrentTenant(false, v1TenantsCurrentResp));
 
   // v1/product-alert/alert
-  // tie to productAlert
-  yield put(fetchProductAlertInit(productAlert));
+  // tie to v1ProductAlertResp
+  yield put(fetchProductAlertInit(v1ProductAlertResp));
   return rest;
 }
 
