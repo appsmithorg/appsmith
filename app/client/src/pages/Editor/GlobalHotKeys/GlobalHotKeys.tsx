@@ -36,10 +36,6 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "@appsmith/constants/messages";
-import { setPreviewModeInitAction } from "actions/editorActions";
-import { previewModeSelector } from "selectors/editorSelectors";
-import { getExplorerPinned } from "selectors/explorerSelector";
-import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
@@ -74,10 +70,7 @@ interface Props {
   appMode?: APP_MODE;
   isPreviewMode: boolean;
   isProtectedMode: boolean;
-  setPreviewModeInitAction: (shouldSet: boolean) => void;
-  isExplorerPinned: boolean;
   isSignpostingEnabled: boolean;
-  setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
@@ -264,7 +257,6 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.closeProppane();
             this.props.closeTableFilterProppane();
             e.preventDefault();
-            this.props.setPreviewModeInitAction(false);
           }}
         />
         <Hotkey
@@ -333,24 +325,6 @@ class GlobalHotKeys extends React.Component<Props> {
           stopPropagation
         />
         <Hotkey
-          combo="p"
-          global
-          label="Preview Mode"
-          onKeyDown={() => {
-            this.props.setPreviewModeInitAction(!this.props.isPreviewMode);
-          }}
-        />
-        <Hotkey
-          combo="mod + /"
-          disabled={this.props.isSignpostingEnabled}
-          global
-          label="Pin/Unpin Entity Explorer"
-          onKeyDown={() => {
-            this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
-            this.props.hideInstaller();
-          }}
-        />
-        <Hotkey
           combo="ctrl + shift + g"
           global
           label="Show git commit modal"
@@ -372,9 +346,7 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
-  isPreviewMode: previewModeSelector(state),
   isProtectedMode: protectedModeSelector(state),
-  isExplorerPinned: getExplorerPinned(state),
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });
 
@@ -399,10 +371,6 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
-    setPreviewModeInitAction: (shouldSet: boolean) =>
-      dispatch(setPreviewModeInitAction(shouldSet)),
-    setExplorerPinnedAction: (shouldSet: boolean) =>
-      dispatch(setExplorerPinnedAction(shouldSet)),
     showCommitModal: () =>
       dispatch(
         setIsGitSyncModalOpen({
