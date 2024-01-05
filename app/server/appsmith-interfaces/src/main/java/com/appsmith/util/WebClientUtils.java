@@ -15,6 +15,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -34,6 +35,8 @@ public class WebClientUtils {
             Set.of("169.254.169.254", "0:0:0:0:0:0:a9fe:a9fe", "fd00:ec2:0:0:0:0:0:254", "metadata.google.internal");
 
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
+
+    private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
 
     private static final InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
 
@@ -75,6 +78,9 @@ public class WebClientUtils {
     public static WebClient.Builder builder(HttpClient httpClient) {
         return WebClient.builder()
                 .filter(IP_CHECK_FILTER)
+                .exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE_IN_BYTES))
+                        .build())
                 .clientConnector(new ReactorClientHttpConnector(makeSafeHttpClient(httpClient)));
     }
 
