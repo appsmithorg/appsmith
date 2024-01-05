@@ -36,7 +36,7 @@ jobs:
         id: checkAll
         run: |
           tags="${{ github.event.client_payload.slash_command.args.named.tags }}"
-          if [[ ($tags == *"ALL"* || $tags == *"All"* ) && $tags != "@tag.All" ]]; then
+          if [[ ($tags == *"ALL"* || $tags == *"All"* ) && $tags != *"@tag.All"* ]]; then
             echo "tags_All=$tags" >> $GITHUB_OUTPUT
           elif [[ $tags == *"@tag.All"* ]]; then
             echo "tags=" >> $GITHUB_OUTPUT
@@ -54,6 +54,10 @@ jobs:
           body: |
             Please use `/ok-to-test tags="@tag.All"` to run all specs.
             Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
+      
+      - name: Stop the workflow run if given @tag.All format is wrong
+        if: steps.checkAll.outputs.tags_All != ''
+        run: exit 1
 
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to workflow run
