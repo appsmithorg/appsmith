@@ -178,7 +178,12 @@ describe(
 
       // Select the datasource, spreadsheet and sheet name
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClick(locators._visibleTextSpan(dataSourceName), 1, true, 1000);
+      agHelper.GetNClick(
+        locators._visibleTextSpan(dataSourceName),
+        1,
+        true,
+        1000,
+      );
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(
         dataSources._dropdownOption,
