@@ -45,11 +45,11 @@ export const featureFlagIntercept = (
     req.reply((res:any) => {
       if (res) {
         const originalResponse = res.body;
-        if (originalResponse?.data?.v1UsersFeaturesResp?.data) {
+        if (originalResponse?.data?.featureFlags?.data) {
           const updatedResponse = produce(originalResponse, (draft: any) => {
-            draft.data.v1UsersFeaturesResp.data = { ...draft.data.v1UsersFeaturesResp.data, ...flags };
-            draft.data.v1UsersFeaturesResp.data["release_app_sidebar_enabled"] = true;
-            draft.data.v1UsersFeaturesResp.data["rollout_consolidated_page_load_fetch_enabled"] = true;
+            draft.data.featureFlags.data = { ...draft.data.featureFlags.data, ...flags };
+            draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
+            draft.data.featureFlags.data["rollout_consolidated_page_load_fetch_enabled"] = true;
           })
           return res.send(updatedResponse);
         }

@@ -34,36 +34,36 @@ export const createActionSuccess = (payload: Action) => {
 
 export interface FetchActionsPayload {
   applicationId: string;
-  v1ActionsViewResp?: ApiResponse<ActionViewMode[]>;
-  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
-  v1CollectionsActionsResp?: ApiResponse<JSCollection[]>;
-  v1ActionsResp?: ApiResponse<Action[]>;
+  publishedActions?: ApiResponse<ActionViewMode[]>;
+  publishedActionCollections?: ApiResponse<JSCollection[]>;
+  unpublishedActionCollections?: ApiResponse<JSCollection[]>;
+  unpublishedActions?: ApiResponse<Action[]>;
 }
 
 export const fetchActions = (
   {
     applicationId,
-    v1ActionsResp,
-  }: { applicationId: string; v1ActionsResp?: ApiResponse<Action[]> },
+    unpublishedActions,
+  }: { applicationId: string; unpublishedActions?: ApiResponse<Action[]> },
   postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload: { applicationId, v1ActionsResp },
+    payload: { applicationId, unpublishedActions },
     postEvalActions,
   };
 };
 
 export const fetchActionsForView = ({
   applicationId,
-  v1ActionsViewResp,
+  publishedActions,
 }: {
   applicationId: string;
-  v1ActionsViewResp?: ApiResponse<ActionViewMode[]>;
+  publishedActions?: ApiResponse<ActionViewMode[]>;
 }): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId, v1ActionsViewResp },
+    payload: { applicationId, publishedActions },
   };
 };
 

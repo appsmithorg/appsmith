@@ -13,19 +13,19 @@ import type { Plugin } from "api/PluginApi";
 
 export const fetchPlugins = (payload?: {
   workspaceId?: string;
-  v1PluginsResp?: ApiResponse<Plugin[]>;
+  plugins?: ApiResponse<Plugin[]>;
 }): ReduxAction<{ workspaceId?: string } | undefined> => ({
   type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
   payload,
 });
 
 export const fetchPluginFormConfigs = (
-  v1PluginFormConfigsResp?: ApiResponse<PluginFormPayload>[],
+  pluginFormConfigs?: ApiResponse<PluginFormPayload>[],
 ): ReduxAction<{
-  v1PluginFormConfigsResp?: ApiResponse<PluginFormPayload>[];
+  pluginFormConfigs?: ApiResponse<PluginFormPayload>[];
 }> => ({
   type: ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_REQUEST,
-  payload: { v1PluginFormConfigsResp },
+  payload: { pluginFormConfigs },
 });
 
 export interface PluginFormsPayload {

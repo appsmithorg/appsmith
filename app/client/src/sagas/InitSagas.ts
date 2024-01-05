@@ -100,38 +100,38 @@ export interface ReduxURLChangeAction {
   payload: ApplicationPagePayload | ApplicationPayload | Page;
 }
 export interface DeployConsolidatedApi {
-  v1ProductAlertResp: ApiResponse<ProductAlert>;
-  v1TenantsCurrentResp: ApiResponse;
-  v1UsersFeaturesResp: ApiResponse<FeatureFlags>;
-  v1UsersMeResp: ApiResponse;
-  v1PagesResp: FetchApplicationResponse;
-  v1ActionsViewResp: ApiResponse<ActionViewMode[]>;
-  v1CollectionsActionsViewResp: ApiResponse<JSCollection[]>;
-  v1LibrariesApplicationResp: ApiResponse;
-  v1PublishedPageResp: FetchPageResponse;
-  v1ThemesApplicationCurrentModeResp: ApiResponse<AppTheme[]>;
-  v1ThemesResp: ApiResponse<AppTheme>;
+  productAlert: ApiResponse<ProductAlert>;
+  tenantConfig: ApiResponse;
+  featureFlags: ApiResponse<FeatureFlags>;
+  userProfile: ApiResponse;
+  pages: FetchApplicationResponse;
+  publishedActions: ApiResponse<ActionViewMode[]>;
+  publishedActionCollections: ApiResponse<JSCollection[]>;
+  customJSLibraries: ApiResponse;
+  pageWithMigratedDsl: FetchPageResponse;
+  currentTheme: ApiResponse<AppTheme[]>;
+  themes: ApiResponse<AppTheme>;
 }
 export interface EditConsolidatedApi {
-  v1ProductAlertResp: ApiResponse<ProductAlert>;
-  v1TenantsCurrentResp: ApiResponse;
-  v1UsersFeaturesResp: ApiResponse<FeatureFlags>;
-  v1UsersMeResp: ApiResponse;
-  v1PagesResp: FetchApplicationResponse;
-  v1ActionsViewResp: ApiResponse<ActionViewMode[]>;
-  v1CollectionsActionsViewResp: ApiResponse<JSCollection[]>;
-  v1LibrariesApplicationResp: ApiResponse;
-  v1PublishedPageResp: FetchPageResponse;
-  v1ThemesApplicationCurrentModeResp: ApiResponse<AppTheme[]>;
-  v1ThemesResp: ApiResponse<AppTheme>;
-  v1DatasourcesResp: ApiResponse<Datasource[]>;
-  v1PageDSLs: ApiResponse<FetchPageResponseData[]>;
-  v1PluginsResp: ApiResponse<Plugin[]>;
-  v1DatasourcesMockResp: ApiResponse;
-  v1PluginFormConfigsResp: ApiResponse<PluginFormPayload>[];
-  v1ActionsResp: ApiResponse<Action[]>;
-  v1CollectionsActionsResp: ApiResponse<JSCollection[]>;
-  v1PageResp: FetchPageResponse;
+  productAlert: ApiResponse<ProductAlert>;
+  tenantConfig: ApiResponse;
+  featureFlags: ApiResponse<FeatureFlags>;
+  userProfile: ApiResponse;
+  pages: FetchApplicationResponse;
+  publishedActions: ApiResponse<ActionViewMode[]>;
+  publishedActionCollections: ApiResponse<JSCollection[]>;
+  customJSLibraries: ApiResponse;
+  pageWithMigratedDsl: FetchPageResponse;
+  currentTheme: ApiResponse<AppTheme[]>;
+  themes: ApiResponse<AppTheme>;
+  datasources: ApiResponse<Datasource[]>;
+  pagesWithMigratedDsl: ApiResponse<FetchPageResponseData[]>;
+  plugins: ApiResponse<Plugin[]>;
+  mockDatasources: ApiResponse;
+  pluginFormConfigs: ApiResponse<PluginFormPayload>[];
+  unpublishedActions: ApiResponse<Action[]>;
+  unpublishedActionCollections: ApiResponse<JSCollection[]>;
+  pageWithMigratedDsl: FetchPageResponse;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
 export function* failFastApiCalls(
@@ -251,13 +251,8 @@ export function* getInitResponses({
     }
   }
 
-  const {
-    v1ProductAlertResp,
-    v1TenantsCurrentResp,
-    v1UsersFeaturesResp,
-    v1UsersMeResp,
-    ...rest
-  } = response || {};
+  const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
+    response || {};
   //actions originating from INITIALIZE_CURRENT_PAGE should update user details
   //other actions are not necessary
 
@@ -265,22 +260,22 @@ export function* getInitResponses({
     return rest;
   }
   // v1/users/me
-  // tie to v1UsersMeResp
-  yield put(getCurrentUser(v1UsersMeResp));
+  // tie to userProfile
+  yield put(getCurrentUser(userProfile));
   // v1/users/features
-  // tie to v1UsersFeaturesResp
+  // tie to featureFlags
   // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
   // do not fetch this again
   if (isConsolidatedApiFetchEnabled) {
-    yield put(fetchFeatureFlagsInit(v1UsersFeaturesResp));
+    yield put(fetchFeatureFlagsInit(featureFlags));
   }
   // v1/tenants/current
-  // tie to v1TenantsCurrentResp
-  yield put(getCurrentTenant(false, v1TenantsCurrentResp));
+  // tie to tenantConfig
+  yield put(getCurrentTenant(false, tenantConfig));
 
   // v1/product-alert/alert
-  // tie to v1ProductAlertResp
-  yield put(fetchProductAlertInit(v1ProductAlertResp));
+  // tie to productAlert
+  yield put(fetchProductAlertInit(productAlert));
   return rest;
 }
 

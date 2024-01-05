@@ -96,7 +96,7 @@ describe(
       cy.openPropertyPane("inputwidgetv2");
       cy.wait("@getConsolidatedData").should(
         "have.nested.property",
-        "response.body.data.v1PageResp.data.layouts[0].layoutOnLoadActionErrors.length",
+        "response.body.data.pageWithMigratedDsl.data.layouts[0].layoutOnLoadActionErrors.length",
         0,
       );
 

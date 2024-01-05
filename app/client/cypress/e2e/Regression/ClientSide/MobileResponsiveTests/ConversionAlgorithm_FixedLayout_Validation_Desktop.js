@@ -9,7 +9,7 @@ describe(
       _.agHelper.AddDsl("conversionFrAutoLayoutDsl");
       //cy.openPropertyPane("containerwidget");
       cy.get("@getConsolidatedData").then((httpResponse) => {
-        const data = httpResponse.response.body.data.v1PageResp.data;
+        const data = httpResponse.response.body.data.pageWithMigratedDsl.data;
         testHeight = data.layouts[0].dsl.bottomRow;
         //expect(testHeight).to.equal(380);
       });

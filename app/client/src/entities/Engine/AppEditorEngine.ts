@@ -111,38 +111,35 @@ export default class AppEditorEngine extends AppEngine {
     allResponses: EditConsolidatedApi,
   ) {
     const {
-      v1ActionsResp,
-      v1CollectionsActionsResp,
-      v1LibrariesApplicationResp,
-      v1PageResp,
-      v1ThemesApplicationCurrentModeResp,
-      v1ThemesResp,
+      currentTheme,
+      customJSLibraries,
+      pageWithMigratedDsl,
+      themes,
+      unpublishedActionCollections,
+      unpublishedActions,
     } = allResponses;
     const initActionsCalls = [
       // check from the feature flags response for release_server_dsl_migrations_enabled
       // if it is true or truthy set the migrateDSL parameter to true
       // v1/pages/:pageId?migrateDSL=!!release_server_dsl_migrations_enabled
-      // tie response to v1PageResp
-      setupPage(toLoadPageId, true, v1PageResp),
+      // tie response to pageWithMigratedDsl
+      setupPage(toLoadPageId, true, pageWithMigratedDsl),
       // params applicationId
       // v1/actions?applicationId=someApplicationId
-      // tie response to v1ActionsResp
-      fetchActions({ applicationId, v1ActionsResp }, []),
+      // tie response to unpublishedActions
+      fetchActions({ applicationId, unpublishedActions }, []),
       // params applicationId
       // v1/collections/actions?applicationId=someApplicationId
-      // tie response to v1CollectionsActionsResp
-      fetchJSCollections({ applicationId, v1CollectionsActionsResp }),
+      // tie response to unpublishedActionCollections
+      fetchJSCollections({ applicationId, unpublishedActionCollections }),
       // pathVariable applicationId
       // v1/themes/applications/:applicationId/current?mode=EDIT
-      // tie response to v1ThemesApplicationCurrentModeResp
-      fetchSelectedAppThemeAction(
-        applicationId,
-        v1ThemesApplicationCurrentModeResp,
-      ),
+      // tie response to currentTheme
+      fetchSelectedAppThemeAction(applicationId, currentTheme),
       // pathVariable applicationId
       // v1/themes/applications/:applicationId
       // tie response to v1ThemesApplicationsResp
-      fetchAppThemesAction(applicationId, v1ThemesResp),
+      fetchAppThemesAction(applicationId, themes),
     ];
 
     const successActionEffects = [
@@ -164,8 +161,8 @@ export default class AppEditorEngine extends AppEngine {
     initActionsCalls.push(
       // pathVariable applicationId
       // "v1/libraries/:applicationId
-      // tie response to v1LibrariesApplicationResp
-      fetchJSLibraries(applicationId, v1LibrariesApplicationResp),
+      // tie response to customJSLibraries
+      fetchJSLibraries(applicationId, customJSLibraries),
     );
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
 
@@ -188,8 +185,7 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   private *loadPluginsAndDatasources(allResponses: EditConsolidatedApi) {
-    const { v1DatasourcesMockResp, v1PluginFormConfigsResp } =
-      allResponses || {};
+    const { mockDatasources, pluginFormConfigs } = allResponses || {};
     const isAirgappedInstance = isAirgapped();
 
     const { errorActions, initActions, successActions } =
@@ -197,8 +193,8 @@ export default class AppEditorEngine extends AppEngine {
 
     if (!isAirgappedInstance) {
       // v1/datasources/mocks
-      // tie response to v1DatasourcesMockResp
-      initActions.push(fetchMockDatasources(v1DatasourcesMockResp));
+      // tie response to mockDatasources
+      initActions.push(fetchMockDatasources(mockDatasources));
 
       successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
       errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
@@ -224,8 +220,8 @@ export default class AppEditorEngine extends AppEngine {
       // for the above pluginIds make the fetch calls with the following api
       // v1/plugins/:pluginId/form
       // please attach a plugin id to each element in the collection
-      // tie response to v1PluginFormConfigsResp
-      [fetchPluginFormConfigs(v1PluginFormConfigsResp)],
+      // tie response to pluginFormConfigs
+      [fetchPluginFormConfigs(pluginFormConfigs)],
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );

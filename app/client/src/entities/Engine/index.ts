@@ -62,7 +62,7 @@ export default abstract class AppEngine {
 
   *loadAppData(payload: AppEnginePayload, allResponses: InitConsolidatedApi) {
     const { applicationId, branch, pageId } = payload;
-    const { v1PagesResp } = allResponses;
+    const { pages } = allResponses;
     // pick up all truthy params from the oneApi applicationId, mode, pageId
     // and if applicationId and pageId are both provided delete applicationId
     // when in edit
@@ -73,7 +73,7 @@ export default abstract class AppEngine {
     // v1/pages?mode=PUBLISHED&pageId=somePageId
     // or
     // v1/pages?mode=PUBLISHED&applicationId=somApplicationId
-    // tie response to v1PagesResp
+    // tie response to pages
 
     const apiCalls: boolean = yield failFastApiCalls(
       [
@@ -81,7 +81,7 @@ export default abstract class AppEngine {
           applicationId,
           pageId,
           mode: this._mode,
-          v1PagesResp,
+          pages,
         }),
       ],
       [

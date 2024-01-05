@@ -140,15 +140,15 @@ describe(
       cy.wait("@getConsolidatedData").then(($response) => {
       
         const respBody = JSON.stringify($response.response?.body);
-        const { v1PublishedPageResp } = JSON.parse(respBody)?.data;
+        const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
         const _randomFlora =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[0];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[0];
         const _randomUser =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[1];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[1];
         const _genderize =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[2];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[2];
         const _suggestions =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[3];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[3];
         // cy.log("_randomFlora is: " + JSON.stringify(_randomFlora))
         // cy.log("_randomUser is: " + JSON.stringify(_randomUser))
         // cy.log("_genderize is: " + JSON.stringify(_genderize))
@@ -200,16 +200,16 @@ describe(
       agHelper.Sleep(5000); //for all api's to ccomplete call!
       cy.wait("@getConsolidatedData").then(($response) => {
         const respBody = JSON.stringify($response.response?.body);
-        const { v1PublishedPageResp } = JSON.parse(respBody)?.data;
+        const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
 
         const _randomFlora =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[0];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[0];
         const _randomUser =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[1];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[1];
         const _genderize =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[2];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[2];
         const _suggestions =
-          v1PublishedPageResp.data.layouts[0].layoutOnLoadActions[3];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[3];
 
         expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
           "RandomFlora",

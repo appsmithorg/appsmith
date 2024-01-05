@@ -13,19 +13,19 @@ import type { ApiResponse } from "api/ApiResponses";
 
 export interface FetchJSCollectionsPayload {
   applicationId: string;
-  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
+  publishedActionCollections?: ApiResponse<JSCollection[]>;
 }
 
 export const fetchJSCollections = ({
   applicationId,
-  v1CollectionsActionsResp,
+  unpublishedActionCollections,
 }: {
   applicationId: string;
-  v1CollectionsActionsResp?: ApiResponse<JSCollection[]>;
+  unpublishedActionCollections?: ApiResponse<JSCollection[]>;
 }): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_INIT,
-    payload: { applicationId, v1CollectionsActionsResp },
+    payload: { applicationId, unpublishedActionCollections },
   };
 };
 
@@ -150,14 +150,14 @@ export const fetchJSCollectionsForPageError = () => {
 
 export const fetchJSCollectionsForView = ({
   applicationId,
-  v1CollectionsActionsViewResp,
+  publishedActionCollections,
 }: {
   applicationId: string;
-  v1CollectionsActionsViewResp?: ApiResponse<JSCollection[]>;
+  publishedActionCollections?: ApiResponse<JSCollection[]>;
 }): ReduxAction<FetchJSCollectionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId, v1CollectionsActionsViewResp },
+    payload: { applicationId, publishedActionCollections },
   };
 };
 

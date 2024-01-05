@@ -237,7 +237,7 @@ describe(
       }).as("appAndPages");
       cy.reload();
       cy.wait("@getConsolidatedData").then((intercept2) => {
-        const { application, pages } = intercept2.response.body.data.v1PagesResp.data;
+        const { application, pages } = intercept2.response.body.data.pages.data;
         const defaultPage = pages.find((p) => p.isDefault);
         legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
         newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
