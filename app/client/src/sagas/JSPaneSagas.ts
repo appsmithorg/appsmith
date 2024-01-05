@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import {
@@ -206,6 +207,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
                 actionId: data.nameChangedActions[i].id,
                 collectionName: jsAction.name,
                 pageId: data.nameChangedActions[i].pageId,
+                moduleId: data.nameChangedActions[i].moduleId,
                 oldName: data.nameChangedActions[i].oldName,
                 newName: data.nameChangedActions[i].newName,
               },
@@ -450,7 +452,18 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
+    yield put(
+      logActionExecutionForAudit({
+        actionName: action.name,
+        actionId: action.id,
+        collectionId: collectionId,
+        pageId: action.pageId,
+        pageName: yield select(getCurrentPageName),
+      }),
+    );
+
     const jsActionNameToDisplay = getJSActionNameToDisplay(action);
+
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
@@ -603,7 +616,9 @@ function* handleRefactorJSActionNameSaga(
   }>,
 ) {
   const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
-  const params: FetchPageRequest = { id: data.payload.refactorAction.pageId };
+  const params: FetchPageRequest = {
+    id: data.payload.refactorAction.pageId || "",
+  };
   if (isServerDSLMigrationsEnabled) {
     params.migrateDSL = true;
   }
