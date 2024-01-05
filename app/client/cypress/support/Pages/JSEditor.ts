@@ -137,7 +137,7 @@ export class JSEditor {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     this.agHelper
-      .GetElement(this.locator._createNew)
+      .GetElement(this.locator._createNew, "noVerify")
       .last()
       .click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
