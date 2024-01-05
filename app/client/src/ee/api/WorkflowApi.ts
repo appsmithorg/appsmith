@@ -14,6 +14,10 @@ export interface FetchWorkflowResponseData extends Workflow {}
 export type FetchWorkflowResponse = ApiResponse<FetchWorkflowResponseData>;
 export type FetchWorkflowsResponse = ApiResponse<FetchWorkflowResponseData[]>;
 
+export interface CreateWorkflowApiKeysResponse {
+  data: string;
+}
+
 export interface CreateWorkflowPayload {
   workspaceId: string;
   name: string;
@@ -28,6 +32,7 @@ export interface CreateWorkflowQueryActionPayload {
 }
 
 const BASE_URL = "v1/workflows";
+const API_KEY_BASE_URL = "v1/api-key/workflow";
 
 class WorkflowApi extends Api {
   static async fetchWorkflows(params: {
@@ -91,6 +96,22 @@ class WorkflowApi extends Api {
     const url = `${BASE_URL}/publish/${workflowId}`;
 
     return Api.post(url);
+  }
+
+  static async createWorkflowApiKey(
+    workflowId: string,
+  ): Promise<AxiosPromise<ApiResponse<CreateWorkflowApiKeysResponse>>> {
+    const url = `${API_KEY_BASE_URL}/${workflowId}`;
+
+    return Api.post(url);
+  }
+
+  static async archiveWorkflowApiKey(
+    workflowId: string,
+  ): Promise<AxiosPromise<ApiResponse<CreateWorkflowApiKeysResponse>>> {
+    const url = `${BASE_URL}/token/${workflowId}`;
+
+    return Api.delete(url);
   }
 }
 

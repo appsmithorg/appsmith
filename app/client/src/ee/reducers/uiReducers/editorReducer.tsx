@@ -19,6 +19,7 @@ export type EditorReduxState = CE_EditorReduxState & {
   isModuleFetchingEntities: boolean;
   currentWorkflowId?: string;
   isWorkflowPublishing: boolean;
+  isWorkflowTokenGenerating: boolean;
   isWorkflowEditorInitialized: boolean;
   isModuleUpdating: boolean;
 };
@@ -30,6 +31,7 @@ export const initialState: EditorReduxState = {
   isWorkflowPublishing: false,
   isModuleFetchingEntities: false,
   isWorkflowEditorInitialized: false,
+  isWorkflowTokenGenerating: false,
   isModuleUpdating: false,
 };
 
@@ -238,6 +240,36 @@ const handlers = {
     return {
       ...state,
       isWorkflowPublishing: false,
+    };
+  },
+  [ReduxActionTypes.TOGGLE_WORKFLOW_TOKEN]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isWorkflowTokenGenerating: true,
+    };
+  },
+  [ReduxActionTypes.CREATE_WORKFLOW_TOKEN_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isWorkflowTokenGenerating: false,
+    };
+  },
+  [ReduxActionTypes.DELETE_WORKFLOW_TOKEN_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isWorkflowTokenGenerating: false,
+    };
+  },
+  [ReduxActionErrorTypes.TOGGLE_WORKFLOW_TOKEN_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isWorkflowTokenGenerating: false,
     };
   },
 };
