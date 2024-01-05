@@ -2,6 +2,7 @@ import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlag
 import {
   adminSettings,
   agHelper,
+  assertHelper,
   dataSources,
   entityExplorer,
   fakerHelper,
@@ -68,7 +69,8 @@ describe(
         featureFlagIntercept({
           license_gac_enabled: true,
         });
-        agHelper.Sleep(2000);
+        assertHelper.AssertDocumentReady();
+        agHelper.WaitUntilEleAppear(".t--sidebar");
         adminSettings.NavigateToAdminSettings();
         rbacHelper.CreatePermissionPageLevel(
           permissionAtPageLevel,
@@ -110,7 +112,7 @@ describe(
       );
       cy.wait(5000);
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(5000);
+      assertHelper.AssertDocumentReady();
       homePage.SearchAndOpenApp(appName);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
@@ -130,7 +132,7 @@ describe(
     it("2. group with 2 roles - Dev and custom page view", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      assertHelper.AssertDocumentReady();
       rbacHelper.AddDefaultRoleGroup(groupName, "Developer", workspaceName);
       homePage.LogintoApp(
         Cypress.env("TESTUSERNAME1"),
