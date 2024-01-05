@@ -36,7 +36,7 @@ jobs:
         id: checkAll
         run: |
           tags="${{ github.event.client_payload.slash_command.args.named.tags }}"
-          if [[ ($tags == *"ALL"* || $tags == *"All"* ) && $tags != *"@tag.All"* ]]; then
+          if [[ ($tags == *"ALL"* || $tags == *"All"*  || $tags == *"all"*) && $tags != *"@tag.All"* ]]; then
             echo "tags_All=$tags" >> $GITHUB_OUTPUT
           elif [[ $tags == *"@tag.All"* ]]; then
             echo "tags=" >> $GITHUB_OUTPUT
