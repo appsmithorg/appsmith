@@ -18,7 +18,7 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Create group, check if users in group has group roles accessess",
-  { tags: ["@tag.AccessControl"] },
+  { tags: ["@tag.GroupAccess"] },
   function () {
     let workspaceName: string, appName: string, datasourceName;
     const pageName = "page_no_permission" + fakerHelper.GetRandomNumber();
