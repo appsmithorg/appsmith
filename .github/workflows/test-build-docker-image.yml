@@ -53,7 +53,7 @@ jobs:
           echo "tags=${{inputs.tags}}"
 
       - name: Stop the workflow run if given @tag.All format is wrong
-        if: steps.checkAll.outputs.tags_All != ''
+        if: steps.setup.outputs.tags_All != ''
         run: exit 1
 
   server-build:
