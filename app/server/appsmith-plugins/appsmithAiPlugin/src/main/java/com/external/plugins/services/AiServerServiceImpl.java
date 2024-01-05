@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.utils.RequestUtils;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
@@ -29,7 +31,16 @@ public class AiServerServiceImpl implements AiServerService {
     @Override
     public Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO) {
         URI uri = RequestUtils.createQueryUri();
-        return RequestUtils.makeRequest(HttpMethod.POST, uri, BodyInserters.fromValue(aiServerRequestDTO))
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        String jsonBody;
+        try {
+            jsonBody = objectMapper.writeValueAsString(aiServerRequestDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return RequestUtils.makeRequest(HttpMethod.POST, uri, BodyInserters.fromValue(jsonBody))
                 .flatMap(responseEntity -> {
                     HttpStatusCode statusCode = responseEntity.getStatusCode();
 

@@ -35,10 +35,6 @@ public class RequestUtils {
         return URI.create(AI_SERVER_HOST + QUERY_PATH);
     }
 
-    public static URI createUploadURI() {
-        return URI.create(AI_SERVER_HOST + "/assistant/upload");
-    }
-
     public static Mono<ResponseEntity<byte[]>> makeRequest(
             HttpMethod httpMethod, URI uri, BodyInserter<?, ? super ClientHttpRequest> body) {
         return webClient

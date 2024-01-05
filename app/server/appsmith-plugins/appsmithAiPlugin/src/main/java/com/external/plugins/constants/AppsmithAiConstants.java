@@ -4,7 +4,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 public class AppsmithAiConstants {
     public static final String USECASE = "usecase";
-    public static final String AI_SERVER_HOST = "https://ai.appsmith.com/api/v1";
+    public static final String AI_SERVER_HOST = "https://cs-1532-customer.dp.appsmith.com/api/v1/proxy";
     public static final String ASSISTANT_PATH = "/assistant";
     public static final String QUERY_PATH = ASSISTANT_PATH + "/query";
     public static final String INPUT = "input";
