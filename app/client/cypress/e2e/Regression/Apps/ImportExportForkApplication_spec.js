@@ -137,7 +137,7 @@ describe(
               const importedApp = interception.response.body.data.application;
               const appSlug = importedApp.slug;
               cy.wait("@getConsolidatedData").then((interception) => {
-                const pages = interception.response.body.data.v1PagesResp.data.pages;
+                const pages = interception.response.body.data.pages.data.pages;
                 let defaultPage = pages.find(
                   (eachPage) => !!eachPage.isDefault,
                 );

@@ -4,11 +4,11 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 
 export function fetchJSLibraries(
   applicationId: string,
-  v1LibrariesApplicationResp?: ApiResponse,
+  customJSLibraries?: ApiResponse,
 ) {
   return {
     type: ReduxActionTypes.FETCH_JS_LIBRARIES_INIT,
-    payload: { applicationId, v1LibrariesApplicationResp },
+    payload: { applicationId, customJSLibraries },
   };
 }
 
