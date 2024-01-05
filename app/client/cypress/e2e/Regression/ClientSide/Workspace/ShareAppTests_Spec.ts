@@ -158,9 +158,7 @@ describe(
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
-      cy.get("@getConsolidatedData").then((interception: any) => {
-        expect(Number(interception.response.body.data.pages.responseMeta.status)).to.eq(404);
-      });
+      assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
   
       agHelper.AssertContains("Sign in to your account", "be.visible");
     });
