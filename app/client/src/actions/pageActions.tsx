@@ -557,13 +557,13 @@ export const fetchPageDSLs = (payload?: any) => ({
 export const setupPage = (
   pageId: string,
   isFirstLoad = false,
-  v1PageResp?: FetchPageResponse,
+  pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<FetchPageRequest> => ({
   type: ReduxActionTypes.SETUP_PAGE_INIT,
   payload: {
     id: pageId,
     isFirstLoad,
-    v1PageResp,
+    pageWithMigratedDsl,
   },
 });
 
@@ -571,13 +571,13 @@ export const setupPublishedPage = (
   pageId: string,
   bustCache = false,
   firstLoad = false,
-  v1PublishedPageResp?: FetchPageResponse,
+  pageWithMigratedDsl?: FetchPageResponse,
 ) => ({
   type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
     firstLoad,
-    v1PublishedPageResp,
+    pageWithMigratedDsl,
   },
 });

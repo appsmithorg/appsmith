@@ -106,11 +106,11 @@ export const leaveWorkspace = (workspaceId: string) => {
 };
 
 export const fetchFeatureFlagsInit = (
-  v1UsersFeaturesResp?: ApiResponse<FeatureFlags>,
+  featureFlags?: ApiResponse<FeatureFlags>,
 ) => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
   payload: {
-    v1UsersFeaturesResp,
+    featureFlags,
   },
 });
 
@@ -125,11 +125,11 @@ export const fetchFeatureFlagsError = (error: any) => ({
 });
 
 export const fetchProductAlertInit = (
-  v1ProductAlertResp?: ApiResponse<ProductAlert>,
+  productAlert?: ApiResponse<ProductAlert>,
 ) => ({
   type: ReduxActionTypes.FETCH_PRODUCT_ALERT_INIT,
   payload: {
-    v1ProductAlertResp,
+    productAlert,
   },
 });
 

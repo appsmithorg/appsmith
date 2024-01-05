@@ -313,17 +313,17 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
 function* fetchJSLibraries(
   action: ReduxAction<{
     applicationId: string;
-    v1LibrariesApplicationResp: ApiResponse;
+    customJSLibraries: ApiResponse;
   }>,
 ) {
   const span = startRootSpan("fetchJSLibraries");
-  const { applicationId, v1LibrariesApplicationResp } = action.payload;
+  const { applicationId, customJSLibraries } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
   try {
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1LibrariesApplicationResp,
+      customJSLibraries,
       () => call(LibraryApi.getLibraries, applicationId, mode),
     );
 

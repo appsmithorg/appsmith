@@ -74,11 +74,11 @@ export function* initAppTheming() {
 // eslint-disable-next-line
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
-    const { applicationId, v1ThemesResp } = action.payload;
+    const { applicationId, themes } = action.payload;
 
     const response: ApiResponse<AppTheme> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1ThemesResp,
+      themes,
       async () => ThemingApi.fetchThemes(applicationId),
     );
 
@@ -104,7 +104,7 @@ export function* fetchAppSelectedTheme(
   // eslint-disable-next-line
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ): SagaIterator | AxiosPromise {
-  const { applicationId, v1ThemesApplicationCurrentModeResp } = action.payload;
+  const { applicationId, currentTheme } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
   const pageIds = yield select(getAllPageIds);
@@ -113,7 +113,7 @@ export function* fetchAppSelectedTheme(
   try {
     const response: ApiResponse<AppTheme[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1ThemesApplicationCurrentModeResp,
+      currentTheme,
       async () => ThemingApi.fetchSelected(applicationId, mode),
     );
 

@@ -274,14 +274,14 @@ export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const { v1PagesResp, ...payload } = action.payload;
+    const { pages, ...payload } = action.payload;
     const params = pickBy(payload, identity);
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
     const response: FetchApplicationResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PagesResp,
+      pages,
       () => call(PageApi.fetchAppAndPages, params),
     );
     const isValidResponse: boolean = yield call(validateResponse, response);

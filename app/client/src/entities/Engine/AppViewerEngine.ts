@@ -80,37 +80,34 @@ export default class AppViewerEngine extends AppEngine {
     allResponses: DeployConsolidatedApi,
   ): any {
     const {
-      v1ActionsViewResp,
-      v1CollectionsActionsViewResp,
-      v1LibrariesApplicationResp,
-      v1PublishedPageResp,
-      v1ThemesApplicationCurrentModeResp,
-      v1ThemesResp,
+      currentTheme,
+      customJSLibraries,
+      pageWithMigratedDsl,
+      publishedActionCollections,
+      publishedActions,
+      themes,
     } = allResponses;
     const initActionsCalls: any = [
       // v1/actions/view?applicationId=someApplicationId
-      //tie to v1ActionsViewResp
-      fetchActionsForView({ applicationId, v1ActionsViewResp }),
+      //tie to publishedActions
+      fetchActionsForView({ applicationId, publishedActions }),
       // v1/collections/actions/view?applicationId=someApplicationId
-      // tie to v1CollectionsActionsViewResp
+      // tie to publishedActionCollections
       fetchJSCollectionsForView({
         applicationId,
-        v1CollectionsActionsViewResp,
+        publishedActionCollections,
       }),
 
       // v1/themes/applications/:applicationId/current?mode=PUBLISHED
-      // tie to v1ThemesApplicationCurrentModeResp
-      fetchSelectedAppThemeAction(
-        applicationId,
-        v1ThemesApplicationCurrentModeResp,
-      ),
+      // tie to currentTheme
+      fetchSelectedAppThemeAction(applicationId, currentTheme),
       // v1/themes/applications/:applicationId
-      // tie to v1ThemesResp
-      fetchAppThemesAction(applicationId, v1ThemesResp),
+      // tie to themes
+      fetchAppThemesAction(applicationId, themes),
       // every request should invalidate the cache, when making this call "v" query param should always be unique
       // v1/pages/:pageId/view?v=someUniqueValue
-      // tie to v1PublishedPageResp
-      setupPublishedPage(toLoadPageId, true, true, v1PublishedPageResp),
+      // tie to pageWithMigratedDsl
+      setupPublishedPage(toLoadPageId, true, true, pageWithMigratedDsl),
     ];
 
     const successActionEffects = [
@@ -128,10 +125,8 @@ export default class AppViewerEngine extends AppEngine {
       ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
     ];
     // v1/libraries/:applicationId/view
-    // tie response to v1LibrariesApplicationResp
-    initActionsCalls.push(
-      fetchJSLibraries(applicationId, v1LibrariesApplicationResp),
-    );
+    // tie response to customJSLibraries
+    initActionsCalls.push(fetchJSLibraries(applicationId, customJSLibraries));
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
     failureActionEffects.push(ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED);
 

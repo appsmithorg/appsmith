@@ -150,16 +150,16 @@ export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
 }
 
 export function* getCurrentUserSaga(action?: {
-  payload?: { v1UsersMeResp?: ApiResponse };
+  payload?: { userProfile?: ApiResponse };
 }) {
-  const v1UsersMeResp = action?.payload?.v1UsersMeResp;
+  const userProfile = action?.payload?.userProfile;
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.USER_ME_API,
     );
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1UsersMeResp,
+      userProfile,
       () => call(UserApi.getCurrentUser),
     );
 
@@ -543,13 +543,13 @@ export function* updatePhoto(
 }
 
 export function* fetchFeatureFlags(action?: {
-  payload?: { v1UsersFeaturesResp?: ApiResponse<FeatureFlags> };
+  payload?: { featureFlags?: ApiResponse<FeatureFlags> };
 }) {
-  const v1UsersFeaturesResp = action?.payload?.v1UsersFeaturesResp;
+  const featureFlags = action?.payload?.featureFlags;
   try {
     const response: ApiResponse<FeatureFlags> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1UsersFeaturesResp,
+      featureFlags,
       () => call(UserApi.fetchFeatureFlags),
     );
 
@@ -609,13 +609,13 @@ export function* leaveWorkspaceSaga(
 }
 
 export function* fetchProductAlertSaga(action?: {
-  payload?: { v1ProductAlertResp?: ApiResponse<ProductAlert> };
+  payload?: { productAlert?: ApiResponse<ProductAlert> };
 }) {
-  const v1ProductAlertResp = action?.payload?.v1ProductAlertResp;
+  const productAlert = action?.payload?.productAlert;
   try {
     const response: ApiResponse<ProductAlert> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1ProductAlertResp,
+      productAlert,
       () => call(UserApi.getProductAlert),
     );
 

@@ -43,11 +43,11 @@ import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchPluginsSaga(
   action: ReduxAction<
-    { workspaceId?: string; v1PluginsResp?: ApiResponse<Plugin[]> } | undefined
+    { workspaceId?: string; plugins?: ApiResponse<Plugin[]> } | undefined
   >,
 ) {
   try {
-    const v1PluginsResp = action.payload?.v1PluginsResp;
+    const plugins = action.payload?.plugins;
     let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
@@ -56,7 +56,7 @@ function* fetchPluginsSaga(
     }
     const pluginsResponse: ApiResponse<Plugin[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PluginsResp,
+      plugins,
       () => call(PluginsApi.fetchPlugins, workspaceId),
     );
 
@@ -76,9 +76,9 @@ function* fetchPluginsSaga(
 }
 
 function* fetchPluginFormConfigsSaga(action?: {
-  payload?: { v1PluginFormConfigsResp?: ApiResponse<PluginFormPayload[]> };
+  payload?: { pluginFormConfigs?: ApiResponse<PluginFormPayload[]> };
 }) {
-  const v1PluginFormConfigsResp = action?.payload?.v1PluginFormConfigsResp;
+  const pluginFormConfigs = action?.payload?.pluginFormConfigs;
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
@@ -107,10 +107,10 @@ function* fetchPluginFormConfigsSaga(action?: {
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PluginFormConfigsResp &&
+      pluginFormConfigs &&
         [...pluginIdFormsToFetch].map((id) => ({
-          ...v1PluginFormConfigsResp,
-          data: v1PluginFormConfigsResp?.data?.[id as any],
+          ...pluginFormConfigs,
+          data: pluginFormConfigs?.data?.[id as any],
         })),
       () =>
         all(

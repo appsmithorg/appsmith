@@ -17,13 +17,13 @@ import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga(action?: {
-  payload?: { v1TenantsCurrentResp?: ApiResponse };
+  payload?: { tenantConfig?: ApiResponse };
 }) {
-  const v1TenantsCurrentResp = action?.payload?.v1TenantsCurrentResp;
+  const tenantConfig = action?.payload?.tenantConfig;
   try {
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1TenantsCurrentResp,
+      tenantConfig,
       () => call(TenantApi.fetchCurrentTenantConfig),
     );
 

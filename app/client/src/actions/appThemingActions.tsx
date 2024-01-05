@@ -11,12 +11,12 @@ import type { ApiResponse } from "api/ApiResponses";
 
 export interface FetchAppThemesAction {
   applicationId: string;
-  v1ThemesResp?: ApiResponse<AppTheme>;
+  themes?: ApiResponse<AppTheme>;
 }
 
 export interface FetchSelectedAppThemeAction {
   applicationId: string;
-  v1ThemesApplicationCurrentModeResp?: ApiResponse<AppTheme[]>;
+  currentTheme?: ApiResponse<AppTheme[]>;
 }
 
 export interface UpdateSelectedAppThemeAction {
@@ -70,12 +70,12 @@ export const setAppThemingModeStackAction = (stack: AppThemingMode[]) => ({
  */
 export const fetchAppThemesAction = (
   applicationId: string,
-  v1ThemesResp?: ApiResponse<AppTheme>,
+  themes?: ApiResponse<AppTheme>,
 ) => ({
   type: ReduxActionTypes.FETCH_APP_THEMES_INIT,
   payload: {
     applicationId,
-    v1ThemesResp,
+    themes,
   },
 });
 
@@ -87,12 +87,12 @@ export const fetchAppThemesAction = (
  */
 export const fetchSelectedAppThemeAction = (
   applicationId: string,
-  v1ThemesApplicationCurrentModeResp?: ApiResponse<AppTheme[]>,
+  currentTheme?: ApiResponse<AppTheme[]>,
 ) => ({
   type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_INIT,
   payload: {
     applicationId,
-    v1ThemesApplicationCurrentModeResp,
+    currentTheme,
   },
 });
 

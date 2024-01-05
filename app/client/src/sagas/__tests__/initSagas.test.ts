@@ -23,7 +23,7 @@ describe("tests the sagas in initSagas", () => {
     };
     const gen = startAppEngine(action);
     const someInitResponse = {
-      v1PagesResp: { responseMeta: {}, data: {}, code: "232" },
+      pages: { responseMeta: {}, data: {}, code: "232" },
     } as any;
 
     expect(gen.next().value).toStrictEqual(

@@ -82,11 +82,11 @@ import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/js
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { v1CollectionsActionsResp, ...payload } = action.payload;
+  const { unpublishedActionCollections, ...payload } = action.payload;
   try {
     const response: ApiResponse<JSCollection[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1CollectionsActionsResp,
+      unpublishedActionCollections,
       async () => JSActionAPI.fetchJSCollections(payload),
     );
 
@@ -503,12 +503,12 @@ export function* fetchJSCollectionsForPageSaga(
 export function* fetchJSCollectionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, v1CollectionsActionsViewResp } = action.payload;
+  const { applicationId, publishedActionCollections } = action.payload;
 
   try {
     const response: ApiResponse<JSCollection[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1CollectionsActionsViewResp,
+      publishedActionCollections,
       async () => JSActionAPI.fetchJSCollectionsForViewMode(applicationId),
     );
 
