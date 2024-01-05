@@ -12,7 +12,7 @@ export const featureFlagIntercept = (
     data: {
       ...flags,
       release_app_sidebar_enabled: true,
-      rollout_consolidated_page_load_fetch_enabled:true,
+      rollout_consolidated_page_load_fetch_enabled:false,
     },
     errorDisplay: "",
   };
@@ -27,7 +27,7 @@ export const featureFlagIntercept = (
           const updatedResponse = produce(originalResponse, (draft: any) => {
             draft.data.featureFlags.data = { ...draft.data.featureFlags.data, ...flags };
             draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
-            draft.data.featureFlags.data["rollout_consolidated_page_load_fetch_enabled"] = true;
+            draft.data.featureFlags.data["rollout_consolidated_page_load_fetch_enabled"] = false;
           })
           return res.send(updatedResponse);
         }
