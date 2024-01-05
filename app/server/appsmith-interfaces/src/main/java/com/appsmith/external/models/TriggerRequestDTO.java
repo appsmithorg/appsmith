@@ -31,4 +31,10 @@ public class TriggerRequestDTO {
     ClientDataDisplayType displayType;
 
     List<Property> headers = new ArrayList<>();
+
+    public TriggerRequestDTO(String requestType, Map<String, Object> parameters, ClientDataDisplayType displayType) {
+        this.requestType = requestType;
+        this.parameters = parameters;
+        this.displayType = displayType;
+    }
 }
