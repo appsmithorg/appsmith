@@ -17,8 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-import static com.appsmith.server.constants.ce.FieldNameCE.DATASOURCE_ID;
-
 @Component
 public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
     private final DatasourceTriggerSolution datasourceTriggerSolution;
@@ -35,6 +33,20 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
         this.pluginRepository = pluginRepository;
     }
 
+    /**
+     * The trigger method is used to fetch the Dynamic data required by the UQI rendered query forms.
+     * This method can take 2 different routes, based on whether the {@code }datasourceId} is present or not.
+     * <p>
+     * If the {@code datasourceId} is present, then we use the {@code trigger()} method from {@link DatasourceTriggerSolution},
+     * else we directly use the {@code trigger} method from {@link  PluginExecutor}.
+     *
+     * @param pluginId Plugin ID associated to Query
+     * @param environmentId Environment ID associated to Query
+     * @param triggerRequestDTO Payload which will be interpreted by Plugin to request dynamic data.
+     * @param httpHeaders Appsmith headers
+     * @return Dynamic data packaged inside {@link TriggerRequestDTO}
+     *
+     */
     @Override
     public Mono<TriggerResultDTO> trigger(
             String pluginId, String environmentId, TriggerRequestDTO triggerRequestDTO, HttpHeaders httpHeaders) {
@@ -44,8 +56,8 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
         }
 
         if (checkIfDatasourceIdExists(triggerRequestDTO)) {
-            String datasourceId = (String) triggerRequestDTO.getParameters().get(DATASOURCE_ID);
-            return datasourceTriggerSolution.trigger(datasourceId, environmentId, triggerRequestDTO);
+            return datasourceTriggerSolution.trigger(
+                    triggerRequestDTO.getDatasourceId(), environmentId, triggerRequestDTO);
         }
 
         Mono<Plugin> pluginMono = pluginRepository.findById(pluginId).cache();
@@ -66,9 +78,7 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
     }
 
     private Boolean checkIfDatasourceIdExists(TriggerRequestDTO triggerRequestDTO) {
-        Map<String, Object> triggerParameters = triggerRequestDTO.getParameters();
-        return triggerParameters.containsKey(DATASOURCE_ID)
-                && StringUtils.isNotEmpty((String) triggerParameters.get(DATASOURCE_ID));
+        return StringUtils.isNotEmpty(triggerRequestDTO.getDatasourceId());
     }
 
     protected void setHeadersToTriggerRequest(
