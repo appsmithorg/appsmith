@@ -11,6 +11,7 @@ import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,21 +20,25 @@ public interface ContextBasedImportServiceCE<
 
     V extractImportableContextJson(String jsonString);
 
-    Mono<T> importContextInWorkspaceFromJson(String workspaceId, ImportableContextJson importableContextJson);
-
     ImportApplicationPermissionProvider getImportContextPermissionProviderForImportingContext(
             Set<String> userPermissions);
 
     ImportApplicationPermissionProvider getImportContextPermissionProviderForUpdatingContext(
             Set<String> userPermissions);
 
+    ImportApplicationPermissionProvider getImportContextPermissionProviderForConnectingToGit(
+            Set<String> userPermissions);
+
+    ImportApplicationPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(
+            Set<String> userPermissions);
+
+    ImportApplicationPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
+            Set<String> userPermissions);
+
+    default void updateContextJsonWithRequiredPagesToImport(
+            ImportableContextJson importableContextJson, List<String> pagesToImport) {}
+
     void dehydrateNameForContextUpdate(String contextId, ImportableContextJson importableContextJson);
-
-    Mono<T> updateNonGitConnectedContextFromJson(
-            String workspaceId, String importableContextId, ImportableContextJson importableContextJson);
-
-    Mono<T> importContextInWorkspaceFromGit(
-            String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName);
 
     Mono<U> getImportableContextDTO(String workspaceId, String contextId, ImportableContext importableContext);
 
@@ -44,7 +49,7 @@ public interface ContextBasedImportServiceCE<
 
     void performAuxiliaryImportTasks(ImportableContextJson importableContextJson);
 
-    Mono<T> getImportContextMono(
+    Mono<T> updateAndSaveContextInFocus(
             ImportableContext importableContext,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
@@ -61,6 +66,13 @@ public interface ContextBasedImportServiceCE<
             ImportableContextJson importableContextJson, ImportableContext importableContext);
 
     Flux<Void> obtainContextSpecificImportables(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableContext> importedContextMono,
+            ImportableContextJson importableContextJson);
+
+    Flux<Void> obtainContextComponentDependentImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,

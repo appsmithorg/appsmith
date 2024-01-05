@@ -1,7 +1,6 @@
 package com.appsmith.server.applications.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.applications.imports.ApplicationImportServiceCE;
@@ -25,11 +24,9 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.migrations.ApplicationVersion;
-import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -120,28 +117,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<Application> importContextInWorkspaceFromJson(
-            String workspaceId, ImportableContextJson applicationJson) {
-
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
-                    .permissionRequiredToCreateDatasource(true)
-                    .permissionRequiredToEditDatasource(true)
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-
-            return importApplicationInWorkspace(
-                    workspaceId, (ApplicationJson) applicationJson, null, null, false, permissionProvider);
-        });
-    }
-
-    @Override
     public ImportApplicationPermissionProvider getImportContextPermissionProviderForImportingContext(
             Set<String> userPermissionGroups) {
         return ImportApplicationPermissionProvider.builder(
@@ -174,6 +149,60 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
+    public ImportApplicationPermissionProvider getImportContextPermissionProviderForConnectingToGit(
+            Set<String> userPermissions) {
+
+        /**
+         * If the application is connected to git, then the user must have edit permission on the application.
+         * If user is importing application from Git, create application permission is already checked by the
+         * caller method, so it's not required here.
+         * Other permissions are not required because Git is the source of truth for the application and Git
+         * Sync is a system level operation to get the latest code from Git. If the user does not have some
+         * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
+         */
+        return ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
+                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .currentUserPermissionGroups(userPermissions)
+                .build();
+    }
+
+    @Override
+    public ImportApplicationPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(
+            Set<String> userPermissions) {
+        return ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
+                .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .currentUserPermissionGroups(userPermissions)
+                .build();
+    }
+
+    @Override
+    public ImportApplicationPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
+            Set<String> userPermissions) {
+        return ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
+                .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .allPermissionsRequired()
+                .currentUserPermissionGroups(userPermissions)
+                .build();
+    }
+
+    @Override
     public void dehydrateNameForContextUpdate(String applicationId, ImportableContextJson importableContextJson) {
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
         if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
@@ -184,66 +213,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
         }
-    }
-
-    @Override
-    public Mono<Application> updateNonGitConnectedContextFromJson(
-            String workspaceId, String applicationId, ImportableContextJson importableContextJson) {
-        return getPermissionProviderForUpdateNonGitConnectedAppFromJson().flatMap(permissionProvider -> {
-            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
-            if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
-                // Remove the application name from JSON file as updating the application name is not
-                // supported
-                // via JSON import. This is to avoid name conflict during the import flow within the
-                // workspace
-                applicationJson.getExportedApplication().setName(null);
-                applicationJson.getExportedApplication().setSlug(null);
-            }
-
-            return importApplicationInWorkspace(
-                    workspaceId, applicationJson, applicationId, null, false, permissionProvider);
-        });
-    }
-
-    /**
-     * This function will update an existing application. The application is connected to Git.
-     *
-     * @param workspaceId     workspace to which application is going to be stored
-     * @param applicationId   application which needs to be saved with the updated resources
-     * @param applicationJson application resource which contains necessary information to save the application
-     * @param branchName      name of the git branch. null if not connected to git.
-     * @return saved application in DB
-     */
-    @Override
-    public Mono<Application> importContextInWorkspaceFromGit(
-            String workspaceId, String applicationId, ImportableContextJson applicationJson, String branchName) {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            /**
-             * If the application is connected to git, then the user must have edit permission on the application.
-             * If user is importing application from Git, create application permission is already checked by the
-             * caller method, so it's not required here.
-             * Other permissions are not required because Git is the source of truth for the application and Git
-             * Sync is a system level operation to get the latest code from Git. If the user does not have some
-             * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
-             */
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-
-            return importApplicationInWorkspace(
-                    workspaceId,
-                    (ApplicationJson) applicationJson,
-                    applicationId,
-                    branchName,
-                    false,
-                    permissionProvider);
-        });
     }
 
     // ------------------------------------------------------
@@ -284,29 +253,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     .currentUserPermissionGroups(permissionGroups)
                     .build();
             return permissionProvider;
-        });
-    }
-
-    @Override
-    public Mono<Application> restoreSnapshot(
-            String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
-        /**
-         * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
-         * Only permission required is to edit the application.
-         */
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return importApplicationInWorkspace(
-                    workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
         });
     }
 
@@ -439,169 +385,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     log.error("Error while creating or updating application object", error);
                     return Mono.error(error);
                 });
-    }
-
-    /**
-     * This function will take the application reference object to hydrate the application in mongoDB
-     *
-     * @param workspaceId     workspace to which application is going to be stored
-     * @param applicationJson application resource which contains necessary information to import the application
-     * @param applicationId   application which needs to be saved with the updated resources
-     * @param branchName      name of the branch of application with applicationId
-     * @param appendToApp     whether applicationJson will be appended to the existing app or not
-     * @return Updated application
-     */
-    private Mono<Application> importApplicationInWorkspace(
-            String workspaceId,
-            ApplicationJson applicationJson,
-            String applicationId,
-            String branchName,
-            boolean appendToApp,
-            ImportApplicationPermissionProvider permissionProvider) {
-        /*
-           1. Migrate resource to latest schema
-           2. Fetch workspace by id
-           3. Extract datasources and update plugin information
-           4. Create new datasource if same datasource is not present
-           5. Extract and save application
-           6. Extract and save pages in the application
-           7. Extract and save actions in the application
-        */
-        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson); // pack
-
-        // check for validation error and raise exception if error found
-        String errorField = validateApplicationJson(importedDoc);
-        if (!errorField.isEmpty()) {
-            log.error("Error in importing application. Field {} is missing", errorField);
-            if (errorField.equals(FieldName.APPLICATION)) {
-                return Mono.error(
-                        new AppsmithException(
-                                AppsmithError.VALIDATION_FAILURE,
-                                "Field '" + errorField
-                                        + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page."));
-            }
-            return Mono.error(new AppsmithException(
-                    AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
-        }
-
-        ImportingMetaDTO importingMetaDTO =
-                new ImportingMetaDTO(workspaceId, applicationId, branchName, appendToApp, permissionProvider);
-
-        MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
-
-        Application importedApplication = importedDoc.getExportedApplication();
-        importedApplication.setServerSchemaVersion(importedDoc.getServerSchemaVersion());
-        importedApplication.setClientSchemaVersion(importedDoc.getClientSchemaVersion());
-
-        Mono<Workspace> workspaceMono = workspaceService
-                .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error(
-                            "No workspace found with id: {} and permission: {}",
-                            workspaceId,
-                            permissionProvider.getRequiredPermissionOnTargetWorkspace());
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
-                }))
-                .cache();
-
-        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
-
-        Mono<Void> applicationSpecificImportedEntitiesMono =
-                applicationSpecificImportedEntities(applicationJson, importingMetaDTO, mappedImportableResourcesDTO);
-
-        // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-
-        /*
-         Calling the workspaceMono first to avoid creating multiple mongo transactions.
-         If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
-         transactions which will lead to NoSuchTransaction exception.
-        */
-        final Mono<Application> importedApplicationMono = workspaceMono
-                .then(applicationSpecificImportedEntitiesMono)
-                .then(getImportApplicationMono(
-                        importedApplication, importingMetaDTO, mappedImportableResourcesDTO, currUserMono))
-                .cache();
-
-        Mono<Application> importMono = importedApplicationMono
-                .then(getImportableEntities(
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        workspaceMono,
-                        importedApplicationMono,
-                        applicationJson))
-                .then(importedApplicationMono)
-                .flatMap(application -> {
-                    return newActionImportableService
-                            .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO, false)
-                            .then(newPageImportableService.updateImportedEntities(
-                                    application, importingMetaDTO, mappedImportableResourcesDTO, false))
-                            .thenReturn(application);
-                })
-                .flatMap(application -> {
-                    log.info("Imported application with id {}", application.getId());
-                    // Need to update the application object with updated pages and publishedPages
-                    Application updateApplication = new Application();
-                    updateApplication.setPages(application.getPages());
-                    updateApplication.setPublishedPages(application.getPublishedPages());
-
-                    return applicationService.update(application.getId(), updateApplication);
-                })
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing application. Error: {}", errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
-                .as(transactionalOperator::transactional);
-
-        final Mono<Application> resultMono = importMono
-                .flatMap(application ->
-                        sendImportExportApplicationAnalyticsEvent(application.getId(), AnalyticsEvents.IMPORT))
-                .zipWith(currUserMono)
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    stopwatch.stopTimer();
-                    stopwatch.stopAndLogTimeInMillis();
-                    int jsObjectCount = CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
-                            ? 0
-                            : applicationJson.getActionCollectionList().size();
-                    int actionCount = CollectionUtils.isEmpty(applicationJson.getActionList())
-                            ? 0
-                            : applicationJson.getActionList().size();
-
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID,
-                            application.getId(),
-                            FieldName.WORKSPACE_ID,
-                            application.getWorkspaceId(),
-                            "pageCount",
-                            applicationJson.getPageList().size(),
-                            "actionCount",
-                            actionCount,
-                            "JSObjectCount",
-                            jsObjectCount,
-                            FieldName.FLOW_NAME,
-                            stopwatch.getFlow(),
-                            "executionTime",
-                            stopwatch.getExecutionTime());
-                    return analyticsService
-                            .sendEvent(
-                                    AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
-                                    tuple.getT2().getUsername(),
-                                    data)
-                            .thenReturn(application);
-                });
-
-        // Import Application is currently a slow API because it needs to import and create application, pages, actions
-        // and action collection. This process may take time and the client may cancel the request. This leads to the
-        // flow getting stopped midway producing corrupted objects in DB. The following ensures that even though the
-        // client may have refreshes the page, the imported application is available and is in sane state.
-        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
-        // means that even if the subscriber has cancelled its subscription, the create method still generates its
-        // event.
-        return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     private Mono<Void> getImportableEntities(
@@ -781,21 +564,12 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 });
     }
 
-    /**
-     * @param applicationId   default ID of the application where this ApplicationJSON is going to get merged with
-     * @param branchName      name of the branch of the application where this ApplicationJSON is going to get merged with
-     * @param applicationJson ApplicationJSON of the application that will be merged to
-     * @param pagesToImport   Name of the pages that should be merged from the ApplicationJSON.
-     *                        If null or empty, all pages will be merged.
-     * @return Merged Application
-     */
     @Override
-    public Mono<Application> mergeApplicationJsonWithApplication(
-            String workspaceId,
-            String applicationId,
-            String branchName,
-            ApplicationJson applicationJson,
-            List<String> pagesToImport) {
+    public void updateContextJsonWithRequiredPagesToImport(
+            ImportableContextJson importableContextJson, List<String> pagesToImport) {
+
+        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+
         // Update the application JSON to prepare it for merging inside an existing application
         if (applicationJson.getExportedApplication() != null) {
             // setting some properties to null so that target application is not updated by these properties
@@ -853,22 +627,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     .collect(Collectors.toList());
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
-
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .allPermissionsRequired()
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return importApplicationInWorkspace(
-                    workspaceId, applicationJson, applicationId, branchName, true, permissionProvider);
-        });
     }
 
     /**
@@ -925,7 +683,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<Application> getImportContextMono(
+    public Mono<Application> updateAndSaveContextInFocus(
             ImportableContext importableContext,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
@@ -941,6 +699,14 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     application.setWorkspaceId(importingMetaDTO.getWorkspaceId());
                     application.setIsPublic(null);
                     application.setPolicies(null);
+                    Map<String, List<ApplicationPage>> mapOfApplicationPageList = Map.of(
+                            FieldName.PUBLISHED,
+                            application.getPublishedPages(),
+                            FieldName.UNPUBLISHED,
+                            application.getPages());
+                    mappedImportableResourcesDTO
+                            .getApplicationToBeImportedApplicationPagesMap()
+                            .putAll(mapOfApplicationPageList);
                     application.setPages(null);
                     application.setPublishedPages(null);
                     return application;
@@ -1098,7 +864,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableContext> importedContextMono,
             ImportableContextJson importableContextJson) {
-
         return importedContextMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
             ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
@@ -1123,16 +888,30 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     false,
                     true);
 
+            return Flux.merge(List.of(importedPagesMono, importedThemesMono));
+        });
+    }
+
+    @Override
+    public Flux<Void> obtainContextComponentDependentImportables(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableContext> importedContextMono,
+            ImportableContextJson importableContextJson) {
+
+        return importedContextMono.flatMapMany(importableContext -> {
+            Application application = (Application) importableContext;
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+
             List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
                     importingMetaDTO,
                     mappedImportableResourcesDTO,
                     workspaceMono,
                     Mono.just(application),
                     applicationJson);
-            List<Mono<Void>> allContextDependentImportables =
-                    new ArrayList<>(List.of(importedPagesMono, importedThemesMono));
-            allContextDependentImportables.addAll(pageDependentImportables);
-            return Flux.merge(allContextDependentImportables);
+
+            return Flux.merge(pageDependentImportables);
         });
     }
 }

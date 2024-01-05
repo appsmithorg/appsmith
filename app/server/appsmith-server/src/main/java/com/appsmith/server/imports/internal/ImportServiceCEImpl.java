@@ -217,8 +217,84 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     public Mono<? extends ImportableContext> importContextInWorkspaceFromGit(
             String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName) {
 
-        return getContextBasedImportService(importableContextJson)
-                .importContextInWorkspaceFromGit(workspaceId, contextId, importableContextJson, branchName);
+        ContextBasedImportService<?, ?, ?> contextBasedImportService =
+                getContextBasedImportService(importableContextJson);
+        return permissionGroupRepository
+                .getCurrentUserPermissionGroups()
+                .map(userPermissionGroups -> {
+                    return contextBasedImportService.getImportContextPermissionProviderForConnectingToGit(
+                            userPermissionGroups);
+                })
+                .flatMap(contextPermissionProvider -> {
+                    return importApplicationInWorkspace(
+                            workspaceId,
+                            importableContextJson,
+                            contextId,
+                            branchName,
+                            false,
+                            contextPermissionProvider);
+                });
+    }
+
+    public Mono<? extends ImportableContext> restoreSnapshot(
+            String workspaceId, ImportableContextJson importableContextJson, String contextId, String branchName) {
+
+        /**
+         * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
+         * Only permission required is to edit the Context.
+         */
+        ContextBasedImportService<?, ?, ?> contextBasedImportService =
+                getContextBasedImportService(importableContextJson);
+        return permissionGroupRepository
+                .getCurrentUserPermissionGroups()
+                .map(userPermissionGroups -> {
+                    return contextBasedImportService.getImportContextPermissionProviderForRestoringSnapshot(
+                            userPermissionGroups);
+                })
+                .flatMap(contextPermissionProvider -> {
+                    return importApplicationInWorkspace(
+                            workspaceId,
+                            importableContextJson,
+                            contextId,
+                            branchName,
+                            false,
+                            contextPermissionProvider);
+                });
+    }
+
+    /**
+     * This function will take the Json filepart and saves the application in workspace.
+     * It'll not create a new ImportableContext, it'll update the existing importableContext by appending the pages to the importableContext.
+     * The destination ImportableContext will be as it is, only the pages will be appended.
+     * This method will only be applicable for applications for now
+     * @param workspaceId ID in which the context is to be merged
+     * @param contextId   default ID of the importableContext where this importableContextJson is going to get merged with
+     * @param branchName      name of the branch of the importableContext where this importableContextJson is going to get merged with
+     * @param importableContextJson importableContextJson of the importableContext that will be merged to
+     * @param pagesToImport   Name of the pages that should be merged from the importableContextJson.
+     *                        If null or empty, all pages will be merged.
+     * @return Merged ImportableContext
+     */
+    public Mono<? extends ImportableContext> mergeImportableContextJsonWithImportableContext(
+            String workspaceId,
+            String contextId,
+            String branchName,
+            ImportableContextJson importableContextJson,
+            List<String> pagesToImport) {
+        ContextBasedImportService<?, ?, ?> contextBasedImportService =
+                getContextBasedImportService(importableContextJson);
+        contextBasedImportService.updateContextJsonWithRequiredPagesToImport(importableContextJson, pagesToImport);
+        return permissionGroupRepository
+                .getCurrentUserPermissionGroups()
+                .map(userPermissionGroups -> {
+                    return contextBasedImportService
+                            .getImportContextPermissionProviderForMergingImportableContextWithJson(
+                                    userPermissionGroups);
+                })
+                .flatMap(contextPermissionProvider -> {
+                    return importApplicationInWorkspace(
+                            workspaceId, importableContextJson, contextId, branchName, true, contextPermissionProvider);
+                });
     }
 
     @Override
@@ -321,7 +397,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         */
         final Mono<? extends ImportableContext> importedContextMono = workspaceMono
                 .then(contextSpecificImportedEntities)
-                .then(contextBasedImportService.getImportContextMono(
+                .then(contextBasedImportService.updateAndSaveContextInFocus(
                         importedDoc.getImportableContext(),
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
@@ -407,27 +483,38 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             Mono<? extends ImportableContext> importedContextMono,
             ImportableContextJson importableContextJson) {
 
-        List<Mono<Void>> pageIndependentImportables = obtainContextAgnosticImportables(
+        ContextBasedImportService<?, ?, ?> contextBasedImportService =
+                getContextBasedImportService(importableContextJson);
+
+        Flux<Void> contextAgnosticImportables = obtainContextAgnosticImportables(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedContextMono,
                 importableContextJson);
 
-        Flux<Void> pageDependentImportables = getContextBasedImportService(importableContextJson)
-                .obtainContextSpecificImportables(
+        Flux<Void> contextSpecificImportables = contextBasedImportService.obtainContextSpecificImportables(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedContextMono,
+                importableContextJson);
+
+        Flux<Void> contextComponentDependentImportables =
+                contextBasedImportService.obtainContextComponentDependentImportables(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
                         workspaceMono,
                         importedContextMono,
                         importableContextJson);
 
-        return Flux.merge(pageIndependentImportables)
-                .thenMany(pageDependentImportables)
+        return contextAgnosticImportables
+                .thenMany(contextSpecificImportables)
+                .thenMany(contextComponentDependentImportables)
                 .then();
     }
 
-    protected List<Mono<Void>> obtainContextAgnosticImportables(
+    protected Flux<Void> obtainContextAgnosticImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -436,16 +523,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         // Updates plugin map in importable resources
         Mono<Void> installedPluginsMono = pluginImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                importableContextJson,
-                false,
-                true);
-
-        // Directly updates required theme information in DB
-        Mono<Void> importedThemesMono = themeImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
@@ -466,7 +543,18 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 false,
                 true));
 
-        return List.of(importedDatasourcesMono, importedThemesMono);
+        // Not sure whether this would be used hence has put it here for now
+        // Directly updates required theme information in DB
+        Mono<Void> importedThemesMono = themeImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                importableContextJson,
+                false,
+                true);
+
+        return Flux.merge(List.of(importedDatasourcesMono, importedThemesMono));
     }
 
     /**

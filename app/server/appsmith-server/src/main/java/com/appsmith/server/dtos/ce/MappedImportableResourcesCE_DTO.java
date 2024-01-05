@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
@@ -25,4 +26,7 @@ public class MappedImportableResourcesCE_DTO {
     ImportActionResultDTO actionResultDTO;
     ImportActionCollectionResultDTO actionCollectionResultDTO;
     ImportedActionAndCollectionMapsDTO actionAndCollectionMapsDTO = new ImportedActionAndCollectionMapsDTO();
+
+    // This is being used to carry the list of published and unpublished pages in application.
+    Map<String, List<ApplicationPage>> applicationToBeImportedApplicationPagesMap = new HashMap<>();
 }

@@ -218,8 +218,13 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
-        List<ApplicationPage> editModeApplicationPages = importedApplication.getPages();
-        List<ApplicationPage> publishedModeApplicationPages = importedApplication.getPublishedPages();
+        // The access source has been changes because the order of execution has changed.
+        List<ApplicationPage> editModeApplicationPages = mappedImportableResourcesDTO
+                .getApplicationToBeImportedApplicationPagesMap()
+                .get(FieldName.UNPUBLISHED);
+        List<ApplicationPage> publishedModeApplicationPages = mappedImportableResourcesDTO
+                .getApplicationToBeImportedApplicationPagesMap()
+                .get(FieldName.PUBLISHED);
 
         Mono<List<ApplicationPage>> unpublishedPagesMono =
                 importUnpublishedPages(editModeApplicationPages, appendToApp, applicationMono, importedNewPagesMono);

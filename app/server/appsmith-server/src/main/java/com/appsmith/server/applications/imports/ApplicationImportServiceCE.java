@@ -12,37 +12,5 @@ import java.util.List;
 public interface ApplicationImportServiceCE
         extends ContextBasedImportService<Application, ApplicationImportDTO, ApplicationJson> {
 
-    // --------------------------- These interfaces will be analysed and methods would be reduced further
-
-    /**
-     * This function will take the Json filepart and saves the application in workspace.
-     * It'll not create a new application, it'll update the existing application by appending the pages to the application.
-     * The destination application will be as it is, only the pages will be appended.
-     * @param workspaceId target workspace id
-     * @param applicationId target application id
-     * @param branchName target branch name
-     * @param applicationJson application json to be merged
-     * @param pagesToImport list of page names to be imported. Null or empty list means all pages.
-     * @return
-     */
-    Mono<Application> mergeApplicationJsonWithApplication(
-            String workspaceId,
-            String applicationId,
-            String branchName,
-            ApplicationJson applicationJson,
-            List<String> pagesToImport);
-
-    /**
-     * This function will replace an existing application with the provided application json. It's the top level method
-     * called from snapshot service. Reason to have this method is to provide necessary permission checks.
-     * @param workspaceId
-     * @param importedDoc
-     * @param applicationId
-     * @param branchName
-     * @return
-     */
-    Mono<Application> restoreSnapshot(
-            String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
-
     Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
 }
