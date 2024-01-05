@@ -107,11 +107,24 @@ public class DatabricksPlugin extends BasePlugin {
                                     "Error checking validity of Databricks connection : " + error.getMessage());
                         }
 
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(true);
+
                         try {
 
                             // We can proceed since the connection is valid.
                             Statement statement = connection.createStatement();
-                            ResultSet resultSet = statement.executeQuery(query);
+                            boolean hasResultSet = statement.execute(query);
+
+                            if (!hasResultSet) {
+                                // This must be an update/delete/insert kind of query which did not return any results.
+                                // Lets set sample response and return back.
+                                Map<String, Object> successResponse = Map.of("success", true);
+                                result.setBody(objectMapper.valueToTree(successResponse));
+                                return Mono.just(result);
+                            }
+
+                            ResultSet resultSet = statement.getResultSet();
 
                             ResultSetMetaData metaData = resultSet.getMetaData();
                             int colCount = metaData.getColumnCount();
@@ -155,9 +168,7 @@ public class DatabricksPlugin extends BasePlugin {
                                     "SQLSTATE: " + sqlState));
                         }
 
-                        ActionExecutionResult result = new ActionExecutionResult();
                         result.setBody(objectMapper.valueToTree(rowsList));
-                        result.setIsExecutionSuccess(true);
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
