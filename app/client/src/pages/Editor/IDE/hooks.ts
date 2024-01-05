@@ -6,14 +6,14 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getCurrentAppState } from "@appsmith/entities/IDE/utils";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
   const { pathname } = useLocation();
+  const entityInfo = identifyEntityFromPath(pathname);
   useEffect(() => {
-    setAppState(getCurrentAppState(pathname));
-  }, [pathname]);
+    setAppState(entityInfo.appState);
+  }, [entityInfo.appState]);
 
   return appState;
 };
