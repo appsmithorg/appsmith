@@ -36,6 +36,7 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "@appsmith/constants/messages";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
@@ -346,6 +347,7 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
+  isPreviewMode: previewModeSelector(state),
   isProtectedMode: protectedModeSelector(state),
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });
