@@ -3,6 +3,7 @@ import {
   all,
   call,
   delay,
+  fork,
   put,
   race,
   select,
@@ -62,6 +63,8 @@ import {
 } from "../constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { deleteErrorLog } from "actions/debuggerActions";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -157,6 +160,19 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   }
 }
 
+function* resetDebuggerLogs() {
+  // clear all existing debugger errors
+  const debuggerErrors: ReturnType<typeof getDebuggerErrors> =
+    yield select(getDebuggerErrors);
+  const existingErrors = Object.values(debuggerErrors).filter(
+    (payload) => !!payload.id,
+  );
+  const errorsToDelete = existingErrors.map(
+    (payload) => payload.id,
+  ) as string[];
+  yield put(deleteErrorLog(errorsToDelete));
+}
+
 function* resetEditorSaga() {
   yield put(resetCurrentApplication());
   yield put(resetPageList());
@@ -173,6 +189,7 @@ function* resetEditorSaga() {
   yield put(setExplorerActiveAction(true));
   yield put(setExplorerPinnedAction(true));
   yield put(resetEditorSuccess());
+  yield fork(resetDebuggerLogs);
 }
 
 export function* waitForInit() {
