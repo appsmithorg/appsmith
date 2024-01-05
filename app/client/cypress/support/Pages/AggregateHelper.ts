@@ -1458,9 +1458,6 @@ export class AggregateHelper {
         if ($text.text()) expect($text.text()).to.eq(currentValue);
       })
       .trigger("mouseout");
-    // .then(() => {
-    //   cy.wait(2000);
-    // });
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true, index = 0) {
