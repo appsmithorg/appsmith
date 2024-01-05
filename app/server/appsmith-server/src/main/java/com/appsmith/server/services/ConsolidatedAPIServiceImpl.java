@@ -50,7 +50,15 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.FEATURE_FLAG;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.IS_API_ACCESSIBLE_TO_ANONYMOUS_USER;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PAGES;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PRODUCT_ALERT;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PUBLISHED_JS_LIBS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.TENANTS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.THEMES;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.UNPUBLISHED_JS_LIBS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.USER_PROFILE;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
@@ -133,9 +141,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 INTERNAL_SERVER_ERROR_STATUS, new ErrorDTO(INTERNAL_SERVER_ERROR_CODE, error.getMessage())));
     }
 
-    Mono<Boolean> checkApiAccessIfAnonymousUser(Mono<User> userProfileMono, String api) {
-        return userProfileMono.flatMap(userProfile -> {
-            if (!userProfile.getIsAnonymous() || IS_API_ACCESSIBLE_TO_ANONYMOUS_USER.get(api)) {
+    Mono<Boolean> checkApiAccessIfAnonymousUser(Mono<User> userMono, String api) {
+        return userMono.flatMap(user -> {
+            if (!user.getIsAnonymous() || IS_API_ACCESSIBLE_TO_ANONYMOUS_USER.get(api)) {
                 return Mono.just(true);
             }
 
@@ -162,29 +170,43 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         /* This object will serve as a container to hold the response of this method*/
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
 
+        Mono<User> userMonoCache = sessionUserService
+            .getCurrentUser()
+            .cache();
+
         /* Get user profile data */
-        Mono<ResponseDTO<UserProfileDTO>> userProfileDTOResponseDTOMono = sessionUserService
-                .getCurrentUser()
-                .flatMap(userService::buildUserProfileDTO)
-                .map(this::getSuccessResponse)
+        Mono<ResponseDTO<UserProfileDTO>> userProfileDTOResponseDTOMono =
+            checkApiAccessIfAnonymousUser(userMonoCache, USER_PROFILE)
+                .flatMap(ignore ->
+                        userMonoCache
+                            .flatMap(userService::buildUserProfileDTO)
+                            .map(this::getSuccessResponse)
+                )
                 .onErrorResume(error -> getErrorResponseMono(error, UserProfileDTO.class));
 
         /* Get all feature flags data */
-        Mono<ResponseDTO<Map>> featureFlagsForCurrentUserResponseDTOMonoCache = userDataService
-                .getFeatureFlagsForCurrentUser()
-                .map(res -> (Map) res)
-                .map(this::getSuccessResponse)
+        Mono<ResponseDTO<Map>> featureFlagsForCurrentUserResponseDTOMonoCache =
+            checkApiAccessIfAnonymousUser(userMonoCache, FEATURE_FLAG)
+                .flatMap(ignore -> userDataService
+                    .getFeatureFlagsForCurrentUser()
+                    .map(res -> (Map) res)
+                    .map(this::getSuccessResponse)
+                )
                 .onErrorResume(error -> getErrorResponseMono(error, Map.class))
                 .cache();
 
         /* Get tenant config data */
-        Mono<ResponseDTO<Tenant>> tenantResponseDTOMono = tenantService
-                .getTenantConfiguration()
-                .map(this::getSuccessResponse)
+        Mono<ResponseDTO<Tenant>> tenantResponseDTOMono =
+            checkApiAccessIfAnonymousUser(userMonoCache, TENANTS)
+                .flatMap(ignore -> tenantService
+                    .getTenantConfiguration()
+                    .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, Tenant.class));
 
         /* Get any product alert info */
-        Mono<ResponseDTO<ProductAlertResponseDTO>> productAlertResponseDTOMono = productAlertService
+        Mono<ResponseDTO<ProductAlertResponseDTO>> productAlertResponseDTOMono =
+            checkApiAccessIfAnonymousUser(userMonoCache, PRODUCT_ALERT).flatMap(ignore ->
+            productAlertService
                 .getSingleApplicableMessage()
                 .map(messages -> {
                     if (!messages.isEmpty()) {
@@ -193,7 +215,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
                     return new ProductAlertResponseDTO();
                 })
-                .map(this::getSuccessResponse)
+                .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, ProductAlertResponseDTO.class));
 
         if (isBlank(defaultPageId) && isBlank(applicationId)) {
@@ -228,39 +250,48 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         }
 
         /* Get all pages in application */
-        Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache = applicationIdMonoCache
+        Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache =
+            checkApiAccessIfAnonymousUser(userMonoCache, PAGES).flatMap(ignore ->
+            applicationIdMonoCache
                 .flatMap(appId -> newPageService.findApplicationPages(appId, null, branchName, mode))
-                .map(this::getSuccessResponse)
+                .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, ApplicationPagesDTO.class))
                 .cache();
 
         /* Get current theme */
-        Mono<ResponseDTO<Theme>> applicationThemeResponseDTOMono = applicationIdMonoCache
+        Mono<ResponseDTO<Theme>> applicationThemeResponseDTOMono =
+            checkApiAccessIfAnonymousUser(userMonoCache, THEMES).flatMap(ignore ->
+            applicationIdMonoCache
                 .flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName))
-                .map(this::getSuccessResponse)
+                .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, Theme.class));
 
         /* Get all themes */
-        Mono<ResponseDTO<List>> ThemesListResponseDTOMono = applicationIdMonoCache
+        Mono<ResponseDTO<List>> ThemesListResponseDTOMono =
+            checkApiAccessIfAnonymousUser(userMonoCache, THEMES).flatMap(ignore ->
+            applicationIdMonoCache
                 .flatMap(appId ->
                         themeService.getApplicationThemes(appId, branchName).collectList())
                 .map(res -> (List) res)
-                .map(this::getSuccessResponse)
+                .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
         /* Get all custom JS libraries installed in the application */
-        Mono<ResponseDTO<List>> allJSLibsInContextDTOResponseDTOMono = applicationIdMonoCache
+        Mono<ResponseDTO<List>> allJSLibsInContextDTOResponseDTOMono =
+            checkApiAccessIfAnonymousUser(userMonoCache, isViewMode ? PUBLISHED_JS_LIBS : UNPUBLISHED_JS_LIBS).flatMap(ignore ->
+            applicationIdMonoCache
                 .flatMap(appId -> customJSLibService.getAllJSLibsInContext(
                         appId, CreatorContextType.APPLICATION, branchName, isViewMode))
                 .map(res -> (List) res)
-                .map(this::getSuccessResponse)
+                .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
         /* Check if release_server_dsl_migrations_enabled flag is true for the user */
-        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserResponseDTOMonoCache
+        Mono<Boolean> migrateDslMonoCache =
+            featureFlagsForCurrentUserResponseDTOMonoCache
                 .map(responseDTO -> {
-                    if (INTERNAL_SERVER_ERROR_STATUS
-                            == responseDTO.getResponseMeta().getStatus()) {
+                    if (HttpStatus.OK.value()
+                            != responseDTO.getResponseMeta().getStatus()) {
                         return Map.of();
                     }
 
@@ -278,7 +309,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         Mono<ResponseDTO<PageDTO>> currentPageDTOResponseDTOMono = Mono.empty();
         if (!isBlank(defaultPageId)) {
             /* Get current page */
-            currentPageDTOResponseDTOMono = migrateDslMonoCache
+            currentPageDTOResponseDTOMono =
+                checkApiAccessIfAnonymousUser(userMonoCache, THEMES).flatMap(ignore ->
+                migrateDslMonoCache
                     .flatMap(migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
                             defaultPageId, branchName, isViewMode, migrateDsl))
                     .map(this::getSuccessResponse)
@@ -386,8 +419,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             /* Get all workspace id */
             Mono<String> workspaceIdMonoCache = applicationPagesDTOResponseDTOMonoCache
                     .map(responseDTO -> {
-                        if (INTERNAL_SERVER_ERROR_STATUS
-                                == responseDTO.getResponseMeta().getStatus()) {
+                        if (HttpStatus.OK.value()
+                                != responseDTO.getResponseMeta().getStatus()) {
                             return EMPTY_WORKSPACE_ID_ON_ERROR;
                         }
 
