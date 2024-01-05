@@ -158,3 +158,16 @@ export const publishWorkflow = (payload: PublishWorkflowPayload) => {
     payload,
   };
 };
+
+export const toggleWorkflowToken = (
+  workflowId: string,
+  isTokenCurrentlyGenerated: boolean,
+) => {
+  return {
+    type: ReduxActionTypes.TOGGLE_WORKFLOW_TOKEN,
+    payload: {
+      workflowId,
+      isTokenCurrentlyGenerated,
+    },
+  };
+};

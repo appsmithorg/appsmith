@@ -11,3 +11,4 @@ export const DEFAULT_WORKFLOW_COLOR = "#9747FF1A";
 // TODO (Workflows): Change icon to workflow
 export const DEFAULT_WORKFLOW_ICON = "package";
 export const DEFAULT_WORKFLOW_PREFIX = "Untitled Workflow ";
+export const WORKFLOW_SETTINGS_PANE_WIDTH = 250;

@@ -2,7 +2,6 @@ package com.appsmith.server.migrations.db;
 
 import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.migrations.MigrationHelperMethods;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -10,6 +9,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @ChangeUnit(order = "028-ee-01", id = "add-migration-flags-custom-envs-rerun", author = " ")
 public class Migration028EE01AddMigrationFlagForCustomEnvironment {
@@ -37,10 +38,10 @@ public class Migration028EE01AddMigrationFlagForCustomEnvironment {
     }
 
     private static Criteria workspaceSelectionCriteria() {
-        return MigrationHelperMethods.notDeleted();
+        return notDeleted();
     }
 
     private static Criteria environmentSelectionCriteria() {
-        return MigrationHelperMethods.notDeleted();
+        return notDeleted();
     }
 }

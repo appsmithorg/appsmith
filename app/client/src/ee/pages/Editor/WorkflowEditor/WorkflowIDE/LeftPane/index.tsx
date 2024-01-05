@@ -2,13 +2,13 @@ import React from "react";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
 import {
-  APP_SETTINGS_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
+  WORKFLOW_SETTINGS_PATHS,
 } from "constants/routes";
-import AppSettingsPane from "pages/Editor/IDE/LeftPane/AppSettings";
+import WorkflowSettingsPane from "./WorkflowSettings";
 import DataSidePane from "pages/Editor/IDE/LeftPane/DataSidePane";
 import { LeftPaneContainer } from "pages/Editor/IDE/LeftPane";
 import WorkflowMainContainer from "../../WorkflowMainContainer";
@@ -29,9 +29,9 @@ const LeftPane = () => {
           ]}
         />
         <SentryRoute
-          component={AppSettingsPane}
+          component={WorkflowSettingsPane}
           exact
-          path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
+          path={WORKFLOW_SETTINGS_PATHS(path)}
         />
         <SentryRoute component={WorkflowMainContainer} />
       </Switch>

@@ -104,3 +104,16 @@ export const getCurrentWorkflowJSActions = createSelector(
 
 export const getIsWorkflowPublishing = (state: AppState) =>
   state.ui.editor.isWorkflowPublishing;
+
+export const getIsWorkflowTokenGenerating = (state: AppState) =>
+  state.ui.editor.isWorkflowTokenGenerating;
+
+export const getIsWorkflowTokenDetails = createSelector(
+  getCurrentWorkflow,
+  (workflow) => {
+    return {
+      token: workflow?.token || "",
+      tokenGenerated: workflow?.tokenGenerated || false,
+    };
+  },
+);

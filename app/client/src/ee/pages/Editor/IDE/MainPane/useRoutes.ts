@@ -2,7 +2,11 @@ export * from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import { default as useCE_Routes } from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import type { RouteReturnType } from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import ModuleInstanceEditor from "@appsmith/pages/Editor/ModuleInstanceEditor";
-import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/appRoutes";
+import {
+  MODULE_INSTANCE_ID_PATH,
+  WORKFLOW_GENERAL_SETTINGS_PATH,
+  WORKFLOW_TRIGGER_SETTINGS_PATH,
+} from "@appsmith/constants/routes/appRoutes";
 import { useSelector } from "react-redux";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import ModuleEditor from "../../ModuleEditor";
@@ -16,6 +20,8 @@ import {
   WORKFLOW_QUERY_EDITOR_PATH,
 } from "@appsmith/constants/routes/workflowRoutes";
 import WorkflowApiEditor from "../../WorkflowEditor/WorkflowApiEditor";
+import TriggerWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/TriggerWorkflowSettings";
+import GeneralWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/GeneralWorkflowSettings";
 
 function useRoutes(path: string) {
   const ceRoutes = useCE_Routes(path);
@@ -59,6 +65,18 @@ function useRoutes(path: string) {
         key: "WorkflowApiEditor",
         component: WorkflowApiEditor,
         path: `${WORKFLOW_EDITOR_URL}${WORKFLOW_API_EDITOR_PATH}`,
+        exact: true,
+      },
+      {
+        key: "WorkflowTriggerSettings",
+        component: TriggerWorkflowSettings,
+        path: WORKFLOW_TRIGGER_SETTINGS_PATH(path),
+        exact: true,
+      },
+      {
+        key: "WorkflowGeneralSettings",
+        component: GeneralWorkflowSettings,
+        path: WORKFLOW_GENERAL_SETTINGS_PATH(path),
         exact: true,
       },
     ];

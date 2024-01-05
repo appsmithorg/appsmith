@@ -48,6 +48,32 @@ const workflowReducer = createImmerReducer(INITIAL_STATE, {
 
     return draftState;
   },
+  [ReduxActionTypes.CREATE_WORKFLOW_TOKEN_SUCCESS]: (
+    draftState: WorkflowsReducerState,
+    action: ReduxAction<{ workflowId: string; token: string }>,
+  ) => {
+    const workflowData = action.payload;
+    draftState[workflowData.workflowId] = {
+      ...draftState[workflowData.workflowId],
+      token: workflowData.token,
+      tokenGenerated: true,
+    };
+
+    return draftState;
+  },
+  [ReduxActionTypes.DELETE_WORKFLOW_TOKEN_SUCCESS]: (
+    draftState: WorkflowsReducerState,
+    action: ReduxAction<{ workflowId: string }>,
+  ) => {
+    const workflowData = action.payload;
+    draftState[workflowData.workflowId] = {
+      ...draftState[workflowData.workflowId],
+      token: undefined,
+      tokenGenerated: false,
+    };
+
+    return draftState;
+  },
 });
 
 export default workflowReducer;
