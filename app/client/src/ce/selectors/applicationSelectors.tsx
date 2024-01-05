@@ -9,7 +9,6 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import Fuse from "fuse.js";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import {
   NAVIGATION_SETTINGS,
   SIDEBAR_WIDTH,
@@ -157,10 +156,6 @@ export const getAppSidebarPinned = (state: AppState) => {
   return state.ui.applications.isAppSidebarPinned;
 };
 
-export const getIsFetchingEntities = (state: AppState) => {
-  return state.ui.applications.isFetchingEntities;
-};
-
 /**
  * Return the width of the sidbar depending on the sidebar style.
  * If there isn't any sidebar or it is unpinned, return 0.
@@ -232,16 +227,6 @@ export const getApplicationByIdFromWorkspaces = createSelector(
   },
 );
 
-export const getSearchedWorkspaces = createSelector(
-  getApplicationsState,
-  (applicationsState): Workspace[] | undefined =>
-    applicationsState.searchEntities?.workspaces,
-);
-export const getSearchedApplications = createSelector(
-  getApplicationsState,
-  (applicationsState): ApplicationPayload[] | undefined =>
-    applicationsState.searchEntities?.applications,
-);
 const getMemoizedThemeObj = memoize(
   (themeSetting: ThemeSetting | undefined) => {
     return {

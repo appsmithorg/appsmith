@@ -58,7 +58,6 @@ import {
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
   fetchAllApplicationsOfWorkspace,
-  resetSearchEntity,
   updateApplicationThemeSettingAction,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -133,6 +132,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { MockedSearchApiResponse } from "@appsmith/api/SearchApi";
 import SearchApi from "@appsmith/api/SearchApi";
+import { resetSearchEntity } from "@appsmith/actions/workspaceActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],

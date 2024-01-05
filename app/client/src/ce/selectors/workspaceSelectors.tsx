@@ -104,3 +104,13 @@ export const getCurrentError = (state: AppState) => {
 
 export const getIsSavingWorkspaceInfo = (state: AppState) =>
   state.ui.workspaces.loadingStates.isSavingWorkspaceInfo;
+
+export const getSearchedWorkspaces = (state: AppState) =>
+  state.ui.workspaces.searchEntities?.workspaces;
+
+export const getSearchedApplications = (state: AppState) =>
+  state.ui.workspaces.searchEntities?.applications;
+
+export const getIsFetchingEntities = (state: AppState) => {
+  return state.ui.workspaces.loadingStates.isFetchingEntities;
+};

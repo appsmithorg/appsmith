@@ -12,10 +12,7 @@ import history from "utils/history";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import {
-  getCurrentApplicationIdForCreateNewApp,
-  getSearchedApplications,
-} from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -28,10 +25,11 @@ import MobileEntitySearchField from "@appsmith/pages/Homepage/MobileEntitySearch
 import {
   resetSearchEntity,
   searchEntities,
-  setFetchingApplications,
-} from "@appsmith/actions/applicationActions";
+} from "@appsmith/actions/workspaceActions";
+import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { viewerURL } from "@appsmith/RouteBuilder";
+import { getSearchedApplications } from "@appsmith/selectors/workspaceSelectors";
 
 const HeaderSection = styled.div`
   display: flex;
@@ -117,7 +115,7 @@ function EntitySearchBar(props: any) {
     );
 
     const defaultPageId = searchedApplication?.pages.find(
-      (page) => page.isDefault === true,
+      (page: any) => page.isDefault === true,
     )?.id;
     const viewURL = viewerURL({
       pageId: defaultPageId,

@@ -20,10 +20,12 @@ export interface WorkspaceReduxState {
     isFetchingCurrentWorkspace: boolean;
     isSavingWorkspaceInfo: boolean;
     isFetchingWorkspaces: boolean;
+    isFetchingEntities: boolean;
   };
   workspaceUsers: WorkspaceUser[];
   workspaceRoles: any;
   currentWorkspace: Workspace;
+  searchEntities: any;
 }
 
 export const initialState: WorkspaceReduxState = {
@@ -33,10 +35,12 @@ export const initialState: WorkspaceReduxState = {
     isFetchingCurrentWorkspace: false,
     isSavingWorkspaceInfo: false,
     isFetchingWorkspaces: false,
+    isFetchingEntities: false,
   },
   list: [],
   workspaceUsers: [],
   workspaceRoles: [],
+  searchEntities: {},
   currentWorkspace: {
     id: "",
     name: "",
@@ -218,6 +222,53 @@ export const handlers = {
     draftState: WorkspaceReduxState,
   ) => {
     draftState.loadingStates.isSavingWorkspaceInfo = false;
+  },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT]: (
+    state: WorkspaceReduxState,
+  ) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isFetchingEntities: true,
+      },
+    };
+  },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS]: (
+    state: WorkspaceReduxState,
+    action: ReduxAction<any>,
+  ) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isFetchingEntities: false,
+      },
+      searchEntities: action.payload,
+    };
+  },
+  [ReduxActionErrorTypes.SEARCH_WORKSPACE_ENTITIES_ERROR]: (
+    state: WorkspaceReduxState,
+  ) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isFetchingEntities: false,
+      },
+    };
+  },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_RESET]: (
+    state: WorkspaceReduxState,
+  ) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isFetchingEntities: false,
+      },
+      searchEntities: {},
+    };
   },
 };
 

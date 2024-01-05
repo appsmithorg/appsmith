@@ -42,8 +42,6 @@ export const initialState: ApplicationsReduxState = {
   creatingApplication: {},
   deletingApplication: false,
   forkingApplication: false,
-  searchEntities: {},
-  isFetchingEntities: false,
   importingApplication: false,
   importedApplication: null,
   isImportAppModalOpen: false,
@@ -785,41 +783,6 @@ export const handlers = {
       currentPluginIdForCreateNewApp: undefined,
     };
   },
-  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      isFetchingEntities: true,
-    };
-  },
-  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<any>,
-  ) => {
-    return {
-      ...state,
-      isFetchingEntities: false,
-      searchEntities: action.payload,
-    };
-  },
-  [ReduxActionErrorTypes.SEARCH_WORKSPACE_ENTITIES_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      isFetchingEntities: false,
-    };
-  },
-  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_RESET]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      isFetchingEntities: false,
-      searchEntities: {},
-    };
-  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -834,8 +797,6 @@ export interface DeletingMultipleApps {
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
-  searchEntities: any;
-  isFetchingEntities: boolean;
   isSavingAppName: boolean;
   isErrorSavingAppName: boolean;
   isFetchingApplication: boolean;

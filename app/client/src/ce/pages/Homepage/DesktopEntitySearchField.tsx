@@ -5,15 +5,15 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import {
-  getIsFetchingEntities,
-  getSearchedApplications,
-  getSearchedWorkspaces,
-} from "@appsmith/selectors/applicationSelectors";
 import Fuse from "fuse.js";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
+import {
+  getIsFetchingEntities,
+  getSearchedApplications,
+  getSearchedWorkspaces,
+} from "@appsmith/selectors/workspaceSelectors";
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};

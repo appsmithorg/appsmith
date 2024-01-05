@@ -3,16 +3,16 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import {
-  getIsFetchingEntities,
-  getSearchedApplications,
-  getSearchedWorkspaces,
-} from "@appsmith/selectors/applicationSelectors";
 import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
+import {
+  getIsFetchingEntities,
+  getSearchedApplications,
+  getSearchedWorkspaces,
+} from "@appsmith/selectors/workspaceSelectors";
 
 const SearchListContainer = styled.div`
   width: 100%;
