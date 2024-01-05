@@ -1,6 +1,6 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { EditorState, IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 interface TestCase {
   path: string;
@@ -376,7 +376,7 @@ describe("identifyEntityFromPath", () => {
 
   it("works", () => {
     for (const testCase of cases) {
-      const actual = identifyEntityFromPath(testCase.path, IDE_TYPE.App);
+      const actual = identifyEntityFromPath(testCase.path);
       expect(actual).toStrictEqual(testCase.expected);
     }
   });

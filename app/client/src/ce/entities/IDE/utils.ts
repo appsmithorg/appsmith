@@ -1,5 +1,9 @@
 import type { IDEType } from "@appsmith/entities/IDE/constants";
-import { EditorState, IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import {
+  EditorState,
+  IDE_TYPE,
+  IDEBasePaths,
+} from "@appsmith/entities/IDE/constants";
 import { matchPath } from "react-router";
 import {
   APP_STATE_PATH,
@@ -9,7 +13,6 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "@appsmith/constants/routes/appRoutes";
-import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 
 export function getCurrentAppState(currentUrl: string): EditorState {
   const match = matchPath<{
@@ -46,19 +49,14 @@ export function getCurrentAppState(currentUrl: string): EditorState {
 }
 
 export function getIDETypeByUrl(path: string): IDEType {
-  if (isEditorPath(path)) {
-    return IDE_TYPE.App;
-  }
+  Object.entries(IDEBasePaths).forEach(([type, basePaths]) => {
+    if (matchPath(path, { path: basePaths })) {
+      return type;
+    }
+  });
   return IDE_TYPE.None;
 }
 
 export function getBaseUrlsForIDEType(type: IDEType): string[] {
-  switch (type) {
-    case IDE_TYPE.None:
-      return [];
-    case IDE_TYPE.App:
-      return [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH];
-    default:
-      throw Error(`Base urls for IDE type ${type} not defined`);
-  }
+  return IDEBasePaths[type];
 }

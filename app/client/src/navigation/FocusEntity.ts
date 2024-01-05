@@ -3,9 +3,11 @@ import { matchPath } from "react-router";
 import { ADD_PATH, CURL_IMPORT_PAGE_PATH } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { IDEType } from "@appsmith/entities/IDE/constants";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { EditorState, EntityPaths } from "@appsmith/entities/IDE/constants";
-import { getBaseUrlsForIDEType } from "@appsmith/entities/IDE/utils";
+import {
+  getBaseUrlsForIDEType,
+  getIDETypeByUrl,
+} from "@appsmith/entities/IDE/utils";
 import { memoize } from "lodash";
 
 export enum FocusEntity {
@@ -55,6 +57,9 @@ export interface MatchEntityFromPath {
   applicationId?: string;
   customSlug?: string;
   applicationSlug?: string;
+  packageId?: string;
+  moduleId?: string;
+  workflowId?: string;
   pageSlug?: string;
   apiId?: string;
   datasourceId?: string;
@@ -68,22 +73,17 @@ export interface MatchEntityFromPath {
   entity?: string;
 }
 
-function matchEntityFromPath(
-  path: string,
-  IDEType: IDEType,
-): match<MatchEntityFromPath> | null {
-  const matchPaths = getMatchPaths(IDEType);
+function matchEntityFromPath(path: string): match<MatchEntityFromPath> | null {
+  const ideType = getIDETypeByUrl(path);
+  const matchPaths = getMatchPaths(ideType);
   return matchPath(path, {
     path: matchPaths,
     exact: true,
   });
 }
 
-export function identifyEntityFromPath(
-  path: string,
-  type: IDEType = IDE_TYPE.App,
-): FocusEntityInfo {
-  const match = matchEntityFromPath(path, type);
+export function identifyEntityFromPath(path: string): FocusEntityInfo {
+  const match = matchEntityFromPath(path);
   if (!match) {
     return {
       entity: FocusEntity.NONE,
@@ -221,7 +221,7 @@ export function identifyEntityFromPath(
   ) {
     return {
       entity: FocusEntity.QUERY,
-      id: "",
+      id: "curl",
       appState: EditorState.EDITOR,
       params: match.params,
     };
