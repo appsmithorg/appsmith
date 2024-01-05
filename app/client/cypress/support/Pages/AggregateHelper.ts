@@ -759,7 +759,7 @@ export class AggregateHelper {
     selector: string,
     index = 0,
     force = false,
-    waitTimeInterval = 500,
+    waitTimeInterval = 300,
     ctrlKey = false,
     metaKey = false,
   ) {
