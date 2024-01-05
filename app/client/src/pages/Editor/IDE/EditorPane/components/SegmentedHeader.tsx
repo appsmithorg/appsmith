@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Flex, SegmentedControl } from "design-system";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EditorEntityTab } from "entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "entities/IDE/constants";
 import history, { NavigationMethod } from "utils/history";
 import {
   globalAddURL,
@@ -9,12 +9,14 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { useCurrentEditorState } from "../../hooks";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { setIdeEditorViewMode } from "actions/ideActions";
 
 const Container = styled(Flex)`
   button {
@@ -24,9 +26,12 @@ const Container = styled(Flex)`
 `;
 
 const SegmentedHeader = () => {
+  const dispatch = useDispatch();
   const isGlobalAddPaneEnabled = useFeatureFlag(
     FEATURE_FLAG.release_global_add_pane_enabled,
   );
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
   const pageId = useSelector(getCurrentPageId);
   const onAddButtonClick = () => {
     history.push(globalAddURL({ pageId }));
@@ -93,6 +98,16 @@ const SegmentedHeader = () => {
           onClick={onAddButtonClick}
           size="sm"
           startIcon="add-line"
+        />
+      ) : null}
+      {isSideBySideEnabled && editorMode === EditorViewMode.HalfScreen ? (
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() =>
+            dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
+          }
+          startIcon="icon-align-right"
         />
       ) : null}
     </Container>
