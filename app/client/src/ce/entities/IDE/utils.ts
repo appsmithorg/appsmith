@@ -49,11 +49,12 @@ export function getCurrentAppState(currentUrl: string): EditorState {
 }
 
 export function getIDETypeByUrl(path: string): IDEType {
-  Object.entries(IDEBasePaths).forEach(([type, basePaths]) => {
+  for (const type in IDEBasePaths) {
+    const basePaths = IDEBasePaths[type as IDEType];
     if (matchPath(path, { path: basePaths })) {
-      return type;
+      return type as IDEType;
     }
-  });
+  }
   return IDE_TYPE.None;
 }
 
