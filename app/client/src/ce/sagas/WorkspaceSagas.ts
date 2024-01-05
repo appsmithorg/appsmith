@@ -33,7 +33,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
-import { fetchAllApplicationsOfWorkspace } from "@appsmith/actions/applicationActions";
 import log from "loglevel";
 import type { User } from "constants/userConstants";
 import {
@@ -42,11 +41,12 @@ import {
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
 import {
-  fetchUsersForWorkspace,
   resetCurrentWorkspace,
   resetSearchEntity,
 } from "@appsmith/actions/workspaceActions";
 import { SearchApi, type SearchApiResponse } from "@appsmith/api/SearchApi";
+import { failFastApiCalls } from "sagas/InitSagas";
+import { getWorkspaceEntitiesActions } from "@appsmith/utils/workspaceHelpers";
 
 export function* fetchAllWorkspacesSaga(
   action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,
@@ -67,9 +67,10 @@ export function* fetchAllWorkspacesSaga(
         const activeWorkspace = workspaces.find(
           (workspace) => workspace.id === workspaceId,
         );
-        //Fetch entities like applications, packages, workflows, users etc.
-        yield put(fetchAllApplicationsOfWorkspace(workspaceId));
-        yield put(fetchUsersForWorkspace(workspaceId));
+        const { errorActions, initActions, successActions } =
+          getWorkspaceEntitiesActions(workspaceId);
+
+        yield call(failFastApiCalls, initActions, successActions, errorActions);
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: { ...activeWorkspace },

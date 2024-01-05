@@ -4,7 +4,10 @@ import type {
   ApplicationPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import type { UpdateApplicationRequest } from "@appsmith/api/ApplicationApi";
@@ -42,6 +45,11 @@ export const handlers = {
   ) => {
     draftState.loadingStates.isFetchingApplications = false;
     draftState.applications = action.payload;
+  },
+  [ReduxActionErrorTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_ERROR]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingApplications = false;
   },
   [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS]: (
     draftState: SelectedWorkspaceReduxState,
