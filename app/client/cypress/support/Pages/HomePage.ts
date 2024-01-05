@@ -161,6 +161,7 @@ export class HomePage {
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
+    this.SelectWorkspace(workspaceName);
     this.agHelper.GetElement(this._optionsIcon).click({ force: true });
   }
 
@@ -755,6 +756,6 @@ export class HomePage {
       .GetElement(this._leftPanel)
       .contains("span", workspaceName)
       .click({ force: true });
-    cy.wait('@getApplicationsOfWorkspace');
+    cy.wait("@getApplicationsOfWorkspace");
   }
 }

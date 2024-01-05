@@ -18,7 +18,7 @@ describe(
         sourceWorkspaceId = "source-" + uid;
         homePage.CreateNewWorkspace(sourceWorkspaceId, true);
         agHelper.PressEscape();
-        homePage.CreateAppInWorkspace(sourceWorkspaceId)
+        homePage.CreateAppInWorkspace(sourceWorkspaceId);
         // Create Mongo DS and respective query
         dataSources.CreateDataSource("Mongo");
         dataSources.CreateQueryAfterDSSaved();
