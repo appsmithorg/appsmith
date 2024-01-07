@@ -13,7 +13,6 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.migrations.CompatibilityUtils;
-import com.appsmith.server.migrations.MigrationHelperMethods;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -32,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.migrations.db.Migration028EE01AddMigrationFlagForCustomEnvironment.CUSTOM_ENVIRONMENT_MIGRATION_FLAG;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -320,7 +320,7 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
         // Fetch all app viewer permissions across the board
         Criteria appLevelPermissionGroupsCriteria = new Criteria()
                 .andOperator(
-                        MigrationHelperMethods.notDeleted(),
+                        notDeleted(),
                         Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                                 .is("Application"));
 
@@ -369,7 +369,7 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
         Query fetchApplicationWorkspaceIdsQuery = new Query()
                 .addCriteria(new Criteria()
                         .andOperator(
-                                MigrationHelperMethods.notDeleted(),
+                                notDeleted(),
                                 Criteria.where(fieldName(QApplication.application.id))
                                         .in(appIdToPermissionGroupIdsMap.keySet())));
         fetchApplicationWorkspaceIdsQuery.fields().include(fieldName(QApplication.application.workspaceId));

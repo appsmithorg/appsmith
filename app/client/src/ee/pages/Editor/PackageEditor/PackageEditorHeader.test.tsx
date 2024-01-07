@@ -8,6 +8,7 @@ import { ExplorerPinnedState } from "@appsmith/reducers/uiReducers/explorerReduc
 import { BrowserRouter as Router } from "react-router-dom";
 import "@testing-library/jest-dom";
 import * as selectors from "@appsmith/selectors/packageSelectors";
+import type { Package } from "@appsmith/constants/PackageConstants";
 
 const currentPackage = {
   id: "pkg-1",
@@ -19,7 +20,7 @@ const currentPackage = {
   color: "#FFFFFF",
   workspaceId: "workspace123",
   userPermissions: [],
-};
+} as unknown as Package;
 
 const store = configureStore()({
   ui: {

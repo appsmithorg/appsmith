@@ -16,6 +16,7 @@ import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/Acti
 import { assign, set, unset } from "lodash";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import type {
+  ConvertEntityToInstanceResponse,
   CreateModuleInstanceResponse,
   FetchModuleInstanceEntitiesResponse,
 } from "@appsmith/api/ModuleInstanceApi";
@@ -452,6 +453,29 @@ export const handlers = {
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
+  },
+
+  [ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_SUCCESS]: (
+    draftState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<ConvertEntityToInstanceResponse>,
+  ) => {
+    const { moduleInstanceData } = action.payload;
+
+    moduleInstanceData.entities.actions.forEach((action) => {
+      draftState.actions.push({
+        isLoading: false,
+        config: action,
+        data: undefined,
+      });
+    });
+
+    moduleInstanceData.entities.jsCollections.forEach((jsCollection) => {
+      draftState.jsCollections.push({
+        isLoading: false,
+        config: jsCollection,
+        data: undefined,
+      });
+    });
   },
 };
 

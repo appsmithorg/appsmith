@@ -17,6 +17,13 @@ import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { klona } from "klona";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { Package } from "@appsmith/constants/PackageConstants";
+import { getPackageById } from "@appsmith/selectors/packageSelectors";
+
+const DEFAULT_PACKAGE = {
+  id: "test",
+  name: "Package 1",
+} as Package;
 
 const DEFAULT_MODULE = {
   id: "test-module",
@@ -193,6 +200,7 @@ const DEFAULT_JS_COLLECTION_DATA = {
   },
 } as unknown as JSCollectionData;
 
+jest.mock("@appsmith/selectors/packageSelectors");
 jest.mock("@appsmith/selectors/moduleInstanceSelectors", () => ({
   ...jest.requireActual("@appsmith/selectors/moduleInstanceSelectors"),
   getModuleInstanceById: jest.fn(),
@@ -224,6 +232,8 @@ describe("JSModuleInstanceEditor", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    (getPackageById as jest.Mock).mockReturnValue(DEFAULT_PACKAGE);
   });
 
   it("renders loading spinner when module is missing", () => {

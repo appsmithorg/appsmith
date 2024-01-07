@@ -27,6 +27,7 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 import type {
+  CreateWorkflowApiKeysResponse,
   CreateWorkflowPayload,
   FetchWorkflowResponse,
 } from "@appsmith/api/WorkflowApi";
@@ -296,6 +297,43 @@ export function* publishWorkflowSaga(
   }
 }
 
+export function* toggleWorkflowTokenSaga(
+  action: ReduxAction<{
+    workflowId: string;
+    isTokenCurrentlyGenerated: boolean;
+  }>,
+) {
+  try {
+    const { isTokenCurrentlyGenerated, workflowId } = action.payload;
+    let response: CreateWorkflowApiKeysResponse;
+    if (!isTokenCurrentlyGenerated) {
+      response = yield call(WorkflowApi.createWorkflowApiKey, workflowId);
+    } else {
+      response = yield call(WorkflowApi.archiveWorkflowApiKey, workflowId);
+    }
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const type = isTokenCurrentlyGenerated
+        ? ReduxActionTypes.DELETE_WORKFLOW_TOKEN_SUCCESS
+        : ReduxActionTypes.CREATE_WORKFLOW_TOKEN_SUCCESS;
+      yield put({
+        type,
+        payload: { token: response.data, workflowId },
+      });
+
+      return response.data;
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.TOGGLE_WORKFLOW_TOKEN_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* workflowsSagas() {
   yield all([
     takeLatest(
@@ -317,5 +355,6 @@ export default function* workflowsSagas() {
       updateWorkflowNameSaga,
     ),
     takeLatest(ReduxActionTypes.PUBLISH_WORKFLOW_INIT, publishWorkflowSaga),
+    takeLatest(ReduxActionTypes.TOGGLE_WORKFLOW_TOKEN, toggleWorkflowTokenSaga),
   ]);
 }

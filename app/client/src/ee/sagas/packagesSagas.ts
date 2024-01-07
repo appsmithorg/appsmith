@@ -42,6 +42,7 @@ import type {
   PackageMetadata,
 } from "@appsmith/constants/PackageConstants";
 import { toast } from "design-system";
+import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 
 interface CreatePackageSagaProps {
   workspaceId: string;
@@ -52,13 +53,21 @@ interface CreatePackageSagaProps {
 
 export function* fetchAllPackagesSaga() {
   try {
-    const response: ApiResponse = yield call(PackageApi.fetchAllPackages);
-    const isValidResponse: boolean = yield validateResponse(response);
+    const showQueryModule: boolean = yield select(getShowQueryModule);
+    if (showQueryModule) {
+      const response: ApiResponse = yield call(PackageApi.fetchAllPackages);
+      const isValidResponse: boolean = yield validateResponse(response);
 
-    if (isValidResponse) {
+      if (isValidResponse) {
+        yield put({
+          type: ReduxActionTypes.FETCH_ALL_PACKAGES_SUCCESS,
+          payload: response.data,
+        });
+      }
+    } else {
       yield put({
         type: ReduxActionTypes.FETCH_ALL_PACKAGES_SUCCESS,
-        payload: response.data,
+        payload: [],
       });
     }
   } catch (error) {

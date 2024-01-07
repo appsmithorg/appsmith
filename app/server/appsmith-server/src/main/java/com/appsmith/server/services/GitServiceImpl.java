@@ -9,6 +9,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -16,6 +17,7 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
@@ -36,9 +38,13 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_UPDATE_DEFAULT_BRANCH;
 import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
+import static com.appsmith.server.exceptions.AppsmithError.INVALID_GIT_CONFIGURATION;
 
 @Slf4j
 @Service
@@ -47,6 +53,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
     private final WorkspacePermission workspacePermission;
+    private final SessionUserService sessionUserService;
+    private final AnalyticsService analyticsService;
 
     public GitServiceImpl(
             UserService userService,
@@ -107,6 +115,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.workspacePermission = workspacePermission;
+        this.sessionUserService = sessionUserService;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -115,31 +125,44 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
         if (!StringUtils.hasLength(newDefaultBranchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
-
-        // get the application by default application id and the new default branch name
+        // get the application in default branch
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         newDefaultBranchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .flatMap(application -> checkPermissionOnWorkspace(
-                                application.getWorkspaceId(),
+                .flatMap(defaultBranchedApplication -> checkPermissionOnWorkspace(
+                                defaultBranchedApplication.getWorkspaceId(),
                                 workspacePermission.getApplicationCreatePermission(),
-                                "Disconnect from Git")
-                        .thenReturn(application))
-                .flatMapMany(application -> {
-                    if (application.getGitApplicationMetadata() == null) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION,
-                                GIT_CONFIG_ERROR)); // application not connected to Git, throw error
+                                "Change default branch")
+                        .thenReturn(defaultBranchedApplication))
+                .flatMap(defaultBranchedApplication -> {
+                    if (defaultBranchedApplication.getGitApplicationMetadata() == null) {
+                        // application not connected to Git, throw error
+                        return Mono.error(new AppsmithException(INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
-                    return applicationService.findAllApplicationsByDefaultApplicationId(
-                            defaultApplicationId, applicationPermission.getEditPermission());
+                    // fetch all applications that has gitApplicationMetadata.defaultApplication=defaultApplicationId
+                    return applicationService
+                            .findAllApplicationsByDefaultApplicationId(
+                                    defaultApplicationId, applicationPermission.getEditPermission())
+                            .flatMap(application -> {
+                                // update the application with the new default branch name
+                                application.getGitApplicationMetadata().setDefaultBranchName(newDefaultBranchName);
+                                return applicationService.save(application);
+                            })
+                            .then()
+                            .thenReturn(defaultBranchedApplication);
                 })
-                .flatMap(application -> {
-                    // update the application with the new default branch name
-                    application.getGitApplicationMetadata().setDefaultBranchName(newDefaultBranchName);
-                    return applicationService.save(application);
+                .flatMap(defaultBranchedApplication -> {
+                    // all applications in DB have new default branch set but this rootApplication still have old one
+                    // as it was fetched before the update. we need this object to send analytics event
+                    String oldDefaultBranch = defaultBranchedApplication
+                            .getGitApplicationMetadata()
+                            .getDefaultBranchName();
+
+                    return sendAnalyticsForDefaultBranch(
+                                    defaultBranchedApplication, oldDefaultBranch, newDefaultBranchName)
+                            .thenReturn(newDefaultBranchName);
                 })
-                .then(Mono.just(newDefaultBranchName));
+                .thenReturn(newDefaultBranchName);
     }
 
     /**
@@ -163,10 +186,16 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
     public Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames) {
         return getApplicationById(defaultApplicationId).flatMap(rootApplication -> {
             GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
+
+            // keep a copy of old protected branches as it's required to send analytics event later
+            List<String> oldProtectedBranches =
+                    metadata.getBranchProtectionRules() != null ? metadata.getBranchProtectionRules() : List.of();
+
             metadata.setBranchProtectionRules(branchNames);
             return applicationService
                     .save(rootApplication)
                     .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
+                    .then(sendBranchProtectionAnalytics(rootApplication, oldProtectedBranches, branchNames))
                     .thenReturn(branchNames);
         });
     }
@@ -180,5 +209,22 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                     return Mono.justOrEmpty(gitApplicationMetadata.getBranchProtectionRules());
                 })
                 .defaultIfEmpty(List.of());
+    }
+
+    private Mono<Void> sendAnalyticsForDefaultBranch(
+            Application application, String oldDefaultBranch, String newDefaultBranch) {
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        Map<String, Object> analyticsProps = new HashMap<>();
+        analyticsProps.put("appId", gitData.getDefaultApplicationId());
+        analyticsProps.put("orgId", application.getWorkspaceId());
+        analyticsProps.put("old_branch", oldDefaultBranch);
+        analyticsProps.put("new_branch", newDefaultBranch);
+        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> analyticsService.sendEvent(
+                        GIT_UPDATE_DEFAULT_BRANCH.getEventName(), user.getUsername(), analyticsProps));
     }
 }

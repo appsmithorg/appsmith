@@ -22,6 +22,8 @@ import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import useModuleFallbackSettingsForm from "./useModuleFallbackSettingsForm";
+import type { PluginType } from "entities/Action";
 
 interface ModuleQueryEditorRouteParams {
   pageId: string; // TODO: @ashit remove this and add generic key in the Editor
@@ -42,7 +44,11 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
   const isPackageEditorInitialized = useSelector(getIsPackageEditorInitialized);
   const module = useSelector((state) => getModuleById(state, moduleId));
   const action = useSelector((state) => getAction(state, actionId));
-
+  const fallbackSettings = useModuleFallbackSettingsForm({
+    pluginId: action?.pluginId || "",
+    pluginType: (action?.pluginType as PluginType) || "",
+    interfaceType: "CREATOR",
+  });
   const isEditorInitialized = isPackageEditorInitialized && Boolean(action);
 
   useEffect(() => {
@@ -119,6 +125,9 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
     return <Loader />;
   }
 
+  const moduleSettings =
+    module?.settingsForm.length === 0 ? fallbackSettings : module?.settingsForm;
+
   return (
     <QueryEditorContextProvider
       actionRightPaneAdditionSections={actionRightPaneAdditionSections}
@@ -132,7 +141,7 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
       <Editor
         {...props}
         isEditorInitialized={isEditorInitialized}
-        settingsConfig={module?.settingsForm}
+        settingsConfig={moduleSettings}
       />
     </QueryEditorContextProvider>
   );

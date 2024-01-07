@@ -421,6 +421,12 @@ export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>
   `Unable to update module instance name to ${name}`;
 export const NEW_REUSABLE_QUERY_BUTTON_TEXT = () => "New reusable query";
 export const NEW_REUSABLE_API_BUTTON_TEXT = () => "New reusable API";
+export const CONVERT_MODULE_CTA_TEXT = () => "Create Module";
+export const CONVERT_ENTITY_UNPUBLISHED_CHANGES_WARN = () =>
+  "The package has unsaved changes. Please publish it first.";
+export const CANNOT_CREATE_MODULE_WARN = () =>
+  "You do not have permission to add module into this package";
+export const GO_TO_MODULE = () => "Go to Module";
 // Modules end
 
 //Worflows start
@@ -431,6 +437,25 @@ export const CREATE_WORKFLOW_ERROR = () => "Failed to create workflow";
 export const EMPTY_WORKFLOW_LIST = () =>
   "There are no workflows in this workspace.";
 export const RENAME_WORKFLOW_TOOLTIP = () => "Rename workflow";
+
+export const GENERAL_SETTINGS_WORKFLOW_SECTION_HEADER_DESC = () =>
+  "Workflow name, icon and share";
+export const GENERAL_SETTINGS_WORKFLOW_NAME_LABEL = () => "Workflow name";
+export const GENERAL_SETTINGS_WORKFLOW_NAME_EMPTY_MESSAGE = () =>
+  "Workflow name cannot be empty";
+export const GENERAL_SETTINGS_WORKFLOW_NAME_SPECIAL_CHARACTER_ERROR = () =>
+  "Only alphanumeric or '-()' are allowed";
+export const GENERAL_SETTINGS_WORKFLOW_ICON_LABEL = () => "Workflow icon";
+
+export const TRIGGER_SETTINGS_SECTION_HEADER = () => "Triggers";
+export const TRIGGER_SETTINGS_SECTION_HEADER_DESC = () =>
+  "Webhook and schedule triggers";
+export const TRIGGER_SETTINGS_SECTION_CONTENT_HEADER = () => "Trigger settings";
+export const WEBHOOK_TRIGGER_SWITCH_LABEL = () => "Webhook trigger";
+export const WEBHOOK_TRIGGER_SWITCH_LABEL_DESC = () =>
+  "Use the endpoint URL and the generated bearer token to trigger the workflow";
+export const WEBHOOK_TRIGGER_TOKEN_WARNING = () =>
+  "Save your bearer token right away. You won’t be able do this later.";
 // Workflows end
 
 // AI begin

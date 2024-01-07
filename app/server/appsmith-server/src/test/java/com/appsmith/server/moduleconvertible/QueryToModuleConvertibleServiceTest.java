@@ -66,6 +66,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -265,6 +266,8 @@ class QueryToModuleConvertibleServiceTest {
 
         Package sourcePackage = verifyPackagePublishAndGetSourcePackage(publishedPackageIdRef);
 
+        verifyLastPublishedAtGreaterThanModifiedAt(sourcePackage.getId());
+
         // Convert API action to module
         ConvertToModuleRequestDTO convertApiToModuleRequestDTO = new ConvertToModuleRequestDTO();
         convertApiToModuleRequestDTO.setPackageId(sourcePackage.getId());
@@ -337,6 +340,15 @@ class QueryToModuleConvertibleServiceTest {
             assertThat(expectedDslExecutableDTO.getPluginType()).isEqualTo(actualDslExecutableDTO.getPluginType());
             return true;
         });
+    }
+
+    private void verifyLastPublishedAtGreaterThanModifiedAt(String originPackageId) {
+        PackageDetailsDTO packageDetailsDTO =
+                crudPackageService.getPackageDetails(originPackageId).block();
+        Instant lastPublishedAt =
+                Instant.parse(packageDetailsDTO.getPackageData().getLastPublishedAt());
+        Instant modifiedAt = Instant.parse(packageDetailsDTO.getPackageData().getModifiedAt());
+        assertThat(lastPublishedAt.isAfter(modifiedAt));
     }
 
     private Package verifyPackagePublishAndGetSourcePackage(AtomicReference<String> packageIdRef) {
@@ -435,6 +447,7 @@ class QueryToModuleConvertibleServiceTest {
         assertThat(moduleDTO.getName()).isEqualTo(expectedName);
         assertThat(moduleDTO.getInputsForm().get(0).getChildren()).hasSize(numberOfInputs);
         assertThat(moduleDTO.getUserPermissions()).hasSize(2);
+        assertThat(moduleDTO.getOriginModuleId()).isNotNull();
         moduleDTO.getInputsForm().get(0).getChildren().forEach(moduleInput -> {
             assertThat(moduleInput.getId()).isNotNull();
             assertThat(moduleInput.getLabel()).isNotNull();

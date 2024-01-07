@@ -200,7 +200,7 @@ export class URLBuilder extends CE_URLBuilderClass {
   generateBasePathForWorkflow(workflowId: string) {
     const formattedParams = {
       workflowId,
-      // workflowSlug: match.params.workflowSlug, // TODO (Workflows): Add workflow slug
+      workflowSlug: "", // TODO (Workflows): Add workflow slug
     };
 
     return generatePath(WORKFLOW_EDITOR_URL, formattedParams);

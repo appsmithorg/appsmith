@@ -105,6 +105,9 @@ public enum AnalyticsEvents {
     UPDATE_LICENSE("update_license_instance"),
     REFRESH_LICENSE("refresh_license_instance"),
     WORKFLOW_DEPLOYED,
+
+    // event triggered when there's a change in the default branch
+    GIT_UPDATE_DEFAULT_BRANCH,
     ;
 
     private final String eventName;
