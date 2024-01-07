@@ -15,16 +15,9 @@ export const getWorkspaceLoadingStates = (state: AppState) => {
       state.ui.workspaces.loadingStates.isFetchingCurrentWorkspace,
     isFetchingWorkspaces:
       state.ui.workspaces.loadingStates.isFetchingWorkspaces,
-    isFetchingAllUsers: state.ui.workspaces.loadingStates.isFetchAllUsers,
     isFetchingAllRoles: state.ui.workspaces.loadingStates.isFetchAllRoles,
     isSavingWorkspaceInfo:
       state.ui.workspaces.loadingStates.isSavingWorkspaceInfo,
-    deletingUserInfo: state.ui.workspaces.workspaceUsers.filter(
-      (el) => el.isDeleting,
-    )[0],
-    roleChangingUserInfo: state.ui.workspaces.workspaceUsers.filter(
-      (el) => el.isChangingRole,
-    )[0],
   };
 };
 
@@ -63,9 +56,6 @@ export const getCurrentWorkspace = createSelector(
 export const getCurrentAppWorkspace = (state: AppState) => {
   return state.ui.workspaces.currentWorkspace;
 };
-
-export const getAllUsers = (state: AppState) =>
-  state.ui.workspaces.workspaceUsers;
 
 export const getAllRoles = (state: AppState) =>
   state.ui.workspaces.workspaceRoles;

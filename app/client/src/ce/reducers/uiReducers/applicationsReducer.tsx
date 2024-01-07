@@ -7,7 +7,6 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
@@ -29,13 +28,11 @@ import {
 import produce from "immer";
 import { isEmpty } from "lodash";
 import type { Package } from "@appsmith/constants/PackageConstants";
-import type { User } from "constants/userConstants";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
   isErrorSavingAppName: false,
   isFetchingApplication: false,
-  users: [],
   packages: [],
   isChangingViewAccess: false,
   applicationList: [],
@@ -166,17 +163,6 @@ export const handlers = {
       },
     };
   },
-  [ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<User[]>,
-  ) => ({
-    ...state,
-    users: action.payload,
-    loadingStates: {
-      ...state.loadingStates,
-      isFetchingAllUsers: false,
-    },
-  }),
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplication: true }),
@@ -262,15 +248,6 @@ export const handlers = {
       ...state,
       creatingApplication: updatedCreatingApplication,
       applicationList: [...state.applicationList, action.payload.application],
-    };
-  },
-  [ReduxActionTypes.INVITED_USERS_TO_WORKSPACE]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{ workspaceId: string; users: WorkspaceUser[] }>,
-  ) => {
-    return {
-      ...state,
-      users: [...state.users, ...action.payload.users],
     };
   },
   [ReduxActionErrorTypes.CREATE_APPLICATION_ERROR]: (
@@ -812,7 +789,6 @@ export interface ApplicationsReduxState {
   workspaceIdForImport: any;
   pageIdForImport: string;
   packages: Package[];
-  users: User[];
   isDatasourceConfigForImportFetched?: boolean;
   isAppSidebarPinned: boolean;
   isSavingNavigationSetting: boolean;
