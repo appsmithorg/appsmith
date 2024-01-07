@@ -13,12 +13,12 @@ describe(
       cy.intercept("POST", "/api/v1/usage-pulse").as("usagePulse");
     });
     it("1. Should send usage pulse", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.Sleep(2000);
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
       agHelper.AssertElementVisibility(homePageLocators.appEditIcon);
       homePage.EditAppFromAppHover();
-      agHelper.RefreshPage("getReleaseItems");
+      agHelper.RefreshPage("getAllWorkspaces");
       cy.wait("@usagePulse").then((result) => {
         const payload = result.request.body;
         expect(payload).to.have.property("viewMode", false);

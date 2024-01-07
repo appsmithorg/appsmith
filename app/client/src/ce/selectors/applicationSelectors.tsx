@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import { groupBy, memoize } from "lodash";
+import { memoize } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import type {
   ApplicationsReduxState,
@@ -231,7 +231,19 @@ export const getApplicationByIdFromWorkspaces = createSelector(
     return application;
   },
 );
-const getMemoizedThemeObj = memoize(
+
+export const getSearchedWorkspaces = createSelector(
+  getApplicationsState,
+  (applicationsState): Workspace[] | undefined =>
+    applicationsState.searchEntities?.workspaces,
+);
+export const getSearchedApplications = createSelector(
+  getApplicationsState,
+  (applicationsState): ApplicationPayload[] | undefined =>
+    applicationsState.searchEntities?.applications,
+);
+
+export const getMemoizedThemeObj = memoize(
   (themeSetting: ThemeSetting | undefined) => {
     return {
       ...defaultThemeSetting,
@@ -245,15 +257,3 @@ export const getAppThemeSettings = (state: AppState) => {
     state.ui.applications.currentApplication?.applicationDetail?.themeSetting,
   );
 };
-
-export const getSearchedWorkspaces = createSelector(
-  getApplicationsState,
-  (applicationsState): Workspace[] | undefined =>
-    applicationsState.searchEntities?.workspaces,
-);
-
-export const getSearchedApplications = createSelector(
-  getApplicationsState,
-  (applicationsState): ApplicationPayload[] | undefined =>
-    applicationsState.searchEntities?.applications,
-);

@@ -456,7 +456,7 @@ describe(
       cy.LogintoAppTestUser(testUser3, password);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       cy.get(locators.AdminSettingsEntryLink).should("be.visible");
       cy.get(locators.AdminSettingsEntryLink).click();
       cy.get(RBAC.usersTab).should("not.exist");

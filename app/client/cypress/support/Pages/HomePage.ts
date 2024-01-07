@@ -437,8 +437,8 @@ export class HomePage {
    * @param appName
    */
   public SearchAndOpenApp(appName: string) {
+    this.agHelper.WaitUntilEleAppear(this._searchInput);
     this.agHelper.TypeText(this._searchInput, appName);
-    this.agHelper.Sleep(2000);
     this.EditAppFromSearch(appName);
   }
 
@@ -451,10 +451,11 @@ export class HomePage {
 
   public EditAppFromSearch(appName: string) {
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
+    this.agHelper.waitUntilTextVisible(appName);
     this.agHelper.GetNClick(this._backToEditor);
-    this.agHelper.AssertElementAbsence(this.locator._loading);
+    this.agHelper.WaitUntilEleDisappear(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
-    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 200000);
+    this.agHelper.WaitUntilEleDisappear(this.locator._btnSpinner);
   }
 
   public EditAppFromAppHover(appName = "") {
@@ -755,6 +756,6 @@ export class HomePage {
       .GetElement(this._leftPanel)
       .contains("span", workspaceName)
       .click({ force: true });
-    cy.wait('@getApplicationsOfWorkspace');
+    cy.wait("@getApplicationsOfWorkspace");
   }
 }
