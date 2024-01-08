@@ -9,7 +9,6 @@ import {
   COMMIT_CHANGES,
   CONFLICTS_FOUND,
   CONNECT_GIT,
-  CONNECT_GIT_BETA,
   CONNECTING_TO_REPO_DISABLED,
   CONTACT_ADMIN_FOR_GIT,
   createMessage,
@@ -304,7 +303,7 @@ function ConnectGitPlaceholder() {
               }}
               size="sm"
             >
-              {createMessage(CONNECT_GIT_BETA)}
+              {createMessage(CONNECT_GIT)}
             </Button>
           ) : (
             <PlaceholderButton className="t--disabled-connect-git-bottom-bar">
