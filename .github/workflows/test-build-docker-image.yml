@@ -46,7 +46,7 @@ jobs:
           fi
 
       - name: Add suggestion in the PR on using @tag.All 
-        if: steps.setup.outputs.tags == '"@tag.All"'
+        if: contains(steps.setup.outputs.tags, '@tag.All')
         uses: peter-evans/create-or-update-comment@v3
         with:
           comment-on-branch: true
