@@ -1,5 +1,4 @@
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import { Icon, SearchInput, Spinner, Text } from "design-system";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +13,7 @@ import {
   getSearchedApplications,
   getSearchedWorkspaces,
 } from "@appsmith/selectors/workspaceSelectors";
+import { searchWorkspaceEntities } from "@appsmith/actions/workspaceActions";
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
@@ -73,8 +73,8 @@ const DesktopEntitySearchField = (props: any) => {
 
   function handleSearchInput(text: string) {
     setSearchInput(text);
-    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
-    else dispatch(setFetchingApplications(false));
+    if (text.trim().length !== 0) dispatch(searchWorkspaceEntities(true));
+    else dispatch(searchWorkspaceEntities(false));
     handleSearchDebounced(text);
     setSearchedPackages(fuzzy.search(text));
     setIsDropdownOpen(true);

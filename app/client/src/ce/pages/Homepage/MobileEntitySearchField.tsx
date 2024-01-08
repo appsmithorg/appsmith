@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
@@ -13,6 +12,7 @@ import {
   getSearchedApplications,
   getSearchedWorkspaces,
 } from "@appsmith/selectors/workspaceSelectors";
+import { searchWorkspaceEntities } from "@appsmith/actions/workspaceActions";
 
 const SearchListContainer = styled.div`
   width: 100%;
@@ -72,8 +72,8 @@ function MobileEntitySearchField(props: any) {
 
   function handleSearchInput(text: string) {
     setSearchInput(text);
-    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
-    else dispatch(setFetchingApplications(false));
+    if (text.trim().length !== 0) dispatch(searchWorkspaceEntities(true));
+    else dispatch(searchWorkspaceEntities(false));
     handleSearchDebounced(text);
     setSearchedPackages(fuzzy.search(text));
     setIsDropdownOpen(true);

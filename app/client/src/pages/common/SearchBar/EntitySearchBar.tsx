@@ -25,8 +25,8 @@ import MobileEntitySearchField from "@appsmith/pages/Homepage/MobileEntitySearch
 import {
   resetSearchEntity,
   searchEntities,
+  searchWorkspaceEntities,
 } from "@appsmith/actions/workspaceActions";
-import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { viewerURL } from "@appsmith/RouteBuilder";
 import { getSearchedApplications } from "@appsmith/selectors/workspaceSelectors";
@@ -96,7 +96,7 @@ function EntitySearchBar(props: any) {
   function handleInputClicked() {
     if (searchInput?.trim()?.length || !noSearchResults) {
       setIsDropdownOpen(false);
-      dispatch(setFetchingApplications(false));
+      dispatch(searchWorkspaceEntities(false));
     }
   }
 
