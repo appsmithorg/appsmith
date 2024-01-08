@@ -118,6 +118,7 @@ export class HomePage {
     "//div[contains(@class, 't--application-edited-text')]";
 
   private _backToEditor = ".t--back-to-editor";
+  private _editorSidebar = ".t--sidebar-Editor";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -451,7 +452,7 @@ export class HomePage {
 
   public EditAppFromSearch(appName: string) {
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
-    this.agHelper.waitUntilTextVisible(appName);
+    this.agHelper.WaitUntilEleAppear(this._editorSidebar);
     this.agHelper.GetNClick(this._backToEditor);
     this.agHelper.WaitUntilEleDisappear(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
