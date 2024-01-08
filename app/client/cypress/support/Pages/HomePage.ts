@@ -173,7 +173,7 @@ export class HomePage {
   public RenameWorkspace(oldName: string, newWorkspaceName: string) {
     this.OpenWorkspaceOptions(oldName);
     this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
-    this.agHelper.Sleep(2000);
+    this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
