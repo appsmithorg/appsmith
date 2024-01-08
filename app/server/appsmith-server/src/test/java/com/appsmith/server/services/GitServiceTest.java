@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
@@ -42,7 +43,9 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
@@ -472,6 +475,39 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void setDefaultBranch_WhenPermissionDoesNotExist_ExceptionThrown() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        Workspace workspace = new Workspace();
+        workspace.setName(UUID.randomUUID().toString());
+        String workspaceId =
+                workspaceService.create(workspace).map(Workspace::getId).block();
+        String defaultBranchBeforeChange = "main", defaultBranchAfterChange = "branch2";
+
+        // create the root application
+        Application rootApp = applicationPageService
+                .createApplication(createApplicationWithGitMetaData(workspaceId, "rootApp", null))
+                .block();
+
+        // remove permission from the application
+        Set<Policy> newPoliciesWithoutPermission = rootApp.getPolicies().stream()
+                .filter(policy ->
+                        !policy.getPermission().equals(applicationPermission.getManageDefaultBranchPermission()))
+                .collect(Collectors.toSet());
+        rootApp.setPolicies(newPoliciesWithoutPermission);
+        rootApp = applicationRepository.save(rootApp).block();
+
+        StepVerifier.create(gitService.setDefaultBranch(rootApp.getId(), defaultBranchAfterChange))
+                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                        FieldName.APPLICATION, rootApp.getId() + "," + defaultBranchAfterChange))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void setDefaultBranch_WhenNoApplicationFoundWithBranchName_ExceptionThrown() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
                 .thenReturn(Mono.just(TRUE));
@@ -626,24 +662,36 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void protectBranch_branchListEmpty_success() {
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_unlimited_repo_enabled)))
-                .thenReturn(Mono.just(TRUE));
-        Workspace workspace = new Workspace();
-        workspace.setName(UUID.randomUUID().toString());
-        String limitPrivateRepoTestWorkspaceId =
-                workspaceService.create(workspace).map(Workspace::getId).block();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void protectBranch_branchListNotEmpty_success() {
+    public void protectBranch_WhenPermissionDoesNotExist_Fails() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
                 .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
         Workspace workspace = new Workspace();
         workspace.setName(UUID.randomUUID().toString());
         String limitPrivateRepoTestWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
+
+        // create the root application
+        Application rootApp = applicationPageService
+                .createApplication(createApplicationWithGitMetaData(limitPrivateRepoTestWorkspaceId, "rootApp", null))
+                .block();
+
+        // remove permission from the application
+        Set<Policy> newPoliciesWithoutPermission = rootApp.getPolicies().stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(applicationPermission
+                                .getManageProtectedBranchPermission()
+                                .getValue()))
+                .collect(Collectors.toSet());
+        rootApp.setPolicies(newPoliciesWithoutPermission);
+        rootApp = applicationRepository.save(rootApp).block();
+
+        StepVerifier.create(gitService.updateProtectedBranches(rootApp.getId(), List.of("master")))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, rootApp.getId()))
+                .verify();
     }
 
     /**

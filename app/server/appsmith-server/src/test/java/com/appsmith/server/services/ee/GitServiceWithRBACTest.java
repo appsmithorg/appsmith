@@ -15,6 +15,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -468,7 +469,8 @@ public class GitServiceWithRBACTest {
                                 AclPermission.APPLICATION_CREATE_PAGES,
                                 AclPermission.DELETE_APPLICATIONS,
                                 AclPermission.READ_APPLICATIONS,
-                                AclPermission.MANAGE_APPLICATIONS),
+                                AclPermission.MANAGE_APPLICATIONS,
+                                AclPermission.CONNECT_TO_GIT),
                         List.of(),
                         Application.class)
                 .block();
@@ -586,8 +588,8 @@ public class GitServiceWithRBACTest {
                 .expectErrorMatches(error -> {
                     return error instanceof AppsmithException
                             && error.getMessage()
-                                    .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                            "applicationId", application1.getId()));
+                                    .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.APPLICATION, application1.getId()));
                 })
                 .verify();
     }
@@ -667,7 +669,8 @@ public class GitServiceWithRBACTest {
                                 AclPermission.APPLICATION_CREATE_PAGES,
                                 AclPermission.DELETE_APPLICATIONS,
                                 AclPermission.READ_APPLICATIONS,
-                                AclPermission.MANAGE_APPLICATIONS),
+                                AclPermission.MANAGE_APPLICATIONS,
+                                AclPermission.CONNECT_TO_GIT),
                         List.of(),
                         Application.class)
                 .block();
@@ -1010,7 +1013,8 @@ public class GitServiceWithRBACTest {
                 .expectErrorMatches(error -> {
                     return error instanceof AppsmithException
                             && error.getMessage()
-                                    .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", applicationId));
+                                    .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.APPLICATION, applicationId));
                 })
                 .verify();
     }
@@ -1194,8 +1198,8 @@ public class GitServiceWithRBACTest {
                 .expectErrorMatches(error -> {
                     return error instanceof AppsmithException
                             && error.getMessage()
-                                    .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                            "applicationId", application.getId()));
+                                    .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.APPLICATION, application.getId()));
                 })
                 .verify();
     }
@@ -1591,8 +1595,8 @@ public class GitServiceWithRBACTest {
                 .expectErrorMatches(error -> {
                     return error instanceof AppsmithException
                             && error.getMessage()
-                                    .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                            "applicationId", gitConnectedApplication.getId()));
+                                    .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.APPLICATION, gitConnectedApplication.getId()));
                 })
                 .verify();
     }
@@ -1806,8 +1810,8 @@ public class GitServiceWithRBACTest {
                 .expectErrorMatches(error -> {
                     return error instanceof AppsmithException
                             && error.getMessage()
-                                    .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                            "applicationId", application.getId()));
+                                    .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.APPLICATION, application.getId()));
                 })
                 .verify();
     }
@@ -2400,8 +2404,8 @@ public class GitServiceWithRBACTest {
                 .expectErrorMatches(error -> {
                     return error instanceof AppsmithException
                             && error.getMessage()
-                                    .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                            "applicationId", gitConnectedApplication.getId()));
+                                    .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.APPLICATION, gitConnectedApplication.getId()));
                 })
                 .verify();
     }
