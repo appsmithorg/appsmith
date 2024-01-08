@@ -16,8 +16,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EmptyState } from "./EmptyState";
+import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "../components/EmptyState";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 
@@ -33,7 +33,7 @@ const JSContainer = styled(Flex)`
   }
 `;
 
-const JSSection = () => {
+const ListJSObjects = () => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
   const files = useSelector(selectJSForPagespane);
@@ -56,7 +56,7 @@ const JSSection = () => {
 
   return (
     <JSContainer
-      className="ide-pages-pane__content-js"
+      className="ide-editor-left-pane__content-js"
       flexDirection="column"
       overflow="hidden"
       py="spaces-3"
@@ -69,7 +69,7 @@ const JSSection = () => {
             size={"sm"}
             startIcon={"add-line"}
           >
-            {createMessage(PAGES_PANE_TEXTS.js_add_button)}
+            {createMessage(EDITOR_PANE_TEXTS.js_add_button)}
           </Button>
         </Flex>
       )}
@@ -102,9 +102,9 @@ const JSSection = () => {
 
       {(!JSObjects || JSObjects.length === 0) && (
         <EmptyState
-          buttonText={createMessage(PAGES_PANE_TEXTS.js_add_button)}
+          buttonText={createMessage(EDITOR_PANE_TEXTS.js_add_button)}
           description={createMessage(
-            PAGES_PANE_TEXTS.js_blank_state_description,
+            EDITOR_PANE_TEXTS.js_blank_state_description,
           )}
           icon={"js-square-v3"}
           onClick={canCreateActions ? addButtonClickHandler : undefined}
@@ -114,4 +114,4 @@ const JSSection = () => {
   );
 };
 
-export { JSSection };
+export default ListJSObjects;

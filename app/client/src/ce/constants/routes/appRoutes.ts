@@ -44,6 +44,7 @@ export const API_EDITOR_ID_ADD_PATH = `${API_EDITOR_BASE_PATH}/:apiId/add`;
 export const API_EDITOR_PATH_WITH_SELECTED_PAGE_ID = `${API_EDITOR_BASE_PATH}?importTo=:importTo`;
 export const QUERIES_EDITOR_BASE_PATH = `/queries`;
 export const ADD_PATH = `/add`;
+export const LIST_PATH = "/list";
 export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId`;
 export const QUERIES_EDITOR_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`;
 export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId/add`;

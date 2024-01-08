@@ -93,7 +93,7 @@ export const useEditorPaneWidth = (): number => {
   useEffect(() => {
     if (
       isSideBySideEnabled &&
-      editorMode === EditorViewMode.HalfScreen &&
+      editorMode === EditorViewMode.SplitScreen &&
       segment !== EditorEntityTab.UI
     ) {
       setWidth(255 + propertyPaneWidth);

@@ -19,8 +19,8 @@ import {
 import { ADD_PATH } from "constants/routes";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EmptyState } from "./EmptyState";
+import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "../components/EmptyState";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -55,7 +55,7 @@ const ListQuery = () => {
             size={"sm"}
             startIcon={"add-line"}
           >
-            {createMessage(PAGES_PANE_TEXTS.query_add_button)}
+            {createMessage(EDITOR_PANE_TEXTS.query_add_button)}
           </Button>
         </Flex>
       )}
@@ -104,9 +104,9 @@ const ListQuery = () => {
 
       {Object.keys(files).length === 0 && (
         <EmptyState
-          buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
+          buttonText={createMessage(EDITOR_PANE_TEXTS.query_add_button)}
           description={createMessage(
-            PAGES_PANE_TEXTS.query_blank_state_description,
+            EDITOR_PANE_TEXTS.query_blank_state_description,
           )}
           icon={"queries-v3"}
           onClick={canCreateActions ? addButtonClickHandler : undefined}
@@ -116,4 +116,4 @@ const ListQuery = () => {
   );
 };
 
-export { ListQuery };
+export default ListQuery;

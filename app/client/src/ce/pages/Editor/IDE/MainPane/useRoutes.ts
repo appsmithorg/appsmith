@@ -64,7 +64,7 @@ function useRoutes(path: string): RouteReturnType[] {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
 
-  if (isSideBySideEnabled && editorMode === EditorViewMode.HalfScreen) {
+  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
     return [
       {
         key: "Canvas",

@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Flex, SegmentedControl } from "design-system";
-import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EditorEntityTab, EditorViewMode } from "entities/IDE/constants";
 import history, { NavigationMethod } from "utils/history";
 import {
@@ -67,7 +67,7 @@ const SegmentedHeader = () => {
     <Container
       alignItems="center"
       backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
-      className="ide-pages-pane__header"
+      className="ide-editor-left-pane__header"
       gap="spaces-2"
       padding="spaces-2"
     >
@@ -76,15 +76,15 @@ const SegmentedHeader = () => {
         onChange={onSegmentChange}
         options={[
           {
-            label: createMessage(PAGES_PANE_TEXTS.queries_tab),
+            label: createMessage(EDITOR_PANE_TEXTS.queries_tab),
             value: EditorEntityTab.QUERIES,
           },
           {
-            label: createMessage(PAGES_PANE_TEXTS.js_tab),
+            label: createMessage(EDITOR_PANE_TEXTS.js_tab),
             value: EditorEntityTab.JS,
           },
           {
-            label: createMessage(PAGES_PANE_TEXTS.ui_tab),
+            label: createMessage(EDITOR_PANE_TEXTS.ui_tab),
             value: EditorEntityTab.UI,
           },
         ]}
@@ -100,7 +100,7 @@ const SegmentedHeader = () => {
           startIcon="add-line"
         />
       ) : null}
-      {isSideBySideEnabled && editorMode === EditorViewMode.HalfScreen ? (
+      {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
         <Button
           isIconButton
           kind="tertiary"
