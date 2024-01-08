@@ -158,11 +158,15 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
      */
     Mono<Boolean> checkApiAccessIfAnonymousUser(Mono<User> userMono, String api) {
         return userMono.flatMap(user -> {
-            if (!user.getIsAnonymous() || IS_API_ACCESSIBLE_TO_ANONYMOUS_USER_MAP.get(api)) {
+            if (user.getIsAnonymous()) {
+                if (IS_API_ACCESSIBLE_TO_ANONYMOUS_USER_MAP.get(api)) {
+                    return Mono.just(true);
+                }
+
+                return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
+            } else {
                 return Mono.just(true);
             }
-
-            return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
         });
     }
 
