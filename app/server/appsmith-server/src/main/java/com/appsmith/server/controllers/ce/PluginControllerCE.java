@@ -71,7 +71,7 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/trigger/{pluginId}")
+    @PostMapping("/{pluginId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(
             @PathVariable String pluginId,
             @RequestBody TriggerRequestDTO triggerRequestDTO,
