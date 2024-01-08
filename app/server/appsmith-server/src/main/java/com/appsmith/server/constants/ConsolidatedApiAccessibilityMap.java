@@ -25,7 +25,13 @@ public class ConsolidatedApiAccessibilityMap {
     public static final String DATASOURCES = "/datasources";
     public static final String MOCK_DATASOURCES = "/datasources/mocks";
     public static final String PLUGIN_FORM_CONFIGS = "/plugins/{pluginId}/form";
-    public static Map<String, Boolean> IS_API_ACCESSIBLE_TO_ANONYMOUS_USER = Map.ofEntries(
+
+    /**
+     * This map tells whether a given API endpoint is accessible to the anonymous user or not. It is based on the
+     * config defined in SecurityConfig.java that enables certain endpoints to be accessible to un-authenticated
+     * users i.e. anonymous users.
+     */
+    public static Map<String, Boolean> IS_API_ACCESSIBLE_TO_ANONYMOUS_USER_MAP = Map.ofEntries(
             entry(USER_PROFILE, true),
             entry(FEATURE_FLAG, true),
             entry(TENANTS, true),

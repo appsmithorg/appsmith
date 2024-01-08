@@ -53,7 +53,7 @@ import static com.appsmith.external.constants.PluginConstants.PackageName.REST_A
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.CURRENT_THEME;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.DATASOURCES;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.FEATURE_FLAG;
-import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.IS_API_ACCESSIBLE_TO_ANONYMOUS_USER;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.IS_API_ACCESSIBLE_TO_ANONYMOUS_USER_MAP;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.MOCK_DATASOURCES;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PAGES;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PLUGINS;
@@ -152,9 +152,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 INTERNAL_SERVER_ERROR_STATUS, new ErrorDTO(INTERNAL_SERVER_ERROR_CODE, error.getMessage())));
     }
 
+    /**
+     * This method checks if a given sub API is accessible to the anonymous user or not. If not, then it returns 401
+     * error. Whether a sub API is accessible or not is given by the map IS_API_ACCESSIBLE_TO_ANONYMOUS_USER_MAP .
+     */
     Mono<Boolean> checkApiAccessIfAnonymousUser(Mono<User> userMono, String api) {
         return userMono.flatMap(user -> {
-            if (!user.getIsAnonymous() || IS_API_ACCESSIBLE_TO_ANONYMOUS_USER.get(api)) {
+            if (!user.getIsAnonymous() || IS_API_ACCESSIBLE_TO_ANONYMOUS_USER_MAP.get(api)) {
                 return Mono.just(true);
             }
 
