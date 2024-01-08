@@ -2,7 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 
-public class PacakgePermissionCEImpl implements PackagePermissionCE {
+public class PackagePermissionCEImpl implements PackagePermissionCE {
 
     @Override
     public AclPermission getEditPermission() {
@@ -36,6 +36,11 @@ public class PacakgePermissionCEImpl implements PackagePermissionCE {
 
     @Override
     public AclPermission getPublishPermission() {
+        return null;
+    }
+
+    @Override
+    public AclPermission getGitConnectPermission() {
         return null;
     }
 }
