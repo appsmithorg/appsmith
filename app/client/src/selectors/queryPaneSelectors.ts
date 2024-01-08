@@ -1,5 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
-import type { QueryListState } from "../navigation/FocusSelectors";
+import type { QueryListState } from "@appsmith/navigation/FocusSelectors";
 import { getPageActions } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentPageId } from "./editorSelectors";
 
