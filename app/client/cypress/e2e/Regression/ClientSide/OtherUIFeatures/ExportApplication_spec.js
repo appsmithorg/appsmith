@@ -32,7 +32,7 @@ describe("Export application as a JSON file", function () {
           Cypress.env("TESTPASSWORD1"),
         );
         cy.wait(2000);
-        cy.get(homePageLocators.searchInput).type("exportApp" + uid);
+        agHelper.TypeText(homePageLocators.searchInput, "exportApp" + uid);
         agHelper.WaitUntilEleAppear(`[data-testid="${"exportApp" + uid}"]`);
         cy.get(`[data-testid="${"exportApp" + uid}"]`).click({ force: true });
         // eslint-disable-next-line cypress/no-unnecessary-waiting

@@ -269,8 +269,8 @@ export class HomePage {
   }
 
   public CreateNewApplication(skipSignposting = true) {
-    cy.get(this._homePageAppCreateBtn).first().click({ force: true });
-    cy.get(this._newButtonCreateApplication).first().click({ force: true });
+    this.agHelper.GetNClick(this._homePageAppCreateBtn, 0, true);
+    this.agHelper.GetNClick(this._newButtonCreateApplication, 0, true);
     this.AssertApplicationCreated();
     if (skipSignposting) {
       this.agHelper.AssertElementVisibility(
