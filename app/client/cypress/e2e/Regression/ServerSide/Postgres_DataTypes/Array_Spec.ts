@@ -15,7 +15,6 @@ import EditorNavigation, {
   AppSidebar,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
