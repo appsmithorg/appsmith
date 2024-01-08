@@ -402,7 +402,7 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.VisitNAssert("/user/signup", "getConsolidatedData");
+    this.agHelper.VisitNAssert("/user/signup", "@getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);

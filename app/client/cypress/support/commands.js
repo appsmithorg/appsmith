@@ -416,9 +416,9 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
     httpMethod = "GET";
   }
 
-  // if (CURRENT_REPO === REPO.CE)
-  //   toCheckgetPluginForm &&
-  //     assertHelper.AssertNetworkResponseData("@getPluginForm", false);
+  if (CURRENT_REPO === REPO.CE)
+    toCheckgetPluginForm &&
+      assertHelper.AssertNetworkResponseData("@getConsolidatedData", false);
 
   cy.request({
     method: httpMethod,

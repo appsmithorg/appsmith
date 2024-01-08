@@ -166,7 +166,7 @@ export class DeployMode {
       this.locator._specificToast("Cannot read properties of undefined"),
     );
     this.assertHelper.AssertNetworkResponseData("@getConsolidatedData") //for auth rest api
-    // this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
+
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
 
     // cy.window().then((win) => {

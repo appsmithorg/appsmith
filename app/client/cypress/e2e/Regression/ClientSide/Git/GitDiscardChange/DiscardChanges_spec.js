@@ -27,7 +27,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   const page3 = "Page3";
 
   it("1. Create an app with Query1 and JSObject1, connect it to git", () => {
-    // Create new postgres datasource
+    
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
@@ -39,7 +39,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     });
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.wait("@getConsolidatedData");
+    cy.wait("@getPage");
     // bind input widget to postgres query on page1
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue(
@@ -48,7 +48,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     );
     PageList.AddNewPage();
     EditorNavigation.SelectEntityByName(page2, EntityType.Page);
-    cy.wait("@getConsolidatedData");
+    cy.wait("@getPage");
     jsEditor.CreateJSObject('return "Success";');
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue(
@@ -66,7 +66,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
 
   it("2. Add new datasource query, discard changes, verify query is deleted", () => {
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.wait("@getConsolidatedData");
+    cy.wait("@getPage");
     // create new postgres query
     dataSources.CreateQueryForDS(
       datasourceName,
@@ -76,7 +76,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     dataSources.RunQuery();
     // navigate to Page1
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.wait("@getConsolidatedData");
+    cy.wait("@getPage");
     // discard changes
     gitSync.DiscardChanges();
     PageLeftPane.expandCollapseItem("Queries/JS");
@@ -103,7 +103,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     // verify page2 is recovered back
     PageLeftPane.assertPresence(page2);
     EditorNavigation.SelectEntityByName(page2, EntityType.Page);
-    cy.wait("@getConsolidatedData");
+    cy.wait("@getPage");
     // verify data binding on page2
     cy.get(".bp3-input").should("have.value", "Success");
   });
@@ -130,7 +130,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   it("6. Delete JSObject1 and trigger discard flow, JSObject1 should be active again", () => {
     // navigate to page2
     EditorNavigation.SelectEntityByName(page2, EntityType.Page);
-    cy.wait("@getConsolidatedData");
+    cy.wait("@getPage");
     cy.wait(3000);
     /* create and save jsObject */
     //     jsEditor.CreateJSObject('return "Success";');
@@ -141,7 +141,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     // discard changes
     gitSync.DiscardChanges();
     EditorNavigation.SelectEntityByName(page2, EntityType.Page);
-    cy.wait("@getConsolidatedData");
+    cy.wait("@getPage");
     cy.wait(3000);
     //verify JSObject is recovered
     PageLeftPane.assertPresence(jsObject);
