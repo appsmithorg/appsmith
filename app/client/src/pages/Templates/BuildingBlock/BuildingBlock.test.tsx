@@ -8,13 +8,13 @@ import { templateIdUrl } from "@appsmith/RouteBuilder";
 import BuildingBlock from ".";
 import history from "utils/history";
 import { lightTheme } from "selectors/themeSelectors";
+import { BUILDING_BLOCK_THUMBNAIL_ALT_TEXT } from "../constants";
 import {
-  BUILDING_BLOCK_THUMBNAIL_ALT_TEXT,
+  mockBuildingBlock,
+  MOCK_BUILDING_BLOCK_TITLE,
   MOCK_BUILDING_BLOCK_DESCRIPTION,
   MOCK_BUILDING_BLOCK_ID,
-  MOCK_BUILDING_BLOCK_TITLE,
-  mockBuildingBlock,
-} from "../constants";
+} from "../test_config";
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
