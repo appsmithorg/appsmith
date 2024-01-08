@@ -280,10 +280,6 @@ export function* getInitResponses({
 
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   try {
-    const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
-      ...action.payload,
-    });
-
     const engine: AppEngine = AppEngineFactory.create(
       action.payload.mode,
       action.payload.mode,
