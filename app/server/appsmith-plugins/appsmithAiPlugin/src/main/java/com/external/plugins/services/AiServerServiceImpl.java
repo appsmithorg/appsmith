@@ -4,24 +4,20 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.utils.RequestUtils;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 
 import static com.external.plugins.constants.AppsmithAiErrorMessages.QUERY_FAILED_TO_EXECUTE;
 
-@RequiredArgsConstructor
 public class AiServerServiceImpl implements AiServerService {
-    private final ObjectMapper objectMapper;
+    private final Gson gson = new GsonBuilder().create();
 
     @Override
     public Mono<ArrayList<String>> createDatasource(ArrayList<String> files) {
@@ -31,14 +27,7 @@ public class AiServerServiceImpl implements AiServerService {
     @Override
     public Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO) {
         URI uri = RequestUtils.createQueryUri();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-        String jsonBody;
-        try {
-            jsonBody = objectMapper.writeValueAsString(aiServerRequestDTO);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        String jsonBody = gson.toJson(aiServerRequestDTO);
 
         return RequestUtils.makeRequest(HttpMethod.POST, uri, BodyInserters.fromValue(jsonBody))
                 .flatMap(responseEntity -> {
@@ -62,12 +51,7 @@ public class AiServerServiceImpl implements AiServerService {
                                 new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ERROR, errorMessage));
                     }
 
-                    Object body;
-                    try {
-                        body = this.objectMapper.readValue(responseEntity.getBody(), Object.class);
-                    } catch (IOException exception) {
-                        body = new String(responseEntity.getBody());
-                    }
+                    Object body = gson.fromJson(new String(responseEntity.getBody()), Object.class);
                     if (!statusCode.is2xxSuccessful()) {
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, body));

@@ -41,7 +41,7 @@ public class AppsmithAiPlugin extends BasePlugin {
     }
 
     public static class AppsmithAiPluginExecutor extends BaseRestApiPluginExecutor {
-        private static final AiServerService aiServerService = new AiServerServiceImpl(objectMapper);
+        private static final AiServerService aiServerService = new AiServerServiceImpl();
 
         public AppsmithAiPluginExecutor(SharedConfig config) {
             super(config);
