@@ -18,7 +18,7 @@ export const featureFlagIntercept = (
   cy.intercept("GET", "/api/v1/users/features", response);
 
 
-  cy.intercept("GET", "/api/v1/consolidated-api?*", (req) => {
+  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res:any) => {
       if (res) {
         const originalResponse = res.body;
