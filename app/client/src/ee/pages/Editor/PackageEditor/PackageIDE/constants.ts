@@ -1,3 +1,3 @@
-import type { SidebarButton } from "entities/IDE/constants";
+import type { SidebarButton } from "@appsmith/entities/IDE/constants";
 
 export const BottomButtons: SidebarButton[] = [];
