@@ -117,11 +117,12 @@ function WorkspaceInviteUsers(props: any) {
   const allUsers = useSelector(
     showAppLevelInviteModal ? getAllAppUsers : getAllUsersOfWorkspace,
   );
-  const isLoading: boolean = useSelector((state: AppState) =>
-    showAppLevelInviteModal
-      ? getApplicationLoadingStates(state).isFetchingAllUsers
-      : selectedWorkspaceLoadingStates(state).isFetchingAllUsers,
-  );
+  const isLoading: boolean =
+    useSelector((state: AppState) =>
+      showAppLevelInviteModal
+        ? getApplicationLoadingStates(state).isFetchingAllUsers
+        : selectedWorkspaceLoadingStates(state).isFetchingAllUsers,
+    ) || false;
 
   const emailOutsideCurrentDomain = useRef<undefined | string>();
   const [showPartnerProgramCallout, setShowPartnerProgramCallout] =
