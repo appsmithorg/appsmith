@@ -231,7 +231,9 @@ export function* getInitResponses({
   if (!!isConsolidatedApiFetchEnabled) {
     try {
       const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
-        yield ConsolidatedPageLoadApi.getConsolidatedPageLoadData(params);
+        yield mode === APP_MODE.EDIT
+          ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
+          : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
 
       const isValidResponse: boolean = yield validateResponse(
         initConsolidatedApiResponse,
