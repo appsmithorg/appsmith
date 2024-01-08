@@ -1,27 +1,4 @@
-import { LICENSE_FEATURE_FLAGS } from "../Constants";
 import produce from "immer";
-// release_app_sidebar_enabled: false,
-// rollout_app_sidebar_enabled:false,
-// rollout_consolidated_page_load_fetch_enabled: true,
-
-
-// req.reply((res) => {
-//   if (res) {
-//     if (res.statusCode === 200) {
-//       // Modify the response body to have empty data
-//       res.send({
-//         responseMeta: {
-//           status: 200,
-//           success: true,
-//         },
-//         data: {},
-//         errorDisplay: "",
-//       });
-//     }
-//   } else {
-//     // Do nothing or handle the case where the response object is not present
-//   }
-// });
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
@@ -47,7 +24,7 @@ export const featureFlagIntercept = (
         const originalResponse = res.body;
         if (originalResponse?.data?.featureFlags?.data) {
           const updatedResponse = produce(originalResponse, (draft: any) => {
-            draft.data.featureFlags.data = { ...draft.data.featureFlags.data, ...flags };
+            draft.data.featureFlags.data = { ...flags };
             draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
             draft.data.featureFlags.data["rollout_consolidated_page_load_fetch_enabled"] = true;
           })
@@ -61,40 +38,4 @@ export const featureFlagIntercept = (
     cy.reload();
     cy.wait(2000); //for the page to re-load finish for CI runs
   }
-};
-
-export const featureFlagInterceptForLicenseFlags = () => {
-  cy.intercept(
-    {
-      method: "GET",
-      url: "/api/v1/users/features",
-    },
-    (req) => {
-      req.reply((res) => {
-        if (res) {
-          const originalResponse = res.body;
-          let modifiedResponse: any = {};
-          Object.keys(originalResponse.data).forEach((flag) => {
-            if (LICENSE_FEATURE_FLAGS.includes(flag)) {
-              modifiedResponse[flag] = originalResponse.data[flag];
-            }
-          });
-          modifiedResponse = {
-            ...modifiedResponse,
-            release_app_sidebar_enabled: true,
-          };
-          res.send({
-            responseMeta: {
-              status: 200,
-              success: true,
-            },
-            data: { ...modifiedResponse },
-            errorDisplay: "",
-          });
-        }
-      });
-    },
-  ).as("getLicenseFeatures");
-  cy.reload();
-  cy.wait(2000); //for the page to re-load finish for CI runs
 };

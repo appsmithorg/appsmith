@@ -134,7 +134,6 @@ export interface EditConsolidatedApi {
   pluginFormConfigs: ApiResponse<PluginFormPayload>[];
   unpublishedActions: ApiResponse<Action[]>;
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
-  pageWithMigratedDsl: FetchPageResponse;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
 export function* failFastApiCalls(

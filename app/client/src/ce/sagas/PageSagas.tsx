@@ -1201,7 +1201,7 @@ export function* setDataUrl() {
 
 export function* fetchPageDSLSaga(
   pageId: string,
-  v1PageDSL?: ApiResponse<FetchPageResponseData>,
+  pageDSL?: ApiResponse<FetchPageResponseData>,
 ) {
   try {
     const layoutSystemType: LayoutSystemTypes =
@@ -1221,7 +1221,7 @@ export function* fetchPageDSLSaga(
     }
     const fetchPageResponse: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      v1PageDSL,
+      pageDSL,
       () => call(PageApi.fetchPage, params),
     );
 

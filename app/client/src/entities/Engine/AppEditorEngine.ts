@@ -138,7 +138,7 @@ export default class AppEditorEngine extends AppEngine {
       fetchSelectedAppThemeAction(applicationId, currentTheme),
       // pathVariable applicationId
       // v1/themes/applications/:applicationId
-      // tie response to v1ThemesApplicationsResp
+      // tie response to themes
       fetchAppThemesAction(applicationId, themes),
     ];
 

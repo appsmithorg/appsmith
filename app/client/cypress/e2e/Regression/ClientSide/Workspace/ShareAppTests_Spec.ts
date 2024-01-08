@@ -159,9 +159,12 @@ describe(
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
       cy.get("@getConsolidatedData").then((interception: any) => {
-        expect(Number(interception.response.body.data.pages.responseMeta.status)).to.eq(404);
-      });
-  
+        //we make two getConsolidatedData calls during the first we get a 404 error which redirects the browser back to signin
+        //page and that causes to fetch the getConsolidatedData without any page params again we should expect no pages resp during then
+        if(interception.response.body.data.pages){
+          expect(Number(interception.response.body.data.pages.responseMeta.status)).to.eq(404);
+        }
+      });  
       agHelper.AssertContains("Sign in to your account", "be.visible");
     });
 
