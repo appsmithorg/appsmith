@@ -2,7 +2,10 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "design-system";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { EditorEntityTab, EditorViewMode } from "entities/IDE/constants";
+import {
+  EditorEntityTab,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import FileTabs from "./FileTabs";
 import Container from "./Container";

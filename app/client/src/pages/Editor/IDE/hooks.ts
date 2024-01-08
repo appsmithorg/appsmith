@@ -4,9 +4,8 @@ import {
   EditorEntityTabState,
   EditorState,
   EditorViewMode,
-} from "entities/IDE/constants";
+} from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
-import { getCurrentAppState } from "entities/IDE/utils";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
@@ -15,9 +14,10 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
   const { pathname } = useLocation();
+  const entityInfo = identifyEntityFromPath(pathname);
   useEffect(() => {
-    setAppState(getCurrentAppState(pathname));
-  }, [pathname]);
+    setAppState(entityInfo.appState);
+  }, [entityInfo.appState]);
 
   return appState;
 };

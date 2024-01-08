@@ -14,7 +14,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
-import { getSelectedDatasourceId } from "../../../../navigation/FocusSelectors";
+import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
 import { countBy, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";

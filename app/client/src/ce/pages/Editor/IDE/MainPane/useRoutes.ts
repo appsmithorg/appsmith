@@ -49,7 +49,7 @@ import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { EditorViewMode } from "../../../../../entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 export interface RouteReturnType extends RouteProps {
   key: string;

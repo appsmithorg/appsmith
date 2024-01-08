@@ -5,7 +5,7 @@ import { SentryRoute } from "@appsmith/AppRouter";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import JSEditor from "pages/Editor/JSEditor";
 import ListJS from "./List";
-import { EditorViewMode } from "entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { LIST_PATH } from "@appsmith/constants/routes/appRoutes";
 
 const JSSegment = () => {

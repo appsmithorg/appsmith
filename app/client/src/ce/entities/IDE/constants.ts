@@ -1,3 +1,25 @@
+import {
+  ADD_PATH,
+  API_EDITOR_ID_ADD_PATH,
+  API_EDITOR_ID_PATH,
+  BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  CURL_IMPORT_PAGE_PATH,
+  DATA_SOURCES_EDITOR_ID_PATH,
+  ENTITY_PATH,
+  INTEGRATION_EDITOR_PATH,
+  JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_ID_ADD_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  WIDGETS_EDITOR_ID_PATH,
+} from "@appsmith/constants/routes/appRoutes";
+import {
+  SAAS_EDITOR_API_ID_ADD_PATH,
+  SAAS_EDITOR_API_ID_PATH,
+  SAAS_EDITOR_DATASOURCE_ID_PATH,
+} from "pages/Editor/SaaSEditor/constants";
+
 export enum EditorState {
   DATA = "DATA",
   EDITOR = "EDITOR",
@@ -68,3 +90,33 @@ export const BottomButtons: SidebarButton[] = [
     urlSuffix: "settings",
   },
 ];
+
+export const IDE_TYPE = {
+  None: "None",
+  App: "App",
+} as const;
+
+export type IDEType = keyof typeof IDE_TYPE;
+
+export const EntityPaths: string[] = [
+  API_EDITOR_ID_ADD_PATH,
+  API_EDITOR_ID_PATH,
+  QUERIES_EDITOR_ID_ADD_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  DATA_SOURCES_EDITOR_ID_PATH,
+  INTEGRATION_EDITOR_PATH,
+  SAAS_EDITOR_DATASOURCE_ID_PATH,
+  SAAS_EDITOR_API_ID_ADD_PATH,
+  SAAS_EDITOR_API_ID_PATH,
+  JS_COLLECTION_ID_PATH,
+  WIDGETS_EDITOR_ID_PATH,
+  WIDGETS_EDITOR_ID_PATH + ADD_PATH,
+  CURL_IMPORT_PAGE_PATH,
+  CURL_IMPORT_PAGE_PATH + ADD_PATH,
+  ENTITY_PATH,
+];
+
+export const IDEBasePaths: Readonly<Record<IDEType, string[]>> = {
+  [IDE_TYPE.None]: [],
+  [IDE_TYPE.App]: [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH],
+};

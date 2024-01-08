@@ -2,7 +2,7 @@ import React from "react";
 import { Flex } from "design-system";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { EditorViewMode } from "entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import SplitScreenRoutes from "./SplitScreenRoutes";
 import FullScreenRoutes from "./FullScreenRoutes";

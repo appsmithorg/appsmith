@@ -1,7 +1,7 @@
 import React from "react";
 import { Flex } from "design-system";
 import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab } from "entities/IDE/constants";
+import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import { useSelector } from "react-redux";
 import type { PagePaneDataObject } from "@appsmith/selectors/entitiesSelector";
 import {

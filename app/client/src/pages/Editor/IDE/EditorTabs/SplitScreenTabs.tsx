@@ -9,7 +9,7 @@ import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
-} from "entities/IDE/constants";
+} from "@appsmith/entities/IDE/constants";
 import { useJSAdd, useJSList } from "../EditorPane/JS/hooks";
 import { useQueryAdd, useQueryList } from "../EditorPane/Query/hooks";
 

@@ -1,7 +1,10 @@
 import React from "react";
 import { Button, Flex, SegmentedControl } from "design-system";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EditorEntityTab, EditorViewMode } from "entities/IDE/constants";
+import {
+  EditorEntityTab,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
 import history, { NavigationMethod } from "utils/history";
 import {
   globalAddURL,
