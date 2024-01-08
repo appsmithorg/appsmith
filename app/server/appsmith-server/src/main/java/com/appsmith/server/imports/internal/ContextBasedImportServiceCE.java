@@ -78,4 +78,8 @@ public interface ContextBasedImportServiceCE<
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableContext> importedContextMono,
             ImportableContextJson importableContextJson);
+
+    String validateContextSpecificFields(ImportableContextJson importableContextJson);
+
+    Map<String, String> getConstantsMap();
 }

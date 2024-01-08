@@ -173,7 +173,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportApplicationPermissionProvider permissionProvider = tuple2.getT2();
-                    return importApplicationInWorkspace(
+                    return importContextInWorkspace(
                             workspaceId, contextJson, null, null, false, permissionProvider, userPermissionGroup);
                 });
     }
@@ -181,6 +181,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     @Override
     public Mono<? extends ImportableContext> updateNonGitConnectedContextFromJson(
             String workspaceId, String contextId, ImportableContextJson importableContextJson) {
+        ContextBasedImportService<?, ?, ?> contextBasedImportService =
+                getContextBasedImportService(importableContextJson);
 
         if (!StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
@@ -188,7 +190,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         if (StringUtils.isEmpty(contextId)) {
             // error message according to the context
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_PARAMETER,
+                    contextBasedImportService.getConstantsMap().get(FieldName.ID)));
         }
 
         Mono<Boolean> isContextConnectedToGitMono = Mono.just(Boolean.FALSE);
@@ -198,8 +202,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 return Mono.error(new AppsmithException(
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
-                ContextBasedImportService<?, ?, ?> contextBasedImportService =
-                        getContextBasedImportService(importableContextJson);
                 contextBasedImportService.dehydrateNameForContextUpdate(contextId, importableContextJson);
                 return permissionGroupRepository
                         .getCurrentUserPermissionGroups()
@@ -211,7 +213,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         .flatMap(tuple2 -> {
                             Set<String> userPermissionGroup = tuple2.getT1();
                             ImportApplicationPermissionProvider permissionProvider = tuple2.getT2();
-                            return importApplicationInWorkspace(
+                            return importContextInWorkspace(
                                     workspaceId,
                                     importableContextJson,
                                     contextId,
@@ -249,7 +251,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
-                    return importApplicationInWorkspace(
+                    return importContextInWorkspace(
                             workspaceId,
                             importableContextJson,
                             contextId,
@@ -278,7 +280,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
-                    return importApplicationInWorkspace(
+                    return importContextInWorkspace(
                             workspaceId,
                             importableContextJson,
                             contextId,
@@ -290,10 +292,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This function will take the Json filepart and saves the application in workspace.
+     * This function will take the Json filepart and saves the context (likely an application) in workspace.
      * It'll not create a new ImportableContext, it'll update the existing importableContext by appending the pages to the importableContext.
      * The destination ImportableContext will be as it is, only the pages will be appended.
-     * This method will only be applicable for applications for now
+     * This method will likely be only applicable for applications
      * @param workspaceId ID in which the context is to be merged
      * @param contextId   default ID of the importableContext where this importableContextJson is going to get merged with
      * @param branchName      name of the branch of the importableContext where this importableContextJson is going to get merged with
@@ -322,7 +324,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
-                    return importApplicationInWorkspace(
+                    return importContextInWorkspace(
                             workspaceId,
                             importableContextJson,
                             contextId,
@@ -353,7 +355,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param permissionProvider
      * @return
      */
-    Mono<ImportableContext> importApplicationInWorkspace(
+    Mono<ImportableContext> importContextInWorkspace(
             String workspaceId,
             ImportableContextJson importableContextJson,
             String contextId,
@@ -365,16 +367,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
 
-        /**
-         * Step 1: Schema Migration
-         * Step 2: Validation of context Json
-         * Step 3: create placeholder objects for internal stuffs
-         * Step 4: set schema version and other stuffs common misc
-         * Step 5: get workspace and user with right set of permission
-         * Step 6: get application specific import entities
-         * Step 7: get allImportEntities like plugins, datasource, action and other stuffs
-         * Step 8: get update page and new action with already created references.
-         */
+        String contextString = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
 
         // step 1: Schema Migration
         ImportableContextJson importedDoc =
@@ -384,12 +377,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         // check for validation error and raise exception if error found
         String errorField = validateImportableContextJson(importedDoc);
         if (!errorField.isEmpty()) {
-            log.error("Error in importing application. Field {} is missing", errorField);
-            if (errorField.equals(FieldName.APPLICATION)) {
+            log.error("Error in importing {}. Field {} is missing", contextString, errorField);
+            if (errorField.equals(contextString)) {
                 return Mono.error(
                         new AppsmithException(
                                 AppsmithError.VALIDATION_FAILURE,
-                                "Field '" + errorField
+                                "Field '" + contextString
                                         + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page."));
             }
             return Mono.error(new AppsmithException(
@@ -450,15 +443,15 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(importableContext -> updateImportableContext(contextBasedImportService, importableContext))
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing application. Error: {}", errorMessage, throwable);
+                    log.error("Error importing {}. Error: {}", contextString, errorMessage, throwable);
                     return Mono.error(
                             new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);
 
         final Mono<? extends ImportableContext> resultMono = importMono
-                .flatMap(importableContext ->
-                        sendImportedContextAnalyticsEvent(importableContext, AnalyticsEvents.IMPORT))
+                .flatMap(importableContext -> sendImportedContextAnalyticsEvent(
+                        contextBasedImportService, importableContext, AnalyticsEvents.IMPORT))
                 .zipWith(currUserMono)
                 .flatMap(tuple -> {
                     ImportableContext importableContext = tuple.getT1();
@@ -468,10 +461,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     return sendImportRelatedAnalyticsEvent(importedDoc, importableContext, stopwatch, user);
                 });
 
-        // Import Application is currently a slow API because it needs to import and create application, pages, actions
+        // Import Context is currently a slow API because it needs to import and create context, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the
         // flow getting stopped midway producing corrupted objects in DB. The following ensures that even though the
-        // client may have refreshes the page, the imported application is available and is in sane state.
+        // client may have refreshes the page, the imported context is available and is in sane state.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
@@ -486,12 +479,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     private String validateImportableContextJson(ImportableContextJson importedDoc) {
         // validate common schema things
+        ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(importedDoc);
         String errorField = "";
         if (importedDoc.getImportableContext() == null) {
-            errorField = FieldName.APPLICATION;
+            // the error field will be either application, packages, or workflows
+            errorField = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
+        } else {
+            // validate contextSpecific-errors
+            errorField = getContextBasedImportService(importedDoc).validateContextSpecificFields(importedDoc);
         }
 
-        // validate context specific errors
         return errorField;
     }
 
@@ -551,7 +548,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importedApplicationMono,
+            Mono<? extends ImportableContext> importedContextMono,
             ImportableContextJson importableContextJson) {
 
         // Updates plugin map in importable resources
@@ -559,7 +556,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
-                importedApplicationMono,
+                importedContextMono,
                 importableContextJson,
                 false,
                 true);
@@ -571,18 +568,17 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
-                importedApplicationMono,
+                importedContextMono,
                 importableContextJson,
                 false,
                 true));
 
-        // Not sure whether this would be used hence has put it here for now
         // Directly updates required theme information in DB
         Mono<Void> importedThemesMono = themeImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
-                importedApplicationMono,
+                importedContextMono,
                 importableContextJson,
                 false,
                 true);
@@ -591,24 +587,31 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * To send analytics event for import and export of application
+     * To send analytics event for import and export of ImportableContexts i.e. application, packages
      *
-     * @param importableContext Application object imported or exported
+     * @param importableContext ImportableContext object imported or exported
      * @param event             AnalyticsEvents event
-     * @return The application which is imported or exported
+     * @return The importableContext which is imported or exported
      */
     private Mono<? extends ImportableContext> sendImportedContextAnalyticsEvent(
-            ImportableContext importableContext, AnalyticsEvents event) {
+            ContextBasedImportService<?, ?, ?> contextBasedImportService,
+            ImportableContext importableContext,
+            AnalyticsEvents event) {
+        // this would result in "application", "packages", or "workflows"
+        String contextString = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
+        // this would result in "applicationId", "packageId", or "workflowId"
+        String contextIdString = contextBasedImportService.getConstantsMap().get(FieldName.ID);
         return workspaceService.getById(importableContext.getWorkspaceId()).flatMap(workspace -> {
-            final Map<String, Object> eventData = Map.of(
-                    // this is to be decided by
-                    FieldName.APPLICATION, importableContext,
-                    FieldName.WORKSPACE, workspace);
+            final Map<String, Object> eventData =
+                    Map.of(contextString, importableContext, FieldName.WORKSPACE, workspace);
 
             final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID, importableContext.getId(),
-                    FieldName.WORKSPACE_ID, workspace.getId(),
-                    FieldName.EVENT_DATA, eventData);
+                    contextIdString,
+                    importableContext.getId(),
+                    FieldName.WORKSPACE_ID,
+                    workspace.getId(),
+                    FieldName.EVENT_DATA,
+                    eventData);
 
             return analyticsService.sendObjectEvent(event, importableContext, data);
         });

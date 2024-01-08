@@ -50,6 +50,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,30 @@ import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicat
 
 @Slf4j
 public class ApplicationImportServiceCEImpl implements ApplicationImportServiceCE {
+
+    private final DatasourceService datasourceService;
+    private final SessionUserService sessionUserService;
+    private final WorkspaceService workspaceService;
+    private final ApplicationService applicationService;
+    private final ApplicationPageService applicationPageService;
+    private final NewActionService newActionService;
+    private final AnalyticsService analyticsService;
+    private final DatasourcePermission datasourcePermission;
+    private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
+    private final Gson gson;
+    private final TransactionalOperator transactionalOperator;
+    private final PermissionGroupRepository permissionGroupRepository;
+    private final ImportableService<Plugin> pluginImportableService;
+    private final ImportableService<Theme> themeImportableService;
+    private final ImportableService<NewPage> newPageImportableService;
+    private final ImportableService<CustomJSLib> customJSLibImportableService;
+    private final ImportableService<Datasource> datasourceImportableService;
+    private final ImportableService<NewAction> newActionImportableService;
+    private final ImportableService<ActionCollection> actionCollectionImportableService;
+    protected final Map<String, String> applicationConstantsMap = new HashMap<>();
 
     public ApplicationImportServiceCEImpl(
             DatasourceService datasourceService,
@@ -108,6 +133,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         this.datasourceImportableService = datasourceImportableService;
         this.newActionImportableService = newActionImportableService;
         this.actionCollectionImportableService = actionCollectionImportableService;
+        applicationConstantsMap.putAll(
+                Map.of(FieldName.CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID));
     }
 
     @Override
@@ -213,47 +240,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
         }
-    }
-
-    // ------------------------------------------------------
-    private final DatasourceService datasourceService;
-    private final SessionUserService sessionUserService;
-    private final WorkspaceService workspaceService;
-    private final ApplicationService applicationService;
-    private final ApplicationPageService applicationPageService;
-    private final NewActionService newActionService;
-    private final AnalyticsService analyticsService;
-    private final DatasourcePermission datasourcePermission;
-    private final WorkspacePermission workspacePermission;
-    private final ApplicationPermission applicationPermission;
-    private final PagePermission pagePermission;
-    private final ActionPermission actionPermission;
-    private final Gson gson;
-    private final TransactionalOperator transactionalOperator;
-    private final PermissionGroupRepository permissionGroupRepository;
-    private final ImportableService<Plugin> pluginImportableService;
-    private final ImportableService<Theme> themeImportableService;
-    private final ImportableService<NewPage> newPageImportableService;
-    private final ImportableService<CustomJSLib> customJSLibImportableService;
-    private final ImportableService<Datasource> datasourceImportableService;
-    private final ImportableService<NewAction> newActionImportableService;
-    private final ImportableService<ActionCollection> actionCollectionImportableService;
-
-    private Mono<ImportApplicationPermissionProvider> getPermissionProviderForUpdateNonGitConnectedAppFromJson() {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().map(permissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .allPermissionsRequired()
-                    .currentUserPermissionGroups(permissionGroups)
-                    .build();
-            return permissionProvider;
-        });
     }
 
     /**
@@ -385,81 +371,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     log.error("Error while creating or updating application object", error);
                     return Mono.error(error);
                 });
-    }
-
-    private Mono<Void> getImportableEntities(
-            ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            Mono<Workspace> workspaceMono,
-            Mono<Application> importedApplicationMono,
-            ApplicationJson applicationJson) {
-
-        List<Mono<Void>> pageIndependentImportables = getPageIndependentImportables(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
-        List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
-        return Flux.merge(pageIndependentImportables)
-                .thenMany(Flux.merge(pageDependentImportables))
-                .then();
-    }
-
-    protected List<Mono<Void>> getPageIndependentImportables(
-            ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            Mono<Workspace> workspaceMono,
-            Mono<Application> importedApplicationMono,
-            ApplicationJson applicationJson) {
-
-        // Updates plugin map in importable resources
-        Mono<Void> installedPluginsMono = pluginImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson,
-                false);
-
-        // Directly updates required theme information in DB
-        Mono<Void> importedThemesMono = themeImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson,
-                false);
-
-        // Updates pageNametoIdMap and pageNameMap in importable resources.
-        // Also directly updates required information in DB
-        Mono<Void> importedPagesMono = newPageImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson,
-                false);
-
-        // Requires pluginMap to be present in importable resources.
-        // Updates datasourceNameToIdMap in importable resources.
-        // Also directly updates required information in DB
-        Mono<Void> importedDatasourcesMono = installedPluginsMono.then(datasourceImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson,
-                false));
-
-        return List.of(importedDatasourcesMono, importedPagesMono, importedThemesMono);
     }
 
     protected List<Mono<Void>> getPageDependentImportables(
@@ -913,5 +824,25 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
             return Flux.merge(pageDependentImportables);
         });
+    }
+
+    @Override
+    public String validateContextSpecificFields(ImportableContextJson importableContextJson) {
+        ApplicationJson importedDoc = (ApplicationJson) importableContextJson;
+        String errorField = "";
+        if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
+            errorField = FieldName.PAGE_LIST;
+        } else if (importedDoc.getActionList() == null) {
+            errorField = FieldName.ACTIONS;
+        } else if (importedDoc.getDatasourceList() == null) {
+            errorField = FieldName.DATASOURCE;
+        }
+
+        return errorField;
+    }
+
+    @Override
+    public Map<String, String> getConstantsMap() {
+        return applicationConstantsMap;
     }
 }
