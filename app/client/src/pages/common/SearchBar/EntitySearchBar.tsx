@@ -23,8 +23,8 @@ import MobileSideBar from "pages/common/MobileSidebar";
 import {
   resetSearchEntity,
   searchEntities,
+  searchWorkspaceEntities,
 } from "@appsmith/actions/workspaceActions";
-import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { viewerURL } from "@appsmith/RouteBuilder";
 import {
@@ -126,7 +126,7 @@ function EntitySearchBar(props: any) {
   function handleInputClicked() {
     if (searchInput?.trim()?.length || !noSearchResults) {
       setIsDropdownOpen(false);
-      dispatch(setFetchingApplications(false));
+      dispatch(searchWorkspaceEntities(false));
     }
   }
 
@@ -156,8 +156,8 @@ function EntitySearchBar(props: any) {
 
   function handleSearchInput(text: string) {
     setSearchInput(text);
-    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
-    else dispatch(setFetchingApplications(false));
+    if (text.trim().length !== 0) dispatch(searchWorkspaceEntities(true));
+    else dispatch(searchWorkspaceEntities(false));
     handleSearchDebounced(text);
     setSearchedPackages(fuzzy.search(text));
     setIsDropdownOpen(true);
