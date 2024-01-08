@@ -17,11 +17,20 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 import LayoutFactory from "./LayoutFactory";
 import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
+import { FlexLayout, type FlexLayoutProps } from "./components/FlexLayout";
+import { defaultHighlightPayload } from "../utils/constants";
 
 abstract class BaseLayoutComponent extends PureComponent<
   LayoutComponentProps,
   LayoutComponentState
 > {
+  constructor(props: LayoutComponentProps) {
+    super(props);
+    this.state = {
+      order: [...props.layoutOrder, props.layoutId],
+    };
+  }
+
   static type: LayoutComponentTypes;
 
   // Add a child widget / layout to the parent layout component.
@@ -34,16 +43,41 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   // get template of layout component to wrap new widgets in.
-  static getChildTemplate(_props: LayoutProps): LayoutProps | null {
-    return null && _props;
+  static getChildTemplate(
+    _props: LayoutProps,
+    _widgets?: WidgetLayoutProps[],
+  ): LayoutProps | null {
+    return null && _props && _widgets;
+  }
+
+  getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
+    return {
+      canvasId: this.props.canvasId,
+      isDropTarget: !!this.props.isDropTarget,
+      layoutId: this.props.layoutId,
+      layoutIndex: this.props.layoutIndex,
+      layoutType: this.props.layoutType,
+      parentDropTarget: this.props.parentDropTarget,
+      renderMode: this.props.renderMode,
+      ...(this.props.layoutStyle || {}),
+    };
   }
 
   // Get a list of highlights to demarcate the drop positions within the layout.
-  static deriveHighlights: DeriveHighlightsFn = () => () => [];
+  static deriveHighlights: DeriveHighlightsFn = () => () =>
+    defaultHighlightPayload;
 
   // Get a list of child widgetIds rendered by the layout.
   static extractChildWidgetIds(props: LayoutProps): string[] {
     return this.rendersWidgets ? extractWidgetIdsFromLayoutProps(props) : [];
+  }
+
+  // Get types of widgets that are allowed in this layout component.
+  static getWhitelistedTypes(props: LayoutProps): string[] {
+    if (props.allowedWidgetTypes && props.allowedWidgetTypes.length) {
+      return props.allowedWidgetTypes;
+    }
+    return [];
   }
 
   // Remove a child widget / layout from the layout component.
@@ -56,11 +90,9 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   renderChildLayouts(): React.ReactNode {
-    const { canvasId, childrenMap, layout, parentDropTarget, renderMode } =
-      this.props;
+    const { canvasId, layout, parentDropTarget, renderMode } = this.props;
     return renderLayouts(
       layout as LayoutProps[],
-      childrenMap,
       canvasId,
       parentDropTarget,
       renderMode,
@@ -74,15 +106,9 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   renderDraggingArena(): React.ReactNode | null {
-    const {
-      canvasId,
-      isDropTarget,
-      layoutId,
-      layoutType,
-      parentDropTarget,
-      renderMode,
-    } = this.props;
-    if (!isDropTarget || renderMode !== RenderModes.CANVAS) return null;
+    const { canvasId, isDropTarget, layoutId, layoutType, parentDropTarget } =
+      this.props;
+    if (!isDropTarget) return null;
     return (
       <AnvilCanvasDraggingArena
         allowedWidgetTypes={this.props.allowedWidgetTypes || []}
@@ -94,6 +120,7 @@ abstract class BaseLayoutComponent extends PureComponent<
           parentDropTarget,
         )}
         layoutId={layoutId}
+        layoutType={layoutType}
       />
     );
   }
@@ -102,7 +129,36 @@ abstract class BaseLayoutComponent extends PureComponent<
   static rendersWidgets: boolean = false;
 
   render(): JSX.Element | null {
-    return null;
+    return (
+      <FlexLayout {...this.getFlexLayoutProps()}>
+        {this.renderContent()}
+      </FlexLayout>
+    );
+  }
+
+  protected renderContent(): React.ReactNode {
+    return this.props.renderMode === RenderModes.CANVAS
+      ? this.renderEditMode()
+      : this.renderViewMode();
+  }
+
+  renderEditMode(): JSX.Element {
+    return (
+      <>
+        {this.renderDraggingArena()}
+        {this.renderChildren()}
+      </>
+    );
+  }
+
+  renderViewMode(): React.ReactNode {
+    return <>{this.renderChildren()}</>;
+  }
+
+  renderChildren(): React.ReactNode {
+    return (this.constructor as typeof BaseLayoutComponent).rendersWidgets
+      ? this.renderChildWidgets()
+      : this.renderChildLayouts();
   }
 }
 

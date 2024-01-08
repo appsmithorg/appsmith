@@ -1,5 +1,8 @@
 import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
-import { importPartialApplicationSuccess } from "@appsmith/actions/applicationActions";
+import {
+  importPartialApplicationSuccess,
+  initDatasourceConnectionDuringImportRequest,
+} from "@appsmith/actions/applicationActions";
 import ApplicationApi, {
   type exportApplicationRequest,
 } from "@appsmith/api/ApplicationApi";
@@ -79,6 +82,8 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
+import type { AppState } from "@appsmith/reducers";
+import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -514,6 +519,20 @@ export function* partialImportSaga(
       toast.show("Partial Application imported successfully", {
         kind: "success",
       });
+
+      const environmentsFetched: boolean = yield select((state: AppState) =>
+        areEnvironmentsFetched(state, workspaceId),
+      );
+
+      if (workspaceId && environmentsFetched) {
+        yield put(
+          initDatasourceConnectionDuringImportRequest({
+            workspaceId: workspaceId as string,
+            isPartialImport: true,
+          }),
+        );
+      }
+
       yield put(importPartialApplicationSuccess());
     }
   } catch (error) {

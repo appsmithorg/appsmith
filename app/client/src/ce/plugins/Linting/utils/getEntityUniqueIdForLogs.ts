@@ -1,12 +1,12 @@
 import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 const entityUniqueIdGetterMap: Record<
   string,
   (entity: DataTreeEntity) => string
 > = {
-  [ENTITY_TYPE_VALUE.JSACTION]: (entity) => {
+  [ENTITY_TYPE.JSACTION]: (entity) => {
     return (entity as JSActionEntity).actionId;
   },
 };

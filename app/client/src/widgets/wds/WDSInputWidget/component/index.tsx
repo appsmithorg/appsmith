@@ -95,6 +95,7 @@ function InputComponent(props: InputComponentProps) {
       endIcon={endIcon}
       errorMessage={props.errorMessage}
       isDisabled={props.isDisabled}
+      isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
       label={props.label}
       max={max}

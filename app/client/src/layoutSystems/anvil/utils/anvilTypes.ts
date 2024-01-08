@@ -5,7 +5,6 @@ import type {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import type { DropZone } from "layoutSystems/common/utils/types";
-import type { WidgetProps } from "widgets/BaseWidget";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
@@ -17,8 +16,10 @@ export type LayoutComponentType =
   | "ALIGNED_WIDGET_ROW"
   | "LAYOUT_COLUMN"
   | "LAYOUT_ROW"
+  | "SECTION"
   | "WIDGET_COLUMN"
-  | "WIDGET_ROW";
+  | "WIDGET_ROW"
+  | "ZONE";
 
 export enum LayoutComponentTypes {
   ALIGNED_LAYOUT_COLUMN = "ALIGNED_LAYOUT_COLUMN",
@@ -26,13 +27,16 @@ export enum LayoutComponentTypes {
   ALIGNED_WIDGET_ROW = "ALIGNED_WIDGET_ROW",
   LAYOUT_COLUMN = "LAYOUT_COLUMN",
   LAYOUT_ROW = "LAYOUT_ROW",
+  SECTION = "SECTION",
   WIDGET_COLUMN = "WIDGET_COLUMN",
   WIDGET_ROW = "WIDGET_ROW",
+  ZONE = "ZONE",
 }
 
 export interface WidgetLayoutProps {
-  widgetId: string;
   alignment: FlexLayerAlignment;
+  widgetId: string;
+  widgetType: string;
 }
 
 export interface LayoutProps {
@@ -43,18 +47,20 @@ export interface LayoutProps {
 
   allowedWidgetTypes?: string[]; // Array of widget types that can be dropped on the layout component.
   childTemplate?: LayoutProps | null; // The template of child layout components to wrap new widgets in.
+  isContainer?: boolean; // Whether the layout component support container queries.
   isDropTarget?: boolean; // Whether the layout component is a drop target. Accordingly, renders
   insertChild?: boolean; // Identifies which of the child layout components in childTemplate to add new widgets to.
   isPermanent?: boolean; // Whether the layout component can exist without any children.
+  maxChildLimit?: number; // Maximum number of children that can be added to the layout component.
 }
 
 export interface LayoutComponentProps extends LayoutProps {
   canvasId: string; // Parent canvas of the layout.
-  children?: React.ReactNode; // The children of the layout component
-  childrenMap: Record<string, WidgetProps>; // Map of child widget ids to their props.
+  children?: React.ReactNode; // The children of the layout component.
   layoutIndex: number; // Index of the layout component in the parent layout.
   layoutOrder: string[]; // Top - down hierarchy of layoutIds.
   parentDropTarget: string; // layoutId of the immediate drop target parent. Could be self as well.
+  className?: string;
   renderMode: RenderMode;
 }
 
@@ -72,7 +78,12 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
     highlight: AnvilHighlightInfo,
   ) => LayoutProps;
   // get template of layout component to wrap new widgets in.
-  getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
+  getChildTemplate: (
+    props: LayoutProps,
+    widgets?: WidgetLayoutProps[],
+  ) => LayoutProps | undefined;
+  // Get types of widgets that are allowed in this layout component.
+  getWhitelistedTypes: (props: LayoutProps) => string[];
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (
     layoutProps: LayoutProps, // Properties of layout for which highlights have to be derived.
@@ -96,23 +107,31 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   rendersWidgets: (props: LayoutProps) => boolean;
 }
 
-export interface AnvilHighlightInfo {
-  alignment: FlexLayerAlignment; // Alignment of the child in the layout.
-  canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
+export interface HighlightRenderInfo {
   dropZone: DropZone; // size of the drop zone of this highlight.
   height: number; // height of the highlight.
   isVertical: boolean; // Whether the highlight is vertical or horizontal.
-  layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
+  width: number; // width of the highlight.
   posX: number; // x position of the highlight.
   posY: number; // y position of the highlight.
-  rowIndex: number; // Index with in the layout array to insert the child at.
-  width: number; // width of the highlight.
 }
 
+export interface HighlightDropInfo {
+  alignment: FlexLayerAlignment; // Alignment of the child in the layout.
+  canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
+  layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
+  rowIndex: number; // Index with in the layout array to insert the child at.
+}
+
+export interface AnvilHighlightInfo
+  extends HighlightRenderInfo,
+    HighlightDropInfo {}
+
 export interface DraggedWidget {
-  widgetId: string;
-  type: WidgetType;
+  parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
+  type: WidgetType;
+  widgetId: string;
 }
 
 export type GenerateHighlights = (
@@ -135,7 +154,7 @@ export type GetInitialHighlights = (
   isDropTarget: boolean,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetWidgetHighlights = (
   layoutProps: LayoutProps,
@@ -144,7 +163,7 @@ export type GetWidgetHighlights = (
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetLayoutHighlights = (
   layoutProps: LayoutProps,
@@ -157,7 +176,7 @@ export type GetLayoutHighlights = (
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetDimensions = (id: string) => LayoutElementPosition;
 
@@ -171,7 +190,12 @@ export type DeriveHighlightsFn = (
 export type GetHighlights = (
   widgetPositions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
+
+export interface HighlightPayload {
+  highlights: AnvilHighlightInfo[];
+  skipEntity: boolean;
+}
 
 export type UpdateHighlights = (
   arr: AnvilHighlightInfo[],

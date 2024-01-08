@@ -1,7 +1,7 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Update a user's name", function () {
+describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
   let username;
 
   it("1. Update a user's name", function () {

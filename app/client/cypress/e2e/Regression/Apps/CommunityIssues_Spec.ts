@@ -6,7 +6,6 @@ import {
   agHelper,
   deployMode,
   propPane,
-  entityExplorer,
   locators,
   assertHelper,
   draggableWidgets,
@@ -38,7 +37,6 @@ describe(
       assertHelper
         .WaitForNetworkCall("importNewApplication")
         .then((response: any) => {
-          agHelper.Sleep();
           const { isPartialImport } = response.body.data;
           if (isPartialImport) {
             // should reconnect modal
@@ -97,20 +95,16 @@ describe(
 
       table.AssertPageNumber(1, "On", "v2");
       table.NavigateToNextPage(true, "v2"); //page 2
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2");
       table.AssertSelectedRow(selectedRow);
 
       table.NavigateToNextPage(true, "v2"); //page 3
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitForTableEmpty("v2"); //page 3
       table.NavigateToPreviousPage(true, "v2"); //page 2
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2");
       table.AssertSelectedRow(selectedRow);
 
       table.NavigateToPreviousPage(true, "v2"); //page 1
-      agHelper.Sleep(3000); //wait for table navigation to take effect!
       table.WaitUntilTableLoad(0, 0, "v2");
       table.AssertSelectedRow(selectedRow);
       table.AssertPageNumber(1, "On", "v2");
@@ -146,7 +140,6 @@ describe(
 
     it("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      //propPane.EnterJSContext("Default search text", "Bug", false);
       propPane.TypeTextIntoField("Default search text", "Bug");
       deployMode.DeployApp();
       table.AssertSearchText("Bug");
@@ -155,7 +148,6 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      //propPane.EnterJSContext("Default search text", "Question", false);
       propPane.TypeTextIntoField("Default search text", "Quest", true, false);
 
       deployMode.DeployApp();
@@ -165,7 +157,6 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      //propPane.EnterJSContext("Default search text", "Epic", false);
       propPane.TypeTextIntoField("Default search text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
       deployMode.DeployApp();
       table.AssertSearchText("Epic");
@@ -335,7 +326,6 @@ describe(
 
       agHelper.ClickButton("Confirm");
       agHelper.AssertElementAbsence(locators._toastMsg); //Making sure internal api doesnt throw error
-      agHelper.Sleep(3000);
       table.SearchTable("Suggestion");
       table.WaitUntilTableLoad(0, 0, "v2");
 
@@ -349,14 +339,11 @@ describe(
     });
 
     it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
-      agHelper.Sleep(2000);
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
-      agHelper.Sleep(2000);
       table.SelectTableRow(0, 1, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
       );
-      agHelper.Sleep(2000);
       agHelper
         .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
         .type("-updating title");
@@ -388,7 +375,6 @@ describe(
       //   key: 'Enter',
       // })
 
-      //agHelper.Sleep(2000)
       //cy.get("body").type("{enter}")
       // Multiselect check is to verify bug #13588.
       // Currently, we have commented it.
@@ -403,7 +389,6 @@ describe(
         "multiselectwidget",
       );
       agHelper.ClickButton("Save");
-      agHelper.Sleep(2000);
       table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
         expect(cellData).to.be.equal("Troubleshooting");
       });
@@ -413,18 +398,14 @@ describe(
           "Adding Title Suggestion via script-updating title",
         );
       });
-
-      agHelper.Sleep(2000); //allowing time to save!
     });
 
     it("10. Validate Deleting the newly created issue", () => {
-      agHelper.Sleep(2000);
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
       table.SelectTableRow(0, 0, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
       );
-      agHelper.Sleep();
       cy.get(table._trashIcon).closest("div").click({ force: true });
       agHelper.WaitUntilEleDisappear(locators._widgetInDeployed("tabswidget"));
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));

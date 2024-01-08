@@ -2,11 +2,13 @@ import type { DragEventHandler, MutableRefObject, DragEvent } from "react";
 import type {
   CanvasPositions,
   WidgetNameData,
+  WidgetNamePositionData,
   WidgetNamePositionType,
 } from "./WidgetNameTypes";
 import { throttle } from "lodash";
 import { getMainContainerAnvilCanvasDOMElement } from "./widgetNameRenderUtils";
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
+import { WIDGET_NAME_COMPONENT_BUFFER } from "./WidgetNameConstants";
 
 /**
  * This returns a callback for scroll event on the MainContainer
@@ -187,4 +189,40 @@ export function getDragStartHandler(
       draggedOn: widgetNameData?.parentId,
     });
   };
+}
+
+export function getMouseOverHandler(
+  e: MouseEvent,
+  widgetNamePositions: WidgetNamePositionType,
+  canvasPositions: CanvasPositions,
+) {
+  const { clientX, clientY } = e;
+  const posX = clientX - canvasPositions.left;
+  const posY = clientY - canvasPositions.top;
+
+  const widgetNamePositionsArray: WidgetNamePositionData[] = [
+    ...Object.values(widgetNamePositions.focused),
+    ...Object.values(widgetNamePositions.selected),
+  ].filter(Boolean) as WidgetNamePositionData[];
+
+  for (const each of widgetNamePositionsArray) {
+    const { height, left, top, width } = each;
+    const right: number = left + width;
+    const bottom: number = top + height + WIDGET_NAME_COMPONENT_BUFFER;
+    if (
+      posX >= left - WIDGET_NAME_COMPONENT_BUFFER &&
+      posX <= right &&
+      posY >= top &&
+      posY <= bottom
+    ) {
+      /**
+       * Event propagation enables DraggableComponent of the widget
+       * to remove focus from it, which prevents selection of
+       * widgetNameComponent. Hence, propagation of event
+       * is blocked when mouse pointer is un a region near the widgetNameComponent.
+       */
+      e.stopPropagation();
+      break;
+    }
+  }
 }

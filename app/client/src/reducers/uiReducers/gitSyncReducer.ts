@@ -46,8 +46,11 @@ const initialState: GitSyncReducerState = {
   isUpdateProtectedBranchesLoading: false,
 
   isAutocommitModalOpen: false,
-  isAutocommitEnabled: false,
-  isAutocommitInProgress: false,
+  togglingAutocommit: false,
+  pollingAutocommitStatus: false,
+
+  gitMetadata: null,
+  gitMetadataLoading: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -602,13 +605,6 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isUpdateProtectedBranchesLoading: false,
   }),
-  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_ENABLED]: (
-    state,
-    action: ReduxAction<{ isAutocommitEnabled: boolean }>,
-  ) => ({
-    ...state,
-    isAutocommitEnabled: action.payload.isAutocommitEnabled,
-  }),
   [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN]: (
     state,
     action: ReduxAction<{ isAutocommitModalOpen: boolean }>,
@@ -616,12 +612,45 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isAutocommitModalOpen: action.payload.isAutocommitModalOpen,
   }),
-  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_IN_PROGRESS]: (
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: (state) => ({
+    ...state,
+    togglingAutocommit: true,
+  }),
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS]: (state) => ({
+    ...state,
+    togglingAutocommit: false,
+  }),
+  [ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR]: (state) => ({
+    ...state,
+    togglingAutocommit: false,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: true,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
+  }),
+  [ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
+  }),
+  [ReduxActionTypes.GIT_GET_METADATA_INIT]: (state) => ({
+    ...state,
+    gitMetadataLoading: true,
+  }),
+  [ReduxActionTypes.GIT_GET_METADATA_SUCCESS]: (
     state,
-    action: ReduxAction<{ isAutocommitInProgress: boolean }>,
+    action: ReduxAction<{ gitMetadata: GitMetadata }>,
   ) => ({
     ...state,
-    isAutocommitInProgress: action.payload.isAutocommitInProgress,
+    gitMetadataLoading: false,
+    gitMetadata: action.payload.gitMetadata,
+  }),
+  [ReduxActionErrorTypes.GIT_GET_METADATA_ERROR]: (state) => ({
+    ...state,
+    gitMetadataLoading: false,
   }),
 });
 
@@ -702,6 +731,21 @@ export interface GitDiscardResponse {
   modifiedAt: string;
 }
 
+export type GitMetadata = {
+  branchName: string;
+  defaultBranchName: string;
+  remoteUrl: string;
+  repoName: string;
+  browserSupportedUrl?: string;
+  isRepoPrivate?: boolean;
+  browserSupportedRemoteUrl: string;
+  defaultApplicationId: string;
+  isProtectedBranch: boolean;
+  autoCommitConfig: {
+    enabled: boolean;
+  };
+} | null;
+
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
@@ -763,9 +807,12 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   protectedBranchesLoading: boolean;
   isUpdateProtectedBranchesLoading: boolean;
 
-  isAutocommitEnabled: boolean;
   isAutocommitModalOpen: boolean;
-  isAutocommitInProgress: boolean;
+  togglingAutocommit: boolean;
+  pollingAutocommitStatus: boolean;
+
+  gitMetadata: GitMetadata | null;
+  gitMetadataLoading: boolean;
 };
 
 export default gitSyncReducer;

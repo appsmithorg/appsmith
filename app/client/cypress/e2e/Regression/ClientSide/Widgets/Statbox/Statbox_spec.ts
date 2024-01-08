@@ -12,7 +12,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("Statbox spec", () => {
+describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
   before(() => {
     /**
      * On the canvas we have a Statbox Widget

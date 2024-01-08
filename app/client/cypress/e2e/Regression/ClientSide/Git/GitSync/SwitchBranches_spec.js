@@ -24,7 +24,7 @@ let parentBranchKey = "ParentBranch",
   branchQueryKey = "branch";
 
 let repoName;
-describe("Git sync:", function () {
+describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     cy.createWorkspace();

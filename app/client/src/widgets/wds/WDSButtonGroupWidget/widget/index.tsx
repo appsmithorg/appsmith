@@ -9,11 +9,13 @@ import {
   propertyPaneContentConfig,
   propertyPaneStyleConfig,
   settersConfig,
+  anvilConfig,
 } from "./../config";
 import type { ButtonGroupWidgetProps } from "./types";
 import { ButtonGroupComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -53,18 +55,24 @@ class WDSButtonGroupWidget extends BaseWidget<
     return settersConfig;
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return anvilConfig;
+  }
+
   onButtonClick = (
-    onClick: string,
-    callback: (result: ExecutionResult) => void,
+    onClick: string | undefined,
+    callback?: (result: ExecutionResult) => void,
   ) => {
-    super.executeAction({
-      triggerPropertyName: "onClick",
-      dynamicString: onClick,
-      event: {
-        type: EventType.ON_CLICK,
-        callback: callback,
-      },
-    });
+    if (onClick) {
+      super.executeAction({
+        triggerPropertyName: "onClick",
+        dynamicString: onClick,
+        event: {
+          type: EventType.ON_CLICK,
+          callback: callback,
+        },
+      });
+    }
 
     return;
   };
@@ -74,6 +82,7 @@ class WDSButtonGroupWidget extends BaseWidget<
       <ButtonGroupComponent
         buttonsList={this.props.buttonsList}
         color={this.props.buttonColor}
+        density={this.props.density}
         key={this.props.widgetId}
         onButtonClick={this.onButtonClick}
         orientation={this.props.orientation}

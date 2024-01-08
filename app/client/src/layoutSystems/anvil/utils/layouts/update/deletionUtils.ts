@@ -7,11 +7,14 @@ import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseL
 export function deleteWidgetFromPreset(
   preset: LayoutProps[],
   widgetId: string,
+  widgetType: string,
 ): LayoutProps[] {
   if (!preset || !preset.length || !widgetId) return preset;
 
   const updatedPreset: LayoutProps[] = preset.map((each: LayoutProps) => {
-    return deleteWidgetFromLayout(each, widgetId) || ({} as LayoutProps);
+    return (
+      deleteWidgetFromLayout(each, widgetId, widgetType) || ({} as LayoutProps)
+    );
   });
 
   return updatedPreset.filter((each: LayoutProps) => !!each.layout);
@@ -25,11 +28,13 @@ export function deleteWidgetFromPreset(
  * 4. Recursively traverse back to the top most layout, removing any layout that is empty and not permanent.
  * @param layout | LayoutProps : Layout to be updated.
  * @param widgetId | string: widget id.
+ * @param widgetType | string: widget type.
  * @returns : LayoutProps
  */
 export function deleteWidgetFromLayout(
   layoutProps: LayoutProps,
   widgetId: string,
+  widgetType: string,
 ): LayoutProps | undefined {
   if (!widgetId) return layoutProps;
 
@@ -42,8 +47,9 @@ export function deleteWidgetFromLayout(
       return layoutProps;
     }
     return Comp.removeChild(layoutProps, {
-      widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetId,
+      widgetType,
     });
   }
 
@@ -52,7 +58,8 @@ export function deleteWidgetFromLayout(
     layout: (layoutProps.layout as LayoutProps[])
       .map(
         (each: LayoutProps) =>
-          deleteWidgetFromLayout(each, widgetId) || ({} as LayoutProps),
+          deleteWidgetFromLayout(each, widgetId, widgetType) ||
+          ({} as LayoutProps),
       )
       .filter((each: LayoutProps) => Object.keys(each).length),
   };
@@ -67,19 +74,25 @@ export function deleteWidgetFromLayout(
  * @param allWidgets | CanvasWidgetsReduxState : all widgets.
  * @param parentId | string : id of canvas widget to be updated.
  * @param widgetId | string : id of widget that is deleted.
+ * @param widgetType | string : type of widget that is deleted.
  * @returns CanvasWidgetsReduxState
  */
 export function updateAnvilParentPostWidgetDeletion(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   widgetId: string,
+  widgetType: string,
 ): CanvasWidgetsReduxState {
   if (!parentId || !widgetId || !allWidgets[parentId]) return allWidgets;
   return {
     ...allWidgets,
     [parentId]: {
       ...allWidgets[parentId],
-      layout: deleteWidgetFromPreset(allWidgets[parentId].layout, widgetId),
+      layout: deleteWidgetFromPreset(
+        allWidgets[parentId].layout,
+        widgetId,
+        widgetType,
+      ),
     },
   };
 }

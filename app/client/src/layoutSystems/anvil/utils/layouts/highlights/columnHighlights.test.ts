@@ -1,7 +1,6 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import {
   LayoutComponentTypes,
-  type AnvilHighlightInfo,
   type LayoutComponentProps,
   type WidgetLayoutProps,
   type DraggedWidget,
@@ -31,7 +30,7 @@ describe("columnHighlights", () => {
     it("should derive highlights for a column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -60,7 +59,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -81,14 +80,14 @@ describe("columnHighlights", () => {
       expect(res[0].posY).toBeLessThan(positions[buttonId].top);
       expect(res[1].posY).toBeLessThan(positions[inputId].top);
       // and at the bottom of the last widget
-      expect(res[2].posY).toBeGreaterThan(
+      expect(res[2].posY).toBeGreaterThanOrEqual(
         positions[inputId].top + positions[inputId].height,
       );
     });
     it("should discount dragged child widgets from highlight calculation", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -117,7 +116,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -137,7 +136,7 @@ describe("columnHighlights", () => {
       expect(res[0].posY).toBeLessThan(positions[inputId].top);
       expect(res[0].rowIndex).toEqual(0);
       // Second highlight should be placed after input widget
-      expect(res[1].posY).toBeGreaterThan(
+      expect(res[1].posY).toBeGreaterThanOrEqual(
         positions[inputId].top + positions[inputId].height,
       );
       expect(res[1].rowIndex).toEqual(1);
@@ -145,7 +144,7 @@ describe("columnHighlights", () => {
     it("should calculate drop zones properly", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -174,7 +173,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -198,13 +197,9 @@ describe("columnHighlights", () => {
       );
       // Bottom drop zone of first highlight should be equal to the space between the top of this widget and the next.
       expect(res[0].dropZone.bottom).toEqual(
-        (positions[inputId].top - positions[buttonId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
+        (res[1].posY - res[0].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
       );
-      expect(res[1].dropZone.top).toEqual(
-        (positions[inputId].top - positions[buttonId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
+      expect(res[1].dropZone.top).toEqual(res[0].dropZone.bottom);
       expect(res[1].dropZone.bottom).toEqual(
         (res[2].posY - res[1].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
       );
@@ -220,7 +215,7 @@ describe("columnHighlights", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [],
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -231,7 +226,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -250,7 +245,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "center",
         },
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -261,7 +256,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -284,7 +279,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "end",
         },
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -295,7 +290,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -313,11 +308,13 @@ describe("columnHighlights", () => {
       /**
        * Create 2 rows with two widgets in each of them.
        */
-      const row1: LayoutComponentProps = generateLayoutComponentMock();
+      const row1: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
-      const row2: LayoutComponentProps = generateLayoutComponentMock();
+      const row2: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -330,7 +327,7 @@ describe("columnHighlights", () => {
           layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
         },
         false,
-      );
+      ).layout as LayoutComponentProps;
 
       /**
        * Create dimensions data
@@ -397,7 +394,7 @@ describe("columnHighlights", () => {
       /**
        * Get highlights for the column layout.
        */
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         column,
         "0",
         [],
@@ -425,12 +422,9 @@ describe("columnHighlights", () => {
       );
 
       expect(res[4].isVertical).toBeFalsy();
-      expect(res[4].posY).toEqual(
-        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE,
-      );
+      expect(res[4].posY).toBeLessThanOrEqual(dimensions[row2.layoutId].top);
       expect(res[4].dropZone.top).toEqual(
-        (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
+        (res[4].posY - res[0].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
       );
       expect(res[4].dropZone.bottom).toEqual(
         (res[8].posY - res[4].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,

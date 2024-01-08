@@ -52,7 +52,7 @@ import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-interface GeneratedWidgetPayload {
+export interface GeneratedWidgetPayload {
   widgetId: string;
   widgets: { [widgetId: string]: FlattenedWidgetProps };
 }

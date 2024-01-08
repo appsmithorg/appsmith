@@ -5,12 +5,13 @@ import {
 } from "actions/templateActions";
 import { Icon, SearchInput } from "design-system";
 import { debounce } from "lodash";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
   getTemplateSearchQuery,
+  isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -22,6 +23,7 @@ import {
   SearchWrapper,
   StyledFilterCategory,
 } from "./StyledComponents";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 
 export interface Filter {
   label: string;
@@ -41,6 +43,7 @@ interface FilterCategoryProps {
 }
 
 interface FilterWrapperProps {
+  initialFilters?: Record<string, string[]>;
   stickySearchBar?: boolean;
 }
 
@@ -65,7 +68,9 @@ const FilterItem = ({
 
   return (
     <FilterItemWrapper onClick={onClick} selected={selectedFilter}>
-      <FilterItemText kind="body-m">{item.label}</FilterItemText>
+      <FilterItemText data-testid="t--templates-filter-item" kind="body-m">
+        {item.label}
+      </FilterItemText>
       {selectedFilter && (
         <Icon
           color="var(--ads-v2-color-bg-brand-secondary-emphasis-plus)"
@@ -78,6 +83,19 @@ const FilterItem = ({
 };
 
 function modifyAndSortFilterList(originalFilterList: Filter[]) {
+  // Define the order of filter categories
+  const filterOrder = [
+    "All Templates",
+    "Building Blocks",
+    "Customer Support",
+    "Operations",
+    "Human Resources (HR)",
+    "Finance",
+    "Sales",
+    "Marketing",
+    "Other",
+  ];
+
   // Change the label from "All" to "All Templates"
   const modifiedFilterList = originalFilterList.map((filter) => {
     if (filter.label === ALL_TEMPLATES_FILTER_VALUE) {
@@ -86,10 +104,21 @@ function modifyAndSortFilterList(originalFilterList: Filter[]) {
     return filter;
   });
 
-  // Sort the filterList with "All Templates" coming first
+  // Sort the filterList based on the predefined order
   modifiedFilterList.sort((a, b) => {
-    if (a.label === ALL_TEMPLATES_UPDATED_LABEL) return -1;
-    if (b.label === ALL_TEMPLATES_UPDATED_LABEL) return 1;
+    const indexA = filterOrder.indexOf(a.label);
+    const indexB = filterOrder.indexOf(b.label);
+
+    // If both labels are in the predefined order, use their order
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+
+    // If only one label is in the predefined order, prioritize it
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+
+    // If neither label is in the predefined order, use the default localeCompare
     return a.label.localeCompare(b.label);
   });
 
@@ -108,7 +137,7 @@ const FilterCategory = ({
     [],
   );
   const dispatch = useDispatch();
-  const onSelectFilter = (item: string, type: string) => {
+  const onSelectFilter = (item: string, type: "add" | "remove") => {
     // Check if "All" or "All Templates" is selected
     const allTemplatesFilterSelected =
       item === ALL_TEMPLATES_FILTER_VALUE ||
@@ -165,22 +194,31 @@ const FilterCategory = ({
 };
 
 const INPUT_DEBOUNCE_TIMER = 500;
-const DEFAULT_FILTER_LABEL = "functions";
-const DEFAULT_FILTER_LIST = ["All"];
 const StartWithTemplateFilters = (props: FilterWrapperProps) => {
   const dispatch = useDispatch();
   const filters = useSelector(getFilterListSelector);
   const selectedFilters = useSelector(getTemplateFilterSelector);
   const templateSearchQuery = useSelector(getTemplateSearchQuery);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
+
+  const isLoading = isFetchingApplications || isFetchingTemplates;
+
   const onChange = debounce((query: string) => {
     dispatch(setTemplateSearchQuery(query));
     AnalyticsUtil.logEvent("TEMPLATES_SEARCH_INPUT_EVENT", { query });
   }, INPUT_DEBOUNCE_TIMER);
 
+  // Set default filter to "All" on mount
   useEffect(() => {
-    // Set the default "All" filter when the component mounts
-    dispatch(filterTemplates(DEFAULT_FILTER_LABEL, DEFAULT_FILTER_LIST));
-  }, []);
+    if (props.initialFilters) {
+      Object.keys(props.initialFilters).forEach((filter) => {
+        dispatch(filterTemplates(filter, props.initialFilters![filter]));
+      });
+    } else {
+      dispatch(filterTemplates("functions", ["All"]));
+    }
+  }, [props.initialFilters]);
 
   return (
     <FilterWrapper className="filter-wrapper">
@@ -196,16 +234,17 @@ const StartWithTemplateFilters = (props: FilterWrapperProps) => {
         </div>
       </SearchWrapper>
 
-      {Object.keys(filters).map((filter) => {
-        return (
-          <FilterCategory
-            filterList={filters[filter]}
-            key={filter}
-            label={filter}
-            selectedFilters={selectedFilters[filter] ?? []}
-          />
-        );
-      })}
+      {!isLoading &&
+        Object.keys(filters).map((filter) => {
+          return (
+            <FilterCategory
+              filterList={filters[filter]}
+              key={filter}
+              label={filter}
+              selectedFilters={selectedFilters[filter] ?? []}
+            />
+          );
+        })}
     </FilterWrapper>
   );
 };

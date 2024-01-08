@@ -9,8 +9,6 @@ import type { AppState } from "@appsmith/reducers";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import { createNewApiAction } from "actions/apiPaneActions";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginPackageName, PluginType } from "entities/Action";
@@ -20,6 +18,10 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Spinner } from "design-system";
+import { useEditorType } from "@appsmith/hooks";
+import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
+import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export const StyledContainer = styled.div`
   flex: 1;
@@ -118,11 +120,6 @@ export const CardContentWrapper = styled.div`
 `;
 
 interface ApiHomeScreenProps {
-  createNewApiAction: (
-    pageId: string,
-    from: EventLocation,
-    apiType?: string,
-  ) => void;
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -137,6 +134,13 @@ interface ApiHomeScreenProps {
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
+  createNewApiActionBasedOnEditorType: (
+    editorType: string,
+    editorId: string,
+    parentEntityId: string,
+    parentEntityType: ActionParentEntityTypeInterface,
+    apiType: string,
+  ) => void;
 }
 
 type Props = ApiHomeScreenProps;
@@ -150,15 +154,10 @@ export const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const {
-    createNewApiAction,
-    history,
-    isCreating,
-    pageId,
-    plugins,
-    showSaasAPIs,
-  } = props;
-
+  const { history, isCreating, pageId, plugins, showSaasAPIs } = props;
+  const editorType = useEditorType(location.pathname);
+  const { editorId, parentEntityId, parentEntityType } =
+    useParentEntityInfo(editorType);
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -188,15 +187,15 @@ function NewApiScreen(props: Props) {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       source,
     });
-    if (pageId) {
-      createNewApiAction(
-        pageId,
-        "API_PANE",
-        source === API_ACTION.CREATE_NEW_GRAPHQL_API
-          ? PluginPackageName.GRAPHQL
-          : PluginPackageName.REST_API,
-      );
-    }
+    props.createNewApiActionBasedOnEditorType(
+      editorType,
+      editorId,
+      parentEntityId,
+      parentEntityType,
+      source === API_ACTION.CREATE_NEW_GRAPHQL_API
+        ? PluginPackageName.GRAPHQL
+        : PluginPackageName.REST_API,
+    );
   };
 
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
@@ -366,9 +365,9 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = {
-  createNewApiAction,
   createDatasourceFromForm,
   createTempDatasourceFromForm,
+  createNewApiActionBasedOnEditorType,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewApiScreen);

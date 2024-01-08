@@ -6,7 +6,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
@@ -64,17 +63,15 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
-    Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission);
+    Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
 
-    Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
     Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission);
 
     Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
-
-    Mono<List<InsertManyResult>> bulkInsert(List<NewAction> newActions);
 
     Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions);
 

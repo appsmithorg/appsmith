@@ -50,6 +50,7 @@ export const LazyEditorWrapper = styled("div")`
 `;
 
 export const ContentWrapper = styled("div")<{
+  borderLess: boolean;
   contentKind: ContentKind;
   showLineNumbers?: boolean;
   folding?: boolean;
@@ -64,7 +65,7 @@ export const ContentWrapper = styled("div")<{
       ? "36px"
       : "auto"};
   min-height: 36px;
-  border: 1px solid;
+  border: ${(props) => (props.borderLess ? "none" : "1px solid")};
   border-color: inherit;
   ${(props) => props.showLineNumbers && "border: none"}
   border-radius: var(--ads-v2-border-radius);

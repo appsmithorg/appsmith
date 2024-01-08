@@ -12,7 +12,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-describe("Widget Copy paste", function () {
+describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
     _.agHelper.AddDsl("WidgetCopyPaste");

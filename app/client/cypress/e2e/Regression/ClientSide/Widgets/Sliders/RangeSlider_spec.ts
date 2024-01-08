@@ -13,7 +13,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("Range Slider spec", () => {
+describe("Range Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("rangesliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import DataSourceHome from "./DatasourceHome";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 const QueryHomePage = styled.div`
   display: flex;
@@ -14,7 +15,10 @@ const QueryHomePage = styled.div`
 `;
 
 interface QueryHomeScreenProps {
-  pageId: string;
+  editorId: string;
+  editorType: string;
+  parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
   isCreating: boolean;
   location: {
     search: string;
@@ -30,10 +34,13 @@ interface QueryHomeScreenProps {
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
     const {
+      editorId,
+      editorType,
       history,
       isCreating,
       location,
-      pageId,
+      parentEntityId,
+      parentEntityType,
       showMostPopularPlugins,
       showUnsupportedPluginDialog,
     } = this.props;
@@ -41,10 +48,13 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
     return (
       <QueryHomePage>
         <DataSourceHome
+          editorId={editorId}
+          editorType={editorType}
           history={history}
           isCreating={isCreating}
           location={location}
-          pageId={pageId}
+          parentEntityId={parentEntityId}
+          parentEntityType={parentEntityType}
           showMostPopularPlugins={showMostPopularPlugins}
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
         />

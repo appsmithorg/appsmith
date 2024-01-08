@@ -132,14 +132,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_AUTO_COMMIT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DEFAULT_BRANCHES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PROTECTED_BRANCHES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
@@ -498,6 +502,27 @@ public class ApplicationServiceCETest {
                             .permission(MANAGE_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
+
+                    Policy connectGitPolicy = Policy.builder()
+                            .permission(CONNECT_TO_GIT.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageDefaultBranchGitPolicy = Policy.builder()
+                            .permission(MANAGE_DEFAULT_BRANCHES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageProtectedBranchGitPolicy = Policy.builder()
+                            .permission(MANAGE_PROTECTED_BRANCHES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageAutoCommitGitPolicy = Policy.builder()
+                            .permission(MANAGE_AUTO_COMMIT.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
                     Policy readAppPolicy = Policy.builder()
                             .permission(READ_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(
@@ -529,7 +554,11 @@ public class ApplicationServiceCETest {
                                     publishAppPolicy,
                                     exportAppPolicy,
                                     deleteApplicationsPolicy,
-                                    createPagesPolicy));
+                                    createPagesPolicy,
+                                    connectGitPolicy,
+                                    manageProtectedBranchGitPolicy,
+                                    manageDefaultBranchGitPolicy,
+                                    manageAutoCommitGitPolicy));
                 })
                 .verifyComplete();
     }
@@ -2774,6 +2803,14 @@ public class ApplicationServiceCETest {
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+        themeSettings.setAccentColor("dark");
+        themeSettings.setBorderRadius("#000000");
+        themeSettings.setDensity(1);
+        themeSettings.setSizing(1);
+        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
+
         Mono<Application> applicationMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
@@ -2822,6 +2859,10 @@ public class ApplicationServiceCETest {
                             .isEqualTo(application
                                     .getUnpublishedApplicationDetail()
                                     .getNavigationSetting());
+                    assertThat(application.getPublishedApplicationDetail().getThemeSetting())
+                            .isEqualTo(application
+                                    .getUnpublishedApplicationDetail()
+                                    .getThemeSetting());
                 })
                 .verifyComplete();
     }

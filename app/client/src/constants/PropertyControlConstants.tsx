@@ -54,7 +54,7 @@ export interface PropertyPaneControlConfig {
   // Serves in the tooltip
   helpText?: string;
   //Dynamic text serves below the property pane inputs
-  helperText?: ((props: any) => string) | string;
+  helperText?: ((props: any) => React.ReactNode) | React.ReactNode;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;
@@ -81,6 +81,7 @@ export interface PropertyPaneControlConfig {
   additionalAutoComplete?: (props: any) => AdditionalDynamicDataTree;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
+  dynamicDependencies?: (widget: WidgetProps) => string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
   getStylesheetValue?: (
@@ -104,6 +105,13 @@ export interface PropertyPaneControlConfig {
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
   ) => boolean;
+
+  /**
+   * `controlConfig` is a generic record that can be used to pass additional configuration
+   * options to the property control. The specific structure and contents of this record
+   * will depend on the control type and its individual requirements.
+   */
+  controlConfig?: Record<string, unknown>;
 }
 
 interface ValidationConfigParams {

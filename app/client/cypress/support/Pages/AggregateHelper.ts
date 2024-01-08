@@ -231,8 +231,9 @@ export class AggregateHelper {
     let saveStatus = this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     if (!saveStatus)
-      cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
-        "not.exist",
+      this.AssertElementAbsence(
+        this.locator._saveStatusContainer,
+        Cypress.config("defaultCommandTimeout"),
       ); //adding timeout since waiting more time is not worth it!
 
     //this.AssertNetworkStatus("@sucessSave", 200);
@@ -398,13 +399,15 @@ export class AggregateHelper {
           force: boolean;
           waitAfterClick: boolean;
           sleepTime: number;
+          type?: "click" | "invoke";
         }> = 0,
   ) {
     const button = this.locator._buttonByText(btnVisibleText);
     let index: number,
       force = true,
       waitAfterClick = true,
-      waitTime = 1000;
+      waitTime = 1000,
+      type = "click";
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
@@ -421,15 +424,23 @@ export class AggregateHelper {
           ? indexOrOptions.waitAfterClick
           : true;
       waitTime = indexOrOptions.sleepTime || 1000;
+      type = indexOrOptions?.type || "click";
     }
 
-    return this.ScrollIntoView(button, index)
-      .click({ force })
-      .then(() => {
+    const element = this.ScrollIntoView(button, index);
+    if (type == "invoke") {
+      return element.invoke("click").then(() => {
         if (waitAfterClick) {
           return this.Sleep(waitTime);
         }
       });
+    }
+
+    return element.click({ force }).then(() => {
+      if (waitAfterClick) {
+        return this.Sleep(waitTime);
+      }
+    });
   }
 
   public clickMultipleButtons(btnVisibleText: string, waitAfterClick = true) {
@@ -515,6 +526,13 @@ export class AggregateHelper {
     // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0)
     //or
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
+  }
+
+  public WaitForCondition(conditionFn: any) {
+    cy.waitUntil(() => conditionFn, {
+      timeout: Cypress.config("pageLoadTimeout"),
+      interval: 1000,
+    });
   }
 
   public AssertNetworkDataSuccess(aliasName: string, expectedRes = true) {
@@ -1265,7 +1283,7 @@ export class AggregateHelper {
           this.Sleep(200);
         }
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateFieldInput(selector: string, value: string) {
@@ -1273,7 +1291,7 @@ export class AggregateHelper {
       .find("input")
       .invoke("attr", "value", value)
       .trigger("input");
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public ValidateFieldInputValue(selector: string, value: string) {
@@ -1284,7 +1302,7 @@ export class AggregateHelper {
       .then((inputValue) => {
         expect(inputValue).to.equal(value);
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateTextArea(selector: string, value: string) {
@@ -1293,7 +1311,7 @@ export class AggregateHelper {
       .first()
       .invoke("val", value)
       .trigger("input");
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public TypeIntoTextArea(selector: string, value: string) {
@@ -1301,7 +1319,7 @@ export class AggregateHelper {
       .find("textarea")
       .first()
       .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public UpdateInputValue(selector: string, value: string, force = false) {
@@ -1429,21 +1447,17 @@ export class AggregateHelper {
   // this should only be used when we want to verify the evaluated value of dynamic bindings for example {{Api1.data}} or {{"asa"}}
   // and should not be called for plain strings
   public VerifyEvaluatedValue(currentValue: string) {
-    this.Sleep(3000);
-    cy.get(this.locator._evaluatedCurrentValue)
+    this.GetElement(this.locator._evaluatedCurrentValue)
       .first()
       .should("be.visible")
       .should("not.have.text", "undefined");
-    cy.get(this.locator._evaluatedCurrentValue)
+    this.GetElement(this.locator._evaluatedCurrentValue)
       .first()
       .click({ force: true })
       .then(($text) => {
         if ($text.text()) expect($text.text()).to.eq(currentValue);
       })
-      .trigger("mouseout")
-      .then(() => {
-        cy.wait(2000);
-      });
+      .trigger("mouseout");
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true, index = 0) {
@@ -1502,6 +1516,12 @@ export class AggregateHelper {
       .scrollIntoView()
       .should(visibility == true ? "be.visible" : "not.be.visible");
     //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
+  }
+
+  IsElementVisible(selector: ElementType) {
+    return this.GetElement(selector).then(($element) =>
+      Cypress.$($element).length > 0 ? true : false,
+    ) as Cypress.Chainable<boolean>;
   }
 
   public CheckForErrorToast(error: string) {
@@ -1570,10 +1590,11 @@ export class AggregateHelper {
     exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
+    let timeout = Cypress.config().pageLoadTimeout;
     if (selector) {
-      return cy.contains(selector, text).should(exists);
+      return cy.contains(selector, text, { timeout }).should(exists);
     }
-    return cy.contains(text).should(exists);
+    return cy.contains(text, { timeout }).should(exists);
   }
 
   public GetNAssertContains(

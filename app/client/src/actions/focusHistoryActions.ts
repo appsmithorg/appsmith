@@ -25,3 +25,17 @@ export const storeFocusHistory = (key: string, focusState: FocusState) => {
     payload: { key, focusState },
   };
 };
+
+export const removeFocusHistoryRequest = (url: string) => {
+  return {
+    type: ReduxActionTypes.REMOVE_FOCUS_HISTORY_REQUEST,
+    payload: { url },
+  };
+};
+
+export const removeFocusHistory = (key: string) => {
+  return {
+    type: ReduxActionTypes.REMOVE_FOCUS_HISTORY,
+    payload: { key },
+  };
+};

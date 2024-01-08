@@ -24,7 +24,7 @@ export const Elevation = () => {
           padding="spacing-6"
           style={{
             background: "var(--color-bg-elevation-3)",
-            boxShadow: "var(--box-shadow-1)",
+            boxShadow: "var(--box-shadow-3)",
           }}
         />
       </Flex>

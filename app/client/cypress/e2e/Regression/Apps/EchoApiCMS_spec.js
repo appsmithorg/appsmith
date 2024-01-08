@@ -123,7 +123,6 @@ describe(
         repoName = repName;
 
         cy.latestDeployPreview();
-        cy.wait(2000);
         cy.xpath("//span[text()='Curt50@gmail.com']")
           .should("be.visible")
           .click({ force: true });

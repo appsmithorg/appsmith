@@ -65,6 +65,16 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
     setCustomJsLibraries(libraries.filter((lib) => !!lib.url));
   }, [libraries]);
 
+  const disableExportCTA = useMemo(() => {
+    return (
+      !selectedParams.jsObjects.length &&
+      !selectedParams.datasources.length &&
+      !selectedParams.customJSLibs.length &&
+      !selectedParams.widgets.length &&
+      !selectedParams.queries.length
+    );
+  }, [selectedParams]);
+
   const entities = useMemo(() => {
     const groupedData: Record<string, any> = {};
 
@@ -300,6 +310,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         </ScrollableSection>
         <ModalFooter>
           <Button
+            isDisabled={disableExportCTA}
             isLoading={partialImportExportLoadingState.isExporting}
             onClick={onExportClick}
             size="md"

@@ -10,14 +10,14 @@
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "DROP_DOWN",
           "initialValue" : "apiKey",
+          "setFirstOptionAsDefault": true,
           "options": [
             {
               "label": "API Key",
               "value": "apiKey"
             }
           ],
-          "isRequired": true,
-          "hidden": true
+          "isRequired": true
         },
         {
           "label": "API Key",

@@ -9,29 +9,37 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("App level import with Datasource", () => {
-  before(() => {
-    homePage.CreateNewWorkspace("AppLevelImport", true);
-    homePage.CreateAppInWorkspace("AppLevelImport");
-  });
-
-  //this tests coveres Applevel import for MySql, Gsheet is covered in Gsheet folder
-  it("1. Bug #26024 - Import an app at App Level with Datasource - MySql", () => {
-    appSettings.OpenAppSettings();
-    appSettings.GoToImport();
-    agHelper.ClickButton("Import");
-    homePage.ImportApp("ImportApps/JSOnLoadImport.json", "JSOnLoadTest", true);
-    cy.wait("@importNewApplication").then(() => {
-      agHelper.Sleep();
-      dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL");
+describe(
+  "App level import with Datasource",
+  { tags: ["@tag.ImportExport"] },
+  () => {
+    before(() => {
+      homePage.CreateNewWorkspace("AppLevelImport", true);
+      homePage.CreateAppInWorkspace("AppLevelImport");
     });
-    jsEditor.ConfirmationClick("Yes");
-    agHelper.ClickButton("Got it");
-    deployMode.DeployApp();
-    jsEditor.ConfirmationClick("Yes");
-    agHelper.AssertElementLength(
-      locators._widgetInDeployed(draggableWidgets.IMAGE),
-      10,
-    );
-  });
-});
+
+    //this tests coveres Applevel import for MySql, Gsheet is covered in Gsheet folder
+    it("1. Bug #26024 - Import an app at App Level with Datasource - MySql", () => {
+      appSettings.OpenAppSettings();
+      appSettings.GoToImport();
+      agHelper.ClickButton("Import");
+      homePage.ImportApp(
+        "ImportApps/JSOnLoadImport.json",
+        "JSOnLoadTest",
+        true,
+      );
+      cy.wait("@importNewApplication").then(() => {
+        agHelper.Sleep();
+        dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL");
+      });
+      jsEditor.ConfirmationClick("Yes");
+      agHelper.ClickButton("Got it");
+      deployMode.DeployApp();
+      jsEditor.ConfirmationClick("Yes");
+      agHelper.AssertElementLength(
+        locators._widgetInDeployed(draggableWidgets.IMAGE),
+        10,
+      );
+    });
+  },
+);

@@ -45,7 +45,7 @@ import type { DebuggerReduxState } from "reducers/uiReducers/debuggerReducer";
 import type { TourReducerState } from "reducers/uiReducers/tourReducer";
 import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
 import type { JsPaneReduxState } from "reducers/uiReducers/jsPaneReducer";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { CanvasSelectionState } from "reducers/uiReducers/canvasSelectionReducer";
 import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameReducer";
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
@@ -75,6 +75,7 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
+import type { IDEState } from "reducers/uiReducers/ideReducer";
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
@@ -144,6 +145,7 @@ export interface AppState {
     actionSelector: ActionSelectorReduxState;
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;
+    ide: IDEState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
@@ -159,6 +161,7 @@ export interface AppState {
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
     layoutElementPositions: LayoutElementPositionsReduxState;
+    moduleInstanceEntities: any;
   };
   evaluations: {
     tree: EvaluatedTreeState;

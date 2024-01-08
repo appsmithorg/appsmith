@@ -36,7 +36,6 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -54,6 +53,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -249,7 +249,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         }
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-                        final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+                        final String authorizationHeader =
+                                "Basic " + Base64.getEncoder().encodeToString(clientCredentials);
                         builder.defaultHeader("Authorization", authorizationHeader);
                     } else {
                         return Mono.error(

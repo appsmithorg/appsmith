@@ -45,6 +45,7 @@ import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constan
 import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -90,6 +91,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
       equal,
     );
+
+    const isWidgetSelected = useSelector((state: AppState) =>
+      isWidgetSelectedForPropertyPane(state, widgetId),
+    );
+
     const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
     const layoutSystemType = useSelector(getLayoutSystemType);
     const isAutoLayout = layoutSystemType === LayoutSystemTypes.AUTO;
@@ -165,6 +171,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
       widgetProps.isMobile = !!isMobile;
       widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
+      widgetProps.isWidgetSelected = isWidgetSelected;
 
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.

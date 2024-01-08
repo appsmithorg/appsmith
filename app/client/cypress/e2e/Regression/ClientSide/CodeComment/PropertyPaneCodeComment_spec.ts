@@ -1,13 +1,9 @@
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Property Pane Code Commenting", () => {
+describe("Property Pane Code Commenting", { tags: ["@tag.JS"] }, () => {
   before(() => {
     agHelper.AddDsl("buttondsl");
   });

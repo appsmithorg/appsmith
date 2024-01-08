@@ -21,7 +21,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Validate Oracle DS", () => {
+describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
 
   before("Generate GUID", () => {

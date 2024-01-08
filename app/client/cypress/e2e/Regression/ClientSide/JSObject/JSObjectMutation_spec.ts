@@ -4,7 +4,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JSObject testing", () => {
+describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("JSObjectMutationTestApp.json");

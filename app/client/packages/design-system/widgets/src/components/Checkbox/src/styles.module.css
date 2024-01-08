@@ -10,7 +10,7 @@
     width: var(--sizing-4);
     height: var(--sizing-4);
     box-shadow: var(--checkbox-box-shadow);
-    border-radius: clamp(0px, var(--border-radius-1), 6px);
+    border-radius: clamp(0px, var(--border-radius-1), 25%);
     color: transparent;
     display: inline-flex;
     align-items: center;

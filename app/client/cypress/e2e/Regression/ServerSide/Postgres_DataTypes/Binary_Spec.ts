@@ -16,7 +16,7 @@ import EditorNavigation, {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Binary Datatype tests", function () {
+describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {

@@ -56,7 +56,7 @@ const createMySQLDatasourceQuery = () => {
   dataSources.CreateQueryForDS(dsName, `SELECT * FROM spacecrafts LIMIT 10;`);
 };
 
-describe("Linting", () => {
+describe("Linting", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
     dataSources.CreateDataSource("MySql");
@@ -328,8 +328,8 @@ describe("Linting", () => {
   });
 
   it(
-    "excludeForAirgap",
     "9. Shows lint errors for usage of library that are not installed yet",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       const JS_OBJECT_WITH_LIB_API = `export default {
       myFun1: () => {

@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -46,8 +47,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -247,8 +251,9 @@ public class FileUtilsImpl implements FileInterface {
                         Map<String, String> validWidgetToParentMap = new HashMap<>();
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                        Boolean isResourceUpdated =
-                                updatedResources.get(PAGE_LIST).contains(pageName);
+                        Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(PAGE_LIST))
+                                ? updatedResources.get(PAGE_LIST).contains(pageName)
+                                : Boolean.FALSE;
                         if (Boolean.TRUE.equals(isResourceUpdated)) {
                             // Save page metadata
                             saveResource(
@@ -292,23 +297,28 @@ public class FileUtilsImpl implements FileInterface {
                     }
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
 
-                    // Save JS Libs
-                    Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
-                    Set<Map.Entry<String, Object>> jsLibEntries =
-                            applicationGitReference.getJsLibraries().entrySet();
-                    Set<String> validJsLibs = new HashSet<>();
-                    jsLibEntries.forEach(jsLibEntry -> {
-                        String uidString = jsLibEntry.getKey();
-                        Boolean isResourceUpdated =
-                                updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
-                        String fileNameWithExtension = uidString.replaceAll("/", "_") + CommonConstants.JSON_EXTENSION;
-                        Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
-                        if (isResourceUpdated) {
-                            saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
-                        }
-                        validJsLibs.add(fileNameWithExtension);
-                    });
-                    scanAndDeleteFileForDeletedResources(validJsLibs, jsLibDirectory);
+                    // Save JS Libs if there's at least one change
+                    if (updatedResources != null
+                            && !CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))) {
+                        Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
+                        Set<Map.Entry<String, Object>> jsLibEntries =
+                                applicationGitReference.getJsLibraries().entrySet();
+                        Set<String> validJsLibs = new HashSet<>();
+                        jsLibEntries.forEach(jsLibEntry -> {
+                            String uidString = jsLibEntry.getKey();
+                            boolean isResourceUpdated =
+                                    updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
+
+                            String fileNameWithExtension = getJsLibFileName(uidString) + CommonConstants.JSON_EXTENSION;
+
+                            Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
+                            if (isResourceUpdated) {
+                                saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
+                            }
+                            validJsLibs.add(fileNameWithExtension);
+                        });
+                        scanAndDeleteFileForDeletedResources(validJsLibs, jsLibDirectory);
+                    }
 
                     // Create HashMap for valid actions and actionCollections
                     HashMap<String, Set<String>> validActionsMap = new HashMap<>();
@@ -328,8 +338,9 @@ public class FileUtilsImpl implements FileInterface {
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             // For actions, we are referring to validNames to maintain unique file names as just name
                             // field don't guarantee unique constraint for actions within JSObject
-                            Boolean isResourceUpdated =
-                                    updatedResources.get(ACTION_LIST).contains(resource.getKey());
+                            Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(ACTION_LIST))
+                                    ? updatedResources.get(ACTION_LIST).contains(resource.getKey())
+                                    : Boolean.FALSE;
                             final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -382,7 +393,11 @@ public class FileUtilsImpl implements FileInterface {
                             }
                             validActionCollectionsMap.get(pageName).add(actionCollectionName);
                             Boolean isResourceUpdated =
-                                    updatedResources.get(ACTION_COLLECTION_LIST).contains(resource.getKey());
+                                    !CollectionUtils.isEmpty(updatedResources.get(ACTION_COLLECTION_LIST))
+                                            ? updatedResources
+                                                    .get(ACTION_COLLECTION_LIST)
+                                                    .contains(resource.getKey())
+                                            : Boolean.FALSE;
                             if (Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveActionCollection(
                                         resource.getValue(),
@@ -703,7 +718,7 @@ public class FileUtilsImpl implements FileInterface {
      * @param gson
      * @return resource stored in the JSON file
      */
-    private Object readFile(Path filePath, Gson gson) {
+    public static Object readFile(Path filePath, Gson gson) {
 
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
@@ -938,7 +953,7 @@ public class FileUtilsImpl implements FileInterface {
         return fileFormatVersion.getAsInt();
     }
 
-    private boolean isFileFormatCompatible(int savedFileFormat) {
+    public static boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
     }
 
@@ -1099,5 +1114,34 @@ public class FileUtilsImpl implements FileInterface {
             log.error("Error reading index.lock file: {}", ex.getMessage());
             return Mono.just(0L);
         }
+    }
+
+    /**
+     * We use UID string for custom js lib. UID strings are in this format: {libname}_{url to the lib src}.
+     * This method converts this uid string into a valid file name so that there is no unsupported character in the
+     * file name for any OS.
+     * This method returns a string in the format: {libname}_{base64 encoded hash of uid string}
+     * @param uidString UID string value of a JS lib
+     * @return String
+     */
+    public static String getJsLibFileName(String uidString) {
+        int firstUnderscoreIndex = uidString.indexOf('_'); // this finds the first occurrence of "_"
+        String prefix;
+        if (firstUnderscoreIndex != -1) {
+            prefix = uidString.substring(0, firstUnderscoreIndex); // we're getting the prefix from the uidString
+        } else {
+            prefix = "jslib";
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(prefix);
+        stringBuilder.append("_");
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(uidString.getBytes(StandardCharsets.UTF_8));
+            stringBuilder.append(Base64.getUrlEncoder().withoutPadding().encodeToString(hash));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Failed to hash URL string", e);
+        }
+        return stringBuilder.toString();
     }
 }

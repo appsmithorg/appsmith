@@ -14,3 +14,4 @@ node_modules
 container-volumes
 *.env
 dependency-reduced-pom.xml
+appsmith-server/failedServerTests.txt

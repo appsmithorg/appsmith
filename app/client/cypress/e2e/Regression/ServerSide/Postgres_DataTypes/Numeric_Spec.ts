@@ -16,7 +16,7 @@ import EditorNavigation, {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Numeric Datatype tests", function () {
+describe("Numeric Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, set Theme", () => {

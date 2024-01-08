@@ -118,6 +118,11 @@ public enum AclPermission {
 
     // Manage tenant permissions
     MANAGE_TENANT("manage:tenants", Tenant.class),
+
+    CONNECT_TO_GIT("connectToGit:applications", Application.class),
+    MANAGE_PROTECTED_BRANCHES("manageProtectedBranches:applications", Application.class),
+    MANAGE_DEFAULT_BRANCHES("manageDefaultBranches:applications", Application.class),
+    MANAGE_AUTO_COMMIT("manageAutoCommit:applications", Application.class),
     ;
 
     private final String value;

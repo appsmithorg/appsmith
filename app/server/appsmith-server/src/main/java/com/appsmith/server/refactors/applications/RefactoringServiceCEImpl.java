@@ -266,7 +266,7 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     protected Iterable<Flux<String>> getExistingEntityNamesFlux(
             String contextId, String layoutId, boolean isFQN, CreatorContextType contextType) {
         Flux<String> existingActionNamesFlux =
-                newActionEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
+                newActionEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId, false);
 
         /*
          * TODO : Execute this check directly on the DB server. We can query array of arrays by:
@@ -279,10 +279,10 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
         // Hence we can avoid unnecessary DB calls
         if (!isFQN) {
             existingWidgetNamesFlux =
-                    widgetEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
+                    widgetEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId, false);
 
-            existingActionCollectionNamesFlux =
-                    actionCollectionEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
+            existingActionCollectionNamesFlux = actionCollectionEntityRefactoringService.getExistingEntityNames(
+                    contextId, contextType, layoutId, false);
         }
 
         ArrayList<Flux<String>> list = new ArrayList<>();

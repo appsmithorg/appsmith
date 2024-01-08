@@ -19,7 +19,6 @@ describe("Test Sidebar navigation style", { tags: ["@tag.IDE"] }, function () {
     assertHelper
       .WaitForNetworkCall("@importNewApplication")
       .then((response) => {
-        agHelper.Sleep();
         const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           homePage.AssertNCloseImport();
@@ -86,7 +85,7 @@ describe("Test Sidebar navigation style", { tags: ["@tag.IDE"] }, function () {
     agHelper.GetNClick(
       `${appSettings.locators._sideNavbar} ${appSettings.locators._shareButton}`,
     );
-    agHelper.Sleep(1000);
+    agHelper.WaitUntilEleAppear(appSettings.locators._modal);
     agHelper.AssertElementVisibility(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown

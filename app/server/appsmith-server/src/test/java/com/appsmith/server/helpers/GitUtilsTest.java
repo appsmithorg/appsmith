@@ -1,7 +1,9 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -215,5 +217,45 @@ public class GitUtilsTest {
         nullDefaultBranchNameApplication.setGitApplicationMetadata(metadata);
 
         assertFalse(isDefaultBranchedApplication(nullDefaultBranchNameApplication));
+    }
+
+    @Test
+    public void isMigrationRequired() {
+        int latestDslVersion = 87;
+        JSONObject jsonObject = new JSONObject();
+
+        // if the version is not present in dsl, migration should be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isTrue();
+
+        jsonObject.put("version", 86);
+        // version less than latest, migration should be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isTrue();
+
+        jsonObject.put("version", 87);
+        // version same as latest, migration should not be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isFalse();
+
+        jsonObject.put("version", 88);
+        // version greater than latest, migration should not be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isFalse();
+    }
+
+    @Test
+    public void isAutoCommitEnabled() {
+        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        // should be true when auto commit config is null
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isTrue();
+
+        metadata.setAutoCommitConfig(new AutoCommitConfig());
+        // should be true when auto commit config has enabled=null
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isTrue();
+
+        metadata.getAutoCommitConfig().setEnabled(true);
+        // should be true when auto commit config has enabled=true
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isTrue();
+
+        metadata.getAutoCommitConfig().setEnabled(false);
+        // should be true when auto commit config has enabled=false
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isFalse();
     }
 }

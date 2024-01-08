@@ -9,8 +9,10 @@ import _, { isPlainObject } from "lodash";
 import * as log from "loglevel";
 import { osName } from "react-device-detect";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "./AnalyticsUtil";
+import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
 export const initializeAnalyticsAndTrackers = async () => {
   const appsmithConfigs = getAppsmithConfigs();
@@ -194,19 +196,24 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
   return trimmedPrefix + `_${lastIndex + 1}`;
 };
 
-export const createNewApiName = (actions: ActionDataState, pageId: string) => {
+export const createNewApiName = (
+  actions: ActionDataState,
+  entityId: string,
+  key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
+) => {
   const pageApiNames = actions
-    .filter((a) => a.config.pageId === pageId)
+    .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
   return getNextEntityName("Api", pageApiNames);
 };
 
 export const createNewJSFunctionName = (
   jsActions: JSCollectionData[],
-  pageId: string,
+  entityId: string,
+  key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
   const pageJsFunctionNames = jsActions
-    .filter((a) => a.config.pageId === pageId)
+    .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
   return getNextEntityName("JSObject", pageJsFunctionNames);
 };
@@ -221,11 +228,12 @@ export const stopEventPropagation = (e: any) => {
 
 export const createNewQueryName = (
   queries: ActionDataState,
-  pageId: string,
+  entityId: string,
   prefix = "Query",
+  key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
   const pageApiNames = queries
-    .filter((a) => a.config.pageId === pageId)
+    .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
 
   return getNextEntityName(prefix, pageApiNames);

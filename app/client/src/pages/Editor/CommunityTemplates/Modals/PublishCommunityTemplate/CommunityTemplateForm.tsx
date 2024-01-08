@@ -81,13 +81,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
-    let pageId = currentPageId;
-    if (currentApplication?.pages) {
-      const defaultPageInfo = currentApplication.pages.filter(
-        (page) => page.isDefault,
-      );
-      pageId = defaultPageInfo[0]?.id;
-    }
+    const pageId = currentApplication?.defaultPageId || currentPageId;
     dispatch(
       publishCommunityTemplate({
         title: templateName,

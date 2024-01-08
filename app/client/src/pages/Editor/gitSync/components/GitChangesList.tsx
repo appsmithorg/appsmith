@@ -280,6 +280,7 @@ export default function GitChangesList() {
       ) : statusChanges.length ? (
         <Changes data-testid={"t--git-change-statuses"}>
           {statusChanges}
+          {remoteStatusChanges}
           {status?.migrationMessage ? (
             <CalloutContainer>
               <Callout kind="info">{status.migrationMessage}</Callout>

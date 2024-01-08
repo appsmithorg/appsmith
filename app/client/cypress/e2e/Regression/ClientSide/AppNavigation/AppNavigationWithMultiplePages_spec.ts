@@ -34,7 +34,6 @@ describe(
       autoLayout.ConvertToAutoLayoutAndVerify(false);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
-      agHelper.Sleep();
       cy.url().then((url) => {
         currentUrl = url;
       });
@@ -44,7 +43,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
       propPane.NavigateToPage("Page1", "onClick");
       deployMode.DeployApp();
-      agHelper.Sleep();
+      agHelper.WaitUntilEleAppear(locators._buttonByText("Submit"));
       agHelper.GetNClickByContains("button", "Submit");
       agHelper.AssertElementVisibility(
         appSettings.locators._getActivePage("Page1"),
@@ -54,7 +53,9 @@ describe(
 
     it("3. Navigate to widget url and validate", () => {
       agHelper.VisitNAssert(currentUrl);
-      agHelper.Sleep();
+      agHelper.WaitUntilEleAppear(
+        locators._widgetInCanvas(draggableWidgets.INPUT_V2),
+      );
       agHelper.AssertElementExist(
         locators._widgetInCanvas(draggableWidgets.INPUT_V2),
       );

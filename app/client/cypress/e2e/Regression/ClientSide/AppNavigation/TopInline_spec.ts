@@ -25,7 +25,6 @@ describe(
       assertHelper
         .WaitForNetworkCall("@importNewApplication")
         .then((response) => {
-          agHelper.Sleep();
           const { isPartialImport } = response.body.data;
           if (isPartialImport) {
             homePage.AssertNCloseImport();
@@ -142,7 +141,7 @@ describe(
       agHelper.GetNClick(
         `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
       );
-      agHelper.Sleep();
+      agHelper.WaitUntilEleAppear(appSettings.locators._modal);
       agHelper.AssertElementVisibility(appSettings.locators._modal);
       agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
       // User profile dropdown

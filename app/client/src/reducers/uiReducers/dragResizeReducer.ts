@@ -3,9 +3,9 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
+import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 
 const initialState: WidgetDragResizeState = {
-  isDraggingDisabled: false,
   isDragging: false,
   dragDetails: {},
   autoLayoutDragDetails: {},
@@ -16,6 +16,10 @@ const initialState: WidgetDragResizeState = {
   selectedWidgetAncestry: [],
   entityExplorerAncestry: [],
   isAutoCanvasResizing: false,
+  anvil: {
+    isDistributingSpace: false,
+  },
+  isDraggingDisabled: false,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -108,6 +112,17 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.entityExplorerAncestry = action.payload;
   },
+  //space distribution redux
+  [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START]: (
+    state: WidgetDragResizeState,
+  ) => {
+    state.anvil.isDistributingSpace = true;
+  },
+  [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP]: (
+    state: WidgetDragResizeState,
+  ) => {
+    state.anvil.isDistributingSpace = false;
+  },
 });
 
 export interface DraggingGroupCenter {
@@ -124,17 +139,20 @@ export interface DragDetails {
 }
 
 export interface WidgetDragResizeState {
-  isDraggingDisabled: boolean;
   isDragging: boolean;
   dragDetails: DragDetails;
   autoLayoutDragDetails: any;
   isResizing: boolean;
+  anvil: {
+    isDistributingSpace: boolean;
+  };
   lastSelectedWidget?: string;
   focusedWidget?: string;
   selectedWidgetAncestry: string[];
   entityExplorerAncestry: string[];
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
+  isDraggingDisabled: boolean;
 }
 
 export default widgetDraggingReducer;

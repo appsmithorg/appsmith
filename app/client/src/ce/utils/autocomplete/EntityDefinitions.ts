@@ -3,7 +3,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { AppsmithEntity } from "@appsmith/entities/DataTree/types";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { Def } from "tern";
 import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 
