@@ -37,6 +37,8 @@ const checkIfMousePositionIsInsideBlock = (
 // This buffer will make sure main canvas is not deactivated
 // until its about the below pixel distance from the main canvas border.
 const MAIN_CANVAS_BUFFER = 20;
+
+// ToDo: compute this value based on the section to main canvas gap
 const SECTION_BUFFER = {
   vertical: 14,
   horizontal: 20,
