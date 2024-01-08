@@ -12,6 +12,7 @@ import { getClosestHighlight } from "./utils";
 import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
+import { throttle } from "lodash";
 
 const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
   return {
@@ -254,6 +255,29 @@ export const useCanvasDragging = (
           }
         };
 
+        const debouncedRender = throttle(
+          () => {
+            if (
+              stickyCanvasRef.current &&
+              canvasIsDragging.current &&
+              isCurrentDraggedCanvas
+            ) {
+              dispatch(setHighlightsDrawn(currentRectanglesToDraw));
+              // Render blocks on the canvas based on the highlight
+              renderBlocksOnCanvas(
+                stickyCanvasRef.current,
+                currentRectanglesToDraw,
+                canvasIsDragging.current,
+              );
+            }
+          },
+          10,
+          {
+            leading: true,
+            trailing: true,
+          },
+        );
+
         const onMouseMove = (e: any) => {
           if (
             isCurrentDraggedCanvas &&
@@ -277,14 +301,8 @@ export const useCanvasDragging = (
               allHighlightsRef.current,
             );
             if (processedHighlight) {
-              dispatch(setHighlightsDrawn(processedHighlight));
               currentRectanglesToDraw = processedHighlight;
-              // Render blocks on the canvas based on the highlight
-              renderBlocksOnCanvas(
-                stickyCanvasRef.current,
-                currentRectanglesToDraw,
-                canvasIsDragging.current,
-              );
+              debouncedRender();
               // Store information for auto-scroll functionality
               scrollObj.lastMouseMoveEvent = {
                 offsetX: e.offsetX,
