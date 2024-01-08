@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.PluginConstants.DEFAULT_APPSMITH_AI_DATASOURCE;
 import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATASOURCE;
 
 @Getter
@@ -145,6 +146,7 @@ public class DatasourceStorage extends BaseDomain {
          * user clicks on `test datasource` button.
          * DEFAULT_REST_DATASOURCE is the embedded datasource name for both REST API plugin and GraphQL plugin.
          */
-        return DEFAULT_REST_DATASOURCE.equals(this.name) && this.getDatasourceId() == null;
+        return (DEFAULT_REST_DATASOURCE.equals(this.name) || DEFAULT_APPSMITH_AI_DATASOURCE.equals(this.name))
+                && this.getDatasourceId() == null;
     }
 }

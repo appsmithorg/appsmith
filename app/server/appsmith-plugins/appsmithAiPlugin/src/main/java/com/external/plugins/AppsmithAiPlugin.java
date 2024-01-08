@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.external.plugins.constants.AppsmithAiConstants.USECASE;
 
@@ -40,7 +41,7 @@ public class AppsmithAiPlugin extends BasePlugin {
     }
 
     public static class AppsmithAiPluginExecutor extends BaseRestApiPluginExecutor {
-        private static final AiServerService aiServerService = new AiServerServiceImpl();
+        private static final AiServerService aiServerService = new AiServerServiceImpl(objectMapper);
 
         public AppsmithAiPluginExecutor(SharedConfig config) {
             super(config);
@@ -114,6 +115,11 @@ public class AppsmithAiPlugin extends BasePlugin {
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
+        }
+
+        @Override
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration, boolean isEmbedded) {
+            return Set.of();
         }
     }
 }

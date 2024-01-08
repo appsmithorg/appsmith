@@ -21,6 +21,7 @@ public interface PluginConstants {
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
+    public static final String DEFAULT_APPSMITH_AI_DATASOURCE = "DEFAULT_APPSMITH_AI_DATASOURCE";
 
     interface PluginName {
         public static final String S3_PLUGIN_NAME = "S3";
