@@ -1,8 +1,8 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.external.models.BaseDomain;
+public interface ImportableContextCE {
 
-public abstract class ImportableContextCE extends BaseDomain {
+    String getId();
 
-    public abstract String getWorkspaceId();
+    String getWorkspaceId();
 }

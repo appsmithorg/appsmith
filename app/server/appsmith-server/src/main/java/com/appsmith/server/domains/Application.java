@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,7 +34,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @QueryEntity
 @Document
-public class Application extends ImportableContext {
+public class Application extends BaseDomain implements ImportableContext {
 
     @NotNull @JsonView(Views.Public.class)
     String name;
