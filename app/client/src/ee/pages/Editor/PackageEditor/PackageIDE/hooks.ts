@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { getCurrentPackageState } from "./utils";
-import { EditorState } from "entities/IDE/constants";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 const useCurrentPackageState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);

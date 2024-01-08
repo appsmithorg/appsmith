@@ -21,7 +21,7 @@ jobs:
 
       - name: Get changed files in the client/src/** folder
         id: changed-files-specific
-        uses: tj-actions/changed-files@v37
+        uses: tj-actions/changed-files@v41
         with:
           files: client/src/**
           files_ignore: client/src/ee/**

@@ -1,5 +1,6 @@
 export * from "ce/constants/routes/appRoutes";
 import {
+  APP_SETTINGS_EDITOR_PATH,
   BUILDER_PATH,
   basePathForActiveAction as CE_basePathForActiveAction,
   DATA_SOURCES_EDITOR_ID_PATH,
@@ -7,6 +8,7 @@ import {
 } from "ce/constants/routes/appRoutes";
 import { MODULE_EDITOR_PATH, PACKAGE_EDITOR_PATH } from "./packageRoutes";
 import { matchPath } from "react-router";
+import { WorkflowSettingsTabs } from "@appsmith/pages/Editor/WorkflowEditor/WorkflowSettingsPane/WorkflowSettings";
 
 export const matchDatasourcePath = (pathname: string) =>
   matchPath(pathname, {
@@ -35,4 +37,16 @@ export const MODULE_INSTANCE_ID_PATH = "/module-instance/:moduleInstanceId";
 export const basePathForActiveAction = [
   ...CE_basePathForActiveAction,
   MODULE_EDITOR_PATH,
+];
+
+export const WORKFLOW_TRIGGER_SETTINGS_PATH = (path: string) =>
+  `${path}${APP_SETTINGS_EDITOR_PATH}/${WorkflowSettingsTabs.Trigger}`;
+
+export const WORKFLOW_GENERAL_SETTINGS_PATH = (path: string) =>
+  `${path}${APP_SETTINGS_EDITOR_PATH}/${WorkflowSettingsTabs.General}`;
+
+export const WORKFLOW_SETTINGS_PATHS = (path: string) => [
+  `${path}${APP_SETTINGS_EDITOR_PATH}`,
+  WORKFLOW_GENERAL_SETTINGS_PATH(path),
+  WORKFLOW_TRIGGER_SETTINGS_PATH(path),
 ];

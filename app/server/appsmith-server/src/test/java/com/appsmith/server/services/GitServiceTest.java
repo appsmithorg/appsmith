@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
@@ -42,16 +43,24 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_UPDATE_DEFAULT_BRANCH;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -92,8 +101,8 @@ public class GitServiceTest {
     @Autowired
     ApplicationRepository applicationRepository;
 
-    @Autowired
-    UserDataService userDataService;
+    @SpyBean
+    AnalyticsService analyticsService;
 
     private static final GitProfile testUserProfile = new GitProfile();
 
@@ -457,9 +466,44 @@ public class GitServiceTest {
                         assertThat(gitApplicationMetadata.getDefaultBranchName())
                                 .isEqualTo(defaultBranchAfterChange);
                         assertThat(gitApplicationMetadata.getBranchName()).isNotNull();
+                        verify(analyticsService, times(1))
+                                .sendEvent(eq(GIT_UPDATE_DEFAULT_BRANCH.getEventName()), anyString(), anyMap());
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setDefaultBranch_WhenPermissionDoesNotExist_ExceptionThrown() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        Workspace workspace = new Workspace();
+        workspace.setName(UUID.randomUUID().toString());
+        String workspaceId =
+                workspaceService.create(workspace).map(Workspace::getId).block();
+        String defaultBranchBeforeChange = "main", defaultBranchAfterChange = "branch2";
+
+        // create the root application
+        Application rootApp = applicationPageService
+                .createApplication(createApplicationWithGitMetaData(workspaceId, "rootApp", null))
+                .block();
+
+        // remove permission from the application
+        Set<Policy> newPoliciesWithoutPermission = rootApp.getPolicies().stream()
+                .filter(policy ->
+                        !policy.getPermission().equals(applicationPermission.getManageDefaultBranchPermission()))
+                .collect(Collectors.toSet());
+        rootApp.setPolicies(newPoliciesWithoutPermission);
+        rootApp = applicationRepository.save(rootApp).block();
+
+        StepVerifier.create(gitService.setDefaultBranch(rootApp.getId(), defaultBranchAfterChange))
+                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                        FieldName.APPLICATION, rootApp.getId() + "," + defaultBranchAfterChange))
+                .verify();
     }
 
     @Test
@@ -618,24 +662,36 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void protectBranch_branchListEmpty_success() {
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_unlimited_repo_enabled)))
-                .thenReturn(Mono.just(TRUE));
-        Workspace workspace = new Workspace();
-        workspace.setName(UUID.randomUUID().toString());
-        String limitPrivateRepoTestWorkspaceId =
-                workspaceService.create(workspace).map(Workspace::getId).block();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void protectBranch_branchListNotEmpty_success() {
+    public void protectBranch_WhenPermissionDoesNotExist_Fails() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
                 .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
         Workspace workspace = new Workspace();
         workspace.setName(UUID.randomUUID().toString());
         String limitPrivateRepoTestWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
+
+        // create the root application
+        Application rootApp = applicationPageService
+                .createApplication(createApplicationWithGitMetaData(limitPrivateRepoTestWorkspaceId, "rootApp", null))
+                .block();
+
+        // remove permission from the application
+        Set<Policy> newPoliciesWithoutPermission = rootApp.getPolicies().stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(applicationPermission
+                                .getManageProtectedBranchPermission()
+                                .getValue()))
+                .collect(Collectors.toSet());
+        rootApp.setPolicies(newPoliciesWithoutPermission);
+        rootApp = applicationRepository.save(rootApp).block();
+
+        StepVerifier.create(gitService.updateProtectedBranches(rootApp.getId(), List.of("master")))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, rootApp.getId()))
+                .verify();
     }
 
     /**
@@ -752,6 +808,43 @@ public class GitServiceTest {
         StepVerifier.create(branchListMonoWithoutDefaultBranch)
                 .assertNext(branchList -> {
                     assertThat(branchList).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateProtectedBranches_WhenListContainsMultipleBranches_Success() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
+        List<String> branchList = List.of("master", "develop", "feature", "staging");
+        // create four app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+
+        Mono<Application> applicationMono = applicationRepository
+                .findById(defaultAppId)
+                .flatMap(application -> {
+                    // initially setting develop and staging as protected
+                    application.getGitApplicationMetadata().setBranchProtectionRules(List.of("develop", "staging"));
+                    return applicationRepository.save(application).map(Application::getId);
+                })
+                // let's remove develop from protected and set master, feature and staging as new protected branches
+                .then(gitService.updateProtectedBranches(defaultAppId, List.of("master", "feature", "staging")))
+                .then(applicationService.findById(defaultAppId, applicationPermission.getEditPermission()));
+
+        StepVerifier.create(applicationMono)
+                .assertNext(application -> {
+                    GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                    // the root app should have the protected branch list
+                    assertThat(metadata.getBranchProtectionRules()).containsExactly("master", "feature", "staging");
+
+                    // master & feature branches added as protected, GIT_ADD_PROTECTED_BRANCH event should be sent twice
+                    verify(analyticsService, times(2))
+                            .sendEvent(eq(GIT_ADD_PROTECTED_BRANCH.getEventName()), anyString(), anyMap());
+                    // develop branch removed from protected, GIT_REMOVE_PROTECTED_BRANCH event should be sent once
+                    verify(analyticsService, times(1))
+                            .sendEvent(eq(GIT_REMOVE_PROTECTED_BRANCH.getEventName()), anyString(), anyMap());
                 })
                 .verifyComplete();
     }

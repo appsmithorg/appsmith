@@ -1,4 +1,7 @@
-import { EditorState, type SidebarButton } from "entities/IDE/constants";
+import {
+  EditorState,
+  type SidebarButton,
+} from "@appsmith/entities/IDE/constants";
 
 export const BottomButtons: SidebarButton[] = [
   {
