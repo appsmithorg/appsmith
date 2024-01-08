@@ -222,9 +222,20 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         List<ApplicationPage> editModeApplicationPages = mappedImportableResourcesDTO
                 .getApplicationToBeImportedApplicationPagesMap()
                 .get(FieldName.UNPUBLISHED);
+
+        // this conditional is being placed just for compatibility of the PR #29691
+        if (CollectionUtils.isEmpty(editModeApplicationPages)) {
+            editModeApplicationPages = importedApplication.getPages();
+        }
+
         List<ApplicationPage> publishedModeApplicationPages = mappedImportableResourcesDTO
                 .getApplicationToBeImportedApplicationPagesMap()
                 .get(FieldName.PUBLISHED);
+
+        // this conditional is being placed just for compatibility of the PR #29691
+        if (CollectionUtils.isEmpty(publishedModeApplicationPages)) {
+            publishedModeApplicationPages = importedApplication.getPublishedPages();
+        }
 
         Mono<List<ApplicationPage>> unpublishedPagesMono =
                 importUnpublishedPages(editModeApplicationPages, appendToApp, applicationMono, importedNewPagesMono);
