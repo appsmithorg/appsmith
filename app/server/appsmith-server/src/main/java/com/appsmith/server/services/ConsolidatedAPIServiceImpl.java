@@ -50,14 +50,25 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.CURRENT_THEME;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.DATASOURCES;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.FEATURE_FLAG;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.IS_API_ACCESSIBLE_TO_ANONYMOUS_USER;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.MOCK_DATASOURCES;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PAGES;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PLUGINS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PLUGIN_FORM_CONFIGS;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PRODUCT_ALERT;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PUBLISHED_ACTIONS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PUBLISHED_ACTION_COLLECTIONS;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PUBLISHED_JS_LIBS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.PUBLISHED_PAGE_WITH_MIGRATED_DSL;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.TENANTS;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.THEMES;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.UNPUBLISHED_ACTIONS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.UNPUBLISHED_ACTION_COLLECTIONS;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.UNPUBLISHED_JS_LIBS;
+import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.UNPUBLISHED_PAGE_WITH_MIGRATED_DSL;
 import static com.appsmith.server.constants.ConsolidatedApiAccessibilityMap.USER_PROFILE;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
@@ -170,52 +181,43 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         /* This object will serve as a container to hold the response of this method*/
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
 
-        Mono<User> userMonoCache = sessionUserService
-            .getCurrentUser()
-            .cache();
+        Mono<User> userMonoCache = sessionUserService.getCurrentUser().cache();
 
         /* Get user profile data */
-        Mono<ResponseDTO<UserProfileDTO>> userProfileDTOResponseDTOMono =
-            checkApiAccessIfAnonymousUser(userMonoCache, USER_PROFILE)
+        Mono<ResponseDTO<UserProfileDTO>> userProfileDTOResponseDTOMono = checkApiAccessIfAnonymousUser(
+                        userMonoCache, USER_PROFILE)
                 .flatMap(ignore ->
-                        userMonoCache
-                            .flatMap(userService::buildUserProfileDTO)
-                            .map(this::getSuccessResponse)
-                )
+                        userMonoCache.flatMap(userService::buildUserProfileDTO).map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, UserProfileDTO.class));
 
         /* Get all feature flags data */
-        Mono<ResponseDTO<Map>> featureFlagsForCurrentUserResponseDTOMonoCache =
-            checkApiAccessIfAnonymousUser(userMonoCache, FEATURE_FLAG)
+        Mono<ResponseDTO<Map>> featureFlagsForCurrentUserResponseDTOMonoCache = checkApiAccessIfAnonymousUser(
+                        userMonoCache, FEATURE_FLAG)
                 .flatMap(ignore -> userDataService
-                    .getFeatureFlagsForCurrentUser()
-                    .map(res -> (Map) res)
-                    .map(this::getSuccessResponse)
-                )
+                        .getFeatureFlagsForCurrentUser()
+                        .map(res -> (Map) res)
+                        .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, Map.class))
                 .cache();
 
         /* Get tenant config data */
-        Mono<ResponseDTO<Tenant>> tenantResponseDTOMono =
-            checkApiAccessIfAnonymousUser(userMonoCache, TENANTS)
-                .flatMap(ignore -> tenantService
-                    .getTenantConfiguration()
-                    .map(this::getSuccessResponse))
+        Mono<ResponseDTO<Tenant>> tenantResponseDTOMono = checkApiAccessIfAnonymousUser(userMonoCache, TENANTS)
+                .flatMap(ignore -> tenantService.getTenantConfiguration().map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, Tenant.class));
 
         /* Get any product alert info */
-        Mono<ResponseDTO<ProductAlertResponseDTO>> productAlertResponseDTOMono =
-            checkApiAccessIfAnonymousUser(userMonoCache, PRODUCT_ALERT).flatMap(ignore ->
-            productAlertService
-                .getSingleApplicableMessage()
-                .map(messages -> {
-                    if (!messages.isEmpty()) {
-                        return messages.get(0);
-                    }
+        Mono<ResponseDTO<ProductAlertResponseDTO>> productAlertResponseDTOMono = checkApiAccessIfAnonymousUser(
+                        userMonoCache, PRODUCT_ALERT)
+                .flatMap(ignore -> productAlertService
+                        .getSingleApplicableMessage()
+                        .map(messages -> {
+                            if (!messages.isEmpty()) {
+                                return messages.get(0);
+                            }
 
-                    return new ProductAlertResponseDTO();
-                })
-                .map(this::getSuccessResponse))
+                            return new ProductAlertResponseDTO();
+                        })
+                        .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, ProductAlertResponseDTO.class));
 
         if (isBlank(defaultPageId) && isBlank(applicationId)) {
@@ -250,48 +252,46 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         }
 
         /* Get all pages in application */
-        Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache =
-            checkApiAccessIfAnonymousUser(userMonoCache, PAGES).flatMap(ignore ->
-            applicationIdMonoCache
-                .flatMap(appId -> newPageService.findApplicationPages(appId, null, branchName, mode))
-                .map(this::getSuccessResponse))
+        Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache = checkApiAccessIfAnonymousUser(
+                        userMonoCache, PAGES)
+                .flatMap(ignore -> applicationIdMonoCache
+                        .flatMap(appId -> newPageService.findApplicationPages(appId, null, branchName, mode))
+                        .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, ApplicationPagesDTO.class))
                 .cache();
 
         /* Get current theme */
-        Mono<ResponseDTO<Theme>> applicationThemeResponseDTOMono =
-            checkApiAccessIfAnonymousUser(userMonoCache, THEMES).flatMap(ignore ->
-            applicationIdMonoCache
-                .flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName))
-                .map(this::getSuccessResponse))
+        Mono<ResponseDTO<Theme>> applicationThemeResponseDTOMono = checkApiAccessIfAnonymousUser(
+                        userMonoCache, CURRENT_THEME)
+                .flatMap(ignore -> applicationIdMonoCache
+                        .flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName))
+                        .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, Theme.class));
 
         /* Get all themes */
-        Mono<ResponseDTO<List>> ThemesListResponseDTOMono =
-            checkApiAccessIfAnonymousUser(userMonoCache, THEMES).flatMap(ignore ->
-            applicationIdMonoCache
-                .flatMap(appId ->
-                        themeService.getApplicationThemes(appId, branchName).collectList())
-                .map(res -> (List) res)
-                .map(this::getSuccessResponse))
+        Mono<ResponseDTO<List>> ThemesListResponseDTOMono = checkApiAccessIfAnonymousUser(userMonoCache, THEMES)
+                .flatMap(ignore -> applicationIdMonoCache
+                        .flatMap(appId -> themeService
+                                .getApplicationThemes(appId, branchName)
+                                .collectList())
+                        .map(res -> (List) res)
+                        .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
         /* Get all custom JS libraries installed in the application */
-        Mono<ResponseDTO<List>> allJSLibsInContextDTOResponseDTOMono =
-            checkApiAccessIfAnonymousUser(userMonoCache, isViewMode ? PUBLISHED_JS_LIBS : UNPUBLISHED_JS_LIBS).flatMap(ignore ->
-            applicationIdMonoCache
-                .flatMap(appId -> customJSLibService.getAllJSLibsInContext(
-                        appId, CreatorContextType.APPLICATION, branchName, isViewMode))
-                .map(res -> (List) res)
-                .map(this::getSuccessResponse))
+        Mono<ResponseDTO<List>> allJSLibsInContextDTOResponseDTOMono = checkApiAccessIfAnonymousUser(
+                        userMonoCache, isViewMode ? PUBLISHED_JS_LIBS : UNPUBLISHED_JS_LIBS)
+                .flatMap(ignore -> applicationIdMonoCache
+                        .flatMap(appId -> customJSLibService.getAllJSLibsInContext(
+                                appId, CreatorContextType.APPLICATION, branchName, isViewMode))
+                        .map(res -> (List) res)
+                        .map(this::getSuccessResponse))
                 .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
         /* Check if release_server_dsl_migrations_enabled flag is true for the user */
-        Mono<Boolean> migrateDslMonoCache =
-            featureFlagsForCurrentUserResponseDTOMonoCache
+        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserResponseDTOMonoCache
                 .map(responseDTO -> {
-                    if (HttpStatus.OK.value()
-                            != responseDTO.getResponseMeta().getStatus()) {
+                    if (HttpStatus.OK.value() != responseDTO.getResponseMeta().getStatus()) {
                         return Map.of();
                     }
 
@@ -309,33 +309,38 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         Mono<ResponseDTO<PageDTO>> currentPageDTOResponseDTOMono = Mono.empty();
         if (!isBlank(defaultPageId)) {
             /* Get current page */
-            currentPageDTOResponseDTOMono =
-                checkApiAccessIfAnonymousUser(userMonoCache, THEMES).flatMap(ignore ->
-                migrateDslMonoCache
-                    .flatMap(migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                            defaultPageId, branchName, isViewMode, migrateDsl))
-                    .map(this::getSuccessResponse)
+            currentPageDTOResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache,
+                            isViewMode ? PUBLISHED_PAGE_WITH_MIGRATED_DSL : UNPUBLISHED_PAGE_WITH_MIGRATED_DSL)
+                    .flatMap(ignore -> migrateDslMonoCache
+                            .flatMap(migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                                    defaultPageId, branchName, isViewMode, migrateDsl))
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, PageDTO.class));
         }
 
         /* Fetch view specific data */
         if (isViewMode) {
             /* Get list of all actions in view mode */
-            Mono<ResponseDTO<List>> listOfActionViewResponseDTOMono = applicationIdMonoCache
-                    .flatMap(appId -> newActionService
-                            .getActionsForViewMode(appId, branchName)
-                            .collectList())
-                    .map(res -> (List) res)
-                    .map(this::getSuccessResponse)
+            Mono<ResponseDTO<List>> listOfActionViewResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache, PUBLISHED_ACTIONS)
+                    .flatMap(ignore -> applicationIdMonoCache
+                            .flatMap(appId -> newActionService
+                                    .getActionsForViewMode(appId, branchName)
+                                    .collectList())
+                            .map(res -> (List) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
             /* Get list of all action collections in view mode */
-            Mono<ResponseDTO<List>> listOfActionCollectionViewResponseDTOMono = applicationIdMonoCache
-                    .flatMap(appId -> actionCollectionService
-                            .getActionCollectionsForViewMode(appId, branchName)
-                            .collectList())
-                    .map(res -> (List) res)
-                    .map(this::getSuccessResponse)
+            Mono<ResponseDTO<List>> listOfActionCollectionViewResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache, PUBLISHED_ACTION_COLLECTIONS)
+                    .flatMap(ignore -> applicationIdMonoCache
+                            .flatMap(appId -> actionCollectionService
+                                    .getActionCollectionsForViewMode(appId, branchName)
+                                    .collectList())
+                            .map(res -> (List) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
             /* This list contains the Mono objects corresponding to all the data points required for view mode. All
@@ -378,21 +383,24 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             });
         } else {
             /* Get all actions in edit mode */
-            Mono<ResponseDTO<List>> listOfActionResponseDTOMono = applicationIdMonoCache
-                    .flatMap(appId -> {
-                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                        params.add(APPLICATION_ID, appId);
-                        return newActionService
-                                .getUnpublishedActions(params, branchName, false)
-                                .collectList();
-                    })
-                    .map(res -> (List) res)
-                    .map(this::getSuccessResponse)
+            Mono<ResponseDTO<List>> listOfActionResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache, UNPUBLISHED_ACTIONS)
+                    .flatMap(ignore -> applicationIdMonoCache
+                            .flatMap(appId -> {
+                                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                                params.add(APPLICATION_ID, appId);
+                                return newActionService
+                                        .getUnpublishedActions(params, branchName, false)
+                                        .collectList();
+                            })
+                            .map(res -> (List) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
             /* Get all action collections in edit mode */
-            Mono<ResponseDTO<List>> listOfActionCollectionResponseDTOMono = applicationIdMonoCache
-                    .flatMap(appId -> {
+            Mono<ResponseDTO<List>> listOfActionCollectionResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache, UNPUBLISHED_ACTION_COLLECTIONS)
+                    .flatMap(ignore -> applicationIdMonoCache.flatMap(appId -> {
                         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                         params.add(APPLICATION_ID, appId);
                         return actionCollectionService
@@ -400,20 +408,23 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                                 .collectList()
                                 .map(res -> (List) res)
                                 .map(this::getSuccessResponse);
-                    })
+                    }))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
             /* Get all pages in edit mode post apply migrate DSL changes */
-            Mono<ResponseDTO<List>> listOfAllPageResponseDTOMono = migrateDslMonoCache
-                    .flatMap(migrateDsl -> applicationPagesDTOResponseDTOMonoCache
-                            .map(ResponseDTO::getData)
-                            .map(ApplicationPagesDTO::getPages)
-                            .flatMapMany(Flux::fromIterable)
-                            .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                                    page.getDefaultPageId(), branchName, false, migrateDsl))
-                            .collect(Collectors.toList()))
-                    .map(res -> (List) res)
-                    .map(this::getSuccessResponse)
+            Mono<ResponseDTO<List>> listOfAllPageResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache, UNPUBLISHED_PAGE_WITH_MIGRATED_DSL)
+                    .flatMap(ignore -> migrateDslMonoCache
+                            .flatMap(migrateDsl -> applicationPagesDTOResponseDTOMonoCache
+                                    .map(ResponseDTO::getData)
+                                    .map(ApplicationPagesDTO::getPages)
+                                    .flatMapMany(Flux::fromIterable)
+                                    .flatMap(
+                                            page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                                                    page.getDefaultPageId(), branchName, false, migrateDsl))
+                                    .collect(Collectors.toList()))
+                            .map(res -> (List) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
             /* Get all workspace id */
@@ -430,30 +441,36 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .cache();
 
             /* Get all plugins in workspace */
-            Mono<ResponseDTO<List>> listOfPluginsResponseDTOMonoCache = workspaceIdMonoCache
-                    .flatMap(workspaceId -> {
-                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                        if (!EMPTY_WORKSPACE_ID_ON_ERROR.equals(workspaceId)) {
-                            params.add(WORKSPACE_ID, workspaceId);
-                        }
-                        return pluginService.get(params).collectList();
-                    })
-                    .map(res -> (List) res)
-                    .map(this::getSuccessResponse)
+            Mono<ResponseDTO<List>> listOfPluginsResponseDTOMonoCache = checkApiAccessIfAnonymousUser(
+                            userMonoCache, PLUGINS)
+                    .flatMap(ignore -> workspaceIdMonoCache
+                            .flatMap(workspaceId -> {
+                                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                                if (!EMPTY_WORKSPACE_ID_ON_ERROR.equals(workspaceId)) {
+                                    params.add(WORKSPACE_ID, workspaceId);
+                                }
+                                return pluginService.get(params).collectList();
+                            })
+                            .map(res -> (List) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .cache();
 
             /* Get all datasources in workspace */
-            Mono<ResponseDTO<List>> listOfDatasourcesResponseDTOMonoCache = workspaceIdMonoCache
-                    .flatMap(workspaceId -> {
-                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                        if (!EMPTY_WORKSPACE_ID_ON_ERROR.equals(workspaceId)) {
-                            params.add(WORKSPACE_ID, workspaceId);
-                        }
-                        return datasourceService.getAllWithStorages(params).collectList();
-                    })
-                    .map(res -> (List) res)
-                    .map(this::getSuccessResponse)
+            Mono<ResponseDTO<List>> listOfDatasourcesResponseDTOMonoCache = checkApiAccessIfAnonymousUser(
+                            userMonoCache, DATASOURCES)
+                    .flatMap(ignore -> workspaceIdMonoCache
+                            .flatMap(workspaceId -> {
+                                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                                if (!EMPTY_WORKSPACE_ID_ON_ERROR.equals(workspaceId)) {
+                                    params.add(WORKSPACE_ID, workspaceId);
+                                }
+                                return datasourceService
+                                        .getAllWithStorages(params)
+                                        .collectList();
+                            })
+                            .map(res -> (List) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .cache();
 
@@ -462,48 +479,55 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
              *   (b) include REST API and GraphQL API plugin always
              *   (c) ignore any other plugin
              *  */
-            Mono<ResponseDTO<Map>> listOfFormConfigsResponseDTOMono = Mono.zip(
-                            listOfPluginsResponseDTOMonoCache, listOfDatasourcesResponseDTOMonoCache)
-                    .map(tuple2 -> {
-                        Set<String> setOfAllPluginIdsToGetFormConfig = new HashSet<>();
-                        List<Plugin> pluginList = tuple2.getT1().getData();
-                        List<Datasource> datasourcesList = tuple2.getT2().getData();
+            Mono<ResponseDTO<Map>> listOfFormConfigsResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache, PLUGIN_FORM_CONFIGS)
+                    .flatMap(ignore -> Mono.zip(
+                                    listOfPluginsResponseDTOMonoCache, listOfDatasourcesResponseDTOMonoCache)
+                            .map(tuple2 -> {
+                                Set<String> setOfAllPluginIdsToGetFormConfig = new HashSet<>();
+                                List<Plugin> pluginList = tuple2.getT1().getData();
+                                List<Datasource> datasourcesList =
+                                        tuple2.getT2().getData();
 
-                        datasourcesList.stream()
-                                .filter(datasource -> !isBlank(datasource.getPluginId()))
-                                .forEach(datasource -> setOfAllPluginIdsToGetFormConfig.add(datasource.getPluginId()));
+                                datasourcesList.stream()
+                                        .filter(datasource -> !isBlank(datasource.getPluginId()))
+                                        .forEach(datasource ->
+                                                setOfAllPluginIdsToGetFormConfig.add(datasource.getPluginId()));
 
-                        pluginList.stream()
-                                .filter(plugin -> REST_API_PLUGIN.equals(plugin.getPackageName())
-                                        || GRAPHQL_PLUGIN.equals(plugin.getPackageName()))
-                                .forEach(plugin -> setOfAllPluginIdsToGetFormConfig.add(plugin.getId()));
+                                pluginList.stream()
+                                        .filter(plugin -> REST_API_PLUGIN.equals(plugin.getPackageName())
+                                                || GRAPHQL_PLUGIN.equals(plugin.getPackageName()))
+                                        .forEach(plugin -> setOfAllPluginIdsToGetFormConfig.add(plugin.getId()));
 
-                        return setOfAllPluginIdsToGetFormConfig;
-                    })
-                    .flatMapMany(Flux::fromIterable)
-                    .flatMap(pluginId ->
-                            pluginService.getFormConfig(pluginId).map(formConfig -> Pair.of(pluginId, formConfig)))
-                    .collectList()
-                    .map(listOfFormConfig -> {
-                        Map<String, Map> pluginIdToFormConfigMap = new HashMap<>();
-                        listOfFormConfig.stream().forEach(individualConfigMap -> {
-                            String pluginId = individualConfigMap.getFirst();
-                            Map config = individualConfigMap.getSecond();
-                            pluginIdToFormConfigMap.put(pluginId, config);
-                        });
+                                return setOfAllPluginIdsToGetFormConfig;
+                            })
+                            .flatMapMany(Flux::fromIterable)
+                            .flatMap(pluginId -> pluginService
+                                    .getFormConfig(pluginId)
+                                    .map(formConfig -> Pair.of(pluginId, formConfig)))
+                            .collectList()
+                            .map(listOfFormConfig -> {
+                                Map<String, Map> pluginIdToFormConfigMap = new HashMap<>();
+                                listOfFormConfig.stream().forEach(individualConfigMap -> {
+                                    String pluginId = individualConfigMap.getFirst();
+                                    Map config = individualConfigMap.getSecond();
+                                    pluginIdToFormConfigMap.put(pluginId, config);
+                                });
 
-                        return pluginIdToFormConfigMap;
-                    })
-                    .map(res -> (Map) res)
-                    .map(this::getSuccessResponse)
+                                return pluginIdToFormConfigMap;
+                            })
+                            .map(res -> (Map) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, Map.class));
 
             /* List of mock datasources available to the user */
-            Mono<ResponseDTO<List>> mockDataListResponseDTOMono = mockDataService
-                    .getMockDataSet()
-                    .map(MockDataDTO::getMockdbs)
-                    .map(res -> (List) res)
-                    .map(this::getSuccessResponse)
+            Mono<ResponseDTO<List>> mockDataListResponseDTOMono = checkApiAccessIfAnonymousUser(
+                            userMonoCache, MOCK_DATASOURCES)
+                    .flatMap(ignore -> mockDataService
+                            .getMockDataSet()
+                            .map(MockDataDTO::getMockdbs)
+                            .map(res -> (List) res)
+                            .map(this::getSuccessResponse))
                     .onErrorResume(error -> getErrorResponseMono(error, List.class));
 
             /* This list contains the Mono objects corresponding to all the data points required for edit mode. All
