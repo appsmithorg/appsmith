@@ -13,6 +13,7 @@ import {
   deployMode,
   homePage,
   dataSources,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry as _ } from "../../../../support/Objects/Registry";
 
@@ -24,8 +25,9 @@ describe("excludeForAirgap", "Guided Tour", function () {
     cy.get(onboardingLocators.editorWelcomeTourBtn).should("be.visible");
     cy.get(onboardingLocators.editorWelcomeTourBtn).click();
     cy.reload();
+    assertHelper.AssertDocumentReady();
     agHelper.GetNClick(homePage._helpButton);
-    cy.get(homePage._welcomeTour).should("be.visible");
+    agHelper.AssertElementVisibility(homePage._welcomeTour, true);
   });
 
   it("2. Guided Tour", function () {
