@@ -1,6 +1,9 @@
 // Leaving this require here. The path-to-regexp module has a commonJS version and an ESM one.
 // We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
+
+import { matchPath } from "react-router";
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { match } = require("path-to-regexp");
 
@@ -41,6 +44,8 @@ export const API_EDITOR_ID_ADD_PATH = `${API_EDITOR_BASE_PATH}/:apiId/add`;
 export const API_EDITOR_PATH_WITH_SELECTED_PAGE_ID = `${API_EDITOR_BASE_PATH}?importTo=:importTo`;
 export const QUERIES_EDITOR_BASE_PATH = `/queries`;
 export const ADD_PATH = `/add`;
+
+export const ENTITY_PATH = "/:entity";
 export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId`;
 export const QUERIES_EDITOR_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`;
 export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId/add`;
@@ -65,16 +70,22 @@ export const ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH = "/settings/audit-logs";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
 export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
-export const APP_STATE_PATH = `/:appState`;
 
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
-export const matchDatasourcePath = match(
-  `${BUILDER_PATH}${DATA_SOURCES_EDITOR_ID_PATH}`,
-);
-export const matchSAASGsheetsPath = match(
-  `${BUILDER_PATH}${SAAS_GSHEET_EDITOR_ID_PATH}`,
-);
+export const matchDatasourcePath = (pathname: string) =>
+  matchPath(pathname, {
+    path: [`${BUILDER_PATH}${DATA_SOURCES_EDITOR_ID_PATH}`],
+    strict: false,
+    exact: false,
+  });
+
+export const matchSAASGsheetsPath = (pathname: string) =>
+  matchPath(pathname, {
+    path: [`${BUILDER_PATH}${SAAS_GSHEET_EDITOR_ID_PATH}`],
+    strict: false,
+    exact: false,
+  });
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
 export const matchQueryBuilderPath = match(

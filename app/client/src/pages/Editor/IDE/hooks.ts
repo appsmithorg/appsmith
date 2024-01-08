@@ -3,17 +3,17 @@ import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorState,
-} from "entities/IDE/constants";
+} from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
-import { getCurrentAppState } from "entities/IDE/utils";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
   const { pathname } = useLocation();
+  const entityInfo = identifyEntityFromPath(pathname);
   useEffect(() => {
-    setAppState(getCurrentAppState(pathname));
-  }, [pathname]);
+    setAppState(entityInfo.appState);
+  }, [entityInfo.appState]);
 
   return appState;
 };
@@ -66,6 +66,10 @@ export const useCurrentEditorState = () => {
       case FocusEntity.WIDGET_LIST:
         setSelectedSegment(EditorEntityTab.UI);
         setSelectedSegmentState(EditorEntityTabState.List);
+        break;
+      default:
+        setSelectedSegment(EditorEntityTab.UI);
+        setSelectedSegmentState(EditorEntityTabState.Add);
         break;
     }
   }, [location.pathname]);

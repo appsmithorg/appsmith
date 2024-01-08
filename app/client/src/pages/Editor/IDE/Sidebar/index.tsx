@@ -9,7 +9,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import SidebarComponent from "./SidebarComponent";
-import { BottomButtons, TopButtons } from "entities/IDE/constants";
+import { BottomButtons, TopButtons } from "@appsmith/entities/IDE/constants";
 
 function Sidebar() {
   const dispatch = useDispatch();

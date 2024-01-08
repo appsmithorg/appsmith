@@ -47,8 +47,8 @@ import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { useIsGitAdmin } from "../hooks/useIsGitAdmin";
 import AutocommitStatusbar from "./AutocommitStatusbar";
+import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
 
 interface QuickActionButtonProps {
   className?: string;
@@ -251,10 +251,11 @@ const CenterDiv = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-  const isGitAdmin = useIsGitAdmin();
-  const isTooltipEnabled = isInGuidedTour || !isGitAdmin;
+  const isConnectToGitPermitted = useHasConnectToGitPermission();
+
+  const isTooltipEnabled = isInGuidedTour || !isConnectToGitPermitted;
   const tooltipContent = useMemo(() => {
-    if (!isGitAdmin) {
+    if (!isConnectToGitPermitted) {
       return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
     }
     if (isInGuidedTour) {
@@ -271,7 +272,7 @@ function ConnectGitPlaceholder() {
         <div>{createMessage(COMING_SOON)}</div>
       </>
     );
-  }, [isInGuidedTour, isGitAdmin]);
+  }, [isInGuidedTour, isConnectToGitPermitted]);
 
   const isGitConnectionEnabled = !isInGuidedTour;
 
@@ -287,7 +288,7 @@ function ConnectGitPlaceholder() {
           {isGitConnectionEnabled ? (
             <Button
               className="t--connect-git-bottom-bar"
-              isDisabled={!isGitAdmin}
+              isDisabled={!isConnectToGitPermitted}
               kind="secondary"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
