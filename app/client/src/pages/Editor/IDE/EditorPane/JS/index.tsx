@@ -15,9 +15,16 @@ const JSSegment = () => {
   return (
     <Switch>
       {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
-        <SentryRoute component={JSEditor} />
+        <SentryRoute
+          component={JSEditor}
+          exact
+          path={[path + "/:collectionId"]}
+        />
       ) : null}
-      <SentryRoute component={ListJS} path={[path, `${path}${LIST_PATH}`]} />
+      <SentryRoute
+        component={ListJS}
+        path={[path, `${path}/:collectionId${LIST_PATH}`]}
+      />
     </Switch>
   );
 };

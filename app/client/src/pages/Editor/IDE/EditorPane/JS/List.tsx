@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Button, Flex } from "design-system";
 import styled from "styled-components";
 
@@ -15,11 +15,11 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { createNewJSCollection } from "actions/jsPaneActions";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EmptyState } from "../components/EmptyState";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import { useJSAdd } from "./hooks";
 
 const JSContainer = styled(Flex)`
   gap: var(--ads-v2-spaces-4);
@@ -34,7 +34,6 @@ const JSContainer = styled(Flex)`
 `;
 
 const ListJSObjects = () => {
-  const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
   const files = useSelector(selectJSForPagespane);
   const JSObjects = files["JS Objects"];
@@ -50,9 +49,7 @@ const ListJSObjects = () => {
     pagePermissions,
   );
 
-  const addButtonClickHandler = () => {
-    dispatch(createNewJSCollection(pageId, "JS_OBJECT_GUTTER_RUN_BUTTON"));
-  };
+  const addButtonClickHandler = useJSAdd();
 
   return (
     <JSContainer

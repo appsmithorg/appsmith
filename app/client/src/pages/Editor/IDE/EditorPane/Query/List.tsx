@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Button, Flex, Text } from "design-system";
 import { useSelector } from "react-redux";
 
@@ -11,16 +11,15 @@ import {
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import history from "utils/history";
 import {
   getCurrentPageId,
   selectQueriesForPagespane,
 } from "@appsmith/selectors/entitiesSelector";
-import { ADD_PATH } from "constants/routes";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EmptyState } from "../components/EmptyState";
+import { useQueryAdd } from "./hooks";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -35,9 +34,7 @@ const ListQuery = () => {
   );
   const applicationId = useSelector(getCurrentApplicationId);
 
-  const addButtonClickHandler = useCallback(() => {
-    history.push(`${location.pathname}${ADD_PATH}`);
-  }, [pageId]);
+  const addButtonClickHandler = useQueryAdd();
 
   return (
     <Flex
