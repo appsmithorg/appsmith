@@ -46,7 +46,7 @@ jobs:
           fi
       - name: Print the tags 
         run: |
-          echo "$tags"
+          echo $tags
 
       - name: Add suggestion in the PR on using @tag.All 
         if: contains(steps.setup.outputs.tags, '@tag.All')
