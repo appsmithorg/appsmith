@@ -59,6 +59,7 @@ jobs:
         if: steps.checkAll.outputs.invalid_tags_all != ''
         run: exit 1
 
+      # tags is set to empty string if @tag.All is given in step - Check if @tag.All is present in tags
       - name: Add suggestion in the PR on using @tag.All 
         if: steps.checkAll.outputs.tags == ''
         uses: peter-evans/create-or-update-comment@v3
