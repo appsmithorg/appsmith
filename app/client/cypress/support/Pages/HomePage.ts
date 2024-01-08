@@ -452,7 +452,7 @@ export class HomePage {
 
   public EditAppFromSearch(appName: string) {
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
-    this.agHelper.WaitUntilEleAppear(this._editorSidebar);
+    this.agHelper.WaitUntilEleAppear(this._backToEditor);
     this.agHelper.GetNClick(this._backToEditor);
     this.agHelper.WaitUntilEleDisappear(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
