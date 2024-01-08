@@ -65,8 +65,8 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            Whoa, tag.All spotted in your test suite! 🚀
-            While tag.All is cool, like a catch-all net, why not try specific tags? 🏷️
+            Whoa, @tag.All spotted in your test suite! 🚀
+            While @tag.All is cool, like a catch-all net, why not try specific tags? 🏷️
             Narrow down your suite with specific tags for quicker and more accurate tests! 🚀 Less waiting, more zipping through tests like a ninja!
             Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
