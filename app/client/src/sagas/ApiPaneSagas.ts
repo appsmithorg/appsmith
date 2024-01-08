@@ -57,7 +57,7 @@ import type {
   CreateApiActionDefaultsParams,
 } from "entities/Action";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,

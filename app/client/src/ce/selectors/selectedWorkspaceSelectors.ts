@@ -19,6 +19,8 @@ export const selectedWorkspaceLoadingStates = (state: AppState) => {
       state.ui.selectedWorkspace.loadingStates.isFetchingApplications,
     isFetchingAllUsers:
       state.ui.selectedWorkspace.loadingStates.isFetchingAllUsers,
+    isFetchingCurrentWorkspace:
+      state.ui.selectedWorkspace.loadingStates.isFetchingCurrentWorkspace,
     deletingUserInfo: state.ui.selectedWorkspace.users.filter(
       (el) => el.isDeleting,
     )[0],
@@ -26,4 +28,11 @@ export const selectedWorkspaceLoadingStates = (state: AppState) => {
       (el) => el.isChangingRole,
     )[0],
   };
+};
+
+export const getCurrentWorkspaceId = (state: AppState) =>
+  state.ui.selectedWorkspace.workspace.id;
+
+export const getCurrentAppWorkspace = (state: AppState) => {
+  return state.ui.selectedWorkspace.workspace;
 };

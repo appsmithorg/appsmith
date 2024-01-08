@@ -58,7 +58,7 @@ import {
   updateJSFunction,
   executeJSFunctionInit,
 } from "actions/jsPaneActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginPackageName, PluginType } from "entities/Action";
 import {

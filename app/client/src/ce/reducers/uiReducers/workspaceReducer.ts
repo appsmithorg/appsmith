@@ -14,20 +14,17 @@ export interface WorkspaceReduxState {
   roles?: WorkspaceRole[];
   loadingStates: {
     isFetchAllRoles: boolean;
-    isFetchingCurrentWorkspace: boolean;
     isSavingWorkspaceInfo: boolean;
     isFetchingWorkspaces: boolean;
     isFetchingEntities: boolean;
   };
   workspaceRoles: any;
-  currentWorkspace: Workspace;
   searchEntities: any;
 }
 
 export const initialState: WorkspaceReduxState = {
   loadingStates: {
     isFetchAllRoles: false,
-    isFetchingCurrentWorkspace: false,
     isSavingWorkspaceInfo: false,
     isFetchingWorkspaces: false,
     isFetchingEntities: false,
@@ -35,10 +32,6 @@ export const initialState: WorkspaceReduxState = {
   list: [],
   workspaceRoles: [],
   searchEntities: {},
-  currentWorkspace: {
-    id: "",
-    name: "",
-  },
 };
 
 export const handlers = {
@@ -53,43 +46,6 @@ export const handlers = {
   ) => {
     draftState.workspaceRoles = action.payload;
     draftState.loadingStates.isFetchAllRoles = false;
-  },
-  [ReduxActionTypes.SET_CURRENT_WORKSPACE_ID]: (
-    draftState: WorkspaceReduxState,
-    action: ReduxAction<{ workspaceId: string }>,
-  ) => {
-    draftState.currentWorkspace.id = action.payload.workspaceId;
-  },
-  [ReduxActionTypes.SET_CURRENT_WORKSPACE]: (
-    draftState: WorkspaceReduxState,
-    action: ReduxAction<Workspace>,
-  ) => {
-    draftState.currentWorkspace = action.payload;
-  },
-  [ReduxActionTypes.RESET_CURRENT_WORKSPACE]: (
-    draftState: WorkspaceReduxState,
-  ) => {
-    draftState.currentWorkspace = {
-      id: "",
-      name: "",
-    };
-  },
-  [ReduxActionTypes.FETCH_CURRENT_WORKSPACE]: (
-    draftState: WorkspaceReduxState,
-  ) => {
-    draftState.loadingStates.isFetchingCurrentWorkspace = true;
-  },
-  [ReduxActionTypes.FETCH_WORKSPACE_SUCCESS]: (
-    draftState: WorkspaceReduxState,
-    action: ReduxAction<Workspace>,
-  ) => {
-    draftState.currentWorkspace = action.payload;
-    draftState.loadingStates.isFetchingCurrentWorkspace = false;
-  },
-  [ReduxActionErrorTypes.FETCH_WORKSPACE_ERROR]: (
-    draftState: WorkspaceReduxState,
-  ) => {
-    draftState.loadingStates.isFetchingCurrentWorkspace = false;
   },
   [ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT]: (
     draftState: WorkspaceReduxState,

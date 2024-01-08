@@ -7,7 +7,7 @@ import {
 import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   getActions,
   getDatasources,

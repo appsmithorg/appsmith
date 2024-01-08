@@ -1,8 +1,6 @@
 import Api from "api/Api";
-import type { ApiResponse } from "api/ApiResponses";
-import type { FetchWorkspacesResponse } from "@appsmith/api/WorkspaceApi";
-import type { FetchApplicationsResponse } from "@appsmith/api/ApplicationApi";
 import type { AxiosPromise } from "axios";
+import type { SearchApiResponse } from "@appsmith/types/ApiResponseTypes";
 
 export interface SearchEntitiesRequest {
   entities?: string[];
@@ -16,13 +14,6 @@ export interface SearchEntitiesResponse {
   keyword: string;
   page: number;
   limit: number;
-}
-
-export interface SearchApiResponse extends ApiResponse {
-  data: {
-    applications: FetchApplicationsResponse[];
-    workspaces: FetchWorkspacesResponse[];
-  };
 }
 
 export class SearchApi extends Api {

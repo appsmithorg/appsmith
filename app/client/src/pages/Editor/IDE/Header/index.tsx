@@ -46,7 +46,7 @@ import {
   publishApplication,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { Omnibar } from "pages/Editor/commons/Omnibar";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { EditorShareButton } from "pages/Editor/EditorShareButton";

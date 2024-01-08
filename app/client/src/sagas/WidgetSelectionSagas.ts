@@ -31,7 +31,7 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { toast } from "design-system";
 import { APP_MODE } from "entities/App";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";

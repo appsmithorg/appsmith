@@ -44,9 +44,10 @@ import {
   resetCurrentWorkspace,
   resetSearchEntity,
 } from "@appsmith/actions/workspaceActions";
-import { SearchApi, type SearchApiResponse } from "@appsmith/api/SearchApi";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getWorkspaceEntitiesActions } from "@appsmith/utils/workspaceHelpers";
+import type { SearchApiResponse } from "@appsmith/types/ApiResponseTypes";
+import SearchApi from "api/SearchApi";
 
 export function* fetchAllWorkspacesSaga(
   action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,

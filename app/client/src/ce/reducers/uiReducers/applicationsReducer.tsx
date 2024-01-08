@@ -27,13 +27,11 @@ import {
 } from "constants/AppConstants";
 import produce from "immer";
 import { isEmpty } from "lodash";
-import type { Package } from "@appsmith/constants/PackageConstants";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
   isErrorSavingAppName: false,
   isFetchingApplication: false,
-  packages: [],
   isChangingViewAccess: false,
   applicationList: [],
   creatingApplication: {},
@@ -788,7 +786,6 @@ export interface ApplicationsReduxState {
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
   pageIdForImport: string;
-  packages: Package[];
   isDatasourceConfigForImportFetched?: boolean;
   isAppSidebarPinned: boolean;
   isSavingNavigationSetting: boolean;
