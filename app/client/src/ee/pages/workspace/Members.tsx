@@ -13,7 +13,6 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllUsers,
   getAllRoles,
   getWorkspaceLoadingStates,
   getFetchedWorkspaces,
@@ -59,6 +58,10 @@ import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
 import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getAllUsersOfWorkspace,
+  selectedWorkspaceLoadingStates,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const Delimeter = styled.div`
   border-left: 1px solid var(--ads-v2-color-border);
@@ -160,14 +163,11 @@ export default function MemberSettings(props: PageProps) {
     }
   };
 
-  const {
-    deletingUserInfo,
-    isFetchingAllRoles,
-    isFetchingAllUsers,
-    roleChangingUserInfo,
-  } = useSelector(getWorkspaceLoadingStates);
+  const { isFetchingAllRoles } = useSelector(getWorkspaceLoadingStates);
+  const { deletingUserInfo, isFetchingAllUsers, roleChangingUserInfo } =
+    useSelector(selectedWorkspaceLoadingStates);
   const allRoles = useSelector(getAllRoles);
-  const allUsers = useSelector(getAllUsers);
+  const allUsers = useSelector(getAllUsersOfWorkspace);
   const currentUser = useSelector(getCurrentUser);
   const currentWorkspace = useSelector(getFetchedWorkspaces).find(
     (el) => el.id === workspaceId,
