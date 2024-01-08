@@ -4,7 +4,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { debounce } from "lodash";
+import { debounce, uniq } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilCanvasActivationStates } from "./useCanvasActivationStates";
@@ -37,7 +37,10 @@ const checkIfMousePositionIsInsideBlock = (
 // This buffer will make sure main canvas is not deactivated
 // until its about the below pixel distance from the main canvas border.
 const MAIN_CANVAS_BUFFER = 20;
-const SECTION_BUFFER = 20;
+const SECTION_BUFFER = {
+  vertical: 14,
+  horizontal: 20,
+};
 
 export const useCanvasActivation = ({
   activateOverlayWidgetDrop,
@@ -99,19 +102,21 @@ export const useCanvasActivation = ({
     ? allLayoutIds.filter((each) => each === mainCanvasLayoutDomId)
     : allLayoutIds;
   // All droppable layout IDs
-  const allDroppableLayoutIds = filteredLayoutIds
-    .filter((each) => {
-      const layoutInfo = allLayouts[each];
-      const currentPositions = layoutElementPositions[layoutInfo.layoutId];
-      const canActivate = canActivateCanvasForDraggedWidget(
-        draggedWidgetTypes,
-        mainCanvasLayoutId,
-        layoutInfo.layoutType,
-        layoutInfo.layoutId,
-      );
-      return canActivate && currentPositions && !!layoutInfo.isDropTarget;
-    })
-    .map((each) => allLayouts[each].layoutId);
+  const allDroppableLayoutIds = uniq(
+    filteredLayoutIds
+      .filter((each) => {
+        const layoutInfo = allLayouts[each];
+        const currentPositions = layoutElementPositions[layoutInfo.layoutId];
+        const canActivate = canActivateCanvasForDraggedWidget(
+          draggedWidgetTypes,
+          mainCanvasLayoutId,
+          layoutInfo.layoutType,
+          layoutInfo.layoutId,
+        );
+        return canActivate && currentPositions && !!layoutInfo.isDropTarget;
+      })
+      .map((each) => allLayouts[each].layoutId),
+  );
   /**
    * Droppable layout IDs sorted by area in ascending order
    * This is done because a point can be inside multiple canvas areas, but only the smallest of them is the immediate parent.
@@ -163,10 +168,10 @@ export const useCanvasActivation = ({
             }
             const layoutInfo = allLayouts[each];
             if (layoutInfo.layoutType === LayoutComponentTypes.SECTION) {
-              currentCanvasPositions.top += SECTION_BUFFER;
-              currentCanvasPositions.height -= 2 * SECTION_BUFFER;
-              currentCanvasPositions.width += 2 * SECTION_BUFFER;
-              currentCanvasPositions.left -= SECTION_BUFFER;
+              currentCanvasPositions.top += SECTION_BUFFER.vertical;
+              currentCanvasPositions.height -= 2 * SECTION_BUFFER.vertical;
+              currentCanvasPositions.width += 2 * SECTION_BUFFER.horizontal;
+              currentCanvasPositions.left -= SECTION_BUFFER.horizontal;
             }
             if (currentCanvasPositions) {
               return checkIfMousePositionIsInsideBlock(

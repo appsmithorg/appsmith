@@ -130,6 +130,7 @@ export const useCanvasDragging = (
     draggedBlocks,
     isCurrentDraggedCanvas,
     isDragging,
+    isSection,
     layoutElementPositions,
     mainCanvasLayoutId,
   } = anvilDragStates;
@@ -329,29 +330,35 @@ export const useCanvasDragging = (
           scrollParent
         ) {
           // Initialize listeners
-          slidingArenaRef.current?.addEventListener(
-            "mousemove",
-            onMouseMove,
-            false,
-          );
+          if (isSection) {
+            document.addEventListener("mousemove", onMouseMove, false);
+          } else {
+            slidingArenaRef.current?.addEventListener(
+              "mousemove",
+              onMouseMove,
+              false,
+            );
+          }
           slidingArenaRef.current?.addEventListener(
             "mouseup",
             onMouseUp,
             false,
           );
           // To make sure drops on the main canvas boundary buffer are processed
-          document.addEventListener("mouseup", onMouseUp);
+          // event is set to capture phase to make sure mouse up events are processed before the
+          document.addEventListener("mouseup", onMouseUp, true);
           scrollParent?.addEventListener("scroll", onScroll, false);
         }
 
         return () => {
           // Cleanup listeners on component unmount
+          document.removeEventListener("mousemove", onMouseMove);
           slidingArenaRef.current?.removeEventListener(
             "mousemove",
             onMouseMove,
           );
           slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
-          document.removeEventListener("mouseup", onMouseUp);
+          document.removeEventListener("mouseup", onMouseUp, true);
           scrollParent?.removeEventListener("scroll", onScroll);
         };
       } else {
@@ -365,7 +372,6 @@ export const useCanvasDragging = (
     allowToDrop,
     draggedBlocks,
     isCurrentDraggedCanvas,
-    isDragging,
     layoutElementPositions,
     mainCanvasLayoutId,
   ]);

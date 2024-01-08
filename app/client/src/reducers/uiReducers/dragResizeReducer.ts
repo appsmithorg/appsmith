@@ -37,7 +37,9 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       draggedOn: string;
     }>,
   ) => {
-    state.dragDetails.draggedOn = action.payload.draggedOn;
+    if (state.dragDetails.draggedOn !== action.payload.draggedOn) {
+      state.dragDetails.draggedOn = action.payload.draggedOn;
+    }
   },
   [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
