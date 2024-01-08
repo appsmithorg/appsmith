@@ -60,7 +60,7 @@ jobs:
         run: exit 1
 
       - name: Add suggestion in the PR on using @tag.All 
-        if: steps.checkAll.outputs.tags == '@tag.All'
+        if: steps.checkAll.outputs.tags == ''
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
