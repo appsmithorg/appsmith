@@ -25,6 +25,8 @@ import type { ThemeProp } from "WidgetProvider/constants";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
@@ -43,6 +45,10 @@ export const GetNavigationMenuData = ({
   const applicationId = useSelector(getCurrentApplicationId);
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
+
+  const isSideBySideFlagEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_side_by_side_ide_enabled,
+  );
 
   const currentApplication = useSelector(getCurrentApplication);
   const hasExportPermission = isPermitted(
@@ -139,7 +145,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU_DIVIDER,
       isVisible: true,
     },
-    {
+    !isSideBySideFlagEnabled && {
       text: "Edit",
       type: MenuTypes.PARENT,
       isVisible: true,
