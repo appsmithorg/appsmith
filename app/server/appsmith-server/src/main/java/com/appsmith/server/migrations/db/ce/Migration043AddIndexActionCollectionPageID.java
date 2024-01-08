@@ -33,6 +33,8 @@ public class Migration043AddIndexActionCollectionPageID {
 
         try {
             dropIndexIfExists(mongoTemplate, ActionCollection.class, PREVIOUS_INDEX_NAME);
+            dropIndexIfExists(mongoTemplate, ActionCollection.class, INDEX_KEYPATH);
+
             ensureIndexes(mongoTemplate, ActionCollection.class, index);
         } catch (UncategorizedMongoDbException exception) {
             log.error(
