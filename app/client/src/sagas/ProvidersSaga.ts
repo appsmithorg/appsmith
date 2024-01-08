@@ -39,7 +39,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 

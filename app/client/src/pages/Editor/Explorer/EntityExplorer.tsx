@@ -23,7 +23,7 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { importSvg } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";

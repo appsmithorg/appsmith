@@ -11,8 +11,6 @@ export const getRolesFromState = (state: AppState) => {
 
 export const getWorkspaceLoadingStates = (state: AppState) => {
   return {
-    isFetchingCurrentWorkspace:
-      state.ui.workspaces.loadingStates.isFetchingCurrentWorkspace,
     isFetchingWorkspaces:
       state.ui.workspaces.loadingStates.isFetchingWorkspaces,
     isFetchingAllRoles: state.ui.workspaces.loadingStates.isFetchAllRoles,
@@ -29,9 +27,6 @@ export const getFetchedWorkspaces = (state: AppState): Workspace[] => {
   return state.ui.workspaces.list || [];
 };
 
-export const getCurrentWorkspaceId = (state: AppState) =>
-  state.ui.workspaces.currentWorkspace.id;
-
 export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
   const filteredWorkspaces = state.ui.workspaces.list.filter(
     (el) => el.id === workspaceId,
@@ -39,22 +34,6 @@ export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
   return !!filteredWorkspaces && filteredWorkspaces.length > 0
     ? filteredWorkspaces[0]
     : undefined;
-};
-
-export const getCurrentWorkspace = createSelector(
-  getFetchedWorkspaces,
-  getCurrentWorkspaceId,
-  (fetchedWorkspaces: Workspace[], currentWorkspaceId: string) => {
-    if (fetchedWorkspaces && currentWorkspaceId) {
-      return fetchedWorkspaces.find(
-        (workspace: Workspace) => workspace.id === currentWorkspaceId,
-      );
-    }
-  },
-);
-
-export const getCurrentAppWorkspace = (state: AppState) => {
-  return state.ui.workspaces.currentWorkspace;
 };
 
 export const getAllRoles = (state: AppState) =>

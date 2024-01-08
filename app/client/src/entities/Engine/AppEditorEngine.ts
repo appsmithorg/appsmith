@@ -63,7 +63,7 @@ import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   getFeatureFlagsForEngine,
   type DependentFeatureFlags,

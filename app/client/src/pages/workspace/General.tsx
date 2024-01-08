@@ -12,7 +12,6 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
   getFetchedWorkspaces,
-  getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -20,7 +19,10 @@ import type { SetProgress, UploadCallback } from "design-system-old";
 import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
 import { Classes } from "@blueprintjs/core";
 import { useMediaQuery } from "react-responsive";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import {
+  getIsFetchingApplications,
+  selectedWorkspaceLoadingStates,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { AxiosProgressEvent } from "axios";
 
 // This wrapper ensures that the scroll behaviour is consistent with the other tabs
@@ -140,7 +142,9 @@ export function GeneralSettings() {
     });
   }, timeout);
 
-  const { isFetchingCurrentWorkspace } = useSelector(getWorkspaceLoadingStates);
+  const { isFetchingCurrentWorkspace } = useSelector(
+    selectedWorkspaceLoadingStates,
+  );
   const logoUploadError = useSelector(getCurrentError);
 
   const FileUploader = (

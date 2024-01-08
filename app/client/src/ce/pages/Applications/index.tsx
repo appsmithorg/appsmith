@@ -126,11 +126,11 @@ import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import {
   getApplicationsOfWorkspace,
   getIsFetchingApplications,
+  getCurrentWorkspaceId,
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
 import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 

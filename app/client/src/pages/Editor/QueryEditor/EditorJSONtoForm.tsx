@@ -73,7 +73,7 @@ import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationRed
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   getDebuggerSelectedTab,
   showDebuggerFlag,

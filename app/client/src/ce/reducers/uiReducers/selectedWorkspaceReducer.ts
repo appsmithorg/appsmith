@@ -16,24 +16,29 @@ import type { Package } from "@appsmith/constants/PackageConstants";
 import type { UpdateApplicationRequest } from "@appsmith/api/ApplicationApi";
 
 export interface SelectedWorkspaceReduxState {
-  workspace: Workspace | null;
+  workspace: Workspace;
   applications: ApplicationPayload[];
   users: WorkspaceUser[];
   packages: Package[];
   loadingStates: {
     isFetchingApplications: boolean;
     isFetchingAllUsers: boolean;
+    isFetchingCurrentWorkspace: boolean;
   };
 }
 
 export const initialState: SelectedWorkspaceReduxState = {
-  workspace: null,
+  workspace: {
+    id: "",
+    name: "",
+  },
   applications: [],
   users: [],
   packages: [],
   loadingStates: {
     isFetchingApplications: false,
     isFetchingAllUsers: false,
+    isFetchingCurrentWorkspace: false,
   },
 };
 
@@ -207,6 +212,43 @@ export const handlers = {
       //TODO: This will change the status to false even if one role change api fails.
       user.isChangingRole = false;
     });
+  },
+  [ReduxActionTypes.SET_CURRENT_WORKSPACE_ID]: (
+    draftState: SelectedWorkspaceReduxState,
+    action: ReduxAction<{ workspaceId: string }>,
+  ) => {
+    draftState.workspace.id = action.payload.workspaceId;
+  },
+  [ReduxActionTypes.SET_CURRENT_WORKSPACE]: (
+    draftState: SelectedWorkspaceReduxState,
+    action: ReduxAction<Workspace>,
+  ) => {
+    draftState.workspace = action.payload;
+  },
+  [ReduxActionTypes.RESET_CURRENT_WORKSPACE]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.workspace = {
+      id: "",
+      name: "",
+    };
+  },
+  [ReduxActionTypes.FETCH_CURRENT_WORKSPACE]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingCurrentWorkspace = true;
+  },
+  [ReduxActionTypes.FETCH_WORKSPACE_SUCCESS]: (
+    draftState: SelectedWorkspaceReduxState,
+    action: ReduxAction<Workspace>,
+  ) => {
+    draftState.workspace = action.payload;
+    draftState.loadingStates.isFetchingCurrentWorkspace = false;
+  },
+  [ReduxActionErrorTypes.FETCH_WORKSPACE_ERROR]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingCurrentWorkspace = false;
   },
 };
 
