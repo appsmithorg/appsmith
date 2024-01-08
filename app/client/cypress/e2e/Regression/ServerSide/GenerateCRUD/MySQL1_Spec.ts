@@ -25,12 +25,6 @@ describe(
   "Validate MySQL Generate CRUD with JSON Form",
   { tags: ["@tag.Datasource"] },
   () => {
-    before(() => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
-    });
     // beforeEach(function() {
     //   if (INTERCEPT.MYSQL) {
     //     cy.log("MySQL DB is not found. Using intercept");

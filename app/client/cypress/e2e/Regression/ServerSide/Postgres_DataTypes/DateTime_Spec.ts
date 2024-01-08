@@ -21,10 +21,6 @@ describe("DateTime Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     agHelper.AddDsl("Datatypes/DateTimeDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(22, 32);
     dataSources.CreateDataSource("Postgres");

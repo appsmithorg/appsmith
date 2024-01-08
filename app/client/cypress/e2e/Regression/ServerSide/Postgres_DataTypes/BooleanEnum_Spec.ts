@@ -24,10 +24,6 @@ describe(
     let dsName: any, query: string;
 
     before("Create Postgress DS, Add dsl, Appply theme", () => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
       agHelper.AddDsl("Datatypes/BooleanEnumDTdsl");
       appSettings.OpenPaneAndChangeThemeColors(-18, -20);
       dataSources.CreateDataSource("Postgres");

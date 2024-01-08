@@ -12,10 +12,6 @@ let dsName: any, query: string;
 
 describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   before("Create Mysql DS & Create mysqlDTs table", function () {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
