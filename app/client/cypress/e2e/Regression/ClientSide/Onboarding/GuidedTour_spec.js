@@ -24,17 +24,14 @@ describe("excludeForAirgap", "Guided Tour", function () {
     });
     cy.get(onboardingLocators.editorWelcomeTourBtn).should("be.visible");
     cy.get(onboardingLocators.editorWelcomeTourBtn).click();
-    cy.reload();
-    assertHelper.AssertDocumentReady();
     agHelper.GetNClick(homePage._helpButton);
     agHelper.AssertElementVisibility(homePage._welcomeTour, true);
   });
 
   it("2. Guided Tour", function () {
     // Start guided tour
-    homePage.NavigateToHome();
     agHelper.GetNClick(homePage._helpButton, 0);
-    agHelper.GetNClick(guidedTourLocators.welcomeTour, 0);
+    agHelper.GetNClick(guidedTourLocators.welcomeTour, 0, true);
     cy.get(guidedTourLocators.startBuilding).click();
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");
     // Refresh the page to validate if the tour resumes
