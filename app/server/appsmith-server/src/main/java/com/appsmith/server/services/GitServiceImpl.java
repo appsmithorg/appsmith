@@ -128,12 +128,9 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
         // get the application in default branch
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
-                        newDefaultBranchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .flatMap(defaultBranchedApplication -> checkPermissionOnWorkspace(
-                                defaultBranchedApplication.getWorkspaceId(),
-                                workspacePermission.getApplicationCreatePermission(),
-                                "Change default branch")
-                        .thenReturn(defaultBranchedApplication))
+                        newDefaultBranchName,
+                        defaultApplicationId,
+                        applicationPermission.getManageDefaultBranchPermission())
                 .flatMap(defaultBranchedApplication -> {
                     if (defaultBranchedApplication.getGitApplicationMetadata() == null) {
                         // application not connected to Git, throw error
@@ -169,9 +166,10 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
      * This method is overridden from CE. In CE, the default branch is automatically synced from the remote.
      * In EE, we'll not sync the remote branch automatically because the user might have set the default branch to
      * something else other than the remote branch.
+     *
      * @param defaultApplicationId ID of the default application
-     * @param pruneBranches Boolean to indicate whether to fetch the branch names from remote
-     * @param currentBranch Name of the current branch
+     * @param pruneBranches        Boolean to indicate whether to fetch the branch names from remote
+     * @param currentBranch        Name of the current branch
      * @return Mono of the default branch name
      */
     @Override
@@ -184,26 +182,26 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_branch_protection_enabled)
     public Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames) {
-        return getApplicationById(defaultApplicationId).flatMap(rootApplication -> {
-            GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
-
-            // keep a copy of old protected branches as it's required to send analytics event later
-            List<String> oldProtectedBranches =
-                    metadata.getBranchProtectionRules() != null ? metadata.getBranchProtectionRules() : List.of();
-
-            metadata.setBranchProtectionRules(branchNames);
-            return applicationService
-                    .save(rootApplication)
-                    .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
-                    .then(sendBranchProtectionAnalytics(rootApplication, oldProtectedBranches, branchNames))
-                    .thenReturn(branchNames);
-        });
+        return getApplicationById(defaultApplicationId, applicationPermission.getManageProtectedBranchPermission())
+                .flatMap(rootApplication -> {
+                    GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
+                    // keep a copy of old protected branches as it's required to send analytics event later
+                    List<String> oldProtectedBranches = metadata.getBranchProtectionRules() != null
+                            ? metadata.getBranchProtectionRules()
+                            : List.of();
+                    metadata.setBranchProtectionRules(branchNames);
+                    return applicationService
+                            .save(rootApplication)
+                            .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
+                            .then(sendBranchProtectionAnalytics(rootApplication, oldProtectedBranches, branchNames))
+                            .thenReturn(branchNames);
+                });
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_branch_protection_enabled)
     public Mono<List<String>> getProtectedBranches(String defaultApplicationId) {
-        return getApplicationById(defaultApplicationId)
+        return getApplicationById(defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     return Mono.justOrEmpty(gitApplicationMetadata.getBranchProtectionRules());
