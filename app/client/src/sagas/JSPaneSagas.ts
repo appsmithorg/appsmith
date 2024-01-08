@@ -16,7 +16,6 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import {
@@ -452,18 +451,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
-    yield put(
-      logActionExecutionForAudit({
-        actionName: action.name,
-        actionId: action.id,
-        collectionId: collectionId,
-        pageId: action.pageId,
-        pageName: yield select(getCurrentPageName),
-      }),
-    );
-
     const jsActionNameToDisplay = getJSActionNameToDisplay(action);
-
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
@@ -615,6 +603,11 @@ function* handleRefactorJSActionNameSaga(
     actionCollection: JSCollection;
   }>,
 ) {
+  const { pageId } = data.payload.refactorAction;
+  if (!pageId) {
+    return;
+  }
+
   const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
   const params: FetchPageRequest = {
     id: data.payload.refactorAction.pageId || "",
