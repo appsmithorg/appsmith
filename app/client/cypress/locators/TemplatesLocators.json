@@ -9,5 +9,6 @@
   "selectCheckbox": ".ads-v2-checkbox",
   "closeButton": "//button[@aria-label='Close']//span",
   "marketingDashboard": "//h1[text()='Marketing Dashboard']",
-  "vehicleMaintenenceApp": "//h1[text()='Vehicle Maintenance App']"
+  "vehicleMaintenenceApp": "//h1[text()='Vehicle Maintenance App']",
+  "startFromTemplateOnboardingCard": "[data-testid=t--start-from-template]"
 }

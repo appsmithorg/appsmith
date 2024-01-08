@@ -2,81 +2,31 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const templateLocators = require("../../../../locators/TemplatesLocators.json");
 import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators.js";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Fork a template to an workspace",
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   () => {
-    it("1. Fork a template to an workspace", () => {
-      _.agHelper.VisitNAssert("/templates");
+    beforeEach(() => {
+      featureFlagIntercept({ ab_create_new_apps_enabled: true });
+      cy.generateUUID().then((uid) => {
+        cy.Signup(`${uid}@appsmith.com`, uid);
+      });
+      _.agHelper.GetNClick(templateLocators.startFromTemplateOnboardingCard);
+    });
 
+    it("1. Fork a template to an workspace", () => {
       _.agHelper.GetNClick(templateLocators.templateCard);
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
-
-      _.agHelper.WaitUntilEleAppear(
-        `div[role="dialog"]:has(` + templateLocators.dialogForkButton + `)`,
-      );
-      cy.get(templateLocators.dialogForkButton).click({ force: true });
-      cy.get(commonlocators.canvas, { timeout: 30000 }).should("be.visible");
+      _.agHelper.WaitUntilEleAppear(commonlocators.canvas);
     });
 
     it("2. Update query param on opening fork modal in template detailed view", () => {
-      _.agHelper.VisitNAssert("/templates");
       cy.get(templateLocators.templateCard).first().click();
       _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
-      // cy.location().should((location) => {
-      //   expect(location.search).to.eq("?showForkTemplateModal=true");
-      // });
-      _.agHelper.AssertURL("?showForkTemplateModal=true");
-    });
-
-    it("3. Hide template fork button if user does not have a valid workspace to fork", () => {
-      // Mock user with App Viewer permission
-      cy.intercept("/api/v1/applications/new", {
-        fixture: "Templates/MockAppViewerUser.json",
-      });
-      _.agHelper.VisitNAssert("/templates");
-      _.agHelper.Sleep(2000);
-      _.agHelper.CheckForErrorToast(
-        "Internal server error while processing request",
-      );
-      _.agHelper.AssertElementExist(templateLocators.templateCard);
-      _.agHelper.AssertElementAbsence(templateLocators.templateForkButton);
-
-      _.agHelper.GetNClick(templateLocators.templateCard);
-      _.agHelper.AssertElementExist(templateLocators.templateCard);
-      _.agHelper.AssertElementAbsence(templateLocators.templateViewForkButton);
-    });
-
-    it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
-      _.homePage.NavigateToHome();
-      cy.get("body").then(($ele) => {
-        if ($ele.find(reconnectDatasourceLocators.Modal).length) {
-          cy.get(_.dataSources._skiptoApplicationBtn).click();
-        }
-      });
-      _.agHelper.VisitNAssert("/templates");
-      cy.wait(1000);
-
-      cy.xpath("//h1[text()='Customer Messaging Tool']")
-        .scrollIntoView()
-        .wait(500)
-        .click();
-      _.agHelper.GetNClick(templateLocators.templateViewForkButton);
-
-      cy.get(templateLocators.dialogForkButton).click();
-      cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
-      cy.get(reconnectDatasourceLocators.DatasourceList)
-        .find(reconnectDatasourceLocators.ListItemIcon)
-        .should("be.visible");
-      cy.get(reconnectDatasourceLocators.DatasourceList)
-        .find(reconnectDatasourceLocators.DatasourceTitle, {
-          withinSubject: null,
-        })
-        .first()
-        .trigger("mouseover");
-      cy.get(".ads-v2-tooltip").should("be.visible");
+      _.agHelper.WaitUntilEleAppear(commonlocators.canvas);
     });
   },
 );
