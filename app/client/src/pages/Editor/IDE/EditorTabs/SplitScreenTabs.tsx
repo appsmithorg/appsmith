@@ -10,8 +10,8 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useJSAdd, useJSList } from "../EditorPane/JS/hooks";
-import { useQueryAdd, useQueryList } from "../EditorPane/Query/hooks";
+import { useJSAdd } from "../EditorPane/JS/hooks";
+import { useQueryAdd } from "../EditorPane/Query/hooks";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -26,14 +26,6 @@ const SplitScreenTabs = () => {
     if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
   }, [segment, segmentMode]);
 
-  const onJSListClick = useJSList();
-  const onQueryListClick = useQueryList();
-  const onMoreClick = useCallback(() => {
-    if (segmentMode === EditorEntityTabState.List) return;
-    if (segment === EditorEntityTab.JS) onJSListClick();
-    if (segment === EditorEntityTab.QUERIES) onQueryListClick();
-  }, [segment, segmentMode]);
-
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
@@ -46,12 +38,6 @@ const SplitScreenTabs = () => {
         startIcon={"add-line"}
       />
       <FileTabs />
-      <Button
-        isIconButton
-        kind="tertiary"
-        onClick={onMoreClick}
-        startIcon={"arrow-down-s-line"}
-      />
     </Container>
   );
 };

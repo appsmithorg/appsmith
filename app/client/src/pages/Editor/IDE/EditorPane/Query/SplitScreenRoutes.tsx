@@ -18,6 +18,11 @@ const SplitScreenRoutes = () => {
   return (
     <Switch>
       <SentryRoute
+        component={AddQuery}
+        exact
+        path={[`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`]}
+      />
+      <SentryRoute
         component={QueryEditor}
         exact
         path={[
@@ -33,11 +38,6 @@ const SplitScreenRoutes = () => {
           BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
           BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
         ]}
-      />
-      <SentryRoute
-        component={AddQuery}
-        exact
-        path={[`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`]}
       />
       <SentryRoute component={ListQuery} />
     </Switch>
