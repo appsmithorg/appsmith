@@ -7,7 +7,7 @@ import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useCurrentWorkflowState from "../hooks";
 import { BottomButtons } from "../constants";
 import SidebarComponent from "pages/Editor/IDE/Sidebar/SidebarComponent";
-import { TopButtons } from "entities/IDE/constants";
+import { TopButtons } from "@appsmith/entities/IDE/constants";
 
 function Sidebar() {
   const dispatch = useDispatch();

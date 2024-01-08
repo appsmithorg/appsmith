@@ -1,6 +1,6 @@
 import { matchPath } from "react-router";
 import {
-  APP_STATE_PATH,
+  ENTITY_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
@@ -9,11 +9,11 @@ import {
   MODULE_EDITOR_PATH,
   PACKAGE_EDITOR_PATH,
 } from "@appsmith/constants/routes/packageRoutes";
-import { EditorState } from "entities/IDE/constants";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 export function getCurrentPackageState(currentUrl: string): EditorState {
   const match = matchPath<{
-    appState?: "datasource" | "settings" | "libraries";
+    entity?: "datasource" | "settings" | "libraries";
     datasourceId?: string;
     selectedTab?: string;
   }>(currentUrl, {
@@ -21,16 +21,16 @@ export function getCurrentPackageState(currentUrl: string): EditorState {
       PACKAGE_EDITOR_PATH + DATA_SOURCES_EDITOR_ID_PATH,
       PACKAGE_EDITOR_PATH + SAAS_GSHEET_EDITOR_ID_PATH,
       PACKAGE_EDITOR_PATH + INTEGRATION_EDITOR_PATH,
-      PACKAGE_EDITOR_PATH + APP_STATE_PATH,
-      MODULE_EDITOR_PATH + APP_STATE_PATH,
+      PACKAGE_EDITOR_PATH + ENTITY_PATH,
+      MODULE_EDITOR_PATH + ENTITY_PATH,
     ],
   });
 
   if (match) {
-    const { appState, datasourceId, selectedTab } = match.params;
-    if (appState === "datasource" || datasourceId || selectedTab) {
+    const { datasourceId, entity, selectedTab } = match.params;
+    if (entity === "datasource" || datasourceId || selectedTab) {
       return EditorState.DATA;
-    } else if (appState === "settings") {
+    } else if (entity === "settings") {
       return EditorState.SETTINGS;
     } else {
       return EditorState.EDITOR;
