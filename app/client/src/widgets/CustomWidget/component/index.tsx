@@ -14,6 +14,9 @@ import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
 import type { AppThemeProperties } from "entities/AppTheming";
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { Color } from "constants/Colors";
 
 const StyledIframe = styled.iframe<{ width: number; height: number }>`
   width: ${(props) => props.width - 8}px;
@@ -191,16 +194,26 @@ function CustomComponent(props: CustomComponentProps) {
       })}
     >
       {props.needsOverlay && <OverlayDiv data-testid="iframe-overlay" />}
-      <StyledIframe
-        height={props.height}
-        onLoad={() => {
-          setLoading(false);
-        }}
-        ref={iframe}
-        sandbox="allow-scripts allow-downloads"
-        srcDoc={srcDoc}
-        width={props.width}
-      />
+      <WidgetStyleContainer
+        backgroundColor={props.backgroundColor}
+        borderColor={props.borderColor}
+        borderRadius={props.borderRadius}
+        borderWidth={props.borderWidth}
+        boxShadow={props.boxShadow}
+        widgetId={props.widgetId}
+      >
+        <StyledIframe
+          height={props.height}
+          loading="lazy"
+          onLoad={() => {
+            setLoading(false);
+          }}
+          ref={iframe}
+          sandbox="allow-scripts allow-downloads"
+          srcDoc={srcDoc}
+          width={props.width}
+        />
+      </WidgetStyleContainer>
     </div>
   );
 }
@@ -221,6 +234,12 @@ export interface CustomComponentProps {
   onConsole?: (type: string, message: string) => void;
   renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
   theme: AppThemeProperties;
+  borderColor?: Color;
+  backgroundColor?: Color;
+  borderWidth?: number;
+  borderRadius?: number;
+  boxShadow?: BoxShadow;
+  widgetId: string;
 }
 
 export default CustomComponent;

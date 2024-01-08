@@ -19,6 +19,7 @@ export const LOCAL_STORAGE_KEYS_SELECTED_LAYOUT =
 
 export const DEFAULT_CONTEXT_VALUE = {
   name: "",
+  widgetId: "",
   srcDoc: {
     html: "<div>Hello World</div>",
     js: "function test() {console.log('Hello World');}",

@@ -646,6 +646,10 @@ const PropertyControl = memo((props: Props) => {
       onDeleteProperties([props.propertyName]);
     }
     resetEditing();
+
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_EDIT_EVENT_SAVE_CLICKED", {
+      widgetId: widgetProperties.widgetId,
+    });
   }, [
     props,
     onBatchUpdateProperties,
@@ -657,6 +661,10 @@ const PropertyControl = memo((props: Props) => {
   const resetEditing = useCallback(() => {
     setEditedName(props.propertyName);
     setIsRenaming(false);
+
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_EDIT_EVENT_CANCEL_CLICKED", {
+      widgetId: widgetProperties.widgetId,
+    });
   }, [props.propertyName]);
 
   const { propertyName } = props;
@@ -975,7 +983,15 @@ const PropertyControl = memo((props: Props) => {
                     )}
                     isIconButton
                     kind="tertiary"
-                    onClick={() => setIsRenaming(true)}
+                    onClick={() => {
+                      setIsRenaming(true);
+                      AnalyticsUtil.logEvent(
+                        "CUSTOM_WIDGET_EDIT_EVENT_CLICKED",
+                        {
+                          widgetId: widgetProperties.widgetId,
+                        },
+                      );
+                    }}
                     size="small"
                     startIcon="pencil-line"
                   />
@@ -1000,6 +1016,13 @@ const PropertyControl = memo((props: Props) => {
                         onBatchUpdateProperties(updates);
                       }
                       onDeleteProperties([config.propertyName]);
+
+                      AnalyticsUtil.logEvent(
+                        "CUSTOM_WIDGET_DELETE_EVENT_CLICKED",
+                        {
+                          widgetId: widgetProperties.widgetId,
+                        },
+                      );
                     }}
                     size="small"
                     startIcon="trash"

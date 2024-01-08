@@ -7,8 +7,7 @@ export default {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
-	border-radius: var(--appsmith-theme-borderRadius);
-	box-shadow: var(--appsmith-theme-boxShadow);
+	border-radius: 0px;
 }
 
 .tip-container {
@@ -37,6 +36,7 @@ export default {
 
 .button-container button {
   margin: 0 10px;
+	border-radius: var(--appsmith-theme-borderRadius) !important;
 }
 
 .button-container button.primary {
@@ -93,8 +93,7 @@ appsmith.onReady(() => {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
-	border-radius: var(--appsmith-theme-borderRadius);
-	box-shadow: var(--appsmith-theme-boxShadow);
+	border-radius: 0px;
 }
 
 .tip-container {
@@ -123,6 +122,7 @@ appsmith.onReady(() => {
 
 .button-container button {
   margin: 0 10px;
+	border-radius: var(--appsmith-theme-borderRadius) !important;
 }
 
 .button-container button.primary {
