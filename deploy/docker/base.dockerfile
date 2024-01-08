@@ -12,7 +12,7 @@ ENV LC_ALL C.UTF-8
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron nfs-common gnupg wget netcat openssh-client \
+    supervisor curl nfs-common gnupg wget netcat openssh-client \
     gettext \
     python3-pip git ca-certificates \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
