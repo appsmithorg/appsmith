@@ -1,13 +1,11 @@
 import React from "react";
-import {
-  fetchedUsersOfWorkspace,
-  getCurrentUser,
-} from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { AvatarGroup } from "design-system";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { getAllUsersOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -22,7 +20,7 @@ const UserImageContainer = styled.div<{ isMobile?: boolean }>`
 export default function SharedUserList() {
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
-  const users = useSelector(fetchedUsersOfWorkspace);
+  const users = useSelector(getAllUsersOfWorkspace);
 
   const convertUsersToAvatar = (users: any) => {
     return users.map((user: any) => {

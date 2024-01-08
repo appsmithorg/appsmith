@@ -15,16 +15,9 @@ export const getWorkspaceLoadingStates = (state: AppState) => {
       state.ui.workspaces.loadingStates.isFetchingCurrentWorkspace,
     isFetchingWorkspaces:
       state.ui.workspaces.loadingStates.isFetchingWorkspaces,
-    isFetchingAllUsers: state.ui.workspaces.loadingStates.isFetchAllUsers,
     isFetchingAllRoles: state.ui.workspaces.loadingStates.isFetchAllRoles,
     isSavingWorkspaceInfo:
       state.ui.workspaces.loadingStates.isSavingWorkspaceInfo,
-    deletingUserInfo: state.ui.workspaces.workspaceUsers.filter(
-      (el) => el.isDeleting,
-    )[0],
-    roleChangingUserInfo: state.ui.workspaces.workspaceUsers.filter(
-      (el) => el.isChangingRole,
-    )[0],
   };
 };
 
@@ -64,9 +57,6 @@ export const getCurrentAppWorkspace = (state: AppState) => {
   return state.ui.workspaces.currentWorkspace;
 };
 
-export const getAllUsers = (state: AppState) =>
-  state.ui.workspaces.workspaceUsers;
-
 export const getAllRoles = (state: AppState) =>
   state.ui.workspaces.workspaceRoles;
 
@@ -104,3 +94,13 @@ export const getCurrentError = (state: AppState) => {
 
 export const getIsSavingWorkspaceInfo = (state: AppState) =>
   state.ui.workspaces.loadingStates.isSavingWorkspaceInfo;
+
+export const getSearchedWorkspaces = (state: AppState) =>
+  state.ui.workspaces.searchEntities?.workspaces;
+
+export const getSearchedApplications = (state: AppState) =>
+  state.ui.workspaces.searchEntities?.applications;
+
+export const getIsFetchingEntities = (state: AppState) => {
+  return state.ui.workspaces.loadingStates.isFetchingEntities;
+};

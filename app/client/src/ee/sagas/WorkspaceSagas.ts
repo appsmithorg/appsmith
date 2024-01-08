@@ -10,6 +10,7 @@ import {
   uploadWorkspaceLogoSaga,
   deleteWorkspaceLogoSaga,
   fetchAllWorkspacesSaga,
+  searchWorkspaceEntitiesSaga,
 } from "ce/sagas/WorkspaceSagas";
 import type { DeleteWorkspaceUserRequest } from "@appsmith/api/WorkspaceApi";
 import WorkspaceApi from "@appsmith/api/WorkspaceApi";
@@ -119,6 +120,10 @@ export default function* workspaceSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
       fetchInviteGroupsSuggestionsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+      searchWorkspaceEntitiesSaga,
     ),
   ]);
 }

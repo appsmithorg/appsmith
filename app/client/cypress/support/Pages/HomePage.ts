@@ -162,6 +162,7 @@ export class HomePage {
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
+    this.SelectWorkspace(workspaceName);
     this.agHelper.GetElement(this._optionsIcon).click({ force: true });
   }
 
@@ -173,7 +174,7 @@ export class HomePage {
   public RenameWorkspace(oldName: string, newWorkspaceName: string) {
     this.OpenWorkspaceOptions(oldName);
     this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
-    this.agHelper.Sleep(2000);
+    this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
@@ -269,8 +270,8 @@ export class HomePage {
   }
 
   public CreateNewApplication(skipSignposting = true) {
-    cy.get(this._homePageAppCreateBtn).first().click({ force: true });
-    cy.get(this._newButtonCreateApplication).first().click({ force: true });
+    this.agHelper.GetNClick(this._homePageAppCreateBtn, 0, true);
+    this.agHelper.GetNClick(this._newButtonCreateApplication, 0, true);
     this.AssertApplicationCreated();
     if (skipSignposting) {
       this.agHelper.AssertElementVisibility(

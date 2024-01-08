@@ -1,20 +1,10 @@
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { setFetchingApplications } from "@appsmith/actions/applicationActions";
 import { Icon, SearchInput, Spinner, Text } from "design-system";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 import styled from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import {
-  getIsFetchingEntities,
-  getSearchedApplications,
-  getSearchedWorkspaces,
-} from "@appsmith/selectors/applicationSelectors";
-import Fuse from "fuse.js";
-import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
-import PackageSearchItem from "../common/PackageSearchItem";
+import PackageSearchItem from "@appsmith/pages/common/PackageSearchItem";
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
@@ -39,72 +29,24 @@ const SearchListContainer = styled.div`
 
 const DesktopEntitySearchField = (props: any) => {
   const isMobile = useIsMobileDevice();
-  const dispatch = useDispatch();
 
   const {
+    applicationsList,
+    canShowSearchDropdown,
     handleInputClicked,
-    handleSearchDebounced,
+    handleSearchInput,
     isDropdownOpen,
+    isFetchingApplications,
+    isFetchingEntities,
     navigateToApplication,
     noSearchResults,
-    prevIsFetchingEntitiesRef,
+    searchedPackages,
     searchInput,
     searchInputRef,
     searchListContainerRef,
     setIsDropdownOpen,
-    setNoSearchResults,
-    setSearchInput,
+    workspacesList,
   } = props;
-
-  const [searchedPackages, setSearchedPackages] = useState([]);
-
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const applicationsList = useSelector(getSearchedApplications);
-  const isFetchingEntities = useSelector(getIsFetchingEntities);
-  const fetchedPackages = useSelector(getPackagesList);
-  const workspacesList = useSelector(getSearchedWorkspaces);
-
-  const fuzzy = new Fuse(fetchedPackages, {
-    keys: ["name"],
-    shouldSort: true,
-    threshold: 0.5,
-    location: 0,
-    distance: 100,
-  });
-
-  function handleSearchInput(text: string) {
-    setSearchInput(text);
-    if (text.trim().length !== 0) dispatch(setFetchingApplications(true));
-    else dispatch(setFetchingApplications(false));
-    handleSearchDebounced(text);
-    setSearchedPackages(fuzzy.search(text));
-    setIsDropdownOpen(true);
-  }
-
-  useEffect(() => {
-    const prevIsFetchingEntities = prevIsFetchingEntitiesRef.current;
-    if (prevIsFetchingEntities && !isFetchingEntities) {
-      if (
-        !workspacesList?.length &&
-        !applicationsList?.length &&
-        !searchedPackages?.length
-      ) {
-        setNoSearchResults(true);
-      } else {
-        setNoSearchResults(false);
-      }
-    }
-    prevIsFetchingEntitiesRef.current = isFetchingEntities;
-  }, [isFetchingEntities]);
-
-  const canShowSearchDropdown =
-    (noSearchResults && !isFetchingEntities) ||
-    isFetchingEntities ||
-    !!(
-      workspacesList?.length ||
-      applicationsList?.length ||
-      searchedPackages?.length
-    );
 
   return (
     <SearchContainer isMobile={isMobile}>

@@ -11,16 +11,13 @@ describe("Export application as a JSON file", function () {
   });
 
   it("1. User with admin access,should be able to export the app", function () {
-    //cy.LogOut();
     if (CURRENT_REPO === REPO.CE) {
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.CreateNewWorkspace("exportApp" + uid, true);
         homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
         appid = "App" + uid;
-        //cy.get("h2").contains("Drag and drop a widget here");
         cy.get(homePageLocators.shareApp).click({ force: true });
-        // cy.shareApp(Cypress.env("TESTUSERNAME1"), homePageLocators.adminRole);
         homePage.InviteUserToApplication(
           Cypress.env("TESTUSERNAME1"),
           "Administrator",
@@ -32,13 +29,12 @@ describe("Export application as a JSON file", function () {
           Cypress.env("TESTPASSWORD1"),
         );
         cy.wait(2000);
-        cy.get(homePageLocators.searchInput).type("exportApp" + uid);
+        agHelper.TypeText(homePageLocators.searchInput, "exportApp" + uid);
         agHelper.WaitUntilEleAppear(`[data-testid="${"exportApp" + uid}"]`);
         cy.get(`[data-testid="${"exportApp" + uid}"]`).click({ force: true });
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(2000);
 
-        //cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
         cy.get(homePageLocators.appMoreIcon).first().click({ force: true });
         cy.get(homePageLocators.exportAppFromMenu).should("be.visible");
         cy.xpath(homePageLocators.workspaceHeading)
@@ -65,7 +61,6 @@ describe("Export application as a JSON file", function () {
       homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
       appid = "App" + uid;
       workspaceId = "exportApp" + uid;
-      //cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePageLocators.shareApp).click({ force: true });
       homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
@@ -107,7 +102,6 @@ describe("Export application as a JSON file", function () {
       homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
       appid = "App" + uid;
       workspaceId = "exportApp" + uid;
-      //cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePageLocators.shareApp).click({ force: true });
 
       homePage.InviteUserToApplication(

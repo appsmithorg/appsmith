@@ -256,20 +256,6 @@ export const setIsAppSidebarPinned = (payload: boolean) => ({
   payload,
 });
 
-export const searchEntities = (payload: string) => ({
-  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
-  payload,
-});
-
-export const resetSearchEntity = () => ({
-  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_RESET,
-});
-
-export const setFetchingApplications = (payload: boolean) => ({
-  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
-  payload,
-});
-
 export const fetchAllPackages = () => {
   return {};
 };

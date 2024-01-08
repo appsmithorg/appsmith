@@ -237,7 +237,8 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     .should("be.visible")
     .click({ force: true });
 
-  cy.get(homePage.newButtonCreateApplication).click({ force: true });
+  agHelper.GetNClick(homePage.newButtonCreateApplication, 0, true);
+
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
