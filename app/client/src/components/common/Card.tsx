@@ -13,7 +13,7 @@ type CardProps = PropsWithChildren<{
   backgroundColor: string;
   contextMenu: React.ReactNode;
   editedByText: string;
-  handleMultipleSelection: () => void;
+  handleMultipleSelection?: () => void;
   hasReadPermission: boolean;
   icon: string;
   isEnabledMultipleSelection: boolean;
@@ -385,13 +385,17 @@ function Card({
           )}
         </Wrapper>
         <CardFooter>
-          <Checkbox
-            className={`t--app-multi-select-checkbox ${
-              isEnabledMultipleSelection && "t--app-multi-select-mode-checkbox"
-            }`}
-            isSelected={isSelected}
-            onChange={handleMultipleSelection}
-          />
+          {handleMultipleSelection && (
+            <Checkbox
+              className={`t--app-multi-select-checkbox ${
+                isEnabledMultipleSelection
+                  ? "t--app-multi-select-mode-checkbox"
+                  : ""
+              }`}
+              isSelected={isSelected}
+              onChange={handleMultipleSelection}
+            />
+          )}
           <ModifiedDataComponent className="t--application-edited-text">
             {editedByText}
           </ModifiedDataComponent>
