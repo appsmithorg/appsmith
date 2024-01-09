@@ -57,8 +57,8 @@ import {
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
-  fetchAllApplicationsOfWorkspace,
   updateApplicationThemeSettingAction,
+  fetchAllApplicationsOfWorkspace,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
