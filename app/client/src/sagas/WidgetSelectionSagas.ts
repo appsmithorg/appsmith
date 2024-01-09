@@ -1,4 +1,4 @@
-import { widgetListURL, widgetURL } from "@appsmith/RouteBuilder";
+import { widgetURL } from "@appsmith/RouteBuilder";
 import {
   importPartialApplicationSuccess,
   initDatasourceConnectionDuringImportRequest,
@@ -84,6 +84,7 @@ import {
 } from "./selectors";
 import type { AppState } from "@appsmith/reducers";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -124,7 +125,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 
     switch (selectionRequestType) {
       case SelectionRequestType.Empty: {
-        newSelection = [];
+        newSelection = [MAIN_CONTAINER_WIDGET_ID];
         break;
       }
       case SelectionRequestType.UnsafeSelect: {
@@ -239,9 +240,10 @@ function* appendSelectedWidgetToUrlSaga(
         persistExistingParams: true,
         selectedWidgets,
       })
-    : widgetListURL({
+    : widgetURL({
         pageId: pageId ?? currentPageId,
         persistExistingParams: true,
+        selectedWidgets: [MAIN_CONTAINER_WIDGET_ID],
       });
   if (currentURL !== newUrl) {
     history.push(newUrl, { invokedBy });
