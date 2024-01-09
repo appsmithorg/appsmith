@@ -13,24 +13,30 @@ export default class RunController extends BaseController {
   async runWorkflow(req: Request, res: Response) {
     try {
       //check if cookie is present in the request, if not throw error
-      if (!req.headers["cookie"]) {
-        throw new Error("Cookie not found in request");
+      if (!req.headers["cookie"] && !req.headers["x-appsmith-key"]) {
+        throw new Error("workflow-proxy Cookie or Token not found in request");
       }
 
       const reqHeaders = {
         "Content-type": "application/json",
-        cookie: req.headers["cookie"],
       };
 
+      if (req.headers["cookie"]) {
+        reqHeaders["cookie"] = req.headers["cookie"];
+      }
+
+      if (req.headers["x-appsmith-key"]) {
+        reqHeaders["x-appsmith-key"] = req.headers["x-appsmith-key"];
+      }
+
       // Use deploy service to deploy the workflow
-      const { actionMap, data, workflowDef } = req.body;
-      const { workflowId } = req.params;
+      const { actionNameToActionIdMap, triggerData, workflowDef } = req.body;
       const runRequest: RunRequest = {
         reqHeaders,
-        workflowId,
-        workflowDef,
-        actionMap,
-        data,
+        workflowId: workflowDef.workflowId,
+        workflowDef: workflowDef.body,
+        actionMap: actionNameToActionIdMap,
+        triggerData: triggerData,
       };
 
       const runResponse = await RunService.run(runRequest);
@@ -44,15 +50,15 @@ export default class RunController extends BaseController {
       } else {
         return super.sendError(
           res,
-          "Workflow instance run failed",
-          runResponse.message,
+          "Workflow instance run failed: " + runResponse.message,
+          runResponse.data,
           StatusCodes.INTERNAL_SERVER_ERROR,
         );
       }
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        "Workflow instance run failed",
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
@@ -66,7 +72,7 @@ export default class RunController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        "Workflow resolution has failed",
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );

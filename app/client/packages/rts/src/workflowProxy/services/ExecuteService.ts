@@ -4,7 +4,7 @@ import type {
   ExecuteAppsmithActivityRequest,
   ExecuteInboxCreationRequest,
 } from "@workflowProxy/constants/types";
-import { validateResponse } from "./utils";
+import { findDatatype, validateResponse } from "./utils";
 
 const baseUrl =
   process.env.APPSMITH_API_BASE_URL || "http://localhost:8080/api/v1";
@@ -24,28 +24,57 @@ export class ExecuteService {
     headers: Record<string, any>,
   ): Promise<any> {
     try {
-      //check if cookie is present in the request, if not throw error
-      if (!headers["cookie"]) {
-        throw new Error("Cookie not found in request");
+      if (!headers["cookie"] && !headers["x-appsmith-key"]) {
+        throw new Error("Cookie or Token not found in request");
       }
 
       const formData = new FormData();
+      const paramProperties = {};
+      const parameterMap = {};
+      const blobArrays = [];
+
+      if (request.inputParams.length > 0) {
+        const inputParamsEntries = Object.entries(request.inputParams[0]);
+        inputParamsEntries.forEach(([key, value], index) => {
+          const varName = `k${index}`;
+          paramProperties[varName] = {
+            dataType: findDatatype(value),
+            blobIdentifiers: [],
+          };
+          parameterMap[`this.params.${key}`] = varName;
+          blobArrays.push({
+            name: varName,
+            value: new Blob([value], { type: "text/plain" }),
+          });
+        });
+      }
 
       const apiRequest: AppsmithExecuteActionDTO = {
         actionId: request.actionId,
-        // TODO: viewmode should be passed down as variable, should be true by default also since we will be using deployed workflows only
-        viewmode: false,
+        viewmode: true,
+        paramProperties,
       };
       formData.append("executeActionDTO", JSON.stringify(apiRequest));
 
-      // TODO: pass the user params also here
-      // formData.append("userParams", JSON.stringify({}));
+      if (blobArrays.length > 0) {
+        formData.append("parameterMap", JSON.stringify(parameterMap));
+        blobArrays.forEach((blob) => {
+          formData.append(blob.name, blob.value);
+        });
+      }
 
       const reqHeaders = {
-        cookie: headers["cookie"],
         "X-Requested-By": "Appsmith",
         "Content-Type": "multipart/form-data",
       };
+
+      if (headers["cookie"]) {
+        reqHeaders["cookie"] = headers["cookie"];
+      }
+
+      if (headers["x-appsmith-key"]) {
+        reqHeaders["x-appsmith-key"] = headers["x-appsmith-key"];
+      }
 
       const response = await axios.post(EXECUTE_ACTION_ENDPOINT, formData, {
         headers: reqHeaders,
@@ -85,15 +114,22 @@ export class ExecuteService {
   ): Promise<any> {
     try {
       //check if cookie is present in the request, if not throw error
-      if (!headers["cookie"]) {
-        throw new Error("Cookie not found in request");
+      if (!headers["cookie"] && !headers["x-appsmith-key"]) {
+        throw new Error("Cookie or Token not found in request");
       }
 
       // create an axios post request
       const reqHeaders = {
-        cookie: headers["cookie"],
         "Content-Type": "application/json",
+        "X-Requested-By": "Appsmith",
       };
+      if (headers["cookie"]) {
+        reqHeaders["cookie"] = headers["cookie"];
+      }
+
+      if (headers["x-appsmith-key"]) {
+        reqHeaders["x-appsmith-key"] = headers["x-appsmith-key"];
+      }
 
       //send the request to appsmith api
       const response = await axios.post(CREATE_INBOX_ENDPOINT, request, {

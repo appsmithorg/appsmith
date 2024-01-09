@@ -13,11 +13,11 @@ const runController = new RunController();
 const router = express.Router();
 
 // Endpoints definition
-const WORKFLOW_PROXY_API_BASE_URL = "/workflowProxy";
-const HEALTH_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/healthCheck`;
-const EXECUTE_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/executeActivity`;
-const INBOX_REQUEST_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/approvalInbox`;
-const EXECUTE_RUN = `${WORKFLOW_PROXY_API_BASE_URL}/:workflowId/run`;
+const WORKFLOW_PROXY_API_BASE_URL = "/workflow-proxy";
+const HEALTH_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/health-check`;
+export const EXECUTE_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/execute-activity`;
+export const INBOX_REQUEST_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/approval-inbox`;
+const EXECUTE_RUN = `${WORKFLOW_PROXY_API_BASE_URL}/trigger`;
 
 // Health check for the workflow service (temporal)
 router.get(
@@ -48,10 +48,6 @@ router.put(
 );
 
 // Trigger workflow run from webhook
-router.post(
-  EXECUTE_RUN,
-  // validator.validateRequest,
-  runController.runWorkflow,
-);
+router.post(EXECUTE_RUN, validator.validateRequest, runController.runWorkflow);
 
 export default router;

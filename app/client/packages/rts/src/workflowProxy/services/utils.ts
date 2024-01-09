@@ -57,3 +57,13 @@ const getErrorMessage = (code: number) => {
       return createMessage(ERROR_0);
   }
 };
+
+/**
+ * This function finds the datatype of the given value.
+ * typeof, lodash and others will return false positives for things like array, wrapper objects, etc
+ * @param value
+ * @returns datatype of the received value as string
+ */
+export const findDatatype = (value: unknown) => {
+  return Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
+};
