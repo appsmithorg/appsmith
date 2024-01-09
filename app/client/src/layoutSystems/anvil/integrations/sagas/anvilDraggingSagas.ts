@@ -323,6 +323,7 @@ export function* handleWidgetMovement(
   isMainCanvas: boolean,
   isSection: boolean,
 ) {
+  console.log("####", { movedWidgetIds, highlight });
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
   if (isMainCanvas) {
     /**

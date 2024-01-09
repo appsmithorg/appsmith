@@ -187,7 +187,7 @@ import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constan
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import { pasteSagas } from "layoutSystems/anvil/utils/pasteUtils";
+import { pasteSagas } from "layoutSystems/anvil/utils/paste";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
