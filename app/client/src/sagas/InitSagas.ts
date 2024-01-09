@@ -40,6 +40,7 @@ import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSel
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import type { AppEnginePayload } from "entities/Engine";
+import { PageNotFoundError } from "entities/Engine";
 import type AppEngine from "entities/Engine";
 import { AppEngineApiError } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
@@ -74,6 +75,7 @@ import { getCurrentUser } from "actions/authActions";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import {
   fetchFeatureFlagsInit,
+  fetchFeatureFlagsSuccess,
   fetchProductAlertInit,
 } from "actions/userActions";
 import { validateResponse } from "./ErrorSagas";
@@ -245,13 +247,33 @@ export function* getInitResponses({
         throw new Error("Error occured " + axiosConnectionAbortedCode);
       }
     } catch (e) {
-      log.error(e);
+      // log.error(e);
+      // tie to userProfile
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+        payload: {},
+      });
+      // v1/users/features
+      // tie to featureFlags
+      // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
+      // do not fetch this again
+
+      yield put(fetchFeatureFlagsSuccess());
+      // v1/tenants/current
+      // tie to tenantConfig
+
+      yield put({
+        type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
+        payload: { tenantConfiguration: {} },
+      });
+      // v1/product-alert/alert
+      // tie to productAlert
       Sentry.captureMessage(
         `consolidated api failure for ${JSON.stringify(
           params,
         )} errored message response ${e}`,
       );
-      throw e;
+      throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
     }
   }
 
