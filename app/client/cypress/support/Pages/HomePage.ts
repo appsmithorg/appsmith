@@ -268,6 +268,7 @@ export class HomePage {
       this.assertHelper.AssertNetworkStatus("@getReleaseItems");
     }
     this.agHelper.WaitUntilEleAppear(this._homeAppsmithImage);
+    this.agHelper.AssertElementVisibility(this._newWorkSpaceLink);
   }
 
   public AssertApplicationCreated() {
