@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import { Flex } from "design-system";
 import { Switch, useRouteMatch } from "react-router";
 
@@ -12,25 +11,15 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import { ListWidgets } from "./ListWidgets";
-import { AddWidgets } from "./AddWidgets";
+import ListWidgets from "./List";
+import AddWidgets from "./Add";
 
-const WidgetsContainer = styled(Flex)`
-  & .t--entity-item {
-    /* grid-template-columns: 4px auto 1fr auto auto auto auto auto; */
-    height: 32px;
-    & .t--entity-name {
-      padding-left: var(--ads-v2-spaces-3);
-    }
-  }
-`;
-
-const WidgetsSection = () => {
+const UISegment = () => {
   const { path } = useRouteMatch();
 
   return (
-    <WidgetsContainer
-      className="ide-pages-pane__content-widgets"
+    <Flex
+      className="ide-editor-left-pane__content-widgets"
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"
@@ -55,8 +44,8 @@ const WidgetsSection = () => {
           ]}
         />
       </Switch>
-    </WidgetsContainer>
+    </Flex>
   );
 };
 
-export { WidgetsSection };
+export default UISegment;

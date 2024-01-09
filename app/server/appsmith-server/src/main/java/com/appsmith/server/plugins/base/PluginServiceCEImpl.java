@@ -1,6 +1,5 @@
 package com.appsmith.server.plugins.base;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
