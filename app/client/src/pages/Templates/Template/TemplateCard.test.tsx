@@ -52,7 +52,7 @@ const BaseTemplateRender = () => (
   </ThemeProvider>
 );
 
-describe("Template Component", () => {
+describe("<TemplateLayout />", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -72,22 +72,6 @@ describe("Template Component", () => {
       templateIdUrl({ id: MOCK_TEMPLATE_ID }),
     );
   });
-
-  // it("triggers onForkTemplateClick when the fork button is clicked and onForkTemplateClick event is passed", () => {
-  //   const onForkTemplateClick = jest.fn();
-  //   render(
-  //     <ThemeProvider theme={lightTheme}>
-  //       <TemplateLayout
-  //         hideForkTemplateButton={false}
-  //         onForkTemplateClick={onForkTemplateClick}
-  //         template={mockTemplate}
-  //       />
-  //     </ThemeProvider>,
-  //   );
-  //   const forkTemplateButton = screen.getByTestId("t--fork-template-button");
-  //   fireEvent.click(forkTemplateButton);
-  //   expect(onForkTemplateClick).toHaveBeenCalled();
-  // });
 
   it("does not trigger onForkTemplateClick when the button is hidden", () => {
     const onForkTemplateClick = jest.fn();
