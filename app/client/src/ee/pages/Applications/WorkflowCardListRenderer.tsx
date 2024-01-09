@@ -1,6 +1,5 @@
 import React from "react";
-import styled from "styled-components";
-import { Button, Icon } from "design-system";
+import { Text } from "design-system";
 
 import {
   ResourceHeading,
@@ -16,31 +15,17 @@ import {
 } from "@appsmith/constants/messages";
 import WorkflowCard from "./WorkflowCard";
 import type { Workflow } from "@appsmith/constants/WorkflowConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export interface WorkflowCardListRendererProps {
-  createWorkflow: () => void;
-  isCreatingWorkflow?: boolean;
   isFetchingWorkflows?: boolean;
   isMobile: boolean;
   workflows?: Workflow[];
   workspaceId: string;
 }
 
-const NotFoundIcon = styled(Icon)`
-  && {
-    margin-bottom: var(--ads-v2-spaces-3);
-  }
-
-  & svg {
-    color: var(--ads-v2-color-gray-400);
-    height: var(--ads-v2-spaces-11);
-    width: var(--ads-v2-spaces-11);
-  }
-`;
-
 function WorkflowCardListRenderer({
-  createWorkflow,
-  isCreatingWorkflow = false,
   isFetchingWorkflows = false,
   isMobile,
   workflows = [],
@@ -68,17 +53,11 @@ function WorkflowCardListRenderer({
         })}
         {workflows.length === 0 && (
           <NoAppsFound>
-            <NotFoundIcon name="workflow" size="lg" />
-            <span>{createMessage(EMPTY_WORKFLOW_LIST)}</span>
-            <Button
-              className="t--new-workflow-button createnew"
-              isLoading={isCreatingWorkflow}
-              onClick={createWorkflow}
-              size="md"
-              startIcon="plus"
-            >
-              New
-            </Button>
+            <img
+              className="mb-7"
+              src={getAssetUrl(`${ASSETS_CDN_URL}/no-packages.svg`)}
+            />
+            <Text kind="heading-xs">{createMessage(EMPTY_WORKFLOW_LIST)}</Text>
           </NoAppsFound>
         )}
       </CardListWrapper>
