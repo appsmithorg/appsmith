@@ -33,10 +33,14 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Service
 @Slf4j
@@ -304,5 +308,39 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
         list.add(existingModuleInstancesNamesFlux);
 
         return list;
+    }
+
+    @Override
+    protected Mono<Integer> getContextBasedEvalVersionMono(
+            String contextId, RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
+        if (isModuleContext(refactorEntityNameDTO.getContextType())) {
+            // TODO: How to fetch eval version for modules
+            return Mono.just(EVALUATION_VERSION);
+        }
+        return super.getContextBasedEvalVersionMono(contextId, refactorEntityNameDTO, refactoringMetaDTO);
+    }
+
+    @Override
+    protected Mono<Map<String, String>> validateAndPrepareAnalyticsForRefactor(
+            RefactorEntityNameDTO refactorEntityNameDTO,
+            Mono<String> contextIdMono,
+            Map<String, String> analyticsProperties) {
+        if (isModuleContext(refactorEntityNameDTO.getContextType())) {
+            return isNameAllowed(
+                            refactorEntityNameDTO.getModuleId(),
+                            CreatorContextType.MODULE,
+                            refactorEntityNameDTO.getLayoutId(),
+                            refactorEntityNameDTO.getNewFullyQualifiedName())
+                    .thenReturn(analyticsProperties);
+        }
+        return super.validateAndPrepareAnalyticsForRefactor(refactorEntityNameDTO, contextIdMono, analyticsProperties);
+    }
+
+    @Override
+    protected Mono<String> getBranchedContextIdMono(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
+        if (isModuleContext(refactorEntityNameDTO.getContextType())) {
+            return Mono.just(refactorEntityNameDTO.getModuleId());
+        }
+        return super.getBranchedContextIdMono(refactorEntityNameDTO, branchName);
     }
 }

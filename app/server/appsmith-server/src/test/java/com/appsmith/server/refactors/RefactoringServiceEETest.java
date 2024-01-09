@@ -496,7 +496,8 @@ public class RefactoringServiceEETest {
                 null,
                 null,
                 moduleInstanceId,
-                false);
+                false,
+                null);
 
         // Call composite entity refactoring method
         refactoringService

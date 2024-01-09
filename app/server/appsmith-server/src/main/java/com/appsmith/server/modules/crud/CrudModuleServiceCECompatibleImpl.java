@@ -3,6 +3,7 @@ package com.appsmith.server.modules.crud;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.modules.base.BaseModuleServiceImpl;
@@ -43,6 +44,12 @@ public class CrudModuleServiceCECompatibleImpl extends BaseModuleServiceImpl imp
 
     @Override
     public Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<ModuleDTO> updateModuleName(
+            RefactorEntityNameDTO refactorEntityNameDTO, String moduleId, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

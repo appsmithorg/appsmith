@@ -81,4 +81,12 @@ public class NewActionRefactoringServiceImpl extends NewActionRefactoringService
             return super.getExistingEntities(contextId, contextType, layoutId, viewMode);
         }
     }
+
+    @Override
+    protected String extractContextId(RefactorEntityNameDTO refactorEntityNameDTO) {
+        if (isModuleContext(refactorEntityNameDTO.getContextType())) {
+            return refactorEntityNameDTO.getModuleId();
+        }
+        return super.extractContextId(refactorEntityNameDTO);
+    }
 }
