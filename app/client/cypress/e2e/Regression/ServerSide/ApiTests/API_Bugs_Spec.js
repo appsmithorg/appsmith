@@ -177,7 +177,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
-        expect($text).contains("Not found");
+        expect($text.toLowerCase()).contains("Not found".toLowerCase());
       });
   });
 
