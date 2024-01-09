@@ -192,7 +192,6 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(
       this._workspaceNoApps(newWorkspaceName),
     );
-    //this.agHelper.Sleep(5000); //is still needed, else failing in CI
   }
 
   //Maps to CheckShareIcon in command.js

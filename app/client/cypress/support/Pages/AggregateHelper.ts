@@ -1609,7 +1609,7 @@ export class AggregateHelper {
       "include",
       url,
     );
-    this.Sleep(); //settle time for new url!
+    this.Sleep(); //new url to open
   }
 
   public ScrollTo(
