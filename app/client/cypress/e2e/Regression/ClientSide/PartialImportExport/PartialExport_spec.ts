@@ -13,72 +13,80 @@ let guid: any;
 let workspaceName;
 const fixtureName = "PartialImportExportSampleApp.json";
 
-describe("Partial export functionality", { tags: [] }, () => {
-  before(() => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      guid = uid;
-      workspaceName = "workspaceName-" + guid;
-      homePage.CreateNewWorkspace(workspaceName, true);
-      homePage.ImportApp(`PartialImportExport/${fixtureName}`, workspaceName);
+describe(
+  "Partial export functionality",
+  { tags: ["@tag.ImportExport"] },
+  () => {
+    before(() => {
+      agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        guid = uid;
+        workspaceName = "workspaceName-" + guid;
+        homePage.CreateNewWorkspace(workspaceName, true);
+        homePage.ImportApp(`PartialImportExport/${fixtureName}`, workspaceName);
+      });
+
+      featureFlagIntercept({
+        release_show_partial_import_export_enabled: true,
+      });
     });
 
-    featureFlagIntercept({ release_show_partial_import_export_enabled: true });
-  });
+    beforeEach(() => {
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Home",
+        action: "Export",
+        entityType: EntityItems.Page,
+      });
 
-  beforeEach(() => {
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Home",
-      action: "Export",
-      entityType: EntityItems.Page,
+      agHelper.AssertElementVisibility(
+        PartialImportExportLocatores.exportModal,
+      );
+      agHelper.AssertElementEnabledDisabled(
+        PartialImportExportLocatores.modelContents.exportButton,
+      );
     });
 
-    agHelper.AssertElementVisibility(PartialImportExportLocatores.exportModal);
-    agHelper.AssertElementEnabledDisabled(
-      PartialImportExportLocatores.modelContents.exportButton,
-    );
-  });
+    it("1. Should export all the selected JsObjects", () => {
+      exportAndCompareDownloadedFile(
+        0,
+        PartialImportExportLocatores.modelContents.jsObjectsSection,
+        "JSExportedOnly.json",
+      );
+    });
 
-  it("1. Should export all the selected JsObjects", () => {
-    exportAndCompareDownloadedFile(
-      0,
-      PartialImportExportLocatores.modelContents.jsObjectsSection,
-      "JSExportedOnly.json",
-    );
-  });
+    it("2. Should export all the selected datasources", () => {
+      exportAndCompareDownloadedFile(
+        1,
+        PartialImportExportLocatores.modelContents.datasourcesSection,
+        "DatasourceExportedOnly.json",
+      );
+    });
 
-  it("2. Should export all the selected datasources", () => {
-    exportAndCompareDownloadedFile(
-      1,
-      PartialImportExportLocatores.modelContents.datasourcesSection,
-      "DatasourceExportedOnly.json",
-    );
-  });
+    it("3. Should export all the selected queries", () => {
+      exportAndCompareDownloadedFile(
+        2,
+        PartialImportExportLocatores.modelContents.queriesSection,
+        "QueriesExportedOnly.json",
+      );
+    });
 
-  it("3. Should export all the selected queries", () => {
-    exportAndCompareDownloadedFile(
-      2,
-      PartialImportExportLocatores.modelContents.queriesSection,
-      "QueriesExportedOnly.json",
-    );
-  });
+    it("4. Should export all the customjs libs", () => {
+      exportAndCompareDownloadedFile(
+        3,
+        PartialImportExportLocatores.modelContents.customJSLibsSection,
+        "CustomJSLibsExportedOnly.json",
+      );
+    });
 
-  it("4. Should export all the customjs libs", () => {
-    exportAndCompareDownloadedFile(
-      3,
-      PartialImportExportLocatores.modelContents.customJSLibsSection,
-      "CustomJSLibsExportedOnly.json",
-    );
-  });
-
-  it("5. Should export all the widgets", () => {
-    exportAndCompareDownloadedFile(
-      4,
-      PartialImportExportLocatores.modelContents.widgetsSection,
-      "WidgetsExportedOnly.json",
-    );
-  });
-});
+    it("5. Should export all the widgets", () => {
+      exportAndCompareDownloadedFile(
+        4,
+        PartialImportExportLocatores.modelContents.widgetsSection,
+        "WidgetsExportedOnly.json",
+      );
+    });
+  },
+);
 
 function exportAndCompareDownloadedFile(
   sectionIndex: number,
