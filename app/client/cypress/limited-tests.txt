@@ -2,6 +2,8 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Sanity/Datasources/Arango_Basic_Spec.ts
 cypress/e2e/Regression/Apps/MongoDBShoppingCart_spec.ts
+cypress/e2e/Regression/Apps/PromisesApp_spec.js
+
 
 
 
