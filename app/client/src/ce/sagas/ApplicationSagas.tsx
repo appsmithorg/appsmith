@@ -107,7 +107,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
-import { identity, isEmpty, merge, pickBy } from "lodash";
+import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import {
   getPageList,
@@ -135,6 +135,7 @@ import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applica
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import equal from "fast-deep-equal";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -947,14 +948,7 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
     // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
     currentEnvironment = Object.keys(datasource.datasourceStorages)[0];
   }
-  // Added isEmpty instead of ! condition as ! does not account for
-  // datasourceConfiguration being empty
-  if (
-    isEmpty(
-      datasource.datasourceStorages[currentEnvironment]
-        ?.datasourceConfiguration,
-    )
-  ) {
+  if (!datasource.datasourceStorages[currentEnvironment]?.isConfigured) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
@@ -963,20 +957,29 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
     const initialValues: unknown = yield call(
       getConfigInitialValues,
       formConfig,
+      false,
+      false,
     );
     const payload = merge(
       initialValues,
       datasource.datasourceStorages[currentEnvironment],
     );
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response: ApiResponse =
-      yield DatasourcesApi.updateDatasourceStorage(payload);
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
-        payload: response.data,
-      });
+
+    const isEqual = equal(
+      payload,
+      datasource.datasourceStorages[currentEnvironment],
+    );
+    if (!isEqual) {
+      const response: ApiResponse =
+        yield DatasourcesApi.updateDatasourceStorage(payload);
+      const isValidResponse: boolean = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put({
+          type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
+          payload: response.data,
+        });
+      }
     }
   }
 }
