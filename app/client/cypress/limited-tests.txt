@@ -1,6 +1,5 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_tabledata_schema_spec.js
 cypress/e2e/Regression/Apps/PromisesApp_spec.js
 cypress/e2e/Regression/ClientSide/BugTests/Bug29566_Spec.ts
