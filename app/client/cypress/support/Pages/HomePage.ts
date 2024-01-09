@@ -262,14 +262,13 @@ export class HomePage {
   }
 
   public NavigateToHome() {
-    this.assertHelper.AssertDocumentReady();
+    this.agHelper.AssertElementVisibility(this._homeIcon);
     this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
     if (!Cypress.env("AIRGAPPED")) {
       this.assertHelper.AssertNetworkStatus("@getReleaseItems");
     } else {
       this.agHelper.Sleep(2000);
     }
-    //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
     this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
