@@ -307,7 +307,7 @@ describe(
     });
 
     it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
-      //agHelper.RefreshPage();
+      agHelper.RefreshPage();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
       propPane.AssertPropertiesDropDownCurrentValue(
         "Table data",
