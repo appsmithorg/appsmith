@@ -8,7 +8,6 @@ const generatePage = require("../../../../../locators/GeneratePage.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import ApiEditor from "../../../../../locators/ApiEditor";
 import homePageLocators from "../../../../../locators/HomePage";
 import datasource from "../../../../../locators/DatasourcesEditor.json";
 
@@ -134,17 +133,10 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       apiPage.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       // curl import
-      dataSources.NavigateToDSCreateNew();
-      cy.get(ApiEditor.curlImage).click({ force: true });
-      cy.get("textarea").type(
-        'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
+      dataSources.FillCurlNImport(
+        `curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '` +
           datasourceFormData["echoApiUrl"],
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
       );
-      cy.importCurl();
       cy.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       cy.get("@curlImport").then((response) => {

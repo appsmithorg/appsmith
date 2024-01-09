@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Button, Flex, Text } from "design-system";
 import { useSelector } from "react-redux";
 
@@ -11,16 +11,15 @@ import {
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import history from "utils/history";
 import {
   getCurrentPageId,
   selectQueriesForPagespane,
 } from "@appsmith/selectors/entitiesSelector";
-import { ADD_PATH } from "constants/routes";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EmptyState } from "./EmptyState";
+import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EmptyState } from "../components/EmptyState";
+import { useQueryAdd } from "./hooks";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -35,9 +34,7 @@ const ListQuery = () => {
   );
   const applicationId = useSelector(getCurrentApplicationId);
 
-  const addButtonClickHandler = useCallback(() => {
-    history.push(`${location.pathname}${ADD_PATH}`);
-  }, [pageId]);
+  const addButtonClickHandler = useQueryAdd();
 
   return (
     <Flex
@@ -56,7 +53,7 @@ const ListQuery = () => {
             size={"sm"}
             startIcon={"add-line"}
           >
-            {createMessage(PAGES_PANE_TEXTS.query_add_button)}
+            {createMessage(EDITOR_PANE_TEXTS.query_add_button)}
           </Button>
         </Flex>
       )}
@@ -106,9 +103,9 @@ const ListQuery = () => {
       {Object.keys(files).length === 0 && (
         <EmptyState
           buttonClassName="t--add-item"
-          buttonText={createMessage(PAGES_PANE_TEXTS.query_add_button)}
+          buttonText={createMessage(EDITOR_PANE_TEXTS.query_add_button)}
           description={createMessage(
-            PAGES_PANE_TEXTS.query_blank_state_description,
+            EDITOR_PANE_TEXTS.query_blank_state_description,
           )}
           icon={"queries-v3"}
           onClick={canCreateActions ? addButtonClickHandler : undefined}
@@ -118,4 +115,4 @@ const ListQuery = () => {
   );
 };
 
-export { ListQuery };
+export default ListQuery;

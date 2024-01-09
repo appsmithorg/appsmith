@@ -45,7 +45,8 @@ class EditorNavigation {
       .should("be.visible")
       .click()
       .parents(datasource.datasourceCard)
-      .should("have.attr", "data-selected", "true");
+      .as("dsCard");
+    cy.get("@dsCard").should("have.attr", "data-selected", "true");
   }
 
   NavigateToWidget(

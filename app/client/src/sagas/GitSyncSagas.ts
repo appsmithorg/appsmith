@@ -391,7 +391,7 @@ function* switchBranch(action: ReduxAction<string>) {
     // Check if page exists in the branch. If not, instead of 404, take them to
     // the app home page
     const page = response.data.pages.find(
-      (page) => page.id === entityInfo.pageId,
+      (page) => page.id === entityInfo.params.pageId,
     );
     const homePage = response.data.pages.find((page) => page.isDefault);
     if (!page) {
