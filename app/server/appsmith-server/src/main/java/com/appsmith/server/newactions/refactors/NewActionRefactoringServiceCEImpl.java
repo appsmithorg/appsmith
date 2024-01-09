@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_ACTION;
+import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -65,11 +66,11 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
         Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
         Pattern oldNamePattern = refactoringMetaDTO.getOldNamePattern();
 
-        String pageId = refactorEntityNameDTO.getPageId();
+        String contextId = extractContextId(refactorEntityNameDTO);
+        CreatorContextType contextType = getDefaultContextIfNull(refactorEntityNameDTO.getContextType());
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
-        return newActionService
-                .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
+        return getActionsByContextId(contextId, contextType)
                 .flatMap(newAction -> Mono.just(newAction).zipWith(evalVersionMono))
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
@@ -110,8 +111,20 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                 .map(savedAction -> savedAction.getUnpublishedAction().getName())
                 .collectList()
                 .doOnNext(updatedActionNames -> log.debug(
-                        "Actions updated due to refactor name in page {} are : {}", pageId, updatedActionNames))
+                        "Actions updated due to refactor name in {} {} are : {}",
+                        contextType.toString().toLowerCase(),
+                        contextId,
+                        updatedActionNames))
                 .then();
+    }
+
+    protected String extractContextId(RefactorEntityNameDTO refactorEntityNameDTO) {
+        return refactorEntityNameDTO.getPageId();
+    }
+
+    protected Flux<NewAction> getActionsByContextId(String contextId, CreatorContextType contextType) {
+        return newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
+                contextId, contextType, actionPermission.getEditPermission(), false, true);
     }
 
     @Override
