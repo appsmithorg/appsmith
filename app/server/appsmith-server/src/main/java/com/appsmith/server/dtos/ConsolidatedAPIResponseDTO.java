@@ -21,59 +21,56 @@ import java.util.Map;
 @Setter
 public class ConsolidatedAPIResponseDTO {
     /* v1/users/me */
-    ResponseDTO<UserProfileDTO> v1UsersMeResp;
+    ResponseDTO<UserProfileDTO> userProfile;
 
     /* v1/users/features */
-    ResponseDTO<Map<String, Boolean>> v1UsersFeaturesResp;
+    ResponseDTO<Map<String, Boolean>> featureFlags;
 
     /* v1/tenants/current */
-    ResponseDTO<Tenant> v1TenantsCurrentResp;
+    ResponseDTO<Tenant> tenantConfig;
 
     /* v1/product-alert/alert */
-    ResponseDTO<ProductAlertResponseDTO> v1ProductAlertResp;
+    ResponseDTO<ProductAlertResponseDTO> productAlert;
 
     /* v1/pages */
-    ResponseDTO<ApplicationPagesDTO> v1PagesResp;
+    ResponseDTO<ApplicationPagesDTO> pages;
 
     /* v1/actions/view */
-    ResponseDTO<List<ActionViewDTO>> v1ActionsViewResp;
+    ResponseDTO<List<ActionViewDTO>> publishedActions;
 
     /* v1/actions */
-    ResponseDTO<List<ActionDTO>> v1ActionsResp;
+    ResponseDTO<List<ActionDTO>> unpublishedActions;
 
     /* v1/collections/actions/view */
-    ResponseDTO<List<ActionCollectionViewDTO>> v1CollectionsActionsViewResp;
+    ResponseDTO<List<ActionCollectionViewDTO>> publishedActionCollections;
 
     /* v1/collections/actions */
-    ResponseDTO<List<ActionCollectionDTO>> v1CollectionsActionsResp;
+    ResponseDTO<List<ActionCollectionDTO>> unpublishedActionCollections;
 
     /* v1/themes/applications/{applicationId}/current */
-    ResponseDTO<Theme> v1ThemesApplicationCurrentModeResp;
+    ResponseDTO<Theme> currentTheme;
 
     /* v1/themes/applications/{applicationId} */
-    ResponseDTO<List<Theme>> v1ThemesResp;
+    ResponseDTO<List<Theme>> themes;
 
     /* v1/pages/{pageId}/view */
-    ResponseDTO<PageDTO> v1PublishedPageResp;
-
-    /* v1/pages/{pageId} */
-    ResponseDTO<PageDTO> v1PageResp;
+    ResponseDTO<PageDTO> pageWithMigratedDsl;
 
     /* v1/pages/{pageId} - for all pages */
-    ResponseDTO<List<PageDTO>> v1PageDSLs;
+    ResponseDTO<List<PageDTO>> pagesWithMigratedDsl;
 
     /* v1/libraries/{applicationId}/view */
-    ResponseDTO<List<CustomJSLib>> v1LibrariesApplicationResp;
+    ResponseDTO<List<CustomJSLib>> customJSLibraries;
 
     /* v1/plugins */
-    ResponseDTO<List<Plugin>> v1PluginsResp;
+    ResponseDTO<List<Plugin>> plugins;
 
     /* v1/datasources */
-    ResponseDTO<List<Datasource>> v1DatasourcesResp;
+    ResponseDTO<List<Datasource>> datasources;
 
     /* v1/plugins/{pluginId}/form - for all plugins used in app */
-    ResponseDTO<Map<String, Map>> v1PluginFormConfigsResp;
+    ResponseDTO<Map<String, Map>> pluginFormConfigs;
 
     /* v1/datasources/mock */
-    ResponseDTO<List<MockDataSet>> v1DatasourcesMockResp;
+    ResponseDTO<List<MockDataSet>> mockDatasources;
 }
