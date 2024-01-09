@@ -95,7 +95,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     .cache();
 
             Mono<List<Datasource>> existingDatasourceMono =
-                    getExistingDatasourceMono(importingMetaDTO.getApplicationId(), existingDatasourceFlux);
+                    getExistingDatasourceMono(importingMetaDTO.getContextId(), existingDatasourceFlux);
             Mono<Map<String, String>> datasourceMapMono = importDatasources(
                     applicationJson,
                     existingDatasourceMono,

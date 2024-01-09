@@ -87,7 +87,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         importedNewPageList,
                         existingPagesMono,
                         applicationMono,
-                        importingMetaDTO.getAppendToApp(),
+                        importingMetaDTO.getAppendToContext(),
                         importingMetaDTO.getBranchName(),
                         importingMetaDTO.getPermissionProvider(),
                         mappedImportableResourcesDTO)
@@ -100,8 +100,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         applicationJson.getExportedApplication(),
                         pageNameMapMono,
                         applicationMono,
-                        importingMetaDTO.getAppendToApp(),
-                        importingMetaDTO.getApplicationId(),
+                        importingMetaDTO.getAppendToContext(),
+                        importingMetaDTO.getContextId(),
                         existingPagesMono,
                         importedNewPagesMono,
                         mappedImportableResourcesDTO)

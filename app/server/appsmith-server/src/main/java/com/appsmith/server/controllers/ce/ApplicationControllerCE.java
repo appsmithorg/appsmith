@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -23,6 +24,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -69,6 +71,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ApplicationSnapshotService applicationSnapshotService;
     private final PartialExportService partialExportService;
     private final PartialImportService partialImportService;
+    private final ImportService importService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -81,7 +84,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ThemeService themeService,
             ApplicationSnapshotService applicationSnapshotService,
             PartialExportService partialExportService,
-            PartialImportService partialImportService) {
+            PartialImportService partialImportService,
+            ImportService importService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
@@ -92,6 +96,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         this.applicationSnapshotService = applicationSnapshotService;
         this.partialExportService = partialExportService;
         this.partialImportService = partialImportService;
+        this.importService = importService;
     }
 
     @JsonView(Views.Public.class)
@@ -296,13 +301,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(
+    public Mono<ResponseDTO<ImportableContextDTO>> importApplicationFromFile(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file ->
-                        importApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
+        return fileMono.flatMap(file -> importService.extractAndSaveContext(workspaceId, file, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 

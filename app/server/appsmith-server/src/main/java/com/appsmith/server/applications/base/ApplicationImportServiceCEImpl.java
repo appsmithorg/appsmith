@@ -295,29 +295,29 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             return application;
         });
 
-        if (StringUtils.isEmpty(importingMetaDTO.getApplicationId())) {
+        if (StringUtils.isEmpty(importingMetaDTO.getContextId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
                 return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
                     .findById(
-                            importingMetaDTO.getApplicationId(),
+                            importingMetaDTO.getContextId(),
                             importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
                     .switchIfEmpty(Mono.defer(() -> {
                         log.error(
                                 "No application found with id: {} and permission: {}",
-                                importingMetaDTO.getApplicationId(),
+                                importingMetaDTO.getContextId(),
                                 importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
                         return Mono.error(new AppsmithException(
                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.APPLICATION,
-                                importingMetaDTO.getApplicationId()));
+                                importingMetaDTO.getContextId()));
                     }))
                     .cache();
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
-            if (importingMetaDTO.getAppendToApp()) { // we don't need to do anything with the imported application
+            if (importingMetaDTO.getAppendToContext()) { // we don't need to do anything with the imported application
                 importApplicationMono = existingApplicationMono;
             } else {
                 importApplicationMono = importApplicationMono
@@ -634,29 +634,29 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             return application;
         });
 
-        if (StringUtils.isEmpty(importingMetaDTO.getApplicationId())) {
+        if (StringUtils.isEmpty(importingMetaDTO.getContextId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
                 return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
                     .findById(
-                            importingMetaDTO.getApplicationId(),
+                            importingMetaDTO.getContextId(),
                             importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
                     .switchIfEmpty(Mono.defer(() -> {
                         log.error(
                                 "No application found with id: {} and permission: {}",
-                                importingMetaDTO.getApplicationId(),
+                                importingMetaDTO.getContextId(),
                                 importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
                         return Mono.error(new AppsmithException(
                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.APPLICATION,
-                                importingMetaDTO.getApplicationId()));
+                                importingMetaDTO.getContextId()));
                     }))
                     .cache();
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
-            if (importingMetaDTO.getAppendToApp()) { // we don't need to do anything with the imported application
+            if (importingMetaDTO.getAppendToContext()) { // we don't need to do anything with the imported application
                 importApplicationMono = existingApplicationMono;
             } else {
                 importApplicationMono = importApplicationMono

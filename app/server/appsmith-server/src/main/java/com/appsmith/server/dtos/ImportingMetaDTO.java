@@ -14,9 +14,14 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class ImportingMetaDTO {
     String workspaceId;
-    String applicationId;
+    /**
+     * this represents any parent entity's id which could be imported.
+     * e.g. application, packages.
+     */
+    String contextId;
+
     String branchName;
-    Boolean appendToApp;
+    Boolean appendToContext;
     ImportContextPermissionProvider permissionProvider;
     Set<String> currentUserPermissionGroups;
 }
