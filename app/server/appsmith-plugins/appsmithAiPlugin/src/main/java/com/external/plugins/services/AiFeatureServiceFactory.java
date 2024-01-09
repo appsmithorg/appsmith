@@ -6,7 +6,6 @@ import com.external.plugins.models.Feature;
 import com.external.plugins.services.features.ImageCaptioningServiceImpl;
 import com.external.plugins.services.features.ImageClassificationServiceImpl;
 import com.external.plugins.services.features.ImageEntityExtractionServiceImpl;
-import com.external.plugins.services.features.ImageGenerationServiceImpl;
 import com.external.plugins.services.features.TextClassificationServiceImpl;
 import com.external.plugins.services.features.TextEntityExtractionServiceImpl;
 import com.external.plugins.services.features.TextGenerationServiceImpl;
@@ -26,9 +25,6 @@ public class AiFeatureServiceFactory {
             }
             case TEXT_ENTITY_EXTRACT -> {
                 return new TextEntityExtractionServiceImpl();
-            }
-            case IMAGE_GENERATE -> {
-                return new ImageGenerationServiceImpl();
             }
             case IMAGE_CLASSIFY -> {
                 return new ImageClassificationServiceImpl();

@@ -5,8 +5,8 @@
       "identifier": "SELECTOR",
       "children": [
         {
-          "label": "Usecase",
-          "description": "Choose the use-case you would like to use",
+          "label": "Action",
+          "description": "Choose the action you would like to use",
           "configProperty": "actionConfiguration.formData.usecase.data",
           "controlType": "DROP_DOWN",
           "isRequired": true,

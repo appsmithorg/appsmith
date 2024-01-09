@@ -34,7 +34,7 @@ public class Migration040AddAppsmithAiPlugin {
         plugin.setUiComponent("UQIDbEditorForm");
         plugin.setDatasourceComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://assets.appsmith.com/appsmith-logo.png");
+        plugin.setIconLocation("https://assets.appsmith.com/logo/appsmith-ai.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/connect-data/reference/appsmith-ai");
         plugin.setDefaultInstall(true);
         try {

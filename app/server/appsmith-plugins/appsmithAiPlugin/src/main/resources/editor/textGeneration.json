@@ -9,10 +9,19 @@
       "label": "Input",
       "Description": "Provide an prompt for AI to generate text",
       "subtitle": "Provide an prompt for AI to generate text",
-      "configProperty": "actionConfiguration.formData.input.data",
+      "configProperty": "actionConfiguration.formData.textGeneration.input.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
       "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
       "isRequired": true
+    },
+    {
+      "label": "Additional Instructions",
+      "Description": "Provide additional instructions for the AI to tweak the generated text",
+      "subtitle": "Provide additional instructions for the AI to tweak the generated text",
+      "configProperty": "actionConfiguration.formData.textGeneration.instructions.data",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+      "isRequired": false
     }
   ]
 }

@@ -10,7 +10,7 @@
       "Description": "Provide some text for AI to classify",
       "subtitle": "Provide some text for AI to classify",
       "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "configProperty": "actionConfiguration.formData.input.data",
+      "configProperty": "actionConfiguration.formData.textClassify.input.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
       "isRequired": true
     },
@@ -18,13 +18,22 @@
       "label": "Labels",
       "Description": "Provide a comma separated list of labels to classify the Input on",
       "subtitle": "Provide a comma separated list of labels to classify the Input on",
-      "configProperty": "actionConfiguration.formData.labels.data",
+      "configProperty": "actionConfiguration.formData.textClassify.labels.data",
       "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "isRequired": true,
       "customStyles": {
         "width": "872px"
       }
+    },
+    {
+      "label": "Additional Instructions",
+      "Description": "Provide additional instructions for the AI to tweak the text classification",
+      "subtitle": "Provide additional instructions for the AI to tweak the text classification",
+      "configProperty": "actionConfiguration.formData.textClassify.instructions.data",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+      "isRequired": false
     }
   ]
 }

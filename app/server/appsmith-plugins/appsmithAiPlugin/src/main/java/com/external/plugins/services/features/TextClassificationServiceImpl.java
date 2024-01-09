@@ -1,33 +1,41 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.dtos.Query;
 import com.external.plugins.dtos.TextClassificationQuery;
 import com.external.plugins.services.AiFeatureService;
-import com.external.plugins.utils.RequestUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.constants.AppsmithAiConstants.INPUT;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.external.plugins.constants.AppsmithAiConstants.INSTRUCTIONS;
 import static com.external.plugins.constants.AppsmithAiConstants.LABELS;
+import static com.external.plugins.constants.AppsmithAiConstants.TEXT_CLASSIFICATION;
+import static com.external.plugins.constants.AppsmithAiConstants.TEXT_CLASSIFY_INPUT;
+import static com.external.plugins.constants.AppsmithAiConstants.TEXT_CLASSIFY_INSTRUCTIONS;
+import static com.external.plugins.constants.AppsmithAiConstants.TEXT_CLASSIFY_LABELS;
 import static com.external.plugins.utils.FieldValidationHelper.validateTextInputAndProperties;
 
 public class TextClassificationServiceImpl implements AiFeatureService {
     @Override
     public Query createQuery(ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
-        validateTextInputAndProperties(formData, List.of(LABELS));
-        String input = RequestUtils.extractDataFromFormData(formData, INPUT);
-        String labels = RequestUtils.extractDataFromFormData(formData, LABELS);
+        validateTextInputAndProperties(formData, TEXT_CLASSIFICATION, List.of(LABELS, INSTRUCTIONS));
+        String input = PluginUtils.getDataValueSafelyFromFormData(formData, TEXT_CLASSIFY_INPUT, STRING_TYPE);
+        String labels = PluginUtils.getDataValueSafelyFromFormData(formData, TEXT_CLASSIFY_LABELS, STRING_TYPE);
+        String instructions =
+                PluginUtils.getDataValueSafelyFromFormData(formData, TEXT_CLASSIFY_INSTRUCTIONS, STRING_TYPE);
         // labels string is comma-separated list of labels
         List<String> labelsList =
                 Arrays.stream(labels.split(",")).map(String::trim).toList();
         TextClassificationQuery query = new TextClassificationQuery();
         query.setInput(input);
         query.setLabels(labelsList);
+        query.setInstructions(instructions);
         return query;
     }
 }
