@@ -23,7 +23,7 @@ describe(
       onboarding.closeIntroModal();
     });
 
-    it("1. Verify Repo limit flow for CE instance", function () {
+    it("1. Verify Repo limit flow for CE/EE instances", function () {
       agHelper.Sleep(2000); // adding wait for app to load
       homePage.LogOutviaAPI();
       cy.generateUUID().then((uid) => {
