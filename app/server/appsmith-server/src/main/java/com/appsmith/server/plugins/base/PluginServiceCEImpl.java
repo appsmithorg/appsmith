@@ -134,7 +134,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     }
 
                     List<String> pluginIds = org.getPlugins().stream()
-                            .filter(plugin -> plugin.getDeleted() == false)
+                            .filter(plugin -> !plugin.isDeleted())
                             .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
                     Query query = new Query();
@@ -162,7 +162,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
 
-        plugin.setDeleted(false);
         return super.create(plugin);
     }
 
