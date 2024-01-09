@@ -4,6 +4,11 @@ cypress/e2e/Regression/Apps/MongoDBShoppingCart_spec.ts
 cypress/e2e/Regression/Apps/PromisesApp_spec.js
 cypress/e2e/Regression/ClientSide/OtherUIFeatures/ApplicationURL_spec.js
 cypress/e2e/Regression/ClientSide/MobileResponsiveTests/AutoFillWidgets_Reflow_spec.ts
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Sanity/Datasources/Arango_Basic_Spec.ts
+
+
+
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*

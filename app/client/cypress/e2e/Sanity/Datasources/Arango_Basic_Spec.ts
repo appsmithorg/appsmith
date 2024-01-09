@@ -307,7 +307,7 @@ describe(
     });
 
     it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
-      agHelper.RefreshPage();
+      //agHelper.RefreshPage();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
       propPane.AssertPropertiesDropDownCurrentValue(
         "Table data",
@@ -316,6 +316,9 @@ describe(
       EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
       //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
       dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
+      let query = `FOR document IN ${collectionName}
+      RETURN { country: document.country }`;
+      dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
       propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
