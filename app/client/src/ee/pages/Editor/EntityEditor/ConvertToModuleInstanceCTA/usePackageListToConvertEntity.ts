@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { hasCreateModulePermission } from "@appsmith/utils/permissionHelpers";
 import {
   CANNOT_CREATE_MODULE_WARN,

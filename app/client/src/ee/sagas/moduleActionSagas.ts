@@ -39,7 +39,7 @@ import {
   ActionParentEntityType,
   CreateNewActionKey,
 } from "@appsmith/entities/Engine/actionHelpers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type {
   JSCollectionData,
   JSCollectionDataState,

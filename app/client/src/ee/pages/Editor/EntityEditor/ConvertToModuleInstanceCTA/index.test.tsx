@@ -13,7 +13,7 @@ import usePackageListToConvertEntity from "./usePackageListToConvertEntity";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import "@testing-library/jest-dom";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const mockDispatch = jest.fn();
 jest.mock("react-redux", () => ({
@@ -22,7 +22,7 @@ jest.mock("react-redux", () => ({
 }));
 
 jest.mock("./usePackageListToConvertEntity");
-jest.mock("@appsmith/selectors/workspaceSelectors");
+jest.mock("@appsmith/selectors/selectedWorkspaceSelectors");
 jest.mock("@appsmith/selectors/moduleFeatureSelectors");
 
 const packagesList = [

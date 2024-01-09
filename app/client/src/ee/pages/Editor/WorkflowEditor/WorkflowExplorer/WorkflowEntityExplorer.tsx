@@ -4,7 +4,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { EntityExplorerWrapper } from "pages/Editor/Explorer/Common/EntityExplorerWrapper";
 import Files from "pages/Editor/Explorer/Files";
 import {

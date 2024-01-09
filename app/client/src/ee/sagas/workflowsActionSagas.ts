@@ -46,7 +46,7 @@ import type {
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import { generateDefaultJSObject } from "sagas/JSPaneSagas";
 import { createDummyJSCollectionActions } from "utils/JSPaneUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getMainJsObjectIdOfCurrentWorkflow } from "@appsmith/selectors/workflowSelectors";
 
 export function* createWorkflowQueryActionSaga(

@@ -7,7 +7,7 @@ import { Button } from "design-system";
 
 import PackageListMenu from "./PackageListMenu";
 import { convertEntityToInstance } from "@appsmith/actions/moduleInstanceActions";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { hasCreatePackagePermission } from "@appsmith/utils/permissionHelpers";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import usePackageListToConvertEntity from "./usePackageListToConvertEntity";

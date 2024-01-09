@@ -48,7 +48,7 @@ import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
 import { executePageLoadActions } from "actions/pluginActionActions";
 import { createDummyJSCollectionActions } from "utils/JSPaneUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { generateDefaultJSObject } from "sagas/JSPaneSagas";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";

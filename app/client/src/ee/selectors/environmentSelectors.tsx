@@ -7,7 +7,7 @@ import { getFilteredEnvListWithPermissions } from "@appsmith/utils/Environments"
 import { hasManageWorkspaceEnvironmentPermission } from "@appsmith/utils/permissionHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { getHasManageWorkspaceDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { getCurrentAppWorkspace } from "./workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { onCanvas } from "components/editorComponents/Debugger/helpers";
 import { matchDatasourcePath } from "constants/routes";
 import { isDatasourceInViewMode } from "selectors/ui";

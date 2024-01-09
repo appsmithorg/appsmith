@@ -18,7 +18,7 @@ import {
   dsEditorEnvWalkthroughConfig,
 } from "@appsmith/utils/Environments";
 import type { PluginType } from "entities/Action";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
