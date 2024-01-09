@@ -81,7 +81,7 @@ export class HomePage {
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-testid=t--workspace-import-app]";
-  private _uploadFile = "//div/form/input";
+  public _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
   public _appCard = (applicationName: string) =>
