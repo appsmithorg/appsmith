@@ -1509,7 +1509,7 @@ export class AggregateHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = Cypress.config("defaultCommandTimeout"),
+    timeout = Cypress.config("pageLoadTimeout"),
   ) {
     return this.GetElement(selector, "exist", timeout)
       .eq(index)

@@ -17,7 +17,11 @@ describe(
         `div[role="dialog"]:has(` + templateLocators.dialogForkButton + `)`,
       );
       cy.get(templateLocators.dialogForkButton).click({ force: true });
-      cy.get(commonlocators.canvas, { timeout: 30000 }).should("be.visible");
+      _.agHelper.AssertElementAbsence(
+        `div[role="dialog"]:has(` + templateLocators.dialogForkButton + `)`,
+        Cypress.config().pageLoadTimeout,
+      );
+      _.agHelper.AssertElementVisibility(commonlocators.canvas);
     });
 
     it("2. Update query param on opening fork modal in template detailed view", () => {
