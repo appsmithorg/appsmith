@@ -55,6 +55,11 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     protected String modifiedBy;
 
+    // Deprecating this so we can move on to using `deletedAt` for all domain models.
+    @Deprecated(forRemoval = true)
+    @JsonView(Views.Public.class)
+    protected Boolean deleted = false;
+
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
