@@ -332,6 +332,7 @@ export function EditorJSONtoForm(props: Props) {
     actionRightPaneBackLink,
     closeEditorLink,
     moreActionsMenu,
+    notification,
     saveActionName,
     showSuggestedWidgets = true,
   } = useContext(QueryEditorContext);
@@ -682,6 +683,7 @@ export function EditorJSONtoForm(props: Props) {
             </Button>
           </ActionsWrapper>
         </StyledFormRow>
+        {notification}
         <Wrapper>
           <div className="flex flex-1">
             <SecondaryWrapper>
