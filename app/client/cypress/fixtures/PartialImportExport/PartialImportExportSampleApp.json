@@ -2,7 +2,7 @@
   "clientSchemaVersion": 1.0,
   "serverSchemaVersion": 7.0,
   "exportedApplication": {
-    "name": "PartialImportExportFixture",
+    "name": "PartialImportExportSampleApp",
     "isPublic": false,
     "pages": [{ "id": "Home", "isDefault": true }],
     "publishedPages": [{ "isDefault": true }],
@@ -13,7 +13,7 @@
     "publishedApplicationDetail": { "appPositioning": { "type": "FIXED" } },
     "color": "#F1DEFF",
     "icon": "steam-bowl",
-    "slug": "partialimportexportfixture",
+    "slug": "partialimportexportsampleapp",
     "unpublishedCustomJSLibs": [
       { "uidString": "jsonwebtoken_/libraries/jsonwebtoken@8.5.1.js" }
     ],

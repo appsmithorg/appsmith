@@ -97,6 +97,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       {
         content: jsObjects ? (
           <EntityCheckboxSelector
+            containerTestId="t--partialExportModal-jsObjectsSection"
             entities={jsObjects}
             onEntityChecked={(id, selected) =>
               onEntitySelected("jsObjects", id, selected)
@@ -270,7 +271,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         <Text kind="heading-s" renderAs="h2">
           {createMessage(PARTIAL_IMPORT_EXPORT.export.modalSubHeading)}
         </Text>
-        <ScrollableSection>
+        <ScrollableSection data-testid="t--partialExportModal">
           {entities.map(
             ({ content, icon, onResetClick, shouldShowReset, title }) => (
               <>
@@ -278,6 +279,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
                   <CollapsibleHeader>
                     <div className="w-full flex justify-between">
                       <Text
+                        data-testid="t--partialExportModal-collapsibleHeader"
                         kind="heading-s"
                         style={{
                           display: "flex",
@@ -310,6 +312,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         </ScrollableSection>
         <ModalFooter>
           <Button
+            data-testid="t--partialExportModal-exportBtn"
             isDisabled={disableExportCTA}
             isLoading={partialImportExportLoadingState.isExporting}
             onClick={onExportClick}
