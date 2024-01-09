@@ -920,7 +920,7 @@ export class AggregateHelper {
     } else {
       index = indexOrOptions.index || 0;
       parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
-      delay = indexOrOptions.delay || 5;
+      delay = indexOrOptions.delay || 10;
       shouldFocus =
         indexOrOptions.shouldFocus !== undefined
           ? indexOrOptions.shouldFocus
