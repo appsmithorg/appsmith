@@ -17,13 +17,8 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
-      agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        //homePage.CreateNewWorkspace("Echo" + uid, true);
-        homePage.CreateNewApplication();
-        homePage.RenameApplication("EchoApiCMSApp");
-        agHelper.AddDsl("CMSdsl");
-      });
+      homePage.RenameApplication("EchoApiCMSApp");
+      agHelper.AddDsl("CMSdsl");
     });
 
     let repoName;
