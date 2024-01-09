@@ -63,6 +63,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import * as log from "loglevel";
+import { fetchModuleEntitiesSaga } from "./moduleSagas";
 
 export function* createNewAPIActionForPackageSaga(
   action: ReduxAction<{
@@ -284,13 +285,22 @@ export function* saveActionNameForPackageSaga(
   const actionToBeUpdated: ActionData | undefined = actions.find(
     (action) => action.config.id === id,
   );
+  const moduleId = actionToBeUpdated?.config.moduleId;
+
   try {
-    yield refactorActionNameForPackage(
-      id,
-      actionToBeUpdated?.config?.moduleId || "",
-      actionToBeUpdated?.config.name || "",
-      name,
-    );
+    if (moduleId) {
+      yield refactorActionNameForPackage(
+        id,
+        moduleId,
+        actionToBeUpdated?.config.name || "",
+        name,
+      );
+
+      yield call(fetchModuleEntitiesSaga, {
+        payload: { moduleId },
+        type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
+      });
+    }
   } catch (e) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
@@ -314,14 +324,22 @@ export function* saveJSObjectNameForPackageSaga(
   const jsActionToBeUpdated: JSCollectionData | undefined = jsActions.find(
     (jsaction) => jsaction.config.id === id,
   );
+  const moduleId = jsActionToBeUpdated?.config.moduleId;
 
   try {
-    yield refactorActionNameForPackage(
-      id,
-      jsActionToBeUpdated?.config.moduleId || "",
-      jsActionToBeUpdated?.config.name || "",
-      name,
-    );
+    if (moduleId) {
+      yield refactorJSObjectName(
+        id,
+        moduleId,
+        jsActionToBeUpdated?.config.name || "",
+        name,
+      );
+
+      yield call(fetchModuleEntitiesSaga, {
+        payload: { moduleId },
+        type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
+      });
+    }
   } catch (e) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR,

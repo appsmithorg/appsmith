@@ -225,6 +225,7 @@ const StartWithTemplateFilters = (props: FilterWrapperProps) => {
       <SearchWrapper sticky={props.stickySearchBar}>
         <div className="templates-search">
           <SearchInput
+            aria-label={createMessage(SEARCH_TEMPLATES)}
             data-testid={"t--application-search-input"}
             isDisabled={false}
             onChange={onChange}

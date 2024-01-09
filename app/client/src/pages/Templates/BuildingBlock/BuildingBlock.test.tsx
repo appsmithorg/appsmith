@@ -10,7 +10,7 @@ import history from "utils/history";
 import { lightTheme } from "selectors/themeSelectors";
 import { BUILDING_BLOCK_THUMBNAIL_ALT_TEXT } from "../constants";
 import {
-  mockBuildingBlock,
+  unitTestMockBuildingBlock,
   MOCK_BUILDING_BLOCK_TITLE,
   MOCK_BUILDING_BLOCK_DESCRIPTION,
   MOCK_BUILDING_BLOCK_ID,
@@ -30,14 +30,14 @@ const onForkTemplateClick = jest.fn();
 const BaseBuildingBlockRender = () => (
   <ThemeProvider theme={lightTheme}>
     <BuildingBlock
-      buildingBlock={mockBuildingBlock}
+      buildingBlock={unitTestMockBuildingBlock}
       hideForkTemplateButton={false}
       onForkTemplateClick={onForkTemplateClick}
     />
   </ThemeProvider>
 );
 
-describe("BuildingBlock Component", () => {
+describe("<BuildingBlock />", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -65,7 +65,7 @@ describe("BuildingBlock Component", () => {
   it("triggers onForkTemplateClick when the fork button is clicked", async () => {
     render(BaseBuildingBlockRender());
     fireEvent.click(screen.getByTestId("t--fork-building-block"));
-    expect(onForkTemplateClick).toHaveBeenCalledWith(mockBuildingBlock);
+    expect(onForkTemplateClick).toHaveBeenCalledWith(unitTestMockBuildingBlock);
   });
 
   it("does not trigger onForkTemplateClick when the button is hidden", () => {
@@ -73,7 +73,7 @@ describe("BuildingBlock Component", () => {
     render(
       <ThemeProvider theme={lightTheme}>
         <BuildingBlock
-          buildingBlock={mockBuildingBlock}
+          buildingBlock={unitTestMockBuildingBlock}
           hideForkTemplateButton
           onForkTemplateClick={onForkTemplateClick}
         />

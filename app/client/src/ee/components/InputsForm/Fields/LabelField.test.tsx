@@ -6,6 +6,14 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import LabelField from "./LabelField";
 
+jest.mock("react-router", () => ({
+  ...jest.requireActual("react-router"),
+  useHistory: () => ({ push: jest.fn() }),
+  useLocation: () => ({
+    pathname: "",
+  }),
+}));
+
 function Wrapper({
   children,
   defaultValues,
