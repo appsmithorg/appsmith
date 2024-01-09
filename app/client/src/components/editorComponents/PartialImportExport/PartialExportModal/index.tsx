@@ -120,6 +120,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         content:
           appWideDS.length > 0 ? (
             <EntityCheckboxSelector
+              containerTestId="t--partialExportModal-datasourcesSection"
               entities={appWideDS}
               onEntityChecked={(id, selected) =>
                 onEntitySelected("datasources", id, selected)

@@ -40,34 +40,52 @@ describe("Partial export functionality", { tags: [] }, () => {
   });
 
   it("1. Should export all the selected JsObjects", () => {
-    agHelper.GetNClick(
-      PartialImportExportLocatores.modelContents.sectionHeaders,
+    exportAndCompareDownloadedFile(
       0,
-    );
-
-    const jsObjectsSection = agHelper.GetElement(
       PartialImportExportLocatores.modelContents.jsObjectsSection,
+      "JSExportedOnly.json",
     );
+  });
 
-    const jsObjectsCheckboxes = jsObjectsSection.find("input[type='checkbox']");
-    jsObjectsCheckboxes.each((element) => {
-      cy.wrap(element).click({ force: true });
-    });
-
-    agHelper.AssertElementEnabledDisabled(
-      PartialImportExportLocatores.modelContents.exportButton,
-      0,
-      false,
+  it.only("2. Should export all the selected datasources", () => {
+    exportAndCompareDownloadedFile(
+      1,
+      PartialImportExportLocatores.modelContents.datasourcesSection,
+      "DatasourceExportedOnly.json",
     );
-    agHelper.GetNClick(PartialImportExportLocatores.modelContents.exportButton);
-
-    cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
-      cy.fixture(`PartialImportExport/JSExportedOnly.json`).then(
-        (expectedFile) => {
-          expect(exportedFile).to.deep.equal(expectedFile);
-        },
-      );
-    });
-    cy.exec(`rm cypress/downloads/${fixtureName}`);
   });
 });
+
+function exportAndCompareDownloadedFile(
+  sectionIndex: number,
+  sectionSelector: string,
+  fileNameToCompareWith: string,
+) {
+  agHelper.GetNClick(
+    PartialImportExportLocatores.modelContents.sectionHeaders,
+    sectionIndex,
+  );
+
+  const currentSection = agHelper.GetElement(sectionSelector);
+
+  const checkboxesInSection = currentSection.find("input[type='checkbox']");
+  checkboxesInSection.each((element) => {
+    cy.wrap(element).click({ force: true });
+  });
+
+  agHelper.AssertElementEnabledDisabled(
+    PartialImportExportLocatores.modelContents.exportButton,
+    0,
+    false,
+  );
+  agHelper.GetNClick(PartialImportExportLocatores.modelContents.exportButton);
+
+  cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
+    cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
+      (expectedFile) => {
+        expect(exportedFile).to.deep.equal(expectedFile);
+      },
+    );
+  });
+  cy.exec(`rm cypress/downloads/${fixtureName}`);
+}
