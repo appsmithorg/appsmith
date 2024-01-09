@@ -17,6 +17,7 @@ describe("Export application as a JSON file", function () {
         homePage.CreateNewWorkspace("exportApp" + uid, true);
         homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
         appid = "App" + uid;
+        workspaceId = "exportApp" + uid;
         cy.get(homePageLocators.shareApp).click({ force: true });
         homePage.InviteUserToApplication(
           Cypress.env("TESTUSERNAME1"),
@@ -29,9 +30,15 @@ describe("Export application as a JSON file", function () {
           Cypress.env("TESTPASSWORD1"),
         );
         cy.wait(2000);
-        agHelper.TypeText(homePageLocators.searchInput, "exportApp" + uid);
-        agHelper.WaitUntilEleAppear(`[data-testid="${"exportApp" + uid}"]`);
-        cy.get(`[data-testid="${"exportApp" + uid}"]`).click({ force: true });
+        agHelper.TypeText(homePageLocators.searchInput, workspaceId);
+        agHelper.WaitUntilEleAppear(
+          homePage._searchWorkspaceLocator(workspaceId),
+        );
+        agHelper.GetNClick(
+          homePage._searchWorkspaceLocator(workspaceId),
+          0,
+          true,
+        );
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(2000);
 
@@ -72,9 +79,15 @@ describe("Export application as a JSON file", function () {
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.wait(2000);
       cy.log({ appid });
-      cy.get(homePageLocators.searchInput).type(workspaceId);
-      agHelper.WaitUntilEleAppear(`[data-testid="${workspaceId}"]`);
-      cy.get(`[data-testid="${workspaceId}"]`).click({ force: true });
+      agHelper.TypeText(homePageLocators.searchInput, workspaceId);
+      agHelper.WaitUntilEleAppear(
+        homePage._searchWorkspaceLocator(workspaceId),
+      );
+      agHelper.GetNClick(
+        homePage._searchWorkspaceLocator(workspaceId),
+        0,
+        true,
+      );
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
       cy.get(homePageLocators.appMoreIcon).first().click({ force: true });
@@ -113,10 +126,15 @@ describe("Export application as a JSON file", function () {
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.wait(2000);
       cy.log({ appid });
-      cy.get(homePageLocators.searchInput).type(workspaceId);
-      agHelper.WaitUntilEleAppear(`[data-testid="${workspaceId}"]`);
-      cy.get(`[data-testid="${workspaceId}"]`).click({ force: true });
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      agHelper.TypeText(homePageLocators.searchInput, workspaceId);
+      agHelper.WaitUntilEleAppear(
+        homePage._searchWorkspaceLocator(workspaceId),
+      );
+      agHelper.GetNClick(
+        homePage._searchWorkspaceLocator(workspaceId),
+        0,
+        true,
+      ); // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
 
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");

@@ -119,6 +119,9 @@ export class HomePage {
 
   private _backToEditor = ".t--back-to-editor";
 
+  public _searchWorkspaceLocator = (workspaceName: string) =>
+    `[data-testid="${workspaceName}"]`;
+
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
   }
