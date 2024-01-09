@@ -192,7 +192,10 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(
       this._workspaceNoApps(newWorkspaceName),
     );
-    this.agHelper.ContainsNClick(newWorkspaceName);
+    this.agHelper
+      .GetElement(this._workspaceList(newWorkspaceName))
+      .last()
+      .click({ force: true });
   }
 
   //Maps to CheckShareIcon in command.js
