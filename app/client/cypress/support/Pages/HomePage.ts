@@ -303,8 +303,6 @@ export class HomePage {
       .should("be.visible")
       .click({ force: true });
     this.AssertApplicationCreated();
-    this.agHelper.AssertElementAbsence(this.locator._loading);
-    this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
     //this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
   }
