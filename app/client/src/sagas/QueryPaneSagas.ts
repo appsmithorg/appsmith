@@ -39,7 +39,7 @@ import {
   getActions,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
@@ -292,6 +292,13 @@ function* formValueChangeSaga(
     ) {
       currentEnvironment = Object.keys(datasourceStorages)[0];
     }
+    let dsConfig = {
+      url: "",
+    };
+
+    if (plugin?.packageName !== PluginPackageName.WORKFLOW) {
+      dsConfig = datasourceStorages[currentEnvironment].datasourceConfiguration;
+    }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -302,7 +309,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasourceStorages[currentEnvironment].datasourceConfiguration,
+              dsConfig,
             ),
           ]
         : [];

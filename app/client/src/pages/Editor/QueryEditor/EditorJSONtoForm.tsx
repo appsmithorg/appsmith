@@ -15,6 +15,7 @@ import {
   type Action,
   type QueryAction,
   type SaaSAction,
+  PluginPackageName,
 } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -731,22 +732,23 @@ export function EditorJSONtoForm(props: Props) {
                           </Tag>
                         </>
                       )}
-                      {dataSources.length === 0 && (
-                        <NoDataSourceContainer>
-                          <p className="font18">
-                            {createMessage(NO_DATASOURCE_FOR_QUERY)}
-                          </p>
-                          <Button
-                            isDisabled={!canCreateDatasource}
-                            kind="primary"
-                            onClick={() => onCreateDatasourceClick()}
-                            size="sm"
-                            startIcon="plus"
-                          >
-                            Add a Datasource
-                          </Button>
-                        </NoDataSourceContainer>
-                      )}
+                      {plugin?.packageName !== PluginPackageName.WORKFLOW &&
+                        dataSources.length === 0 && (
+                          <NoDataSourceContainer>
+                            <p className="font18">
+                              {createMessage(NO_DATASOURCE_FOR_QUERY)}
+                            </p>
+                            <Button
+                              isDisabled={!canCreateDatasource}
+                              kind="primary"
+                              onClick={() => onCreateDatasourceClick()}
+                              size="sm"
+                              startIcon="plus"
+                            >
+                              Add a Datasource
+                            </Button>
+                          </NoDataSourceContainer>
+                        )}
                     </SettingsWrapper>
                   </TabPanelWrapper>
                   <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
