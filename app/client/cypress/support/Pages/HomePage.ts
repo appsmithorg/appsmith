@@ -196,7 +196,7 @@ export class HomePage {
       .GetElement(this._workspaceList(newWorkspaceName))
       .last()
       .click({ force: true });
-    this.agHelper.Sleep(); //is still needed, else failing in CI
+    this.agHelper.Sleep(2000); //is still needed, else failing in CI
   }
 
   //Maps to CheckShareIcon in command.js
