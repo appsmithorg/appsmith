@@ -5,6 +5,14 @@ import "@testing-library/jest-dom";
 
 import LabelField from "./LabelField";
 
+jest.mock("react-router", () => ({
+  ...jest.requireActual("react-router"),
+  useHistory: () => ({ push: jest.fn() }),
+  useLocation: () => ({
+    pathname: "",
+  }),
+}));
+
 function Wrapper({
   children,
   defaultValues,
