@@ -27,7 +27,6 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
     cy.intercept("POST", "/api/v1/users/forgotPassword", {
       fixture: "resetPassword.json",
     }).as("resetPwd");
-    _.homePage.NavigateToHome();
     _.agHelper.GetNClick(homePage.profileMenu, 0);
     cy.get(".t--edit-profile").click({ force: true });
 
