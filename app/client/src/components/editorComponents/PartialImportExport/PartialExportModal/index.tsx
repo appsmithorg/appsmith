@@ -165,6 +165,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         content:
           customJsLibraries.length > 0 ? (
             <EntityCheckboxSelector
+              containerTestId="t--partialExportModal-customJSLibsSection"
               entities={customJsLibraries}
               onEntityChecked={(id, selected) =>
                 onEntitySelected("customJSLibs", id, selected)

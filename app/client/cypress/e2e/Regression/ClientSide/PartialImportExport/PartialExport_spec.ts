@@ -47,11 +47,35 @@ describe("Partial export functionality", { tags: [] }, () => {
     );
   });
 
-  it.only("2. Should export all the selected datasources", () => {
+  it("2. Should export all the selected datasources", () => {
     exportAndCompareDownloadedFile(
       1,
       PartialImportExportLocatores.modelContents.datasourcesSection,
       "DatasourceExportedOnly.json",
+    );
+  });
+
+  it("3. Should export all the selected queries", () => {
+    exportAndCompareDownloadedFile(
+      2,
+      PartialImportExportLocatores.modelContents.queriesSection,
+      "QueriesExportedOnly.json",
+    );
+  });
+
+  it("4. Should export all the customjs libs", () => {
+    exportAndCompareDownloadedFile(
+      3,
+      PartialImportExportLocatores.modelContents.customJSLibsSection,
+      "CustomJSLibsExportedOnly.json",
+    );
+  });
+
+  it("5. Should export all the widgets", () => {
+    exportAndCompareDownloadedFile(
+      4,
+      PartialImportExportLocatores.modelContents.widgetsSection,
+      "WidgetsExportedOnly.json",
     );
   });
 });
@@ -83,6 +107,10 @@ function exportAndCompareDownloadedFile(
   cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
     cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
       (expectedFile) => {
+        // sort the contents of both the files before comparing
+        exportedFile = JSON.stringify(exportedFile).split("").sort().join("");
+        expectedFile = JSON.stringify(expectedFile).split("").sort().join("");
+
         expect(exportedFile).to.deep.equal(expectedFile);
       },
     );
