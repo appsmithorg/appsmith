@@ -352,7 +352,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._signout);
     //Logout is still a POST request in CE
     if (CURRENT_REPO === REPO.CE) {
-      //this.assertHelper.AssertNetworkStatus("@postLogout");
+      this.assertHelper.AssertNetworkStatus("@postLogout");
     }
     return this.agHelper.AssertURL("/login"); //for logout to complete!
   }
