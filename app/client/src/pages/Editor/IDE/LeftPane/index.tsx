@@ -34,7 +34,7 @@ const LeftPane = () => {
   );
   const { path } = useRouteMatch();
   const guidedTourEnabled = useSelector(inGuidedTour);
-  if (!isAppSidebarEnabled || guidedTourEnabled || !isPagesPaneEnabled) {
+  if (!isAppSidebarEnabled || guidedTourEnabled) {
     return <WidgetsEditorEntityExplorer />;
   }
   return (
@@ -60,7 +60,11 @@ const LeftPane = () => {
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
-        <SentryRoute component={EditorPane} />
+        {isPagesPaneEnabled ? (
+          <SentryRoute component={EditorPane} />
+        ) : (
+          <SentryRoute component={WidgetsEditorEntityExplorer} />
+        )}
       </Switch>
     </LeftPaneContainer>
   );
