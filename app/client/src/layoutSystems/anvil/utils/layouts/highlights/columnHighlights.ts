@@ -43,7 +43,6 @@ export const deriveColumnHighlights =
           ? (layoutStyle["justifyContent"] as FlexLayerAlignment)
           : FlexLayerAlignment.Start,
       canvasId,
-      dropZone: {},
       height: HIGHLIGHT_SIZE,
       isVertical: false,
       layoutOrder,

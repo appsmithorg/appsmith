@@ -29,7 +29,6 @@ export function mockAnvilHighlightInfo(
     layoutId: "",
     alignment: FlexLayerAlignment.Start,
     canvasId: "",
-    dropZone: {},
     height: 40,
     isVertical: true,
     layoutOrder: [],
