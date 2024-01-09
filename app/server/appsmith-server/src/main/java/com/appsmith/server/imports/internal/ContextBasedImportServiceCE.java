@@ -31,13 +31,30 @@ public interface ContextBasedImportServiceCE<
     ImportContextPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
             Set<String> userPermissions);
 
+    /**
+     * this method creates updates the entities which is to be imported in the given context
+     * @param importableContextJson
+     * @param pagesToImport
+     */
     default void updateContextJsonWithRequiredPagesToImport(
             ImportableContextJson importableContextJson, List<String> pagesToImport) {}
 
-    void dehydrateNameForContextUpdate(String contextId, ImportableContextJson importableContextJson);
+    /**
+     * this method sets the names to null before the update to avoid conflict
+     * @param contextId
+     * @param importableContextJson
+     */
+    void setJsonContextNameToNullBeforeUpdate(String contextId, ImportableContextJson importableContextJson);
 
     Mono<U> getImportableContextDTO(String workspaceId, String contextId, ImportableContext importableContext);
 
+    /**
+     * Add entities which are specific to the context. i.e. customJsLib
+     * @param importableContextJson
+     * @param importingMetaDTO
+     * @param mappedImportableResourcesDTO
+     * @return
+     */
     Mono<Void> contextSpecificImportedEntities(
             ImportableContextJson importableContextJson,
             ImportingMetaDTO importingMetaDTO,
@@ -45,17 +62,37 @@ public interface ContextBasedImportServiceCE<
 
     void performAuxiliaryImportTasks(ImportableContextJson importableContextJson);
 
+    /**
+     * This method saves the context from the import json for the first time after dehydrating all the details which can cause conflicts
+     * @param importableContext
+     * @param importingMetaDTO
+     * @param mappedImportableResourcesDTO
+     * @param currentUserMono
+     * @return
+     */
     Mono<T> updateAndSaveContextInFocus(
             ImportableContext importableContext,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono);
 
+    /**
+     * update importable entities with the context references post creation of context in db
+     * @param importableContext
+     * @param mappedImportableResourcesDTO
+     * @param importingMetaDTO
+     * @return
+     */
     Mono<T> updateImportableEntities(
             ImportableContext importableContext,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO);
 
+    /**
+     * Update the context after the entities has been created
+     * @param importableContext
+     * @return
+     */
     Mono<T> updateImportableContext(ImportableContext importableContext);
 
     Map<String, Object> createImportAnalyticsData(

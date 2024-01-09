@@ -229,8 +229,14 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 .build();
     }
 
+    /**
+     *  this method removes the application name from Json file as updating the app-name is not supported via import
+     *  this avoids name conflict during import flow within workspace
+     * @param applicationId
+     * @param importableContextJson
+     */
     @Override
-    public void dehydrateNameForContextUpdate(String applicationId, ImportableContextJson importableContextJson) {
+    public void setJsonContextNameToNullBeforeUpdate(String applicationId, ImportableContextJson importableContextJson) {
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
         if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
             // Remove the application name from JSON file as updating the application name is not

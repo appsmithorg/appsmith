@@ -122,7 +122,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method takes a file part and makes a Json entity which implements the ImportableContextJson inteface
+     * This method takes a file part and makes a Json entity which implements the ImportableContextJson interface
      * @param filePart : filePart from which the contents would be made
      * @return : Json entity which implements ImportableContextJson
      */
@@ -233,7 +233,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 return Mono.error(new AppsmithException(
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
-                contextBasedImportService.dehydrateNameForContextUpdate(contextId, importableContextJson);
+                contextBasedImportService.setJsonContextNameToNullBeforeUpdate(contextId, importableContextJson);
                 return permissionGroupRepository
                         .getCurrentUserPermissionGroups()
                         .zipWhen(userPermissionGroup -> {
