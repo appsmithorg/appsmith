@@ -460,6 +460,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._backToEditor);
     this.agHelper.WaitUntilEleDisappear(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    this.assertHelper.AssertNetworkStatus("fetchTemplate");
     this.agHelper.WaitUntilEleDisappear(this.locator._btnSpinner);
   }
 
