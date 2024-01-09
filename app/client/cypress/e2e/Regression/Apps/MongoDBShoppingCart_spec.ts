@@ -16,8 +16,9 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
   before(() => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      homePage.CreateNewWorkspace("MCart" + uid, true);
-      homePage.CreateAppInWorkspace("MCart" + uid, "MongoDBShopApp");
+      //homePage.CreateNewWorkspace("MCart" + uid, true);
+      homePage.CreateNewApplication();
+      homePage.RenameApplication("MongoDBShopApp");
       agHelper.AddDsl("mongoAppdsl");
     });
     dataSources.CreateDataSource("Mongo");

@@ -19,8 +19,9 @@ describe(
     before(() => {
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        homePage.CreateNewWorkspace("Echo" + uid, true);
-        homePage.CreateAppInWorkspace("Echo" + uid, "EchoApiCMSApp");
+        //homePage.CreateNewWorkspace("Echo" + uid, true);
+        homePage.CreateNewApplication();
+        homePage.RenameApplication("EchoApiCMSApp");
         agHelper.AddDsl("CMSdsl");
       });
     });

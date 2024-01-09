@@ -184,7 +184,6 @@ export class HomePage {
     this.OpenWorkspaceOptions(oldName);
     this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
-    this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
     this.agHelper.AssertElementVisibility(
@@ -193,7 +192,7 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(
       this._workspaceNoApps(newWorkspaceName),
     );
-    this.agHelper.Sleep(5000); //is still needed, else failing in CI
+    //this.agHelper.Sleep(5000); //is still needed, else failing in CI
   }
 
   //Maps to CheckShareIcon in command.js
@@ -291,7 +290,6 @@ export class HomePage {
       );
       this.onboarding.skipSignposting();
     }
-    this.agHelper.Sleep(2000); //for getWorkspace to go thru!
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
@@ -307,7 +305,6 @@ export class HomePage {
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
-    //this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
   }
 
   //Maps to AppSetupForRename in command.js
