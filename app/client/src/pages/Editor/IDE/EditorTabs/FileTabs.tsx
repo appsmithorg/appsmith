@@ -1,12 +1,8 @@
 import React from "react";
-import { Button, Flex } from "design-system";
+import { Flex } from "design-system";
 import { useCurrentEditorState } from "../hooks";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
-import { useDispatch, useSelector } from "react-redux";
-import { setIdeEditorViewMode } from "actions/ideActions";
+import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
+import { useSelector } from "react-redux";
 import type { PagePaneDataObject } from "@appsmith/selectors/entitiesSelector";
 import {
   selectJSForPagespane,
@@ -16,7 +12,6 @@ import { JSTab } from "./JSTab";
 import { QueryTab } from "./QueryTab";
 
 const FileTabs = () => {
-  const dispatch = useDispatch();
   const { segment } = useCurrentEditorState();
 
   const files = useSelector((state) => {
@@ -41,35 +36,19 @@ const FileTabs = () => {
 
   return (
     <Flex
-      backgroundColor="#F8FAFC"
-      borderBottom="#F1F5F9"
+      className="editor-tabs"
+      flex="1"
       gap="spaces-2"
-      padding="spaces-2"
-      width="100%"
+      overflow="hidden"
+      paddingBottom="spaces-2"
     >
-      <Flex
-        className="editor-tabs"
-        flex="1"
-        gap="spaces-2"
-        overflow="hidden"
-        paddingBottom="spaces-2"
-      >
-        {tabs.map((tab: PagePaneDataObject) =>
-          segment === EditorEntityTab.JS ? (
-            <JSTab data={tab} key={tab.id} />
-          ) : (
-            <QueryTab data={tab} key={tab.id} />
-          ),
-        )}
-      </Flex>
-      <Button
-        isIconButton
-        kind="tertiary"
-        onClick={() =>
-          dispatch(setIdeEditorViewMode(EditorViewMode.HalfScreen))
-        }
-        startIcon="icon-align-left"
-      />
+      {tabs.map((tab: PagePaneDataObject) =>
+        segment === EditorEntityTab.JS ? (
+          <JSTab data={tab} key={tab.id} />
+        ) : (
+          <QueryTab data={tab} key={tab.id} />
+        ),
+      )}
     </Flex>
   );
 };
