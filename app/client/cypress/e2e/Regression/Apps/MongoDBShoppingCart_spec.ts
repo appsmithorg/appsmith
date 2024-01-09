@@ -14,12 +14,12 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
   let datasourceName: string, repoName: any;
 
   before(() => {
-    // agHelper.GenerateUUID();
-    // cy.get("@guid").then((uid) => {
-    //   homePage.CreateNewWorkspace("MCart" + uid, true);
-    //   homePage.CreateAppInWorkspace("MCart" + uid, "MongoDBShopApp");
-    agHelper.AddDsl("mongoAppdsl");
-    // });
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      homePage.CreateNewWorkspace("MCart" + uid, true);
+      homePage.CreateAppInWorkspace("MCart" + uid, "MongoDBShopApp");
+      agHelper.AddDsl("mongoAppdsl");
+    });
     dataSources.CreateDataSource("Mongo");
     cy.get("@saveDatasource").then((httpResponse: any) => {
       datasourceName = httpResponse.response.body.data.name;

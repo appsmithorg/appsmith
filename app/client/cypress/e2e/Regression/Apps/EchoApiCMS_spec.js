@@ -17,12 +17,12 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
-      // agHelper.GenerateUUID();
-      // cy.get("@guid").then((uid) => {
-      //   homePage.CreateNewWorkspace("Echo" + uid, true);
-      //   homePage.CreateAppInWorkspace("Echo" + uid, "EchoApiCMSApp");
-      agHelper.AddDsl("CMSdsl");
-      // });
+      agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        homePage.CreateNewWorkspace("Echo" + uid, true);
+        homePage.CreateAppInWorkspace("Echo" + uid, "EchoApiCMSApp");
+        agHelper.AddDsl("CMSdsl");
+      });
     });
 
     let repoName;
