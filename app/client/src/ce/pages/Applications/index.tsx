@@ -750,6 +750,7 @@ export function ApplicationsSection(props: any) {
                       canDeleteWorkspace={
                         applications.length === 0 &&
                         packages.length === 0 &&
+                        workflows.length === 0 &&
                         canDeleteWorkspace
                       }
                       canInviteToWorkspace={canInviteToWorkspace}
@@ -888,6 +889,12 @@ export const ApplictionsMainPage = (props: any) => {
     ? fetchedPackages.filter((pkg) => pkg.workspaceId === activeWorkspaceId)
     : [];
 
+  const workflowsOfWorkspace = activeWorkspaceId
+    ? fetchedWorkflows.filter(
+        (workflow) => workflow.workspaceId === activeWorkspaceId,
+      )
+    : [];
+
   return (
     <PageWrapper displayName="Applications">
       <LeftPane
@@ -928,7 +935,7 @@ export const ApplictionsMainPage = (props: any) => {
               applications={fetchedApplications}
               packages={packagesOfWorkspace}
               searchKeyword={searchKeyword}
-              workflows={fetchedWorkflows}
+              workflows={workflowsOfWorkspace}
               workspaces={workspaces}
             />
             <RepoLimitExceededErrorModal />

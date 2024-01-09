@@ -30,6 +30,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
 
   it("2. Guided Tour", function () {
     // Start guided tour
+    agHelper.GetNClick(homePage.homeIcon, 0, true);
     agHelper.GetNClick(homePage._helpButton, 0, true);
     agHelper.GetNClick(guidedTourLocators.welcomeTour, 0, true);
     cy.get(guidedTourLocators.startBuilding).click();
