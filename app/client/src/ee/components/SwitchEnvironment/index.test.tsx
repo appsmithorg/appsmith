@@ -9,7 +9,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 const mockStore = configureMockStore();
 const store = mockStore({
   ui: {
-    workspaces: { currentWorkspace: { id: "64ba2f58abba6049fb4626da" } },
+    selectedWorkspace: { workspace: { id: "64ba2f58abba6049fb4626da" } },
     datasourcePane: { viewMode: false },
     users: {
       featureFlag: {
@@ -73,7 +73,7 @@ const store = mockStore({
 
 const onlyStagingStore = mockStore({
   ui: {
-    workspaces: { currentWorkspace: { id: "64ba2f58abba6049fb4626da" } },
+    selectedWorkspace: { workspace: { id: "64ba2f58abba6049fb4626da" } },
     datasourcePane: { viewMode: false },
     users: {
       featureFlag: {
@@ -137,7 +137,7 @@ const onlyStagingStore = mockStore({
 
 const noEnvAccess = mockStore({
   ui: {
-    workspaces: { currentWorkspace: { id: "64ba2f58abba6049fb4626da" } },
+    selectedWorkspace: { workspace: { id: "64ba2f58abba6049fb4626da" } },
     datasourcePane: { viewMode: false },
     users: {
       featureFlag: {
