@@ -165,7 +165,7 @@ export function getViableDropPositions(
       pos.y <= highlight.posY + highlight.height,
   );
   const isInsideACell = verticalSelection.length > 0;
-  const isInsideCellTriggerZone =
+  const shouldShowHorizontalHighlights =
     isInsideACell &&
     verticalSelection[0].posY + PaddingForHorizontalDropZone < pos.y &&
     pos.y <
@@ -192,7 +192,7 @@ export function getViableDropPositions(
    * If there are also some contending vertical highlights sharing a drop zone,
    * then vertical highlights get priority and the a fraction of the drop zone of horizontal highlights is considered.
    */
-  const horizontalSelection = isInsideCellTriggerZone
+  const horizontalSelection = shouldShowHorizontalHighlights
     ? []
     : arr.filter((highlight: AnvilHighlightInfo) => {
         return (

@@ -252,8 +252,8 @@ export const useCanvasDragging = (
             onMouseMove(e);
           }
         };
-
-        const debouncedRender = throttle(
+        // make sure rendering highlights on canvas and highlighting cell happens once every 50ms
+        const throttledRenderOnCanvas = throttle(
           () => {
             if (
               stickyCanvasRef.current &&
@@ -269,7 +269,7 @@ export const useCanvasDragging = (
               );
             }
           },
-          10,
+          50,
           {
             leading: true,
             trailing: true,
@@ -300,7 +300,7 @@ export const useCanvasDragging = (
             );
             if (processedHighlight) {
               currentRectanglesToDraw = processedHighlight;
-              debouncedRender();
+              throttledRenderOnCanvas();
               // Store information for auto-scroll functionality
               scrollObj.lastMouseMoveEvent = {
                 offsetX: e.offsetX,
