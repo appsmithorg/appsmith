@@ -23,7 +23,7 @@ import MobileSideBar from "pages/common/MobileSidebar";
 import {
   resetSearchEntity,
   searchEntities,
-  searchWorkspaceEntities,
+  searchWorkspaceEntitiesLoader,
 } from "@appsmith/actions/workspaceActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { viewerURL } from "@appsmith/RouteBuilder";
@@ -126,7 +126,7 @@ function EntitySearchBar(props: any) {
   function handleInputClicked() {
     if (searchInput?.trim()?.length || !noSearchResults) {
       setIsDropdownOpen(false);
-      dispatch(searchWorkspaceEntities(false));
+      dispatch(searchWorkspaceEntitiesLoader(false));
     }
   }
 
@@ -156,8 +156,8 @@ function EntitySearchBar(props: any) {
 
   function handleSearchInput(text: string) {
     setSearchInput(text);
-    if (text.trim().length !== 0) dispatch(searchWorkspaceEntities(true));
-    else dispatch(searchWorkspaceEntities(false));
+    if (text.trim().length !== 0) dispatch(searchWorkspaceEntitiesLoader(true));
+    else dispatch(searchWorkspaceEntitiesLoader(false));
     handleSearchDebounced(text);
     setSearchedPackages(fuzzy.search(text));
     setIsDropdownOpen(true);
@@ -218,7 +218,7 @@ function EntitySearchBar(props: any) {
       navigateToApplication={navigateToApplication}
       noSearchResults={noSearchResults}
       searchListContainerRef={searchListContainerRef}
-      searchedPackages={fetchedPackages}
+      searchedPackages={searchedPackages}
       setIsDropdownOpen={setIsDropdownOpen}
       setShowMobileSearchBar={setShowMobileSearchBar}
       workspacesList={workspacesList}
@@ -272,7 +272,6 @@ function EntitySearchBar(props: any) {
           <DesktopEntitySearchField
             applicationsList={applicationsList}
             canShowSearchDropdown={canShowSearchDropdown}
-            fetchedPackages={fetchedPackages}
             handleInputClicked={handleInputClicked}
             handleSearchInput={handleSearchInput}
             isDropdownOpen={isDropdownOpen}
@@ -283,6 +282,7 @@ function EntitySearchBar(props: any) {
             searchInput={searchInput}
             searchInputRef={searchInputRef}
             searchListContainerRef={searchListContainerRef}
+            searchedPackages={searchedPackages}
             setIsDropdownOpen={setIsDropdownOpen}
             workspacesList={workspacesList}
           />

@@ -397,7 +397,7 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
 }
 
 export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
-  if (!action.payload || !action.payload.trim()) {
+  if (!action?.payload || !action?.payload?.trim()) {
     yield put(resetSearchEntity());
     return;
   }
