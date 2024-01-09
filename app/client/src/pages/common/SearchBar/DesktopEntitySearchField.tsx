@@ -5,6 +5,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
 import PackageSearchItem from "@appsmith/pages/common/PackageSearchItem";
+import WorkflowSearchItem from "@appsmith/pages/common/WorkflowSearchItem";
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
@@ -41,6 +42,7 @@ const DesktopEntitySearchField = (props: any) => {
     navigateToApplication,
     noSearchResults,
     searchedPackages,
+    searchedWorkflows,
     searchInput,
     searchInputRef,
     searchListContainerRef,
@@ -92,6 +94,7 @@ const DesktopEntitySearchField = (props: any) => {
                 navigateToApplication={navigateToApplication}
               />
               <PackageSearchItem searchedPackages={searchedPackages} />
+              <WorkflowSearchItem searchedWorkflows={searchedWorkflows} />
             </>
           )}
         </SearchListContainer>

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
 import PackageSearchItem from "@appsmith/pages/common/PackageSearchItem";
+import WorkflowSearchItem from "@appsmith/pages/common/WorkflowSearchItem";
 
 const SearchListContainer = styled.div`
   width: 100%;
@@ -41,6 +42,7 @@ function MobileEntitySearchField(props: any) {
     navigateToApplication,
     noSearchResults,
     searchedPackages,
+    searchedWorkflows,
     searchListContainerRef,
     setIsDropdownOpen,
     setShowMobileSearchBar,
@@ -101,6 +103,7 @@ function MobileEntitySearchField(props: any) {
                 navigateToApplication={navigateToApplication}
               />
               <PackageSearchItem searchedPackages={searchedPackages} />
+              <WorkflowSearchItem searchedWorkflows={searchedWorkflows} />
             </>
           )}
         </SearchListContainer>
