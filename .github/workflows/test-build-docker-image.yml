@@ -86,7 +86,7 @@ jobs:
   ci-test:
     needs: [setup, build-docker-image]
     # Only run if the build step is successful
-    if: success() && github.event_name != 'push'
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
     name: ci-test
     uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
@@ -98,7 +98,7 @@ jobs:
   server-unit-tests:
     name: server-unit-tests
     needs: [build-docker-image]
-    if: success() && github.event_name != 'push'
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
@@ -108,7 +108,7 @@ jobs:
   client-unit-tests:
     name: client-unit-tests
     needs: [build-docker-image]
-    if: success() && github.event_name != 'push'
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
     uses: ./.github/workflows/client-unit-tests.yml
     secrets: inherit
     with:
@@ -119,6 +119,7 @@ jobs:
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
+      ( github.event_name != 'push' || github.ref == 'refs/heads/master' ) ||
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
