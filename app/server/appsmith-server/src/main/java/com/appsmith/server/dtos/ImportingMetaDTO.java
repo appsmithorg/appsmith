@@ -21,6 +21,10 @@ public class ImportingMetaDTO {
     String contextId;
 
     String branchName;
+
+    /**
+     * this flag is for verifying whether the context in focus needs to be updated with the given provided json
+     */
     Boolean appendToContext;
     ImportContextPermissionProvider permissionProvider;
     Set<String> currentUserPermissionGroups;
