@@ -171,8 +171,8 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
       locators._specificToast("Cyclic dependency found while evaluating"),
     );
     cy.ResponseStatusCheck("404 NOT_FOUND");
-    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
-    cy.get(commonlocators.debuggerToggle).click();
+    agHelper.GetNClick(commonlocators.errorTab);
+    agHelper.GetNClick(commonlocators.debuggerToggle);
     cy.wait(1000);
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
