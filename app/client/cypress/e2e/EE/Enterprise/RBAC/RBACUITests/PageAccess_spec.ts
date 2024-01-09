@@ -1,7 +1,9 @@
 import {
   adminSettings,
   agHelper,
+  assertHelper,
   dataSources,
+  draggableWidgets,
   entityExplorer,
   fakerHelper,
   homePage,
@@ -11,6 +13,8 @@ import {
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
 
@@ -111,15 +115,36 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      cy.wait(5000);
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(5000);
-      homePage.SearchAndOpenApp(appName);
+      assertHelper.AssertDocumentReady();
+      homePage.EditAppFromAppHover(appName);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "");
+      agHelper.waitUntilTextVisible("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      agHelper.WaitUntilEleAppear(
+        locators._widgetPageIcon(draggableWidgets.INPUT_V2),
+      );
+      entityExplorer.DragNDropWidget(
+        draggableWidgets.INPUT_V2,
+        500,
+        300,
+        "",
+        "",
+        true,
+      );
       agHelper.AssertElementAbsence(locators._saveStatusError);
       EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-      entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "");
+      agHelper.WaitUntilEleAppear(
+        locators._widgetPageIcon(draggableWidgets.INPUT_V2),
+      );
+      entityExplorer.DragNDropWidget(
+        draggableWidgets.INPUT_V2,
+        500,
+        300,
+        "",
+        "",
+        true,
+      );
       agHelper.AssertElementExist(locators._saveStatusError);
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
@@ -134,7 +159,7 @@ describe(
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      assertHelper.AssertDocumentReady();
       rbacHelper.AddDefaultRole(
         Cypress.env("TESTUSERNAME1"),
         "Developer",
@@ -145,11 +170,30 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "Developer",
       );
-      homePage.SearchAndOpenApp(appName);
+      homePage.EditAppFromAppHover(appName);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      entityExplorer.DragDropWidgetNVerify("checkboxwidget");
+      agHelper.waitUntilTextVisible("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      entityExplorer.DragNDropWidget(
+        draggableWidgets.INPUT_V2,
+        300,
+        100,
+        "",
+        "",
+        true,
+      );
+
       EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-      entityExplorer.DragDropWidgetNVerify("checkboxwidget");
+      agHelper.waitUntilTextVisible("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      entityExplorer.DragNDropWidget(
+        draggableWidgets.INPUT_V2,
+        500,
+        500,
+        "",
+        "",
+        true,
+      );
     });
 
     /**
@@ -157,9 +201,9 @@ describe(
      */
     it("3. Verify query edit permission for test user", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      cy.wait(5000);
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(5000);
+      assertHelper.AssertDocumentReady();
+      agHelper.WaitUntilEleAppear(adminSettings._adminSettingsBtn);
       adminSettings.NavigateToAdminSettings();
       rbacHelper.AssignRoleToUser(
         permissionAtPageLevel,
@@ -192,7 +236,8 @@ describe(
     it("4. Verify query delete permission for test user", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      assertHelper.AssertDocumentReady();
+      agHelper.WaitUntilEleAppear(adminSettings._adminSettingsBtn);
       adminSettings.NavigateToAdminSettings();
       rbacHelper.AssignRoleToUser(
         permissionAtPageLevel,
@@ -219,8 +264,7 @@ describe(
     after(() => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
-
+      assertHelper.AssertDocumentReady();
       agHelper.VisitNAssert("settings/roles", "fetchRoles");
       rbacHelper.DeleteRole(permissionAtPageLevel);
       homePage.NavigateToHome();

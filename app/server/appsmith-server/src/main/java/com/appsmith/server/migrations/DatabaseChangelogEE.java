@@ -371,7 +371,7 @@ public class DatabaseChangelogEE {
         ensureIndexes(
                 mongoTemplate,
                 UsagePulse.class,
-                makeIndex(fieldName(QUsagePulse.usagePulse.createdAt), fieldName(QUsagePulse.usagePulse.deleted))
+                makeIndex(fieldName(QUsagePulse.usagePulse.createdAt), FieldName.DELETED)
                         .named("createdAt_deleted_compound_index"));
     }
 
@@ -386,12 +386,12 @@ public class DatabaseChangelogEE {
         final Update update = new Update();
         final Instant deletedAt = Instant.now();
         update.set(fieldName(QUsagePulse.usagePulse.deletedAt), deletedAt);
-        update.set(fieldName(QUsagePulse.usagePulse.deleted), true);
+        update.set(FieldName.DELETED, true);
 
         Query invalidUsagePulseQuery = new Query();
         invalidUsagePulseQuery
                 .addCriteria(where(fieldName(QUsagePulse.usagePulse.tenantId)).exists(false))
-                .addCriteria(where(fieldName(QUser.user.deleted)).ne(true));
+                .addCriteria(where(FieldName.DELETED).ne(true));
 
         mongoTemplate.updateMulti(invalidUsagePulseQuery, update, UsagePulse.class);
     }

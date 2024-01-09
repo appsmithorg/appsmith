@@ -142,7 +142,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
             return Mono.just(entity);
         }
 
-        entity.setDeleted(true);
         entity.setDeletedAt(Instant.now());
         return mongoOperations.save(entity, entityInformation.getCollectionName());
     }

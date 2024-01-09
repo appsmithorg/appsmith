@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QPackage;
 import io.mongock.api.annotations.ChangeUnit;
@@ -38,7 +39,7 @@ public class Migration023EE01AddIndexesForPackage {
                                 fieldName(QPackage.package$.workspaceId),
                                 "unpublishedPackage.name",
                                 fieldName(QPackage.package$.deletedAt),
-                                fieldName(QPackage.package$.deleted),
+                                FieldName.DELETED,
                                 fieldName(QPackage.package$.lastPublishedAt))
                         .unique()
                         .named(workspace_pkg_name_deleted_at_uindex));
@@ -51,7 +52,7 @@ public class Migration023EE01AddIndexesForPackage {
                                 fieldName(QPackage.package$.workspaceId),
                                 fieldName(QPackage.package$.packageUUID),
                                 fieldName(QPackage.package$.deletedAt),
-                                fieldName(QPackage.package$.deleted))
+                                FieldName.DELETED)
                         .named(workspace_pkg_uuid_deleted_index));
     }
 }

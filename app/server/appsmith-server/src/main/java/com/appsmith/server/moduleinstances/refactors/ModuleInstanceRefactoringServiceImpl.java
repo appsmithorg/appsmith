@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_MODULE_INSTANCE;
+import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -63,6 +64,10 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
+        // This is a momentary check. Currently, module instance can only exist in the context of page.
+        if (!isPageContext(refactorEntityNameDTO.getContextType())) {
+            return Mono.empty().then();
+        }
         Mono<Integer> evalVersionMono = refactoringMetaDTO.getEvalVersionMono();
         Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
         Pattern oldNamePattern = refactoringMetaDTO.getOldNamePattern();

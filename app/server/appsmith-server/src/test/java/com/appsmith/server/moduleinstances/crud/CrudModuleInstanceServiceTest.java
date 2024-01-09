@@ -33,6 +33,7 @@ import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -859,6 +860,14 @@ class CrudModuleInstanceServiceTest {
 
         // Change the name of the module to verify that it should not have any impact on auto-upgrade
         createdModule.setName("NameGotChangedInThisVersion");
+        RefactorEntityNameDTO refactorEntityNameDTO = new RefactorEntityNameDTO();
+        refactorEntityNameDTO.setContextType(CreatorContextType.MODULE);
+        refactorEntityNameDTO.setModuleId(createdModule.getId());
+        refactorEntityNameDTO.setOldName("GetFilteredUsers");
+        refactorEntityNameDTO.setNewName("NameGotChangedInThisVersion");
+        crudModuleService
+                .updateModuleName(refactorEntityNameDTO, createdModule.getId(), null)
+                .block();
 
         // Update the module with the new input
         crudModuleService.updateModule(createdModule, createdModule.getId()).block();

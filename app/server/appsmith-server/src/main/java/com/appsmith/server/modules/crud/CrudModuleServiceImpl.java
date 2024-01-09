@@ -2,7 +2,6 @@ package com.appsmith.server.modules.crud;
 
 import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -16,9 +15,12 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QModule;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.EntityType;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -33,6 +35,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.packages.metadata.PackageMetadataService;
 import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.validations.EntityValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -75,6 +78,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final ModulePublicEntityService<NewAction> newActionModulePublicEntityService;
     private final ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService;
     private final PackageMetadataService packageMetadataService;
+    private final RefactoringService refactoringService;
 
     public CrudModuleServiceImpl(
             ModuleRepository repository,
@@ -90,7 +94,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             ObjectMapper objectMapper,
             ModulePublicEntityService<NewAction> newActionModulePublicEntityService,
             ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService,
-            PackageMetadataService packageMetadataService) {
+            PackageMetadataService packageMetadataService,
+            RefactoringService refactoringService) {
         super(repository);
         this.repository = repository;
         this.modulePermission = modulePermission;
@@ -106,6 +111,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         this.newActionModulePublicEntityService = newActionModulePublicEntityService;
         this.actionCollectionModulePublicEntityService = actionCollectionModulePublicEntityService;
         this.packageMetadataService = packageMetadataService;
+        this.refactoringService = refactoringService;
     }
 
     @Override
@@ -242,10 +248,6 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, moduleDTO.getPackageId())))
                 .flatMap(aPackage -> isValidName(moduleDTO.getName(), aPackage.getId(), null)
                         .flatMap(valid -> {
-                            if (!valid) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.DUPLICATE_KEY_USER_ERROR, moduleDTO.getName(), FieldName.NAME));
-                            }
                             module.setPackageId(aPackage.getId());
                             module.setPackageUUID(aPackage.getPackageUUID());
 
@@ -318,7 +320,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
         return allModuleNamesMono.flatMap(allModuleNames -> {
             if (allModuleNames.contains(name)) {
-                return Mono.just(Boolean.FALSE);
+                return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, name, FieldName.NAME));
             }
             return Mono.just(Boolean.TRUE);
         });
@@ -327,59 +329,33 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleDTO> updateModule(ModuleDTO moduleDTO, String moduleId) {
-        if (ValidationUtils.isEmptyParam(moduleDTO.getName())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
-        }
-
-        if (!entityValidationService.validateName(moduleDTO.getName())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
-        }
-
         return repository
                 .findById(moduleId, modulePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)))
-                .cache()
-                .flatMap(module -> isValidName(moduleDTO.getName(), module.getPackageId(), moduleId)
-                        .flatMap(valid -> {
-                            if (!valid) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.DUPLICATE_KEY_USER_ERROR, moduleDTO.getName(), FieldName.NAME));
-                            }
+                .flatMap(module -> {
+                    Update updateObj = prepareUpdatableFieldsForModule(moduleDTO);
 
-                            Update updateObj = prepareUpdatableFieldsForModule(moduleDTO);
+                    if (updateObj.getUpdateObject().isEmpty()) {
+                        return setTransientFieldsFromModuleToModuleDTO(module, module.getUnpublishedModule());
+                    }
 
-                            if (updateObj.getUpdateObject().isEmpty()) {
-                                return setTransientFieldsFromModuleToModuleDTO(module, module.getUnpublishedModule());
-                            }
+                    return updateModuleFromUpdateObject(moduleId, updateObj);
+                });
+    }
 
-                            return newActionService
-                                    .findPublicActionByModuleId(moduleId, ResourceModes.EDIT)
-                                    .flatMap(newAction -> {
-                                        ActionDTO updateActionDTO = new ActionDTO();
-                                        updateActionDTO.setContextType(CreatorContextType.MODULE);
-                                        updateActionDTO.setName(moduleDTO.getName());
-                                        updateActionDTO.setDatasource(
-                                                newAction.getUnpublishedAction().getDatasource());
-                                        return newActionService.updateUnpublishedActionWithoutAnalytics(
-                                                newAction.getId(), updateActionDTO, Optional.empty());
-                                    })
-                                    .then(repository
-                                            .updateAndReturn(
-                                                    moduleId,
-                                                    updateObj,
-                                                    Optional.of(modulePermission.getEditPermission()))
-                                            .flatMap(repository::setUserPermissionsInObject)
-                                            .flatMap(updatedModule -> {
-                                                ModuleDTO unpublishedModule = updatedModule.getUnpublishedModule();
-                                                return setTransientFieldsFromModuleToModuleDTO(
-                                                                updatedModule, unpublishedModule)
-                                                        .flatMap(this::setModuleSettingsForCreator);
-                                            }));
-                        }))
-                .flatMap(moduleDTO1 -> packageMetadataService
-                        .saveLastEditInformation(moduleDTO1.getPackageId())
-                        .thenReturn(moduleDTO1));
+    private Mono<ModuleDTO> updateModuleFromUpdateObject(String moduleId, Update updateObj) {
+        return repository
+                .updateAndReturn(moduleId, updateObj, Optional.of(modulePermission.getEditPermission()))
+                .flatMap(repository::setUserPermissionsInObject)
+                .flatMap(updatedModule -> {
+                    ModuleDTO unpublishedModule = updatedModule.getUnpublishedModule();
+                    return setTransientFieldsFromModuleToModuleDTO(updatedModule, unpublishedModule)
+                            .flatMap(this::setModuleSettingsForCreator)
+                            .flatMap(updatedModuleDTO -> packageMetadataService
+                                    .saveLastEditInformation(updatedModuleDTO.getPackageId())
+                                    .thenReturn(updatedModuleDTO));
+                });
     }
 
     @Override
@@ -418,12 +394,9 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     private Update prepareUpdatableFieldsForModule(ModuleDTO moduleDTO) {
         Update updateObj = new Update();
-        String namePath =
-                fieldName(QModule.module.unpublishedModule) + "." + fieldName(QModule.module.unpublishedModule.name);
         String inputsPath = fieldName(QModule.module.unpublishedModule) + "."
                 + fieldName(QModule.module.unpublishedModule.inputsForm);
 
-        ObjectUtils.setIfNotEmpty(updateObj, namePath, moduleDTO.getName());
         ObjectUtils.setIfNotEmpty(updateObj, inputsPath, moduleDTO.getInputsForm());
 
         return updateObj;
@@ -479,5 +452,67 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 .findConsumableModuleByPackageIdAndOriginModuleId(
                         packageId, originModuleId, Optional.of(modulePermission.getReadPermission()))
                 .flatMap(module -> generateModuleByViewMode(module, ResourceModes.VIEW));
+    }
+
+    @Override
+    public Mono<ModuleDTO> updateModuleName(
+            RefactorEntityNameDTO refactorEntityNameDTO, String moduleId, String branchName) {
+        String name = refactorEntityNameDTO.getNewName();
+        if (ValidationUtils.isEmptyParam(name)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+        }
+
+        if (!entityValidationService.validateName(name)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
+        }
+
+        Mono<Module> moduleMono = repository
+                .findById(moduleId, modulePermission.getEditPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)));
+
+        return moduleMono.flatMap(
+                module -> isValidName(name, module.getPackageId(), moduleId).flatMap(valid -> {
+                    Update updateObj = new Update();
+                    String namePath = completeFieldName(QModule.module.unpublishedModule.name);
+
+                    ObjectUtils.setIfNotEmpty(updateObj, namePath, name);
+
+                    if (updateObj.getUpdateObject().isEmpty()) {
+                        return setTransientFieldsFromModuleToModuleDTO(module, module.getUnpublishedModule());
+                    }
+
+                    // Fetch the public entity and set the correct entity type for refactor
+                    Mono<Reusable> publicEntityMono;
+
+                    switch (module.getType()) {
+                        case QUERY_MODULE:
+                            refactorEntityNameDTO.setEntityType(EntityType.ACTION);
+                            publicEntityMono = newActionModulePublicEntityService.getPublicEntity(moduleId);
+                            break;
+                        case JS_MODULE:
+                            refactorEntityNameDTO.setEntityType(EntityType.JS_OBJECT);
+                            publicEntityMono = actionCollectionModulePublicEntityService.getPublicEntity(moduleId);
+                            break;
+                        default:
+                            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+
+                    Mono<LayoutDTO> doRefactorMono =
+                            refactoringService.refactorEntityName(refactorEntityNameDTO, branchName);
+                    // First update the name of the module and rest of the refactoring will fall under the scope of
+                    // regular refactoring
+                    Mono<ModuleDTO> updateModuleNameMono = updateModuleFromUpdateObject(moduleId, updateObj);
+                    return publicEntityMono.flatMap(publicEntity -> {
+                        if (publicEntity instanceof ActionDTO) {
+                            refactorEntityNameDTO.setActionId(((ActionDTO) publicEntity).getId());
+                        } else if (publicEntity instanceof ActionCollectionDTO) {
+                            refactorEntityNameDTO.setActionCollectionId(((ActionCollectionDTO) publicEntity).getId());
+                        }
+                        return updateModuleNameMono.flatMap(updatedModuleDTO -> packageMetadataService
+                                .saveLastEditInformation(updatedModuleDTO.getPackageId())
+                                .then(doRefactorMono.thenReturn(updatedModuleDTO)));
+                    });
+                }));
     }
 }

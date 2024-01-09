@@ -1772,7 +1772,7 @@ public class GitServiceWithRBACTest {
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
                     assertThat(application1.getId()).isEqualTo(application.getId());
-                    assertThat(application1.getDeleted()).isFalse();
+                    assertThat(application1.isDeleted()).isFalse();
                 })
                 .verifyComplete();
     }
