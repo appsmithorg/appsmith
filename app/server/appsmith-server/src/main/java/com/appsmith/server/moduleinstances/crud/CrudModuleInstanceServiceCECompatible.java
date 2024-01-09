@@ -60,4 +60,8 @@ public interface CrudModuleInstanceServiceCECompatible extends BaseModuleInstanc
 
     Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
             Module sourceModule, Optional<AclPermission> permission);
+
+    Mono<List<ModuleInstanceDTO>> deleteByContextId(String contextId, CreatorContextType contextType);
+
+    Mono<Boolean> archiveModuleInstancesByApplicationId(String applicationId, AclPermission permission);
 }
