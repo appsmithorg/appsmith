@@ -98,7 +98,6 @@ const overlayWidgetHighlight: AnvilHighlightInfo = {
   layoutId: "",
   alignment: FlexLayerAlignment.Center,
   canvasId: MAIN_CONTAINER_WIDGET_ID,
-  dropZone: {},
   height: 0,
   isVertical: false,
   layoutOrder: [],

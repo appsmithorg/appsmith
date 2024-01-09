@@ -5,7 +5,7 @@ import {
   type WidgetLayoutProps,
   type DraggedWidget,
 } from "../../anvilTypes";
-import { HIGHLIGHT_SIZE, VERTICAL_DROP_ZONE_MULTIPLIER } from "../../constants";
+import { HIGHLIGHT_SIZE } from "../../constants";
 import { registerLayoutComponents } from "../layoutUtils";
 import {
   FlexLayerAlignment,
@@ -140,73 +140,6 @@ describe("columnHighlights", () => {
         positions[inputId].top + positions[inputId].height,
       );
       expect(res[1].rowIndex).toEqual(1);
-    });
-    it("should calculate drop zones properly", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock({
-        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      }).layout as LayoutComponentProps;
-      const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
-      const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: LayoutElementPositions = {
-        [layout.layoutId]: {
-          height: 500,
-          left: 0,
-          top: 0,
-          width: 300,
-          offsetLeft: 0,
-          offsetTop: 0,
-        },
-        [buttonId]: {
-          height: 40,
-          left: 10,
-          top: 10,
-          width: 120,
-          offsetLeft: 10,
-          offsetTop: 10,
-        },
-        [inputId]: {
-          height: 70,
-          left: 10,
-          top: 60,
-          width: 290,
-          offsetLeft: 10,
-          offsetTop: 60,
-        },
-      };
-      const { highlights: res } = deriveColumnHighlights(
-        layout,
-        "0",
-        [],
-        layout.layoutId,
-      )(positions, draggedWidgets);
-
-      /**
-       * Horizontal highlights have top and bottom drop zones,
-       * which denote the vertical space above and below the horizontal highlight respectively.
-       *
-       *                [Top]
-       * Highlight: ------------
-       *               [Bottom]
-       */
-
-      // Top drop zone of first highlight should span the entire space between the start of the layout and the first child.
-      expect(res[0].dropZone.top).toEqual(
-        positions[buttonId].top -
-          positions[layout.layoutId].top -
-          HIGHLIGHT_SIZE,
-      );
-      // Bottom drop zone of first highlight should be equal to the space between the top of this widget and the next.
-      expect(res[0].dropZone.bottom).toEqual(
-        (res[1].posY - res[0].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
-      expect(res[1].dropZone.top).toEqual(res[0].dropZone.bottom);
-      expect(res[1].dropZone.bottom).toEqual(
-        (res[2].posY - res[1].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
-      expect(res[2].dropZone.top).toEqual(res[1].dropZone.bottom);
-      expect(res[2].dropZone.bottom).toEqual(
-        positions[layout.layoutId].height - res[2].posY,
-      );
     });
   });
   describe("initial highlights", () => {
@@ -416,18 +349,6 @@ describe("columnHighlights", () => {
 
       expect(res[0].posY).toEqual(
         dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
-      expect(res[0].dropZone.top).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
-
-      expect(res[4].isVertical).toBeFalsy();
-      expect(res[4].posY).toBeLessThanOrEqual(dimensions[row2.layoutId].top);
-      expect(res[4].dropZone.top).toEqual(
-        (res[4].posY - res[0].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
-      expect(res[4].dropZone.bottom).toEqual(
-        (res[8].posY - res[4].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
       );
     });
   });

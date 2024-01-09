@@ -10,8 +10,6 @@ import {
 } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
 
-const DEFAULT_DROP_RANGE = 10;
-
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.
  * @param draggedWidgetTypes - Type of widget being dragged (e.g., SECTION, ZONE).
@@ -205,56 +203,6 @@ export function getViableDropPositions(
       });
 
   return [...verticalSelection, ...horizontalSelection];
-}
-
-export function isWithinHorizontalDropZone(
-  pos: XYCord,
-  highlight: AnvilHighlightInfo,
-): boolean {
-  const rightDropZone = highlight.dropZone?.right || DEFAULT_DROP_RANGE;
-  const leftDropZone = highlight.dropZone?.left || DEFAULT_DROP_RANGE;
-
-  const withinRightDropZone =
-    pos.x >= highlight.posX &&
-    pos.x <= highlight.posX + Math.max(rightDropZone, DEFAULT_DROP_RANGE);
-  const withinLeftDropZone =
-    pos.x < highlight.posX &&
-    pos.x >= highlight.posX - Math.max(leftDropZone, DEFAULT_DROP_RANGE);
-
-  return withinRightDropZone || withinLeftDropZone;
-}
-
-export function isWithinVerticalDropZone(
-  pos: XYCord,
-  highlight: AnvilHighlightInfo,
-  hasVerticalSelection: boolean,
-): boolean {
-  const topDropZone = calculateDropZone(
-    highlight.dropZone?.top,
-    hasVerticalSelection,
-  );
-  const bottomDropZone = calculateDropZone(
-    highlight.dropZone?.bottom,
-    hasVerticalSelection,
-  );
-
-  const withinBottomDropZone =
-    pos.y >= highlight.posY &&
-    pos.y <= highlight.posY + Math.max(bottomDropZone, DEFAULT_DROP_RANGE);
-  const withinTopDropZone =
-    pos.y < highlight.posY &&
-    pos.y >= highlight.posY - Math.max(topDropZone, DEFAULT_DROP_RANGE);
-
-  return withinTopDropZone || withinBottomDropZone;
-}
-
-function calculateDropZone(
-  dropZoneSide: number | undefined,
-  hasVerticalSelection: boolean,
-) {
-  return dropZoneSide
-    ? dropZoneSide * (hasVerticalSelection ? 0.2 : 1)
-    : DEFAULT_DROP_RANGE;
 }
 
 function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {

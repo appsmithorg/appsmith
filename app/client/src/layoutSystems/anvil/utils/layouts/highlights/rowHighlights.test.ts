@@ -17,11 +17,7 @@ import {
   getHighlightsForRow,
   type RowMetaInformation,
 } from "./rowHighlights";
-import {
-  HIGHLIGHT_SIZE,
-  HORIZONTAL_DROP_ZONE_MULTIPLIER,
-  INFINITE_DROP_ZONE,
-} from "../../constants";
+import { HIGHLIGHT_SIZE } from "../../constants";
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
@@ -292,7 +288,6 @@ describe("rowHighlights tests", () => {
       layoutId: "",
       alignment: FlexLayerAlignment.Start,
       canvasId: "",
-      dropZone: {},
       height: 0,
       isVertical: true,
       layoutOrder: ["1"],
@@ -375,16 +370,6 @@ describe("rowHighlights tests", () => {
       expect(highlights[1].height).toEqual(
         dimensions[res.tallestWidgets[0].widgetId].height,
       );
-      expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
-      expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        INFINITE_DROP_ZONE,
-      );
-
-      // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (highlights[1].posX - highlights[0].posX) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
-      );
     });
   });
   describe("deriveRowHighlights", () => {
@@ -466,17 +451,6 @@ describe("rowHighlights tests", () => {
       expect(highlights[1].height).toEqual(
         dimensions[res.tallestWidgets[0].widgetId].height,
       );
-      // Drop zone at the end should be maximum
-      expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
-      expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        INFINITE_DROP_ZONE,
-      );
-
-      // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (highlights[1].posX - highlights[0].posX) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
-      );
     });
     it("should derive highlights for a wrapped row", () => {
       const data: WidgetLayoutProps[] = [
@@ -552,17 +526,6 @@ describe("rowHighlights tests", () => {
       // Height of all highlights in the row should be equal to the tallest widget.
       expect(highlights[0].height).toEqual(dimensions["2"].height);
       expect(highlights[4].height).toEqual(dimensions["3"].height);
-      // Drop zone at the end should be maximum
-      expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
-      expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        INFINITE_DROP_ZONE,
-      );
-
-      // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (highlights[1].posX - highlights[0].posX) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
-      );
 
       // Starting rowIndex of second row should be the same as ending rowIndex of the first row as they point to the same space.
       expect(highlights[2].rowIndex).toEqual(highlights[3].rowIndex);
@@ -641,17 +604,6 @@ describe("rowHighlights tests", () => {
       // Height of all highlights in the row should be equal to the tallest widget.
       expect(highlights[0].height).toEqual(dimensions["2"].height);
       expect(highlights[4].height).toEqual(dimensions["3"].height);
-      // Drop zone at the end should be maximum
-      expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
-      expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        INFINITE_DROP_ZONE,
-      );
-
-      // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (highlights[1].posX - highlights[0].posX) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
-      );
 
       // Starting rowIndex of second row should be the same as ending rowIndex of the first row as they point to the same space.
       expect(highlights[2].rowIndex).toEqual(highlights[3].rowIndex);
@@ -692,9 +644,6 @@ describe("rowHighlights tests", () => {
       expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
-      expect(res[0].dropZone?.right).toEqual(
-        positions[layout.layoutId].width - HIGHLIGHT_SIZE / 2,
-      );
     });
     it("should derive highlights for empty center aligned, drop target layouts", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -735,9 +684,6 @@ describe("rowHighlights tests", () => {
       expect(res[0].posX).toEqual(posX);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
-      expect(res[0].dropZone?.right).toEqual(
-        positions[layout.layoutId].width - posX,
-      );
     });
     it("should derive highlights for empty end aligned, drop target layouts", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -776,8 +722,6 @@ describe("rowHighlights tests", () => {
       expect(res[0].posX).toEqual(posX);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
-      expect(res[0].dropZone?.right).toEqual(INFINITE_DROP_ZONE);
-      expect(res[0].dropZone?.left).toEqual(posX);
     });
   });
   describe("getHighlightsForLayoutRow", () => {
