@@ -1,4 +1,11 @@
-import { takeLatest, all, call, put, select } from "redux-saga/effects";
+import {
+  takeLatest,
+  all,
+  call,
+  put,
+  select,
+  takeEvery,
+} from "redux-saga/effects";
 
 import ModuleApi from "@appsmith/api/ModuleApi";
 import {
@@ -6,7 +13,10 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
-import { getModuleById } from "@appsmith/selectors/modulesSelector";
+import {
+  getCurrentModuleId,
+  getModuleById,
+} from "@appsmith/selectors/modulesSelector";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchModuleActionsPayload } from "@appsmith/actions/moduleActions";
 import {
@@ -22,6 +32,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type {
   CreateModulePayload,
   FetchModuleActionsResponse,
+  RefactorModulePayload,
 } from "@appsmith/api/ModuleApi";
 import history from "utils/history";
 import {
@@ -50,9 +61,15 @@ import { executePageLoadActions } from "actions/pluginActionActions";
 import { createDummyJSCollectionActions } from "utils/JSPaneUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { generateDefaultJSObject } from "sagas/JSPaneSagas";
-import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
+import type {
+  CreateJSCollectionRequest,
+  RefactorAction,
+  UpdateCollectionActionNameRequest,
+} from "@appsmith/api/JSActionAPI";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
+import type { JSCollection } from "entities/JSCollection";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   try {
@@ -91,19 +108,21 @@ export function* saveModuleNameSaga(
       getModuleById,
       id,
     );
+    const currentModuleId: string = yield select(getCurrentModuleId);
 
     if (!module) {
       throw Error("Saving module name failed. Module not found.");
     }
 
-    const updatedModule = {
-      ...module,
-      name,
+    const refactorPayload: RefactorModulePayload = {
+      moduleId: id,
+      oldName: module.name,
+      newName: name,
     };
 
     const response: ApiResponse = yield call(
-      ModuleApi.updateModule,
-      updatedModule,
+      ModuleApi.refactorModule,
+      refactorPayload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -112,10 +131,15 @@ export function* saveModuleNameSaga(
         type: ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS,
         payload: response.data,
       });
-      yield call(fetchModuleEntitiesSaga, {
-        payload: { moduleId: id },
-        type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
-      });
+
+      // When different module name is modified using the entity explorer
+      // calling fetchModuleEntitiesSaga will override current modules's entities in reducer
+      if (currentModuleId === id) {
+        yield call(fetchModuleEntitiesSaga, {
+          payload: { moduleId: id },
+          type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
+        });
+      }
     }
   } catch (error) {
     yield put({
@@ -342,6 +366,48 @@ export function* setupModuleSaga(action: ReduxAction<SetupModulePayload>) {
   }
 }
 
+export function* handleRefactorJSActionNameSaga(
+  data: ReduxAction<{
+    refactorAction: RefactorAction;
+    actionCollection: JSCollection;
+  }>,
+) {
+  const { refactorAction } = data.payload;
+
+  if (refactorAction.moduleId) {
+    const requestData: UpdateCollectionActionNameRequest = {
+      ...data.payload.refactorAction,
+      actionCollection: data.payload.actionCollection,
+      contextType: "MODULE",
+    };
+    // call to refactor action
+    try {
+      const refactorResponse: ApiResponse =
+        yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
+
+      const isRefactorSuccessful: boolean =
+        yield validateResponse(refactorResponse);
+
+      if (isRefactorSuccessful) {
+        yield call(fetchModuleEntitiesSaga, {
+          payload: { moduleId: refactorAction.moduleId },
+          type: ReduxActionTypes.FETCH_MODULE_ENTITIES_INIT,
+        });
+
+        yield put({
+          type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
+          payload: { collectionId: data.payload.actionCollection.id },
+        });
+      }
+    } catch (error) {
+      yield put({
+        type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
+        payload: { collectionId: data.payload.actionCollection.id },
+      });
+    }
+  }
+}
+
 export default function* modulesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.DELETE_QUERY_MODULE_INIT, deleteModuleSaga),
@@ -360,5 +426,9 @@ export default function* modulesSaga() {
       updateModuleInputsSaga,
     ),
     takeLatest(ReduxActionTypes.SETUP_MODULE_INIT, setupModuleSaga),
+    takeEvery(
+      ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
+      handleRefactorJSActionNameSaga,
+    ),
   ]);
 }

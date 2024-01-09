@@ -47,7 +47,7 @@
         <source.disabled>true</source.disabled>
         <spotless.version>2.36.0</spotless.version>
         <spring-boot.version>3.0.9</spring-boot.version>
-        <testcontainers.version>1.17.3</testcontainers.version>
+        <testcontainers.version>1.19.3</testcontainers.version>
     </properties>
 
     <build>

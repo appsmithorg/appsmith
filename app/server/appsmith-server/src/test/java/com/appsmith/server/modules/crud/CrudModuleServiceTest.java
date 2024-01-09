@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
@@ -16,6 +17,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
@@ -23,6 +25,9 @@ import com.appsmith.server.dtos.ModuleEntitiesDTO;
 import com.appsmith.server.dtos.ModuleMetadata;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -31,6 +36,7 @@ import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -117,6 +123,9 @@ class CrudModuleServiceTest {
     @Autowired
     LayoutCollectionService layoutCollectionService;
 
+    @Autowired
+    RefactoringService refactoringService;
+
     @SpyBean
     FeatureFlagService featureFlagService;
 
@@ -136,6 +145,7 @@ class CrudModuleServiceTest {
     static String packageId;
     static PackageDTO testPackage = null;
     Datasource datasource;
+    Datasource jsDatasource;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -230,6 +240,18 @@ class CrudModuleServiceTest {
                 pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        Plugin installedJsPlugin =
+                pluginRepository.findByPackageName("installed-js-plugin").block();
+        PluginWorkspaceDTO pluginWorkspaceDTO = new PluginWorkspaceDTO();
+        pluginWorkspaceDTO.setPluginId(installedJsPlugin.getId());
+        pluginWorkspaceDTO.setWorkspaceId(workspaceId);
+        pluginWorkspaceDTO.setStatus(WorkspacePluginStatus.FREE);
+        pluginService.installPlugin(pluginWorkspaceDTO).block();
+        jsDatasource = new Datasource();
+        jsDatasource.setName("Default Database");
+        jsDatasource.setWorkspaceId(workspaceId);
+        jsDatasource.setPluginId(installedJsPlugin.getId());
     }
 
     void setupTestPackage() {
@@ -427,7 +449,8 @@ class CrudModuleServiceTest {
 
         StepVerifier.create(updateModuleMono)
                 .assertNext(updatedModule -> {
-                    assertThat(updatedModule.getName()).isEqualTo(moduleDTO.getName());
+                    // Module name cannot be changed through update module call
+                    assertThat(updatedModule.getName()).isEqualTo("GetUsersModuleV2");
                     assertThat(updatedModule.getInputsForm()).isNotEmpty();
                     assertThat(updatedModule.getInputsForm()).hasSize(1);
                     assertThat(updatedModule.getUserPermissions()).isNotEmpty();
@@ -926,5 +949,343 @@ class CrudModuleServiceTest {
                     assertThat(allEntities.getJsCollections().size()).isEqualTo(0);
                 })
                 .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    void testRefactorInModuleContext_whenEntityNameIsChanged_shouldRefactorAllOccurrences() {
+        final PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("PkgRefactor");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> packageId = new AtomicReference<>();
+        AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+
+        // create package
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    packageId.set(createdPackage.getId());
+                    testPackageRef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("JSModule1");
+        moduleDTO.setType(ModuleType.JS_MODULE);
+        moduleDTO.setPackageId(packageId.get());
+
+        ModuleActionCollectionDTO moduleActionCollectionDTO = getPublicEntityOfJSModule();
+        moduleDTO.setEntity(moduleActionCollectionDTO);
+
+        Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleIdRef = new AtomicReference<>();
+
+        StepVerifier.create(moduleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    moduleIdRef.set(createdModule.getId());
+                    assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
+                })
+                .verifyComplete();
+
+        Mono<ModuleEntitiesDTO> getEntitiesMono =
+                crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
+
+        StepVerifier.create(getEntitiesMono)
+                .assertNext(allEntities -> {
+                    assertThat(allEntities).isNotNull();
+                    assertThat(allEntities.getJsCollections().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+
+        // Change of name of the module should also change the name of the public entity
+        RefactorEntityNameDTO refactorEntityNameDTO = new RefactorEntityNameDTO();
+        refactorEntityNameDTO.setModuleId(moduleIdRef.get());
+        refactorEntityNameDTO.setContextType(CreatorContextType.MODULE);
+        refactorEntityNameDTO.setOldName("JSModule1");
+        refactorEntityNameDTO.setNewName("JSModuleOne");
+        Mono<ModuleDTO> updateModuleNameMono =
+                crudModuleService.updateModuleName(refactorEntityNameDTO, moduleIdRef.get(), null);
+
+        StepVerifier.create(updateModuleNameMono)
+                .assertNext(updatedModuleDTO -> {
+                    assertThat(updatedModuleDTO.getName()).isEqualTo("JSModuleOne");
+                })
+                .verifyComplete();
+
+        getEntitiesMono = crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
+
+        StepVerifier.create(getEntitiesMono)
+                .assertNext(allEntities -> {
+                    assertThat(allEntities).isNotNull();
+                    assertThat(allEntities.getJsCollections().size()).isEqualTo(1);
+                    assertThat(allEntities.getJsCollections().get(0).getName()).isEqualTo("JSModuleOne");
+                })
+                .verifyComplete();
+
+        // Add private js to the same module
+        ActionCollectionDTO privateActionCollectionDTO = layoutCollectionService
+                .createCollection(getPrivateActionCollectionDTO(moduleIdRef.get()), null)
+                .block();
+
+        getEntitiesMono = crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
+
+        StepVerifier.create(getEntitiesMono)
+                .assertNext(allEntities -> {
+                    assertThat(allEntities).isNotNull();
+                    assertThat(allEntities.getJsCollections().size()).isEqualTo(2);
+                })
+                .verifyComplete();
+
+        // Refactor private JS and verify that all references should also get refactored
+        RefactorEntityNameDTO refactorPrivateJS = new RefactorEntityNameDTO();
+        refactorPrivateJS.setContextType(CreatorContextType.MODULE);
+        refactorPrivateJS.setModuleId(moduleIdRef.get());
+        refactorPrivateJS.setActionCollectionId(privateActionCollectionDTO.getId());
+        refactorPrivateJS.setOldName("PrivateJSObject1");
+        refactorPrivateJS.setNewName("InnerJSObject1");
+
+        refactorPrivateJS.setEntityType(EntityType.JS_OBJECT);
+        // Refactor private JS
+        refactoringService.refactorEntityName(refactorPrivateJS, null).block();
+
+        getEntitiesMono = crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
+
+        StepVerifier.create(getEntitiesMono)
+                .assertNext(allEntities -> {
+                    assertThat(allEntities).isNotNull();
+                    assertThat(allEntities.getJsCollections().size()).isEqualTo(2);
+                    ActionCollectionDTO jsObject1 =
+                            allEntities.getJsCollections().get(0);
+                    ActionCollectionDTO jsObject2 =
+                            allEntities.getJsCollections().get(1);
+                    ActionCollectionDTO publicJSObject =
+                            jsObject1.getName().equals("JSModuleOne") ? jsObject1 : jsObject2;
+                    ActionCollectionDTO privateJSObject =
+                            jsObject1.getName().equals("InnerJSObject1") ? jsObject1 : jsObject2;
+
+                    assertThat(publicJSObject.getBody())
+                            .isEqualTo(moduleActionCollectionDTO
+                                    .getBody()
+                                    .replaceAll("PrivateJSObject1", "InnerJSObject1"));
+                    assertThat(publicJSObject
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody())
+                            .isEqualTo(moduleActionCollectionDTO
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody()
+                                    .replaceAll("PrivateJSObject1", "InnerJSObject1"));
+
+                    assertThat(privateJSObject.getActions().get(0).getValidName())
+                            .isEqualTo("InnerJSObject1."
+                                    + privateJSObject.getActions().get(0).getName());
+                    assertThat(privateJSObject.getActions().get(1).getValidName())
+                            .isEqualTo("InnerJSObject1."
+                                    + privateJSObject.getActions().get(1).getName());
+                })
+                .verifyComplete();
+
+        // Add a private Query
+        ActionDTO privateAPIDTO = new ActionDTO();
+        privateAPIDTO.setName("Api1");
+        privateAPIDTO.setModuleId(moduleIdRef.get());
+        privateAPIDTO.setContextType(CreatorContextType.MODULE);
+        privateAPIDTO.setActionConfiguration(new ActionConfiguration());
+        privateAPIDTO.setDatasource(datasource);
+        privateAPIDTO.setPluginType(PluginType.API);
+        privateAPIDTO.setPluginId(datasource.getPluginId());
+
+        privateAPIDTO.getActionConfiguration().setBody("Dummy body");
+
+        ActionDTO createdPrivateActionDTO = layoutActionService
+                .createSingleActionWithBranch(privateAPIDTO, null)
+                .block();
+
+        // Refactor private query should also refactor all references
+        RefactorEntityNameDTO privateAPIRefactorReq = new RefactorEntityNameDTO();
+        privateAPIRefactorReq.setActionId(createdPrivateActionDTO.getId());
+        privateAPIRefactorReq.setContextType(CreatorContextType.MODULE);
+        privateAPIRefactorReq.setModuleId(moduleIdRef.get());
+        privateAPIRefactorReq.setOldName("Api1");
+        privateAPIRefactorReq.setNewName("ApiOne");
+
+        privateAPIRefactorReq.setEntityType(EntityType.ACTION);
+        refactoringService.refactorEntityName(privateAPIRefactorReq, null).block();
+
+        getEntitiesMono = crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
+
+        StepVerifier.create(getEntitiesMono)
+                .assertNext(allEntities -> {
+                    assertThat(allEntities).isNotNull();
+                    assertThat(allEntities.getJsCollections().size()).isEqualTo(2);
+                    ActionCollectionDTO jsObject1 =
+                            allEntities.getJsCollections().get(0);
+                    ActionCollectionDTO jsObject2 =
+                            allEntities.getJsCollections().get(1);
+                    ActionCollectionDTO publicJSObject =
+                            jsObject1.getName().equals("JSModuleOne") ? jsObject1 : jsObject2;
+                    ActionCollectionDTO privateJSObject =
+                            jsObject1.getName().equals("InnerJSObject1") ? jsObject1 : jsObject2;
+
+                    assertThat(publicJSObject.getBody())
+                            .isEqualTo(moduleActionCollectionDTO
+                                    .getBody()
+                                    .replaceAll("PrivateJSObject1", "InnerJSObject1"));
+                    assertThat(publicJSObject
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody())
+                            .isEqualTo(moduleActionCollectionDTO
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody()
+                                    .replaceAll("PrivateJSObject1", "InnerJSObject1"));
+
+                    assertThat(privateJSObject.getActions().get(0).getValidName())
+                            .isEqualTo("InnerJSObject1."
+                                    + privateJSObject.getActions().get(0).getName());
+                    assertThat(privateJSObject.getActions().get(1).getValidName())
+                            .isEqualTo("InnerJSObject1."
+                                    + privateJSObject.getActions().get(1).getName());
+
+                    assertThat(privateJSObject.getBody())
+                            .isEqualTo(privateActionCollectionDTO.getBody().replaceAll("Api1", "ApiOne"));
+                    assertThat(privateJSObject
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody())
+                            .isEqualTo(privateJSObject
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody()
+                                    .replaceAll("Api1", "ApiOne"));
+                    assertThat(privateJSObject
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody())
+                            .isEqualTo(privateJSObject
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody()
+                                    .replaceAll("Api1", "ApiOne"));
+                })
+                .verifyComplete();
+    }
+
+    private ModuleActionCollectionDTO getPrivateActionCollectionDTO(String moduleId) {
+        ModuleActionCollectionDTO actionCollectionDTO = new ModuleActionCollectionDTO();
+
+        actionCollectionDTO.setName("PrivateJSObject1");
+        actionCollectionDTO.setModuleId(moduleId);
+        actionCollectionDTO.setContextType(CreatorContextType.MODULE);
+        actionCollectionDTO.setPluginId(jsDatasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        String body =
+                """
+            export default {
+                myVar1: [],
+                myVar2: {},
+                getAllUsers () {
+                    return return Api1.data;
+                },
+                async myFun2 () {
+                    return "do nothing"
+                }
+            }
+    """;
+
+        actionCollectionDTO.setBody(body);
+        ActionDTO getAllUsersActionDTO = new ActionDTO();
+        getAllUsersActionDTO.setName("getAllUsers");
+        getAllUsersActionDTO.setActionConfiguration(new ActionConfiguration());
+        getAllUsersActionDTO
+                .getActionConfiguration()
+                .setBody(
+                        """
+            getAllUsers () {
+                return return Api1.data;
+            }
+        """);
+
+        ActionDTO myFun2ActionDTO = new ActionDTO();
+        myFun2ActionDTO.setName("myFun2");
+        myFun2ActionDTO.setActionConfiguration(new ActionConfiguration());
+        myFun2ActionDTO
+                .getActionConfiguration()
+                .setBody(
+                        """
+            async myFun2 () {
+                return return "do nothing";
+            }
+        """);
+        actionCollectionDTO.setActions(List.of(getAllUsersActionDTO, myFun2ActionDTO));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        return actionCollectionDTO;
+    }
+
+    private ModuleActionCollectionDTO getPublicEntityOfJSModule() {
+        ModuleActionCollectionDTO actionCollectionDTO = new ModuleActionCollectionDTO();
+
+        actionCollectionDTO.setName("JSModule1");
+        actionCollectionDTO.setPluginId(jsDatasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        String body =
+                """
+            export default {
+                myVar1: [],
+                myVar2: {},
+                getAllUsers () {
+                    return PrivateJSObject1.getAllUsers();
+                },
+                async myFun2 () {
+                    return PrivateJSObject1.myFun2.data;
+                }
+            }
+    """;
+
+        actionCollectionDTO.setBody(body);
+        ActionDTO getAllUsersActionDTO = new ActionDTO();
+        getAllUsersActionDTO.setName("getAllUsers");
+        getAllUsersActionDTO.setActionConfiguration(new ActionConfiguration());
+        getAllUsersActionDTO
+                .getActionConfiguration()
+                .setBody(
+                        """
+            getAllUsers () {
+                return PrivateJSObject1.getAllUsers();
+            }
+        """);
+
+        ActionDTO myFun2ActionDTO = new ActionDTO();
+        myFun2ActionDTO.setName("myFun2");
+        myFun2ActionDTO.setActionConfiguration(new ActionConfiguration());
+        myFun2ActionDTO
+                .getActionConfiguration()
+                .setBody(
+                        """
+            async myFun2 () {
+                return PrivateJSObject1.myFun2.data;
+            }
+        """);
+        actionCollectionDTO.setActions(List.of(getAllUsersActionDTO, myFun2ActionDTO));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        return actionCollectionDTO;
     }
 }

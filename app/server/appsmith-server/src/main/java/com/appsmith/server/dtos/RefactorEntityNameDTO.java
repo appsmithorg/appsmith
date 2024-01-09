@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.dtos.ce.RefactorEntityNameCE_DTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +29,8 @@ public class RefactorEntityNameDTO extends RefactorEntityNameCE_DTO {
             String newFullyQualifiedName,
             String moduleId,
             String moduleInstanceId,
-            Boolean isInternal) {
+            Boolean isInternal,
+            CreatorContextType contextType) {
         super(
                 pageId,
                 layoutId,
@@ -41,7 +43,8 @@ public class RefactorEntityNameDTO extends RefactorEntityNameCE_DTO {
                 actionCollection,
                 oldFullyQualifiedName,
                 newFullyQualifiedName,
-                isInternal);
+                isInternal,
+                contextType);
         this.moduleId = moduleId;
         this.moduleInstanceId = moduleInstanceId;
     }

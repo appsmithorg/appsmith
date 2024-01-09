@@ -3,6 +3,7 @@ package com.appsmith.server.modules.crud;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.modules.base.BaseModuleServiceCECompatible;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,4 +21,6 @@ public interface CrudModuleServiceCECompatible extends BaseModuleServiceCECompat
     Flux<Module> findExportableModuleDataByIds(Set<String> moduleIdsSet, Optional<AclPermission> permissionOptional);
 
     Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId);
+
+    Mono<ModuleDTO> updateModuleName(RefactorEntityNameDTO refactorEntityNameDTO, String moduleId, String branchName);
 }

@@ -621,7 +621,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .setDeletedAt(
                         branchedActionCollection.getUnpublishedCollection().getDeletedAt());
         actionCollection.setDeletedAt(branchedActionCollection.getDeletedAt());
-        actionCollection.setDeleted(branchedActionCollection.getDeleted());
         // Set policies from existing branch object
         actionCollection.setPolicies(branchedActionCollection.getPolicies());
     }

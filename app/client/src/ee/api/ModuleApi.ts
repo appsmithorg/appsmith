@@ -39,6 +39,14 @@ export interface FetchModuleEntitiesResponse {
   jsCollections: JSCollection[];
 }
 
+export interface RefactorModulePayload {
+  moduleId: string;
+  newName: string;
+  oldName: string;
+}
+
+export type RefactorModuleResponse = Module;
+
 const BASE_URL = "v1/modules";
 
 class ModuleApi extends Api {
@@ -91,6 +99,14 @@ class ModuleApi extends Api {
     payload: CreateModulePayload,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(BASE_URL, payload);
+  }
+
+  static async refactorModule(
+    payload: RefactorModulePayload,
+  ): Promise<AxiosPromise<ApiResponse<RefactorModuleResponse>>> {
+    const url = `${BASE_URL}/refactor`;
+
+    return Api.put(url, payload);
   }
 }
 
