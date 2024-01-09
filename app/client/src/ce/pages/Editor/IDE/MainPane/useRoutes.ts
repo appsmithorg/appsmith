@@ -1,5 +1,6 @@
 import WidgetsEditor from "pages/Editor/WidgetsEditor";
 import {
+  ADD_PATH,
   API_EDITOR_ID_ADD_PATH,
   API_EDITOR_ID_PATH,
   APP_LIBRARIES_EDITOR_PATH,
@@ -15,8 +16,8 @@ import {
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
+  LIST_PATH,
   PROVIDER_TEMPLATE_PATH,
-  ADD_PATH,
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -44,8 +45,11 @@ import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
 import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
-import { JSBlankState } from "../../../../../pages/Editor/JSEditor/JSBlankState";
-import { QueriesBlankState } from "../../../../../pages/Editor/QueryEditor/QueriesBlankState";
+import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
+import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
+import { useSelector } from "react-redux";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 export interface RouteReturnType extends RouteProps {
   key: string;
@@ -58,6 +62,88 @@ export interface RouteReturnType extends RouteProps {
 
 function useRoutes(path: string): RouteReturnType[] {
   const isAppSidebarEnabled = useIsAppSidebarEnabled();
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
+
+  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
+    return [
+      {
+        key: "Canvas",
+        component: WidgetsEditor,
+        exact: true,
+        path: [
+          BUILDER_PATH_DEPRECATED,
+          BUILDER_PATH,
+          BUILDER_CUSTOM_PATH,
+          `${BUILDER_PATH_DEPRECATED}${ADD_PATH}`,
+          `${BUILDER_PATH}${ADD_PATH}`,
+          `${BUILDER_CUSTOM_PATH}${ADD_PATH}`,
+          `${path}${ADD_PATH}`,
+          `${path}${WIDGETS_EDITOR_BASE_PATH}`,
+          `${path}${WIDGETS_EDITOR_ID_PATH}`,
+          `${path}${WIDGETS_EDITOR_ID_PATH}${ADD_PATH}`,
+          `${path}${API_EDITOR_ID_PATH}`,
+          `${path}${API_EDITOR_ID_PATH}${LIST_PATH}`,
+          `${path}${API_EDITOR_ID_ADD_PATH}`,
+          `${path}${QUERIES_EDITOR_BASE_PATH}`,
+          `${path}${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`,
+          `${path}${QUERIES_EDITOR_ID_PATH}`,
+          `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
+          `${path}${QUERIES_EDITOR_ID_PATH}${LIST_PATH}`,
+          `${path}${JS_COLLECTION_EDITOR_PATH}`,
+          `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
+          `${path}${JS_COLLECTION_ID_PATH}`,
+          `${path}${JS_COLLECTION_ID_PATH}${LIST_PATH}`,
+          `${path}${CURL_IMPORT_PAGE_PATH}`,
+          `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
+          `${path}${SAAS_EDITOR_PATH}`,
+          `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
+          `${path}${SAAS_EDITOR_API_ID_PATH}`,
+          `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
+          `${path}${APP_LIBRARIES_EDITOR_PATH}`,
+          `${path}${APP_SETTINGS_EDITOR_PATH}`,
+        ],
+      },
+      {
+        key: "Datasource Create and Active",
+        component: isAppSidebarEnabled
+          ? CreateNewDatasourceTab
+          : IntegrationEditor,
+        exact: true,
+        path: `${path}${INTEGRATION_EDITOR_PATH}`,
+      },
+      {
+        key: "OnboardingChecklist",
+        component: OnboardingChecklist,
+        exact: true,
+        path: `${path}${BUILDER_CHECKLIST_PATH}`,
+      },
+      {
+        key: "DatasourceEditor",
+        component: DataSourceEditor,
+        exact: true,
+        path: `${path}${DATA_SOURCES_EDITOR_ID_PATH}`,
+      },
+      {
+        key: "DatasourceBlankState",
+        component: DatasourceBlankState,
+        exact: true,
+        path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
+      },
+      {
+        key: "ProviderTemplates",
+        component: ProviderTemplates,
+        exact: true,
+        path: `${path}${PROVIDER_TEMPLATE_PATH}`,
+      },
+      {
+        key: "GeneratePage",
+        component: GeneratePage,
+        exact: true,
+        path: `${path}${GENERATE_TEMPLATE_FORM_PATH}`,
+      },
+    ];
+  }
 
   return [
     {
