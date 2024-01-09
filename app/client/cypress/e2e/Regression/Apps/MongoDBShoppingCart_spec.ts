@@ -169,6 +169,7 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
     );
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
+    agHelper.AssertElementLength(appPage.deleteButton + "/parent::div", 2);
     // Deleting the book from the cart
     agHelper.GetNClick(appPage.deleteButton, 1, false);
     assertHelper.AssertNetworkStatus("@postExecute");
