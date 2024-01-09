@@ -4,7 +4,7 @@ interface Props {
 
 const WorkflowSearchItem = (props: Props) => {
   // eslint-disable-next-line
-    const { searchedWorkflows } = props;
+  const { searchedWorkflows } = props;
   return null;
 };
 
