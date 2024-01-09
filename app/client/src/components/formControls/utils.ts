@@ -352,6 +352,7 @@ export const switchViewType = (
 export const getConfigInitialValues = (
   config: Record<string, any>[],
   multipleViewTypesSupported = false,
+  includeEncryptedFields = true,
 ) => {
   const configInitialValues: Record<string, any> = {};
 
@@ -370,6 +371,12 @@ export const getConfigInitialValues = (
           },
         );
       } else {
+        if (
+          !includeEncryptedFields &&
+          (section.encrypted || section.dataType === "PASSWORD")
+        ) {
+          return;
+        }
         set(configInitialValues, section.configProperty, section.initialValue);
       }
     } else if (section.controlType === "WHERE_CLAUSE") {
