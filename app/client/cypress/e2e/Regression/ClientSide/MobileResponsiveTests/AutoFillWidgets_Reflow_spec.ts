@@ -39,20 +39,20 @@ describe(
       cy.url().then((url) => {
         currentUrl = url;
         cy.log(currentUrl);
+        homePage.Signout(false);
+        agHelper.VisitNAssert(url, "getPagesForViewApp");
+        agHelper.AssertCSS(
+          autoLayout.getAutoLayoutLayerClassName("0", 0),
+          "flex-wrap",
+          "nowrap",
+        );
+        cy.viewport("iphone-4");
+        agHelper.AssertCSS(
+          autoLayout.getAutoLayoutLayerClassName("0", 0),
+          "flex-wrap",
+          "wrap",
+        );
       });
-      homePage.Signout(false);
-      agHelper.VisitNAssert(currentUrl, "getPagesForViewApp");
-      agHelper.AssertCSS(
-        autoLayout.getAutoLayoutLayerClassName("0", 0),
-        "flex-wrap",
-        "nowrap",
-      );
-      cy.viewport("iphone-4");
-      agHelper.AssertCSS(
-        autoLayout.getAutoLayoutLayerClassName("0", 0),
-        "flex-wrap",
-        "wrap",
-      );
     });
   },
 );
