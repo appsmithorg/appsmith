@@ -74,7 +74,7 @@ describe(
       exportAndCompareDownloadedFile(
         3,
         PartialImportExportLocatores.export.modelContents.customJSLibsSection,
-        "CustomJSLibsExportedOnly.json",
+        "CustomJsLibsExportedOnly.json",
       );
     });
 
