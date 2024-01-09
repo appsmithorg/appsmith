@@ -266,10 +266,8 @@ export class HomePage {
     this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
     if (!Cypress.env("AIRGAPPED")) {
       this.assertHelper.AssertNetworkStatus("@getReleaseItems");
-    } else {
-      this.agHelper.Sleep(2000);
     }
-    this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
+    this.agHelper.WaitUntilEleAppear(this._homeAppsmithImage);
   }
 
   public AssertApplicationCreated() {

@@ -507,10 +507,9 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    this.GetElement(selector).waitUntil(
-      ($ele) =>
-        cy
-          .wrap($ele)
+    cy.waitUntil(
+      () =>
+        this.GetElement(selector)
           .should("exist")
           .should("be.visible")
           .its("length")
