@@ -7,7 +7,11 @@ import { ThemeProvider } from "styled-components";
 
 import StartWithTemplateFilters from "./index";
 import { lightTheme } from "selectors/themeSelectors";
-import { unitTestMockTemplate } from "../test_config";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  unitTestMockTemplate,
+  unitTestMockTemplateAllFilters,
+} from "../test_config";
 
 const mockStore = configureStore([]);
 
@@ -24,99 +28,7 @@ describe("<StartWithTemplateFilters />", () => {
           filters: {
             functions: ["All"],
           },
-          allFilters: {
-            userPermissions: [],
-            sortPriority: "1000",
-            widgets: [
-              "Modal",
-              "CHECKBOX_WIDGET",
-              "Table",
-              "CONTAINER_WIDGET",
-              "FORM_WIDGET",
-              "MULTI_SELECT_WIDGET_V2",
-              "LIST_WIDGET",
-              "TABLE_WIDGET_V2",
-              "INPUT_WIDGET_V2",
-              "MENU_BUTTON_WIDGET",
-              "RATE_WIDGET",
-              "CHART_WIDGET",
-              "Tabs",
-              "BUTTON_WIDGET",
-              "Button",
-              "MODAL_WIDGET",
-              "Select",
-              "SWITCH_WIDGET",
-              "DOCUMENT_VIEWER_WIDGET",
-              "RICH_TEXT_EDITOR_WIDGET",
-              "JSON_FORM_WIDGET",
-              "Image",
-              "TABLE_WIDGET",
-              "IMAGE_WIDGET",
-              "SELECT_WIDGET",
-              "CURRENCY_INPUT_WIDGET",
-              "TABS_WIDGET",
-              "PHONE_INPUT_WIDGET",
-              "DATE_PICKER_WIDGET2",
-              "TEXT_WIDGET",
-              "List",
-              "LIST_WIDGET_V2",
-              "STATBOX_WIDGET",
-              "MAP_WIDGET",
-              "Container",
-              "BUTTON_GROUP_WIDGET",
-              "Form",
-              "Icon Button",
-              "Text",
-              "ICON_BUTTON_WIDGET",
-              "Input",
-            ],
-            functions: [
-              "Start-up",
-              "Operations",
-              "Customer Support",
-              "Information Technology (IT)",
-              "Other",
-              "Building Blocks",
-              "Services",
-              "Technology",
-              "Human Resources",
-              "Building Block",
-              "Communications",
-              "Customer management",
-              "Sales",
-              "Consumer goods",
-              "All",
-              "E-Commerce",
-              "Marketing",
-            ],
-            useCases: [
-              "Productivity",
-              "Public Relations (PR)",
-              "Remote work",
-              "Human Resources",
-              "Human Resources (HR)",
-              "Communications",
-              "Admin",
-              "Software Development",
-              "Project Management",
-              "Remote Work",
-              "Marketing",
-              "Personal",
-              "Support",
-              "Finance",
-              "Sales",
-            ],
-            datasources: [
-              "twilio",
-              "61531b1b9370f312a0394f16",
-              "Google Sheets",
-              "smtp-plugin",
-              "mongo-plugin",
-              "postgres-plugin",
-              "restapi-plugin",
-            ],
-            new: true,
-          },
+          allFilters: unitTestMockTemplateAllFilters,
           templateSearchQuery: "",
           templates: [unitTestMockTemplate],
         },
@@ -145,7 +57,7 @@ describe("<StartWithTemplateFilters />", () => {
     render(<BaseComponentRender />);
 
     const expectedAction = {
-      type: "UPDATE_TEMPLATE_FILTERS",
+      type: ReduxActionTypes.UPDATE_TEMPLATE_FILTERS,
       payload: {
         category: "functions",
         filterList: ["All"],
@@ -171,7 +83,7 @@ describe("<StartWithTemplateFilters />", () => {
       expect(store.getActions()).toEqual(
         expect.arrayContaining([
           {
-            type: "UPDATE_TEMPLATE_FILTERS",
+            type: ReduxActionTypes.UPDATE_TEMPLATE_FILTERS,
             payload: {
               category: "functions",
               filterList: expect.not.arrayContaining(["All"]),
@@ -191,7 +103,7 @@ describe("<StartWithTemplateFilters />", () => {
     // Wait for the debounced search input action to complete
     await waitFor(() => {
       const expectedAction = {
-        type: "UPDATE_TEMPLATE_FILTERS",
+        type: ReduxActionTypes.UPDATE_TEMPLATE_FILTERS,
         payload: {
           category: "functions",
           filterList: ["Operations"],
@@ -211,7 +123,7 @@ describe("<StartWithTemplateFilters />", () => {
       expect(store.getActions()).toEqual(
         expect.arrayContaining([
           {
-            type: "SET_TEMPLATE_SEARCH_QUERY",
+            type: ReduxActionTypes.SET_TEMPLATE_SEARCH_QUERY,
             payload: "test query",
           },
         ]),
@@ -228,14 +140,14 @@ describe("<StartWithTemplateFilters />", () => {
       expect(store.getActions()).toEqual(
         expect.arrayContaining([
           {
-            type: "UPDATE_TEMPLATE_FILTERS",
+            type: ReduxActionTypes.UPDATE_TEMPLATE_FILTERS,
             payload: {
               category: "functions",
               filterList: ["Operations"],
             },
           },
           {
-            type: "UPDATE_TEMPLATE_FILTERS",
+            type: ReduxActionTypes.UPDATE_TEMPLATE_FILTERS,
             payload: {
               category: "functions",
               filterList: ["Communications"],
