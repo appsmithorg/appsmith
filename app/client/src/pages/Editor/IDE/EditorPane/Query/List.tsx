@@ -20,6 +20,7 @@ import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextPr
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EmptyState } from "../components/EmptyState";
 import { useQueryAdd } from "./hooks";
+import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -35,6 +36,7 @@ const ListQuery = () => {
   const applicationId = useSelector(getCurrentApplicationId);
 
   const addButtonClickHandler = useQueryAdd();
+  const showWorkflows = useSelector(getShowWorkflowFeature);
 
   return (
     <Flex
@@ -78,6 +80,7 @@ const ListQuery = () => {
                 editorId={applicationId}
                 parentEntityId={pageId}
                 parentEntityType={ActionParentEntityType.PAGE}
+                showWorkflows={showWorkflows}
               >
                 {files[key].map((file: any) => {
                   return (
