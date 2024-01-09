@@ -3,6 +3,7 @@
 cypress/e2e/Regression/ClientSide/BugTests/Bug29566_Spec.ts
 cypress/e2e/Regression/ClientSide/Git/GitSync/RepoLimitExceededErrorModal_spec.js
 cypress/e2e/Regression/ClientSide/DynamicHeight/DynamicHeight_Visibility_spec.ts
+cypress/e2e/Regression/ClientSide/BugTests/JS_Bug28764_Spec.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
