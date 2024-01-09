@@ -8,29 +8,7 @@ import { Router } from "react-router";
 import history from "utils/history";
 import { templateIdUrl } from "@appsmith/RouteBuilder";
 import FixedHeightTemplate from "./FixedHeightTemplate";
-
-const MOCK_TEMPLATE_TITLE = "Test Template";
-const MOCK_TEMPLATE_DESCRIPTION = "Description of the test template";
-const MOCK_TEMPLATE_ID = "mockId";
-
-const mockTemplate = {
-  id: MOCK_TEMPLATE_ID,
-  userPermissions: ["read", "write"],
-  title: MOCK_TEMPLATE_TITLE,
-  description: MOCK_TEMPLATE_DESCRIPTION,
-  appUrl: "https://mockapp.com",
-  gifUrl: "https://mockapp.com/mock.gif",
-  screenshotUrls: [
-    "https://mockapp.com/screenshot1.jpg",
-    "https://mockapp.com/screenshot2.jpg",
-  ],
-  widgets: [],
-  functions: ["Function1", "Function2"],
-  useCases: ["UseCase1", "UseCase2"],
-  datasources: ["Datasource1", "Datasource2"],
-  pages: [],
-  allowPageImport: true,
-};
+import { unitTestMockTemplate } from "../test_config";
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
@@ -48,7 +26,10 @@ jest.mock("./LargeTemplate", () => ({
 
 const BaseTemplateRender = () => (
   <ThemeProvider theme={lightTheme}>
-    <TemplateLayout hideForkTemplateButton={false} template={mockTemplate} />
+    <TemplateLayout
+      hideForkTemplateButton={false}
+      template={unitTestMockTemplate}
+    />
   </ThemeProvider>
 );
 
@@ -58,18 +39,20 @@ describe("<TemplateLayout />", () => {
   });
 
   it("renders template details correctly", () => {
-    render(BaseTemplateRender());
-    expect(screen.getByText(MOCK_TEMPLATE_TITLE)).toBeInTheDocument();
-    expect(screen.getByText(MOCK_TEMPLATE_DESCRIPTION)).toBeInTheDocument();
+    render(<BaseTemplateRender />);
+    expect(screen.getByText(unitTestMockTemplate.title)).toBeInTheDocument();
+    expect(
+      screen.getByText(unitTestMockTemplate.description),
+    ).toBeInTheDocument();
     expect(screen.getByAltText("Template Thumbnail")).toBeInTheDocument();
   });
 
   it("navigates to the template URL when clicked", () => {
     render(<Router history={history}>{BaseTemplateRender()}</Router>);
     const pushMock = jest.spyOn(history, "push");
-    fireEvent.click(screen.getByText(MOCK_TEMPLATE_TITLE));
+    fireEvent.click(screen.getByText(unitTestMockTemplate.title));
     expect(pushMock).toHaveBeenCalledWith(
-      templateIdUrl({ id: MOCK_TEMPLATE_ID }),
+      templateIdUrl({ id: unitTestMockTemplate.id }),
     );
   });
 
@@ -80,16 +63,16 @@ describe("<TemplateLayout />", () => {
         <TemplateLayout
           hideForkTemplateButton
           onForkTemplateClick={onForkTemplateClick}
-          template={mockTemplate}
+          template={unitTestMockTemplate}
         />
       </ThemeProvider>,
     );
-    fireEvent.click(screen.getByText(MOCK_TEMPLATE_TITLE));
+    fireEvent.click(screen.getByText(unitTestMockTemplate.title));
     expect(onForkTemplateClick).not.toHaveBeenCalled();
   });
 
   it("opens the fork modal when the fork button is clicked and no onForkTemplateClick event passed", () => {
-    render(BaseTemplateRender());
+    render(<BaseTemplateRender />);
     const forkButton = screen.getByTestId("t--fork-template-button");
     fireEvent.click(forkButton);
     expect(screen.getByTestId("t--fork-template-modal")).toBeInTheDocument();
@@ -100,13 +83,13 @@ describe("<TemplateLayout />", () => {
       <ThemeProvider theme={lightTheme}>
         <FixedHeightTemplate
           hideForkTemplateButton={false}
-          template={mockTemplate}
+          template={unitTestMockTemplate}
         />
         ,
       </ThemeProvider>,
     );
 
-    const titleElement = screen.getByText(MOCK_TEMPLATE_TITLE);
+    const titleElement = screen.getByText(unitTestMockTemplate.title);
     expect(titleElement).toHaveStyle("overflow: hidden");
     expect(titleElement).toHaveStyle("display: -webkit-box");
 
@@ -114,12 +97,13 @@ describe("<TemplateLayout />", () => {
     expect(categoriesElement).toHaveStyle("overflow: hidden");
     expect(titleElement).toHaveStyle("display: -webkit-box");
 
-    const descriptionElement = screen.getByText(MOCK_TEMPLATE_DESCRIPTION);
+    const descriptionElement = screen.getByText(
+      unitTestMockTemplate.description,
+    );
     expect(descriptionElement).toHaveStyle("height: 85px");
     expect(descriptionElement).toHaveStyle("overflow: hidden");
     expect(titleElement).toHaveStyle("display: -webkit-box");
 
-    // Image height should be 180px
     const imageElement = screen.getByAltText("Template Thumbnail");
     expect(imageElement).toHaveStyle("height: 180px");
   });
