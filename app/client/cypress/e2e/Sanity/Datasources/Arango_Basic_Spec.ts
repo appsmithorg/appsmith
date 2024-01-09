@@ -317,7 +317,7 @@ describe(
       //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
       dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
       let query = `FOR document IN ${collectionName}
-      RETURN { country: document.country }`;
+      RETURN { country: document.places_to_visit }`;
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
