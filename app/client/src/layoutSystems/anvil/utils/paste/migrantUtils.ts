@@ -1,8 +1,12 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { CopiedWidgetData } from "./types";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { getContainingLayoutMapping, getParentLayout } from "./utils";
-import { call } from "redux-saga/effects";
+import {
+  addPastedWidgets,
+  getContainingLayoutMapping,
+  getParentLayout,
+} from "./utils";
+import { all, call } from "redux-saga/effects";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { anvilWidgets } from "widgets/anvil/constants";
 import type {
@@ -13,27 +17,8 @@ import type {
 import { defaultHighlightRenderInfo } from "../constants";
 import { handleWidgetMovement } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
 import { generateReactKey } from "utils/generators";
-import { addNewWidgetAndUpdateLayout } from "../widgetUtils";
-
-/**
- * 1.Parse through copiedWidgets.
- * => split them on type: Section > Zone > others.
- * 2. Identify the type of the new parent.
- * 3. Paste only if copied widgets are of lower order type.
- * 4. If copied widgets are multiple orders lower than the new parent,
- * => recursively create a higher order parent for them, and add them to it.
- * 5. repeat this pattern until all copied widgets are only one order lower than the new parent.
- * 6. Then add them to the new parent.
- *
- * e.g. CopiedWidgets: [Zone, Text (other), Button (other)] and newParent = Section.
- * order: Section > Zone > Other.
- *
- * Process:
- * 1. Split copiedWidgets into [Zone (Z1)] and [Text, Button].
- * 2. Create a new Zone (Z2) widget and add [Text, Button] to it.
- * 3. Z1 and Z2 are one order lower than newParent.
- * 4. add them to newParent.
- */
+import { addNewWidgetAndUpdateLayout } from "./widgetUtils";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 
 const widgetTypes: { [key: string]: number } = {
   MAIN_CANVAS: 0,
@@ -74,65 +59,90 @@ export function* pasteMigrantWidgets(
   let isSection = currentParent.type === anvilWidgets.SECTION_WIDGET;
   while (index < order.length) {
     const widgetsToAdd: CopiedWidgetData[] = order[index];
-    /**
-     * Group copied widgets based on grouping status in original layouts.
-     */
-    const widgetGrouping: WidgetLayoutProps[][] = getContainingLayoutMapping(
-      widgets,
-      widgetsToAdd,
-    );
 
-    for (const group of widgetGrouping) {
-      let layoutId = ""; // id of layout created for this group.
-      for (let i = 0; i < group.length; i += 1) {
-        if (!parentLayout) break;
-        const { alignment, widgetId } = group[i];
-        /**
-         * If !layoutId, then widgets are added at the end of the parentLayout.
-         */
-        const rowIndex: number = !layoutId ? parentLayout.layout.length : i;
-        const highlight: AnvilHighlightInfo = {
-          ...defaultHighlightRenderInfo,
-          alignment,
-          canvasId: parentId,
-          layoutOrder: !layoutId ? [newLayoutId] : [newLayoutId, layoutId],
-          rowIndex,
-        };
-        widgets = yield call(
-          handleWidgetMovement,
-          widgets,
-          [map[widgetId]],
-          highlight,
-          isMainCanvas,
-          isSection,
-        );
-        /**
-         * Update parent layout.
-         */
-        parentLayout = getParentLayout(widgets[parentId]);
-        /**
-         * Newly inserted widgets will be at the end of the parent layout.
-         */
-        layoutId = parentLayout?.layout[
-          parentLayout.layout.length
-        ].hasOwnProperty("layoutId")
-          ? (parentLayout?.layout[rowIndex] as LayoutProps)?.layoutId
-          : "";
+    if (widgetsToAdd.length) {
+      yield all(
+        widgetsToAdd.map((each: CopiedWidgetData) =>
+          call(function* () {
+            /**
+             * Create a new version of copied widget.
+             */
+            const res: {
+              map: { [key: string]: string };
+              reverseMap: { [key: string]: string };
+              widgets: CanvasWidgetsReduxState;
+            } = yield call(
+              addPastedWidgets,
+              each,
+              widgets,
+              map,
+              reverseMap,
+              parentId,
+            );
+            widgets = res.widgets;
+            map = res.map;
+            reverseMap = res.reverseMap;
+          }),
+        ),
+      );
+
+      /**
+       * Group copied widgets based on grouping status in original layouts.
+       */
+      const widgetGrouping: WidgetLayoutProps[][] = getContainingLayoutMapping(
+        widgets,
+        widgetsToAdd,
+      );
+
+      for (const group of widgetGrouping) {
+        let layoutId = ""; // id of layout created for this group.
+        for (let i = 0; i < group.length; i += 1) {
+          if (!parentLayout) break;
+          const { alignment, widgetId } = group[i];
+          /**
+           * If !layoutId, then widgets are added at the end of the parentLayout.
+           */
+          const rowIndex: number = !layoutId ? parentLayout.layout.length : i;
+          const highlight: AnvilHighlightInfo = {
+            ...defaultHighlightRenderInfo,
+            alignment,
+            canvasId: parentId,
+            layoutOrder: !layoutId ? [newLayoutId] : [newLayoutId, layoutId],
+            rowIndex,
+          };
+          widgets = yield call(
+            handleWidgetMovement,
+            widgets,
+            [map[widgetId]],
+            highlight,
+            isMainCanvas,
+            isSection,
+          );
+          /**
+           * Update parent layout.
+           */
+          parentLayout = getParentLayout(widgets[parentId]);
+          /**
+           * Newly inserted widgets will be at the end of the parent layout.
+           */
+          layoutId = parentLayout?.layout[
+            parentLayout.layout.length - 1
+          ].hasOwnProperty("layoutId")
+            ? (parentLayout?.layout[rowIndex] as LayoutProps)?.layoutId
+            : "";
+        }
       }
     }
-
-    // Update index.
-    index += 1;
 
     /**
      * All members of this order have been pasted.
      * Check if there are any widgets in the next lower order,
      * if true => create a new widget of this order and use it as the parent for the next order.
      */
-    if (order[index].length) {
+    if (doLowerOrdersHaveEntries(index, order)) {
       const highlight: AnvilHighlightInfo = {
         ...defaultHighlightRenderInfo,
-        alignment: widgetGrouping[0][0].alignment,
+        alignment: FlexLayerAlignment.Start, // TODO: remove this hard coding
         canvasId: parentId,
         layoutOrder: [newLayoutId],
         rowIndex: parentLayout?.layout.length ?? 0,
@@ -156,7 +166,12 @@ export function* pasteMigrantWidgets(
         isSection = currentParent.type === anvilWidgets.SECTION_WIDGET;
       }
     }
+
+    // Update index.
+    index += 1;
   }
+
+  return { widgets, map, reverseMap };
 }
 
 function getWidgetOrder(type: string, id: string): number {
@@ -168,7 +183,7 @@ function getWidgetOrder(type: string, id: string): number {
 function splitWidgetsByOrder(
   widgets: CopiedWidgetData[],
 ): CopiedWidgetData[][] {
-  const widgetOrders: CopiedWidgetData[][] = new Array(4).fill([]);
+  const widgetOrders: CopiedWidgetData[][] = [[], [], [], []];
   widgets.forEach((widget: CopiedWidgetData) => {
     const order = getWidgetOrder(widget.list[0].type, widget.widgetId);
     widgetOrders[order].push(widget);
@@ -210,4 +225,14 @@ function* createParentAndAddWidget(
     default:
       return { canvasWidgets, newParent: null };
   }
+}
+
+function doLowerOrdersHaveEntries(
+  index: number,
+  order: CopiedWidgetData[][],
+): boolean {
+  for (let i = index + 1; i < order.length; i += 1) {
+    if (order[i].length) return true;
+  }
+  return false;
 }

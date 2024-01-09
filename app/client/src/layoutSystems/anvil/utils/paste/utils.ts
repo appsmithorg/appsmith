@@ -78,8 +78,6 @@ export function* addPastedWidgets(
     };
   });
 
-  console.log("####", { newList });
-
   /**
    * Add widgets after original widget and update new parent.
    */
@@ -91,8 +89,6 @@ export function* addPastedWidgets(
       children: [...(parentWidget?.children || []), map[widgetId]],
     },
   };
-
-  console.log("####", { newParentId, parent: widgets[newParentId] });
 
   return { widgets, map, reverseMap };
 }
@@ -194,7 +190,9 @@ function extractContainingLayouts(
   return res;
 }
 
-export function getParentLayout(parent: FlattenedWidgetProps): LayoutProps | null {
+export function getParentLayout(
+  parent: FlattenedWidgetProps,
+): LayoutProps | null {
   if (!parent || !parent.layout) return null;
   // TODO: @Preet - remove this hard coding.
   return parent.layout[0];

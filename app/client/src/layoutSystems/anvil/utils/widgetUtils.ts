@@ -5,15 +5,6 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  addNewWidgetToDsl,
-  getCreateWidgetPayload,
-} from "./widgetAdditionUtils";
-import { call } from "redux-saga/effects";
-import type { AnvilHighlightInfo, LayoutProps } from "./anvilTypes";
-import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "../layoutComponents/LayoutFactory";
 
 /**
  * Updates minWidth style for the widget based on its responsiveBehavior:
@@ -101,65 +92,4 @@ export const getWidgetSizeConfiguration = (
 export function isLargeWidget(type: string): boolean {
   const config: AnvilConfig | null = WidgetFactory.getWidgetAnvilConfig(type);
   return config && config.isLargeWidget;
-}
-
-export function* addNewWidgetToParent(
-  allWidgets: CanvasWidgetsReduxState,
-  widgetId: string,
-  type: string,
-  parentId: string,
-) {
-  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-
-  updatedWidgets = yield call(
-    addNewWidgetToDsl,
-    updatedWidgets,
-    getCreateWidgetPayload(widgetId, type, parentId),
-  );
-
-  return updatedWidgets;
-}
-
-export function* addNewWidgetAndUpdateLayout(
-  allWidgets: CanvasWidgetsReduxState,
-  widgetId: string,
-  type: string,
-  parentId: string,
-  highlight: AnvilHighlightInfo,
-) {
-  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-
-  updatedWidgets = yield call(
-    addNewWidgetToParent,
-    allWidgets,
-    widgetId,
-    type,
-    parentId,
-  );
-
-  const parentLayout: LayoutProps = updatedWidgets[widgetId].layout[0];
-
-  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
-    parentLayout.layoutType,
-  );
-
-  return {
-    ...updatedWidgets,
-    [parentId]: {
-      ...updatedWidgets[parentId],
-      layout: [
-        Comp.addChild(
-          parentLayout,
-          [
-            {
-              alignment: highlight.alignment,
-              widgetId,
-              widgetType: type,
-            },
-          ],
-          highlight,
-        ),
-      ],
-    },
-  };
 }
