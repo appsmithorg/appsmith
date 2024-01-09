@@ -913,7 +913,7 @@ export class AggregateHelper {
     let index: number;
     let shouldFocus = true;
     let parseSpecialCharSeq = false;
-    let delay = 5;
+    let delay = 10;
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
