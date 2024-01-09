@@ -8,7 +8,7 @@ import {
   getIsFetchingWorkflows,
   getShowWorkflowFeature,
 } from "@appsmith/selectors/workflowSelectors";
-import type { WorkflowCardListProps } from "ce/pages/Applications/WorkflowCardList";
+import type { WorkflowCardListProps } from "@appsmith/pages/Applications/WorkflowCardList";
 import { createWorkflowFromWorkspace } from "@appsmith/actions/workflowActions";
 
 function WorkflowCardList({
