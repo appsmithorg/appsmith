@@ -192,10 +192,6 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(
       this._workspaceNoApps(newWorkspaceName),
     );
-    this.agHelper
-      .GetElement(this._workspaceList(newWorkspaceName))
-      .last()
-      .click({ force: true });
     this.agHelper.Sleep(2000); //is still needed, else failing in CI
   }
 
