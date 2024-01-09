@@ -135,7 +135,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     }
 
                     List<String> pluginIds = org.getPlugins().stream()
-                            .filter(BaseDomain::isDeleted)
+                            .filter(plugin -> !plugin.isDeleted())
                             .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
                     Query query = new Query();
