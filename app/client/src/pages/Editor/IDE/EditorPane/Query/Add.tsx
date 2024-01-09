@@ -19,8 +19,8 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import SegmentAddHeader from "./components/SegmentAddHeader";
+import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import SegmentAddHeader from "../components/SegmentAddHeader";
 
 const StyledList = styled(List)`
   padding: 0;
@@ -99,7 +99,7 @@ const AddQuery = () => {
     <Flex flexDirection="column" gap={"spaces-4"}>
       <SegmentAddHeader
         onCloseClick={closeButtonClickHandler}
-        titleMessage={PAGES_PANE_TEXTS.query_create_tab_title}
+        titleMessage={EDITOR_PANE_TEXTS.query_create_tab_title}
       />
       <Flex
         flexDirection="column"
@@ -115,7 +115,7 @@ const AddQuery = () => {
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
-            {createMessage(PAGES_PANE_TEXTS.queries_create_from_existing)}
+            {createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing)}
           </Text>
           <StyledList
             className="t--from-source-list"
@@ -129,7 +129,7 @@ const AddQuery = () => {
             color="var(--ads-v2-color-fg-muted)"
             kind="body-s"
           >
-            {createMessage(PAGES_PANE_TEXTS.queries_create_new)}
+            {createMessage(EDITOR_PANE_TEXTS.queries_create_new)}
           </Text>
           <StyledList
             className="t--new-blank-api"
@@ -141,4 +141,4 @@ const AddQuery = () => {
   );
 };
 
-export { AddQuery };
+export default AddQuery;
