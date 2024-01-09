@@ -25,6 +25,9 @@ export class HomePage {
   private _renameWorkspaceInput = ".t--workspace-rename-input input";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
+  private _workspaceNoApps = (workspaceName: string) =>
+    this._workspaceList(workspaceName) +
+    ":contains('There are no apps in this workspace.')";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ") .ads-v2-avatar";
   _shareWorkspace = (workspaceName: string) =>
@@ -183,8 +186,12 @@ export class HomePage {
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
-    this.agHelper.AssertContains(newWorkspaceName);
-    this.agHelper.Sleep(2000); //for new workspace to settle for CI
+    this.agHelper.AssertElementVisibility(
+      this._workspaceList(newWorkspaceName),
+    );
+    this.agHelper.AssertElementVisibility(
+      this._workspaceNoApps(newWorkspaceName),
+    );
   }
 
   //Maps to CheckShareIcon in command.js
