@@ -3,6 +3,7 @@ import { Severity } from "entities/AppsmithConsole";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getEntityNameAndPropertyPath,
+  isAction,
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -86,7 +87,10 @@ function logLatestEvalPropertyErrors(
       },
     ];
 
-    const httpMethod = get(entity.config, "httpMethod");
+    const httpMethod =
+      isAction(entity) && entity.config
+        ? get(entity.config, "httpMethod")
+        : undefined;
 
     for (const { errors, isWarning, key: debuggerKey } of debuggerKeys) {
       // if dataTree has error but debugger does not -> add
