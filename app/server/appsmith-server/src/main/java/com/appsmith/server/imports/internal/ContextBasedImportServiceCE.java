@@ -7,7 +7,7 @@ import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -20,19 +20,15 @@ public interface ContextBasedImportServiceCE<
 
     V extractImportableContextJson(String jsonString);
 
-    ImportApplicationPermissionProvider getImportContextPermissionProviderForImportingContext(
-            Set<String> userPermissions);
+    ImportContextPermissionProvider getImportContextPermissionProviderForImportingContext(Set<String> userPermissions);
 
-    ImportApplicationPermissionProvider getImportContextPermissionProviderForUpdatingContext(
-            Set<String> userPermissions);
+    ImportContextPermissionProvider getImportContextPermissionProviderForUpdatingContext(Set<String> userPermissions);
 
-    ImportApplicationPermissionProvider getImportContextPermissionProviderForConnectingToGit(
-            Set<String> userPermissions);
+    ImportContextPermissionProvider getImportContextPermissionProviderForConnectingToGit(Set<String> userPermissions);
 
-    ImportApplicationPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(
-            Set<String> userPermissions);
+    ImportContextPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(Set<String> userPermissions);
 
-    ImportApplicationPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
+    ImportContextPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
             Set<String> userPermissions);
 
     default void updateContextJsonWithRequiredPagesToImport(

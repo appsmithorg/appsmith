@@ -24,7 +24,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -144,9 +144,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportApplicationPermissionProvider getImportContextPermissionProviderForImportingContext(
+    public ImportContextPermissionProvider getImportContextPermissionProviderForImportingContext(
             Set<String> userPermissionGroups) {
-        return ImportApplicationPermissionProvider.builder(
+        return ImportContextPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -160,9 +160,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportApplicationPermissionProvider getImportContextPermissionProviderForUpdatingContext(
+    public ImportContextPermissionProvider getImportContextPermissionProviderForUpdatingContext(
             Set<String> userPermissions) {
-        return ImportApplicationPermissionProvider.builder(
+        return ImportContextPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -176,7 +176,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportApplicationPermissionProvider getImportContextPermissionProviderForConnectingToGit(
+    public ImportContextPermissionProvider getImportContextPermissionProviderForConnectingToGit(
             Set<String> userPermissions) {
 
         /**
@@ -187,7 +187,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
          * Sync is a system level operation to get the latest code from Git. If the user does not have some
          * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
          */
-        return ImportApplicationPermissionProvider.builder(
+        return ImportContextPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -199,9 +199,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportApplicationPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(
+    public ImportContextPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(
             Set<String> userPermissions) {
-        return ImportApplicationPermissionProvider.builder(
+        return ImportContextPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -214,9 +214,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportApplicationPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
+    public ImportContextPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
             Set<String> userPermissions) {
-        return ImportApplicationPermissionProvider.builder(
+        return ImportContextPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,

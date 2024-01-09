@@ -17,7 +17,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -170,7 +170,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Application> importApplicationMono,
             boolean appendToApp,
             String branchName,
-            ImportApplicationPermissionProvider permissionProvider,
+            ImportContextPermissionProvider permissionProvider,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return Mono.just(importedNewPageList)
                 .zipWith(existingPagesMono)
@@ -386,7 +386,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Application application,
             String branchName,
             Mono<List<NewPage>> existingPages,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportContextPermissionProvider permissionProvider) {
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {

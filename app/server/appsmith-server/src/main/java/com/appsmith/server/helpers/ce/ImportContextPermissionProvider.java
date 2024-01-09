@@ -9,6 +9,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.ContextPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -39,9 +40,9 @@ import java.util.Set;
  */
 @AllArgsConstructor
 @Getter
-public class ImportApplicationPermissionProvider {
+public class ImportContextPermissionProvider {
     @Getter(AccessLevel.NONE)
-    private final ApplicationPermission applicationPermission;
+    private final ContextPermission contextPermission;
 
     @Getter(AccessLevel.NONE)
     private final PagePermission pagePermission;
@@ -124,7 +125,7 @@ public class ImportApplicationPermissionProvider {
         if (!permissionRequiredToCreatePage) {
             return true;
         }
-        return hasPermission(applicationPermission.getPageCreatePermission(), application);
+        return hasPermission(((ApplicationPermission) contextPermission).getPageCreatePermission(), application);
     }
 
     public boolean canCreateAction(NewPage page) {
@@ -142,19 +143,19 @@ public class ImportApplicationPermissionProvider {
     }
 
     public static Builder builder(
-            ApplicationPermission applicationPermission,
+            ContextPermission contextPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission) {
         return new Builder(
-                applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
+                contextPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
     }
 
     @Setter
     @Accessors(chain = true, fluent = true)
     public static class Builder {
-        private final ApplicationPermission applicationPermission;
+        private final ContextPermission contextPermission;
         private final PagePermission pagePermission;
         private final ActionPermission actionPermission;
         private final DatasourcePermission datasourcePermission;
@@ -173,12 +174,12 @@ public class ImportApplicationPermissionProvider {
         private boolean permissionRequiredToEditDatasource;
 
         private Builder(
-                ApplicationPermission applicationPermission,
+                ContextPermission contextPermission,
                 PagePermission pagePermission,
                 ActionPermission actionPermission,
                 DatasourcePermission datasourcePermission,
                 WorkspacePermission workspacePermission) {
-            this.applicationPermission = applicationPermission;
+            this.contextPermission = contextPermission;
             this.pagePermission = pagePermission;
             this.actionPermission = actionPermission;
             this.datasourcePermission = datasourcePermission;
@@ -195,11 +196,11 @@ public class ImportApplicationPermissionProvider {
             return this;
         }
 
-        public ImportApplicationPermissionProvider build() {
+        public ImportContextPermissionProvider build() {
             // IMPORTANT: make sure that we've added unit tests for all the properties.
             // Otherwise, we may end up passing value of one attribute of same type to another.
-            return new ImportApplicationPermissionProvider(
-                    applicationPermission,
+            return new ImportContextPermissionProvider(
+                    contextPermission,
                     pagePermission,
                     actionPermission,
                     datasourcePermission,

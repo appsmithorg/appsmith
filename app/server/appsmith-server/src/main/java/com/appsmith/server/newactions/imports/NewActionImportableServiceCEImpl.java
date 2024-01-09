@@ -17,7 +17,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -461,7 +461,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             NewAction existingAction,
             NewAction actionToImport,
             String branchName,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportContextPermissionProvider permissionProvider) {
         // Since the resource is already present in DB, just update resource
         if (!permissionProvider.hasEditPermission(existingAction)) {
             log.error("User does not have permission to edit action with id: {}", existingAction.getId());

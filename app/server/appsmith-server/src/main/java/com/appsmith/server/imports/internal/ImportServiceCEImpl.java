@@ -19,7 +19,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportExportUtils;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
 import com.appsmith.server.imports.importable.ImportServiceCE;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.migrations.ContextSchemaMigration;
@@ -172,7 +172,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
-                    ImportApplicationPermissionProvider permissionProvider = tuple2.getT2();
+                    ImportContextPermissionProvider permissionProvider = tuple2.getT2();
                     return importContextInWorkspace(
                             workspaceId, contextJson, null, null, false, permissionProvider, userPermissionGroup);
                 });
@@ -212,7 +212,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         })
                         .flatMap(tuple2 -> {
                             Set<String> userPermissionGroup = tuple2.getT1();
-                            ImportApplicationPermissionProvider permissionProvider = tuple2.getT2();
+                            ImportContextPermissionProvider permissionProvider = tuple2.getT2();
                             return importContextInWorkspace(
                                     workspaceId,
                                     importableContextJson,
@@ -250,7 +250,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
-                    ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
+                    ImportContextPermissionProvider contextPermissionProvider = tuple2.getT2();
                     return importContextInWorkspace(
                             workspaceId,
                             importableContextJson,
@@ -279,7 +279,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
-                    ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
+                    ImportContextPermissionProvider contextPermissionProvider = tuple2.getT2();
                     return importContextInWorkspace(
                             workspaceId,
                             importableContextJson,
@@ -323,7 +323,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
-                    ImportApplicationPermissionProvider contextPermissionProvider = tuple2.getT2();
+                    ImportContextPermissionProvider contextPermissionProvider = tuple2.getT2();
                     return importContextInWorkspace(
                             workspaceId,
                             importableContextJson,
@@ -361,7 +361,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String contextId,
             String branchName,
             boolean appendToContext,
-            ImportApplicationPermissionProvider permissionProvider,
+            ImportContextPermissionProvider permissionProvider,
             Set<String> permissionGroups) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
