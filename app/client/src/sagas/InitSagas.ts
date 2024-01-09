@@ -443,7 +443,10 @@ function* eagerPageInitSaga() {
   }
 
   try {
-    yield call(getInitResponses, { shouldInitialiseUserDetails: true });
+    yield call(getInitResponses, {
+      shouldInitialiseUserDetails: true,
+      mode: APP_MODE.EDIT,
+    });
   } catch (e) {}
 }
 
