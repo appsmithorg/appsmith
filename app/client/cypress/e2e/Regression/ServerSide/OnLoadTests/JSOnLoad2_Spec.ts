@@ -193,9 +193,9 @@ describe(
         myFun2: async () => {	},
         myFun3: async () => {	},
         myFun4: async () => {	},
-        myFun5: async () => {	},
         myFun6: async () => {	},
-        myFun7: () => {	},
+        myFun7: async () => {	},
+        myFun8: () => {	},
       }`,
         {
           paste: true,
@@ -208,12 +208,12 @@ describe(
       jsEditor.VerifyAsyncFuncSettings("myFun2", false, false);
       jsEditor.VerifyAsyncFuncSettings("myFun3", false, false);
       jsEditor.VerifyAsyncFuncSettings("myFun4", false, false);
-      jsEditor.VerifyAsyncFuncSettings("myFun5", false, false);
       jsEditor.VerifyAsyncFuncSettings("myFun6", false, false);
+      jsEditor.VerifyAsyncFuncSettings("myFun7", false, false);
 
       VerifyFunctionDropdown(
-        ["myFun1", "myFun7"],
-        ["myFun2", "myFun3", "myFun4", "myFun5", "myFun6"],
+        ["myFun1", "myFun8"],
+        ["myFun2", "myFun3", "myFun4", "myFun6", "myFun7"],
       );
 
       cy.get("@jsObjName").then((jsObjName) => {
