@@ -3,61 +3,13 @@ import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import StartWithTemplateFilters from "./index";
 import { ThemeProvider } from "styled-components";
+
+import StartWithTemplateFilters from "./index";
 import { lightTheme } from "selectors/themeSelectors";
+import { unitTestMockTemplate } from "../test_config";
 
 const mockStore = configureStore([]);
-
-const mockTemplate = {
-  id: "6222224900c64549b31b9467",
-  userPermissions: [],
-  title: "Fund Raising CRM",
-  description:
-    "This Fundraising CRM, allows for secure and direct communication between a company, and their investors, allowing users to maintain track of their communications.",
-  appUrl:
-    "https://app.appsmith.com/applications/61dbc9d66bd5757f166cc898/pages/6204a671552a5f63958772aa/b?embed=true",
-  appDataUrl:
-    "https://s3.us-east-2.amazonaws.com/template.appsmith.com/FundRaisingCRM_Enabled.json",
-  gifUrl: "",
-  sortPriority: "1001",
-  screenshotUrls: [
-    "https://assets.appsmith.com/templates/screenshots/FundRaisingCRM.png",
-  ],
-  widgets: [
-    "BUTTON_WIDGET",
-    "CONTAINER_WIDGET",
-    "FILE_PICKER_WIDGET_V2",
-    "FORM_WIDGET",
-    "ICON_BUTTON_WIDGET",
-    "INPUT_WIDGET_V2",
-    "LIST_WIDGET_V2",
-    "MAP_WIDGET",
-    "MODAL_WIDGET",
-    "RATE_WIDGET",
-    "RICH_TEXT_EDITOR_WIDGET",
-    "TEXT_WIDGET",
-  ],
-  functions: ["Operations", "Communications", "All"],
-  useCases: ["Finance", "Information Technology (IT)"],
-  datasources: ["amazons3-plugin", "google-sheets-plugin"],
-  pages: [
-    {
-      id: "6204a671552a5f63958772aa",
-      name: "Investors",
-      slug: "investors",
-      isDefault: true,
-      isHidden: false,
-    },
-  ],
-  minVersion: "v1.6.11-SNAPSHOT",
-  minVersionPadded: "000010000600011",
-  downloadCount: 0,
-  active: true,
-  allowPageImport: true,
-  isCommunityTemplate: false,
-  new: false,
-};
 
 describe("<StartWithTemplateFilters />", () => {
   let store: any;
@@ -166,7 +118,7 @@ describe("<StartWithTemplateFilters />", () => {
             new: true,
           },
           templateSearchQuery: "",
-          templates: [mockTemplate],
+          templates: [unitTestMockTemplate],
         },
       },
     });
@@ -203,6 +155,31 @@ describe("<StartWithTemplateFilters />", () => {
     expect(store.getActions()).toEqual(
       expect.arrayContaining([expectedAction]),
     );
+  });
+
+  it("removes 'All' filter when a filter item is selected", async () => {
+    render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <StartWithTemplateFilters />
+        </ThemeProvider>
+      </Provider>,
+    );
+    const filterItems = screen.getAllByTestId("t--templates-filter-item");
+    fireEvent.click(filterItems[1]); // Click on the second filter item
+    await waitFor(() => {
+      expect(store.getActions()).toEqual(
+        expect.arrayContaining([
+          {
+            type: "UPDATE_TEMPLATE_FILTERS",
+            payload: {
+              category: "functions",
+              filterList: expect.not.arrayContaining(["All"]),
+            },
+          },
+        ]),
+      );
+    });
   });
 
   it("dispatches filterTemplates action on filter selection", async () => {
@@ -245,10 +222,8 @@ describe("<StartWithTemplateFilters />", () => {
   it("dispatches filterTemplates action on multiple filter selection", async () => {
     render(<BaseComponentRender />);
     const filterItems = screen.getAllByTestId("t--templates-filter-item");
-
-    // Simulate user clicking on multiple filter items
-    fireEvent.click(filterItems[1]); // Click on the first filter item
-    fireEvent.click(filterItems[2]); // Click on the second filter item
+    fireEvent.click(filterItems[1]);
+    fireEvent.click(filterItems[2]);
     await waitFor(() => {
       expect(store.getActions()).toEqual(
         expect.arrayContaining([
