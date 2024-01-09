@@ -112,6 +112,18 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_LOADER]: (
+    state: WorkspaceReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isFetchingEntities: action.payload,
+      },
+    };
+  },
   [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS]: (
     state: WorkspaceReduxState,
     action: ReduxAction<any>,
