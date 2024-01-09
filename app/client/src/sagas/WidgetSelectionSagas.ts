@@ -1,4 +1,4 @@
-import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
+import { widgetListURL, widgetURL } from "@appsmith/RouteBuilder";
 import {
   importPartialApplicationSuccess,
   initDatasourceConnectionDuringImportRequest,
@@ -239,7 +239,7 @@ function* appendSelectedWidgetToUrlSaga(
         persistExistingParams: true,
         selectedWidgets,
       })
-    : builderURL({
+    : widgetListURL({
         pageId: pageId ?? currentPageId,
         persistExistingParams: true,
       });
