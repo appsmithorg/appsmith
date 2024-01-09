@@ -84,6 +84,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         serviceFactory.put(APPLICATION, applicationImportService);
     }
 
+    /**
+     * This method provides the importService specific to context based on the ImportableJsonType.
+     * time complexity is O(1), as the map from which the service is being passes is pre-computed
+     * @param importableContextJson : Entity Json which is implementing the importableContextJson
+     * @return import-service which is implementing the ContextBasedServiceInterface
+     */
     @Override
     public ContextBasedImportService<
                     ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
@@ -91,6 +97,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return getContextBasedImportService(importableContextJson.getImportableJsonType());
     }
 
+    /**
+     * This method provides the importService specific to context based on the ImportableJsonType.
+     * time complexity is O(1), as the map from which the service is being passes is pre-computed
+     * @param importableJsonType : Type of Json serialisation
+     * @return import-service which is implementing the ContextBasedServiceInterface
+     */
     @Override
     public ContextBasedImportService<
                     ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
@@ -109,6 +121,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return applicationImportService;
     }
 
+    /**
+     * This method takes a file part and makes a Json entity which implements the ImportableContextJson inteface
+     * @param filePart : filePart from which the contents would be made
+     * @return : Json entity which implements ImportableContextJson
+     */
     public Mono<? extends ImportableContextJson> extractImportableContextJson(Part filePart) {
 
         final MediaType contentType = filePart.headers().getContentType();
@@ -127,6 +144,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .map(jsonString -> getContextBasedImportService(contentType).extractImportableContextJson(jsonString));
     }
 
+    /**
+     * Hydrates an ImportableContext within the specified workspace by saving the provided JSON file.
+     *
+     * @param workspaceId The identifier for the destination workspace.
+     * @param filePart    The filePart representing the ImportableContext object to be saved.
+     *                    The ImportableContext implements the ImportableContext interface.
+     */
     @Override
     public Mono<? extends ImportableContextDTO> extractAndSaveContext(
             String workspaceId, Part filePart, String contextId) {
@@ -154,6 +178,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 sink -> importedContextMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
+    /**
+     * Saves the provided ImportableContextJson within the specified workspace.
+     *
+     * @param workspaceId          The identifier for the destination workspace.
+     * @param contextJson The JSON file representing the ImportableContext object to be saved.
+     *                              The ImportableContext implements the ImportableContext interface.
+     */
     @Override
     public Mono<? extends ImportableContext> importNewContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson contextJson) {
@@ -236,6 +267,15 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 sink -> importedContextMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
+    /**
+     * Updates an existing ImportableContext connected to Git within the specified workspace.
+     *
+     * @param workspaceId   The identifier for the destination workspace.
+     * @param importableContextJson   The ImportableContext JSON containing necessary information to update the ImportableContext.
+     * @param contextId The ImportableContext id that needs to be updated with the new resources.
+     * @param branchName    The name of the Git branch. Set to null if not connected to Git.
+     * @return The updated ImportableContext stored in the database.
+     */
     @Override
     public Mono<? extends ImportableContext> importContextInWorkspaceFromGit(
             String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName) {
@@ -335,6 +375,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 });
     }
 
+    /**
+     *
+     * @param workspaceId ID in which the context is to be merged
+     * @param contextId   default ID of the importableContext where this importableContextJson is going to get merged with
+     * @param importableContext the context (i.e. application, packages which is imported)
+     * @param importableContextJson the Json entity from which the import is happening
+     * @return ImportableContextDTO
+     */
     @Override
     public Mono<? extends ImportableContextDTO> getContextImportDTO(
             String workspaceId,
@@ -346,14 +394,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method is being used to generalise import procedure for packages and applications
-     * @param workspaceId
-     * @param importableContextJson
-     * @param contextId
-     * @param branchName
-     * @param appendToContext
-     * @param permissionProvider
-     * @return
+     * Imports an application into MongoDB based on the provided application reference object.
+     *
+     * @param workspaceId     The identifier for the destination workspace.
+     * @param importableContextJson The application resource containing necessary information for importing the application.
+     * @param contextId       The context identifier of the application that needs to be saved with the updated resources.
+     * @param branchName      The name of the branch of the application with the specified contextId.
+     * @param appendToContext     Indicates whether applicationJson will be appended to the existing application or not.
+     * @return The updated application stored in MongoDB.
      */
     Mono<ImportableContext> importContextInWorkspace(
             String workspaceId,
@@ -492,6 +540,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return errorField;
     }
 
+    /**
+     * Updates importable entities with the contextDetails.
+     * @param contextBasedImportService
+     * @param importableContext
+     * @param mappedImportableResourcesDTO
+     * @param importingMetaDTO
+     * @return
+     */
     private Mono<? extends ImportableContext> updateImportableEntities(
             ContextBasedImportService<?, ?, ?> contextBasedImportService,
             ImportableContext importableContext,
@@ -501,11 +557,27 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 importableContext, mappedImportableResourcesDTO, importingMetaDTO);
     }
 
+    /**
+     * update the importable context with contextSpecific entities after the entities has been created.
+     * @param contextBasedImportService
+     * @param importableContext
+     * @return
+     */
     private Mono<? extends ImportableContext> updateImportableContext(
             ContextBasedImportService<?, ?, ?> contextBasedImportService, ImportableContext importableContext) {
         return contextBasedImportService.updateImportableContext(importableContext);
     }
 
+    /**
+     * This method creates the entities which are mentioned in the contextJson, these are imported in mongodb and then
+     * the references are added to context
+     * @param importingMetaDTO
+     * @param mappedImportableResourcesDTO
+     * @param workspaceMono
+     * @param importedContextMono
+     * @param importableContextJson
+     * @return
+     */
     private Mono<Void> getImportableEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
@@ -544,6 +616,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .then();
     }
 
+    /**
+     * Generate the entities which should be imported irrespective of the context (be it application or packages).
+     * some of these are plugin and datasources
+     * @param importingMetaDTO
+     * @param mappedImportableResourcesDTO
+     * @param workspaceMono
+     * @param importedContextMono
+     * @param importableContextJson
+     * @return
+     */
     protected Flux<Void> obtainContextAgnosticImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
