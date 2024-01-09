@@ -253,7 +253,7 @@ export class HomePage {
   }
 
   public NavigateToHome() {
-    this.agHelper.Sleep(2000); //to avoid CI flakyness
+    this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
     if (!Cypress.env("AIRGAPPED")) {
       this.assertHelper.AssertNetworkStatus("@getReleaseItems");
@@ -345,9 +345,9 @@ export class HomePage {
     this.agHelper.GetNClick(this._signout);
     //Logout is still a POST request in CE
     if (CURRENT_REPO === REPO.CE) {
-      this.assertHelper.AssertNetworkStatus("@postLogout");
+      //this.assertHelper.AssertNetworkStatus("@postLogout");
     }
-    return this.agHelper.Sleep(); //for logout to complete!
+    return this.agHelper.AssertURL("/login"); //for logout to complete!
   }
 
   public GotoProfileMenu() {

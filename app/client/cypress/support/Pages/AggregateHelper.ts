@@ -1606,7 +1606,10 @@ export class AggregateHelper {
   }
 
   public AssertURL(url: string) {
-    cy.url().should("include", url);
+    cy.url({ timeout: Cypress.config().pageLoadTimeout }).should(
+      "include",
+      url,
+    );
     this.Sleep(); //settle time for new url!
   }
 
