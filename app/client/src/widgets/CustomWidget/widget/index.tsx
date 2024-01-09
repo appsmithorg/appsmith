@@ -277,8 +277,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
           {
             propertyName: "borderRadius",
             label: "Border radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
+            helpText: "Rounds the corners of the widgets's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
             isJSConvertible: true,
             isBindProperty: true,
