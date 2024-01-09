@@ -66,6 +66,7 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     minNum,
     parsedText,
     rawText,
+    value,
   } = props;
 
   if (isDirty && isRequired && !isNil(parsedText) && parsedText.length === 0) {
@@ -118,6 +119,13 @@ export const validateInput = (props: InputWidgetProps): Validation => {
   }
 
   if (isDirty && "isValid" in props) {
+    if (parsedText !== value) {
+      return {
+        validationStatus: "valid",
+        errorMessage: "",
+      };
+    }
+
     return {
       validationStatus: isValid ? "valid" : "invalid",
       errorMessage: errorMessage,
