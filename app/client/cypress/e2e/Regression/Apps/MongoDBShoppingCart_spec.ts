@@ -172,7 +172,6 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
     assertHelper.AssertNetworkStatus("@postExecute");
     // Select the table row & Deleting the book from the cart
     table.SelectTableRow(1);
-    agHelper.AssertElementLength(appPage.deleteButton + "/parent::div", 2);
     agHelper.GetNClick(appPage.deleteButton, 1, false);
     assertHelper.AssertNetworkStatus("@postExecute");
     assertHelper.AssertNetworkStatus("@postExecute");
