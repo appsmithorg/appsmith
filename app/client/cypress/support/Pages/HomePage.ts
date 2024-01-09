@@ -186,6 +186,7 @@ export class HomePage {
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
+    this.agHelper.AssertContains(newWorkspaceName);
     this.agHelper.AssertElementVisibility(
       this._workspaceList(newWorkspaceName),
     );
