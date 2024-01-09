@@ -7,15 +7,19 @@ describe(
   "Fork a template to an workspace",
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   () => {
-    it("1. Fork a template to an workspace", () => {
+    it("1. Fork a template to an workspace & Verify query param is updated on opening fork modal in template detailed view", () => {
       _.templates.SwitchToTemplatesTab();
 
       _.agHelper.GetNClick(templateLocators.templateCard);
+      _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
+
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
 
       _.agHelper.WaitUntilEleAppear(
         `div[role="dialog"]:has(` + templateLocators.dialogForkButton + `)`,
       );
+      _.agHelper.AssertURL("?showForkTemplateModal=true");
+
       cy.get(templateLocators.dialogForkButton).click({ force: true });
       _.agHelper.AssertElementAbsence(
         `div[role="dialog"]:has(` + templateLocators.dialogForkButton + `)`,
@@ -24,36 +28,24 @@ describe(
       _.agHelper.AssertElementVisibility(commonlocators.canvas);
     });
 
-    it("2. Update query param on opening fork modal in template detailed view", () => {
-      _.templates.SwitchToTemplatesTab();
-      cy.get(templateLocators.templateCard).first().click();
-      _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
-      _.agHelper.GetNClick(templateLocators.templateViewForkButton);
-      // cy.location().should((location) => {
-      //   expect(location.search).to.eq("?showForkTemplateModal=true");
-      // });
-      _.agHelper.AssertURL("?showForkTemplateModal=true");
-    });
-
-    it("3. Hide template fork button if user does not have a valid workspace to fork", () => {
+    it("2. Hide template fork button if user does not have a valid workspace to fork", () => {
       // Mock user with App Viewer permission
       cy.intercept("/api/v1/applications/new", {
         fixture: "Templates/MockAppViewerUser.json",
       });
       _.templates.SwitchToTemplatesTab();
-      _.agHelper.Sleep(2000);
+      _.agHelper.WaitUntilEleAppear(templateLocators.templateCard);
       _.agHelper.CheckForErrorToast(
         "Internal server error while processing request",
       );
       _.agHelper.AssertElementExist(templateLocators.templateCard);
       _.agHelper.AssertElementAbsence(templateLocators.templateForkButton);
-
       _.agHelper.GetNClick(templateLocators.templateCard);
       _.agHelper.AssertElementExist(templateLocators.templateCard);
       _.agHelper.AssertElementAbsence(templateLocators.templateViewForkButton);
     });
 
-    it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
+    it("3. Check if tooltip is working in 'Reconnect Datasources'", () => {
       _.homePage.NavigateToHome();
       cy.get("body").then(($ele) => {
         if ($ele.find(reconnectDatasourceLocators.Modal).length) {
