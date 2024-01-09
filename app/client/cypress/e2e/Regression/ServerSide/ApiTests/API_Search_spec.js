@@ -60,14 +60,11 @@ describe(
       cy.get(ApiEditor.tableResponseTab).click();
       cy.checkIfApiPaneIsVisible();
     });
+
     it("3. Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {
-      cy.generateUUID().then((uid) => {
-        APIName = uid;
-        cy.CreateAPI(APIName);
-      });
-      cy.enterDatasource(testUrl3);
-      cy.SaveAndRunAPI();
-      cy.ResponseStatusCheck("200");
+      apiPage.CreateAndFillApi(testUrl3);
+      apiPage.RunAPI();
+      apiPage.ResponseStatusCheck("200 OK");
     });
   },
 );
