@@ -40,7 +40,7 @@ import {
 } from "@appsmith/selectors/workflowSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { workflowEditorURL } from "@appsmith/RouteBuilder";
-import type { Workspaces } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { toast } from "design-system";
 import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 
@@ -175,10 +175,10 @@ export function* fetchWorkflowSaga(payload: FetchWorkflowPayload) {
 export function* fetchAllWorkflowsSaga() {
   try {
     // TODO (Workflows): Remove and add call without workspaceId
-    const workspaces: Workspaces[] = yield select(getFetchedWorkspaces);
+    const workspaces: Workspace[] = yield select(getFetchedWorkspaces);
     const showWorkflowFeature: boolean = yield select(getShowWorkflowFeature);
     if (!showWorkflowFeature) return;
-    const workspaceIds = workspaces.map((w) => w.workspace.id);
+    const workspaceIds = workspaces.map((w) => w.id);
 
     const responses: FetchWorkflowResponse[] = yield all(
       workspaceIds.map(async (workspaceId) => {
