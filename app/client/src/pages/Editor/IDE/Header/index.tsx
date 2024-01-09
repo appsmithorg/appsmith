@@ -13,6 +13,7 @@ import {
   Tab,
   TabPanel,
   Button,
+  Icon,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "design-system-old";
@@ -35,6 +36,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPublishingApplication,
+  getPageById,
 } from "selectors/editorSelectors";
 import {
   getApplicationList,
@@ -91,6 +93,7 @@ const Header = () => {
   const isPublishing = useSelector(getIsPublishingApplication);
   const isGitConnected = useSelector(getIsGitConnected);
   const pageId = useSelector(getCurrentPageId) as string;
+  const currentPage = useSelector(getPageById(pageId));
 
   // states
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
@@ -186,10 +189,34 @@ const Header = () => {
         alignItems={"center"}
         className={"header-left-section"}
         flex={"1"}
+        gap={"spaces-4"}
         height={"100%"}
         justifyContent={"left"}
       >
         <AppsmithLink />
+        <Flex alignItems={"center"} height={"100%"} justifyContent={"center"}>
+          <Text
+            color={"var(--ads-v2-colors-content-label-inactive-fg)"}
+            kind="body-m"
+          >
+            {"Pages /"}
+          </Text>
+          <Flex
+            alignItems={"center"}
+            className={
+              "hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer"
+            }
+            gap={"spaces-1"}
+            height={"100%"}
+            justifyContent={"center"}
+            px={"spaces-2"}
+          >
+            <Text isBold kind={"body-m"}>
+              {currentPage?.pageName}
+            </Text>
+            <Icon name={"arrow-down-s-line"} size={"md"} />
+          </Flex>
+        </Flex>
       </Flex>
       <Flex
         alignItems={"center"}
