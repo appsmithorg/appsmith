@@ -16,7 +16,6 @@ import static com.external.plugins.constants.AppsmithAiConstants.IMAGE_ENTITY_EX
 import static com.external.plugins.constants.AppsmithAiConstants.IMAGE_ENTITY_INPUT;
 import static com.external.plugins.constants.AppsmithAiConstants.IMAGE_ENTITY_INSTRUCTIONS;
 import static com.external.plugins.constants.AppsmithAiConstants.IMAGE_ENTITY_LABELS;
-import static com.external.plugins.constants.AppsmithAiConstants.INSTRUCTIONS;
 import static com.external.plugins.constants.AppsmithAiConstants.LABELS;
 import static com.external.plugins.utils.FieldValidationHelper.validateTextInputAndProperties;
 
@@ -24,7 +23,7 @@ public class ImageEntityExtractionServiceImpl implements AiFeatureService {
     @Override
     public Query createQuery(ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
-        validateTextInputAndProperties(formData, IMAGE_ENTITY_EXTRACTION, List.of(LABELS, INSTRUCTIONS));
+        validateTextInputAndProperties(formData, IMAGE_ENTITY_EXTRACTION, List.of(LABELS));
         String input = PluginUtils.getDataValueSafelyFromFormData(formData, IMAGE_ENTITY_INPUT, STRING_TYPE);
         String entities = PluginUtils.getDataValueSafelyFromFormData(formData, IMAGE_ENTITY_LABELS, STRING_TYPE);
         String instructions =

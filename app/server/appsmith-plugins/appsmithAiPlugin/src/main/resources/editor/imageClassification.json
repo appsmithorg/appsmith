@@ -6,6 +6,32 @@
   },
   "children": [
     {
+      "label": "Try out these examples",
+      "Description": "Try out these examples",
+      "subtitle": "",
+      "configProperty": "",
+      "controlType": "FORM_TEMPLATE",
+      "isRequired": false,
+      "options": [
+        {
+          "label": "Product category",
+          "value": {
+            "actionConfiguration.formData.imageClassify.input.data": "https://i.imgur.com/Eiq5s0F.png",
+            "actionConfiguration.formData.imageClassify.instructions.data": "Identify the category of clothing. Apply only one category.",
+            "actionConfiguration.formData.imageClassify.labels.data": "Jacket, Shirt, Pant, T-Shirt, Shorts, Dress, Skirt"
+          }
+        },
+        {
+          "label": "IT Asset Tagging",
+          "value": {
+            "actionConfiguration.formData.imageClassify.input.data": "https://i.imgur.com/EqfqRQY.png",
+            "actionConfiguration.formData.imageClassify.instructions.data": "Tag the IT hardware.",
+            "actionConfiguration.formData.imageClassify.labels.data": "Laptop, Phone, Headphones, Mouse, Keyboard, Monitor"
+          }
+        }
+      ]
+    },
+    {
       "label": "Input",
       "Description": "Provide an image URL or the base64 encoded image for AI to extract entities from",
       "subtitle": "Provide an image URL or the base64 encoded image for AI to extract entities from",

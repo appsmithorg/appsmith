@@ -42,6 +42,7 @@ public class AppsmithAiConstants {
     public static final String IMAGE_CLASSIFY_LABELS = IMAGE_CLASSIFICATION + "." + LABELS;
     public static final String IMAGE_CLASSIFY_INSTRUCTIONS = IMAGE_CLASSIFICATION + "." + INSTRUCTIONS;
     public static final String IMAGE_CAPTION_INPUT = IMAGE_CAPTIONING + "." + INPUT;
+    public static final String IMAGE_CAPTION_INSTRUCTIONS = IMAGE_CAPTIONING + "." + INSTRUCTIONS;
 
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))

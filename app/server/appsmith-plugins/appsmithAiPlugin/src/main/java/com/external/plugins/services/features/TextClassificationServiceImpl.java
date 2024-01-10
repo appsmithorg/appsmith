@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
-import static com.external.plugins.constants.AppsmithAiConstants.INSTRUCTIONS;
 import static com.external.plugins.constants.AppsmithAiConstants.LABELS;
 import static com.external.plugins.constants.AppsmithAiConstants.TEXT_CLASSIFICATION;
 import static com.external.plugins.constants.AppsmithAiConstants.TEXT_CLASSIFY_INPUT;
@@ -24,7 +23,7 @@ public class TextClassificationServiceImpl implements AiFeatureService {
     @Override
     public Query createQuery(ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
-        validateTextInputAndProperties(formData, TEXT_CLASSIFICATION, List.of(LABELS, INSTRUCTIONS));
+        validateTextInputAndProperties(formData, TEXT_CLASSIFICATION, List.of(LABELS));
         String input = PluginUtils.getDataValueSafelyFromFormData(formData, TEXT_CLASSIFY_INPUT, STRING_TYPE);
         String labels = PluginUtils.getDataValueSafelyFromFormData(formData, TEXT_CLASSIFY_LABELS, STRING_TYPE);
         String instructions =

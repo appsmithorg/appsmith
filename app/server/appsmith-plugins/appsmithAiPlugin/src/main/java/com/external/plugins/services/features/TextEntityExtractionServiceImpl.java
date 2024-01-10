@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
-import static com.external.plugins.constants.AppsmithAiConstants.INSTRUCTIONS;
 import static com.external.plugins.constants.AppsmithAiConstants.LABELS;
 import static com.external.plugins.constants.AppsmithAiConstants.TEXT_ENTITY_EXTRACTION;
 import static com.external.plugins.constants.AppsmithAiConstants.TEXT_ENTITY_INPUT;
@@ -24,7 +23,7 @@ public class TextEntityExtractionServiceImpl implements AiFeatureService {
     @Override
     public Query createQuery(ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
-        validateTextInputAndProperties(formData, TEXT_ENTITY_EXTRACTION, List.of(LABELS, INSTRUCTIONS));
+        validateTextInputAndProperties(formData, TEXT_ENTITY_EXTRACTION, List.of(LABELS));
         String input = PluginUtils.getDataValueSafelyFromFormData(formData, TEXT_ENTITY_INPUT, STRING_TYPE);
         String entities = PluginUtils.getDataValueSafelyFromFormData(formData, TEXT_ENTITY_LABELS, STRING_TYPE);
         String instructions =
