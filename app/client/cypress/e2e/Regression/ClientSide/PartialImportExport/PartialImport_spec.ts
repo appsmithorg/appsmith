@@ -97,11 +97,8 @@ function importPartiallyExportedFile(
   );
   agHelper.Sleep(3500);
 
-  // agHelper.ValidateToastMessage("Partial Application imported successfully");
-  // agHelper.RemoveUIElement(
-  //   "Toast",
-  //   "Partial Application imported successfully",
-  // );
+  agHelper.CheckForErrorToast("Internal server error while processing request");
+  agHelper.WaitUntilToastDisappear("Partial Application imported successfully");
 
   switch (sectionTitle) {
     case "Data":
