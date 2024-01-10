@@ -73,7 +73,7 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { DefaultTitle } from "./DeaultTitle";
-import { EditorState } from "entities/IDE/constants";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
