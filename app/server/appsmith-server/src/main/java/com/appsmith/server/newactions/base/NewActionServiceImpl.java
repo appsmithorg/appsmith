@@ -13,6 +13,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -111,6 +112,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ActionPermission actionPermission,
             EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry,
+            DefaultResourcesService<NewAction> defaultResourcesService,
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService,
             PermissionGroupRepository permissionGroupRepository,
             WorkflowRepository workflowRepository,
             WorkflowPermission workflowPermission,
@@ -139,7 +142,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry);
+                observationRegistry,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
         this.permissionGroupRepository = permissionGroupRepository;
         this.datasourceService = datasourceService;
         this.permissionGroupService = permissionGroupService;

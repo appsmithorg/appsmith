@@ -6,6 +6,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -62,6 +63,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
+            DefaultResourcesService<ActionCollection> defaultResourcesService,
             ModulePermissionChecker modulePermissionChecker,
             ModuleMetadataService moduleMetadataService) {
         super(
@@ -76,7 +78,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                defaultResourcesService);
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.modulePermissionChecker = modulePermissionChecker;
