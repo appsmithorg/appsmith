@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { Button, Flex } from "design-system";
 import WidgetEntity from "pages/Editor/Explorer/Widgets/WidgetEntity";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import {
   getCurrentPageId,
@@ -11,15 +11,12 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EmptyState } from "../components/EmptyState";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { getSelectedWidgets } from "selectors/ui";
 import styled from "styled-components";
-import { getIsSideBySideEnabled } from "../../../../../selectors/ideSelectors";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 const ListContainer = styled(Flex)`
   & .t--entity-item {
@@ -33,10 +30,8 @@ const ListContainer = styled(Flex)`
 const ListWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
-  const selectedWidgets = useSelector(getSelectedWidgets);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const dispatch = useDispatch();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
 
   const canManagePages = getHasManagePagePermission(
@@ -49,12 +44,8 @@ const ListWidgets = () => {
   }, [widgets?.children]);
 
   const addButtonClickHandler = useCallback(() => {
-    if (selectedWidgets.length) {
-      dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
-    } else {
-      history.push(builderURL({}));
-    }
-  }, [widgets]);
+    history.push(builderURL({}));
+  }, []);
 
   const widgetsExist =
     widgets && widgets.children && widgets.children.length > 0;
