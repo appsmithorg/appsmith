@@ -103,7 +103,7 @@ describe(
           cy.get("@guid").then((uid) => {
             newWorkspaceName = uid;
             homePage.CreateNewWorkspace(newWorkspaceName);
-            agHelper.GetNClick(homePageLocatores.createNew, 0);
+            agHelper.GetNClick(homePageLocatores.createNew, 0, true);
 
             cy.get(homePageLocatores.workspaceImportAppOption).click({
               force: true,
