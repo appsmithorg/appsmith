@@ -89,9 +89,9 @@ describe(
     });
 
     it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "Stores");
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("Stores");
+      
       GenerateCRUDNValidateDeployPage(
         "2106",
         "Hillstreet News and Tobacco",

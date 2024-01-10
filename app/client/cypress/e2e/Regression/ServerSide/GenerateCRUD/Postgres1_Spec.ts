@@ -11,9 +11,10 @@ import {
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import {
+import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
+  EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
@@ -102,9 +103,8 @@ describe(
     });
 
     it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "orders");
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("orders");
 
       GenerateCRUDNValidateDeployPage(
         "VINET",
