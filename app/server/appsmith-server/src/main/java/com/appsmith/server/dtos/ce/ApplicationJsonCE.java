@@ -5,7 +5,7 @@ import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ImportableJsonType;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -116,8 +116,8 @@ public class ApplicationJsonCE implements ImportableContextJson {
     String widgets;
 
     @Override
-    public ImportableJsonType getImportableJsonType() {
-        return ImportableJsonType.APPLICATION;
+    public ArtifactJsonType getImportableJsonType() {
+        return ArtifactJsonType.APPLICATION;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
-import com.appsmith.server.constants.ImportableJsonType;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ImportableContext;
 
@@ -16,7 +16,7 @@ public interface ImportableContextJsonCE {
 
     void setServerSchemaVersion(Integer serverSchemaVersion);
 
-    ImportableJsonType getImportableJsonType();
+    ArtifactJsonType getImportableJsonType();
 
     ImportableContext getImportableContext();
 

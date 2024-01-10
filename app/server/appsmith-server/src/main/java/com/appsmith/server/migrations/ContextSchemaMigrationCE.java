@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.constants.ImportableJsonType;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -40,7 +40,7 @@ public class ContextSchemaMigrationCE {
      * @param importableContextJson ContextJson which is imported
      */
     private static void migrateClientAndServerSchemas(ImportableContextJson importableContextJson) {
-        if (ImportableJsonType.APPLICATION.equals(importableContextJson.getImportableJsonType())) {
+        if (ArtifactJsonType.APPLICATION.equals(importableContextJson.getImportableJsonType())) {
             migrateApplicationJsonClientSchema((ApplicationJson) importableContextJson);
             migrateApplicationJsonServerSchema((ApplicationJson) importableContextJson);
         }

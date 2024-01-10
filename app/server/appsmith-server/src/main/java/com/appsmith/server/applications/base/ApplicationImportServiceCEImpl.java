@@ -236,7 +236,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
      * @param importableContextJson
      */
     @Override
-    public void setJsonContextNameToNullBeforeUpdate(String applicationId, ImportableContextJson importableContextJson) {
+    public void setJsonContextNameToNullBeforeUpdate(
+            String applicationId, ImportableContextJson importableContextJson) {
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
         if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
             // Remove the application name from JSON file as updating the application name is not

@@ -4,8 +4,8 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.applications.imports.ApplicationImportService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.ImportableJsonType;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ImportableContext;
 import com.appsmith.server.domains.Plugin;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.constants.ImportableJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 
 @Slf4j
 public class ImportServiceCEImpl implements ImportServiceCE {
@@ -58,7 +58,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Datasource> datasourceImportableService;
     private final ImportableService<Theme> themeImportableService;
-    private final Map<ImportableJsonType, ContextBasedImportService<?, ?, ?>> serviceFactory = new HashMap<>();
+    private final Map<ArtifactJsonType, ContextBasedImportService<?, ?, ?>> serviceFactory = new HashMap<>();
 
     public ImportServiceCEImpl(
             ApplicationImportService applicationImportService,
@@ -85,7 +85,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method provides the importService specific to context based on the ImportableJsonType.
+     * This method provides the importService specific to context based on the ArtifactJsonType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
      * @param importableContextJson : Entity Json which is implementing the importableContextJson
      * @return import-service which is implementing the ContextBasedServiceInterface
@@ -98,35 +98,27 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method provides the importService specific to context based on the ImportableJsonType.
+     * This method provides the importService specific to context based on the ArtifactJsonType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
-     * @param importableJsonType : Type of Json serialisation
+     * @param artifactJsonType : Type of Json serialisation
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     @Override
     public ContextBasedImportService<
                     ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
-            getContextBasedImportService(ImportableJsonType importableJsonType) {
-        return serviceFactory.getOrDefault(importableJsonType, applicationImportService);
-    }
-
-    @Override
-    public ContextBasedImportService<
-                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
-            getContextBasedImportService(MediaType contentType) {
-        if (MediaType.APPLICATION_JSON.equals(contentType)) {
-            return applicationImportService;
-        }
-
-        return applicationImportService;
+            getContextBasedImportService(ArtifactJsonType artifactJsonType) {
+        return serviceFactory.getOrDefault(artifactJsonType, applicationImportService);
     }
 
     /**
      * This method takes a file part and makes a Json entity which implements the ImportableContextJson interface
-     * @param filePart : filePart from which the contents would be made
+     *
+     * @param filePart           : filePart from which the contents would be made
+     * @param artifactJsonType : type of the json which is getting imported
      * @return : Json entity which implements ImportableContextJson
      */
-    public Mono<? extends ImportableContextJson> extractImportableContextJson(Part filePart) {
+    public Mono<? extends ImportableContextJson> extractImportableContextJson(
+            Part filePart, ArtifactJsonType artifactJsonType) {
 
         final MediaType contentType = filePart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -141,25 +133,26 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     DataBufferUtils.release(dataBuffer);
                     return new String(data);
                 })
-                .map(jsonString -> getContextBasedImportService(contentType).extractImportableContextJson(jsonString));
+                .map(jsonString ->
+                        getContextBasedImportService(artifactJsonType).extractImportableContextJson(jsonString));
     }
 
     /**
      * Hydrates an ImportableContext within the specified workspace by saving the provided JSON file.
      *
-     * @param workspaceId The identifier for the destination workspace.
      * @param filePart    The filePart representing the ImportableContext object to be saved.
      *                    The ImportableContext implements the ImportableContext interface.
+     * @param workspaceId The identifier for the destination workspace.
      */
     @Override
     public Mono<? extends ImportableContextDTO> extractAndSaveContext(
-            String workspaceId, Part filePart, String contextId) {
+            Part filePart, String workspaceId, String contextId, ArtifactJsonType artifactJsonType) {
 
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        Mono<ImportableContextDTO> importedContextMono = extractImportableContextJson(filePart)
+        Mono<ImportableContextDTO> importedContextMono = extractImportableContextJson(filePart, artifactJsonType)
                 .zipWhen(contextJson -> {
                     if (StringUtils.isEmpty(contextId)) {
                         return importNewContextInWorkspaceFromJson(workspaceId, contextJson);
