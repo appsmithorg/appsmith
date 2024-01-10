@@ -23,11 +23,21 @@ describe(
   { tags: ["@tag.ImportExport"] },
   () => {
     before(() => {
+      homePage.NavigateToHome();
+      (cy as any).createWorkspace();
+      cy.wait("@createWorkspace").then((interception) => {
+        const newWorkspaceName = interception!.response!.body.data.name;
+        (cy as any).CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+      });
+      gitSync.CreateNConnectToGit(repoName);
       featureFlagIntercept({
         release_show_partial_import_export_enabled: true,
       });
-      gitSync.CreateNConnectToGit(repoName);
       agHelper.Sleep(2000);
+    });
+
+    after(() => {
+      gitSync.DeleteTestGithubRepo(repoName);
     });
 
     beforeEach(() => {
