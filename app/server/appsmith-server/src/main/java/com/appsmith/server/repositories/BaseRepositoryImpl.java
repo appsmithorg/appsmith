@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -68,19 +69,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         this.dbConnection = DBConnection.getInstance();
     }
 
-    private Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED_AT).exists(false),
-                                        where(FieldName.DELETED_AT).is(null)));
-    }
-
     private Criteria getIdCriteria(Object id) {
         return null; /*
                      return where(entityInformation.getIdAttribute()).is(id);*/
@@ -129,7 +117,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                             .collation(entityInformation.getCollation()) //
                             .with(sort);
 
-                    return entityManager.find(query, example.getProbeType(), entityInformation.getCollectionName());
+                    return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
                 });*/
     }
 }

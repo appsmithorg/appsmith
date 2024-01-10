@@ -232,7 +232,6 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                         .getUnpublishedCollection()
                                                         .getDeletedAt());
                                         existingActionCollection.setDeletedAt(actionCollection.getDeletedAt());
-                                        existingActionCollection.setDeleted(actionCollection.getDeleted());
                                         existingActionCollection.setPolicies(existingPolicy);
 
                                         existingActionCollection.updateForBulkWriteOperation();

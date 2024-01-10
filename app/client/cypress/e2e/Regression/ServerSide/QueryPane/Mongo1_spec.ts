@@ -5,6 +5,7 @@ import {
   assertHelper,
   dataSources,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   homePage,
@@ -52,7 +53,7 @@ describe(
 
       GenerateCRUDNValidateDeployPage(
         "<p>Monica's old friend Rachel moves in with her after leaving her fiancé.</p>",
-        `1994-09-22`,
+        `1994-09-22T00:00:00+00:00`,
         "http://www.tvmaze.com/episodes/40646/friends-1x01-the-one-where-it-all-began",
         11,
       );
@@ -725,7 +726,7 @@ describe(
 
     it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -914,17 +915,18 @@ describe(
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
       agHelper.ClickButton("Got it");
-      deployMode.DeployApp();
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).to.eq(col1Text);
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col2Text);
       });
-      table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col3Text);
       });
 

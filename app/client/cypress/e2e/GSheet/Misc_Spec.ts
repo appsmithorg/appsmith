@@ -51,8 +51,9 @@ describe(
         spreadSheetName,
         JSON.stringify(GSHEET_DATA),
       );
-      cy.get("@postExecute").then((interception: any) => {
-        agHelper.Sleep();
+      cy.get("@postExecute", {
+        timeout: Cypress.config("pageLoadTimeout"),
+      }).then((interception: any) => {
         expect(
           interception.response.body.data.body.properties.title,
         ).to.deep.equal(spreadSheetName);
@@ -69,10 +70,11 @@ describe(
         "Fetch Details",
       );
       dataSources.ValidateNSelectDropdown("Entity", "Spreadsheet");
-      agHelper.Sleep(500);
       dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
       dataSources.RunQuery();
-      cy.get("@postExecute").then((interception: any) => {
+      cy.get("@postExecute", {
+        timeout: Cypress.config("pageLoadTimeout"),
+      }).then((interception: any) => {
         expect(interception.response.body.data.body.name).to.deep.equal(
           spreadSheetName,
         );
@@ -83,7 +85,6 @@ describe(
       dataSources.CreateQueryForDS(dataSourceName, "", "fetch_many", false);
       dataSources.ValidateNSelectDropdown("Operation", "Fetch Many");
       dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
-      agHelper.Sleep(500);
       dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
       dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
@@ -98,7 +99,6 @@ describe(
       dataSources.AddQueryFromGlobalSearch(dataSourceName);
       dataSources.ValidateNSelectDropdown("Operation", "Fetch Many");
       dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
-      agHelper.Sleep(500);
       dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
       dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
@@ -126,7 +126,6 @@ describe(
         dataSources._dropdownOption,
         spreadSheetName,
       );
-      agHelper.Sleep(1000);
       agHelper.GetNClick(dataSources._selectSheetNameDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "Sheet1");
 
@@ -141,23 +140,21 @@ describe(
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
       //deploy the app and verify the table data
-      deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
-      );
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       const data = GSHEET_DATA.filter((item) => item.rowIndex === "0")[0];
-      table.ReadTableRowColumnData(0, 0, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
         expect(cellData).to.eq(data.uniq_id);
       });
-      table.ReadTableRowColumnData(0, 1, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
         expect(cellData).to.eq(data.japanese_name);
       });
-      table.ReadTableRowColumnData(0, 2, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 2, "v2").then((cellData) => {
         expect(cellData).to.eq(data.currencies);
       });
-      table.ReadTableRowColumnData(0, 3, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
         expect(cellData).to.eq(data.specialChars);
       });
-      table.ReadTableRowColumnData(0, 4, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(0, 4, "v2").then((cellData) => {
         expect(cellData).to.eq(data.product_name);
       });
 
@@ -172,7 +169,7 @@ describe(
 
       dataSources.AssertJSONFormHeader(0, 13, "Id", "0");
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
     });
 
     it("5. Generate CRUD page from entity explorer and verify", () => {
@@ -181,14 +178,20 @@ describe(
 
       // Select the datasource, spreadsheet and sheet name
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, dataSourceName);
-      agHelper.Sleep(1000);
+      agHelper.GetNClick(
+        locators._visibleTextSpan(dataSourceName),
+        1,
+        true,
+        1000,
+      );
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(
         dataSources._dropdownOption,
         spreadSheetName,
+        0,
+        true,
+        1000,
       );
-      agHelper.Sleep(1000);
       agHelper.GetNClick(dataSources._selectSheetNameDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "Sheet1");
 
@@ -203,23 +206,21 @@ describe(
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
       //deploy the app and verify the table data
-      deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
-      );
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       const data = GSHEET_DATA.filter((item) => item.rowIndex === "1")[0];
-      table.ReadTableRowColumnData(1, 0, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 0, "v2").then((cellData) => {
         expect(cellData).to.eq(data.uniq_id);
       });
-      table.ReadTableRowColumnData(1, 1, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 1, "v2").then((cellData) => {
         expect(cellData).to.eq(data.japanese_name);
       });
-      table.ReadTableRowColumnData(1, 2, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 2, "v2").then((cellData) => {
         expect(cellData).to.eq(data.currencies);
       });
-      table.ReadTableRowColumnData(1, 3, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 3, "v2").then((cellData) => {
         expect(cellData).to.eq(data.specialChars);
       });
-      table.ReadTableRowColumnData(1, 5, "v1").then((cellData) => {
+      table.ReadTableRowColumnData(1, 5, "v2").then((cellData) => {
         expect(cellData).to.eq(data.manufacturer);
       });
 
@@ -234,7 +235,7 @@ describe(
 
       dataSources.AssertJSONFormHeader(0, 13, "Id", "0");
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
     });
 
     it("6. Bug: 16391 - Verify placeholder texts for insert one/many queries", function () {
@@ -270,31 +271,14 @@ describe(
       );
     });
 
-    // This test is commented since we can't use Cypress to go to the Google authorization screen. We will uncomment it whenever we figure out how to do it.
-    // it("7. Bug#26024 App level import of gsheet app", function () {
-    //   homePage.NavigateToHome();
-    //   homePage.CreateNewWorkspace("AppLevelImport");
-    //   homePage.CreateAppInWorkspace("AppLevelImport", "AppLevelImportCheck");
-    //   appSettings.OpenAppSettings();
-    //   appSettings.GoToImport();
-    //   agHelper.ClickButton("Import");
-    //   homePage.ImportApp("ImportAppAllAccess.json", "", true);
-    //   cy.wait("@importNewApplication").then(() => {
-    //     agHelper.Sleep();
-    //     agHelper.ClickButton("Save & Authorize");
-    //   });
-    //   cy.url().should("contain", "accounts.google.com");
-    //   homePage.NavigateToHome();
-    //   homePage.DeleteApplication("AppLevelImportCheck");
-    //   homePage.DeleteWorkspace("AppLevelImport");
-    // });
-
     after("Delete spreadsheet and app", function () {
       // Delete spreadsheet and app
       homePage.NavigateToHome();
       homePage.SearchAndOpenApp(appName);
       gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
-      cy.get("@postExecute").then((interception: any) => {
+      cy.get("@postExecute", {
+        timeout: Cypress.config("pageLoadTimeout"),
+      }).then((interception: any) => {
         expect(interception.response.body.data.body.message).to.deep.equal(
           "Deleted spreadsheet successfully!",
         );

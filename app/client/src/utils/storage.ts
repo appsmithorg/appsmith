@@ -116,10 +116,38 @@ export const getCopiedWidgets = async () => {
   return [];
 };
 
-// Function to save the current environment and the appId in indexedDB
-export const saveCurrentEnvironment = async (envId: string, appId: string) => {
+export const migrateAppIdToEditorId = async (values: {
+  envId: string;
+  appId?: string;
+}): Promise<{
+  envId: string;
+  editorId: string;
+}> => {
   try {
-    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, appId });
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, {
+      envId: values.envId,
+      editorId: values.appId,
+    });
+    return {
+      envId: values.envId || "",
+      editorId: values.appId || "",
+    };
+  } catch (error) {
+    log.error("An error occurred when updating current env: ", error);
+    return {
+      envId: "",
+      editorId: "",
+    };
+  }
+};
+
+// Function to save the current environment and the editorId in indexedDB
+export const saveCurrentEnvironment = async (
+  envId: string,
+  editorId: string,
+) => {
+  try {
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, editorId });
     return true;
   } catch (error) {
     log.error("An error occurred when storing current env: ", error);
@@ -127,28 +155,36 @@ export const saveCurrentEnvironment = async (envId: string, appId: string) => {
   }
 };
 
-// Function to fetch the current environment and related appId from indexedDB
+// Function to fetch the current environment and related editorId from indexedDB
 export const getSavedCurrentEnvironmentDetails = async (): Promise<{
   envId: string;
-  appId: string;
+  editorId: string;
 }> => {
   try {
+    let values = (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) as {
+      envId: string;
+      editorId: string;
+      appId?: string;
+    };
+    if (values && values.hasOwnProperty("appId")) {
+      values = await migrateAppIdToEditorId(values);
+    }
     return (
-      (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
+      values || {
         envId: "",
-        appId: "",
+        editorId: "",
       }
     );
   } catch (error) {
     log.error("An error occurred when fetching current env: ", error);
     return {
       envId: "",
-      appId: "",
+      editorId: "",
     };
   }
 };
 
-// Function to reset the current environment and related appId from indexedDB
+// Function to reset the current environment and related editorId from indexedDB
 export const resetCurrentEnvironment = async () => {
   try {
     await store.removeItem(STORAGE_KEYS.CURRENT_ENV);

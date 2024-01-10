@@ -1666,7 +1666,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
                 .getUnpublishedAction()
                 .setDeletedAt(branchedAction.getUnpublishedAction().getDeletedAt());
         newAction.setDeletedAt(branchedAction.getDeletedAt());
-        // newAction.setDeleted(branchedAction.getDeleted());
         // Set policies from existing branch object
         newAction.setPolicies(branchedAction.getPolicies());
     }
@@ -1858,5 +1857,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
         newAction.setDefaultResources(defaults);
 
         newAction.setUnpublishedAction(action);
+    }
+
+    @Override
+    public Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO) {
+        // Do nothing as this is already taken care for actions in the context of page
+        return Mono.empty().then();
     }
 }

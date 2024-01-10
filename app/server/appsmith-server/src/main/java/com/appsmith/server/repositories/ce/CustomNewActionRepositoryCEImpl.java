@@ -613,19 +613,20 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         String contextIdPath = "unpublishedAction" + "." + "pageId";
         String contextTypePath = "unpublishedAction" + "." + "contextType";
+        Criteria contextTypeCriterion = new Criteria()
+            .orOperator(
+                where(contextTypePath).is(contextType),
+                where(contextTypePath).isNull());
         Criteria contextIdAndContextTypeCriteria =
-                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+                where(contextIdPath).is(contextId).andOperator(contextTypeCriterion);
 
         criteriaList.add(contextIdAndContextTypeCriteria);
 
-        Criteria jsInclusionOrExclusionCriteria;
-        if (includeJs) {
-            jsInclusionOrExclusionCriteria = where("pluginType").is(PluginType.JS);
-        } else {
-            jsInclusionOrExclusionCriteria = where("pluginType").ne(PluginType.JS);
+        if (!includeJs) {
+            Criteria jsInclusionOrExclusionCriteria =
+                    where("pluginType").ne(PluginType.JS);
+            criteriaList.add(jsInclusionOrExclusionCriteria);
         }
-
-        criteriaList.add(jsInclusionOrExclusionCriteria);
 
         return queryAll(criteriaList, Optional.of(permission));
     }

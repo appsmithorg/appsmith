@@ -13,6 +13,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -55,7 +56,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -64,7 +65,6 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
-import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -118,6 +118,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -128,7 +129,11 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -157,9 +162,6 @@ public class GitServiceCETest {
 
     @Autowired
     WorkspaceService workspaceService;
-
-    @Autowired
-    WorkspaceRepository workspaceRepository;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -219,13 +221,13 @@ public class GitServiceCETest {
     ApplicationPermission applicationPermission;
 
     @Autowired
-    WorkspacePermission workspacePermission;
-
-    @Autowired
     SessionUserService sessionUserService;
 
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @SpyBean
+    AnalyticsService analyticsService;
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
@@ -292,9 +294,7 @@ public class GitServiceCETest {
         });
 
         return stringifiedFile
-                .map(data -> {
-                    return gson.fromJson(data, ApplicationJson.class);
-                })
+                .map(data -> gson.fromJson(data, ApplicationJson.class))
                 .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
     }
 
@@ -3804,7 +3804,7 @@ public class GitServiceCETest {
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
                     assertThat(application1.getId()).isEqualTo(application.getId());
-                    assertThat(application1.getDeleted()).isFalse();
+                    assertThat(application1.isDeleted()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -3881,7 +3881,7 @@ public class GitServiceCETest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
-                    assertThat(application1.getDeleted()).isEqualTo(Boolean.FALSE);
+                    assertThat(application1.isDeleted()).isFalse();
                     assertThat(application1.getName()).isEqualTo("deleteBranch_defaultBranchUpdated_Success1");
                 })
                 .verifyComplete();
@@ -4196,7 +4196,7 @@ public class GitServiceCETest {
      * create application permission from the workspace for the api_user.
      * @return Created Application
      */
-    private Application createApplicationAndRemoveCreateAppPermissionFromWorkspace() {
+    private Application createApplicationAndRemovePermissionFromApplication(AclPermission permission) {
         User apiUser = userService.findByEmail("api_user").block();
 
         Workspace toCreate = new Workspace();
@@ -4210,41 +4210,40 @@ public class GitServiceCETest {
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
 
-        // remove create application permission from the workspace for the api user
-        Set<Policy> existingPolicies = workspace.getPolicies();
-        Set<Policy> newPoliciesWithoutExport = existingPolicies.stream()
-                .filter(policy -> !policy.getPermission()
-                        .equals(workspacePermission
-                                .getApplicationCreatePermission()
-                                .getValue()))
+        // remove permission from the application for the api user
+        Set<Policy> newPoliciesWithoutPermission = application1.getPolicies().stream()
+                .filter(policy -> !policy.getPermission().equals(permission.getValue()))
                 .collect(Collectors.toSet());
-        workspace.setPolicies(newPoliciesWithoutExport);
-        workspaceRepository.save(workspace).block();
-        return application1;
+        application1.setPolicies(newPoliciesWithoutPermission);
+        return applicationRepository.save(application1).block();
     }
 
     @WithUserDetails("api_user")
     @Test
     public void ConnectApplicationToGit_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
-        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Application application =
+                createApplicationAndRemovePermissionFromApplication(applicationPermission.getGitConnectPermission());
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono =
                 gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier.create(applicationMono)
-                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Connect to Git"))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, application.getId()))
                 .verify();
     }
 
     @WithUserDetails("api_user")
     @Test
     public void detachRemote_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
-        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Application application =
+                createApplicationAndRemovePermissionFromApplication(applicationPermission.getGitConnectPermission());
         Mono<Application> applicationMono = gitService.detachRemote(application.getId());
 
         StepVerifier.create(applicationMono)
-                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Disconnect from Git"))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, application.getId()))
                 .verify();
     }
 
@@ -4370,6 +4369,9 @@ public class GitServiceCETest {
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the protected branch list
                             assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
+                            // the analytics service should be triggered once for this event
+                            verify(analyticsService, times(1))
+                                    .sendEvent(eq(GIT_ADD_PROTECTED_BRANCH.getEventName()), anyString(), anyMap());
                         }
                     }
                 })
@@ -4404,12 +4406,14 @@ public class GitServiceCETest {
     @WithUserDetails("api_user")
     @Test
     public void updateProtectedBranches_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
-        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Application application = createApplicationAndRemovePermissionFromApplication(
+                applicationPermission.getManageProtectedBranchPermission());
         Mono<List<String>> updateProtectedBranchesMono =
                 gitService.updateProtectedBranches(application.getId(), List.of());
 
         StepVerifier.create(updateProtectedBranchesMono)
-                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Protect branch"))
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, application.getId()))
                 .verify();
     }
 
@@ -4561,6 +4565,21 @@ public class GitServiceCETest {
                             .isFalse();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void toggleAutoCommit_WhenUserDoesNotHavePermission_ExceptionThrown() {
+        Application testApplication = createApplicationAndRemovePermissionFromApplication(
+                applicationPermission.getManageAutoCommitPermission());
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsIsNullMono =
+                gitService.toggleAutoCommitEnabled(testApplication.getId());
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsIsNullMono)
+                .expectErrorMessage(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, testApplication.getId()))
+                .verify();
     }
 
     @Test

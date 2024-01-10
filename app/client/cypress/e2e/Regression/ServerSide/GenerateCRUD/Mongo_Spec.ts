@@ -6,6 +6,7 @@ import {
   assertHelper,
   dataSources,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   locators,
@@ -49,7 +50,7 @@ describe(
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Delete the test data
       entityExplorer.ActionContextMenuByEntityName({
@@ -75,7 +76,7 @@ describe(
       agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
       GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(1, 0);
+      table.WaitUntilTableLoad(1, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -103,17 +104,17 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).to.eq(col1Text);
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col2Text);
       });
-      table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col3Text);
       });
 

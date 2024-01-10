@@ -115,7 +115,7 @@ jobs:
 
       - name: Extract the tests for rerun
         id: failed_tests
-        if: steps.run_result.outputs.run_result == 'failedtest'  && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
           failed_tests=$(awk '$0 != "" && !seen[$0]++ {printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
           echo "$failed_tests"
@@ -290,7 +290,7 @@ jobs:
           cp ../../../../../server.jar ./
           git lfs track "server.jar"
           git add  server.jar
-          git commit -m "Update Latest Server.jar"
+          git commit --allow-empty -m "Update Latest Server.jar"
           git push
 
       - name: Save the status of the run

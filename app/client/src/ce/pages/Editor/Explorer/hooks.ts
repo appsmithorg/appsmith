@@ -22,6 +22,14 @@ import {
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { basePathForActiveAction } from "@appsmith/constants/routes/appRoutes";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+
+export interface UseConvertToModulesOptionsProps {
+  id: string;
+  moduleType: MODULE_TYPE;
+  canDelete: boolean;
+}
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -141,8 +149,6 @@ export const useAppWideAndOtherDatasource = () => {
     otherDS,
   };
 };
-
-export const MAX_DATASOURCE_SUGGESTIONS = 3;
 
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
@@ -317,4 +323,11 @@ export const useCloseMenuOnScroll = (
       scrollContainer?.removeEventListener("scroll", onClose);
     };
   }, [open]);
+};
+
+export const useConvertToModuleOptions = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  props: UseConvertToModulesOptionsProps,
+) => {
+  return undefined;
 };

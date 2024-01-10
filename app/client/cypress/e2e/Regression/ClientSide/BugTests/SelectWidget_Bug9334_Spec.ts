@@ -45,7 +45,7 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //CRUD page 3
       PageList.AddNewPage();
@@ -63,7 +63,7 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
     });
 
     it("2. Navigate & Assert toast", () => {
