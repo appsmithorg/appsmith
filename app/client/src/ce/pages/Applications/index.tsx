@@ -110,6 +110,8 @@ import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOptio
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { useQuery } from "pages/Editor/utils";
+import history from "utils/history";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -286,7 +288,6 @@ export function WorkspaceMenuItem({
   useEffect(() => {
     if (selected) {
       menuRef.current?.scrollIntoView({ behavior: "smooth" });
-      menuRef.current?.click();
     }
   }, [selected]);
 
@@ -298,9 +299,11 @@ export function WorkspaceMenuItem({
       ellipsize={
         isFetchingApplications ? 100 : 19
       } /* this is to avoid showing tooltip for loaders */
-      href={`${window.location.pathname}#${workspace.workspace.id}`}
       icon="workspace"
       key={workspace.workspace.id}
+      onSelect={() =>
+        history.push(`${window.location.pathname}#${workspace.workspace.id}`)
+      }
       ref={menuRef}
       selected={selected}
       text={workspace.workspace.name}
@@ -450,6 +453,9 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
 export function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
+  const queryParams = useQuery();
+  const location = useLocation();
+  const workspaceIdHash = location.hash.slice(1);
   const theme = useContext(ThemeContext);
   const { isFetchingPackages } = usePackage();
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
@@ -492,6 +498,25 @@ export function ApplicationsSection(props: any) {
     // Clears URL params cache
     urlBuilder.resetURLParams();
   }, []);
+
+  // This is only for the first page load and when a hash for workspace is present
+  useEffect(() => {
+    if (!isLoadingResources && workspaceIdHash) {
+      const workspaceSection = document.getElementById(workspaceIdHash);
+      if (workspaceSection) {
+        workspaceSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [isLoadingResources, workspaceIdHash]);
+
+  useEffect(() => {
+    const stringifiedValue = queryParams.get("openImportModal") || "";
+    const openImportModal = stringifiedValue.toLowerCase() === "true";
+
+    if (openImportModal && workspaceIdHash) {
+      setSelectedWorkspaceIdForImportApplication(workspaceIdHash);
+    }
+  }, [queryParams.get("openImportModal")]);
 
   const [
     selectedWorkspaceIdForImportApplication,
