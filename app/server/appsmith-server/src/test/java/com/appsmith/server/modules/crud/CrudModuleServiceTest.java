@@ -1073,14 +1073,36 @@ class CrudModuleServiceTest {
                             .isEqualTo(moduleActionCollectionDTO
                                     .getBody()
                                     .replaceAll("PrivateJSObject1", "InnerJSObject1"));
-                    assertThat(publicJSObject
-                                    .getActions()
-                                    .get(0)
+
+                    Map<String, ActionDTO> publicFunctionMap = Map.of(
+                            publicJSObject.getActions().get(0).getName(),
+                                    publicJSObject.getActions().get(0),
+                            publicJSObject.getActions().get(1).getName(),
+                                    publicJSObject.getActions().get(1));
+                    assertThat(publicFunctionMap
+                                    .get(moduleActionCollectionDTO
+                                            .getActions()
+                                            .get(0)
+                                            .getName())
                                     .getActionConfiguration()
                                     .getBody())
                             .isEqualTo(moduleActionCollectionDTO
                                     .getActions()
                                     .get(0)
+                                    .getActionConfiguration()
+                                    .getBody()
+                                    .replaceAll("PrivateJSObject1", "InnerJSObject1"));
+
+                    assertThat(publicFunctionMap
+                                    .get(moduleActionCollectionDTO
+                                            .getActions()
+                                            .get(1)
+                                            .getName())
+                                    .getActionConfiguration()
+                                    .getBody())
+                            .isEqualTo(moduleActionCollectionDTO
+                                    .getActions()
+                                    .get(1)
                                     .getActionConfiguration()
                                     .getBody()
                                     .replaceAll("PrivateJSObject1", "InnerJSObject1"));
@@ -1136,13 +1158,27 @@ class CrudModuleServiceTest {
                     ActionCollectionDTO privateJSObject =
                             jsObject1.getName().equals("InnerJSObject1") ? jsObject1 : jsObject2;
 
+                    Map<String, ActionDTO> publicFunctionMap = Map.of(
+                            publicJSObject.getActions().get(0).getName(),
+                                    publicJSObject.getActions().get(0),
+                            publicJSObject.getActions().get(1).getName(),
+                                    publicJSObject.getActions().get(1));
+
+                    Map<String, ActionDTO> privateFunctionMap = Map.of(
+                            privateJSObject.getActions().get(0).getName(),
+                                    privateJSObject.getActions().get(0),
+                            privateJSObject.getActions().get(1).getName(),
+                                    privateJSObject.getActions().get(1));
+
                     assertThat(publicJSObject.getBody())
                             .isEqualTo(moduleActionCollectionDTO
                                     .getBody()
                                     .replaceAll("PrivateJSObject1", "InnerJSObject1"));
-                    assertThat(publicJSObject
-                                    .getActions()
-                                    .get(0)
+                    assertThat(publicFunctionMap
+                                    .get(moduleActionCollectionDTO
+                                            .getActions()
+                                            .get(0)
+                                            .getName())
                                     .getActionConfiguration()
                                     .getBody())
                             .isEqualTo(moduleActionCollectionDTO
@@ -1161,9 +1197,9 @@ class CrudModuleServiceTest {
 
                     assertThat(privateJSObject.getBody())
                             .isEqualTo(privateActionCollectionDTO.getBody().replaceAll("Api1", "ApiOne"));
-                    assertThat(privateJSObject
-                                    .getActions()
-                                    .get(0)
+
+                    assertThat(privateFunctionMap
+                                    .get(privateJSObject.getActions().get(0).getName())
                                     .getActionConfiguration()
                                     .getBody())
                             .isEqualTo(privateJSObject
@@ -1172,14 +1208,13 @@ class CrudModuleServiceTest {
                                     .getActionConfiguration()
                                     .getBody()
                                     .replaceAll("Api1", "ApiOne"));
-                    assertThat(privateJSObject
-                                    .getActions()
-                                    .get(0)
+                    assertThat(privateFunctionMap
+                                    .get(privateJSObject.getActions().get(1).getName())
                                     .getActionConfiguration()
                                     .getBody())
                             .isEqualTo(privateJSObject
                                     .getActions()
-                                    .get(0)
+                                    .get(1)
                                     .getActionConfiguration()
                                     .getBody()
                                     .replaceAll("Api1", "ApiOne"));

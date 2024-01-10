@@ -143,9 +143,8 @@ public class CommonConfig {
         return "http://127.0.0.1:" + rtsPort;
     }
 
-    // TODO: 21/11/23  Update the API Endpoint, once E2E testing of Workflow is complete. Responsible: nsarupr/srix
     public String getWorkflowProxyUrl() {
-        return String.format("%s/workflowProxy", getRtsBaseUrl());
+        return String.format("%s/rts-api/v1/workflow-proxy", getRtsBaseUrl());
     }
 
     public boolean isMongoUptoDate() {

@@ -71,4 +71,14 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
             Module sourceModule, Optional<AclPermission> permission) {
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
+
+    @Override
+    public Mono<Boolean> archiveModuleInstancesByApplicationId(String applicationId, AclPermission permission) {
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<List<ModuleInstanceDTO>> deleteByContextId(String contextId, CreatorContextType contextType) {
+        return Mono.empty();
+    }
 }

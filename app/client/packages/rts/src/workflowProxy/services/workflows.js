@@ -8,7 +8,7 @@ import {
   proxyActivities,
 } from "@temporalio/workflow";
 
-const { runActivityInTemporal } = proxyActivities({
+const { executeActivity, executeCreateApprovalRequest } = proxyActivities({
   startToCloseTimeout: "1 minute",
 });
 
@@ -24,6 +24,8 @@ let resumeData = {};
  * @param {ExecuteInboxResolutionRequest} body Body with the resume signal
  */
 function resumeHandler(body) {
+  // TODO: Push to log file
+  // console.log("inside resume handler !", body);
   canResume = true;
   resumeData = {
     workflowInstanceId: body.runId,
@@ -39,54 +41,95 @@ function resumeHandler(body) {
  * @returns
  */
 export async function executeWorkflow(runRequest, workflowInstanceId) {
-  const { actionMap, data, reqHeaders, workflowDef, workflowId } = runRequest;
+  const { actionMap, reqHeaders, triggerData, workflowDef, workflowId } =
+    runRequest;
 
   // Attach the signal handler to the signal
   setHandler(resumeSignal, resumeHandler);
 
-  const workflowObjectGeneratorCode = `(${Object.keys(actionMap).join(
+  // action map is an object with key as action name and value as action id
+  // we need to transform it to an object with key as action name and value as action object
+  // with id as one of the property
+  const actionMapTransformed = Object.entries(actionMap).reduce(
+    (acc, [key, value]) => {
+      acc[key] = {
+        actionId: value,
+      };
+      return acc;
+    },
+    {},
+  );
+
+  // define platform functions here
+  const appsmith = {
+    workflow: {
+      ApprovalRequest: async function (...args) {
+        // TODO: Push to log file
+        // console.log("inside ApprovalRequest", args);
+        await executeCreateApprovalRequest(
+          reqHeaders,
+          workflowId,
+          workflowInstanceId,
+          args[0],
+        );
+
+        // TODO: Push to log file
+        // console.log("waiting for approval !!", output);
+
+        canResume = false;
+        await condition(() => canResume);
+        // TODO: Push to log file
+        // console.log("resumeData !!", resumeData);
+        return resumeData;
+      },
+    },
+  };
+
+  const actionNames = Object.keys(actionMapTransformed);
+  const actionValues = Object.values(actionMapTransformed);
+  const workTemplateArgNames = [...actionNames, "appsmith"];
+  const workflowObjectGeneratorCode = `(${workTemplateArgNames.join(
     ",",
   )}) =>(${workflowDef})`;
+
+  // TODO: Push to log file
+  // console.log(
+  //   "executeWorkflow - workflowObjectGeneratorCode",
+  //   workflowObjectGeneratorCode,
+  // );
   const workflowObjectGenerator = eval(workflowObjectGeneratorCode);
 
-  const workflowObject = workflowObjectGenerator(
-    ...Object.values(actionMap),
-    data,
-  );
+  const workflowObject = workflowObjectGenerator(...actionValues, appsmith);
 
   // Iterate all objects inside context and assign run function to it
 
-  for (const actionName in actionMap) {
-    // In appsmith, all output is stored in data object, this assignment is to make it work
-    actionMap[actionName].data = {};
+  for (const actionName in actionMapTransformed) {
+    // context[k].run = run.bind(context[k]);
 
-    // In appsmith, all functions are used with funcName.run(), this assignment is to make it work
-    actionMap[actionName].run = async function (...args) {
-      const output = await runActivityInTemporal(
-        reqHeaders,
-        workflowId,
-        actionName,
-        this.actionId,
-        workflowInstanceId,
-        args,
-      );
+    actionMapTransformed[actionName].run = async function (...args) {
+      // TODO: Push to log file
+      // console.log(
+      //   "workflow-proxy inside actionMapTransformed.run",
+      //   actionName,
+      //   this.actionId,
+      // );
+      const output = await executeActivity(reqHeaders, this.actionId, args);
 
-      if (output.shallWaitForSignal === true) {
-        canResume = false;
-        this.data = output.data;
-        await condition(() => canResume);
-        this.data = resumeData;
-      } else {
-        this.data = output.data;
-      }
+      // TODO: Push to log file
+      // console.log("workflow-proxy activity data", output);
 
+      this.data = output.data;
       return this.data;
-    };
+    }.bind(actionMapTransformed[actionName]);
   }
 
-  // Execute the workflow
-  await workflowObject.executeWorkflow();
+  // TODO: Push to log file
+  // console.log("inside executeWorkflow - triggerData !!", triggerData);
+  // const status = await workflowObject.executeWorkflow(triggerData);
+  await workflowObject.executeWorkflow(triggerData);
 
-  // Return true to indicate that the workflow has completed
+  // TODO: Push to log file
+  // console.log("workflows.js > Workflow status: ", status);
+
   return true;
 }

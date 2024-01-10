@@ -22,6 +22,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -33,6 +34,7 @@ import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
+import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -47,6 +49,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
+import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -68,7 +71,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -99,8 +101,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
 class CrudModuleInstanceServiceTest {
+    @Autowired
+    private PackageRepository packageRepository;
 
     @Autowired
     NewActionService newActionService;
@@ -1022,5 +1025,93 @@ class CrudModuleInstanceServiceTest {
 
         moduleReqDTO.setEntity(moduleActionDTO);
         return moduleReqDTO;
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    void testPackageDelete_whenConsumingPageIsDeleted_shouldDeleteThePackage() {
+        // Create two module instances
+        CreateModuleInstanceResponseDTO firstCreateModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+        ModuleInstanceDTO firstModuleInstanceDTO = firstCreateModuleInstanceResponseDTO.getModuleInstance();
+        CreateModuleInstanceResponseDTO secondCreateModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+        ModuleInstanceDTO secondModuleInstanceDTO = secondCreateModuleInstanceResponseDTO.getModuleInstance();
+
+        Mono<List<NewAction>> firstDBActionsMono = getDBActions(firstCreateModuleInstanceResponseDTO);
+        Mono<List<NewAction>> secondDBActionsMono = getDBActions(secondCreateModuleInstanceResponseDTO);
+
+        StepVerifier.create(firstDBActionsMono)
+                .assertNext(dbActions ->
+                        doAllAssertions(dbActions, firstCreateModuleInstanceResponseDTO, firstModuleInstanceDTO))
+                .verifyComplete();
+
+        StepVerifier.create(secondDBActionsMono)
+                .assertNext(dbActions ->
+                        doAllAssertions(dbActions, secondCreateModuleInstanceResponseDTO, secondModuleInstanceDTO))
+                .verifyComplete();
+
+        applicationPageService
+                .deleteUnpublishedPageByBranchAndDefaultPageId(
+                        moduleInstanceTestHelperDTO.getPageDTO().getId(), null)
+                .block();
+
+        Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(
+                moduleInstanceTestHelperDTO.getSourcePackageDTO().getId());
+
+        StepVerifier.create(deletePackageMono)
+                .assertNext(deletedPackage -> {
+                    assertThat(deletedPackage).isNotNull();
+                })
+                .verifyComplete();
+
+        // Double-check package deletion by making an explicit db call
+        Package dbPackage = packageRepository
+                .findById(moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                .block();
+        assertThat(dbPackage).isNull();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    void testPackageDelete_whenConsumingAppIsDeleted_shouldDeleteThePackage() {
+        CreateModuleInstanceResponseDTO firstCreateModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+        ModuleInstanceDTO firstModuleInstanceDTO = firstCreateModuleInstanceResponseDTO.getModuleInstance();
+        CreateModuleInstanceResponseDTO secondCreateModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+        ModuleInstanceDTO secondModuleInstanceDTO = secondCreateModuleInstanceResponseDTO.getModuleInstance();
+
+        Mono<List<NewAction>> firstDBActionsMono = getDBActions(firstCreateModuleInstanceResponseDTO);
+        Mono<List<NewAction>> secondDBActionsMono = getDBActions(secondCreateModuleInstanceResponseDTO);
+
+        StepVerifier.create(firstDBActionsMono)
+                .assertNext(dbActions ->
+                        doAllAssertions(dbActions, firstCreateModuleInstanceResponseDTO, firstModuleInstanceDTO))
+                .verifyComplete();
+
+        StepVerifier.create(secondDBActionsMono)
+                .assertNext(dbActions ->
+                        doAllAssertions(dbActions, secondCreateModuleInstanceResponseDTO, secondModuleInstanceDTO))
+                .verifyComplete();
+
+        applicationPageService
+                .deleteApplication(moduleInstanceTestHelperDTO.getPageDTO().getApplicationId())
+                .block();
+
+        Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(
+                moduleInstanceTestHelperDTO.getSourcePackageDTO().getId());
+
+        StepVerifier.create(deletePackageMono)
+                .assertNext(deletedPackage -> {
+                    assertThat(deletedPackage).isNotNull();
+                })
+                .verifyComplete();
+
+        // Double-check package deletion by making an explicit db call
+        Package dbPackage = packageRepository
+                .findById(moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                .block();
+        assertThat(dbPackage).isNull();
     }
 }

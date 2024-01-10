@@ -25,3 +25,8 @@ module.exports = {
     },
   },
 };
+
+process.env = Object.assign(process.env, {
+  APPSMITH_API_BASE_URL: "http://localhost:8080",
+  APPSMITH_LOG_LEVEL: "debug",
+});
