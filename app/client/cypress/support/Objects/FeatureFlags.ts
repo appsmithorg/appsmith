@@ -21,7 +21,7 @@ export const featureFlagIntercept = (
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res:any) => {
       if (res) {
-        const originalResponse = res.body;
+        const originalResponse = res?.body;
         if (originalResponse?.data?.featureFlags?.data) {
           const updatedResponse = produce(originalResponse, (draft: any) => {
             draft.data.featureFlags.data = { ...flags };
@@ -30,7 +30,9 @@ export const featureFlagIntercept = (
           })
           return res.send(updatedResponse);
         }
+        return res.send(originalResponse);
       }
+      return res;
     });
   }).as("getConsolidatedData");
 
