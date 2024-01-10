@@ -148,13 +148,14 @@ abstract class BaseWidget<
     return {};
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   static pasteOperationChecks(
     allWidgets: CanvasWidgetsReduxState,
     widgetIdMap: Record<string, string>,
     reverseWidgetIdMap: Record<string, string>,
     widgetId: string,
   ): FlattenedWidgetProps | null {
-    return null && allWidgets && widgetIdMap && reverseWidgetIdMap && widgetId;
+    return null;
   }
 
   /**

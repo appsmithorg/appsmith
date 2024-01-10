@@ -45,8 +45,15 @@ export function* pasteMigrantWidgets(
     parentWidget.widgetId,
   );
 
+  /**
+   * Order widgets based on hierarchy.
+   * MainCanvas > Section > Zone > Others.
+   */
   const order: CopiedWidgetData[][] = splitWidgetsByOrder(copiedWidgets);
 
+  /**
+   * Start from the next order of the parent.
+   */
   let index = parentOrder + 1;
   let parentId: string = parentWidget.widgetId;
   let currentParent: FlattenedWidgetProps = widgets[parentId];

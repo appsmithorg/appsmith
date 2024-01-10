@@ -568,23 +568,24 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     widgetId: string,
   ): FlattenedWidgetProps | null {
     const widget = allWidgets[widgetId];
+    if (!widget || !widget.primaryColumns) return null;
     // If the primaryColumns of the table exist
-    if (widget.primaryColumns) {
-      const oldWidgetName: string =
-        allWidgets[reverseWidgetIdMap[widgetId]].widgetName;
-      // For each column
-      for (const [columnId, column] of Object.entries(widget.primaryColumns)) {
-        // For each property in the column
-        for (const [key, value] of Object.entries(column as ColumnProperties)) {
-          // Replace reference of previous widget with the new widgetName
-          // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
-          widget.primaryColumns[columnId][key] = isString(value)
-            ? value.replace(`${oldWidgetName}.`, `${widget.widgetName}.`)
-            : value;
-        }
+    const oldWidgetName: string =
+      allWidgets[reverseWidgetIdMap[widgetId]].widgetName;
+    if (!oldWidgetName) return null;
+    // For each column
+    const updatedPrimaryColumns = { ...widget.primaryColumns };
+    for (const [columnId, column] of Object.entries(updatedPrimaryColumns)) {
+      // For each property in the column
+      for (const [key, value] of Object.entries(column as ColumnProperties)) {
+        // Replace reference of previous widget with the new widgetName
+        // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+        updatedPrimaryColumns[columnId][key] = isString(value)
+          ? value.replace(`${oldWidgetName}.`, `${widget.widgetName}.`)
+          : value;
       }
     }
-    return widget;
+    return { ...widget, primaryColumns: updatedPrimaryColumns };
   }
 
   /*
