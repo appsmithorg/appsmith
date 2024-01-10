@@ -17,6 +17,7 @@ import type {
 } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getActions,
+  getCurrentModuleActions,
   getDatasource,
   getJSCollection,
   getJSCollections,
@@ -29,6 +30,7 @@ import {
 } from "utils/AppsmithUtils";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import {
+  clearActionResponse,
   createActionRequest,
   updateActionData,
 } from "actions/pluginActionActions";
@@ -60,9 +62,17 @@ import { toast } from "design-system";
 import {
   ERROR_ACTION_RENAME_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
+  SWITCH_ENVIRONMENT_SUCCESS,
   createMessage,
 } from "@appsmith/constants/messages";
 import * as log from "loglevel";
+import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
+import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
+import { handleStoreOperations } from "sagas/ActionExecution/StoreActionSaga";
+import { softRefreshDatasourceStructure } from "actions/datasourceActions";
+import { matchQueryBuilderPath } from "constants/routes";
+import { changeQuery } from "actions/queryPaneActions";
+import { getCurrentEnvironmentName } from "@appsmith/selectors/environmentSelectors";
 import { fetchModuleEntitiesSaga } from "./moduleSagas";
 
 export function* createNewAPIActionForPackageSaga(
@@ -358,6 +368,65 @@ export function* saveJSObjectNameForPackageSaga(
   }
 }
 
+// Function to clear the action responses for the actions which are not executeOnLoad.
+function* clearTriggerActionResponse() {
+  const currentModuleActions: ActionData[] = yield select(
+    getCurrentModuleActions,
+  );
+  for (const action of currentModuleActions) {
+    // Clear the action response if the action has data and is not executeOnLoad.
+    if (action.data && !action.config.executeOnLoad) {
+      yield put(clearActionResponse(action.config.id));
+      yield put(
+        updateActionData([
+          {
+            entityName: action.config.name,
+            dataPath: "data",
+            data: undefined,
+          },
+        ]),
+      );
+    }
+  }
+}
+
+// Function to soft refresh all the actions on the package editor.
+function* softRefreshModulesSaga() {
+  //get current packageId
+  const packageId: string = yield select(getCurrentPackageId);
+  const moduleId: string = yield select(getCurrentModuleId);
+  // Clear appsmith store
+  yield call(handleStoreOperations, [
+    {
+      payload: null,
+      type: "CLEAR_STORE",
+    },
+  ]);
+  // Clear all the action responses on the package editor
+  yield call(clearTriggerActionResponse);
+  try {
+    // we fork to prevent the call from blocking
+    yield put(softRefreshDatasourceStructure());
+  } catch (error) {}
+  //This will refresh the query editor with the latest datasource structure.
+  // TODO: fix typing of matchQueryBuilderPath, it always returns "any" which can lead to bugs
+  const isQueryPane = matchQueryBuilderPath(window.location.pathname);
+  //This is reuired only when the query editor is open.
+  if (isQueryPane) {
+    yield put(
+      changeQuery({
+        id: isQueryPane.params.queryId,
+        packageId,
+        moduleId,
+      }),
+    );
+  }
+  const currentEnvName: string = yield select(getCurrentEnvironmentName);
+  toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {
+    kind: "success",
+  });
+}
+
 export default function* modulesSaga() {
   yield all([
     takeLatest(
@@ -380,5 +449,6 @@ export default function* modulesSaga() {
       ReduxActionTypes.SAVE_JS_OBJECT_NAME_FOR_PACKAGE_INIT,
       saveJSObjectNameForPackageSaga,
     ),
+    takeLatest(ReduxActionTypes.MODULES_SOFT_REFRESH, softRefreshModulesSaga),
   ]);
 }

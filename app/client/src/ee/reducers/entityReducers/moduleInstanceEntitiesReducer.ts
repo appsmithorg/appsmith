@@ -24,7 +24,7 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { SavePageResponse } from "api/PageApi";
 import { klona } from "klona";
 
-type UpdateModuleInstanceSettingsResponse = JSCollection | Action;
+type UpdateModuleInstanceSettingsResponse = JSCollection | Action | JSAction;
 
 export interface ModuleInstanceEntitiesReducerState {
   actions: ActionData[];
@@ -100,13 +100,14 @@ export const handlers = {
       return draftState;
     }
 
-    const jsCollectionIndex = draftState.jsCollections.findIndex(
-      (a) => a.config.id === action.payload.id,
-    );
-    if (jsCollectionIndex !== -1) {
-      draftState.jsCollections[jsCollectionIndex].config =
-        action.payload as JSCollection;
-    }
+    draftState.jsCollections.forEach((jsCollection) => {
+      const actionIndex = jsCollection.config.actions.findIndex(
+        (a) => a.id === action.payload.id,
+      );
+      if (actionIndex !== -1) {
+        jsCollection.config.actions[actionIndex] = action.payload as JSAction;
+      }
+    });
   },
 
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (

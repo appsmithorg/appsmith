@@ -16,10 +16,7 @@ import {
   ENVIRONMENT_QUERY_KEY,
   envSwitcherWalkthroughConfig,
 } from "@appsmith/utils/Environments";
-import {
-  START_SWITCH_ENVIRONMENT,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import { isDatasourceInViewMode } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -65,6 +62,7 @@ export interface SwitchEnvironmentProps {
   postgresPluginId?: string;
   editorId: string;
   onChangeEnv?: () => void;
+  startSwitchEnvMessage: (...strArgs: any[]) => string;
 }
 
 const SwitchEnvironment = ({
@@ -75,6 +73,7 @@ const SwitchEnvironment = ({
   onChangeEnv,
   postgresPluginId,
   setCurrentEnvDetails,
+  startSwitchEnvMessage,
   viewMode,
 }: SwitchEnvironmentProps) => {
   const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
@@ -164,7 +163,7 @@ const SwitchEnvironment = ({
       // Replace current querystring with the new one.
       window.history.replaceState({}, "", "?" + queryParams.toString());
       setSelectedEnv(env);
-      toast.show(createMessage(START_SWITCH_ENVIRONMENT, env.name), {
+      toast.show(createMessage(startSwitchEnvMessage, env.name), {
         kind: "info",
         autoClose: 500,
       });
@@ -176,7 +175,13 @@ const SwitchEnvironment = ({
 
   // Show ramps if feature is not enabled or
   if (!isMultipleEnvEnabled)
-    return <CE_SwitchEnvironment editorId={editorId} viewMode={viewMode} />;
+    return (
+      <CE_SwitchEnvironment
+        editorId={editorId}
+        startSwitchEnvMessage={startSwitchEnvMessage}
+        viewMode={viewMode}
+      />
+    );
   // skip the render if no environments are present
   if (environmentList.length <= 0) return null;
 
