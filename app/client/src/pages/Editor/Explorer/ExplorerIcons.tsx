@@ -283,6 +283,7 @@ export function CurlIconV2() {
   );
 }
 
+// TODO (workflows): replace with actual workflow icon
 export function WorkflowIcon() {
   return (
     <EntityIcon>
