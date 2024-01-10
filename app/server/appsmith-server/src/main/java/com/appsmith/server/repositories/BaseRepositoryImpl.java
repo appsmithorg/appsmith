@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.blasphemy.DBConnection;
-import com.appsmith.server.constants.FieldName;
 import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +16,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * This repository implementation is the base class that will be used by Spring Data running all the default JPA queries.

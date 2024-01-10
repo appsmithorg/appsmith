@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_WIDGET;
-import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 
 @Slf4j
 @RequiredArgsConstructor
