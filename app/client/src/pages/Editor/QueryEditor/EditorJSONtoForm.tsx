@@ -15,7 +15,6 @@ import {
   type Action,
   type QueryAction,
   type SaaSAction,
-  PluginPackageName,
 } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -732,7 +731,7 @@ export function EditorJSONtoForm(props: Props) {
                           </Tag>
                         </>
                       )}
-                      {plugin?.packageName !== PluginPackageName.WORKFLOW &&
+                      {plugin?.requiresDatasource &&
                         dataSources.length === 0 && (
                           <NoDataSourceContainer>
                             <p className="font18">

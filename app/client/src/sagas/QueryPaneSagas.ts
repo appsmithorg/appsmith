@@ -39,7 +39,7 @@ import {
   getActions,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
@@ -296,7 +296,7 @@ function* formValueChangeSaga(
       url: "",
     };
 
-    if (plugin?.packageName !== PluginPackageName.WORKFLOW) {
+    if (plugin?.requiresDatasource) {
       dsConfig = datasourceStorages[currentEnvironment].datasourceConfiguration;
     }
     const postEvalActions =
