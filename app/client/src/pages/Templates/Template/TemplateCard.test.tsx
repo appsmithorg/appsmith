@@ -93,7 +93,9 @@ describe("<TemplateLayout />", () => {
     expect(titleElement).toHaveStyle("overflow: hidden");
     expect(titleElement).toHaveStyle("display: -webkit-box");
 
-    const categoriesElement = screen.getByText("Function1 • Function2");
+    const categoriesElement = screen.getByText(
+      "Operations • Communications • All",
+    );
     expect(categoriesElement).toHaveStyle("overflow: hidden");
     expect(titleElement).toHaveStyle("display: -webkit-box");
 
