@@ -1,8 +1,11 @@
 package com.appsmith.server.newactions.base;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
@@ -55,8 +58,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             PagePermission pagePermission,
             ActionPermission actionPermission,
             EntityValidationService entityValidationService,
-            ObservationRegistry observationRegistry) {
-
+            ObservationRegistry observationRegistry,
+            DefaultResourcesService<NewAction> defaultResourcesService,
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
         super(
                 scheduler,
                 validator,
@@ -81,6 +85,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry);
+                observationRegistry,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
     }
 }
