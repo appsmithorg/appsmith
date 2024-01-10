@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import HomePageLocators from "../../../../locators/HomePage";
 
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
@@ -30,8 +31,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
 
   it("2. Guided Tour", function () {
     // Start guided tour
-    agHelper.GetNClick(homePage.homeIcon, 0, true);
-    agHelper.GetNClick(homePage._helpButton, 0, true);
+    agHelper.GetNClick(HomePageLocators.homeIcon, 0, true);
+    agHelper.GetNClick(HomePageLocators.helpButton, 0, true);
     agHelper.GetNClick(guidedTourLocators.welcomeTour, 0, true);
     cy.get(guidedTourLocators.startBuilding).click();
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");

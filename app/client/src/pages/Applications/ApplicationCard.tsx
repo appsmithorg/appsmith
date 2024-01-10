@@ -514,7 +514,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setShowOverlay={setShowOverlay}
       showGitBadge={Boolean(showGitBadge)}
       showOverlay={showOverlay && !isEnabledMultipleSelection}
-      testId="t--application-card"
+      testId={`t--application-card ${props.application.name}`}
       title={props.application.name}
       titleTestId="t--app-card-name"
     >
