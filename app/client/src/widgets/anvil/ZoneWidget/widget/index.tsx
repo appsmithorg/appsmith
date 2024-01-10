@@ -3,6 +3,7 @@ import type {
   AnvilConfig,
   AutoLayoutConfig,
   AutocompletionDefinitions,
+  FlattenedWidgetProps,
   WidgetBaseConfiguration,
   WidgetDefaultProps,
 } from "WidgetProvider/constants";
@@ -22,6 +23,8 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerComponent } from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { Elevations, anvilWidgets } from "widgets/anvil/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
@@ -78,6 +81,22 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
+  }
+
+  static pasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+    widgetId: string,
+  ): FlattenedWidgetProps | null {
+    let widget: FlattenedWidgetProps = allWidgets[widgetId];
+
+    if (widget.flexGrow && widget.flexGrow === SectionColumns) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { flexGrow, ...rest } = widget;
+      widget = rest;
+    }
+    return widget;
   }
 
   getWidgetView(): ReactNode {
