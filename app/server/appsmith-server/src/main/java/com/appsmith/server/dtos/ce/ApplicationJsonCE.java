@@ -116,12 +116,12 @@ public class ApplicationJsonCE implements ImportableArtifactJson {
     String widgets;
 
     @Override
-    public ArtifactJsonType getImportableJsonType() {
+    public ArtifactJsonType getArtifactJsonType() {
         return ArtifactJsonType.APPLICATION;
     }
 
     @Override
-    public ImportableArtifact getImportableContext() {
+    public ImportableArtifact getImportableArtifact() {
         return this.getExportedApplication();
     }
 

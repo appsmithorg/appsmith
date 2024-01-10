@@ -94,7 +94,7 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
     public ContextBasedImportService<
                     ? extends ImportableArtifact, ? extends ImportableContextDTO, ? extends ImportableArtifactJson>
             getContextBasedImportService(ImportableArtifactJson importableContextJson) {
-        return getContextBasedImportService(importableContextJson.getImportableJsonType());
+        return getContextBasedImportService(importableContextJson.getArtifactJsonType());
     }
 
     /**
@@ -465,7 +465,7 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
         final Mono<? extends ImportableArtifact> importedContextMono = workspaceMono
                 .then(contextSpecificImportedEntities)
                 .then(contextBasedImportService.updateAndSaveContextInFocus(
-                        importedDoc.getImportableContext(),
+                        importedDoc.getImportableArtifact(),
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
                         currUserMono))
@@ -522,7 +522,7 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
         // validate common schema things
         ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(importedDoc);
         String errorField = "";
-        if (importedDoc.getImportableContext() == null) {
+        if (importedDoc.getImportableArtifact() == null) {
             // the error field will be either application, packages, or workflows
             errorField = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
         } else {

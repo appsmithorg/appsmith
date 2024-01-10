@@ -40,7 +40,7 @@ public class ContextSchemaMigrationCE {
      * @param importableContextJson ContextJson which is imported
      */
     private static void migrateClientAndServerSchemas(ImportableArtifactJson importableContextJson) {
-        if (ArtifactJsonType.APPLICATION.equals(importableContextJson.getImportableJsonType())) {
+        if (ArtifactJsonType.APPLICATION.equals(importableContextJson.getArtifactJsonType())) {
             migrateApplicationJsonClientSchema((ApplicationJson) importableContextJson);
             migrateApplicationJsonServerSchema((ApplicationJson) importableContextJson);
         }

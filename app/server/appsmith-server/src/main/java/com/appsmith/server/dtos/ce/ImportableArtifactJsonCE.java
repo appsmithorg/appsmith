@@ -16,9 +16,9 @@ public interface ImportableArtifactJsonCE {
 
     void setServerSchemaVersion(Integer serverSchemaVersion);
 
-    ArtifactJsonType getImportableJsonType();
+    ArtifactJsonType getArtifactJsonType();
 
-    ImportableArtifact getImportableContext();
+    ImportableArtifact getImportableArtifact();
 
     List<CustomJSLib> getCustomJsLibFromContext();
 }
