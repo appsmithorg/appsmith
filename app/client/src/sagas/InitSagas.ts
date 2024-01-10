@@ -247,8 +247,8 @@ export function* getInitResponses({
         throw new Error("Error occured " + axiosConnectionAbortedCode);
       }
     } catch (e) {
-      // log.error(e);
-      // tie to userProfile
+      // // log.error(e);
+      // // tie to userProfile
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: {},
@@ -258,13 +258,17 @@ export function* getInitResponses({
       // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
       // do not fetch this again
 
-      yield put(fetchFeatureFlagsSuccess({} as FeatureFlags));
+      yield put(
+        fetchFeatureFlagsSuccess({
+          [FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled]: true,
+        } as FeatureFlags),
+      );
       // v1/tenants/current
       // tie to tenantConfig
 
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: { tenantConfiguration: {} },
+        payload: { tenantConfiguration: { dfbjdjf: {} } },
       });
       // v1/product-alert/alert
       // tie to productAlert
