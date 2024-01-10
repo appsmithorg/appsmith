@@ -18,7 +18,7 @@ import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
   const width = useEditorPaneWidth();
-  const active = useSelector(getPagesActiveStatus);
+  const pagesActive = useSelector(getPagesActiveStatus);
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
 
   return (
@@ -35,7 +35,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       <EntityProperties />
       {!isSideBySideEnabled && <Pages />}
       {/* This below pages component will get changed */}
-      {isSideBySideEnabled && active && <Pages />}
+      {isSideBySideEnabled && pagesActive && <Pages />}
       {/* divider is inside the Pages component */}
       <Switch>
         <SentryRoute component={GlobalAdd} exact path={`${path}${ADD_PATH}`} />
