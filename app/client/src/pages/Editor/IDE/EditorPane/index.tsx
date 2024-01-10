@@ -23,6 +23,17 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
   const pagesActive = useSelector(getPagesActiveStatus);
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
 
+  const PagesRender = () => {
+    if (!isSideBySideEnabled) {
+      return <Pages />;
+      /* divider is inside the Pages component */
+    } else if (isSideBySideEnabled && pagesActive) {
+      return <PagesSection />;
+    } else {
+      return null;
+    }
+  };
+
   return (
     <Flex
       className="ide-editor-left-pane"
@@ -35,13 +46,11 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       {/** Entity Properties component is needed to render
         the Bindings popover in the context menu. Will be removed eventually **/}
       <EntityProperties />
-      {!isSideBySideEnabled && <Pages />}
-      {/* divider is inside the Pages component */}
+      <PagesRender />
 
-      {/* This below pages component will get changed */}
-      {isSideBySideEnabled && pagesActive && <PagesSection />}
-
-      {!pagesActive && (
+      {pagesActive ? (
+        <MinimalSegment />
+      ) : (
         <Switch>
           <SentryRoute
             component={GlobalAdd}
@@ -51,9 +60,6 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
           <SentryRoute component={EditorPaneSegments} />
         </Switch>
       )}
-
-      {/* show minimal segments if pages is active */}
-      {pagesActive && <MinimalSegment />}
     </Flex>
   );
 };

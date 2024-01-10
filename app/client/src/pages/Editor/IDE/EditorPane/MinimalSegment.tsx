@@ -1,6 +1,6 @@
 import React from "react";
 import { Flex, Text, Tag } from "design-system";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import {
@@ -8,19 +8,27 @@ import {
   getJsActionsCount,
   getWidgetsCount,
 } from "selectors/ideSelectors";
+import { setIdeEditorPagesActiveStatus } from "actions/ideActions";
 
 const MinimalSegment = () => {
+  const dispatch = useDispatch();
   const actionsCount = useSelector(getActionsCount);
   const jsActionsCount = useSelector(getJsActionsCount);
   const widgetsCount = useSelector(getWidgetsCount);
+
+  const onClickHandler = () => {
+    dispatch(setIdeEditorPagesActiveStatus(false));
+  };
 
   return (
     <Flex
       alignItems={"center"}
       borderTop={"1px solid var(--ads-v2-color-border)"}
+      cursor={"pointer"}
       gap={"spaces-2"}
       height={"36px"}
       justifyContent={"space-between"}
+      onClick={onClickHandler}
       p={"spaces-2"}
       px={"spaces-3"}
       width={"100%"}
