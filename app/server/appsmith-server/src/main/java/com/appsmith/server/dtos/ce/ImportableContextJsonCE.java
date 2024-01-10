@@ -2,7 +2,7 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public interface ImportableContextJsonCE {
 
     ArtifactJsonType getImportableJsonType();
 
-    ImportableContext getImportableContext();
+    ImportableArtifact getImportableContext();
 
     List<CustomJSLib> getCustomJsLibFromContext();
 }

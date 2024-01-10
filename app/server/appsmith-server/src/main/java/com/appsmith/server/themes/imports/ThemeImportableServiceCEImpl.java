@@ -2,7 +2,7 @@ package com.appsmith.server.themes.imports;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -121,7 +121,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importContextMono,
+            Mono<? extends ImportableArtifact> importContextMono,
             ImportableContextJson importableContextJson,
             boolean isPartialImport,
             boolean isContextAgnostic) {

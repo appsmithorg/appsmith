@@ -13,7 +13,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportableContextJson;
@@ -61,7 +61,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importContextMono,
+            Mono<? extends ImportableArtifact> importContextMono,
             ImportableContextJson importableContextJson,
             boolean isPartialImport,
             boolean isContextAgnostic) {

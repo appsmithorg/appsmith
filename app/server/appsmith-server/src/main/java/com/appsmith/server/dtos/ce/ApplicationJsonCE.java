@@ -9,7 +9,7 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -121,7 +121,7 @@ public class ApplicationJsonCE implements ImportableContextJson {
     }
 
     @Override
-    public ImportableContext getImportableContext() {
+    public ImportableArtifact getImportableContext() {
         return this.getExportedApplication();
     }
 

@@ -1,7 +1,7 @@
 package com.appsmith.server.plugins.imports;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Workspace;
@@ -63,7 +63,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importContextMono,
+            Mono<? extends ImportableArtifact> importContextMono,
             ImportableContextJson importableContextJson,
             boolean isPartialImport,
             boolean isContextAgnostic) {

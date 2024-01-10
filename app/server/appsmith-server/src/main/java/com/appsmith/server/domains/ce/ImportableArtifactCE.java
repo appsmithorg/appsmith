@@ -1,6 +1,6 @@
 package com.appsmith.server.domains.ce;
 
-public interface ImportableContextCE {
+public interface ImportableArtifactCE {
 
     String getId();
 

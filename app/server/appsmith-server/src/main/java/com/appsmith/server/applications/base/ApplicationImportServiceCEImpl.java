@@ -10,7 +10,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
@@ -427,7 +427,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<ApplicationImportDTO> getImportableContextDTO(
-            String workspaceId, String applicationId, ImportableContext importableContext) {
+            String workspaceId, String applicationId, ImportableArtifact importableContext) {
         Application application = (Application) importableContext;
         return findDatasourceByApplicationId(applicationId, workspaceId)
                 .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
@@ -602,7 +602,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<Application> updateAndSaveContextInFocus(
-            ImportableContext importableContext,
+            ImportableArtifact importableContext,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono) {
@@ -720,7 +720,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<Application> updateImportableContext(ImportableContext importableContext) {
+    public Mono<Application> updateImportableContext(ImportableArtifact importableContext) {
         return Mono.just((Application) importableContext).flatMap(application -> {
             log.info("Imported application with id {}", application.getId());
             // Need to update the application object with updated pages and publishedPages
@@ -734,7 +734,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<Application> updateImportableEntities(
-            ImportableContext importableContext,
+            ImportableArtifact importableContext,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO) {
         return Mono.just((Application) importableContext).flatMap(application -> {
@@ -748,7 +748,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-            ImportableContextJson importableContextJson, ImportableContext importableContext) {
+            ImportableContextJson importableContextJson, ImportableArtifact importableContext) {
 
         Application application = (Application) importableContext;
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
@@ -780,7 +780,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importedContextMono,
+            Mono<? extends ImportableArtifact> importedContextMono,
             ImportableContextJson importableContextJson) {
         return importedContextMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
@@ -815,7 +815,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importedContextMono,
+            Mono<? extends ImportableArtifact> importedContextMono,
             ImportableContextJson importableContextJson) {
 
         return importedContextMono.flatMapMany(importableContext -> {

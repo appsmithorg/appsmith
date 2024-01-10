@@ -1,6 +1,6 @@
 package com.appsmith.server.imports.internal;
 
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ImportableContextDTO;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ContextBasedImportServiceCE<
-        T extends ImportableContext, U extends ImportableContextDTO, V extends ImportableContextJson> {
+        T extends ImportableArtifact, U extends ImportableContextDTO, V extends ImportableContextJson> {
 
     V extractImportableContextJson(String jsonString);
 
@@ -47,7 +47,7 @@ public interface ContextBasedImportServiceCE<
      */
     void setJsonContextNameToNullBeforeUpdate(String contextId, ImportableContextJson importableContextJson);
 
-    Mono<U> getImportableContextDTO(String workspaceId, String contextId, ImportableContext importableContext);
+    Mono<U> getImportableContextDTO(String workspaceId, String contextId, ImportableArtifact importableContext);
 
     /**
      * Add entities which are specific to the context. i.e. customJsLib
@@ -72,7 +72,7 @@ public interface ContextBasedImportServiceCE<
      * @return
      */
     Mono<T> updateAndSaveContextInFocus(
-            ImportableContext importableContext,
+            ImportableArtifact importableContext,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono);
@@ -85,7 +85,7 @@ public interface ContextBasedImportServiceCE<
      * @return
      */
     Mono<T> updateImportableEntities(
-            ImportableContext importableContext,
+            ImportableArtifact importableContext,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO);
 
@@ -94,23 +94,23 @@ public interface ContextBasedImportServiceCE<
      * @param importableContext
      * @return
      */
-    Mono<T> updateImportableContext(ImportableContext importableContext);
+    Mono<T> updateImportableContext(ImportableArtifact importableContext);
 
     Map<String, Object> createImportAnalyticsData(
-            ImportableContextJson importableContextJson, ImportableContext importableContext);
+            ImportableContextJson importableContextJson, ImportableArtifact importableContext);
 
     Flux<Void> obtainContextSpecificImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importedContextMono,
+            Mono<? extends ImportableArtifact> importedContextMono,
             ImportableContextJson importableContextJson);
 
     Flux<Void> obtainContextComponentDependentImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableContext> importedContextMono,
+            Mono<? extends ImportableArtifact> importedContextMono,
             ImportableContextJson importableContextJson);
 
     String validateContextSpecificFields(ImportableContextJson importableContextJson);

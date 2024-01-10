@@ -1,7 +1,7 @@
 package com.appsmith.server.imports.importable;
 
 import com.appsmith.server.constants.ArtifactJsonType;
-import com.appsmith.server.domains.ImportableContext;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportableContextJson;
 import com.appsmith.server.imports.internal.ContextBasedImportService;
@@ -17,7 +17,7 @@ public interface ImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     ContextBasedImportService<
-                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
+                    ? extends ImportableArtifact, ? extends ImportableContextDTO, ? extends ImportableContextJson>
             getContextBasedImportService(ImportableContextJson importableContextJson);
 
     /**
@@ -27,7 +27,7 @@ public interface ImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     ContextBasedImportService<
-                    ? extends ImportableContext, ? extends ImportableContextDTO, ? extends ImportableContextJson>
+                    ? extends ImportableArtifact, ? extends ImportableContextDTO, ? extends ImportableContextJson>
             getContextBasedImportService(ArtifactJsonType artifactJsonType);
 
     /**
@@ -41,10 +41,10 @@ public interface ImportServiceCE {
             Part filePart, ArtifactJsonType artifactJsonType);
 
     /**
-     * Hydrates an ImportableContext within the specified workspace by saving the provided JSON file.
+     * Hydrates an ImportableArtifact within the specified workspace by saving the provided JSON file.
      *
-     * @param filePart    The filePart representing the ImportableContext object to be saved.
-     *                    The ImportableContext implements the ImportableContext interface.
+     * @param filePart    The filePart representing the ImportableArtifact object to be saved.
+     *                    The ImportableArtifact implements the ImportableArtifact interface.
      * @param workspaceId The identifier for the destination workspace.
      */
     Mono<? extends ImportableContextDTO> extractAndSaveContext(
@@ -54,30 +54,30 @@ public interface ImportServiceCE {
      * Saves the provided ImportableContextJson within the specified workspace.
      *
      * @param workspaceId          The identifier for the destination workspace.
-     * @param contextJson The JSON file representing the ImportableContext object to be saved.
-     *                              The ImportableContext implements the ImportableContext interface.
+     * @param contextJson The JSON file representing the ImportableArtifact object to be saved.
+     *                              The ImportableArtifact implements the ImportableArtifact interface.
      */
-    Mono<? extends ImportableContext> importNewContextInWorkspaceFromJson(
+    Mono<? extends ImportableArtifact> importNewContextInWorkspaceFromJson(
             String workspaceId, ImportableContextJson contextJson);
 
-    Mono<? extends ImportableContext> updateNonGitConnectedContextFromJson(
+    Mono<? extends ImportableArtifact> updateNonGitConnectedContextFromJson(
             String workspaceId, String contextId, ImportableContextJson importableContextJson);
 
     /**
-     * Updates an existing ImportableContext connected to Git within the specified workspace.
+     * Updates an existing ImportableArtifact connected to Git within the specified workspace.
      *
      * @param workspaceId   The identifier for the destination workspace.
-     * @param importableContextJson   The ImportableContext JSON containing necessary information to update the ImportableContext.
-     * @param contextId The ImportableContext id that needs to be updated with the new resources.
+     * @param importableContextJson   The ImportableArtifact JSON containing necessary information to update the ImportableArtifact.
+     * @param contextId The ImportableArtifact id that needs to be updated with the new resources.
      * @param branchName    The name of the Git branch. Set to null if not connected to Git.
-     * @return The updated ImportableContext stored in the database.
+     * @return The updated ImportableArtifact stored in the database.
      */
-    Mono<? extends ImportableContext> importContextInWorkspaceFromGit(
+    Mono<? extends ImportableArtifact> importContextInWorkspaceFromGit(
             String workspaceId, String contextId, ImportableContextJson importableContextJson, String branchName);
 
     Mono<? extends ImportableContextDTO> getContextImportDTO(
             String workspaceId,
             String contextId,
-            ImportableContext importableContext,
+            ImportableArtifact importableContext,
             ImportableContextJson importableContextJson);
 }
