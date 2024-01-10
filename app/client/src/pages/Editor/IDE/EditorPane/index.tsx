@@ -10,11 +10,17 @@ import { ADD_PATH } from "constants/routes";
 import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
 import { useEditorPaneWidth } from "../hooks";
-import { getPagesActiveStatus } from "selectors/ideSelectors";
+import {
+  getIsSideBySideEnabled,
+  getPagesActiveStatus,
+} from "selectors/ideSelectors";
+import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
   const width = useEditorPaneWidth();
   const active = useSelector(getPagesActiveStatus);
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+
   return (
     <Flex
       className="ide-editor-left-pane"
@@ -24,7 +30,12 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       overflow="hidden"
       width={width + "px"}
     >
-      {active && <Pages />}
+      {/** Entity Properties component is needed to render
+        the Bindings popover in the context menu. Will be removed eventually **/}
+      <EntityProperties />
+      {!isSideBySideEnabled && <Pages />}
+      {/* This below pages component will get changed */}
+      {isSideBySideEnabled && active && <Pages />}
       {/* divider is inside the Pages component */}
       <Switch>
         <SentryRoute component={GlobalAdd} exact path={`${path}${ADD_PATH}`} />
