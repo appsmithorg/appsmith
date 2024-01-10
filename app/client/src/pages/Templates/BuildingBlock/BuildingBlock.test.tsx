@@ -84,4 +84,11 @@ describe("<BuildingBlock />", () => {
     fireEvent.click(screen.getByText(MOCK_BUILDING_BLOCK_TITLE));
     expect(onForkTemplateClick).not.toHaveBeenCalled();
   });
+
+  // it("opens the fork modal when the fork button is clicked", async () => {
+  //   render(BaseBuildingBlockRender());
+  //   const forkButton = screen.getByTestId("t--fork-building-block");
+  //   fireEvent.click(forkButton);
+  //   expect(screen.getByTestId("t--fork-template-modal")).toBeInTheDocument();
+  // });
 });
