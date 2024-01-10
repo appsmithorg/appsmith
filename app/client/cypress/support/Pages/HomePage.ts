@@ -154,14 +154,11 @@ export class HomePage {
     });
 
     workspaceNewName &&
-      cy
-        .xpath(this._lastWorkspaceInHomePage)
-        .first()
-        .then(($ele) => {
-          oldName = $ele.text();
-          cy.log("oldName is : " + oldName);
-          this.RenameWorkspace(oldName, workspaceNewName);
-        });
+      cy.get("@workspaceName").then(($wsName: any) => {
+        oldName = $wsName;
+        cy.log("oldName is : " + $wsName);
+        this.RenameWorkspace(oldName, workspaceNewName);
+      });
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
