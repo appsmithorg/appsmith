@@ -17,7 +17,6 @@ import { Spinner } from "design-system";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router";
 import {
   getAppThemeIsChanging,
   getSelectedAppTheme,
@@ -131,7 +130,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin =
     !(isPreviewMode || isProtectedMode) ||
     !isAppSettingsPaneWithNavigationTabOpen ||
@@ -172,7 +170,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
       <Canvas
         canvasWidth={props.canvasWidth}
         enableMainCanvasResizer={enableMainContainerResizer}
-        pageId={params.pageId}
         widgetsStructure={widgetsStructure}
       />
     );
@@ -233,7 +230,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
           isAppSettingsPaneWithNavigationTabOpen
         }
         isPreviewingNavigation={isPreviewingNavigation}
-        key={currentPageId}
         navigationHeight={navigationHeight}
         style={{
           height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",

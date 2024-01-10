@@ -24,7 +24,6 @@ import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
-  pageId: string;
   canvasWidth: number;
   enableMainCanvasResizer?: boolean;
 }
