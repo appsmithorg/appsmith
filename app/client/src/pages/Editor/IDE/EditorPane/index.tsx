@@ -33,9 +33,9 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       {/** Entity Properties component is needed to render
         the Bindings popover in the context menu. Will be removed eventually **/}
       <EntityProperties />
-      {!isSideBySideEnabled && <Pages />}
+      {!isSideBySideEnabled ? <Pages /> : null}
       {/* This below pages component will get changed */}
-      {isSideBySideEnabled && pagesActive && <Pages />}
+      {isSideBySideEnabled && pagesActive ? <Pages /> : null}
       {/* divider is inside the Pages component */}
       <Switch>
         <SentryRoute component={GlobalAdd} exact path={`${path}${ADD_PATH}`} />
