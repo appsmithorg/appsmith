@@ -200,7 +200,7 @@ function* createParentAndAddWidget(
   let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
   const newWidgetId: string = generateReactKey();
   switch (order) {
-    case 1: {
+    case widgetTypes[anvilWidgets.SECTION_WIDGET]: {
       canvasWidgets = yield call(
         addNewWidgetAndUpdateLayout,
         canvasWidgets,
@@ -211,7 +211,7 @@ function* createParentAndAddWidget(
       );
       return { canvasWidgets, newParent: canvasWidgets[newWidgetId] };
     }
-    case 2: {
+    case widgetTypes[anvilWidgets.ZONE_WIDGET]: {
       canvasWidgets = yield call(
         addNewWidgetAndUpdateLayout,
         canvasWidgets,
