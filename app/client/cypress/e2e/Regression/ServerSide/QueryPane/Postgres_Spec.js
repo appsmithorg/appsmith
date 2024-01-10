@@ -138,7 +138,11 @@ describe(
 
     it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function () {
       //Verifying Select from UI
-      EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
+      EditorNavigation.SelectEntityByName(
+        datasourceName,
+        EntityType.Datasource,
+      );
+      dataSources.RefreshDatasourceSchema();
       dataSources.SelectTableFromPreviewSchemaList("public.users_crud");
       agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
 

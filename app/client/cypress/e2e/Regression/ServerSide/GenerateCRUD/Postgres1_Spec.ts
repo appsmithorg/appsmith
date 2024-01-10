@@ -104,7 +104,7 @@ describe(
 
     it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
       EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
-      dataSources.SelectTableFromPreviewSchemaList("orders");
+      dataSources.SelectTableFromPreviewSchemaList("public.orders");
 
       GenerateCRUDNValidateDeployPage(
         "VINET",

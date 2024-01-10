@@ -87,7 +87,7 @@ describe(
 
     it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
       EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
-      dataSources.SelectTableFromPreviewSchemaList("vessels");
+      dataSources.SelectTableFromPreviewSchemaList("public.vessels");
       agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
       agHelper.ValidateToastMessage("Successfully generated a page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
