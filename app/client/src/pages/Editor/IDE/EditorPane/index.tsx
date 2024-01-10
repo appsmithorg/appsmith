@@ -15,6 +15,8 @@ import {
   getPagesActiveStatus,
 } from "selectors/ideSelectors";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
+import { PagesSection } from "./PagesSection";
+import { MinimalSegment } from "./MinimalSegment";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
   const width = useEditorPaneWidth();
@@ -34,13 +36,24 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
         the Bindings popover in the context menu. Will be removed eventually **/}
       <EntityProperties />
       {!isSideBySideEnabled && <Pages />}
-      {/* This below pages component will get changed */}
-      {isSideBySideEnabled && pagesActive && <Pages />}
       {/* divider is inside the Pages component */}
-      <Switch>
-        <SentryRoute component={GlobalAdd} exact path={`${path}${ADD_PATH}`} />
-        <SentryRoute component={EditorPaneSegments} />
-      </Switch>
+
+      {/* This below pages component will get changed */}
+      {isSideBySideEnabled && pagesActive && <PagesSection />}
+
+      {!pagesActive && (
+        <Switch>
+          <SentryRoute
+            component={GlobalAdd}
+            exact
+            path={`${path}${ADD_PATH}`}
+          />
+          <SentryRoute component={EditorPaneSegments} />
+        </Switch>
+      )}
+
+      {/* show minimal segments if pages is active */}
+      {pagesActive && <MinimalSegment />}
     </Flex>
   );
 };
