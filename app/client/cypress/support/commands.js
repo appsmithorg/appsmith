@@ -351,8 +351,11 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       password: pword,
     },
     timeout: 60000,
+    failOnStatusCode:true,
   });
-  cy.wait(500)
+  cy.log("username and password " + uname,pword );
+  assertHelper.AssertNetworkStatus("getConsolidatedData");
+  cy.wait(5000)
   // Check if cookie is present
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
