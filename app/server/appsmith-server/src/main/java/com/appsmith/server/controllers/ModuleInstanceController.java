@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequestMapping(Url.MODULE_INSTANCE_URL)
@@ -96,7 +97,8 @@ public class ModuleInstanceController {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update module instance with id: {}", moduleInstanceId);
         return layoutModuleInstanceService
-                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceId, branchName, false)
+                .updateUnpublishedModuleInstance(
+                        moduleInstanceDTO, moduleInstanceId, Optional.ofNullable(branchName), false)
                 .map(updatedModuleInstanceDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), updatedModuleInstanceDTO, null));
     }

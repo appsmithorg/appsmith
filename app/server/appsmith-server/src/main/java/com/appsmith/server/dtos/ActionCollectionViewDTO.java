@@ -12,4 +12,7 @@ import lombok.ToString;
 @ToString
 public class ActionCollectionViewDTO extends ActionCollectionCE_DTO {
     String workflowId;
+
+    String moduleInstanceId;
+    String rootModuleInstanceId;
 }

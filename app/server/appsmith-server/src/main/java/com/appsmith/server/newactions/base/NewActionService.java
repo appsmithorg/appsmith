@@ -29,7 +29,13 @@ public interface NewActionService extends NewActionServiceCE {
     Flux<NewAction> findAllUnpublishedComposedActionsByRootModuleInstanceId(
             String moduleInstanceId, AclPermission permission, boolean includeJs);
 
+    Flux<ActionViewDTO> findAllUnpublishedComposedActionViewDTOsByRootModuleInstanceId(
+            String rootModuleInstanceId, AclPermission permission, boolean includeJs);
+
     Flux<NewAction> findAllJSActionsByCollectionIds(List<String> collectionIds, List<String> projectionFields);
+
+    Flux<ActionDTO> findAllJSActionsByCollectionIdsAndViewMode(
+            List<String> collectionIds, List<String> projectionFields, boolean viewMode);
 
     Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission);
 
@@ -44,7 +50,7 @@ public interface NewActionService extends NewActionServiceCE {
     Mono<List<BulkWriteResult>> publishActionsForActionCollection(
             String actionCollectionId, AclPermission aclPermission);
 
-    Flux<NewAction> getAllModuleInstanceActionInContext(
+    Flux<ActionViewDTO> getAllModuleInstanceActionInContext(
             String contextId,
             CreatorContextType contextType,
             AclPermission permission,

@@ -20,6 +20,7 @@ import static java.lang.Boolean.TRUE;
 @Service
 public class NewActionImportableServiceImpl extends NewActionImportableServiceCEImpl
         implements ImportableService<NewAction> {
+
     public NewActionImportableServiceImpl(
             NewActionService newActionService,
             NewActionRepository repository,
@@ -45,10 +46,10 @@ public class NewActionImportableServiceImpl extends NewActionImportableServiceCE
         }
         Map<String, NewAction> fQNToNewActionMap = actionsInCurrentApp.values().stream()
                 .collect(Collectors.toMap(
-                        existingAction -> existingAction.getUnpublishedAction().getFullyQualifiedName(),
+                        existingAction -> existingAction.getUnpublishedAction().getValidName(),
                         newAction1 -> newAction1));
 
-        return fQNToNewActionMap.get(newAction.getUnpublishedAction().getFullyQualifiedName());
+        return fQNToNewActionMap.get(newAction.getUnpublishedAction().getValidName());
     }
 
     @Override
@@ -84,6 +85,13 @@ public class NewActionImportableServiceImpl extends NewActionImportableServiceCE
     @Override
     protected Flux<NewAction> getActionsInCurrentAppMono(Application application) {
         return super.getActionsInCurrentAppMono(application)
+                .filter(newAction ->
+                        newAction.getRootModuleInstanceId() == null || TRUE.equals(newAction.getIsPublic()));
+    }
+
+    @Override
+    protected Flux<NewAction> getActionInOtherBranchesMono(String defaultApplicationId) {
+        return super.getActionInOtherBranchesMono(defaultApplicationId)
                 .filter(newAction ->
                         newAction.getRootModuleInstanceId() == null || TRUE.equals(newAction.getIsPublic()));
     }

@@ -78,10 +78,7 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
                     setPolicies(moduleInstantiatingMetaDTO, toBeInstantiatedModuleInstance);
 
                     setDefaultResources(
-                            moduleInstantiatingMetaDTO,
-                            sourceModuleInstance,
-                            unpublishedModuleInstance,
-                            toBeInstantiatedModuleInstance);
+                            moduleInstantiatingMetaDTO, sourceModuleInstance, toBeInstantiatedModuleInstance);
 
                     moduleInstantiatingMetaDTO
                             .getOldToNewModuleInstanceIdMap()
@@ -142,12 +139,10 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
     private void setDefaultResources(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,
             ModuleInstance sourceModuleInstance,
-            ModuleInstanceDTO unpublishedModuleInstance,
             ModuleInstance toBeInstantiatedModuleInstance) {
         // Set relevant default resources
         DefaultResources defaultResources = sourceModuleInstance.getDefaultResources();
         defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
-        defaultResources.setModuleInstanceId(unpublishedModuleInstance.getId());
         defaultResources.setPageId(
                 moduleInstantiatingMetaDTO.getPage().getDefaultResources().getPageId());
 

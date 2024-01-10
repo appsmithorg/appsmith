@@ -2,9 +2,10 @@ package com.appsmith.server.actioncollections.moduleinstantiation;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
@@ -37,11 +38,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ActionCollectionModuleInstantiatingServiceImpl
         implements ModuleInstantiatingService<ActionCollection, ActionCollection> {
+    private final ActionCollectionService actionCollectionService;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ModuleInstantiatingService<JSActionType, NewAction> jsActionInstantiatingService;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
     private final RefactoringService refactoringService;
+    private final DefaultResourcesService<ActionCollection> defaultResourcesService;
+    private final DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
@@ -63,8 +67,9 @@ public class ActionCollectionModuleInstantiatingServiceImpl
                                     .getUnpublishedCollection()
                                     .setDefaultToBranchedActionIdsMap(defaultToBranchedActionIdsMap);
                         }
-                        return actionCollectionRepository
-                                .saveAll(newCollectionIdToNewCollectionMap.values())
+                        return actionCollectionService
+                                .saveAll(newCollectionIdToNewCollectionMap.values().stream()
+                                        .toList())
                                 .collectList();
                     }))
                     .then();
@@ -176,15 +181,19 @@ public class ActionCollectionModuleInstantiatingServiceImpl
         setRootModuleInstanceIdAndModuleInstanceId(
                 moduleInstantiatingMetaDTO, sourceActionCollection, toBeInstantiatedActionCollection);
 
-        setDefaultResources(moduleInstantiatingMetaDTO, toBeInstantiatedActionCollection);
+        defaultResourcesService.initialize(
+                toBeInstantiatedActionCollection, moduleInstantiatingMetaDTO.getBranchName(), true);
+        dtoDefaultResourcesService.initialize(
+                unpublishedActionCollectionDTO, moduleInstantiatingMetaDTO.getBranchName(), true);
+        toBeInstantiatedActionCollection.setGitSyncId(null);
+
+        //        setDefaultResources(moduleInstantiatingMetaDTO, toBeInstantiatedActionCollection);
 
         // Set the truncated policies for this new instance
         toBeInstantiatedActionCollection.setPolicies(policies);
 
-        Mono<ActionCollection> actionCollectionMono = refactorForActionCollection(
+        return refactorForActionCollection(
                 moduleInstantiatingMetaDTO, unpublishedActionCollectionDTO, toBeInstantiatedActionCollection);
-
-        return actionCollectionMono;
     }
 
     private void setModifiedName(
@@ -220,26 +229,36 @@ public class ActionCollectionModuleInstantiatingServiceImpl
                 moduleInstantiatingMetaDTO.getOldToNewModuleEntityRefactorDTOsMap();
 
         // For each entity name in the map, refactor the current entity
-        Mono<ActionCollection> actionCollectionMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
+        return Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
                 .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
                         unpublishedActionCollectionDTO,
                         EntityType.JS_OBJECT,
                         refactorEntityNameDTO,
                         moduleInstantiatingMetaDTO.getEvalVersionMono()))
                 .then(Mono.just(toBeInstantiatedActionCollection));
-        return actionCollectionMono;
     }
 
-    private void setDefaultResources(
-            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionCollection toBeInstantiatedActionCollection) {
-        // Set relevant fields in the default resources
-        DefaultResources defaultResources = new DefaultResources();
-        defaultResources.setPageId(moduleInstantiatingMetaDTO.getContextId());
-        defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
-        defaultResources.setCollectionId(toBeInstantiatedActionCollection.getId());
-
-        toBeInstantiatedActionCollection.setDefaultResources(defaultResources);
-    }
+    //    private void setDefaultResources(
+    //        ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionCollection toBeInstantiatedActionCollection)
+    // {
+    //        // Set relevant fields in the default resources
+    //        DefaultResources defaultResources = new DefaultResources();
+    //        defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
+    //        defaultResources.setCollectionId(toBeInstantiatedActionCollection.getId());
+    //        defaultResources.setApplicationId(toBeInstantiatedActionCollection.getApplicationId());
+    //
+    //        DefaultResources unpublishedDefaultResources =
+    // toBeInstantiatedActionCollection.getUnpublishedCollection().getDefaultResources();
+    //        if (unpublishedDefaultResources == null) {
+    //            unpublishedDefaultResources = new DefaultResources();
+    //        }
+    //        unpublishedDefaultResources.setPageId(moduleInstantiatingMetaDTO.getContextId());
+    //
+    //
+    // toBeInstantiatedActionCollection.getUnpublishedCollection().setDefaultResources(unpublishedDefaultResources);
+    //
+    //        toBeInstantiatedActionCollection.setDefaultResources(defaultResources);
+    //    }
 
     private void setRootModuleInstanceIdAndModuleInstanceId(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,

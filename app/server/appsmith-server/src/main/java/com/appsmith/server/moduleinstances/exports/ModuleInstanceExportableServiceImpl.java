@@ -69,8 +69,10 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
         Optional<AclPermission> optionalPermission = Optional.ofNullable(moduleInstancePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
-        Flux<ModuleInstance> moduleInstanceFlux =
-                crudModuleInstanceService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+        Flux<ModuleInstance> moduleInstanceFlux = crudModuleInstanceService
+                .findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission)
+                .filter(moduleInstance ->
+                        moduleInstance.getUnpublishedModuleInstance().getDeletedAt() == null);
 
         final Set<String> sourceModuleIdsSet = ConcurrentHashMap.newKeySet();
 
@@ -133,9 +135,11 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                     });
 
                     if (!moduleInstanceList.isEmpty()) {
-                        applicationJson
-                                .getUpdatedResources()
-                                .put(FieldName.MODULE_INSTANCE_LIST, updatedModuleInstancesSet);
+                        if (!updatedModuleInstancesSet.isEmpty()) {
+                            applicationJson
+                                    .getUpdatedResources()
+                                    .put(FieldName.MODULE_INSTANCE_LIST, updatedModuleInstancesSet);
+                        }
                         applicationJson.setModuleInstanceList(moduleInstanceList);
                     }
 

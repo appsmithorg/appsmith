@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -92,7 +93,7 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
                                 }
                                 updatedBindingPaths.addAll(updates);
                                 return moduleInstanceService.updateUnpublishedModuleInstance(
-                                        moduleInstanceDTO, moduleInstanceDTO.getId(), null, true);
+                                        moduleInstanceDTO, moduleInstanceDTO.getId(), Optional.empty(), true);
                             });
                 })
                 .map(ModuleInstanceDTO::getName)
@@ -117,7 +118,7 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
                 .flatMap(moduleInstanceDTO -> {
                     moduleInstanceDTO.setName(refactorEntityNameDTO.getNewName());
                     return moduleInstanceService.updateUnpublishedModuleInstance(
-                            moduleInstanceDTO, moduleInstanceDTO.getId(), null, true);
+                            moduleInstanceDTO, moduleInstanceDTO.getId(), Optional.empty(), true);
                 })
                 .then();
     }

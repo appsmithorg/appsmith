@@ -784,6 +784,11 @@ class CrudModuleInstanceServiceTest {
         // call
         createPageAction();
 
+        // Deploy the app
+        applicationPageService
+                .publish(moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(), true)
+                .block();
+
         ModuleInstanceEntitiesDTO editModeModuleInstanceEntitiesDTO = crudModuleInstanceService
                 .getAllEntities(moduleInstanceTestHelperDTO.getPageDTO().getId(), CreatorContextType.PAGE, null, false)
                 .block();
@@ -793,7 +798,7 @@ class CrudModuleInstanceServiceTest {
         assertThat(editModeActionViewDTO.getModuleInstanceId())
                 .isEqualTo(createdModuleInstanceResponseDTO.getModuleInstance().getId());
         assertThat(editModeActionViewDTO.getPluginId()).isNotNull();
-        assertThat(editModeActionViewDTO.getExecuteOnLoad()).isNotNull();
+        assertThat(editModeActionViewDTO.getExecuteOnLoad()).isFalse();
         assertThat(editModeActionViewDTO.getIsPublic()).isTrue();
 
         ModuleInstanceEntitiesDTO viewModeModeModuleInstanceEntitiesDTO = crudModuleInstanceService
@@ -854,7 +859,7 @@ class CrudModuleInstanceServiceTest {
 
         // Update the module instance with the overridden input value
         moduleInstanceDTO = layoutModuleInstanceService
-                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceDTO.getId(), null, false)
+                .updateUnpublishedModuleInstance(moduleInstanceDTO, moduleInstanceDTO.getId(), Optional.empty(), false)
                 .block();
 
         List<NewAction> oldPublicActions = newActionService

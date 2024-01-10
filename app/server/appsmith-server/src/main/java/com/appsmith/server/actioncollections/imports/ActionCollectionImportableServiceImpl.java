@@ -3,14 +3,18 @@ package com.appsmith.server.actioncollections.imports;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.lang.Boolean.TRUE;
 
 @Service
 public class ActionCollectionImportableServiceImpl extends ActionCollectionImportableServiceCEImpl
@@ -24,6 +28,29 @@ public class ActionCollectionImportableServiceImpl extends ActionCollectionImpor
     }
 
     @Override
+    protected Flux<ActionCollection> getCollectionsInCurrentAppFlux(Application importedApplication) {
+        return super.getCollectionsInCurrentAppFlux(importedApplication)
+                .filter(actionCollection -> actionCollection.getRootModuleInstanceId() == null
+                        || TRUE.equals(actionCollection.getIsPublic()));
+    }
+
+    @Override
+    protected Flux<ActionCollection> getCollectionsInOtherBranchesFlux(String defaultApplicationId) {
+        return super.getCollectionsInOtherBranchesFlux(defaultApplicationId)
+                .filter(actionCollection -> actionCollection.getRootModuleInstanceId() == null
+                        || TRUE.equals(actionCollection.getIsPublic()));
+    }
+
+    @Override
+    protected void updateImportableCollectionFromExistingCollection(
+            ActionCollection existingActionCollection, ActionCollection actionCollection) {
+        super.updateImportableCollectionFromExistingCollection(existingActionCollection, actionCollection);
+
+        actionCollection.setModuleInstanceId(existingActionCollection.getModuleInstanceId());
+        actionCollection.setRootModuleInstanceId(existingActionCollection.getRootModuleInstanceId());
+    }
+
+    @Override
     protected ActionCollection getExistingCollectionForImportedCollection(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, ActionCollection> actionsCollectionsInCurrentApp,
@@ -32,13 +59,11 @@ public class ActionCollectionImportableServiceImpl extends ActionCollectionImpor
             return super.getExistingCollectionForImportedCollection(
                     mappedImportableResourcesDTO, actionsCollectionsInCurrentApp, actionCollection);
         }
-        Map<String, ActionCollection> fQNToActionCollectionMap = actionsCollectionsInCurrentApp.values().stream()
+        Map<String, ActionCollection> nameToCollectionMap = actionsCollectionsInCurrentApp.values().stream()
                 .collect(Collectors.toMap(
-                        existingCollection ->
-                                existingCollection.getUnpublishedCollection().getName(),
-                        existingCollection -> existingCollection));
+                        collection -> collection.getUnpublishedCollection().getName(), collection -> collection));
 
-        return fQNToActionCollectionMap.get(
+        return nameToCollectionMap.get(
                 actionCollection.getUnpublishedCollection().getName());
     }
 

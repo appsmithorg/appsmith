@@ -9,4 +9,11 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GitStatusDTO extends GitStatusCE_DTO {}
+public class GitStatusDTO extends GitStatusCE_DTO {
+
+    // number of modified modules instances
+    int modifiedModuleInstances;
+
+    // number of modified modules
+    int modifiedModules;
+}
