@@ -106,20 +106,17 @@ describe("<StarterBuildingBlocks />", () => {
         STARTER_BUILDING_BLOCKS.STARTER_BUILDING_BLOCKS_TEMPLATES[0].title,
       ),
     );
-    await waitFor(
-      () => {
-        const templateLayoutFrame = screen.getByTestId(
-          "t--canvas-building-block-frame",
-        );
-        expect(templateLayoutFrame).toHaveStyleRule(
-          "background",
-          `url(${STARTER_BUILDING_BLOCKS.STARTER_BUILDING_BLOCKS_TEMPLATES[0].screenshot}) no-repeat`,
-          {
-            modifier: "::before",
-          },
-        );
-      },
-      { timeout: 1000 },
-    );
+    await waitFor(() => {
+      const templateLayoutFrame = screen.getByTestId(
+        "t--canvas-building-block-frame",
+      );
+      expect(templateLayoutFrame).toHaveStyleRule(
+        "background",
+        `url(${STARTER_BUILDING_BLOCKS.STARTER_BUILDING_BLOCKS_TEMPLATES[0].screenshot}) no-repeat`,
+        {
+          modifier: "::before",
+        },
+      );
+    });
   });
 });
