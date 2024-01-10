@@ -10,4 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class DefaultResources extends DefaultResourcesCE {}
+public class DefaultResources extends DefaultResourcesCE {
+
+    String moduleInstanceId;
+}
