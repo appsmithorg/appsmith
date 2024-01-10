@@ -352,7 +352,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     },
     timeout: 60000,
   });
-
+  cy.wait(500)
   // Check if cookie is present
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
