@@ -408,45 +408,51 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
-                    /**
-                     * Retaining the logoAssetId field value while updating NavigationSetting
-                     */
-                    if (application.getUnpublishedApplicationDetail() != null) {
-                        ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(
-                                branchedApplication.getApplicationDetail(), new ApplicationDetail());
-                        if (branchedApplication.getUnpublishedApplicationDetail() == null) {
-                            branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
-                        }
-                        Application.NavigationSetting requestNavSetting =
-                                application.getUnpublishedApplicationDetail().getNavigationSetting();
-                        if (requestNavSetting != null) {
-                            Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(
-                                    branchedApplication
-                                            .getUnpublishedApplicationDetail()
-                                            .getNavigationSetting(),
-                                    new Application.NavigationSetting());
-                            String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
-                            String requestLogoAssetId =
-                                    ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
-                            requestNavSetting.setLogoAssetId(
-                                    ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
-                            presetApplicationDetail.setNavigationSetting(requestNavSetting);
-                        }
 
-                        Application.AppPositioning requestAppPositioning =
-                                application.getUnpublishedApplicationDetail().getAppPositioning();
-                        if (requestAppPositioning != null) {
-                            presetApplicationDetail.setAppPositioning(requestAppPositioning);
-                        }
-                        Application.ThemeSetting requestThemeSettings =
-                                application.getUnpublishedApplicationDetail().getThemeSetting();
-                        if (requestThemeSettings != null) {
-                            presetApplicationDetail.setThemeSetting(requestThemeSettings);
-                        }
-                        application.setUnpublishedApplicationDetail(presetApplicationDetail);
-                    }
-                    return this.update(branchedApplication.getId(), application);
+                    return verifyIfForkingIsAllowed(branchedApplication, application)
+                            .then(updateApplication(application, branchedApplication));
                 });
+    }
+
+    private Mono<Application> updateApplication(Application application, Application branchedApplication) {
+        /**
+         * Retaining the logoAssetId field value while updating NavigationSetting
+         */
+        if (application.getUnpublishedApplicationDetail() != null) {
+            ApplicationDetail presetApplicationDetail =
+                    ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
+            if (branchedApplication.getUnpublishedApplicationDetail() == null) {
+                branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+            }
+            Application.NavigationSetting requestNavSetting =
+                    application.getUnpublishedApplicationDetail().getNavigationSetting();
+            if (requestNavSetting != null) {
+                Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(
+                        branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
+                        new Application.NavigationSetting());
+                String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
+                String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
+                requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
+                presetApplicationDetail.setNavigationSetting(requestNavSetting);
+            }
+
+            Application.AppPositioning requestAppPositioning =
+                    application.getUnpublishedApplicationDetail().getAppPositioning();
+            if (requestAppPositioning != null) {
+                presetApplicationDetail.setAppPositioning(requestAppPositioning);
+            }
+            Application.ThemeSetting requestThemeSettings =
+                    application.getUnpublishedApplicationDetail().getThemeSetting();
+            if (requestThemeSettings != null) {
+                presetApplicationDetail.setThemeSetting(requestThemeSettings);
+            }
+            application.setUnpublishedApplicationDetail(presetApplicationDetail);
+        }
+        return this.update(branchedApplication.getId(), application);
+    }
+
+    protected Mono<Void> verifyIfForkingIsAllowed(Application branchedApplication, Application applicationReq) {
+        return Mono.empty().then();
     }
 
     @Override
