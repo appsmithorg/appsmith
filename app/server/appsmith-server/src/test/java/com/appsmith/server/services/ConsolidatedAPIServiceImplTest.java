@@ -603,6 +603,10 @@ public class ConsolidatedAPIServiceImplTest {
                 .verifyComplete();
     }
 
+    /**
+     * To mimic error response the DB fetch call from repository has been mocked in this test i.e. the repository has
+     * been mocked to return empty response.
+     */
     @Test
     public void testErrorResponseWhenAnonymousUserAccessPrivateApp() {
         User sampleUser = new User();
