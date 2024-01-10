@@ -1,11 +1,10 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
-  homePage,
   agHelper,
-  templates,
-  entityExplorer,
   dataSources,
+  entityExplorer,
   gitSync,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 import {
