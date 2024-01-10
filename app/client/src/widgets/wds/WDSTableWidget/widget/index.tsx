@@ -124,6 +124,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
+  FlattenedWidgetProps,
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
@@ -139,6 +140,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -557,6 +559,32 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       },
     };
+  }
+
+  static pasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+    widgetId: string,
+  ): FlattenedWidgetProps | null {
+    const widget = allWidgets[widgetId];
+    // If the primaryColumns of the table exist
+    if (widget.primaryColumns) {
+      const oldWidgetName: string =
+        allWidgets[reverseWidgetIdMap[widgetId]].widgetName;
+      // For each column
+      for (const [columnId, column] of Object.entries(widget.primaryColumns)) {
+        // For each property in the column
+        for (const [key, value] of Object.entries(column as ColumnProperties)) {
+          // Replace reference of previous widget with the new widgetName
+          // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+          widget.primaryColumns[columnId][key] = isString(value)
+            ? value.replace(`${oldWidgetName}.`, `${widget.widgetName}.`)
+            : value;
+        }
+      }
+    }
+    return widget;
   }
 
   /*
