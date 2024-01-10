@@ -87,7 +87,6 @@ describe(
       cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
       // export application
       cy.get(homePageLocatores.exportAppFromMenu).click({ force: true });
-      cy.get(homePageLocatores.searchInput).clear();
       cy.get(`a[id=t--export-app-link]`).then((anchor) => {
         const url = anchor.prop("href");
         cy.request(url).then(({ body, headers }) => {
