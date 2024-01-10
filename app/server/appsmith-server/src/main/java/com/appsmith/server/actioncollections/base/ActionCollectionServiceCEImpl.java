@@ -9,6 +9,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
@@ -66,6 +67,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final ActionPermission actionPermission;
+    private final DefaultResourcesService<ActionCollection> defaultResourcesService;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -80,7 +82,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            DefaultResourcesService<ActionCollection> defaultResourcesService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
@@ -89,6 +92,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.actionPermission = actionPermission;
+        this.defaultResourcesService = defaultResourcesService;
     }
 
     @Override
@@ -333,9 +337,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
                     // No need to save defaultPageId at actionCollection level as this will be stored inside the
                     // actionCollectionDTO
-                    DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(
+                    defaultResourcesService.initialize(
                             dbActionCollection,
-                            dbActionCollection.getDefaultResources().getBranchName());
+                            dbActionCollection.getDefaultResources().getBranchName(),
+                            false);
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
@@ -492,7 +497,14 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission) {
-        return repository.findByPageIds(pageIds, permission);
+        return repository.findByPageIds(pageIds, permission).doOnNext(actionCollection -> {
+            actionCollection.getUnpublishedCollection().populateTransientFields(actionCollection);
+            if (actionCollection.getPublishedCollection() != null
+                    && org.springframework.util.StringUtils.hasText(
+                            actionCollection.getPublishedCollection().getName())) {
+                actionCollection.getPublishedCollection().populateTransientFields(actionCollection);
+            }
+        });
     }
 
     @Override
