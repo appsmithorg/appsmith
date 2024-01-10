@@ -52,12 +52,15 @@ function ForkTemplate({
   };
 
   return (
-    <div data-testid="t--fork-template-modal">
+    <>
       {children}
       <Modal onOpenChange={closeModal} open={showForkModal}>
         <ModalContent style={{ width: "640px" }}>
           <ModalHeader>{createMessage(CHOOSE_WHERE_TO_FORK)}</ModalHeader>
-          <ModalBody style={{ overflow: "unset", paddingBottom: "4px" }}>
+          <ModalBody
+            data-testid="t--fork-template-modal"
+            style={{ overflow: "unset", paddingBottom: "4px" }}
+          >
             <Select
               dropdownMatchSelectWidth
               getPopupContainer={(triggerNode) => triggerNode.parentNode}
@@ -96,7 +99,7 @@ function ForkTemplate({
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </div>
+    </>
   );
 }
 
