@@ -52,7 +52,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 'ide-pages-pane')]//div[contains(@class, 't--entity-name')][text()='" +
+    "//div[contains(@class, 'ide-editor-left-pane')]//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
     "']";
 

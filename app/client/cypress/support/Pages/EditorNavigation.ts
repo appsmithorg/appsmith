@@ -23,7 +23,7 @@ const pagePaneListItemSelector = (name: string) =>
 
 export const PageLeftPane = new LeftPane(
   pagePaneListItemSelector,
-  ".ide-pages-pane",
+  ".ide-editor-left-pane",
   Object.values(PagePaneSegment),
 );
 
