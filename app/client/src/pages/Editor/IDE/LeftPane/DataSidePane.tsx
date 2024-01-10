@@ -31,7 +31,7 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSel
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { EmptyState } from "../EditorPane/EmptyState";
+import { EmptyState } from "../EditorPane/components/EmptyState";
 
 const PaneContainer = styled.div`
   width: 300px;
