@@ -114,7 +114,7 @@ export const fetchFeatureFlagsInit = (
   },
 });
 
-export const fetchFeatureFlagsSuccess = (payload?: FeatureFlags) => ({
+export const fetchFeatureFlagsSuccess = (payload: FeatureFlags) => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
   payload,
 });

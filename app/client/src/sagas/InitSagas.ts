@@ -258,7 +258,7 @@ export function* getInitResponses({
       // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
       // do not fetch this again
 
-      yield put(fetchFeatureFlagsSuccess());
+      yield put(fetchFeatureFlagsSuccess({} as FeatureFlags));
       // v1/tenants/current
       // tie to tenantConfig
 
