@@ -211,7 +211,6 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
       _.homePage.Signout();
     });
