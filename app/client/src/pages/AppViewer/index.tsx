@@ -58,17 +58,12 @@ const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
   showGuidedTourMessage: boolean;
-  showBottomBar: boolean;
 }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(
-    100vh -
-      ${(props) => (props.showBottomBar ? props.theme.bottomBarHeight : "0px")} -
-      ${({ headerHeight }) => headerHeight}px
-  );
+  height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
   --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
 `;
 
@@ -124,8 +119,6 @@ function AppViewer(props: Props) {
   };
   const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
   const focusRef = useWidgetFocus();
-
-  const showBottomBar = false;
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -226,17 +219,11 @@ function AppViewer(props: Props) {
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
             ref={focusRef}
-            showBottomBar={!!showBottomBar}
             showGuidedTourMessage={showGuidedTourMessage}
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>
-          {showBottomBar && <BottomBar viewMode />}
-          <div
-            className={`fixed hidden right-8 z-3 md:flex ${
-              showBottomBar ? "bottom-12" : "bottom-4"
-            }`}
-          >
+          <div className={"fixed hidden right-8 z-3 md:flex bottom-4"}>
             {!hideWatermark && (
               <a
                 className="hover:no-underline"
