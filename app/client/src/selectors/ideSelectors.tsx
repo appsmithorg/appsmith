@@ -19,3 +19,6 @@ export const getIsSideBySideEnabled = createSelector(
 );
 
 export const getIDEViewMode = (state: AppState) => state.ui.ide.view;
+
+export const getPagesActiveStatus = (state: AppState) =>
+  state.ui.ide.pagesActive;

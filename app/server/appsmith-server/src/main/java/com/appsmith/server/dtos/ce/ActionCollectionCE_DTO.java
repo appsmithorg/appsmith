@@ -139,14 +139,32 @@ public class ActionCollectionCE_DTO {
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
         this.setUserPermissions(actionCollection.userPermissions);
-        copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
+        if (this.getDefaultResources() == null) {
+            this.setDefaultResources(actionCollection.getDefaultResources());
+        } else {
+            copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
+        }
     }
 
     public void sanitiseForExport() {
+        this.resetTransientFields();
         this.setDefaultResources(null);
         this.setDefaultToBranchedActionIdsMap(null);
         this.setDefaultToBranchedArchivedActionIdsMap(null);
         this.setActionIds(null);
         this.setArchivedActionIds(null);
+    }
+
+    public String getUserExecutableName() {
+        return this.getName();
+    }
+
+    protected void resetTransientFields() {
+        this.setId(null);
+        this.setWorkspaceId(null);
+        this.setApplicationId(null);
+        this.setErrorReports(null);
+        this.setActions(List.of());
+        this.setArchivedActions(List.of());
     }
 }

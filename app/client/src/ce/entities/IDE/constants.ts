@@ -51,7 +51,7 @@ export enum EditorEntityTabState {
 
 export enum EditorViewMode {
   FullScreen = "FullScreen",
-  HalfScreen = "HalfScreen",
+  SplitScreen = "SplitScreen",
 }
 
 export interface SidebarButton {

@@ -213,7 +213,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(
                                 HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONSOLIDATED_API_URL))
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONSOLIDATED_API_URL + "/view"))
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**")
                 .permitAll()

@@ -6,8 +6,8 @@ import history from "utils/history";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
 import { widgetListURL } from "@appsmith/RouteBuilder";
-import { PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import SegmentAddHeader from "./components/SegmentAddHeader";
+import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import SegmentAddHeader from "../components/SegmentAddHeader";
 
 const AddWidgets = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -20,13 +20,13 @@ const AddWidgets = () => {
     <>
       <SegmentAddHeader
         onCloseClick={closeButtonClickHandler}
-        titleMessage={PAGES_PANE_TEXTS.widgets_create_tab_title}
+        titleMessage={EDITOR_PANE_TEXTS.widgets_create_tab_title}
       />
-      <Flex flexDirection="column" gap="spaces-3" height="calc(100vh - 310px)">
+      <Flex flexDirection="column" gap="spaces-3" overflowX="scroll">
         <WidgetSidebarWithTags isActive />
       </Flex>
     </>
   );
 };
 
-export { AddWidgets };
+export default AddWidgets;
