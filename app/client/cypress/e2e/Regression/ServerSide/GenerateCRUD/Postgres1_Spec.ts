@@ -136,7 +136,9 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      agHelper.GetNClick(
+        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
+      );
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes

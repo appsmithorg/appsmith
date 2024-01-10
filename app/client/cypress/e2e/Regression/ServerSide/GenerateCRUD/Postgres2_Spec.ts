@@ -651,7 +651,7 @@ describe(
     it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     });
 
     function generateCallsignInfo(rowIndex: number) {

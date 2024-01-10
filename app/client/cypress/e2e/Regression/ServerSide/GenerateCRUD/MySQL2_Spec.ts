@@ -388,7 +388,7 @@ describe(
       () => {
         deployMode.DeployApp();
         deployMode.NavigateBacktoEditor();
-        dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+        dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
       },
     );
 
