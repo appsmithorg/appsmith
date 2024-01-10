@@ -8,7 +8,7 @@ import com.appsmith.server.imports.internal.ContextBasedImportService;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
-public interface ImportServiceCE {
+public interface ArtifactImportServiceCE {
 
     /**
      * This method provides the importService specific to context based on the ArtifactJsonType.
