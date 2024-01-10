@@ -2,7 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 
-public interface ContextPermissionCE {
+public interface ArtifactPermissionCE {
 
     AclPermission getDeletePermission();
 

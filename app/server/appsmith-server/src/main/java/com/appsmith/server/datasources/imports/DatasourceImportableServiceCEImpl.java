@@ -21,7 +21,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.WorkspaceService;
@@ -271,7 +271,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             DatasourceStorage datasourceStorage,
             Workspace workspace,
             String environmentId,
-            ImportContextPermissionProvider permissionProvider) {
+            ImportArtifactPermissionProvider permissionProvider) {
         /*
            1. If same datasource is present return
            2. If unable to find the datasource create a new datasource with unique name and return

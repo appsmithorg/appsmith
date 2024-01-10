@@ -18,7 +18,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -82,7 +82,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 .zipWith(getImportApplicationPermissions())
                 .flatMap(tuple -> {
                     ApplicationJson applicationJson = tuple.getT1();
-                    ImportContextPermissionProvider permissionProvider = tuple.getT2();
+                    ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
                     // Set Application in App JSON, remove the pages other than the one to be imported in
                     // Set the current page in the JSON to be imported
                     // Debug and get the value from getImportApplicationMono method if any difference
@@ -180,9 +180,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         });
     }
 
-    private Mono<ImportContextPermissionProvider> getImportApplicationPermissions() {
+    private Mono<ImportArtifactPermissionProvider> getImportApplicationPermissions() {
         return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportContextPermissionProvider permissionProvider = ImportContextPermissionProvider.builder(
+            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
                             applicationPermission,
                             pagePermission,
                             actionPermission,

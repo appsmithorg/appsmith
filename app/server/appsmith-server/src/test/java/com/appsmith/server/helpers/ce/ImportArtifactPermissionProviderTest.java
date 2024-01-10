@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class ImportContextPermissionProviderTest {
+class ImportArtifactPermissionProviderTest {
     @Autowired
     ApplicationPermission applicationPermission;
 
@@ -48,7 +48,7 @@ class ImportContextPermissionProviderTest {
 
     @Test
     public void testCheckPermissionMethods_WhenNoPermissionProvided_ReturnsTrue() {
-        ImportContextPermissionProvider importContextPermissionProvider = ImportContextPermissionProvider.builder(
+        ImportArtifactPermissionProvider importArtifactPermissionProvider = ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -56,13 +56,13 @@ class ImportContextPermissionProviderTest {
                         workspacePermission)
                 .build();
 
-        assertTrue(importContextPermissionProvider.hasEditPermission(new NewPage()));
-        assertTrue(importContextPermissionProvider.hasEditPermission(new NewAction()));
-        assertTrue(importContextPermissionProvider.hasEditPermission(new Datasource()));
+        assertTrue(importArtifactPermissionProvider.hasEditPermission(new NewPage()));
+        assertTrue(importArtifactPermissionProvider.hasEditPermission(new NewAction()));
+        assertTrue(importArtifactPermissionProvider.hasEditPermission(new Datasource()));
 
-        assertTrue(importContextPermissionProvider.canCreateDatasource(new Workspace()));
-        assertTrue(importContextPermissionProvider.canCreateAction(new NewPage()));
-        assertTrue(importContextPermissionProvider.canCreatePage(new Application()));
+        assertTrue(importArtifactPermissionProvider.canCreateDatasource(new Workspace()));
+        assertTrue(importArtifactPermissionProvider.canCreateAction(new NewPage()));
+        assertTrue(importArtifactPermissionProvider.canCreatePage(new Application()));
     }
 
     @Test
@@ -80,7 +80,7 @@ class ImportContextPermissionProviderTest {
         for (Tuple2<BaseDomain, DomainPermission> domainAndPermission : domainAndPermissionList) {
             BaseDomain domain = domainAndPermission.getT1();
             // create a permission provider that sets edit permission on the domain
-            ImportContextPermissionProvider provider =
+            ImportArtifactPermissionProvider provider =
                     createPermissionProviderForDomainEditPermission(domain, domainAndPermission.getT2());
 
             if (domain instanceof NewPage) {
@@ -107,7 +107,7 @@ class ImportContextPermissionProviderTest {
         for (Tuple2<BaseDomain, AclPermission> domainAndPermission : domainAndPermissionList) {
             BaseDomain domain = domainAndPermission.getT1();
             // create a permission provider that sets edit permission on the domain
-            ImportContextPermissionProvider provider =
+            ImportArtifactPermissionProvider provider =
                     createPermissionProviderForDomainCreatePermission(domain, domainAndPermission.getT2());
 
             if (domain instanceof Application) {
@@ -122,7 +122,7 @@ class ImportContextPermissionProviderTest {
 
     @Test
     public void tesBuilderIsSettingTheCorrectParametersToPermissionProvider() {
-        ImportContextPermissionProvider.Builder builder = ImportContextPermissionProvider.builder(
+        ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                 applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
 
         assertThat(builder.requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
@@ -146,7 +146,7 @@ class ImportContextPermissionProviderTest {
 
     @Test
     public void testAllPermissionsRequiredIsSettingAllPermissionsAsRequired() {
-        ImportContextPermissionProvider provider = ImportContextPermissionProvider.builder(
+        ImportArtifactPermissionProvider provider = ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -175,11 +175,11 @@ class ImportContextPermissionProviderTest {
      * @param domainPermission
      * @return
      */
-    private ImportContextPermissionProvider createPermissionProviderForDomainEditPermission(
+    private ImportArtifactPermissionProvider createPermissionProviderForDomainEditPermission(
             BaseDomain baseDomain, DomainPermission domainPermission) {
         setPoliciesToDomain(baseDomain, domainPermission.getEditPermission());
 
-        ImportContextPermissionProvider.Builder builder = ImportContextPermissionProvider.builder(
+        ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -209,11 +209,11 @@ class ImportContextPermissionProviderTest {
      * @param permission
      * @return
      */
-    private ImportContextPermissionProvider createPermissionProviderForDomainCreatePermission(
+    private ImportArtifactPermissionProvider createPermissionProviderForDomainCreatePermission(
             BaseDomain baseDomain, AclPermission permission) {
         setPoliciesToDomain(baseDomain, permission);
 
-        ImportContextPermissionProvider.Builder builder = ImportContextPermissionProvider.builder(
+        ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,

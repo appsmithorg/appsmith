@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.helpers.ce.ImportContextPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +27,6 @@ public class ImportingMetaDTO {
      */
     Boolean appendToContext;
 
-    ImportContextPermissionProvider permissionProvider;
+    ImportArtifactPermissionProvider permissionProvider;
     Set<String> currentUserPermissionGroups;
 }
