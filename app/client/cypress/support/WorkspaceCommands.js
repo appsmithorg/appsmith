@@ -294,7 +294,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
       }
     });
   });
-  agHelper.AssertElementVisibility("#sidebar");
+  AppSidebar.assertVisible();
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 

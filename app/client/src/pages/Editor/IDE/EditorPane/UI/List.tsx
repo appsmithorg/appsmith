@@ -69,6 +69,7 @@ const ListWidgets = () => {
       {!widgetsExist ? (
         /* If no widgets exist, show the blank state */
         <EmptyState
+          buttonClassName="t--add-item"
           buttonText={createMessage(EDITOR_PANE_TEXTS.widget_add_button)}
           description={createMessage(
             EDITOR_PANE_TEXTS.widget_blank_state_description,
