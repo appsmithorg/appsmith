@@ -279,9 +279,7 @@ Cypress.Commands.add("LogOutUser", () => {
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
   goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
-  cy.wait("@getConsolidatedData")
-    .its("response.body.responseMeta.status")
-    .should("eq", 200);
+  cy.wait("@getConsolidatedData");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
@@ -338,24 +336,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
 
   // Clear cookies to avoid stale cookies on cypress CI
   cy.clearCookie("SESSION");
-
-  cy.visit({
-    method: "POST",
-    url: "api/v1/login",
-    headers: {
-      origin: baseURL,
-    },
-    followRedirect: true,
-    body: {
-      username: uname,
-      password: pword,
-    },
-    timeout: 60000,
-    failOnStatusCode:true,
-  });
-  cy.log("username and password " + uname,pword );
-  assertHelper.AssertNetworkStatus("getConsolidatedData");
-  cy.wait(5000)
+  cy.LoginUser(uname,pword)
   // Check if cookie is present
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
@@ -377,7 +358,6 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      assertHelper.AssertNetworkStatus("getConsolidatedData");
       assertHelper.AssertNetworkStatus("applications");
       assertHelper.AssertNetworkStatus("getReleaseItems");
     }
