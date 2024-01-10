@@ -6,7 +6,7 @@ import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ImportableArtifactJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
@@ -122,7 +122,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
-            ImportableArtifactJson importableContextJson,
+            ArtifactExchangeJson importableContextJson,
             boolean isPartialImport,
             boolean isContextAgnostic) {
         return importContextMono.flatMap(importableContext -> {

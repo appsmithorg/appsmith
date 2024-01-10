@@ -6,7 +6,7 @@ import com.appsmith.server.domains.ImportableArtifact;
 
 import java.util.List;
 
-public interface ImportableArtifactJsonCE {
+public interface ArtifactExchangeJsonCE {
 
     Integer getClientSchemaVersion();
 

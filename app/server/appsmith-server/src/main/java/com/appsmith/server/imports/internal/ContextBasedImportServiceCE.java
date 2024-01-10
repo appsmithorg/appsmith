@@ -3,8 +3,8 @@ package com.appsmith.server.imports.internal;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportableArtifactDTO;
-import com.appsmith.server.dtos.ImportableArtifactJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ContextBasedImportServiceCE<
-        T extends ImportableArtifact, U extends ImportableArtifactDTO, V extends ImportableArtifactJson> {
+        T extends ImportableArtifact, U extends ImportableArtifactDTO, V extends ArtifactExchangeJson> {
 
     V extractImportableContextJson(String jsonString);
 
@@ -38,14 +38,14 @@ public interface ContextBasedImportServiceCE<
      * @param pagesToImport
      */
     default void updateContextJsonWithRequiredPagesToImport(
-        ImportableArtifactJson importableContextJson, List<String> pagesToImport) {}
+        ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {}
 
     /**
      * this method sets the names to null before the update to avoid conflict
      * @param contextId
      * @param importableContextJson
      */
-    void setJsonContextNameToNullBeforeUpdate(String contextId, ImportableArtifactJson importableContextJson);
+    void setJsonContextNameToNullBeforeUpdate(String contextId, ArtifactExchangeJson importableContextJson);
 
     Mono<U> getImportableContextDTO(String workspaceId, String contextId, ImportableArtifact importableContext);
 
@@ -57,11 +57,11 @@ public interface ContextBasedImportServiceCE<
      * @return
      */
     Mono<Void> contextSpecificImportedEntities(
-            ImportableArtifactJson importableContextJson,
+            ArtifactExchangeJson importableContextJson,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO);
 
-    void performAuxiliaryImportTasks(ImportableArtifactJson importableContextJson);
+    void performAuxiliaryImportTasks(ArtifactExchangeJson importableContextJson);
 
     /**
      * This method saves the context from the import json for the first time after dehydrating all the details which can cause conflicts
@@ -97,23 +97,23 @@ public interface ContextBasedImportServiceCE<
     Mono<T> updateImportableContext(ImportableArtifact importableContext);
 
     Map<String, Object> createImportAnalyticsData(
-        ImportableArtifactJson importableContextJson, ImportableArtifact importableContext);
+        ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext);
 
     Flux<Void> obtainContextSpecificImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importedContextMono,
-            ImportableArtifactJson importableContextJson);
+            ArtifactExchangeJson importableContextJson);
 
     Flux<Void> obtainContextComponentDependentImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importedContextMono,
-            ImportableArtifactJson importableContextJson);
+            ArtifactExchangeJson importableContextJson);
 
-    String validateContextSpecificFields(ImportableArtifactJson importableContextJson);
+    String validateContextSpecificFields(ArtifactExchangeJson importableContextJson);
 
     Map<String, String> getConstantsMap();
 }

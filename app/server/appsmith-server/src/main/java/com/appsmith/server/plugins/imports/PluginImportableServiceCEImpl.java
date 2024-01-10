@@ -7,7 +7,7 @@ import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ImportableArtifactJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
@@ -64,7 +64,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
-            ImportableArtifactJson importableContextJson,
+            ArtifactExchangeJson importableContextJson,
             boolean isPartialImport,
             boolean isContextAgnostic) {
         return importContextMono.flatMap(importableContext -> {

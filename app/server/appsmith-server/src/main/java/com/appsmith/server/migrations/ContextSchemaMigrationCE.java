@@ -2,20 +2,20 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ImportableArtifactJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 
 public class ContextSchemaMigrationCE {
 
-    private static boolean checkCompatibility(ImportableArtifactJson importableContextJson) {
+    private static boolean checkCompatibility(ArtifactExchangeJson importableContextJson) {
         return (importableContextJson.getClientSchemaVersion() <= JsonSchemaVersions.clientVersion)
                 && (importableContextJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
     }
 
-    public static ImportableArtifactJson migrateImportableContextJsonToLatestSchema(
-            ImportableArtifactJson importableContextJson) {
+    public static ArtifactExchangeJson migrateImportableContextJsonToLatestSchema(
+            ArtifactExchangeJson importableContextJson) {
         // Check if the schema versions are available and set to initial version if not present
         Integer serverSchemaVersion = importableContextJson.getServerSchemaVersion() == null
                 ? 0
@@ -39,7 +39,7 @@ public class ContextSchemaMigrationCE {
      * this will likely be overridden in EE codebase for more choices
      * @param importableContextJson ContextJson which is imported
      */
-    private static void migrateClientAndServerSchemas(ImportableArtifactJson importableContextJson) {
+    private static void migrateClientAndServerSchemas(ArtifactExchangeJson importableContextJson) {
         if (ArtifactJsonType.APPLICATION.equals(importableContextJson.getArtifactJsonType())) {
             migrateApplicationJsonClientSchema((ApplicationJson) importableContextJson);
             migrateApplicationJsonServerSchema((ApplicationJson) importableContextJson);

@@ -19,7 +19,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ImportableArtifactJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -237,7 +237,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
      */
     @Override
     public void setJsonContextNameToNullBeforeUpdate(
-            String applicationId, ImportableArtifactJson importableContextJson) {
+            String applicationId, ArtifactExchangeJson importableContextJson) {
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
         if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
             // Remove the application name from JSON file as updating the application name is not
@@ -484,7 +484,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public void updateContextJsonWithRequiredPagesToImport(
-        ImportableArtifactJson importableContextJson, List<String> pagesToImport) {
+        ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {
 
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
 
@@ -584,7 +584,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public void performAuxiliaryImportTasks(ImportableArtifactJson importableContextJson) {
+    public void performAuxiliaryImportTasks(ArtifactExchangeJson importableContextJson) {
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
         Application importedApplication = applicationJson.getExportedApplication();
         importedApplication.setServerSchemaVersion(applicationJson.getServerSchemaVersion());
@@ -593,7 +593,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<Void> contextSpecificImportedEntities(
-            ImportableArtifactJson importableContextJson,
+            ArtifactExchangeJson importableContextJson,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return applicationSpecificImportedEntities(
@@ -748,7 +748,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-        ImportableArtifactJson importableContextJson, ImportableArtifact importableContext) {
+        ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext) {
 
         Application application = (Application) importableContext;
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
@@ -781,7 +781,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importedContextMono,
-            ImportableArtifactJson importableContextJson) {
+            ArtifactExchangeJson importableContextJson) {
         return importedContextMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
             ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
@@ -816,7 +816,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importedContextMono,
-            ImportableArtifactJson importableContextJson) {
+            ArtifactExchangeJson importableContextJson) {
 
         return importedContextMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
@@ -834,7 +834,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public String validateContextSpecificFields(ImportableArtifactJson importableContextJson) {
+    public String validateContextSpecificFields(ArtifactExchangeJson importableContextJson) {
         ApplicationJson importedDoc = (ApplicationJson) importableContextJson;
         String errorField = "";
         if (CollectionUtils.isEmpty(importedDoc.getPageList())) {

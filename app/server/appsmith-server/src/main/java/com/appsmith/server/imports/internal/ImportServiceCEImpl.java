@@ -12,8 +12,8 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportableArtifactDTO;
-import com.appsmith.server.dtos.ImportableArtifactJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -92,8 +92,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public ContextBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ImportableArtifactJson>
-            getContextBasedImportService(ImportableArtifactJson importableContextJson) {
+                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+            getContextBasedImportService(ArtifactExchangeJson importableContextJson) {
         return getContextBasedImportService(importableContextJson.getArtifactJsonType());
     }
 
@@ -105,19 +105,19 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public ContextBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ImportableArtifactJson>
+                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getContextBasedImportService(ArtifactJsonType artifactJsonType) {
         return serviceFactory.getOrDefault(artifactJsonType, applicationImportService);
     }
 
     /**
-     * This method takes a file part and makes a Json entity which implements the ImportableArtifactJson interface
+     * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
      *
      * @param filePart           : filePart from which the contents would be made
      * @param artifactJsonType : type of the json which is getting imported
-     * @return : Json entity which implements ImportableArtifactJson
+     * @return : Json entity which implements ArtifactExchangeJson
      */
-    public Mono<? extends ImportableArtifactJson> extractImportableContextJson(
+    public Mono<? extends ArtifactExchangeJson> extractImportableContextJson(
             Part filePart, ArtifactJsonType artifactJsonType) {
 
         final MediaType contentType = filePart.headers().getContentType();
@@ -162,7 +162,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     ImportableArtifact context = tuple2.getT2();
-                    ImportableArtifactJson importableContextJson = tuple2.getT1();
+                    ArtifactExchangeJson importableContextJson = tuple2.getT1();
                     return getContextImportDTO(
                             context.getWorkspaceId(), context.getId(), context, importableContextJson);
                 });
@@ -172,7 +172,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * Saves the provided ImportableArtifactJson within the specified workspace.
+     * Saves the provided ArtifactExchangeJson within the specified workspace.
      *
      * @param workspaceId          The identifier for the destination workspace.
      * @param contextJson The JSON file representing the ImportableArtifact object to be saved.
@@ -180,7 +180,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifact> importNewContextInWorkspaceFromJson(
-            String workspaceId, ImportableArtifactJson contextJson) {
+            String workspaceId, ArtifactExchangeJson contextJson) {
 
         // workspace id must be present and valid
         if (StringUtils.isEmpty(workspaceId)) {
@@ -204,7 +204,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     @Override
     public Mono<? extends ImportableArtifact> updateNonGitConnectedContextFromJson(
-            String workspaceId, String contextId, ImportableArtifactJson importableContextJson) {
+            String workspaceId, String contextId, ArtifactExchangeJson importableContextJson) {
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
 
@@ -271,7 +271,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifact> importContextInWorkspaceFromGit(
-        String workspaceId, String contextId, ImportableArtifactJson importableContextJson, String branchName) {
+        String workspaceId, String contextId, ArtifactExchangeJson importableContextJson, String branchName) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
@@ -296,7 +296,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     public Mono<? extends ImportableArtifact> restoreSnapshot(
-        String workspaceId, ImportableArtifactJson importableContextJson, String contextId, String branchName) {
+        String workspaceId, ArtifactExchangeJson importableContextJson, String contextId, String branchName) {
 
         /**
          * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
@@ -341,7 +341,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String workspaceId,
             String contextId,
             String branchName,
-            ImportableArtifactJson importableContextJson,
+            ArtifactExchangeJson importableContextJson,
             List<String> pagesToImport) {
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
@@ -381,7 +381,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String workspaceId,
             String contextId,
             ImportableArtifact importableContext,
-            ImportableArtifactJson importableContextJson) {
+            ArtifactExchangeJson importableContextJson) {
         return getContextBasedImportService(importableContextJson)
                 .getImportableContextDTO(workspaceId, contextId, importableContext);
     }
@@ -398,7 +398,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     Mono<ImportableArtifact> importContextInWorkspace(
             String workspaceId,
-            ImportableArtifactJson importableContextJson,
+            ArtifactExchangeJson importableContextJson,
             String contextId,
             String branchName,
             boolean appendToContext,
@@ -411,7 +411,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         String contextString = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
 
         // step 1: Schema Migration
-        ImportableArtifactJson importedDoc =
+        ArtifactExchangeJson importedDoc =
                 ContextSchemaMigration.migrateImportableContextJsonToLatestSchema(importableContextJson);
 
         // Step 2: Validation of context Json
@@ -518,7 +518,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param importedDoc importableContextJSON object that needs to be validated
      * @return Name of the field that have error. Empty string otherwise
      */
-    private String validateImportableContextJson(ImportableArtifactJson importedDoc) {
+    private String validateImportableContextJson(ArtifactExchangeJson importedDoc) {
         // validate common schema things
         ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(importedDoc);
         String errorField = "";
@@ -576,7 +576,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importedContextMono,
-            ImportableArtifactJson importableContextJson) {
+            ArtifactExchangeJson importableContextJson) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
@@ -624,7 +624,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importedContextMono,
-            ImportableArtifactJson importableContextJson) {
+            ArtifactExchangeJson importableContextJson) {
 
         // Updates plugin map in importable resources
         Mono<Void> installedPluginsMono = pluginImportableService.importEntities(
@@ -693,7 +693,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     private Mono<ImportableArtifact> sendImportRelatedAnalyticsEvent(
-            ImportableArtifactJson importableContextJson,
+            ArtifactExchangeJson importableContextJson,
             ImportableArtifact importableContext,
             Stopwatch stopwatch,
             User currentUser) {
