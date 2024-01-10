@@ -68,7 +68,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @QueryTransient
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    protected final Boolean deleted = false; // TODO: can objects be loaded from the DB if this field is final?
+    protected final Boolean deleted = false;
 
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
