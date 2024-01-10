@@ -59,7 +59,6 @@ describe(
         cy.InviteGroupToWorkspace(workspaceId, GroupName, "Developer");
         agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
         homePage.NavigateToHome();
-        homePage.SelectWorkspace(workspaceId);
         homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
         homePage.CreateAppInWorkspace(workspaceId, appid);
         const jsObjectBody = `export default {
@@ -73,7 +72,6 @@ describe(
         };
         jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
         homePage.NavigateToHome();
-        homePage.SelectWorkspace(workspaceId);
         homePage.CreateAppInWorkspace(workspaceId, appid + "Internal Apps");
         jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
       });
