@@ -126,7 +126,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
     }
 
     @Override
-    public List<CustomJSLib> getCustomJsLibFromContext() {
+    public List<CustomJSLib> getCustomJsLibFromArtifact() {
         return this.getCustomJSLibList();
     }
 }

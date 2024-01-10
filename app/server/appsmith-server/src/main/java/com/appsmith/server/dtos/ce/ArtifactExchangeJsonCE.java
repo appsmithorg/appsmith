@@ -20,5 +20,5 @@ public interface ArtifactExchangeJsonCE {
 
     ImportableArtifact getImportableArtifact();
 
-    List<CustomJSLib> getCustomJsLibFromContext();
+    List<CustomJSLib> getCustomJsLibFromArtifact();
 }

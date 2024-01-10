@@ -73,10 +73,12 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
         if (importingMetaDTO.getAppendToArtifact()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollectionList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
-                        .distinct()
-                        .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+                List<NewPage> importedNewPages =
+                        mappedImportableResourcesDTO.getEntityNameToEntityMap().values().stream()
+                                .distinct()
+                                .map(branchAwareDomain -> (NewPage) branchAwareDomain)
+                                .toList();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewEntityNameToOldEntityName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -191,7 +193,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .getPluginMap()
                                                 .get(unpublishedCollection.getPluginId()));
                                         parentPage = updatePageInActionCollection(
-                                                unpublishedCollection, mappedImportableResourcesDTO.getPageNameMap());
+                                                unpublishedCollection, (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap());
                                     }
 
                                     if (publishedCollection != null && publishedCollection.getName() != null) {
@@ -206,8 +209,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         if (StringUtils.isEmpty(publishedCollection.getPageId())) {
                                             publishedCollection.setPageId(fallbackParentPageId);
                                         }
-                                        NewPage publishedCollectionPage = updatePageInActionCollection(
-                                                publishedCollection, mappedImportableResourcesDTO.getPageNameMap());
+                                        NewPage publishedCollectionPage =
+                                                updatePageInActionCollection(publishedCollection, (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap());
                                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                                     }
 

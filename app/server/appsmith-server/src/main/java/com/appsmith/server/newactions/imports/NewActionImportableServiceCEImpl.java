@@ -68,10 +68,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
         if (TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
-                        .distinct()
-                        .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+                List<NewPage> importedNewPages =
+                        mappedImportableResourcesDTO.getEntityNameToEntityMap().values().stream()
+                                .distinct()
+                                .map(branchAwareDomain -> (NewPage) branchAwareDomain)
+                                .toList();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewEntityNameToOldEntityName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -271,7 +273,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         unpublishedAction.setId(newAction.getId());
                                         parentPage = updatePageInAction(
                                                 unpublishedAction,
-                                                mappedImportableResourcesDTO.getPageNameMap(),
+                                                (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         sanitizeDatasourceInActionDTO(
                                                 unpublishedAction,
@@ -288,7 +291,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         }
                                         NewPage publishedActionPage = updatePageInAction(
                                                 publishedAction,
-                                                mappedImportableResourcesDTO.getPageNameMap(),
+                                                (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         parentPage = parentPage == null ? publishedActionPage : parentPage;
                                         sanitizeDatasourceInActionDTO(

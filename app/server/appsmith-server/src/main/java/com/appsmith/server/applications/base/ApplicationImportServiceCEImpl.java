@@ -623,7 +623,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                             FieldName.UNPUBLISHED,
                             application.getPages());
                     mappedImportableResourcesDTO
-                            .getApplicationToBeImportedApplicationPagesMap()
+                            .getResourceStoreFromArtifactExchangeJson()
                             .putAll(mapOfApplicationPageList);
                     application.setPages(null);
                     application.setPublishedPages(null);

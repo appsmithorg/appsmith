@@ -121,8 +121,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 mappedImportableResourcesDTO.getActionAndCollectionMapsDTO();
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
-        List<NewPage> newPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+        List<NewPage> newPages = mappedImportableResourcesDTO.getEntityNameToEntityMap().values().stream()
                 .distinct()
+                .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                 .toList();
         return Flux.fromIterable(newPages)
                 .flatMap(newPage -> {
@@ -184,7 +185,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         newToOldNameMap = Map.of();
                     }
 
-                    mappedImportableResourcesDTO.setNewPageNameToOldPageNameMap(newToOldNameMap);
+                    mappedImportableResourcesDTO.setNewEntityNameToOldEntityName(newToOldNameMap);
                     return Tuples.of(importedNewPages, newToOldNameMap);
                 })
                 .zipWith(importApplicationMono)
@@ -219,8 +220,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         // The access source has been changes because the order of execution has changed.
-        List<ApplicationPage> editModeApplicationPages = mappedImportableResourcesDTO
-                .getApplicationToBeImportedApplicationPagesMap()
+        List<ApplicationPage> editModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
+                .getResourceStoreFromArtifactExchangeJson()
                 .get(FieldName.UNPUBLISHED);
 
         // this conditional is being placed just for compatibility of the PR #29691
@@ -228,8 +229,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             editModeApplicationPages = importedApplication.getPages();
         }
 
-        List<ApplicationPage> publishedModeApplicationPages = mappedImportableResourcesDTO
-                .getApplicationToBeImportedApplicationPagesMap()
+        List<ApplicationPage> publishedModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
+                .getResourceStoreFromArtifactExchangeJson()
                 .get(FieldName.PUBLISHED);
 
         // this conditional is being placed just for compatibility of the PR #29691
@@ -250,7 +251,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                     Map<String, NewPage> pageNameMap = objects.getT3();
                     Application savedApp = objects.getT4();
 
-                    mappedImportableResourcesDTO.setPageNameMap(pageNameMap);
+                    mappedImportableResourcesDTO.setEntityNameToEntityMap(pageNameMap);
 
                     log.debug("New pages imported for application: {}", savedApp.getId());
                     Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
