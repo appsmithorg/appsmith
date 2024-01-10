@@ -144,7 +144,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
         onClick={onClick}
       >
         <ImageWrapper className="image-wrapper">
-          <StyledImage src={screenshotUrls[0]} />
+          <StyledImage alt="Template Thumbnail" src={screenshotUrls[0]} />
         </ImageWrapper>
         <TemplateContent className="template-content">
           <Text className="title" kind="heading-m" renderAs="h1">
@@ -176,7 +176,8 @@ export function TemplateLayout(props: TemplateLayoutProps) {
             >
               <Button
                 className="t--fork-template fork-button"
-                isDisabled={isImportingTemplateToApp}
+                data-testid="t--fork-template-button"
+                isDisabled={isImportingTemplateToApp ? true : false}
                 isIconButton
                 isLoading={
                   props.onForkTemplateClick && loadingTemplateId === id
