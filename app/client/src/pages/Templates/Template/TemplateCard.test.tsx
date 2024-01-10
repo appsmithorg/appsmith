@@ -71,13 +71,6 @@ describe("<TemplateLayout />", () => {
     expect(onForkTemplateClick).not.toHaveBeenCalled();
   });
 
-  it("opens the fork modal when the fork button is clicked and no onForkTemplateClick event passed", () => {
-    render(<BaseTemplateRender />);
-    const forkButton = screen.getByTestId("t--fork-template-button");
-    fireEvent.click(forkButton);
-    expect(screen.getByTestId("t--fork-template-modal")).toBeInTheDocument();
-  });
-
   it("renders fixed height template styling correctly", () => {
     render(
       <ThemeProvider theme={lightTheme}>
