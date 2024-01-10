@@ -9,19 +9,20 @@ import { SentryRoute } from "@appsmith/AppRouter";
 import { ADD_PATH } from "constants/routes";
 import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
+import { useEditorPaneWidth } from "../hooks";
 import { getPagesActiveStatus } from "selectors/ideSelectors";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
+  const width = useEditorPaneWidth();
   const active = useSelector(getPagesActiveStatus);
-
   return (
     <Flex
-      className="ide-pages-pane"
+      className="ide-editor-left-pane"
       flexDirection="column"
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width="260px"
+      width={width + "px"}
     >
       {active && <Pages />}
       {/* divider is inside the Pages component */}

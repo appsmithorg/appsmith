@@ -479,7 +479,6 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 .getUnpublishedAction()
                 .setDeletedAt(actionToImport.getUnpublishedAction().getDeletedAt());
         existingAction.setDeletedAt(actionToImport.getDeletedAt());
-        existingAction.setDeleted(actionToImport.getDeleted());
         existingAction.setPolicies(existingPolicy);
     }
 
