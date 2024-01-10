@@ -142,7 +142,7 @@ class FormTemplateControl extends BaseControl<
   }
 
   getControlType(): ControlType {
-    return "FORM_TEMPLATES";
+    return "FORM_TEMPLATE";
   }
 }
 
