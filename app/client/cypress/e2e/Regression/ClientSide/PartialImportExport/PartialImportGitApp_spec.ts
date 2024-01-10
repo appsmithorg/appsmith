@@ -22,12 +22,6 @@ describe(
   { tags: ["@tag.ImportExport"] },
   () => {
     before(() => {
-      homePage.NavigateToHome();
-      (cy as any).createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        const newWorkspaceName = interception!.response!.body.data.name;
-        (cy as any).CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      });
       gitSync.CreateNConnectToGit(repoName);
       featureFlagIntercept({
         release_show_partial_import_export_enabled: true,
@@ -53,22 +47,7 @@ describe(
       );
     });
 
-    it("1. Should import all the selected JsObjects", () => {
-      importPartiallyExportedFile("JSExportedOnly.json", "Queries/JS", [
-        "JSObject1",
-      ]);
-    });
-
-    it("2. Should import all the selected queries", () => {
-      importPartiallyExportedFile("QueriesExportedOnly.json", "Queries/JS", [
-        "DeleteQuery",
-        "InsertQuery",
-        "SelectQuery",
-        "UpdateQuery",
-      ]);
-    });
-
-    it("3. Should import all the widgets", () => {
+    it("1. Should import all the widgets", () => {
       importPartiallyExportedFile("WidgetsExportedOnly.json", "Widgets", [
         "Alert_text",
         "Text16",
@@ -82,18 +61,33 @@ describe(
       ]);
     });
 
-    it("4. Should import all the selected datasources", () => {
+    it("2. Should import all the selected datasources", () => {
       importPartiallyExportedFile("DatasourceExportedOnly.json", "Data", [
         "Users",
       ]);
     });
 
-    it("5. Should import all the selected custom js libs", () => {
+    it("3. Should import all the selected custom js libs", () => {
       importPartiallyExportedFile(
         "CustomJsLibsExportedOnly.json",
         "Libraries",
         ["jsonwebtoken"],
       );
+    });
+
+    it("4. Should import all the selected JsObjects", () => {
+      importPartiallyExportedFile("JSExportedOnly.json", "Queries/JS", [
+        "JSObject1",
+      ]);
+    });
+
+    it("5. Should import all the selected queries", () => {
+      importPartiallyExportedFile("QueriesExportedOnly.json", "Queries/JS", [
+        "DeleteQuery",
+        "InsertQuery",
+        "SelectQuery",
+        "UpdateQuery",
+      ]);
     });
   },
 );
