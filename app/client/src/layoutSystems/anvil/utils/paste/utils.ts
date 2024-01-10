@@ -11,6 +11,7 @@ import type { CopiedWidgetData } from "./types";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { anvilWidgets } from "widgets/anvil/constants";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
@@ -52,8 +53,9 @@ export function* addPastedWidgets(
   /**
    * Update properties of new widgets.
    */
-  newList.forEach((widget: FlattenedWidgetProps) => {
-    widget.parentId = newParentId;
+  newList.forEach((widget: FlattenedWidgetProps, index: number) => {
+    widget.parentId =
+      index > 0 && widget.parentId ? map[widget.parentId] : newParentId;
     widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree, {
       prefix: widget.widgetName,
       startWithoutIndex: true,
@@ -76,6 +78,18 @@ export function* addPastedWidgets(
       ...widgets,
       [widget.widgetId]: widget,
     };
+
+    if (
+      widget.type === anvilWidgets.SECTION_WIDGET &&
+      widget.spaceDistributed
+    ) {
+      // write code to replace all keys in widget.spaceDistributed with map[key]
+      const newSpaceDistribution: { [key: string]: string } = {};
+      Object.keys(widget.spaceDistributed).forEach((key: string) => {
+        newSpaceDistribution[map[key]] = widget.spaceDistributed[key];
+      });
+      widget.spaceDistributed = newSpaceDistribution;
+    }
   });
 
   /**

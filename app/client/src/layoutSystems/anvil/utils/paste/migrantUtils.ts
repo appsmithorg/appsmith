@@ -31,12 +31,12 @@ export function* pasteMigrantWidgets(
   copiedWidgets: CopiedWidgetData[],
   allWidgets: CanvasWidgetsReduxState,
   newParentId: string,
-  widgetIdMap: { [key: string]: string },
-  reverseWidgetIdMap: { [key: string]: string },
+  widgetIdMap: Record<string, string>,
+  reverseWidgetIdMap: Record<string, string>,
 ) {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
-  let map: { [key: string]: string } = { ...widgetIdMap };
-  let reverseMap: { [key: string]: string } = { ...reverseWidgetIdMap };
+  let map: Record<string, string> = { ...widgetIdMap };
+  let reverseMap: Record<string, string> = { ...reverseWidgetIdMap };
 
   const parentWidget: FlattenedWidgetProps = widgets[newParentId];
 
@@ -68,8 +68,8 @@ export function* pasteMigrantWidgets(
              * Create a new version of copied widget.
              */
             const res: {
-              map: { [key: string]: string };
-              reverseMap: { [key: string]: string };
+              map: Record<string, string>;
+              reverseMap: Record<string, string>;
               widgets: CanvasWidgetsReduxState;
             } = yield call(
               addPastedWidgets,

@@ -1,13 +1,9 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
-import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
-import type BaseLayoutComponent from "../../layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "../../layoutComponents/LayoutFactory";
-import { defaultHighlightRenderInfo } from "../constants";
 import { updateAndSaveAnvilLayout } from "../anvilChecksUtils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -19,8 +15,9 @@ import { PASTE_FAILED, createMessage } from "@appsmith/constants/messages";
 import { toast } from "design-system";
 import { areWidgetsWhitelisted } from "../layouts/whitelistUtils";
 import type { CopiedWidgetData } from "./types";
-import { addPastedWidgets, getParentLayout } from "./utils";
+import { getParentLayout } from "./utils";
 import { pasteMigrantWidgets } from "./migrantUtils";
+import { pasteResidentWidgets } from "./residentUtils";
 
 export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
   const originalWidgets: CopiedWidgetData[] = [...copiedWidgets];
@@ -56,60 +53,28 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
   /**
    * Track mapping between original and new widgetIds.
    */
-  let widgetIdMap: { [key: string]: string } = {};
-  let reverseWidgetIdMap: { [key: string]: string } = {};
+  let widgetIdMap: Record<string, string> = {};
+  let reverseWidgetIdMap: Record<string, string> = {};
 
   /**
    * For each resident, add them next to the original copied widget.
    */
   if (residents.length) {
-    /**
-     * For each resident,
-     * 1. Create new widget.
-     * 2. Update widget name.
-     * 3. Find location of original widget in the parent layout.
-     * 4. Add new widget after the original widget.
-     */
-    yield all(
-      residents.map((resident: CopiedWidgetData) =>
-        call(function* () {
-          const { widgetId } = resident;
-          /**
-           * Create new widgets and add to new parent and all widgets.
-           */
-          const res: {
-            map: { [key: string]: string };
-            reverseMap: { [key: string]: string };
-            widgets: CanvasWidgetsReduxState;
-          } = yield call(
-            addPastedWidgets,
-            resident,
-            allWidgets,
-            widgetIdMap,
-            reverseWidgetIdMap,
-            newParentId,
-          );
-          allWidgets = res.widgets;
-          widgetIdMap = res.map;
-          reverseWidgetIdMap = res.reverseMap;
-
-          // Update layout of new parent.
-          allWidgets = {
-            ...allWidgets,
-            [newParentId]: {
-              ...allWidgets[newParentId],
-              layout: [
-                addWidgetInPosition(
-                  widgetId,
-                  widgetIdMap[widgetId],
-                  allWidgets[newParentId].layout[0],
-                ),
-              ],
-            },
-          };
-        }),
-      ),
+    const res: {
+      map: Record<string, string>;
+      reverseMap: Record<string, string>;
+      widgets: CanvasWidgetsReduxState;
+    } = yield call(
+      pasteResidentWidgets,
+      allWidgets,
+      widgetIdMap,
+      reverseWidgetIdMap,
+      residents,
+      newParentId,
     );
+    allWidgets = res.widgets;
+    widgetIdMap = res.map;
+    reverseWidgetIdMap = res.reverseMap;
   }
 
   /**
@@ -132,8 +97,8 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
      */
 
     const res: {
-      map: { [key: string]: string };
-      reverseMap: { [key: string]: string };
+      map: Record<string, string>;
+      reverseMap: Record<string, string>;
       widgets: CanvasWidgetsReduxState;
     } = yield call(
       pasteMigrantWidgets,
@@ -232,49 +197,6 @@ function splitWidgetsOnResidenceStatus(
   return { migrants, residents };
 }
 
-function addWidgetInPosition(
-  oldWidgetId: string,
-  newWidgetId: string,
-  layout: LayoutProps,
-): LayoutProps {
-  const updatedLayout: LayoutProps = { ...layout };
-  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
-    updatedLayout.layoutType,
-  );
-
-  if (Comp.rendersWidgets) {
-    const widgetLayouts = updatedLayout.layout as WidgetLayoutProps[];
-    /**
-     * Find location of original widget.
-     */
-    const index = widgetLayouts.findIndex(
-      (item: WidgetLayoutProps) => item.widgetId === oldWidgetId,
-    );
-    if (index === -1) return updatedLayout;
-    const insertItem: WidgetLayoutProps = {
-      ...widgetLayouts[index],
-      widgetId: newWidgetId,
-    };
-    /**
-     * Add new widget after the original widget (index + 1)
-     */
-    return Comp.addChild(updatedLayout, [insertItem], {
-      ...defaultHighlightRenderInfo,
-      canvasId: "",
-      layoutOrder: [updatedLayout.layoutId],
-      rowIndex: index + 1,
-      alignment: insertItem.alignment,
-    });
-  } else {
-    const layoutProps = updatedLayout.layout as LayoutProps[];
-    updatedLayout.layout = layoutProps.map((item: LayoutProps) => {
-      return addWidgetInPosition(oldWidgetId, newWidgetId, item);
-    });
-  }
-
-  return updatedLayout;
-}
-
 function showErrorToast(message: string): void {
   toast.show(createMessage(PASTE_FAILED, message), {
     kind: "error",
@@ -316,6 +238,20 @@ function prePasteValidations(
   ) {
     showErrorToast("Some widgets are not allowed in this layout");
     return false;
+  }
+
+  /**
+   * Check if maxChildLimit violation is encountered.
+   */
+  if (parentLayout) {
+    const { layout, maxChildLimit } = parentLayout;
+    if (
+      maxChildLimit !== undefined &&
+      layout.length + copiedWidgets.length > maxChildLimit
+    ) {
+      showErrorToast("This widget can not hold as many children");
+      return false;
+    }
   }
 
   return true;
