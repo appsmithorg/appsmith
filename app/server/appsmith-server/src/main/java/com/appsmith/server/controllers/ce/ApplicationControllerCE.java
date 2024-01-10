@@ -25,7 +25,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
-import com.appsmith.server.imports.importable.ArtifactImportService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -72,7 +72,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ApplicationSnapshotService applicationSnapshotService;
     private final PartialExportService partialExportService;
     private final PartialImportService partialImportService;
-    private final ArtifactImportService importService;
+    private final ImportService importService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -86,7 +86,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationSnapshotService applicationSnapshotService,
             PartialExportService partialExportService,
             PartialImportService partialImportService,
-            ArtifactImportService importService) {
+            ImportService importService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;

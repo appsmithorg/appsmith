@@ -5,7 +5,7 @@ import com.appsmith.server.applications.imports.ApplicationImportService;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.imports.importable.ArtifactImportService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Component
-public class ArtifactImportServiceImpl extends ArtifactImportServiceCEImpl implements ArtifactImportService {
+public class ImportServiceImpl extends ImportServiceCEImpl implements ImportService {
 
-    public ArtifactImportServiceImpl(
+    public ImportServiceImpl(
             ApplicationImportService applicationImportService,
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,

@@ -20,7 +20,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
-import com.appsmith.server.imports.importable.ArtifactImportServiceCE;
+import com.appsmith.server.imports.importable.ImportServiceCE;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.migrations.ContextSchemaMigration;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -44,7 +44,7 @@ import java.util.Set;
 import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 
 @Slf4j
-public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
+public class ImportServiceCEImpl implements ImportServiceCE {
 
     public static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -60,7 +60,7 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
     private final ImportableService<Theme> themeImportableService;
     private final Map<ArtifactJsonType, ContextBasedImportService<?, ?, ?>> serviceFactory = new HashMap<>();
 
-    public ArtifactImportServiceCEImpl(
+    public ImportServiceCEImpl(
             ApplicationImportService applicationImportService,
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
