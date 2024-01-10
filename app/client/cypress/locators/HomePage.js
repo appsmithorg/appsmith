@@ -101,5 +101,9 @@ export default {
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
   backtoHome: ".t--app-viewer-back-to-apps-button",
   newButtonCreateApplication: "[data-testid=t--workspace-action-create-app]",
-  helpButton:".t--help-menu-option"
+  helpButton:".t--help-menu-option",
+  noEntityFound:".no-search-results",
+  initialWorkspace:"[data-testid^='Untitled workspace']",
+  initialApplication:"[data-testid^='Untitled application']",
+  _entitySearchBar:"[data-testid='t--application-search-input']";
 };

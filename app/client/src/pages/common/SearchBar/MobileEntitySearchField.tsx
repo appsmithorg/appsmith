@@ -77,7 +77,7 @@ function MobileEntitySearchField(props: any) {
       {isDropdownOpen && canShowSearchDropdown && (
         <SearchListContainer ref={searchListContainerRef}>
           {noSearchResults && !isFetchingEntities && (
-            <div className="text-center py-[52px]">
+            <div className="no-search-results text-center py-[52px]">
               <Icon
                 className="mb-2"
                 color="--ads-v2-color-fg"

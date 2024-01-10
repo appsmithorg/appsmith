@@ -87,7 +87,6 @@ describe(
       cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
       // export application
       cy.get(homePageLocatores.exportAppFromMenu).click({ force: true });
-      cy.get(homePageLocatores.searchInput).clear();
       cy.get(`a[id=t--export-app-link]`).then((anchor) => {
         const url = anchor.prop("href");
         cy.request(url).then(({ body, headers }) => {
@@ -104,7 +103,7 @@ describe(
           cy.get("@guid").then((uid) => {
             newWorkspaceName = uid;
             homePage.CreateNewWorkspace(newWorkspaceName);
-            agHelper.GetNClick(homePageLocatores.createNew, 0);
+            agHelper.GetNClick(homePageLocatores.createNew, 0, true);
 
             cy.get(homePageLocatores.workspaceImportAppOption).click({
               force: true,
