@@ -12,7 +12,6 @@
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^7.3.1",
-    "@storybook/addon-actions": "^7.3.1",
     "@storybook/addon-controls": "^7.3.1",
     "@storybook/addon-docs": "^7.3.1",
     "@storybook/addon-measure": "^7.3.1",
