@@ -31,12 +31,14 @@ describe(
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
+      onboarding.closeIntroModal();
       gitSync.CreateNConnectToGit(repoName1, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName1 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
+      onboarding.closeIntroModal();
       gitSync.CreateNConnectToGit(repoName2, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName2 = repName;
