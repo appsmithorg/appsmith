@@ -18,7 +18,7 @@ import java.util.Set;
 public interface ContextBasedImportServiceCE<
         T extends ImportableArtifact, U extends ImportableArtifactDTO, V extends ArtifactExchangeJson> {
 
-    V extractImportableContextJson(String jsonString);
+    V extractArtifactExchangeJson(String jsonString);
 
     ImportArtifactPermissionProvider getImportContextPermissionProviderForImportingContext(Set<String> userPermissions);
 
@@ -42,22 +42,23 @@ public interface ContextBasedImportServiceCE<
 
     /**
      * this method sets the names to null before the update to avoid conflict
-     * @param contextId
-     * @param importableContextJson
+     *
+     * @param artifactId
+     * @param artifactExchangeJson
      */
-    void setJsonContextNameToNullBeforeUpdate(String contextId, ArtifactExchangeJson importableContextJson);
+    void setJsonArtifactNameToNullBeforeUpdate(String artifactId, ArtifactExchangeJson artifactExchangeJson);
 
-    Mono<U> getImportableContextDTO(String workspaceId, String contextId, ImportableArtifact importableContext);
+    Mono<U> getImportableArtifactDTO(String workspaceId, String artifactId, ImportableArtifact importableContext);
 
     /**
      * Add entities which are specific to the context. i.e. customJsLib
-     * @param importableContextJson
+     * @param artifactExchangeJson
      * @param importingMetaDTO
      * @param mappedImportableResourcesDTO
      * @return
      */
     Mono<Void> contextSpecificImportedEntities(
-            ArtifactExchangeJson importableContextJson,
+            ArtifactExchangeJson artifactExchangeJson,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO);
 

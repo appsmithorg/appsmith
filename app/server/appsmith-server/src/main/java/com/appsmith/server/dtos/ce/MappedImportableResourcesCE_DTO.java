@@ -17,10 +17,13 @@ import java.util.Map;
 @Data
 public class MappedImportableResourcesCE_DTO {
 
+    // Artifacts independent entities
     Map<String, String> pluginMap = new HashMap<>();
     Map<String, String> datasourceNameToIdMap = new HashMap<>();
 
     List<CustomJSLibContextDTO> installedJsLibsList;
+
+    // Artifact dependent
     Map<String, String> newPageNameToOldPageNameMap;
     Map<String, NewPage> pageNameMap;
     ImportActionResultDTO actionResultDTO;

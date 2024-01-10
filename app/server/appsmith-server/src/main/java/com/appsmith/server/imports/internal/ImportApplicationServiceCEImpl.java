@@ -406,29 +406,29 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             return application;
         });
 
-        if (StringUtils.isEmpty(importingMetaDTO.getContextId())) {
+        if (StringUtils.isEmpty(importingMetaDTO.getArtifactId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
                 return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
                     .findById(
-                            importingMetaDTO.getContextId(),
+                            importingMetaDTO.getArtifactId(),
                             importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
                     .switchIfEmpty(Mono.defer(() -> {
                         log.error(
                                 "No application found with id: {} and permission: {}",
-                                importingMetaDTO.getContextId(),
+                                importingMetaDTO.getArtifactId(),
                                 importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
                         return Mono.error(new AppsmithException(
                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.APPLICATION,
-                                importingMetaDTO.getContextId()));
+                                importingMetaDTO.getArtifactId()));
                     }))
                     .cache();
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
-            if (importingMetaDTO.getAppendToContext()) { // we don't need to do anything with the imported application
+            if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
                 importApplicationMono = existingApplicationMono;
             } else {
                 importApplicationMono = Mono.zip(importApplicationMono, existingApplicationMono)

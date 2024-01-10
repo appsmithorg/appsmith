@@ -66,7 +66,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
         Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
-        if (TRUE.equals(importingMetaDTO.getAppendToContext())) {
+        if (TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
                         .distinct()
@@ -95,8 +95,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (StringUtils.hasText(importingMetaDTO.getContextId())
-                            && !TRUE.equals(importingMetaDTO.getAppendToContext())
+                    if (StringUtils.hasText(importingMetaDTO.getArtifactId())
+                            && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
@@ -156,8 +156,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (StringUtils.hasText(importingMetaDTO.getContextId())
-                            && !TRUE.equals(importingMetaDTO.getAppendToContext())
+                    if (StringUtils.hasText(importingMetaDTO.getArtifactId())
+                            && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
                             && Boolean.FALSE.equals(isPartialImport)) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();

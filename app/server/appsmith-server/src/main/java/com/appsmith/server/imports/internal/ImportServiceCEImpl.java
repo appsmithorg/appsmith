@@ -85,9 +85,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method provides the importService specific to context based on the ArtifactJsonType.
+     * This method provides the importService specific to the artifact based on the ArtifactJsonType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
-     * @param artifactExchangeJson : Entity Json which is implementing the importableContextJson
+     * @param artifactExchangeJson : Entity Json which is implementing the artifactExchangeJson
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     @Override
@@ -98,7 +98,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method provides the importService specific to context based on the ArtifactJsonType.
+     * This method provides the importService specific to the artifact based on the ArtifactJsonType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
      * @param artifactJsonType : Type of Json serialisation
      * @return import-service which is implementing the ContextBasedServiceInterface
@@ -134,7 +134,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     return new String(data);
                 })
                 .map(jsonString ->
-                        getContextBasedImportService(artifactJsonType).extractImportableContextJson(jsonString));
+                        getContextBasedImportService(artifactJsonType).extractArtifactExchangeJson(jsonString));
     }
 
     /**
@@ -233,7 +233,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 return Mono.error(new AppsmithException(
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
-                contextBasedImportService.setJsonContextNameToNullBeforeUpdate(artifactId, artifactExchangeJson);
+                contextBasedImportService.setJsonArtifactNameToNullBeforeUpdate(artifactId, artifactExchangeJson);
                 return permissionGroupRepository
                         .getCurrentUserPermissionGroups()
                         .zipWhen(userPermissionGroup -> {
@@ -270,18 +270,18 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     /**
      * Updates an existing ImportableArtifact connected to Git within the specified workspace.
      *
-     * @param workspaceId   The identifier for the destination workspace.
-     * @param importableContextJson   The ImportableArtifact JSON containing necessary information to update the ImportableArtifact.
-     * @param artifactId The ImportableArtifact id that needs to be updated with the new resources.
-     * @param branchName    The name of the Git branch. Set to null if not connected to Git.
+     * @param workspaceId          The identifier for the destination workspace.
+     * @param artifactId           The ImportableArtifact id that needs to be updated with the new resources.
+     * @param artifactExchangeJson The ImportableArtifact JSON containing necessary information to update the ImportableArtifact.
+     * @param branchName           The name of the Git branch. Set to null if not connected to Git.
      * @return The updated ImportableArtifact stored in the database.
      */
     @Override
     public Mono<? extends ImportableArtifact> importArtifactInWorkspaceFromGit(
-            String workspaceId, String artifactId, ArtifactExchangeJson importableContextJson, String branchName) {
+            String workspaceId, String artifactId, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
-                getContextBasedImportService(importableContextJson);
+                getContextBasedImportService(artifactExchangeJson);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
                 .zipWhen(userPermissionGroups -> {
@@ -293,7 +293,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     ImportArtifactPermissionProvider contextPermissionProvider = tuple2.getT2();
                     return importContextInWorkspace(
                             workspaceId,
-                            importableContextJson,
+                            artifactExchangeJson,
                             artifactId,
                             branchName,
                             false,
@@ -389,7 +389,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             ImportableArtifact importableArtifact,
             ArtifactExchangeJson artifactExchangeJson) {
         return getContextBasedImportService(artifactExchangeJson)
-                .getImportableContextDTO(workspaceId, artifactId, importableArtifact);
+                .getImportableArtifactDTO(workspaceId, artifactId, importableArtifact);
     }
 
     /**

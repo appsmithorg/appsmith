@@ -67,14 +67,14 @@ public interface ImportServiceCE {
     /**
      * Updates an existing ImportableArtifact connected to Git within the specified workspace.
      *
-     * @param workspaceId   The identifier for the destination workspace.
-     * @param importableContextJson   The ImportableArtifact JSON containing necessary information to update the ImportableArtifact.
-     * @param artifactId The ImportableArtifact id that needs to be updated with the new resources.
-     * @param branchName    The name of the Git branch. Set to null if not connected to Git.
+     * @param workspaceId          The identifier for the destination workspace.
+     * @param artifactId           The ImportableArtifact id that needs to be updated with the new resources.
+     * @param artifactExchangeJson The ImportableArtifact JSON containing necessary information to update the ImportableArtifact.
+     * @param branchName           The name of the Git branch. Set to null if not connected to Git.
      * @return The updated ImportableArtifact stored in the database.
      */
     Mono<? extends ImportableArtifact> importArtifactInWorkspaceFromGit(
-            String workspaceId, String artifactId, ArtifactExchangeJson importableContextJson, String branchName);
+            String workspaceId, String artifactId, ArtifactExchangeJson artifactExchangeJson, String branchName);
 
     Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
             String workspaceId,

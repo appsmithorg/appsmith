@@ -16,16 +16,16 @@ public class ImportingMetaDTO {
     String workspaceId;
     /**
      * this represents any parent entity's id which could be imported.
-     * e.g. application, packages.
+     * e.g. application, packages, workflows
      */
-    String contextId;
+    String artifactId;
 
     String branchName;
 
     /**
-     * this flag is for verifying whether the context in focus needs to be updated with the given provided json
+     * this flag is for verifying whether the artifact in focus needs to be updated with the given provided json
      */
-    Boolean appendToContext;
+    Boolean appendToArtifact;
 
     ImportArtifactPermissionProvider permissionProvider;
     Set<String> currentUserPermissionGroups;

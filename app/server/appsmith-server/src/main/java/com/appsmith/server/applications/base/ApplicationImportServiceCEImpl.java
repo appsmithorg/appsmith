@@ -138,7 +138,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ApplicationJson extractImportableContextJson(String jsonString) {
+    public ApplicationJson extractArtifactExchangeJson(String jsonString) {
         Type fileType = new TypeToken<ApplicationJson>() {}.getType();
         return gson.fromJson(jsonString, fileType);
     }
@@ -230,14 +230,15 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     /**
-     *  this method removes the application name from Json file as updating the app-name is not supported via import
-     *  this avoids name conflict during import flow within workspace
+     * this method removes the application name from Json file as updating the app-name is not supported via import
+     * this avoids name conflict during import flow within workspace
+     *
      * @param applicationId
-     * @param importableContextJson
+     * @param artifactExchangeJson
      */
     @Override
-    public void setJsonContextNameToNullBeforeUpdate(String applicationId, ArtifactExchangeJson importableContextJson) {
-        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+    public void setJsonArtifactNameToNullBeforeUpdate(String applicationId, ArtifactExchangeJson artifactExchangeJson) {
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
             // Remove the application name from JSON file as updating the application name is not
             // supported
@@ -301,29 +302,29 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             return application;
         });
 
-        if (StringUtils.isEmpty(importingMetaDTO.getContextId())) {
+        if (StringUtils.isEmpty(importingMetaDTO.getArtifactId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
                 return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
                     .findById(
-                            importingMetaDTO.getContextId(),
+                            importingMetaDTO.getArtifactId(),
                             importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
                     .switchIfEmpty(Mono.defer(() -> {
                         log.error(
                                 "No application found with id: {} and permission: {}",
-                                importingMetaDTO.getContextId(),
+                                importingMetaDTO.getArtifactId(),
                                 importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
                         return Mono.error(new AppsmithException(
                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.APPLICATION,
-                                importingMetaDTO.getContextId()));
+                                importingMetaDTO.getArtifactId()));
                     }))
                     .cache();
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
-            if (importingMetaDTO.getAppendToContext()) { // we don't need to do anything with the imported application
+            if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
                 importApplicationMono = existingApplicationMono;
             } else {
                 importApplicationMono = importApplicationMono
@@ -425,7 +426,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<ApplicationImportDTO> getImportableContextDTO(
+    public Mono<ApplicationImportDTO> getImportableArtifactDTO(
             String workspaceId, String applicationId, ImportableArtifact importableContext) {
         Application application = (Application) importableContext;
         return findDatasourceByApplicationId(applicationId, workspaceId)
@@ -592,11 +593,11 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<Void> contextSpecificImportedEntities(
-            ArtifactExchangeJson importableContextJson,
+            ArtifactExchangeJson artifactExchangeJson,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return applicationSpecificImportedEntities(
-                (ApplicationJson) importableContextJson, importingMetaDTO, mappedImportableResourcesDTO);
+                (ApplicationJson) artifactExchangeJson, importingMetaDTO, mappedImportableResourcesDTO);
     }
 
     @Override
@@ -640,29 +641,29 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             return application;
         });
 
-        if (StringUtils.isEmpty(importingMetaDTO.getContextId())) {
+        if (StringUtils.isEmpty(importingMetaDTO.getArtifactId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
                 return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
                     .findById(
-                            importingMetaDTO.getContextId(),
+                            importingMetaDTO.getArtifactId(),
                             importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
                     .switchIfEmpty(Mono.defer(() -> {
                         log.error(
                                 "No application found with id: {} and permission: {}",
-                                importingMetaDTO.getContextId(),
+                                importingMetaDTO.getArtifactId(),
                                 importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
                         return Mono.error(new AppsmithException(
                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.APPLICATION,
-                                importingMetaDTO.getContextId()));
+                                importingMetaDTO.getArtifactId()));
                     }))
                     .cache();
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
-            if (importingMetaDTO.getAppendToContext()) { // we don't need to do anything with the imported application
+            if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
                 importApplicationMono = existingApplicationMono;
             } else {
                 importApplicationMono = importApplicationMono
