@@ -5,6 +5,7 @@ import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
 import PackageSearchItem from "@appsmith/pages/common/PackageSearchItem";
 import WorkflowSearchItem from "@appsmith/pages/common/WorkflowSearchItem";
+import { useRouteMatch } from "react-router";
 
 const SearchListContainer = styled.div`
   width: 100%;
@@ -49,6 +50,9 @@ function MobileEntitySearchField(props: any) {
     workspacesList,
   } = props;
 
+  const isHomePage = useRouteMatch("/applications")?.isExact;
+
+  if (!isHomePage) return null;
   return (
     <>
       <div className="flex items-center w-full pl-4">

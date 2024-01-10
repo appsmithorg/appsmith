@@ -6,6 +6,7 @@ import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
 import PackageSearchItem from "@appsmith/pages/common/PackageSearchItem";
 import WorkflowSearchItem from "@appsmith/pages/common/WorkflowSearchItem";
+import { useRouteMatch } from "react-router";
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
@@ -50,6 +51,9 @@ const DesktopEntitySearchField = (props: any) => {
     workspacesList,
   } = props;
 
+  const isHomePage = useRouteMatch("/applications")?.isExact;
+
+  if (!isHomePage) return null;
   return (
     <SearchContainer isMobile={isMobile}>
       <SearchInput
