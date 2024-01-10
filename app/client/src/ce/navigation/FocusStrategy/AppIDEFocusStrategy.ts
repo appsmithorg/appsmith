@@ -44,7 +44,8 @@ function shouldSetState(
   if (
     prevFocusEntityInfo.entity === FocusEntity.CANVAS &&
     currFocusEntityInfo.entity === FocusEntity.WIDGET_LIST &&
-    isSamePage
+    isSamePage &&
+    state?.invokedBy !== NavigationMethod.ContextSwitching
   ) {
     return false;
   }
