@@ -2428,4 +2428,11 @@ export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
   buildingBlocksTitle: () => "Building Blocks",
 };
 
+export const HEADER_TITLES = {
+  DATA: () => "Data",
+  EDITOR: () => "Pages",
+  SETTINGS: () => "Settings",
+  LIBRARIES: () => "Libraries",
+};
+
 export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;

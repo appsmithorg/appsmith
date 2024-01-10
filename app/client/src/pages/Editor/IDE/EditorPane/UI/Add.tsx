@@ -22,7 +22,7 @@ const AddWidgets = () => {
         onCloseClick={closeButtonClickHandler}
         titleMessage={EDITOR_PANE_TEXTS.widgets_create_tab_title}
       />
-      <Flex flexDirection="column" gap="spaces-3" height="calc(100vh - 310px)">
+      <Flex flexDirection="column" gap="spaces-3" overflowX="scroll">
         <WidgetSidebarWithTags isActive />
       </Flex>
     </>
