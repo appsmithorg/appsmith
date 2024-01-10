@@ -1,12 +1,16 @@
 package com.appsmith.server.fork.internal;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.moduleinstances.metadata.ModuleInstanceMetadataService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -33,6 +37,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
         implements ApplicationForkingService {
     private final ApplicationService applicationService;
     private final WorkspaceService workspaceService;
+    private final ModuleInstanceMetadataService moduleInstanceMetadataService;
 
     public ApplicationForkingServiceImpl(
             ApplicationService applicationService,
@@ -55,7 +60,8 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             ActionCollectionRepository actionCollectionRepository,
             NewActionRepository newActionRepository,
             WorkspaceRepository workspaceRepository,
-            ForkableService<Datasource> datasourceForkableService) {
+            ForkableService<Datasource> datasourceForkableService,
+            ModuleInstanceMetadataService moduleInstanceMetadataService) {
 
         super(
                 applicationService,
@@ -82,6 +88,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
 
         this.applicationService = applicationService;
         this.workspaceService = workspaceService;
+        this.moduleInstanceMetadataService = moduleInstanceMetadataService;
     }
 
     @Override
@@ -94,5 +101,22 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
 
         return fromEnvironmentIdMono.flatMap(fromEnvironmentId -> super.forkApplicationToWorkspaceWithEnvironment(
                 srcApplicationId, targetWorkspaceId, fromEnvironmentId));
+    }
+
+    @Override
+    protected Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
+        Mono<Boolean> forkingEnabledCheckForModuleInstanceMono = applicationMono.flatMap(application -> {
+            return moduleInstanceMetadataService
+                    .getModuleInstanceCountByApplicationId(application.getId(), AclPermission.READ_MODULE_INSTANCES)
+                    .flatMap(moduleInstanceCount -> {
+                        if (moduleInstanceCount > 0) {
+                            return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
+                        }
+                        return Mono.just(Boolean.TRUE);
+                    });
+        });
+        return super.isForkingEnabled(applicationMono).flatMap(enabled -> {
+            return forkingEnabledCheckForModuleInstanceMono.thenReturn(enabled);
+        });
     }
 }

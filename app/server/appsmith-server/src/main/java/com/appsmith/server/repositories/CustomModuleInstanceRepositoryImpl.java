@@ -169,4 +169,12 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
 
         return queryAll(criteria, permission);
     }
+
+    @Override
+    public Mono<Long> getModuleInstanceCountByApplicationId(String applicationId, AclPermission permission) {
+        Criteria moduleIdCriteria =
+                where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
+
+        return count(List.of(moduleIdCriteria), Optional.of(permission));
+    }
 }
