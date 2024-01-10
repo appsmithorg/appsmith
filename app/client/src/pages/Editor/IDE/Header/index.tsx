@@ -13,7 +13,6 @@ import {
   Tab,
   TabPanel,
   Button,
-  Icon,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "design-system-old";
@@ -29,6 +28,7 @@ import {
   IN_APP_EMBED_SETTING,
   INVITE_TAB,
   RENAME_APPLICATION_TOOLTIP,
+  HEADER_TITLES,
 } from "@appsmith/constants/messages";
 import EditorName from "pages/Editor/EditorName";
 import { GetNavigationMenuData } from "pages/Editor/EditorName/NavigationMenuData";
@@ -70,6 +70,10 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "@appsmith/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
+import { EditorTitle } from "./EditorTitle";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { DefaultTitle } from "./DeaultTitle";
+import { EditorState } from "entities/IDE/constants";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -94,6 +98,7 @@ const Header = () => {
   const isGitConnected = useSelector(getIsGitConnected);
   const pageId = useSelector(getCurrentPageId) as string;
   const currentPage = useSelector(getPageById(pageId));
+  const appState = useCurrentAppState();
 
   // states
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
@@ -175,6 +180,21 @@ const Header = () => {
     [dispatch, handlePublish],
   );
 
+  const TitleComponent = () => {
+    switch (appState) {
+      case EditorState.DATA:
+        return <DefaultTitle title={createMessage(HEADER_TITLES.DATA)} />;
+      case EditorState.EDITOR:
+        return <EditorTitle title={currentPage?.pageName || ""} />;
+      case EditorState.SETTINGS:
+        return <DefaultTitle title={createMessage(HEADER_TITLES.SETTINGS)} />;
+      case EditorState.LIBRARIES:
+        return <DefaultTitle title={createMessage(HEADER_TITLES.LIBRARIES)} />;
+      default:
+        return <EditorTitle title={currentPage?.pageName || ""} />;
+    }
+  };
+
   return (
     <Flex
       alignItems={"center"}
@@ -194,29 +214,7 @@ const Header = () => {
         justifyContent={"left"}
       >
         <AppsmithLink />
-        <Flex alignItems={"center"} height={"100%"} justifyContent={"center"}>
-          <Text
-            color={"var(--ads-v2-colors-content-label-inactive-fg)"}
-            kind="body-m"
-          >
-            {"Pages /"}
-          </Text>
-          <Flex
-            alignItems={"center"}
-            className={
-              "hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer"
-            }
-            gap={"spaces-1"}
-            height={"100%"}
-            justifyContent={"center"}
-            px={"spaces-2"}
-          >
-            <Text isBold kind={"body-m"}>
-              {currentPage?.pageName}
-            </Text>
-            <Icon name={"arrow-down-s-line"} size={"md"} />
-          </Flex>
-        </Flex>
+        <TitleComponent />
       </Flex>
       <Flex
         alignItems={"center"}

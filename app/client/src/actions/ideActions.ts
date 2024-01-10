@@ -9,3 +9,12 @@ export const setIdeEditorViewMode = (mode: EditorViewMode) => {
     },
   };
 };
+
+export const setIdeEditorPagesActiveStatus = (active: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_IDE_EDITOR_PAGES_ACTIVE_STATUS,
+    payload: {
+      pagesActive: active,
+    },
+  };
+};

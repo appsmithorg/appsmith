@@ -2427,3 +2427,10 @@ export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
   title: () => "Add page(s) from a template",
   buildingBlocksTitle: () => "Building Blocks",
 };
+
+export const HEADER_TITLES = {
+  DATA: () => "Data",
+  EDITOR: () => "Pages",
+  SETTINGS: () => "Settings",
+  LIBRARIES: () => "Libraries",
+};

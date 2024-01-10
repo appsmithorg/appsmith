@@ -2,13 +2,18 @@ import React from "react";
 import { Flex } from "design-system";
 import type { RouteComponentProps } from "react-router";
 import { Switch } from "react-router";
+import { useSelector } from "react-redux";
+
 import Pages from "pages/Editor/Explorer/Pages";
 import { SentryRoute } from "@appsmith/AppRouter";
 import { ADD_PATH } from "constants/routes";
 import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
+import { getPagesActiveStatus } from "selectors/ideSelectors";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
+  const active = useSelector(getPagesActiveStatus);
+
   return (
     <Flex
       className="ide-pages-pane"
@@ -18,7 +23,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       overflow="hidden"
       width="260px"
     >
-      <Pages />
+      {active && <Pages />}
       {/* divider is inside the Pages component */}
       <Switch>
         <SentryRoute component={GlobalAdd} exact path={`${path}${ADD_PATH}`} />
