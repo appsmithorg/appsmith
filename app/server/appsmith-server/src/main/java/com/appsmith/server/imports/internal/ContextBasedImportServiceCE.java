@@ -38,7 +38,7 @@ public interface ContextBasedImportServiceCE<
      * @param pagesToImport
      */
     default void updateContextJsonWithRequiredPagesToImport(
-        ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {}
+            ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {}
 
     /**
      * this method sets the names to null before the update to avoid conflict
@@ -97,7 +97,7 @@ public interface ContextBasedImportServiceCE<
     Mono<T> updateImportableContext(ImportableArtifact importableContext);
 
     Map<String, Object> createImportAnalyticsData(
-        ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext);
+            ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext);
 
     Flux<Void> obtainContextSpecificImportables(
             ImportingMetaDTO importingMetaDTO,

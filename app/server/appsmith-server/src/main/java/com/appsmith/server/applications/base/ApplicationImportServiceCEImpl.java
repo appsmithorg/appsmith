@@ -236,8 +236,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
      * @param importableContextJson
      */
     @Override
-    public void setJsonContextNameToNullBeforeUpdate(
-            String applicationId, ArtifactExchangeJson importableContextJson) {
+    public void setJsonContextNameToNullBeforeUpdate(String applicationId, ArtifactExchangeJson importableContextJson) {
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
         if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
             // Remove the application name from JSON file as updating the application name is not
@@ -484,7 +483,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public void updateContextJsonWithRequiredPagesToImport(
-        ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {
+            ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {
 
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
 
@@ -748,7 +747,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-        ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext) {
+            ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext) {
 
         Application application = (Application) importableContext;
         ApplicationJson applicationJson = (ApplicationJson) importableContextJson;

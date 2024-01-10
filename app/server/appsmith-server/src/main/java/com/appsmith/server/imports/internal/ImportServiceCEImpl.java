@@ -271,7 +271,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifact> importContextInWorkspaceFromGit(
-        String workspaceId, String contextId, ArtifactExchangeJson importableContextJson, String branchName) {
+            String workspaceId, String contextId, ArtifactExchangeJson importableContextJson, String branchName) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
@@ -296,7 +296,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     public Mono<? extends ImportableArtifact> restoreSnapshot(
-        String workspaceId, ArtifactExchangeJson importableContextJson, String contextId, String branchName) {
+            String workspaceId, ArtifactExchangeJson importableContextJson, String contextId, String branchName) {
 
         /**
          * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.

@@ -37,8 +37,7 @@ public interface ImportServiceCE {
      * @param artifactJsonType : type of the dataExchangeJson
      * @return : Json entity which implements ArtifactExchangeJson
      */
-    Mono<? extends ArtifactExchangeJson> extractImportableContextJson(
-            Part filePart, ArtifactJsonType artifactJsonType);
+    Mono<? extends ArtifactExchangeJson> extractImportableContextJson(Part filePart, ArtifactJsonType artifactJsonType);
 
     /**
      * Hydrates an ImportableArtifact within the specified workspace by saving the provided JSON file.
@@ -73,7 +72,7 @@ public interface ImportServiceCE {
      * @return The updated ImportableArtifact stored in the database.
      */
     Mono<? extends ImportableArtifact> importContextInWorkspaceFromGit(
-        String workspaceId, String contextId, ArtifactExchangeJson importableContextJson, String branchName);
+            String workspaceId, String contextId, ArtifactExchangeJson importableContextJson, String branchName);
 
     Mono<? extends ImportableArtifactDTO> getContextImportDTO(
             String workspaceId,
