@@ -61,10 +61,7 @@ describe(
 
       cy.get("body").type(`{${modifierKey}}v`);
 
-      cy.get('.bp3-collapse-body > [step="0"]')
-        .eq(1)
-        .children()
-        .should("have.length", 3);
+      PageLeftPane.assertPresence("Modal1Copy");
       //make sure modalis open on paste
       cy.get(".t--modal-widget").should("have.length", 1);
     });
@@ -109,9 +106,6 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
 
       //select all widgets and copy
-      cy.get(`#div-selection-0`).click({
-        force: true,
-      });
       cy.get("body").type(`{${modifierKey}}a`);
       cy.get("body").type(`{${modifierKey}}c`);
 
@@ -119,9 +113,7 @@ describe(
       cy.get(`#div-selection-0`).click({
         force: true,
       });
-      cy.get(`.t--widget-containerwidget`).click({
-        ctrlKey: true,
-      });
+      EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
 
       //paste
       cy.get("body").type(`{${modifierKey}}v`);
@@ -129,12 +121,8 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
 
       //verify that the two modal widget should have pasted on the main canvas
-      _.agHelper.AssertElementVisibility(
-        _.entityExplorer._entityNameInExplorer("Modal1"),
-      );
-      _.agHelper.AssertElementVisibility(
-        _.entityExplorer._entityNameInExplorer("Modal1Copy"),
-      );
+      PageLeftPane.assertPresence("Modal1");
+      PageLeftPane.assertPresence("Modal1Copy");
     });
   },
 );

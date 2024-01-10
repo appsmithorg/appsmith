@@ -35,7 +35,6 @@ describe(
       cy.get(widgetsPage.tabedataField).should("not.be.empty");
       cy.deleteWidget(widgetsPage.tableWidgetV2);
       cy.wait(2000);
-      cy.ClearSearch();
     });
 
     it("2. Verify empty columnName in data", () => {

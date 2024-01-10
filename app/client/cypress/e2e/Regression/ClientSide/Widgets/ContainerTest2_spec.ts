@@ -70,7 +70,9 @@ describe(
         "height",
         "440px",
       );
-      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget, {}, [
+        "NewContainer",
+      ]);
       propPane.TogglePropertyState("visible", "Off");
 
       // Preview mode

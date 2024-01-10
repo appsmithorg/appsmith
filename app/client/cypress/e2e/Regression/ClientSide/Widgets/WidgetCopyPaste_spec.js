@@ -1,7 +1,6 @@
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -116,14 +115,11 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
 
   it("6. Should be able to paste list widget inside another list widget", function () {
     //clean up
-    cy.get(`#div-selection-0`).click({
-      force: true,
-    });
     cy.get("body").type(`{${modifierKey}}{a}`);
     cy.get("body").type("{del}");
 
     //add list widget
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     cy.dragAndDropToCanvas("listwidgetv2", { x: 500, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
