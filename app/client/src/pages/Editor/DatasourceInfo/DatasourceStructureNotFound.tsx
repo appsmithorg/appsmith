@@ -64,6 +64,7 @@ const DatasourceStructureNotFound = (props: Props) => {
       pageId,
       datasourceId: datasourceId,
       params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
+      generateEditorPath: true,
     });
     history.push(url);
   };
