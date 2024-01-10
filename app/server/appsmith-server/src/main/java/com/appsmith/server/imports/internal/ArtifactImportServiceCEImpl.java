@@ -12,8 +12,8 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.ImportableArtifactJson;
-import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -92,7 +92,7 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
      */
     @Override
     public ContextBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableContextDTO, ? extends ImportableArtifactJson>
+                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ImportableArtifactJson>
             getContextBasedImportService(ImportableArtifactJson importableContextJson) {
         return getContextBasedImportService(importableContextJson.getArtifactJsonType());
     }
@@ -105,7 +105,7 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
      */
     @Override
     public ContextBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableContextDTO, ? extends ImportableArtifactJson>
+                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ImportableArtifactJson>
             getContextBasedImportService(ArtifactJsonType artifactJsonType) {
         return serviceFactory.getOrDefault(artifactJsonType, applicationImportService);
     }
@@ -145,14 +145,14 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
      * @param workspaceId The identifier for the destination workspace.
      */
     @Override
-    public Mono<? extends ImportableContextDTO> extractAndSaveContext(
+    public Mono<? extends ImportableArtifactDTO> extractAndSaveContext(
             Part filePart, String workspaceId, String contextId, ArtifactJsonType artifactJsonType) {
 
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        Mono<ImportableContextDTO> importedContextMono = extractImportableContextJson(filePart, artifactJsonType)
+        Mono<ImportableArtifactDTO> importedContextMono = extractImportableContextJson(filePart, artifactJsonType)
                 .zipWhen(contextJson -> {
                     if (StringUtils.isEmpty(contextId)) {
                         return importNewContextInWorkspaceFromJson(workspaceId, contextJson);
@@ -374,10 +374,10 @@ public class ArtifactImportServiceCEImpl implements ArtifactImportServiceCE {
      * @param contextId   default ID of the importableContext where this importableContextJson is going to get merged with
      * @param importableContext the context (i.e. application, packages which is imported)
      * @param importableContextJson the Json entity from which the import is happening
-     * @return ImportableContextDTO
+     * @return ImportableArtifactDTO
      */
     @Override
-    public Mono<? extends ImportableContextDTO> getContextImportDTO(
+    public Mono<? extends ImportableArtifactDTO> getContextImportDTO(
             String workspaceId,
             String contextId,
             ImportableArtifact importableContext,

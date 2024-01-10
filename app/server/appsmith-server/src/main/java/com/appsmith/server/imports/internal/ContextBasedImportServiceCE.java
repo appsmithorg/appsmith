@@ -3,8 +3,8 @@ package com.appsmith.server.imports.internal;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.ImportableArtifactJson;
-import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ContextBasedImportServiceCE<
-        T extends ImportableArtifact, U extends ImportableContextDTO, V extends ImportableArtifactJson> {
+        T extends ImportableArtifact, U extends ImportableArtifactDTO, V extends ImportableArtifactJson> {
 
     V extractImportableContextJson(String jsonString);
 

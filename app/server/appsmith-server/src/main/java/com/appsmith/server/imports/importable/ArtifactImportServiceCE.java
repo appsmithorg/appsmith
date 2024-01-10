@@ -2,8 +2,8 @@ package com.appsmith.server.imports.importable;
 
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.ImportableArtifactJson;
-import com.appsmith.server.dtos.ImportableContextDTO;
 import com.appsmith.server.imports.internal.ContextBasedImportService;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
@@ -17,7 +17,7 @@ public interface ArtifactImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     ContextBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableContextDTO, ? extends ImportableArtifactJson>
+                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ImportableArtifactJson>
             getContextBasedImportService(ImportableArtifactJson importableContextJson);
 
     /**
@@ -27,7 +27,7 @@ public interface ArtifactImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     ContextBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableContextDTO, ? extends ImportableArtifactJson>
+                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ImportableArtifactJson>
             getContextBasedImportService(ArtifactJsonType artifactJsonType);
 
     /**
@@ -47,7 +47,7 @@ public interface ArtifactImportServiceCE {
      *                    The ImportableArtifact implements the ImportableArtifact interface.
      * @param workspaceId The identifier for the destination workspace.
      */
-    Mono<? extends ImportableContextDTO> extractAndSaveContext(
+    Mono<? extends ImportableArtifactDTO> extractAndSaveContext(
             Part filePart, String workspaceId, String contextId, ArtifactJsonType artifactJsonType);
 
     /**
@@ -75,7 +75,7 @@ public interface ArtifactImportServiceCE {
     Mono<? extends ImportableArtifact> importContextInWorkspaceFromGit(
         String workspaceId, String contextId, ImportableArtifactJson importableContextJson, String branchName);
 
-    Mono<? extends ImportableContextDTO> getContextImportDTO(
+    Mono<? extends ImportableArtifactDTO> getContextImportDTO(
             String workspaceId,
             String contextId,
             ImportableArtifact importableContext,
