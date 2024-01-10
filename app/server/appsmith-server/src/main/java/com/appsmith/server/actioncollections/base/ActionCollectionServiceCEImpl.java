@@ -30,7 +30,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -39,6 +38,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -500,7 +500,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return repository.findByPageIds(pageIds, permission).doOnNext(actionCollection -> {
             actionCollection.getUnpublishedCollection().populateTransientFields(actionCollection);
             if (actionCollection.getPublishedCollection() != null
-                    && org.springframework.util.StringUtils.hasText(
+                    && StringUtils.hasText(
                             actionCollection.getPublishedCollection().getName())) {
                 actionCollection.getPublishedCollection().populateTransientFields(actionCollection);
             }
