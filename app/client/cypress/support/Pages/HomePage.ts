@@ -720,6 +720,9 @@ export class HomePage {
   }
 
   public SelectMultipleApplicationToDelete(applicationName: string) {
+    this.agHelper
+      .GetElement(this._appCard(applicationName))
+      .first().realHover();
     this.agHelper.GetNClick(
       this._applicationMultiSelectionCheckbox(applicationName),
     );
