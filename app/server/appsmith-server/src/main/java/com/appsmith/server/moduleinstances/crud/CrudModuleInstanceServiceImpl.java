@@ -49,6 +49,7 @@ import com.appsmith.server.solutions.PagePermission;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -533,50 +534,47 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_INSTANCE_ID, defaultModuleInstanceId)));
 
-        return branchedModuleInstanceMono
-                .flatMap(moduleInstance -> {
-                    if (moduleInstance.getPublishedModuleInstance() != null
-                            && moduleInstance.getPublishedModuleInstance().getName() != null) {
-                        // This module instance was published before. So, the entire document should not be deleted
-                        // instead the unpublished module instance should be deleted. This applies to all of its
-                        // composed entities e.g. newAction, actionCollection
-                        moduleInstance.getUnpublishedModuleInstance().setDeletedAt(Instant.now());
-                        return newActionService
-                                .archiveActionsByRootModuleInstanceId(moduleInstance.getId())
-                                .then(actionCollectionService.archiveActionCollectionsByRootModuleInstanceId(
-                                        moduleInstance.getId()))
-                                .then(repository
-                                        .save(moduleInstance)
-                                        .flatMap(deletedModuleInstance ->
-                                                setTransientFieldsFromModuleInstanceToModuleInstanceDTO(
-                                                        deletedModuleInstance,
-                                                        deletedModuleInstance.getUnpublishedModuleInstance())));
-                    }
+        return branchedModuleInstanceMono.flatMap(
+                branchedModuleInstance -> deleteBranchedModuleInstance(branchedModuleInstance)
+                        .as(transactionalOperator::transactional)
+                        .flatMap(deletedModuleInstance -> {
+                            if (CreatorContextType.PAGE.equals(deletedModuleInstance.getContextType())) {
+                                return updateLayoutService
+                                        .updatePageLayoutsByPageId(deletedModuleInstance.getContextId())
+                                        .thenReturn(deletedModuleInstance);
+                            }
+                            return Mono.just(deletedModuleInstance);
+                        }));
+    }
 
-                    // This module instance was never published. It can be safely archived along with its composed
-                    // entities.
-                    return newActionService
-                            .archiveActionsByRootModuleInstanceId(moduleInstance.getId())
-                            .then(actionCollectionService.archiveActionCollectionsByRootModuleInstanceId(
-                                    moduleInstance.getId()))
-                            .then(this.archiveModuleInstancesByRootModuleInstanceId(moduleInstance.getId()))
-                            // TODO: Delete all the related custom JS libs here
-                            .then(repository
-                                    .archive(moduleInstance)
-                                    .flatMap(deletedModuleInstance ->
-                                            setTransientFieldsFromModuleInstanceToModuleInstanceDTO(
-                                                    deletedModuleInstance,
-                                                    deletedModuleInstance.getUnpublishedModuleInstance())));
-                })
-                .as(transactionalOperator::transactional)
-                .flatMap(deletedModuleInstance -> {
-                    if (CreatorContextType.PAGE.equals(deletedModuleInstance.getContextType())) {
-                        return updateLayoutService
-                                .updatePageLayoutsByPageId(deletedModuleInstance.getContextId())
-                                .thenReturn(deletedModuleInstance);
-                    }
-                    return Mono.just(deletedModuleInstance);
-                });
+    private Mono<ModuleInstanceDTO> deleteBranchedModuleInstance(ModuleInstance moduleInstance) {
+        if (moduleInstance.getPublishedModuleInstance() != null
+                && moduleInstance.getPublishedModuleInstance().getName() != null) {
+            // This module instance was published before. So, the entire document should not be deleted
+            // instead the unpublished module instance should be deleted. This applies to all of its
+            // composed entities e.g. newAction, actionCollection
+            moduleInstance.getUnpublishedModuleInstance().setDeletedAt(Instant.now());
+            return newActionService
+                    .archiveActionsByRootModuleInstanceId(moduleInstance.getId())
+                    .then(actionCollectionService.archiveActionCollectionsByRootModuleInstanceId(
+                            moduleInstance.getId()))
+                    .then(repository
+                            .save(moduleInstance)
+                            .flatMap(deletedModuleInstance -> setTransientFieldsFromModuleInstanceToModuleInstanceDTO(
+                                    deletedModuleInstance, deletedModuleInstance.getUnpublishedModuleInstance())));
+        }
+
+        // This module instance was never published. It can be safely archived along with its composed
+        // entities.
+        return newActionService
+                .archiveActionsByRootModuleInstanceId(moduleInstance.getId())
+                .then(actionCollectionService.archiveActionCollectionsByRootModuleInstanceId(moduleInstance.getId()))
+                .then(this.archiveModuleInstancesByRootModuleInstanceId(moduleInstance.getId()))
+                // TODO: Delete all the related custom JS libs here
+                .then(repository
+                        .archive(moduleInstance)
+                        .flatMap(deletedModuleInstance -> setTransientFieldsFromModuleInstanceToModuleInstanceDTO(
+                                deletedModuleInstance, deletedModuleInstance.getUnpublishedModuleInstance())));
     }
 
     @Override
@@ -680,5 +678,29 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
             Module sourceModule, Optional<AclPermission> permission) {
         return repository.findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, permission);
+    }
+
+    @Override
+    public Mono<Boolean> archiveModuleInstancesByApplicationId(String applicationId, AclPermission permission) {
+        return repository
+                .findAllByApplicationId(applicationId, Optional.of(permission))
+                .map(ModuleInstance::getId)
+                .collectList()
+                .flatMap(moduleInstanceIds -> {
+                    if (CollectionUtils.isEmpty(moduleInstanceIds)) {
+                        return Mono.just(Boolean.TRUE);
+                    }
+                    return repository.archiveAllById(moduleInstanceIds);
+                });
+    }
+
+    @Override
+    public Mono<List<ModuleInstanceDTO>> deleteByContextId(String contextId, CreatorContextType contextType) {
+        return repository
+                .findAllUnpublishedByContextIdAndContextType(
+                        contextId, contextType, moduleInstancePermission.getDeletePermission())
+                .flatMap(moduleInstance -> deleteBranchedModuleInstance(moduleInstance))
+                .collectList()
+                .as(transactionalOperator::transactional);
     }
 }

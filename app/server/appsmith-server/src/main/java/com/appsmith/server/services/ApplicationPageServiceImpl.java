@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -7,11 +9,13 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.publish.applications.publishable.ApplicationPublishableService;
@@ -44,6 +48,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
 
     private final PermissionGroupService permissionGroupService;
     private final ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService;
+    private final CrudModuleInstanceService crudModuleInstanceService;
 
     public ApplicationPageServiceImpl(
             WorkspaceService workspaceService,
@@ -74,7 +79,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DatasourcePermission datasourcePermission,
             ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService,
             DSLMigrationUtils dslMigrationUtils,
-            GitAutoCommitHelper gitAutoCommitHelper) {
+            GitAutoCommitHelper gitAutoCommitHelper,
+            CrudModuleInstanceService crudModuleInstanceService) {
         super(
                 workspaceService,
                 applicationService,
@@ -106,6 +112,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 gitAutoCommitHelper);
         this.permissionGroupService = permissionGroupService;
         this.moduleInstanceApplicationPublishableService = moduleInstanceApplicationPublishableService;
+        this.crudModuleInstanceService = crudModuleInstanceService;
     }
 
     /**
@@ -146,5 +153,21 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
         // To reduce the time taken to publish an app, we parallelize the operations
         return Mono.zip(applicationPublishMetadataMono, moduleInstancePublishMono)
                 .map(Tuple2::getT1);
+    }
+
+    @Override
+    public Mono<PageDTO> deleteUnpublishedPage(String id) {
+        return super.deleteUnpublishedPage(id).flatMap(deletedPageDTO -> {
+            return crudModuleInstanceService
+                    .deleteByContextId(id, CreatorContextType.PAGE)
+                    .thenReturn(deletedPageDTO);
+        });
+    }
+
+    @Override
+    public Mono<Application> deleteApplicationByResource(Application application) {
+        return super.deleteApplicationResources(application).flatMap(deletedApplication -> crudModuleInstanceService
+                .archiveModuleInstancesByApplicationId(application.getId(), AclPermission.DELETE_MODULE_INSTANCES)
+                .then(super.sendAppDeleteAnalytics(deletedApplication)));
     }
 }

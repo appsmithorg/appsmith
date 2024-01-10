@@ -29,6 +29,7 @@ export interface AppsmithActionInfo {
 // interface for the request body of the executeActivity endpoint on workflowProxy
 export interface ExecuteAppsmithActivityRequest {
   actionId: string;
+  inputParams: Array<Record<string, any>>;
   paramProperties: Record<
     string,
     | string
@@ -67,6 +68,7 @@ export interface ExecuteAppsmithActivityResponse {
 export interface AppsmithExecuteActionDTO {
   actionId: string;
   viewmode: boolean;
+  paramProperties: Record<string, object>;
 }
 
 // interface for the response received from appsmith server
