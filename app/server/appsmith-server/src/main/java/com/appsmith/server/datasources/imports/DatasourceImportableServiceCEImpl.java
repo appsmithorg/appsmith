@@ -16,7 +16,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ImportableContextJson;
+import com.appsmith.server.dtos.ImportableArtifactJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -62,7 +62,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
-            ImportableContextJson importableContextJson,
+            ImportableArtifactJson importableContextJson,
             boolean isPartialImport,
             boolean isContextAgnostic) {
         return importContextMono.flatMap(importableContext -> {
