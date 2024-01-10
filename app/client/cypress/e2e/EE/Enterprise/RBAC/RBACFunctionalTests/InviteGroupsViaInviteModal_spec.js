@@ -173,7 +173,6 @@ describe(
       );
       cy.get(homePageLocators.closeBtn).click();
       cy.wait(2000);
-      homePage.SelectWorkspace(workspaceId);
 
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
