@@ -53,6 +53,7 @@ import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 /***
  * BaseWidget
@@ -145,6 +146,15 @@ abstract class BaseWidget<
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
+  }
+
+  static pasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+    widgetId: string,
+  ): FlattenedWidgetProps | null {
+    return null && allWidgets && widgetIdMap && reverseWidgetIdMap && widgetId;
   }
 
   /**

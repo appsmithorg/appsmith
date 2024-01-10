@@ -10,6 +10,7 @@ import type {
   AutocompletionDefinitions,
   AutoLayoutConfig,
   CanvasWidgetStructure,
+  FlattenedWidgetProps,
   WidgetConfigProps,
   WidgetMethods,
 } from "WidgetProvider/constants";
@@ -35,6 +36,7 @@ import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
 import produce from "immer";
 import { defaultSizeConfig } from "layoutSystems/anvil/utils/widgetUtils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -559,6 +561,29 @@ class WidgetFactory {
     } else {
       return {};
     }
+  }
+
+  @memoize
+  static performPasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+    widgetId: string,
+    type: WidgetType,
+  ): FlattenedWidgetProps {
+    const widget = WidgetFactory.widgetsMap.get(type);
+
+    if (!widget) return allWidgets[widgetId];
+
+    const widgetProps: FlattenedWidgetProps | null =
+      widget?.pasteOperationChecks(
+        allWidgets,
+        widgetIdMap,
+        reverseWidgetIdMap,
+        widgetId,
+      );
+
+    return widgetProps !== null ? widgetProps : allWidgets[widgetId];
   }
 }
 

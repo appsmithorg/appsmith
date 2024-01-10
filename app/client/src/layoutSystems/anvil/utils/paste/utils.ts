@@ -11,7 +11,7 @@ import type { CopiedWidgetData } from "./types";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import { anvilWidgets } from "widgets/anvil/constants";
+import WidgetFactory from "WidgetProvider/factory";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
@@ -48,6 +48,8 @@ export function* addPastedWidgets(
 
     // Add new widget to the list.
     newList.push(newWidget);
+
+    widgets = { ...widgets, [newWidget.widgetId]: newWidget };
   });
 
   /**
@@ -71,6 +73,17 @@ export function* addPastedWidgets(
       widget.layout = [updateLayoutProps(cloneDeep(widget.layout[0]), map)];
     }
 
+    widget = WidgetFactory.performPasteOperationChecks(
+      {
+        ...widgets,
+        [widget.widgetId]: widget,
+      },
+      map,
+      reverseMap,
+      widget.widgetId,
+      widget.type,
+    );
+
     /**
      * Add widget to all widgets.
      */
@@ -78,18 +91,6 @@ export function* addPastedWidgets(
       ...widgets,
       [widget.widgetId]: widget,
     };
-
-    if (
-      widget.type === anvilWidgets.SECTION_WIDGET &&
-      widget.spaceDistributed
-    ) {
-      // write code to replace all keys in widget.spaceDistributed with map[key]
-      const newSpaceDistribution: { [key: string]: string } = {};
-      Object.keys(widget.spaceDistributed).forEach((key: string) => {
-        newSpaceDistribution[map[key]] = widget.spaceDistributed[key];
-      });
-      widget.spaceDistributed = newSpaceDistribution;
-    }
   });
 
   /**
