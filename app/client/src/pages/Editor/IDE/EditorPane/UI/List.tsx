@@ -53,7 +53,7 @@ const ListWidgets = () => {
   return (
     <ListContainer
       flexDirection="column"
-      gap="spaces-4"
+      gap="spaces-3"
       overflow="hidden"
       py="spaces-3"
     >

@@ -22,7 +22,6 @@ import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextPr
 import { useJSAdd } from "./hooks";
 
 const JSContainer = styled(Flex)`
-  gap: var(--ads-v2-spaces-4);
   & .t--entity-item {
     grid-template-columns: 0 auto 1fr auto auto auto auto auto;
     height: 32px;
@@ -55,6 +54,7 @@ const ListJSObjects = () => {
     <JSContainer
       className="ide-editor-left-pane__content-js"
       flexDirection="column"
+      gap="spaces-3"
       overflow="hidden"
       py="spaces-3"
     >
