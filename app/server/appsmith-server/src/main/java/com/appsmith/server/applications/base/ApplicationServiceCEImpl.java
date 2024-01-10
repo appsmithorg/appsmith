@@ -451,6 +451,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return this.update(branchedApplication.getId(), application);
     }
 
+    /**
+     * This method is a placeholder in the Community Edition (CE) repository. It is designed to be overridden in
+     * derived classes in the Enterprise Edition (EE) where the actual logic to verify if forking is allowed will be
+     * implemented. In CE, forking is always allowed up to this point, hence the method returns an empty Mono.
+     */
     protected Mono<Void> verifyIfForkingIsAllowed(Application branchedApplication, Application applicationReq) {
         return Mono.empty().then();
     }
