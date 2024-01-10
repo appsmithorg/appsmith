@@ -10,6 +10,8 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.modules.metadata.ModuleMetadataService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
@@ -62,6 +64,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
+            DefaultResourcesService<ActionCollection> defaultResourcesService,
             ModulePermissionChecker modulePermissionChecker,
             ModuleMetadataService moduleMetadataService) {
         super(
@@ -76,7 +79,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                defaultResourcesService);
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.modulePermissionChecker = modulePermissionChecker;
