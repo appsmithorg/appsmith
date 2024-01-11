@@ -177,6 +177,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .flatMap(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
+                            executeActionDTO.setWorkspaceId(branchedAction.getWorkspaceId());
 
                             boolean isEmbedded;
                             if (executeActionDTO.getViewMode()) {

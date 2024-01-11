@@ -21,16 +21,19 @@ import com.external.plugins.services.AiFeatureService;
 import com.external.plugins.services.AiFeatureServiceFactory;
 import com.external.plugins.services.AiServerService;
 import com.external.plugins.services.AiServerServiceImpl;
+import com.external.plugins.utils.HeadersUtil;
 import com.external.plugins.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
 import static com.external.plugins.constants.AppsmithAiConstants.USECASE;
 
 @Slf4j
@@ -95,8 +98,11 @@ public class AppsmithAiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
                     actionConfiguration, RequestUtils.createQueryUri(), insertedParams, objectMapper);
 
+            Map<String, String> headers = new HashMap<>();
+            headers.put(SOURCE_DETAILS, HeadersUtil.createSourceDetailsHeader(executeActionDTO));
+
             return aiServerService
-                    .executeQuery(aiServerRequestDTO)
+                    .executeQuery(aiServerRequestDTO, headers)
                     .map(response -> {
                         actionExecutionResult.setIsExecutionSuccess(true);
                         actionExecutionResult.setBody(response);

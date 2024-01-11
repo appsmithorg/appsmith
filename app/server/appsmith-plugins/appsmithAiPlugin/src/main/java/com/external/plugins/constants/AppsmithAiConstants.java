@@ -12,6 +12,10 @@ public class AppsmithAiConstants {
     public static final String LABELS = "labels";
     public static final String INSTRUCTIONS = "instructions";
     public static final String IMAGE_FORMAT = "imageFormat";
+    public static final String DATASOURCE_ID = "datasourceId";
+    public static final String ACTION_ID = "actionId";
+    public static final String WORKSPACE_ID = "workspaceId";
+    public static final String SOURCE_DETAILS = "sourceDetail";
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
