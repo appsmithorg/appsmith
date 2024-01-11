@@ -190,7 +190,7 @@ describe(
       _.agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
       _.homePage.NavigateToHome();
       _.homePage.SelectWorkspace(workspaceId);
-      cy.get(_.homePage._applicationCard).first().trigger("mouseover");
+      cy.get(_.homePage._applicationCard).eq(1).trigger("mouseover");
       _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
       _.agHelper.AssertElementExist(_.homePage._shareWorkspace(workspaceId));
       _.agHelper.AssertElementExist(HomePage.optionsIcon);
