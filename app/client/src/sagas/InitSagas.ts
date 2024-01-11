@@ -471,7 +471,7 @@ function* eagerPageInitSaga() {
   try {
     yield call(getInitResponses, {
       shouldInitialiseUserDetails: true,
-      mode: APP_MODE.EDIT,
+      mode: APP_MODE.PUBLISHED,
     });
   } catch (e) {}
 }
