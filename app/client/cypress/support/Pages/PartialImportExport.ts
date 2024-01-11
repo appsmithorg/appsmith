@@ -3,6 +3,10 @@ import { EntityItems } from "./AssertHelper";
 import { AppSidebar, AppSidebarButton, PageLeftPane } from "./EditorNavigation";
 
 export default class PartialImportExport {
+  private agHelper = ObjectsRegistry.AggregateHelper;
+  private homePage = ObjectsRegistry.HomePage;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
+
   public readonly locators = {
     import: {
       importModal: "[data-testid='t--partialImportModal']",
@@ -26,16 +30,14 @@ export default class PartialImportExport {
   };
 
   OpenExportMenu() {
-    ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Home",
       action: "Export",
       entityType: EntityItems.Page,
     });
 
-    ObjectsRegistry.AggregateHelper.AssertElementVisibility(
-      this.locators.export.exportModal,
-    );
-    ObjectsRegistry.AggregateHelper.AssertElementEnabledDisabled(
+    this.agHelper.AssertElementVisibility(this.locators.export.exportModal);
+    this.agHelper.AssertElementEnabledDisabled(
       this.locators.export.modelContents.exportButton,
     );
   }
@@ -46,27 +48,24 @@ export default class PartialImportExport {
     fileNameToCompareWith: string,
     fixtureName: string,
   ) {
-    ObjectsRegistry.AggregateHelper.GetNClick(
+    this.agHelper.GetNClick(
       this.locators.export.modelContents.sectionHeaders,
       sectionIndex,
     );
 
-    const currentSection =
-      ObjectsRegistry.AggregateHelper.GetElement(sectionSelector);
+    const currentSection = this.agHelper.GetElement(sectionSelector);
 
     const checkboxesInSection = currentSection.find("input[type='checkbox']");
     checkboxesInSection.each((element) => {
       cy.wrap(element).click({ force: true });
     });
 
-    ObjectsRegistry.AggregateHelper.AssertElementEnabledDisabled(
+    this.agHelper.AssertElementEnabledDisabled(
       this.locators.export.modelContents.exportButton,
       0,
       false,
     );
-    ObjectsRegistry.AggregateHelper.GetNClick(
-      this.locators.export.modelContents.exportButton,
-    );
+    this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
 
     cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
       cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
@@ -87,20 +86,20 @@ export default class PartialImportExport {
     sectionTitle: string,
     elementsToCheck: string[],
   ) {
-    cy.xpath(ObjectsRegistry.HomePage._uploadFile).selectFile(
+    cy.xpath(this.homePage._uploadFile).selectFile(
       `cypress/fixtures/PartialImportExport/${fileName}`,
       {
         force: true,
       },
     );
 
-    ObjectsRegistry.AggregateHelper.WaitUntilEleAppear(
+    this.agHelper.WaitUntilEleAppear(
       "Partial Application imported successfully",
     );
-    ObjectsRegistry.AggregateHelper.CheckForErrorToast(
+    this.agHelper.CheckForErrorToast(
       "Internal server error while processing request",
     );
-    ObjectsRegistry.AggregateHelper.WaitUntilToastDisappear(
+    this.agHelper.WaitUntilToastDisappear(
       "Partial Application imported successfully",
     );
 
@@ -108,7 +107,7 @@ export default class PartialImportExport {
       case "Data":
         AppSidebar.navigate(AppSidebarButton.Data);
         elementsToCheck.forEach((dsName) => {
-          ObjectsRegistry.AggregateHelper.GetNAssertContains(
+          this.agHelper.GetNAssertContains(
             ObjectsRegistry.DataSources._datasourceCard,
             dsName,
           );
