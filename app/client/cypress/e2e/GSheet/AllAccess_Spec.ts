@@ -12,7 +12,7 @@ import {
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
-const dataSourceName = "gsheet";
+const dataSourceName = "gsheet-all;
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe(
