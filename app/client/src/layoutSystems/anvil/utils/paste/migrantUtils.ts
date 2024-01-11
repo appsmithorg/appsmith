@@ -102,6 +102,7 @@ export function* pasteMigrantWidgets(
             ...defaultHighlightRenderInfo,
             alignment,
             canvasId: parentId,
+            layoutId: newLayoutId,
             layoutOrder: !layoutId ? [newLayoutId] : [newLayoutId, layoutId],
             rowIndex,
           };
@@ -139,6 +140,7 @@ export function* pasteMigrantWidgets(
         ...defaultHighlightRenderInfo,
         alignment: FlexLayerAlignment.Start, // TODO: remove this hard coding
         canvasId: parentId,
+        layoutId: newLayoutId,
         layoutOrder: [newLayoutId],
         rowIndex: parentLayout?.layout.length ?? 0,
       };

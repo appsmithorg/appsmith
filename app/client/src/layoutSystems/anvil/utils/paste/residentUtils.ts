@@ -146,6 +146,7 @@ function getHighlightInfo(
   return {
     ...defaultHighlightRenderInfo,
     canvasId: parentId,
+    layoutId,
     layoutOrder,
     rowIndex,
     alignment: FlexLayerAlignment.Start,
@@ -190,6 +191,7 @@ function addWidgetInWidgetLayout(
   return LayoutComponent.addChild(updatedLayout, [insertItem], {
     ...defaultHighlightRenderInfo,
     canvasId: "",
+    layoutId: updatedLayout.layoutId,
     layoutOrder: [updatedLayout.layoutId],
     rowIndex: index + 1,
     alignment: insertItem.alignment,

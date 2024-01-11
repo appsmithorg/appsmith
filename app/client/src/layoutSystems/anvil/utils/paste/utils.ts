@@ -14,6 +14,7 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import WidgetFactory from "WidgetProvider/factory";
 import { widgetHierarchy } from "../constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { prePasteValidations } from "./valiationUtils";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
@@ -242,4 +243,66 @@ export function splitWidgetsByHierarchy(
     widgetOrders[widget.hierarchy].push(widget);
   });
   return widgetOrders;
+}
+
+export function getNewParentId(
+  allWidgets: CanvasWidgetsReduxState,
+  selectedWidget: FlattenedWidgetProps,
+  copiedWidgets: CopiedWidgetData[],
+  order: CopiedWidgetData[][],
+): string | null {
+  /**
+   * Return selectedWidget if it is the MainCanvas.
+   */
+  if (selectedWidget.widgetId === MAIN_CONTAINER_WIDGET_ID)
+    return selectedWidget.widgetId;
+
+  /**
+   * Return selectedWidget if it has a layout property.
+   * => it is a container widget (Section / Zone / Modal).
+   */
+  if (!!selectedWidget.layout) {
+    if (!prePasteValidations(selectedWidget, copiedWidgets, order)) return null;
+    return selectedWidget.widgetId;
+  } else {
+    /**
+     * Selected widget is a non-layout widget.
+     *
+     * If the widget doesn't have a valid parent, return null.
+     */
+    if (!selectedWidget.parentId || !allWidgets[selectedWidget.parentId])
+      return null;
+    /**
+     * Recursively check if the parent is a valid layout widget.
+     */
+    const parentId: string | null = getNewParentId(
+      allWidgets,
+      allWidgets[selectedWidget.parentId],
+      copiedWidgets,
+      order,
+    );
+    return parentId;
+  }
+}
+
+/**
+ * Split copied widgets based on migration status.
+ * migrants => parentId has changed.
+ * residents => parentId has not changed.
+ * @param copiedWidgets | CopiedWidgetData[] : list of copied widgets.
+ * @param newParentId | string : new parent id to paste widgets into.
+ */
+export function splitWidgetsOnResidenceStatus(
+  copiedWidgets: CopiedWidgetData[],
+  newParentId: string,
+): { migrants: CopiedWidgetData[]; residents: CopiedWidgetData[] } {
+  const migrants: CopiedWidgetData[] = [];
+  const residents: CopiedWidgetData[] = [];
+
+  copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
+    if (copiedWidget.parentId === newParentId) residents.push(copiedWidget);
+    else migrants.push(copiedWidget);
+  });
+
+  return { migrants, residents };
 }
