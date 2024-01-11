@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -27,11 +28,16 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -48,58 +54,66 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@DirtiesContext
 @ExtendWith(SpringExtension.class)
 public class ConsolidatedAPIServiceImplTest {
 
-    @SpyBean
+    @Autowired
     ConsolidatedAPIService consolidatedAPIService;
 
-    @SpyBean
-    SessionUserService sessionUserService;
+    @MockBean
+    SessionUserService mockSessionUserService;
+
+    @MockBean
+    UserService mockUserService;
+
+    @MockBean
+    UserDataService mockUserDataService;
+
+    @MockBean
+    TenantService mockTenantService;
+
+    @MockBean
+    ProductAlertService mockProductAlertService;
 
     @SpyBean
-    UserService userService;
+    NewPageService spyNewPageService;
 
     @SpyBean
-    UserDataService userDataService;
+    NewActionService spyNewActionService;
 
     @SpyBean
-    TenantService tenantService;
+    ActionCollectionService spyActionCollectionService;
 
     @SpyBean
-    ProductAlertService productAlertService;
+    ThemeService spyThemeService;
 
     @SpyBean
-    NewPageService newPageService;
+    ApplicationPageService spyApplicationPageService;
 
     @SpyBean
-    NewActionService newActionService;
+    CustomJSLibService spyCustomJSLibService;
+
+    @MockBean
+    PluginService mockPluginService;
 
     @SpyBean
-    ActionCollectionService actionCollectionService;
+    ApplicationService spyApplicationService;
+
+    @MockBean
+    DatasourceService mockDatasourceService;
+
+    @MockBean
+    MockDataService mockMockDataService;
 
     @SpyBean
-    ThemeService themeService;
+    ApplicationRepository spyApplicationRepository;
 
-    @SpyBean
-    ApplicationPageService applicationPageService;
-
-    @SpyBean
-    CustomJSLibService customJSLibService;
-
-    @SpyBean
-    PluginService pluginService;
-
-    @SpyBean
-    ApplicationService applicationService;
-
-    @SpyBean
-    DatasourceService datasourceService;
-
-    @SpyBean
-    MockDataService mockDataService;
+    @MockBean
+    NewPageRepository mockNewPageRepository;
 
     @Test
     public void testErrorWhenModeIsNullAndPageIdAvailable() {
@@ -114,58 +128,57 @@ public class ConsolidatedAPIServiceImplTest {
     @Test
     public void testPageLoadResponseWhenPageIdAndApplicationIdMissing() {
         User sampleUser = new User();
-        doReturn(Mono.just(sampleUser)).when(sessionUserService).getCurrentUser();
+        when(mockSessionUserService.getCurrentUser()).thenReturn(Mono.just(sampleUser));
 
         UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
         sampleUserProfileDTO.setName("sampleUserProfileDTO");
-        doReturn(Mono.just(sampleUserProfileDTO)).when(userService).buildUserProfileDTO(any());
+        when(mockUserService.buildUserProfileDTO(any())).thenReturn(Mono.just(sampleUserProfileDTO));
 
         Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
-        doReturn(Mono.just(sampleFeatureFlagMap)).when(userDataService).getFeatureFlagsForCurrentUser();
+        when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
         Tenant sampleTenant = new Tenant();
         sampleTenant.setDisplayName("sampleTenant");
-        doReturn(Mono.just(sampleTenant)).when(tenantService).getTenantConfiguration();
+        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
-        doReturn(Mono.just(List.of(sampleProductAlertResponseDTO)))
-                .when(productAlertService)
-                .getSingleApplicableMessage();
+        when(mockProductAlertService.getSingleApplicableMessage())
+                .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
                         "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
-                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
                     assertEquals(
                             "sampleUserProfileDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1UsersMeResp()
+                                    .getUserProfile()
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
                     assertEquals(
                             "sampleTenant",
                             consolidatedAPIResponseDTO
-                                    .getV1TenantsCurrentResp()
+                                    .getTenantConfig()
                                     .getData()
                                     .getDisplayName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getFeatureFlags());
                     assertTrue(consolidatedAPIResponseDTO
-                            .getV1UsersFeaturesResp()
+                            .getFeatureFlags()
                             .getData()
                             .get("sampleFeatureFlag"));
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getProductAlert());
                     assertEquals(
                             "sampleProductAlert",
                             consolidatedAPIResponseDTO
-                                    .getV1ProductAlertResp()
+                                    .getProductAlert()
                                     .getData()
                                     .getTitle());
                 })
@@ -175,57 +188,57 @@ public class ConsolidatedAPIServiceImplTest {
     @Test
     public void testPageLoadResponseForViewMode() {
         User sampleUser = new User();
-        doReturn(Mono.just(sampleUser)).when(sessionUserService).getCurrentUser();
+        when(mockSessionUserService.getCurrentUser()).thenReturn(Mono.just(sampleUser));
 
         UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
         sampleUserProfileDTO.setName("sampleUserProfileDTO");
-        doReturn(Mono.just(sampleUserProfileDTO)).when(userService).buildUserProfileDTO(any());
+        when(mockUserService.buildUserProfileDTO(any())).thenReturn(Mono.just(sampleUserProfileDTO));
 
         Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
-        doReturn(Mono.just(sampleFeatureFlagMap)).when(userDataService).getFeatureFlagsForCurrentUser();
+        when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
         Tenant sampleTenant = new Tenant();
         sampleTenant.setDisplayName("sampleTenant");
-        doReturn(Mono.just(sampleTenant)).when(tenantService).getTenantConfiguration();
+        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
-        doReturn(Mono.just(List.of(sampleProductAlertResponseDTO)))
-                .when(productAlertService)
-                .getSingleApplicableMessage();
+        when(mockProductAlertService.getSingleApplicableMessage())
+                .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
         ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
-        doReturn(Mono.just(sampleApplicationPagesDTO))
-                .when(newPageService)
-                .findApplicationPages(anyString(), any(), anyString(), any());
+        when(spyNewPageService.findApplicationPages(anyString(), any(), anyString(), any()))
+                .thenReturn(Mono.just(sampleApplicationPagesDTO));
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
-        doReturn(Mono.just(sampleTheme)).when(themeService).getApplicationTheme(anyString(), any(), anyString());
-        doReturn(Flux.just(sampleTheme)).when(themeService).getApplicationThemes(anyString(), anyString());
+        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(anyString(), any(), anyString());
+        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(anyString(), anyString());
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
         doReturn(Mono.just(List.of(sampleCustomJSLib)))
-                .when(customJSLibService)
+                .when(spyCustomJSLibService)
                 .getAllJSLibsInContext(anyString(), any(), anyString(), anyBoolean());
 
         PageDTO samplePageDTO = new PageDTO();
         samplePageDTO.setName("samplePageDTO");
         doReturn(Mono.just(samplePageDTO))
-                .when(applicationPageService)
+                .when(spyApplicationPageService)
                 .getPageAndMigrateDslByBranchAndDefaultPageId(anyString(), anyString(), anyBoolean(), anyBoolean());
 
         ActionViewDTO sampleActionViewDTO = new ActionViewDTO();
         sampleActionViewDTO.setName("sampleActionViewDTO");
-        doReturn(Flux.just(sampleActionViewDTO)).when(newActionService).getActionsForViewMode(anyString(), anyString());
+        doReturn(Flux.just(sampleActionViewDTO))
+                .when(spyNewActionService)
+                .getActionsForViewMode(anyString(), anyString());
 
         ActionCollectionViewDTO sampleActionCollectionViewDTO = new ActionCollectionViewDTO();
         sampleActionCollectionViewDTO.setName("sampleActionCollectionViewDTO");
         doReturn(Flux.just(sampleActionCollectionViewDTO))
-                .when(actionCollectionService)
+                .when(spyActionCollectionService)
                 .getActionCollectionsForViewMode(anyString(), anyString());
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
@@ -233,117 +246,110 @@ public class ConsolidatedAPIServiceImplTest {
                         "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ActionsViewResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPublishedActions());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1ActionsViewResp()
+                                    .getPublishedActions()
                                     .getData()
                                     .size());
                     assertEquals(
                             "sampleActionViewDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1ActionsViewResp()
+                                    .getPublishedActions()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
                     assertEquals(
                             "sampleUserProfileDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1UsersMeResp()
+                                    .getUserProfile()
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
                     assertEquals(
                             "sampleTenant",
                             consolidatedAPIResponseDTO
-                                    .getV1TenantsCurrentResp()
+                                    .getTenantConfig()
                                     .getData()
                                     .getDisplayName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getFeatureFlags());
                     assertTrue(consolidatedAPIResponseDTO
-                            .getV1UsersFeaturesResp()
+                            .getFeatureFlags()
                             .getData()
                             .get("sampleFeatureFlag"));
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1PagesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPages());
                     assertEquals(
                             "sampleWorkspaceId",
-                            consolidatedAPIResponseDTO
-                                    .getV1PagesResp()
-                                    .getData()
-                                    .getWorkspaceId());
+                            consolidatedAPIResponseDTO.getPages().getData().getWorkspaceId());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ThemesApplicationCurrentModeResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getCurrentTheme());
                     assertEquals(
                             "sampleTheme",
                             consolidatedAPIResponseDTO
-                                    .getV1ThemesApplicationCurrentModeResp()
+                                    .getCurrentTheme()
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ThemesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getThemes());
                     assertEquals(
-                            1,
-                            consolidatedAPIResponseDTO
-                                    .getV1ThemesResp()
-                                    .getData()
-                                    .size());
+                            1, consolidatedAPIResponseDTO.getThemes().getData().size());
                     assertEquals(
                             "sampleTheme",
                             consolidatedAPIResponseDTO
-                                    .getV1ThemesResp()
+                                    .getThemes()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1CollectionsActionsViewResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPublishedActionCollections());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsViewResp()
+                                    .getPublishedActionCollections()
                                     .getData()
                                     .size());
                     assertEquals(
                             "sampleActionCollectionViewDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsViewResp()
+                                    .getPublishedActionCollections()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1PublishedPageResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPageWithMigratedDsl());
                     assertEquals(
                             "samplePageDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1PublishedPageResp()
+                                    .getPageWithMigratedDsl()
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1LibrariesApplicationResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getCustomJSLibraries());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp()
+                                    .getCustomJSLibraries()
                                     .getData()
                                     .size());
                     assertEquals(
                             "sampleJSLib",
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp()
+                                    .getCustomJSLibraries()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getProductAlert());
                     assertEquals(
                             "sampleProductAlert",
                             consolidatedAPIResponseDTO
-                                    .getV1ProductAlertResp()
+                                    .getProductAlert()
                                     .getData()
                                     .getTitle());
                 })
@@ -353,62 +359,58 @@ public class ConsolidatedAPIServiceImplTest {
     @Test
     public void testPageLoadResponseForEditMode() {
         User sampleUser = new User();
-        doReturn(Mono.just(sampleUser)).when(sessionUserService).getCurrentUser();
+        when(mockSessionUserService.getCurrentUser()).thenReturn(Mono.just(sampleUser));
 
         UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
         sampleUserProfileDTO.setName("sampleUserProfileDTO");
-        doReturn(Mono.just(sampleUserProfileDTO)).when(userService).buildUserProfileDTO(any());
+        when(mockUserService.buildUserProfileDTO(any())).thenReturn(Mono.just(sampleUserProfileDTO));
 
         Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
-        doReturn(Mono.just(sampleFeatureFlagMap)).when(userDataService).getFeatureFlagsForCurrentUser();
+        when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
         Tenant sampleTenant = new Tenant();
         sampleTenant.setDisplayName("sampleTenant");
-        doReturn(Mono.just(sampleTenant)).when(tenantService).getTenantConfiguration();
+        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
-        doReturn(Mono.just(List.of(sampleProductAlertResponseDTO)))
-                .when(productAlertService)
-                .getSingleApplicableMessage();
+        when(mockProductAlertService.getSingleApplicableMessage())
+                .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
         ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
-        doReturn(Mono.just(sampleApplicationPagesDTO))
-                .when(newPageService)
-                .findApplicationPages(anyString(), any(), anyString(), any());
+        when(spyNewPageService.findApplicationPages(anyString(), any(), anyString(), any()))
+                .thenReturn(Mono.just(sampleApplicationPagesDTO));
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
-        doReturn(Mono.just(sampleTheme)).when(themeService).getApplicationTheme(anyString(), any(), anyString());
-        doReturn(Flux.just(sampleTheme)).when(themeService).getApplicationThemes(anyString(), anyString());
+        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(anyString(), any(), anyString());
+        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(anyString(), anyString());
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
         doReturn(Mono.just(List.of(sampleCustomJSLib)))
-                .when(customJSLibService)
+                .when(spyCustomJSLibService)
                 .getAllJSLibsInContext(anyString(), any(), anyString(), anyBoolean());
 
         PageDTO samplePageDTO = new PageDTO();
         samplePageDTO.setName("samplePageDTO");
         doReturn(Mono.just(samplePageDTO))
-                .when(applicationPageService)
-                .getPageAndMigrateDslByBranchAndDefaultPageId(anyString(), anyString(), anyBoolean(), anyBoolean());
-        doReturn(Mono.just(samplePageDTO))
-                .when(applicationPageService)
+                .doReturn(Mono.just(samplePageDTO))
+                .when(spyApplicationPageService)
                 .getPageAndMigrateDslByBranchAndDefaultPageId(anyString(), anyString(), anyBoolean(), anyBoolean());
 
         ActionDTO sampleActionDTO = new ActionDTO();
         sampleActionDTO.setName("sampleActionDTO");
         doReturn(Flux.just(sampleActionDTO))
-                .when(newActionService)
+                .when(spyNewActionService)
                 .getUnpublishedActions(any(), anyString(), anyBoolean());
 
         ActionCollectionDTO sampleActionCollectionDTO = new ActionCollectionDTO();
         sampleActionCollectionDTO.setName("sampleActionCollectionDTO");
         doReturn(Flux.just(sampleActionCollectionDTO))
-                .when(actionCollectionService)
+                .when(spyActionCollectionService)
                 .getPopulatedActionCollectionsByViewMode(any(), anyBoolean(), anyString());
 
         PageNameIdDTO samplePageNameIdDTO = new PageNameIdDTO();
@@ -418,196 +420,360 @@ public class ConsolidatedAPIServiceImplTest {
 
         Plugin samplePlugin = new Plugin();
         samplePlugin.setName("samplePlugin");
-        doReturn(Flux.just(samplePlugin)).when(pluginService).get(any());
+        when(mockPluginService.get(any())).thenReturn(Flux.just(samplePlugin));
 
         Datasource sampleDatasource = new Datasource();
         sampleDatasource.setName("sampleDatasource");
         sampleDatasource.setPluginId("samplePluginId");
-        doReturn(Flux.just(sampleDatasource)).when(datasourceService).getAllWithStorages(any());
+        when(mockDatasourceService.getAllWithStorages(any())).thenReturn(Flux.just(sampleDatasource));
 
         Map<String, Map> sampleFormConfig = new HashMap<>();
         sampleFormConfig.put("key", Map.of());
-        doReturn(Mono.just(sampleFormConfig)).when(pluginService).getFormConfig(anyString());
+        when(mockPluginService.getFormConfig(anyString())).thenReturn(Mono.just(sampleFormConfig));
 
         MockDataSet sampleMockDataSet = new MockDataSet();
         sampleMockDataSet.setName("sampleMockDataSet");
         MockDataDTO sampleMockDataDTO = new MockDataDTO();
         sampleMockDataDTO.setMockdbs(List.of(sampleMockDataSet));
-        doReturn(Mono.just(sampleMockDataDTO)).when(mockDataService).getMockDataSet();
+        when(mockMockDataService.getMockDataSet()).thenReturn(Mono.just(sampleMockDataDTO));
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
                         "pageId", "appId", "branch", ApplicationMode.EDIT);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
-                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersMeResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
                     assertEquals(
                             "sampleUserProfileDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1UsersMeResp()
+                                    .getUserProfile()
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1TenantsCurrentResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
                     assertEquals(
                             "sampleTenant",
                             consolidatedAPIResponseDTO
-                                    .getV1TenantsCurrentResp()
+                                    .getTenantConfig()
                                     .getData()
                                     .getDisplayName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1UsersFeaturesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getFeatureFlags());
                     assertTrue(consolidatedAPIResponseDTO
-                            .getV1UsersFeaturesResp()
+                            .getFeatureFlags()
                             .getData()
                             .get("sampleFeatureFlag"));
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1PagesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPages());
                     assertEquals(
                             "sampleWorkspaceId",
-                            consolidatedAPIResponseDTO
-                                    .getV1PagesResp()
-                                    .getData()
-                                    .getWorkspaceId());
+                            consolidatedAPIResponseDTO.getPages().getData().getWorkspaceId());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ThemesApplicationCurrentModeResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getCurrentTheme());
                     assertEquals(
                             "sampleTheme",
                             consolidatedAPIResponseDTO
-                                    .getV1ThemesApplicationCurrentModeResp()
+                                    .getCurrentTheme()
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ThemesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getThemes());
                     assertEquals(
-                            1,
-                            consolidatedAPIResponseDTO
-                                    .getV1ThemesResp()
-                                    .getData()
-                                    .size());
+                            1, consolidatedAPIResponseDTO.getThemes().getData().size());
                     assertEquals(
                             "sampleTheme",
                             consolidatedAPIResponseDTO
-                                    .getV1ThemesResp()
+                                    .getThemes()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1PagesResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPages());
                     assertEquals(
                             "sampleWorkspaceId",
-                            consolidatedAPIResponseDTO
-                                    .getV1PagesResp()
-                                    .getData()
-                                    .getWorkspaceId());
+                            consolidatedAPIResponseDTO.getPages().getData().getWorkspaceId());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1LibrariesApplicationResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getCustomJSLibraries());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp()
+                                    .getCustomJSLibraries()
                                     .getData()
                                     .size());
                     assertEquals(
                             "sampleJSLib",
                             consolidatedAPIResponseDTO
-                                    .getV1LibrariesApplicationResp()
+                                    .getCustomJSLibraries()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ProductAlertResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getProductAlert());
                     assertEquals(
                             "sampleProductAlert",
                             consolidatedAPIResponseDTO
-                                    .getV1ProductAlertResp()
+                                    .getProductAlert()
                                     .getData()
                                     .getTitle());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1ActionsResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getUnpublishedActions());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1ActionsResp()
+                                    .getUnpublishedActions()
                                     .getData()
                                     .size());
                     assertEquals(
                             "sampleActionDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1ActionsResp()
+                                    .getUnpublishedActions()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1CollectionsActionsResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getUnpublishedActionCollections());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsResp()
+                                    .getUnpublishedActionCollections()
                                     .getData()
                                     .size());
                     assertEquals(
                             "sampleActionCollectionDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1CollectionsActionsResp()
+                                    .getUnpublishedActionCollections()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1PageDSLs());
-                    assertEquals(
-                            1,
-                            consolidatedAPIResponseDTO.getV1PageDSLs().getData().size());
-                    assertEquals(
-                            "samplePageDTO",
-                            consolidatedAPIResponseDTO
-                                    .getV1PageDSLs()
-                                    .getData()
-                                    .get(0)
-                                    .getName());
-
-                    assertNotNull(consolidatedAPIResponseDTO.getV1PluginsResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPagesWithMigratedDsl());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1PluginsResp()
+                                    .getPagesWithMigratedDsl()
                                     .getData()
                                     .size());
                     assertEquals(
-                            "samplePlugin",
+                            "samplePageDTO",
                             consolidatedAPIResponseDTO
-                                    .getV1PluginsResp()
+                                    .getPagesWithMigratedDsl()
                                     .getData()
                                     .get(0)
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1PluginFormConfigsResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getPlugins());
+                    assertEquals(
+                            1, consolidatedAPIResponseDTO.getPlugins().getData().size());
+                    assertEquals(
+                            "samplePlugin",
+                            consolidatedAPIResponseDTO
+                                    .getPlugins()
+                                    .getData()
+                                    .get(0)
+                                    .getName());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPluginFormConfigs());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1PluginFormConfigsResp()
+                                    .getPluginFormConfigs()
                                     .getData()
                                     .keySet()
                                     .size());
                     assertTrue(consolidatedAPIResponseDTO
-                            .getV1PluginFormConfigsResp()
+                            .getPluginFormConfigs()
                             .getData()
                             .containsKey("samplePluginId"));
 
-                    assertNotNull(consolidatedAPIResponseDTO.getV1DatasourcesMockResp());
+                    assertNotNull(consolidatedAPIResponseDTO.getMockDatasources());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
-                                    .getV1DatasourcesMockResp()
+                                    .getMockDatasources()
                                     .getData()
                                     .size());
                     assertEquals(
                             "sampleMockDataSet",
                             consolidatedAPIResponseDTO
-                                    .getV1DatasourcesMockResp()
+                                    .getMockDatasources()
                                     .getData()
                                     .get(0)
                                     .getName());
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * To mimic error response the DB fetch call from repository has been mocked in this test i.e. the repository has
+     * been mocked to return empty response.
+     */
+    @Test
+    public void testErrorResponseWhenAnonymousUserAccessPrivateApp() {
+        User sampleUser = new User();
+        when(mockSessionUserService.getCurrentUser()).thenReturn(Mono.just(sampleUser));
+
+        UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
+        sampleUserProfileDTO.setName("sampleUserProfileDTO");
+        when(mockUserService.buildUserProfileDTO(any())).thenReturn(Mono.just(sampleUserProfileDTO));
+
+        Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
+        sampleFeatureFlagMap.put("sampleFeatureFlag", true);
+        when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
+
+        Tenant sampleTenant = new Tenant();
+        sampleTenant.setDisplayName("sampleTenant");
+        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+
+        ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
+        sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
+        when(mockProductAlertService.getSingleApplicableMessage())
+                .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
+
+        when(mockNewPageRepository.findPageByBranchNameAndDefaultPageId(anyString(), anyString(), any()))
+                .thenReturn(Mono.empty());
+        doReturn(Mono.empty())
+                .when(spyApplicationRepository)
+                .getApplicationByGitBranchAndDefaultApplicationId(anyString(), anyString(), any(AclPermission.class));
+
+        Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
+                consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
+        StepVerifier.create(consolidatedInfoForPageLoad)
+                .assertNext(consolidatedAPIResponseDTO -> {
+                    assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
+                    assertEquals(
+                            "sampleUserProfileDTO",
+                            consolidatedAPIResponseDTO
+                                    .getUserProfile()
+                                    .getData()
+                                    .getName());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertEquals(
+                            "sampleTenant",
+                            consolidatedAPIResponseDTO
+                                    .getTenantConfig()
+                                    .getData()
+                                    .getDisplayName());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getFeatureFlags());
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getFeatureFlags()
+                            .getData()
+                            .get("sampleFeatureFlag"));
+
+                    assertNotNull(consolidatedAPIResponseDTO.getProductAlert());
+                    assertEquals(
+                            "sampleProductAlert",
+                            consolidatedAPIResponseDTO
+                                    .getProductAlert()
+                                    .getData()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPublishedActions());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActions()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActions()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPages());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPages()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPages()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getCurrentTheme());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getCurrentTheme()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getCurrentTheme()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getThemes());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getThemes()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getThemes()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPublishedActionCollections());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActionCollections()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActionCollections()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPageWithMigratedDsl());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPageWithMigratedDsl()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPageWithMigratedDsl()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getCustomJSLibraries());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getCustomJSLibraries()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getCustomJSLibraries()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
                 })
                 .verifyComplete();
     }

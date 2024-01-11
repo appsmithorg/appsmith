@@ -14,7 +14,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
-import { getSelectedDatasourceId } from "../../../../navigation/FocusSelectors";
+import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
 import { countBy, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
@@ -31,7 +31,7 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { EmptyState } from "../EditorPane/EmptyState";
+import { EmptyState } from "../EditorPane/components/EmptyState";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -53,6 +53,10 @@ const DatasourceIcon = styled.img`
   height: 16px;
   width: 16px;
   align-self: flex-start;
+`;
+
+const StyledList = styled(List)`
+  gap: 0;
 `;
 
 const DataSidePane = () => {
@@ -118,7 +122,7 @@ const DataSidePane = () => {
         {Object.entries(groupedDatasources).map(([key, value]) => (
           <SubListContainer key={key}>
             <Text kind="heading-xs">{key}</Text>
-            <List
+            <StyledList
               items={value.map((data) => ({
                 className: "t--datasource",
                 title: data.name,

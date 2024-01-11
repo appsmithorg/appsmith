@@ -17,6 +17,14 @@
   gap: var(--outer-spacing-4);
   padding-inline: var(--outer-spacing-4);
   padding-block: var(--outer-spacing-4);
+
+  .body {
+    overflow: auto;
+    max-height: 100%;
+    padding-inline: var(--outer-spacing-4);
+    margin-inline: calc(var(--outer-spacing-4) * -1);
+    flex: 1;
+  }
 }
 
 [data-size="small"] .content {
@@ -30,14 +38,6 @@
 [data-size="large"] .content {
   width: 100%;
   height: 100%;
-}
-
-.body {
-  overflow: auto;
-  max-height: 100%;
-  padding-inline: var(--outer-spacing-4);
-  margin-inline: calc(var(--outer-spacing-4) * -1);
-  flex: 1;
 }
 
 .overlay,

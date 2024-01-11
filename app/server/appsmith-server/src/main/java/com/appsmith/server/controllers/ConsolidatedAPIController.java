@@ -33,11 +33,10 @@ public class ConsolidatedAPIController {
      * response hence enabling the client to fetch the required data via a single API call only.
      */
     @JsonView(Views.Public.class)
-    @GetMapping
-    public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoad(
+    @GetMapping("/edit")
+    public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForEditMode(
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String defaultPageId,
-            @RequestParam(required = false) ApplicationMode mode,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, "
@@ -45,9 +44,28 @@ public class ConsolidatedAPIController {
                 applicationId,
                 defaultPageId,
                 branchName,
-                mode);
+                ApplicationMode.EDIT);
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, mode)
+                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.EDIT)
+                .map(consolidatedAPIResponseDTO ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/view")
+    public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForViewMode(
+            @RequestParam(required = false) String applicationId,
+            @RequestParam(required = false) String defaultPageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, "
+                        + "mode: {}",
+                applicationId,
+                defaultPageId,
+                branchName,
+                ApplicationMode.PUBLISHED);
+        return consolidatedAPIService
+                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
     }
