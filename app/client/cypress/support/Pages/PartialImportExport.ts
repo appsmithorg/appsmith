@@ -92,6 +92,12 @@ export default class PartialImportExport {
       cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
         (expectedFile) => {
           const propertyName = exportedPropertiesToUIEntitiesMap[sectionName];
+          cy.log("####################");
+          cy.log(expectedFile);
+          cy.log("####################");
+          cy.log(exportedFile);
+          cy.log("####################");
+
           if (propertyName in exportedFile && propertyName in expectedFile) {
             const exportedPropertyContents = JSON.stringify(
               exportedFile[propertyName],
