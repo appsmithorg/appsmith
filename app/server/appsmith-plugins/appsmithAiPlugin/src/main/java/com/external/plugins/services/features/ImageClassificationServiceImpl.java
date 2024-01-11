@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.dtos.Query;
-import com.external.plugins.dtos.TextClassificationQuery;
 import com.external.plugins.services.AiFeatureService;
 
 import java.util.Arrays;
@@ -32,7 +31,7 @@ public class ImageClassificationServiceImpl implements AiFeatureService {
         // labels string is comma-separated list of labels
         List<String> labelsList =
                 Arrays.stream(labels.split(",")).map(String::trim).toList();
-        TextClassificationQuery query = new TextClassificationQuery();
+        Query query = new Query();
         query.setInput(input);
         query.setLabels(labelsList);
         query.setInstructions(instructions);
