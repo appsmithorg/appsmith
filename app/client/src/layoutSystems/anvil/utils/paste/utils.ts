@@ -12,6 +12,8 @@ import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import WidgetFactory from "WidgetProvider/factory";
+import { widgetHierarchy } from "../constants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
@@ -211,4 +213,20 @@ export function getParentLayout(
   if (!parent || !parent.layout) return null;
   // TODO: @Preet - remove this hard coding.
   return parent.layout[0];
+}
+
+export function getWidgetHierarchy(type: string, id: string): number {
+  if (widgetHierarchy[type]) return widgetHierarchy[type];
+  if (id === MAIN_CONTAINER_WIDGET_ID) return widgetHierarchy.MAIN_CANVAS;
+  return widgetHierarchy.OTHER;
+}
+
+export function splitWidgetsByHierarchy(
+  widgets: CopiedWidgetData[],
+): CopiedWidgetData[][] {
+  const widgetOrders: CopiedWidgetData[][] = [[], [], [], []];
+  widgets.forEach((widget: CopiedWidgetData) => {
+    widgetOrders[widget.hierarchy].push(widget);
+  });
+  return widgetOrders;
 }

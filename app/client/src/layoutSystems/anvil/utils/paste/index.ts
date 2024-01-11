@@ -15,9 +15,14 @@ import { PASTE_FAILED, createMessage } from "@appsmith/constants/messages";
 import { toast } from "design-system";
 import { areWidgetsWhitelisted } from "../layouts/whitelistUtils";
 import type { CopiedWidgetData } from "./types";
-import { getParentLayout } from "./utils";
+import {
+  getParentLayout,
+  getWidgetHierarchy,
+  splitWidgetsByHierarchy,
+} from "./utils";
 import { pasteMigrantWidgets } from "./migrantUtils";
 import { pasteResidentWidgets } from "./residentUtils";
+import { widgetHierarchy } from "../constants";
 
 export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
   const originalWidgets: CopiedWidgetData[] = [...copiedWidgets];
@@ -30,6 +35,12 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
   let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   /**
+   * Order widgets based on hierarchy.
+   * MainCanvas > Section > Zone > Others.
+   */
+  const order: CopiedWidgetData[][] = splitWidgetsByHierarchy(copiedWidgets);
+
+  /**
    * Get new parentId to paste widgets into.
    */
 
@@ -37,6 +48,7 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
     allWidgets,
     selectedWidget,
     originalWidgets,
+    order,
   );
 
   if (!newParentId) throw new Error("Invalid pasting parent");
@@ -102,11 +114,11 @@ export function* pasteSagas(copiedWidgets: CopiedWidgetData[]) {
       widgets: CanvasWidgetsReduxState;
     } = yield call(
       pasteMigrantWidgets,
-      migrants,
       allWidgets,
-      newParentId,
       widgetIdMap,
       reverseWidgetIdMap,
+      newParentId,
+      order,
     );
     allWidgets = res.widgets;
     widgetIdMap = res.map;
@@ -141,6 +153,7 @@ export function getNewParentId(
   allWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps,
   copiedWidgets: CopiedWidgetData[],
+  order: CopiedWidgetData[][],
 ): string | null {
   /**
    * Return selectedWidget if it is the MainCanvas.
@@ -153,7 +166,7 @@ export function getNewParentId(
    * => it is a container widget (Section / Zone / Modal).
    */
   if (!!selectedWidget.layout) {
-    if (!prePasteValidations(selectedWidget, copiedWidgets)) return null;
+    if (!prePasteValidations(selectedWidget, copiedWidgets, order)) return null;
     return selectedWidget.widgetId;
   } else {
     /**
@@ -170,6 +183,7 @@ export function getNewParentId(
       allWidgets,
       allWidgets[selectedWidget.parentId],
       copiedWidgets,
+      order,
     );
     return parentId;
   }
@@ -206,6 +220,7 @@ function showErrorToast(message: string): void {
 function prePasteValidations(
   parentWidget: FlattenedWidgetProps,
   copiedWidgets: CopiedWidgetData[],
+  order: CopiedWidgetData[][],
 ): boolean {
   /**
    * Check copied widgets for presence of same layout widgets or presence of the parent widget itself.
@@ -247,7 +262,7 @@ function prePasteValidations(
     const { layout, maxChildLimit } = parentLayout;
     if (
       maxChildLimit !== undefined &&
-      layout.length + copiedWidgets.length > maxChildLimit
+      layout.length + getCopiedWidgetCount(order, parentWidget) > maxChildLimit
     ) {
       showErrorToast("This widget can not hold as many children");
       return false;
@@ -255,4 +270,34 @@ function prePasteValidations(
   }
 
   return true;
+}
+
+/**
+ * Calculate the number of children that will be added.
+ * => Count all the widgets in the immediately lower order of hierarchy.
+ * => All other widgets in lower orders will account for a single entry.
+ * @param order : CopiedWidgetData[][]
+ * @param parentWidget : FlattenedWidgetProps
+ * @returns : number
+ */
+function getCopiedWidgetCount(
+  order: CopiedWidgetData[][],
+  parentWidget: FlattenedWidgetProps,
+): number {
+  const parentHierarchy: number = getWidgetHierarchy(
+    parentWidget.type,
+    parentWidget.widgetId,
+  );
+  let count = order[parentHierarchy + 1].length;
+  for (
+    let i = parentHierarchy + 2;
+    i < Object.keys(widgetHierarchy).length;
+    i += 1
+  ) {
+    if (order[i].length) {
+      count += 1;
+      break;
+    }
+  }
+  return count;
 }

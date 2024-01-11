@@ -5,6 +5,7 @@ import {
   addPastedWidgets,
   getContainingLayoutMapping,
   getParentLayout,
+  getWidgetHierarchy,
 } from "./utils";
 import { all, call } from "redux-saga/effects";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -14,25 +15,18 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../anvilTypes";
-import { defaultHighlightRenderInfo } from "../constants";
+import { defaultHighlightRenderInfo, widgetHierarchy } from "../constants";
 import { handleWidgetMovement } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
 import { generateReactKey } from "utils/generators";
 import { addNewWidgetAndUpdateLayout } from "./widgetUtils";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 
-const widgetTypes: { [key: string]: number } = {
-  MAIN_CANVAS: 0,
-  [anvilWidgets.SECTION_WIDGET]: 1,
-  [anvilWidgets.ZONE_WIDGET]: 2,
-  OTHER: 3,
-};
-
 export function* pasteMigrantWidgets(
-  copiedWidgets: CopiedWidgetData[],
   allWidgets: CanvasWidgetsReduxState,
-  newParentId: string,
   widgetIdMap: Record<string, string>,
   reverseWidgetIdMap: Record<string, string>,
+  newParentId: string,
+  order: CopiedWidgetData[][],
 ) {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
   let map: Record<string, string> = { ...widgetIdMap };
@@ -40,16 +34,10 @@ export function* pasteMigrantWidgets(
 
   const parentWidget: FlattenedWidgetProps = widgets[newParentId];
 
-  const parentOrder: number = getWidgetOrder(
+  const parentOrder: number = getWidgetHierarchy(
     parentWidget.type,
     parentWidget.widgetId,
   );
-
-  /**
-   * Order widgets based on hierarchy.
-   * MainCanvas > Section > Zone > Others.
-   */
-  const order: CopiedWidgetData[][] = splitWidgetsByOrder(copiedWidgets);
 
   /**
    * Start from the next order of the parent.
@@ -181,23 +169,6 @@ export function* pasteMigrantWidgets(
   return { widgets, map, reverseMap };
 }
 
-function getWidgetOrder(type: string, id: string): number {
-  if (widgetTypes[type]) return widgetTypes[type];
-  if (id === MAIN_CONTAINER_WIDGET_ID) return widgetTypes.MAIN_CANVAS;
-  return widgetTypes.OTHER;
-}
-
-function splitWidgetsByOrder(
-  widgets: CopiedWidgetData[],
-): CopiedWidgetData[][] {
-  const widgetOrders: CopiedWidgetData[][] = [[], [], [], []];
-  widgets.forEach((widget: CopiedWidgetData) => {
-    const order = getWidgetOrder(widget.list[0].type, widget.widgetId);
-    widgetOrders[order].push(widget);
-  });
-  return widgetOrders;
-}
-
 function* createParentAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
   highlight: AnvilHighlightInfo,
@@ -207,7 +178,7 @@ function* createParentAndAddWidget(
   let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
   const newWidgetId: string = generateReactKey();
   switch (order) {
-    case widgetTypes[anvilWidgets.SECTION_WIDGET]: {
+    case widgetHierarchy[anvilWidgets.SECTION_WIDGET]: {
       canvasWidgets = yield call(
         addNewWidgetAndUpdateLayout,
         canvasWidgets,
@@ -218,7 +189,7 @@ function* createParentAndAddWidget(
       );
       return { canvasWidgets, newParent: canvasWidgets[newWidgetId] };
     }
-    case widgetTypes[anvilWidgets.ZONE_WIDGET]: {
+    case widgetHierarchy[anvilWidgets.ZONE_WIDGET]: {
       canvasWidgets = yield call(
         addNewWidgetAndUpdateLayout,
         canvasWidgets,

@@ -980,6 +980,7 @@ function* createSelectedWidgetsCopy(
     widgetId: string;
     parentId: string;
     list: FlattenedWidgetProps[];
+    hierarchy: number;
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
 
   const saveResult: boolean = yield saveCopiedWidgets(
