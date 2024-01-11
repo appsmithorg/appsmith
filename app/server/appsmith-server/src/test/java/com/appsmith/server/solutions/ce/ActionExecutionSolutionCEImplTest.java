@@ -128,7 +128,7 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     DatasourceStorageService datasourceStorageService;
 
-    @MockBean
+    @SpyBean
     ConfigService configService;
 
     @Autowired
