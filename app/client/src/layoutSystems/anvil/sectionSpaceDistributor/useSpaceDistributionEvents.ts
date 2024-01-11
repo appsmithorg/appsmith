@@ -112,7 +112,7 @@ const checkForNeedToAddMagneticForce = (
   rightZoneComputedColumnsRoundOff: number,
   minimumShrinkableSpacePerBlock: number,
 ) => {
-  const magneticRange = 0.35 * columnWidth;
+  const magneticRange = 15;
   const leftZoneFlexGrow = Math.max(
     leftZoneComputedColumns,
     minimumShrinkableSpacePerBlock,
@@ -129,8 +129,8 @@ const checkForNeedToAddMagneticForce = (
   const isInMagneticZone =
     mouseSpeed < 300 && flexGrowDifference <= magneticRange;
   if (isInMagneticZone) {
-    leftZoneDom.style.transition = "all 0.5s ease";
-    rightZoneDom.style.transition = "all 0.5s ease";
+    leftZoneDom.style.transition = "all 0.2s ease";
+    rightZoneDom.style.transition = "all 0.2s ease";
     leftZoneDom.style.flexGrow = leftZoneComputedColumnsRoundOff.toString();
     rightZoneDom.style.flexGrow = rightZoneComputedColumnsRoundOff.toString();
   } else {
