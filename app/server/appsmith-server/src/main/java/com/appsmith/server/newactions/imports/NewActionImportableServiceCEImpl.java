@@ -5,6 +5,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -49,6 +50,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     private final NewActionService newActionService;
     private final NewActionRepository repository;
     private final ActionCollectionService actionCollectionService;
+    private final DefaultResourcesService<NewAction> defaultResourcesService;
+    private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
 
     // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap, to be present in importable
     // resources.
@@ -229,8 +232,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId =
                                 importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
-                        actionsInOtherBranchesMono = repository
-                                .findByDefaultApplicationId(defaultApplicationId, Optional.empty())
+                        actionsInOtherBranchesMono = getActionInOtherBranchesMono(defaultApplicationId)
                                 .filter(newAction -> newAction.getGitSyncId() != null)
                                 .collectMap(NewAction::getGitSyncId);
                     } else {
@@ -307,6 +309,38 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                             .get(newAction.getPluginId()));
                                     newActionService.generateAndSetActionPolicies(parentPage, newAction);
 
+                                    if (importedApplication.getGitApplicationMetadata() != null) {
+                                        // application is git connected, check if the action is already present in
+                                        // any other branch
+                                        if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
+                                            // action found in other branch, copy the default resources from that
+                                            // action
+                                            NewAction branchedAction = getExistingActionForImportedAction(
+                                                    mappedImportableResourcesDTO, actionsInOtherBranches, newAction);
+                                            defaultResourcesService.setFromOtherBranch(
+                                                    newAction, branchedAction, importingMetaDTO.getBranchName());
+                                            dtoDefaultResourcesService.setFromOtherBranch(
+                                                    newAction.getUnpublishedAction(),
+                                                    branchedAction.getUnpublishedAction(),
+                                                    importingMetaDTO.getBranchName());
+                                        } else {
+                                            // This is the first action we are saving with given gitSyncId in this
+                                            // instance
+                                            DefaultResources defaultResources = new DefaultResources();
+                                            defaultResources.setApplicationId(importedApplication
+                                                    .getGitApplicationMetadata()
+                                                    .getDefaultApplicationId());
+                                            defaultResources.setActionId(newAction.getId());
+                                            defaultResources.setBranchName(importingMetaDTO.getBranchName());
+                                            newAction.setDefaultResources(defaultResources);
+                                        }
+                                    } else {
+                                        DefaultResources defaultResources = new DefaultResources();
+                                        defaultResources.setApplicationId(importedApplication.getId());
+                                        defaultResources.setActionId(newAction.getId());
+                                        newAction.setDefaultResources(defaultResources);
+                                    }
+
                                     // Check if the action has gitSyncId and if it's already in DB
                                     if (existingAppContainsAction(actionsInCurrentApp, newAction)) {
 
@@ -339,46 +373,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                                     parentPage.getId()));
                                         }
 
-                                        populateDomainMappedReferences(mappedImportableResourcesDTO, newAction);
-
-                                        // this will generate the id and other auto generated fields e.g. createdAt
-                                        newAction.updateForBulkWriteOperation();
-
-                                        // set gitSyncId, if it doesn't exist
-                                        if (newAction.getGitSyncId() == null) {
-                                            newAction.setGitSyncId(newAction.getApplicationId() + "_"
-                                                    + Instant.now().toString());
-                                        }
-
-                                        if (importedApplication.getGitApplicationMetadata() != null) {
-                                            // application is git connected, check if the action is already present in
-                                            // any other branch
-                                            if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
-                                                // action found in other branch, copy the default resources from that
-                                                // action
-                                                NewAction branchedAction = getExistingActionForImportedAction(
-                                                        mappedImportableResourcesDTO,
-                                                        actionsInOtherBranches,
-                                                        newAction);
-                                                newActionService.populateDefaultResources(
-                                                        newAction, branchedAction, importingMetaDTO.getBranchName());
-                                            } else {
-                                                // This is the first action we are saving with given gitSyncId in this
-                                                // instance
-                                                DefaultResources defaultResources = new DefaultResources();
-                                                defaultResources.setApplicationId(importedApplication
-                                                        .getGitApplicationMetadata()
-                                                        .getDefaultApplicationId());
-                                                defaultResources.setActionId(newAction.getId());
-                                                defaultResources.setBranchName(importingMetaDTO.getBranchName());
-                                                newAction.setDefaultResources(defaultResources);
-                                            }
-                                        } else {
-                                            DefaultResources defaultResources = new DefaultResources();
-                                            defaultResources.setApplicationId(importedApplication.getId());
-                                            defaultResources.setActionId(newAction.getId());
-                                            newAction.setDefaultResources(defaultResources);
-                                        }
+                                        // Add all the properties that will be needed for a new object
+                                        populateNewAction(
+                                                importingMetaDTO,
+                                                mappedImportableResourcesDTO,
+                                                importedApplication,
+                                                actionsInOtherBranches,
+                                                newAction);
 
                                         // Add it to actions list that'll be inserted or updated in bulk
                                         newNewActionList.add(newAction);
@@ -418,6 +419,24 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 });
     }
 
+    private void populateNewAction(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Application importedApplication,
+            Map<String, NewAction> actionsInOtherBranches,
+            NewAction newAction) {
+        // this will generate the id and other auto generated fields e.g. createdAt
+        newAction.updateForBulkWriteOperation();
+
+        populateDomainMappedReferences(mappedImportableResourcesDTO, newAction);
+
+        // set gitSyncId, if it doesn't exist
+        if (newAction.getGitSyncId() == null) {
+            newAction.setGitSyncId(
+                    newAction.getApplicationId() + "_" + Instant.now().toString());
+        }
+    }
+
     protected NewAction getExistingActionForImportedAction(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, NewAction> actionsInCurrentApp,
@@ -438,6 +457,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         return repository
                 .findByApplicationId(application.getId())
                 .filter(newAction -> newAction.getGitSyncId() != null);
+    }
+
+    protected Flux<NewAction> getActionInOtherBranchesMono(String defaultApplicationId) {
+        return repository.findByDefaultApplicationId(defaultApplicationId, Optional.empty());
     }
 
     private NewPage updatePageInAction(
@@ -479,7 +502,6 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 .getUnpublishedAction()
                 .setDeletedAt(actionToImport.getUnpublishedAction().getDeletedAt());
         existingAction.setDeletedAt(actionToImport.getDeletedAt());
-        existingAction.setDeleted(actionToImport.getDeleted());
         existingAction.setPolicies(existingPolicy);
     }
 
@@ -489,6 +511,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
     private void putActionIdInMap(NewAction newAction, ImportActionResultDTO importActionResultDTO) {
         // Populate actionIdsMap to associate the appropriate actions to run on page load
+        String defaultResourcesActionId = newAction.getDefaultResources().getActionId();
+
+        if (defaultResourcesActionId == null) {
+            defaultResourcesActionId = newAction.getId();
+            newAction.getDefaultResources().setActionId(newAction.getId());
+        }
+
         if (newAction.getUnpublishedAction() != null) {
             ActionDTO unpublishedAction = newAction.getUnpublishedAction();
             importActionResultDTO
@@ -506,7 +535,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 final Map<String, String> actionIds = importActionResultDTO
                         .getUnpublishedCollectionIdToActionIdsMap()
                         .get(unpublishedAction.getCollectionId());
-                actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
+
+                actionIds.put(defaultResourcesActionId, newAction.getId());
             }
         }
         if (newAction.getPublishedAction() != null) {
@@ -526,7 +556,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 final Map<String, String> actionIds = importActionResultDTO
                         .getPublishedCollectionIdToActionIdsMap()
                         .get(publishedAction.getCollectionId());
-                actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
+                actionIds.put(defaultResourcesActionId, newAction.getId());
             }
         }
     }

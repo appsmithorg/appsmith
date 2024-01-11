@@ -82,11 +82,9 @@ export function useCssTokens(props: UseCssTokensProps) {
   }, [typography]);
 
   useEffect(() => {
-    if (fontFamily != null) {
-      setFontFamilyClassName(css`
-        ${fontFamilyCss(fontFamily)}
-      `);
-    }
+    setFontFamilyClassName(css`
+      ${fontFamilyCss(fontFamily)}
+    `);
   }, [fontFamily]);
 
   useEffect(() => {
