@@ -198,7 +198,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportArtifactPermissionProvider permissionProvider = tuple2.getT2();
-                    return importContextInWorkspace(
+                    return importArtifactInWorkspace(
                             workspaceId,
                             artifactExchangeJson,
                             null,
@@ -244,7 +244,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         .flatMap(tuple2 -> {
                             Set<String> userPermissionGroup = tuple2.getT1();
                             ImportArtifactPermissionProvider permissionProvider = tuple2.getT2();
-                            return importContextInWorkspace(
+                            return importArtifactInWorkspace(
                                     workspaceId,
                                     artifactExchangeJson,
                                     artifactId,
@@ -291,7 +291,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportArtifactPermissionProvider contextPermissionProvider = tuple2.getT2();
-                    return importContextInWorkspace(
+                    return importArtifactInWorkspace(
                             workspaceId,
                             artifactExchangeJson,
                             artifactId,
@@ -320,7 +320,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportArtifactPermissionProvider contextPermissionProvider = tuple2.getT2();
-                    return importContextInWorkspace(
+                    return importArtifactInWorkspace(
                             workspaceId,
                             importableContextJson,
                             contextId,
@@ -364,7 +364,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportArtifactPermissionProvider contextPermissionProvider = tuple2.getT2();
-                    return importContextInWorkspace(
+                    return importArtifactInWorkspace(
                             workspaceId,
                             importableContextJson,
                             contextId,
@@ -395,30 +395,30 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     /**
      * Imports an application into MongoDB based on the provided application reference object.
      *
-     * @param workspaceId     The identifier for the destination workspace.
-     * @param importableContextJson The application resource containing necessary information for importing the application.
-     * @param contextId       The context identifier of the application that needs to be saved with the updated resources.
-     * @param branchName      The name of the branch of the application with the specified contextId.
-     * @param appendToContext     Indicates whether applicationJson will be appended to the existing application or not.
-     * @return The updated application stored in MongoDB.
+     * @param workspaceId          The identifier for the destination workspace.
+     * @param artifactExchangeJson The application resource containing necessary information for importing the application.
+     * @param artifactId           The context identifier of the application that needs to be saved with the updated resources.
+     * @param branchName           The name of the branch of the artifact with the specified artifactId.
+     * @param appendToArtifact     Indicates whether artifactExchangeJson will be appended to the existing application or not.
+     * @return The updated artifact stored in MongoDB.
      */
-    Mono<ImportableArtifact> importContextInWorkspace(
+    private Mono<ImportableArtifact> importArtifactInWorkspace(
             String workspaceId,
-            ArtifactExchangeJson importableContextJson,
-            String contextId,
+            ArtifactExchangeJson artifactExchangeJson,
+            String artifactId,
             String branchName,
-            boolean appendToContext,
+            boolean appendToArtifact,
             ImportArtifactPermissionProvider permissionProvider,
             Set<String> permissionGroups) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
-                getContextBasedImportService(importableContextJson);
+                getContextBasedImportService(artifactExchangeJson);
 
         String contextString = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
 
         // step 1: Schema Migration
         ArtifactExchangeJson importedDoc =
-                ContextSchemaMigration.migrateImportableContextJsonToLatestSchema(importableContextJson);
+                ContextSchemaMigration.migrateImportableContextJsonToLatestSchema(artifactExchangeJson);
 
         // Step 2: Validation of context Json
         // check for validation error and raise exception if error found
@@ -437,10 +437,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         }
 
         ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
-                workspaceId, contextId, branchName, appendToContext, permissionProvider, permissionGroups);
+                workspaceId, artifactId, branchName, appendToArtifact, permissionProvider, permissionGroups);
 
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
-        contextBasedImportService.performAuxiliaryImportTasks(importedDoc);
+        contextBasedImportService.syncClientAndSchemaVersion(importedDoc);
 
         Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
@@ -470,7 +470,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         */
         final Mono<? extends ImportableArtifact> importedContextMono = workspaceMono
                 .then(contextSpecificImportedEntities)
-                .then(contextBasedImportService.updateAndSaveContextInFocus(
+                .then(contextBasedImportService.updateAndSaveArtifactInContext(
                         importedDoc.getImportableArtifact(),
                         importingMetaDTO,
                         mappedImportableResourcesDTO,

@@ -62,18 +62,24 @@ public interface ContextBasedImportServiceCE<
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO);
 
-    void performAuxiliaryImportTasks(ArtifactExchangeJson importableContextJson);
+    /**
+     * This method sets the client & server schema version to artifacts which is inside JSON from the clientSchemaVersion
+     * & serverSchemaVersion attribute from ArtifactExchangeJson
+     * @param artifactExchangeJson : ArtifactExchangeJson created from file part while import flow
+     */
+    void syncClientAndSchemaVersion(ArtifactExchangeJson artifactExchangeJson);
 
     /**
      * This method saves the context from the import json for the first time after dehydrating all the details which can cause conflicts
-     * @param importableContext
+     *
+     * @param importableArtifact
      * @param importingMetaDTO
      * @param mappedImportableResourcesDTO
      * @param currentUserMono
      * @return
      */
-    Mono<T> updateAndSaveContextInFocus(
-            ImportableArtifact importableContext,
+    Mono<T> updateAndSaveArtifactInContext(
+            ImportableArtifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono);

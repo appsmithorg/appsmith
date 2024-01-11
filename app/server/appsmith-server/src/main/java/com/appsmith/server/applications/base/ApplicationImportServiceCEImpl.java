@@ -584,8 +584,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public void performAuxiliaryImportTasks(ArtifactExchangeJson importableContextJson) {
-        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+    public void syncClientAndSchemaVersion(ArtifactExchangeJson artifactExchangeJson) {
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         Application importedApplication = applicationJson.getExportedApplication();
         importedApplication.setServerSchemaVersion(applicationJson.getServerSchemaVersion());
         importedApplication.setClientSchemaVersion(applicationJson.getClientSchemaVersion());
@@ -601,12 +601,12 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<Application> updateAndSaveContextInFocus(
-            ImportableArtifact importableContext,
+    public Mono<Application> updateAndSaveArtifactInContext(
+            ImportableArtifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono) {
-        Mono<Application> importApplicationMono = Mono.just((Application) importableContext)
+        Mono<Application> importApplicationMono = Mono.just((Application) importableArtifact)
                 .map(application -> {
                     if (application.getApplicationVersion() == null) {
                         application.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
