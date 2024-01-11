@@ -15,6 +15,61 @@ interface SpaceDistributionEventsProps {
   spaceToWorkWith: number;
 }
 const shrinkablePixels = 10;
+let lastMouseX: number | null = null;
+let lastMouseY: number | null = null;
+let lastTimestamp: number | null = null;
+let mouseStoppedTimer: ReturnType<typeof setTimeout> | null = null;
+const getMouseSpeedTrackingCallback = (
+  currentMouseSpeed: MutableRefObject<number>,
+) => {
+  const resetSpeed = () => {
+    currentMouseSpeed.current = 0;
+  };
+  return function (event: MouseEvent) {
+    const currentMouseX = event.clientX;
+    const currentMouseY = event.clientY;
+    const currentTimestamp = Date.now();
+
+    if (lastMouseX !== null && lastMouseY !== null && lastTimestamp !== null) {
+      const distanceX = currentMouseX - lastMouseX;
+      const distanceY = currentMouseY - lastMouseY;
+      const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2); // Euclidean distance
+      const timeElapsed = (currentTimestamp - lastTimestamp) / 1000; // Convert to seconds
+
+      const speed = distance / timeElapsed;
+      currentMouseSpeed.current = speed;
+      if (mouseStoppedTimer) {
+        // Reset the timer when the mouse moves
+        clearTimeout(mouseStoppedTimer);
+      }
+      mouseStoppedTimer = setTimeout(resetSpeed, 1000);
+    }
+
+    lastMouseX = currentMouseX;
+    lastMouseY = currentMouseY;
+    lastTimestamp = currentTimestamp;
+  };
+};
+let prevX = 0;
+const threshold = 3;
+const getMouseDirectionCallback = (
+  currentMouseDirection: MutableRefObject<"left" | "right" | undefined>,
+) => {
+  return (event: MouseEvent) => {
+    const { clientX } = event;
+
+    // Check if the change in position exceeds the threshold
+    if (Math.abs(clientX - prevX) >= threshold) {
+      if (clientX > prevX) {
+        currentMouseDirection.current = "right";
+      } else if (clientX < prevX) {
+        currentMouseDirection.current = "left";
+      }
+      // Update the previous position
+      prevX = clientX;
+    }
+  };
+};
 
 const updatedCSSOfWidgetsOnHittingMinimumLimit = (
   leftZoneComputedColumns: number,
@@ -45,7 +100,48 @@ const updatedCSSOfWidgetsOnHittingMinimumLimit = (
     currentGrowthFactor.rightZone = minSpacePerBlock;
   }
 };
-
+const checkForNeedToAddMagneticForce = (
+  mouseSpeed: number,
+  mouseDirection: "left" | "right" | undefined,
+  columnWidth: number,
+  leftZoneDom: HTMLElement,
+  rightZoneDom: HTMLElement,
+  leftZoneComputedColumns: number,
+  rightZoneComputedColumns: number,
+  leftZoneComputedColumnsRoundOff: number,
+  rightZoneComputedColumnsRoundOff: number,
+  minimumShrinkableSpacePerBlock: number,
+) => {
+  const magneticRange = 0.35 * columnWidth;
+  const leftZoneFlexGrow = Math.max(
+    leftZoneComputedColumns,
+    minimumShrinkableSpacePerBlock,
+  );
+  const rightZoneFlexGrow = Math.max(
+    rightZoneComputedColumns,
+    minimumShrinkableSpacePerBlock,
+  );
+  const flexGrowDifference =
+    (mouseDirection === "right"
+      ? Math.abs(rightZoneFlexGrow - rightZoneComputedColumnsRoundOff)
+      : Math.abs(leftZoneFlexGrow - leftZoneComputedColumnsRoundOff)) *
+    columnWidth;
+  const isInMagneticZone =
+    mouseSpeed < 300 && flexGrowDifference <= magneticRange;
+  if (isInMagneticZone) {
+    leftZoneDom.style.transition = "all 0.5s ease";
+    rightZoneDom.style.transition = "all 0.5s ease";
+    leftZoneDom.style.flexGrow = leftZoneComputedColumnsRoundOff.toString();
+    rightZoneDom.style.flexGrow = rightZoneComputedColumnsRoundOff.toString();
+  } else {
+    // adjust the zones flex grow property to the minimum shrinkable space
+    leftZoneDom.style.flexGrow = leftZoneFlexGrow.toString();
+    rightZoneDom.style.flexGrow = rightZoneFlexGrow.toString();
+    leftZoneDom.style.transition = "";
+    rightZoneDom.style.transition = "";
+  }
+  return isInMagneticZone;
+};
 const updatedCSSOfWidgetsOnHandleMove = (
   ref: React.RefObject<HTMLDivElement>,
   leftZoneComputedColumns: number,
@@ -60,6 +156,9 @@ const updatedCSSOfWidgetsOnHandleMove = (
   minimumShrinkableSpacePerBlock: number,
   columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
   columnPosition: number,
+  columnWidth: number,
+  mouseSpeed: number,
+  mouseDirection: "left" | "right" | undefined,
 ) => {
   checkForNeedToAddResistiveForce(
     leftZoneComputedColumns,
@@ -69,15 +168,19 @@ const updatedCSSOfWidgetsOnHandleMove = (
     minSpacePerBlock,
     ref,
   );
-  // adjust the zones flex grow property to the minimum shrinkable space
-  leftZoneDom.style.flexGrow = Math.max(
+  checkForNeedToAddMagneticForce(
+    mouseSpeed,
+    mouseDirection,
+    columnWidth,
+    leftZoneDom,
+    rightZoneDom,
     leftZoneComputedColumns,
-    minimumShrinkableSpacePerBlock,
-  ).toString();
-  rightZoneDom.style.flexGrow = Math.max(
     rightZoneComputedColumns,
+    leftZoneComputedColumnsRoundOff,
+    rightZoneComputedColumnsRoundOff,
     minimumShrinkableSpacePerBlock,
-  ).toString();
+  );
+
   // note down the new growth factor for the zones
   currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
   currentGrowthFactor.rightZone = rightZoneComputedColumnsRoundOff;
@@ -205,6 +308,14 @@ export const useSpaceDistributionEvents = ({
   const minLimitBounceBackThreshold = shrinkablePixels / columnWidth;
   const minimumShrinkableSpacePerBlock =
     minSpacePerBlock - minLimitBounceBackThreshold;
+  const currentMouseSpeed = useRef(0);
+  const currentMouseDirection = useRef<"left" | "right">();
+
+  const mouseSpeedTrackingCallback =
+    getMouseSpeedTrackingCallback(currentMouseSpeed);
+  const mouseDirectionCallback = getMouseDirectionCallback(
+    currentMouseDirection,
+  );
   useEffect(() => {
     if (ref.current) {
       // Check if the ref to the DOM element exists
@@ -252,12 +363,16 @@ export const useSpaceDistributionEvents = ({
         // Add event listeners for mouseup and mousemove events
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mousemove", mouseSpeedTrackingCallback);
+        document.addEventListener("mousemove", mouseDirectionCallback);
       };
 
       // Remove mouse move event handlers
       const removeMouseMoveHandlers = () => {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mousemove", mouseSpeedTrackingCallback);
+        document.removeEventListener("mousemove", mouseDirectionCallback);
       };
 
       // Callback when CSS transition ends
@@ -285,6 +400,7 @@ export const useSpaceDistributionEvents = ({
         });
         resetCSSOnZones(spaceDistributed);
         removeMouseMoveHandlers();
+        currentMouseSpeed.current = 0;
         if (ref.current) {
           ref.current.removeEventListener("transitionend", onCSSTransitionEnd);
         }
@@ -363,6 +479,9 @@ export const useSpaceDistributionEvents = ({
                 minimumShrinkableSpacePerBlock,
                 columnIndicatorDivRef,
                 columnPosition,
+                columnWidth,
+                currentMouseSpeed.current,
+                currentMouseDirection.current,
               );
             } else {
               updatedCSSOfWidgetsOnHittingMinimumLimit(
@@ -389,6 +508,9 @@ export const useSpaceDistributionEvents = ({
       return () => {
         if (ref.current) {
           ref.current.removeEventListener("mousedown", onMouseDown);
+        }
+        if (columnIndicatorDivRef.current) {
+          removeColumnIndicator(columnIndicatorDivRef);
         }
       };
     }

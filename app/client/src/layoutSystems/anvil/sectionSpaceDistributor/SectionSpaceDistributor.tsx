@@ -7,6 +7,7 @@ import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { getWidgetByID } from "sagas/selectors";
 import { getDefaultSpaceDistributed } from "./spaceRedistributionUtils";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -16,6 +17,26 @@ interface SectionSpaceDistributorProps {
 
 export interface SectionSpaceDistributorHandlesProps
   extends SectionSpaceDistributorProps {}
+
+const convertPixelValuesToNumber = (value: string) => {
+  return parseFloat(value.replace("px", ""));
+};
+
+const getElementsBoundingBoxValue = (ele: HTMLElement) => {
+  const computedStyle = getComputedStyle(ele);
+  const paddingValue = convertPixelValuesToNumber(computedStyle.padding);
+  const borderValue = convertPixelValuesToNumber(computedStyle.border);
+  const marginValue = convertPixelValuesToNumber(computedStyle.margin);
+  return 2 * (paddingValue + borderValue + marginValue);
+};
+
+const getAnvilZoneOffset = (zoneId: string) => {
+  const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
+  if (zoneDom) {
+    return getElementsBoundingBoxValue(zoneDom) + 2;
+  }
+  return 0;
+};
 
 const SectionSpaceDistributorHandles = (
   props: SectionSpaceDistributorHandlesProps,
@@ -31,11 +52,11 @@ const SectionSpaceDistributorHandles = (
 
   // Destructure spaceDistributed property from sectionWidget or use default
   const { spaceDistributed = defaultSpaceDistributed } = sectionWidget;
-
+  const zoneOffset = getAnvilZoneOffset(props.zones[0].widgetId);
   // Initialize variables for tracking zone positions and space to work with
   let previousZonePosition: LayoutElementPosition;
   let previousZoneColumn = 0;
-  let spaceToWorkWith = 0;
+  let spaceToWorkWith = -(zoneOffset * props.zones.length);
 
   // Generate an array of space distribution nodes based on the zones
   const SectionSpaceDistributorNodes = props.zones.reduce(
