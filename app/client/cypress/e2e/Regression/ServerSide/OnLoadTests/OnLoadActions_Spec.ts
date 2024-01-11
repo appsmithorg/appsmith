@@ -138,7 +138,6 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
       agHelper.Sleep(5000); //for all api's to ccomplete call!
       cy.wait("@getConsolidatedData").then(($response) => {
-      
         const respBody = JSON.stringify($response.response?.body);
         const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
         const _randomFlora =

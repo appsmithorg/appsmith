@@ -100,8 +100,9 @@ describe("Slug URLs", () => {
           cy.get(".t--upgrade-confirm").click({ force: true });
 
           cy.wait("@getConsolidatedData").then((intercept) => {
-            const { application, pages } = intercept.response.body.data.pages.data;
-            
+            const { application, pages } =
+              intercept.response.body.data.pages.data;
+
             const currentPage = pages.find((p) => p.id === currentPageId);
 
             cy.location().should((loc) => {

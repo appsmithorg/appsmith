@@ -27,7 +27,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   const page3 = "Page3";
 
   it("1. Create an app with Query1 and JSObject1, connect it to git", () => {
-// Create new postgres datasource
+    // Create new postgres datasource
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;

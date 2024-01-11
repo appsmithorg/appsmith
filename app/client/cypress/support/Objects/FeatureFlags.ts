@@ -18,10 +18,9 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
-
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
-    req.reply((res:any) => {
-      if (res.statusCode === 200 ) {
+    req.reply((res: any) => {
+      if (res.statusCode === 200) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
           draft.data.featureFlags.data = { ...flags };
