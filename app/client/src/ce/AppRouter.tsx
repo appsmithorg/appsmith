@@ -46,13 +46,20 @@ import { useDispatch, useSelector } from "react-redux";
 import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
+import {
+  getCurrentUserLoading,
+  getFeatureFlagsFetching,
+} from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import {
+  getTenantPermissions,
+  isTenantLoading,
+} from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
@@ -149,8 +156,14 @@ export function Routes() {
 export default function AppRouter() {
   const safeCrash: boolean = useSelector(getSafeCrash);
   const safeCrashCode: ERROR_CODES | undefined = useSelector(getSafeCrashCode);
+  const tenantIsLoading = useSelector(isTenantLoading);
+  const currentUserIsLoading = useSelector(getCurrentUserLoading);
+  const featuresIsLoading = useSelector(getFeatureFlagsFetching);
   const isConsolidatedPageLoading = useSelector(getIsConsolidatedPageLoading);
   const dispatch = useDispatch();
+  const isConsolidatedFetchEnabled = useFeatureFlag(
+    FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled,
+  );
 
   useEffect(() => {
     dispatch(initCurrentPage());
@@ -158,9 +171,15 @@ export default function AppRouter() {
 
   useBrandingTheme();
 
+  let isLoading: boolean;
+  if (isConsolidatedFetchEnabled) {
+    isLoading = isConsolidatedPageLoading;
+  } else {
+    isLoading = tenantIsLoading || currentUserIsLoading || featuresIsLoading;
+  }
   // hide the top loader once the tenant is loaded
   useEffect(() => {
-    if (!isConsolidatedPageLoading) {
+    if (!isLoading) {
       const loader = document.getElementById("loader") as HTMLDivElement;
       if (loader) {
         loader.style.width = "100vw";
@@ -169,9 +188,9 @@ export default function AppRouter() {
         });
       }
     }
-  }, [isConsolidatedPageLoading]);
+  }, [isLoading]);
 
-  if (isConsolidatedPageLoading) return null;
+  if (isLoading) return null;
 
   return (
     <Router history={history}>
