@@ -23,6 +23,10 @@ public class AppsmithAiConstants {
     public static final String LABELS = "labels";
     public static final String INSTRUCTIONS = "instructions";
     public static final String IMAGE_FORMAT = "imageFormat";
+    public static final String DATASOURCE_ID = "datasourceId";
+    public static final String ACTION_ID = "actionId";
+    public static final String WORKSPACE_ID = "workspaceId";
+    public static final String SOURCE_DETAILS = "sourceDetail";
 
     // Action properties
     public static final String TEXT_SUMMARY_INPUT = TEXT_SUMMARY + "." + INPUT;

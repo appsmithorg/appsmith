@@ -36,10 +36,14 @@ public class RequestUtils {
     }
 
     public static Mono<ResponseEntity<byte[]>> makeRequest(
-            HttpMethod httpMethod, URI uri, BodyInserter<?, ? super ClientHttpRequest> body) {
+            HttpMethod httpMethod,
+            URI uri,
+            Map<String, String> headers,
+            BodyInserter<?, ? super ClientHttpRequest> body) {
         return webClient
                 .method(httpMethod)
                 .uri(uri)
+                .headers(httpHeaders -> headers.forEach(httpHeaders::add))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class));

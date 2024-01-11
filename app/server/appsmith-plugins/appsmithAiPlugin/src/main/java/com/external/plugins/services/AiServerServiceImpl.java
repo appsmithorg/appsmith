@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Map;
 
 import static com.external.plugins.constants.AppsmithAiErrorMessages.QUERY_FAILED_TO_EXECUTE;
 
@@ -25,11 +26,11 @@ public class AiServerServiceImpl implements AiServerService {
     }
 
     @Override
-    public Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO) {
+    public Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO, Map<String, String> headers) {
         URI uri = RequestUtils.createQueryUri();
         String jsonBody = gson.toJson(aiServerRequestDTO);
 
-        return RequestUtils.makeRequest(HttpMethod.POST, uri, BodyInserters.fromValue(jsonBody))
+        return RequestUtils.makeRequest(HttpMethod.POST, uri, headers, BodyInserters.fromValue(jsonBody))
                 .flatMap(responseEntity -> {
                     HttpStatusCode statusCode = responseEntity.getStatusCode();
 

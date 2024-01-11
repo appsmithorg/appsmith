@@ -4,6 +4,7 @@ import com.external.plugins.dtos.AiServerRequestDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public interface AiServerService {
     /**
@@ -14,5 +15,5 @@ public interface AiServerService {
     /**
      * Execute a query on top of datasource on AI server and get back response
      */
-    Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO);
+    Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO, Map<String, String> headers);
 }
