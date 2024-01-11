@@ -67,9 +67,7 @@ Cypress.Commands.add("inviteUserForWorkspace", (workspaceName, email, role) => {
     .should("be.visible");
 
   cy.get(
-    homePage.workspaceList
-      .concat(workspaceName)
-      .concat(homePage.shareWorkspace),
+    homePage.workspaceList.concat(workspaceName).concat(homePage.shareWorkspace)
   )
     .first()
     .should("be.visible")
@@ -94,7 +92,7 @@ Cypress.Commands.add("CheckShareIcon", (workspaceName, count) => {
   cy.get(
     homePage.workspaceList
       .concat(workspaceName)
-      .concat(") .t--workspace-share-user-icons"),
+      .concat(") .t--workspace-share-user-icons")
   ).should("have.length", count);
 });
 
@@ -130,7 +128,7 @@ Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
   cy.wait("@changeAccess").should(
     "have.nested.property",
     "response.body.responseMeta.status",
-    200,
+    200
   );
   cy.wait(5000);
   const closeButtonLocator = editMode
@@ -154,7 +152,7 @@ Cypress.Commands.add("deleteUserFromWorkspace", (workspaceName) => {
   cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
-    200,
+    200
   );
   cy.get(homePage.DeleteBtn).last().click({ force: true });
   cy.get(homePage.leaveWorkspaceConfirmModal).should("be.visible");
@@ -163,7 +161,7 @@ Cypress.Commands.add("deleteUserFromWorkspace", (workspaceName) => {
   cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",
-    200,
+    200
   );
 });
 
@@ -185,7 +183,7 @@ Cypress.Commands.add(
     cy.wait("@getMembers").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      200
     );
     cy.get(homePage.inviteUserMembersPage).click({ force: true });
     cy.xpath(homePage.email).click({ force: true }).type(email);
@@ -201,18 +199,18 @@ Cypress.Commands.add(
     cy.wait("@applications").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      200
     );
-  },
+  }
 );
 
 Cypress.Commands.add("launchApp", () => {
   cy.get(homePage.appView).should("be.visible").first().click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForViewApp").should(
+  cy.wait("@getConsolidatedData").should(
     "have.nested.property",
     "response.body.responseMeta.status",
-    200,
+    200
   );
 });
 
@@ -232,7 +230,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   cy.get(
     homePage.workspaceList
       .concat(workspaceName)
-      .concat(homePage.createAppFrWorkspace),
+      .concat(homePage.createAppFrWorkspace)
   )
     .scrollIntoView()
     .should("be.visible")
@@ -254,7 +252,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
-    200,
+    200
   );
   agHelper.RemoveUIElement("Tooltip", "Rename application");
 });
@@ -295,8 +293,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     });
   });
   AppSidebar.assertVisible();
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
+  assertHelper.AssertNetworkResponseData("@getConsolidatedData"); //for auth rest api
 
   // If the intro modal is open, close it
   cy.skipSignposting();
@@ -328,6 +325,6 @@ Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
     .should("eq", 200);
   cy.get(homePage.toastMessage).should(
     "contain",
-    "You have successfully left the workspace",
+    "You have successfully left the workspace"
   );
 });
