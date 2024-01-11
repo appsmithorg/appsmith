@@ -30,7 +30,7 @@ describe(
     });
 
     beforeEach(() => {
-      partialImportExport.OpenExportMenu();
+      partialImportExport.OpenExportModal();
     });
 
     it("1. Should export all the selected JsObjects", () => {

@@ -29,7 +29,7 @@ export default class PartialImportExport {
     },
   };
 
-  OpenExportMenu() {
+  OpenExportModal() {
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Home",
       action: "Export",
