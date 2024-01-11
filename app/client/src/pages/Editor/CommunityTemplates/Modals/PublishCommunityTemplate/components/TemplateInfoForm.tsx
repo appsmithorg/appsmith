@@ -130,7 +130,7 @@ const UseCasesSelect = ({
       data-testid="t--community-template-usecases-input"
       getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
       isMultiSelect
-      maxTagCount="responsive"
+      maxTagCount={6}
       maxTagTextLength={20}
       onChange={setTemplateUseCases}
       showSearch

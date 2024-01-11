@@ -32,6 +32,8 @@ import {
   ActionEntityContextMenuItemsEnum,
   FilesContext,
 } from "../Files/FilesContextProvider";
+import { useConvertToModuleOptions } from "@appsmith/pages/Editor/Explorer/hooks";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 interface EntityContextMenuProps {
   id: string;
@@ -84,6 +86,12 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     },
     [dispatch, guidedTourEnabled],
   );
+
+  const convertQueryToModuleOption = useConvertToModuleOptions({
+    id: props.id,
+    moduleType: MODULE_TYPE.QUERY,
+    canDelete: canDeleteAction,
+  });
 
   const menuPages = useSelector(getPageListAsOptions);
 
@@ -176,6 +184,9 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
             : setConfirmDelete(true);
         },
       },
+    menuItems.includes(
+      ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
+    ) && convertQueryToModuleOption,
   ].filter(Boolean);
 
   return optionsTree.length > 0 ? (

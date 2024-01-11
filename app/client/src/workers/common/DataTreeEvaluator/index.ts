@@ -60,6 +60,7 @@ import {
   resetValidationErrorsForEntityProperty,
   isAPathDynamicBindingPath,
   isAnyJSAction,
+  isNotEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -1648,7 +1649,7 @@ export default class DataTreeEvaluator {
         if (!entity) {
           continue;
         }
-        if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity)) {
+        if (isNotEntity(entity)) {
           continue;
         }
         let entityDynamicBindingPaths: string[] = [];

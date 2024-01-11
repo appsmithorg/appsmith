@@ -4,6 +4,7 @@ import {
   assertHelper,
   dataSources,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   homePage,
@@ -46,7 +47,7 @@ describe(
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -107,13 +108,13 @@ describe(
 
       GenerateCRUDNValidateDeployPage(
         "VINET",
-        "1996-07-04",
-        "1996-08-01",
+        "1996-07-04T00:00:00+00:00",
+        "1996-08-01T00:00:00+00:00",
         "order_id",
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -142,17 +143,17 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
         expect($cellData).to.eq(col1Text);
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col2Text);
       });
-      table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 4, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col3Text);
       });
 

@@ -98,6 +98,7 @@ export const getDifferenceInJSCollection = (
             oldName: updateExisting.name,
             newName: newActions[i].name,
             pageId: updateExisting.pageId,
+            moduleId: updateExisting.moduleId,
           });
           newActions.splice(i, 1);
           toBearchivedActions.splice(indexOfArchived, 1);

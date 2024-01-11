@@ -170,7 +170,6 @@ public class CustomNewActionRepositoryCEImplTest {
         // one deleted action with applicationId1 and pluginType JS
         NewAction deletedAction = createAction(applicationId1, PluginType.JS);
         deletedAction.setDeletedAt(Instant.now());
-        deletedAction.setDeleted(true);
         actionList.add(deletedAction);
 
         Flux<PluginTypeAndCountDTO> pluginTypeAndCountDTOFlux = newActionRepository

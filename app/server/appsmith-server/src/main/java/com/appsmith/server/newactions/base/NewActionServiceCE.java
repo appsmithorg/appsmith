@@ -133,8 +133,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
 
-    void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
-
     Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
             ImportActionResultDTO importActionResultDTO);
@@ -157,4 +155,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     NewAction generateActionDomain(ActionDTO action);
 
     void updateDefaultResourcesInAction(NewAction newAction);
+
+    Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
 }

@@ -12,7 +12,6 @@ import {
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import BuildingBlock from "../BuildingBlock";
-import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 import RequestTemplate from "../Template/RequestTemplate";
 import LoadingScreen from "../TemplatesModal/LoadingScreen";
 import {
@@ -25,6 +24,7 @@ import {
   TemplateGrid,
   Wrapper,
 } from "./StyledComponents";
+import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 
 interface StartWithTemplateListProps {
   isForkingEnabled: boolean;

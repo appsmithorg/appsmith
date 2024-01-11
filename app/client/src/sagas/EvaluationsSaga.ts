@@ -254,8 +254,7 @@ export function* evaluateTreeSaga(
     yield select(getMetaWidgets);
   const theme: ReturnType<typeof getSelectedAppTheme> =
     yield select(getSelectedAppTheme);
-  const toPrintConfigTree = unEvalAndConfigTree.configTree;
-  log.debug({ unevalTree, configTree: toPrintConfigTree });
+  log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );

@@ -10,6 +10,7 @@ interface Props {
 const Container = styled.div`
   background: var(--ads-v2-color-gray-50);
   padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+  padding-right: var(--ads-v2-spaces-2);
   display: flex;
   justify-content: space-between;
   align-items: center;

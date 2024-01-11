@@ -519,7 +519,8 @@
         "invalids": [],
         "jsonPathKeys": [],
         "confirmBeforeExecute": false,
-        "userPermissions": []
+        "userPermissions": [],
+        "createdAt": "2023-12-13T12:10:02Z"
       },
       "publishedAction": {
         "name": "api_wo_auth",

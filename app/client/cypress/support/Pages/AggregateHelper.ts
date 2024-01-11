@@ -399,13 +399,15 @@ export class AggregateHelper {
           force: boolean;
           waitAfterClick: boolean;
           sleepTime: number;
+          type?: "click" | "invoke";
         }> = 0,
   ) {
     const button = this.locator._buttonByText(btnVisibleText);
     let index: number,
       force = true,
       waitAfterClick = true,
-      waitTime = 1000;
+      waitTime = 1000,
+      type = "click";
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
@@ -422,15 +424,23 @@ export class AggregateHelper {
           ? indexOrOptions.waitAfterClick
           : true;
       waitTime = indexOrOptions.sleepTime || 1000;
+      type = indexOrOptions?.type || "click";
     }
 
-    return this.ScrollIntoView(button, index)
-      .click({ force })
-      .then(() => {
+    const element = this.ScrollIntoView(button, index);
+    if (type == "invoke") {
+      return element.invoke("click").then(() => {
         if (waitAfterClick) {
           return this.Sleep(waitTime);
         }
       });
+    }
+
+    return element.click({ force }).then(() => {
+      if (waitAfterClick) {
+        return this.Sleep(waitTime);
+      }
+    });
   }
 
   public clickMultipleButtons(btnVisibleText: string, waitAfterClick = true) {
@@ -1273,7 +1283,7 @@ export class AggregateHelper {
           this.Sleep(200);
         }
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateFieldInput(selector: string, value: string) {
@@ -1281,7 +1291,7 @@ export class AggregateHelper {
       .find("input")
       .invoke("attr", "value", value)
       .trigger("input");
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public ValidateFieldInputValue(selector: string, value: string) {
@@ -1292,7 +1302,7 @@ export class AggregateHelper {
       .then((inputValue) => {
         expect(inputValue).to.equal(value);
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateTextArea(selector: string, value: string) {
@@ -1301,7 +1311,7 @@ export class AggregateHelper {
       .first()
       .invoke("val", value)
       .trigger("input");
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public TypeIntoTextArea(selector: string, value: string) {
@@ -1309,7 +1319,7 @@ export class AggregateHelper {
       .find("textarea")
       .first()
       .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public UpdateInputValue(selector: string, value: string, force = false) {
@@ -1437,21 +1447,17 @@ export class AggregateHelper {
   // this should only be used when we want to verify the evaluated value of dynamic bindings for example {{Api1.data}} or {{"asa"}}
   // and should not be called for plain strings
   public VerifyEvaluatedValue(currentValue: string) {
-    this.Sleep(3000);
-    cy.get(this.locator._evaluatedCurrentValue)
+    this.GetElement(this.locator._evaluatedCurrentValue)
       .first()
       .should("be.visible")
       .should("not.have.text", "undefined");
-    cy.get(this.locator._evaluatedCurrentValue)
+    this.GetElement(this.locator._evaluatedCurrentValue)
       .first()
       .click({ force: true })
       .then(($text) => {
         if ($text.text()) expect($text.text()).to.eq(currentValue);
       })
-      .trigger("mouseout")
-      .then(() => {
-        cy.wait(2000);
-      });
+      .trigger("mouseout");
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true, index = 0) {
