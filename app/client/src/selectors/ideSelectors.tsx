@@ -19,3 +19,17 @@ export const getIsSideBySideEnabled = createSelector(
 );
 
 export const getIDEViewMode = (state: AppState) => state.ui.ide.view;
+
+export const getPagesActiveStatus = (state: AppState) =>
+  state.ui.ide.pagesActive;
+
+export const getActionsCount = (state: AppState) =>
+  state.entities.actions.length || 0;
+
+export const getJsActionsCount = (state: AppState) =>
+  state.entities.jsActions.length || 0;
+
+export const getWidgetsCount = (state: AppState) =>
+  Object.values(state.entities.canvasWidgets).filter(
+    (w) => w.type !== "CANVAS_WIDGET",
+  ).length || 0;
