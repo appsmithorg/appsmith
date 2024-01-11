@@ -6,6 +6,7 @@ import EditorNavigation, {
 
 const dsl = require("../../../../fixtures/editorContextdsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import Canvas from "../../../../support/Pages/Canvas";
 
 const page1 = "Page1";
 const page2 = "Page2";
@@ -87,12 +88,7 @@ describe(
 
     it("3. Multiple widgets should be selected while switching back and forth betw_.entityExplorer.n pages", function () {
       //select widgets in page1
-      EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget, {
-        ctrlKey: true,
-      });
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {
-        ctrlKey: true,
-      });
+      Canvas.selectMultipleWidgets(["Camera1", "Button1"]);
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);
@@ -117,12 +113,7 @@ describe(
 
     it("4. Multiple widgets should be selected while switching back to page from API pane", function () {
       //select widgets in page1
-      EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget, {
-        ctrlKey: true,
-      });
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {
-        ctrlKey: true,
-      });
+      Canvas.selectMultipleWidgets(["Camera1", "Button1"]);
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);

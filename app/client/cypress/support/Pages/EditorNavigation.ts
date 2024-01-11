@@ -3,7 +3,7 @@ import { ObjectsRegistry as _ } from "../Objects/Registry";
 import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
-import PageList from "./PageList";
+
 export enum AppSidebarButton {
   Data = "Data",
   Editor = "Editor",
@@ -114,7 +114,7 @@ class EditorNavigation {
 
   ShowCanvas() {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageList.SelectedPageItem().click();
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
   }
 }
 
