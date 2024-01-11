@@ -485,7 +485,10 @@ export class AggregateHelper {
 
   public WaitUntilEleDisappear(selector: string) {
     cy.waitUntil(() => this.GetElement(selector, "not.exist"), {
-      errorMsg: "Element did not disappear even after 60 seconds",
+      errorMsg:
+        "Element did not disappear after " +
+        Cypress.config().pageLoadTimeout +
+        "seconds",
       timeout: Cypress.config().pageLoadTimeout,
       interval: 1000,
     });
@@ -497,7 +500,10 @@ export class AggregateHelper {
         this.GetElement(this.locator._toastContainer).waitUntil(
           ($ele) => cy.wrap($ele).should("have.length", 0),
           {
-            errorMsg: "Toasts did not disappear even after 30 seconds",
+            errorMsg:
+              "Toasts did not disappear even after " +
+              Cypress.config().defaultCommandTimeout +
+              " seconds",
             timeout: Cypress.config().defaultCommandTimeout,
             interval: 1000,
           },
@@ -515,7 +521,10 @@ export class AggregateHelper {
           .its("length")
           .should("be.gte", 1),
       {
-        errorMsg: "Element did not appear even after 60 seconds",
+        errorMsg:
+          "Element did not appear even after " +
+          Cypress.config().pageLoadTimeout +
+          " seconds",
         timeout: Cypress.config().pageLoadTimeout,
         interval: 2000,
       },
