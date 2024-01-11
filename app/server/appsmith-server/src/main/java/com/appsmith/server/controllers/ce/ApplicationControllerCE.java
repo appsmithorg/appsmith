@@ -3,7 +3,6 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -307,8 +306,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file -> importService.extractAndSaveArtifact(
-                        file, workspaceId, applicationId, ArtifactJsonType.APPLICATION))
+        return fileMono.flatMap(file ->
+                        importApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
