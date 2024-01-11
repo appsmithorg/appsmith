@@ -7,9 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface ConsolidatedAPIService {
     Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-            String defaultPageId,
-            String applicationId,
-            String branchName,
-            ApplicationMode mode,
-            Span consolidatedApiOtlpSpan);
+            String defaultPageId, String applicationId, String branchName, ApplicationMode mode, Span parentSpan);
 }
