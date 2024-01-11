@@ -174,7 +174,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
      */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-            String defaultPageId, String applicationId, String branchName, ApplicationMode mode) {
+            String defaultPageId, String applicationId, String branchName, ApplicationMode mode, Span parentSpan) {
 
         /* if either of pageId or applicationId are provided then application mode must also be provided */
         if (mode == null && (!isBlank(defaultPageId) || !isBlank(applicationId))) {
@@ -192,8 +192,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, UserProfileDTO.class))
                 .doOnSubscribe(subscription -> {
-                    userProfileSpanList.add(
-                            this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(USER_PROFILE_SPAN, mode), null));
+                    userProfileSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                            getQualifiedSpanName(USER_PROFILE_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(userProfileSpanList.get(0)));
 
@@ -205,8 +205,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, Map.class))
                 .doOnSubscribe(subscription -> {
-                    featureFlagsSpanList.add(
-                            this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(FEATURE_FLAG_SPAN, mode), null));
+                    featureFlagsSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                            getQualifiedSpanName(FEATURE_FLAG_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(featureFlagsSpanList.get(0)))
                 .cache();
@@ -218,7 +218,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, Tenant.class))
                 .doOnSubscribe(subscription -> {
-                    tenantSpanList.add(this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(TENANT_SPAN, mode), null));
+                    tenantSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                            getQualifiedSpanName(TENANT_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(tenantSpanList.get(0)));
 
@@ -236,8 +237,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, ProductAlertResponseDTO.class))
                 .doOnSubscribe(subscription -> {
-                    productAlertSpanList.add(
-                            this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(PRODUCT_ALERT_SPAN, mode), null));
+                    productAlertSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                            getQualifiedSpanName(PRODUCT_ALERT_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(productAlertSpanList.get(0)));
 
@@ -270,7 +271,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .findRootApplicationIdFromNewPage(branchName, defaultPageId)
                     .doOnSubscribe(subscription -> {
                         applicationIdSpanList.add(this.otlpTelemetry.startOTLPSpan(
-                                getQualifiedSpanName(APPLICATION_ID_SPAN, mode), null));
+                                getQualifiedSpanName(APPLICATION_ID_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(applicationIdSpanList.get(0)))
                     .cache();
@@ -285,7 +286,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, ApplicationPagesDTO.class))
                 .doOnSubscribe(subscription -> {
-                    pagesSpanList.add(this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(PAGES_SPAN, mode), null));
+                    pagesSpanList.add(
+                            this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(PAGES_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(pagesSpanList.get(0)))
                 .cache();
@@ -297,8 +299,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, Theme.class))
                 .doOnSubscribe(subscription -> {
-                    currentThemeSpanList.add(
-                            this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(CURRENT_THEME_SPAN, mode), null));
+                    currentThemeSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                            getQualifiedSpanName(CURRENT_THEME_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(currentThemeSpanList.get(0)));
 
@@ -311,7 +313,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, List.class))
                 .doOnSubscribe(subscription -> {
-                    themesSpanList.add(this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(THEMES_SPAN, mode), null));
+                    themesSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                            getQualifiedSpanName(THEMES_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(themesSpanList.get(0)));
 
@@ -324,8 +327,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, List.class))
                 .doOnSubscribe(subscription -> {
-                    customJSLibSpanList.add(
-                            this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(CUSTOM_JS_LIB_SPAN, mode), null));
+                    customJSLibSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                            getQualifiedSpanName(CUSTOM_JS_LIB_SPAN, mode), null, parentSpan));
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(customJSLibSpanList.get(0)));
 
@@ -358,8 +361,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, PageDTO.class))
                     .doOnSubscribe(subscription -> {
-                        currentPageSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(CURRENT_PAGE_SPAN, mode), null));
+                        currentPageSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(CURRENT_PAGE_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(currentPageSpanList.get(0)));
         }
@@ -376,8 +379,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
-                        actionsSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(ACTIONS_SPAN, mode), null));
+                        actionsSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(ACTIONS_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionsSpanList.get(0)));
 
@@ -392,7 +395,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
                         actionCollectionsSpanList.add(this.otlpTelemetry.startOTLPSpan(
-                                getQualifiedSpanName(ACTION_COLLECTIONS_SPAN, mode), null));
+                                getQualifiedSpanName(ACTION_COLLECTIONS_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionCollectionsSpanList.get(0)));
 
@@ -449,8 +452,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
-                        actionsSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(ACTIONS_SPAN, mode), null));
+                        actionsSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(ACTIONS_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionsSpanList.get(0)));
 
@@ -469,7 +472,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
                         actionCollectionsSpanList.add(this.otlpTelemetry.startOTLPSpan(
-                                getQualifiedSpanName(ACTION_COLLECTIONS_SPAN, mode), null));
+                                getQualifiedSpanName(ACTION_COLLECTIONS_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(actionCollectionsSpanList.get(0)));
 
@@ -487,8 +490,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
-                        pagesPostMigrateDslSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(PAGES_DSL_SPAN, mode), null));
+                        pagesPostMigrateDslSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(PAGES_DSL_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(pagesPostMigrateDslSpanList.get(0)));
 
@@ -505,8 +508,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     })
                     .onErrorResume(error -> Mono.just(EMPTY_WORKSPACE_ID_ON_ERROR))
                     .doOnSubscribe(subscription -> {
-                        workspaceIdSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(WORKSPACE_SPAN, mode), null));
+                        workspaceIdSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(WORKSPACE_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(workspaceIdSpanList.get(0)))
                     .cache();
@@ -525,8 +528,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
-                        pluginsSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(PLUGINS_SPAN, mode), null));
+                        pluginsSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(PLUGINS_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(pluginsSpanList.get(0)))
                     .cache();
@@ -545,8 +548,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
-                        datasourcesSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(DATASOURCES_SPAN, mode), null));
+                        datasourcesSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(DATASOURCES_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(datasourcesSpanList.get(0)))
                     .cache();
@@ -593,8 +596,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, Map.class))
                     .doOnSubscribe(subscription -> {
-                        formConfigsSpanList.add(
-                                this.otlpTelemetry.startOTLPSpan(getQualifiedSpanName(FORM_CONFIG_SPAN, mode), null));
+                        formConfigsSpanList.add(this.otlpTelemetry.startOTLPSpan(
+                                getQualifiedSpanName(FORM_CONFIG_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(formConfigsSpanList.get(0)));
 
@@ -608,7 +611,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
                     .doOnSubscribe(subscription -> {
                         mockDatasourcesSpanList.add(this.otlpTelemetry.startOTLPSpan(
-                                getQualifiedSpanName(MOCK_DATASOURCES_SPAN, mode), null));
+                                getQualifiedSpanName(MOCK_DATASOURCES_SPAN, mode), null, parentSpan));
                     })
                     .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(mockDatasourcesSpanList.get(0)));
 

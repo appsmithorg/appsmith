@@ -75,7 +75,7 @@ public class OtlpTelemetry {
         return W3CTraceContextPropagator.getInstance().extract(Context.current(), model, getter);
     }
 
-    public Span startOTLPSpan(String spanName, Context context) {
+    public Span startOTLPSpan(String spanName, Context context, Span parentSpan) {
         if (tracer == null) {
             return null;
         }
@@ -89,6 +89,10 @@ public class OtlpTelemetry {
         if (context != null) {
             return spanBuilder.setParent(context).startSpan();
         } else {
+            if (parentSpan != null) {
+                return spanBuilder.setParent(Context.current().with(parentSpan)).startSpan();
+            }
+
             return spanBuilder.startSpan();
         }
     }
@@ -102,7 +106,7 @@ public class OtlpTelemetry {
             return null;
         }
         Context context = generateContextFromTraceHeader(traceparent);
-        return startOTLPSpan(spanName, context);
+        return startOTLPSpan(spanName, context, null);
     }
 
     public void endOtlpSpanSafely(Span span) {
