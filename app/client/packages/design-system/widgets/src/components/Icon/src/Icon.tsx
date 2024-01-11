@@ -10,18 +10,21 @@ import { IconLoadFailFallback } from "./loadables";
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   const { icon, name, size = "medium", ...rest } = props;
 
-  let Icon;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let Icon: any;
 
   switch (true) {
     case icon !== undefined:
       Icon = icon;
       break;
     case name !== undefined:
-      Icon = ICONS[name];
+      Icon = ICONS[name as keyof typeof ICONS];
       break;
     default:
       Icon = IconLoadFailFallback;
   }
+
+  Icon;
 
   return (
     <HeadlessIcon

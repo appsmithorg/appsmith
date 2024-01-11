@@ -25,6 +25,7 @@
     "react-aria-components": "^1.0.0-rc.0"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "eslint-plugin-storybook": "^0.6.10"
   },
   "peerDependencies": {
