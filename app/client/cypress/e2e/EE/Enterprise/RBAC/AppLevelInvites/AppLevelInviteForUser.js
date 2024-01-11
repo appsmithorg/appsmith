@@ -165,7 +165,7 @@ describe(
       cy.get(HomePage.appsContainer).contains(workspaceId);
       _.agHelper
         .GetElement(_.homePage._appCard(appid + "Internal Apps"))
-        .eq(1)
+        .first()
         .trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
       _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
@@ -190,7 +190,10 @@ describe(
       _.agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
       _.homePage.NavigateToHome();
       _.homePage.SelectWorkspace(workspaceId);
-      cy.get(_.homePage._applicationCard).eq(1).trigger("mouseover");
+      _.agHelper
+        .GetElement(_.homePage._appCard(appid))
+        .first()
+        .trigger("mouseover");
       _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
       _.agHelper.AssertElementExist(_.homePage._shareWorkspace(workspaceId));
       _.agHelper.AssertElementExist(HomePage.optionsIcon);
