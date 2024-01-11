@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
+import { AppSidebar, AppSidebarButton, PageLeftPane } from "./EditorNavigation";
 
 export default class PartialImportExport {
   public readonly locators = {
@@ -79,5 +80,51 @@ export default class PartialImportExport {
       );
     });
     cy.exec(`rm cypress/downloads/${fixtureName}`);
+  }
+
+  ImportPartiallyExportedFile(
+    fileName: string,
+    sectionTitle: string,
+    elementsToCheck: string[],
+  ) {
+    cy.xpath(ObjectsRegistry.HomePage._uploadFile).selectFile(
+      `cypress/fixtures/PartialImportExport/${fileName}`,
+      {
+        force: true,
+      },
+    );
+
+    ObjectsRegistry.AggregateHelper.WaitUntilEleAppear(
+      "Partial Application imported successfully",
+    );
+    ObjectsRegistry.AggregateHelper.CheckForErrorToast(
+      "Internal server error while processing request",
+    );
+    ObjectsRegistry.AggregateHelper.WaitUntilToastDisappear(
+      "Partial Application imported successfully",
+    );
+
+    switch (sectionTitle) {
+      case "Data":
+        AppSidebar.navigate(AppSidebarButton.Data);
+        elementsToCheck.forEach((dsName) => {
+          ObjectsRegistry.AggregateHelper.GetNAssertContains(
+            ObjectsRegistry.DataSources._datasourceCard,
+            dsName,
+          );
+        });
+        break;
+      case "Libraries":
+        AppSidebar.navigate(AppSidebarButton.Libraries);
+        elementsToCheck.forEach((customJsLib) => {
+          cy.contains(customJsLib);
+        });
+        break;
+      default:
+        PageLeftPane.expandCollapseItem(sectionTitle);
+        elementsToCheck.forEach((element) => {
+          PageLeftPane.assertPresence(element);
+        });
+    }
   }
 }
