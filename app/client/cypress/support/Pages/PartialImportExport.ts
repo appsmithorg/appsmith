@@ -42,6 +42,18 @@ export default class PartialImportExport {
     );
   }
 
+  OpenImportModal() {
+    AppSidebar.navigate(AppSidebarButton.Editor);
+
+    this.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page1",
+      action: "Import",
+      entityType: EntityItems.Page,
+    });
+
+    this.agHelper.AssertElementVisibility(this.locators.import.importModal);
+  }
+
   ExportAndCompareDownloadedFile(
     sectionIndex: number,
     sectionSelector: string,

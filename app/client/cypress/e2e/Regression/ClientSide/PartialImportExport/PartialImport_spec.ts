@@ -24,17 +24,7 @@ describe(
     });
 
     beforeEach(() => {
-      AppSidebar.navigate(AppSidebarButton.Editor);
-
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Page1",
-        action: "Import",
-        entityType: EntityItems.Page,
-      });
-
-      agHelper.AssertElementVisibility(
-        partialImportExport.locators.import.importModal,
-      );
+      partialImportExport.OpenImportModal();
     });
 
     it("1. Should import all the selected JsObjects", () => {
