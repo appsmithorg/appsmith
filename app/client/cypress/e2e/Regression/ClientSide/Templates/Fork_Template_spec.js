@@ -11,7 +11,7 @@ describe(
       _.templates.SwitchToTemplatesTab();
 
       _.agHelper.GetNClick(templateLocators.templateCard);
-      _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
+      _.agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
 
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
 
@@ -35,7 +35,7 @@ describe(
       });
       _.templates.SwitchToTemplatesTab();
       _.agHelper.WaitUntilEleAppear(templateLocators.templateCard);
-      _.agHelper.CheckForErrorToast(
+      _.agHelper.FailIfErrorToast(
         "Internal server error while processing request",
       );
       _.agHelper.AssertElementExist(templateLocators.templateCard);

@@ -1532,10 +1532,10 @@ export class AggregateHelper {
     ) as Cypress.Chainable<boolean>;
   }
 
-  public CheckForErrorToast(error: string) {
+  public FailIfErrorToast(error: string) {
     cy.get("body").then(($ele) => {
-      if ($ele.find(this.locator._toastMsg).length) {
-        if ($ele.find(this.locator._specificToast(error)).length) {
+      if ($ele.find(this.locator._toastMsg).length > 0) {
+        if ($ele.find(this.locator._specificToast(error)).length > 0) {
           throw new Error("Error Toast from Application:" + error);
         }
       }
