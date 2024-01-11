@@ -78,4 +78,12 @@ public class ActionDTO extends ActionCE_DTO implements Reusable {
     public Boolean isOnLoadMessageAllowed() {
         return this.getIsPublic() == null || Boolean.TRUE.equals(this.getIsPublic());
     }
+
+    @Override
+    protected void resetTransientFields() {
+        super.resetTransientFields();
+        this.setModuleInstanceId(null);
+        this.setRootModuleInstanceId(null);
+        this.setIsPublic(null);
+    }
 }

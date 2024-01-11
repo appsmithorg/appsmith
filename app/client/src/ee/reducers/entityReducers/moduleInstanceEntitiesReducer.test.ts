@@ -5,7 +5,7 @@ import moduleInstanceEntitiesReducer, {
 } from "./moduleInstanceEntitiesReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import type { JSCollection } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 
 const DEFAULT_ACTIONS = [
   {
@@ -309,11 +309,15 @@ describe("moduleInstanceEntitiesReducer", () => {
 
     const updatedJSCollection = klona(DEFAULT_JS_COLLECTIONS[0]);
 
-    updatedJSCollection.actions[0].executeOnLoad = true;
+    const updatedJSAction = klona(updatedJSCollection.actions[0]);
+
+    updatedJSAction.executeOnLoad = true;
+
+    updatedJSCollection.actions[0] = updatedJSAction;
 
     const action = {
       type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_SUCCESS,
-      payload: updatedJSCollection as unknown as JSCollection,
+      payload: updatedJSAction as unknown as JSAction,
     };
 
     const updatedActions = klona(DEFAULT_ACTIONS);

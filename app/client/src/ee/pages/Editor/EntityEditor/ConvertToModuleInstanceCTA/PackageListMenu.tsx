@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "design-system";
 
-import { kebabCase } from "lodash";
+import { kebabCase, noop } from "lodash";
 import type { ConvertPackageList } from "./usePackageListToConvertEntity";
 
 export interface OnItemClickProps {
@@ -75,7 +75,9 @@ function PackageListMenu({
                 data-testid={`t-add-to-${kebabCase(pkg.name)}`}
                 disabled={pkg.isDisabled}
                 key={pkg.id}
-                onSelect={() => onMenuItemClick({ packageId: pkg.id })}
+                onSelect={() =>
+                  pkg.isDisabled ? noop : onMenuItemClick({ packageId: pkg.id })
+                }
               >
                 Add to {pkg.name}
               </MenuItem>
@@ -86,7 +88,11 @@ function PackageListMenu({
         <MenuItem
           data-testid="t-add-to-new-package"
           disabled={!canCreateNewPackage}
-          onSelect={() => onMenuItemClick({ packageId: undefined })}
+          onSelect={() =>
+            canCreateNewPackage
+              ? onMenuItemClick({ packageId: undefined })
+              : noop
+          }
         >
           Add to a new package
         </MenuItem>

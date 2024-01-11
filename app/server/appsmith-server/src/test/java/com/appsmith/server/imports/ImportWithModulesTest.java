@@ -630,8 +630,6 @@ class ImportWithModulesTest {
                             .isEqualTo("function () { return \"foo\" }");
                     assertThat(unpublishedJsFunc1.getJsonPathKeys()).containsOnly("function () { return \"foo\" }");
                     assertThat(unpublishedJsFunc1.getDynamicBindingPathList()).containsOnly(new Property("body", null));
-                    assertThat(unpublishedJsFunc1.getDefaultResources().getCollectionId())
-                            .isEqualTo(unpublishedJsFunc1.getCollectionId());
                     assertThat(unpublishedJsFunc1.getExecuteOnLoad()).isFalse();
 
                     collectionIdInAction.add(unpublishedJsFunc1.getCollectionId());
@@ -654,8 +652,6 @@ class ImportWithModulesTest {
                     assertThat(unpublishedJsFunc2.getJsonPathKeys())
                             .containsOnly("function () { return _$JSModule1_1$_Query1.data }");
                     assertThat(unpublishedJsFunc2.getDynamicBindingPathList()).containsOnly(new Property("body", null));
-                    assertThat(unpublishedJsFunc2.getDefaultResources().getCollectionId())
-                            .isEqualTo(unpublishedJsFunc2.getCollectionId());
                     assertThat(unpublishedJsFunc2.getExecuteOnLoad()).isTrue();
 
                     collectionIdInAction.add(unpublishedJsFunc2.getCollectionId());

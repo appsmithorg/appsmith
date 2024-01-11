@@ -5,6 +5,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import configureMockStore from "redux-mock-store";
 import { BrowserRouter as Router } from "react-router-dom";
+import { START_SWITCH_ENVIRONMENT } from "@appsmith/constants/messages";
 
 const mockStore = configureMockStore();
 const store = mockStore({
@@ -218,6 +219,8 @@ describe("Switch Environment Component", () => {
         <Router>
           <SwitchEnvironment
             editorId="64ba2f58abba6049fb4626da"
+            onChangeEnv={() => {}}
+            startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
             viewMode={false}
           />
         </Router>
@@ -239,6 +242,8 @@ describe("Switch Environment Component", () => {
         <Router>
           <SwitchEnvironment
             editorId="64ba2f58abba6049fb4626da"
+            onChangeEnv={() => {}}
+            startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
             viewMode={false}
           />
         </Router>
@@ -256,6 +261,8 @@ describe("Switch Environment Component", () => {
         <Router>
           <SwitchEnvironment
             editorId="64ba2f58abba6049fb4626da"
+            onChangeEnv={() => {}}
+            startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
             viewMode={false}
           />
         </Router>

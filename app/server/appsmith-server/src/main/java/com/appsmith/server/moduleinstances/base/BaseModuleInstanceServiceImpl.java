@@ -2,6 +2,7 @@ package com.appsmith.server.moduleinstances.base;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
@@ -42,6 +43,14 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
         }
         moduleInstanceDTO.setUserPermissions(moduleInstance.getUserPermissions());
         moduleInstanceDTO.setGitSyncId(moduleInstance.getGitSyncId());
+
+        DefaultResources moduleInstanceDefaultResources = moduleInstance.getDefaultResources();
+        DefaultResources dtoDefaultResources = moduleInstanceDTO.getDefaultResources();
+
+        if (moduleInstanceDefaultResources != null && dtoDefaultResources != null) {
+            dtoDefaultResources.setApplicationId(moduleInstanceDefaultResources.getApplicationId());
+            dtoDefaultResources.setModuleInstanceId(moduleInstanceDefaultResources.getModuleInstanceId());
+        }
 
         return Mono.just(moduleInstanceDTO);
     }

@@ -233,7 +233,7 @@ public class ImportExportApplicationServiceGACTest {
                 .thenReturn(Mono.just(Boolean.TRUE));
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.doReturn(cachedFeatures).when(featureFlagService).getCachedTenantFeatureFlags();
 
         if (Boolean.TRUE.equals(isSetupDone)) {
             return;

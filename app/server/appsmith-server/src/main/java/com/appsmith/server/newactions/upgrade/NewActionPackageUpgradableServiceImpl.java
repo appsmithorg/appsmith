@@ -118,6 +118,9 @@ public class NewActionPackageUpgradableServiceImpl implements PackageUpgradableS
                         simulatedActionDTO.setConfirmBeforeExecute(existingActionDTO.getConfirmBeforeExecute());
                     }
 
+                    // Retain default resources
+                    simulatedActionDTO.setDefaultResources(existingActionDTO.getDefaultResources());
+
                     copyNestedNonNullProperties(simulatedActionDTO, existingActionDTO);
                     return existingNewAction;
                 })
@@ -139,10 +142,6 @@ public class NewActionPackageUpgradableServiceImpl implements PackageUpgradableS
                     NewAction simulatedNewAction = originActionIdToSimulatedActionMap.get(toBeAddedOriginActionId);
                     simulatedNewAction.setRootModuleInstanceId(existingModuleInstance.getId());
                     simulatedNewAction.setModuleInstanceId(existingModuleInstance.getId());
-                    simulatedNewAction
-                            .getUnpublishedAction()
-                            .getDefaultResources()
-                            .setModuleInstanceId(existingModuleInstance.getId());
 
                     String fullyQualifiedName =
                             simulatedNewAction.getUnpublishedAction().getFullyQualifiedName();
@@ -151,6 +150,7 @@ public class NewActionPackageUpgradableServiceImpl implements PackageUpgradableS
                     if (invalidActionFQNToExistingActionMap.containsKey(fullyQualifiedName)) {
                         NewAction existingInvalidAction = invalidActionFQNToExistingActionMap.get(fullyQualifiedName);
 
+                        simulatedNewAction.setDefaultResources(existingInvalidAction.getDefaultResources());
                         simulatedNewAction.setGitSyncId(existingInvalidAction.getGitSyncId());
 
                         ActionDTO simulatedActionDTO = simulatedNewAction.getUnpublishedAction();

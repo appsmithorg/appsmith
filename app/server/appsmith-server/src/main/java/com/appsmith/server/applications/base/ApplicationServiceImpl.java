@@ -30,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ApplicationServiceHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.moduleinstances.metadata.ModuleInstanceMetadataService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -102,6 +103,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
     private final EmailService emailService;
     private final ConfigService configService;
     private final ApplicationServiceHelper applicationServiceHelper;
+    private final ModuleInstanceMetadataService moduleInstanceMetadataService;
 
     public ApplicationServiceImpl(
             Scheduler scheduler,
@@ -127,7 +129,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             UserService userService,
             UserGroupRepository userGroupRepository,
             EmailService emailService,
-            ApplicationServiceHelper applicationServiceHelper) {
+            ApplicationServiceHelper applicationServiceHelper,
+            ModuleInstanceMetadataService moduleInstanceMetadataService) {
 
         super(
                 scheduler,
@@ -159,6 +162,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
         this.emailService = emailService;
         this.configService = configService;
         this.applicationServiceHelper = applicationServiceHelper;
+        this.moduleInstanceMetadataService = moduleInstanceMetadataService;
     }
 
     /**
@@ -1304,5 +1308,28 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 .collectList()
                 .flatMap(userIds ->
                         userService.findAllByIdsIn(new HashSet<>(userIds)).collectList());
+    }
+
+    @Override
+    protected Mono<Void> verifyIfForkingIsAllowed(Application branchedApplication, Application applicationReq) {
+        Boolean forkStatusInDB = branchedApplication.getForkingEnabled() == null
+                ? Boolean.FALSE
+                : branchedApplication.getForkingEnabled();
+        Boolean forkStatusInReq =
+                applicationReq.getForkingEnabled() == null ? Boolean.FALSE : applicationReq.getForkingEnabled();
+        if (forkStatusInDB != forkStatusInReq) {
+            if (Boolean.TRUE.equals(applicationReq.getForkingEnabled())) {
+                return moduleInstanceMetadataService
+                        .getModuleInstanceCountByApplicationId(
+                                branchedApplication.getId(), AclPermission.READ_MODULE_INSTANCES)
+                        .flatMap(moduleInstanceCount -> {
+                            if (moduleInstanceCount > 0) {
+                                return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
+                            }
+                            return Mono.empty().then();
+                        });
+            }
+        }
+        return Mono.empty().then();
     }
 }

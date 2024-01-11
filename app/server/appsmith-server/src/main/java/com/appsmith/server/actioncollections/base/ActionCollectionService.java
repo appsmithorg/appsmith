@@ -20,6 +20,9 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
     Flux<ActionCollection> findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission editPermission);
 
+    Flux<ActionCollectionDTO> findAllUnpublishedComposedActionCollectionDTOsByRootModuleInstanceId(
+            String rootModuleInstanceId, AclPermission permission);
+
     Mono<List<ActionCollection>> archiveActionCollectionByWorkflowId(
             String workflowId, Optional<AclPermission> permission);
 
@@ -27,7 +30,7 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
 
     Flux<ActionCollectionViewDTO> getActionCollectionsForViewModeForWorkflow(String workflowId, String branchName);
 
-    Flux<ActionCollection> getAllModuleInstanceCollectionsInContext(
+    Flux<ActionCollectionDTO> getAllModuleInstanceCollectionsInContext(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
 
     Mono<ActionCollectionDTO> getPublicActionCollection(String moduleId, ResourceModes resourceMode);

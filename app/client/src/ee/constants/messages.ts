@@ -427,6 +427,8 @@ export const CONVERT_ENTITY_UNPUBLISHED_CHANGES_WARN = () =>
 export const CANNOT_CREATE_MODULE_WARN = () =>
   "You do not have permission to add module into this package";
 export const GO_TO_MODULE = () => "Go to Module";
+export const START_SWITCH_ENVIRONMENT_FOR_PACKAGE = (environment: string) =>
+  `Switching your environment to ${environment.toLowerCase()}`;
 // Modules end
 
 //Worflows start

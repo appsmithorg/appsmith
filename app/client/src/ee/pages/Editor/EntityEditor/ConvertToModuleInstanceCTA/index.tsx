@@ -16,6 +16,7 @@ import {
   CONVERT_MODULE_CTA_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
+import { noop } from "lodash";
 
 function ConvertToModuleInstanceCTA({
   canCreateModuleInstance,
@@ -58,7 +59,9 @@ function ConvertToModuleInstanceCTA({
         data-testid="t--convert-module-btn"
         isDisabled={isDisabled}
         kind="secondary"
-        onClick={() => createNewModuleInstance({ packageId: undefined })}
+        onClick={() =>
+          isDisabled ? noop : createNewModuleInstance({ packageId: undefined })
+        }
         size="md"
       >
         {createMessage(CONVERT_MODULE_CTA_TEXT)}

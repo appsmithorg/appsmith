@@ -2,6 +2,7 @@ package com.appsmith.server.newactions.imports;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
@@ -19,11 +20,19 @@ import static java.lang.Boolean.TRUE;
 @Service
 public class NewActionImportableServiceImpl extends NewActionImportableServiceCEImpl
         implements ImportableService<NewAction> {
+
     public NewActionImportableServiceImpl(
             NewActionService newActionService,
             NewActionRepository repository,
-            ActionCollectionService actionCollectionService) {
-        super(newActionService, repository, actionCollectionService);
+            ActionCollectionService actionCollectionService,
+            DefaultResourcesService<NewAction> defaultResourcesService,
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
+        super(
+                newActionService,
+                repository,
+                actionCollectionService,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
     }
 
     @Override
@@ -37,10 +46,10 @@ public class NewActionImportableServiceImpl extends NewActionImportableServiceCE
         }
         Map<String, NewAction> fQNToNewActionMap = actionsInCurrentApp.values().stream()
                 .collect(Collectors.toMap(
-                        existingAction -> existingAction.getUnpublishedAction().getFullyQualifiedName(),
+                        existingAction -> existingAction.getUnpublishedAction().getValidName(),
                         newAction1 -> newAction1));
 
-        return fQNToNewActionMap.get(newAction.getUnpublishedAction().getFullyQualifiedName());
+        return fQNToNewActionMap.get(newAction.getUnpublishedAction().getValidName());
     }
 
     @Override
@@ -76,6 +85,13 @@ public class NewActionImportableServiceImpl extends NewActionImportableServiceCE
     @Override
     protected Flux<NewAction> getActionsInCurrentAppMono(Application application) {
         return super.getActionsInCurrentAppMono(application)
+                .filter(newAction ->
+                        newAction.getRootModuleInstanceId() == null || TRUE.equals(newAction.getIsPublic()));
+    }
+
+    @Override
+    protected Flux<NewAction> getActionInOtherBranchesMono(String defaultApplicationId) {
+        return super.getActionInOtherBranchesMono(defaultApplicationId)
                 .filter(newAction ->
                         newAction.getRootModuleInstanceId() == null || TRUE.equals(newAction.getIsPublic()));
     }

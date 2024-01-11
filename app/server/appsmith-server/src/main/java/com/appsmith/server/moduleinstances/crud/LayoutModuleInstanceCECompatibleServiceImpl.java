@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LayoutModuleInstanceCECompatibleServiceImpl extends BaseModuleInstanceServiceImpl
@@ -40,7 +41,10 @@ public class LayoutModuleInstanceCECompatibleServiceImpl extends BaseModuleInsta
 
     @Override
     public Mono<ModuleInstanceDTO> updateUnpublishedModuleInstance(
-            ModuleInstanceDTO moduleInstanceDTO, String moduleInstanceId, String branchName, boolean isRefactor) {
+            ModuleInstanceDTO moduleInstanceDTO,
+            String moduleInstanceId,
+            Optional<String> branchNameOptional,
+            boolean isRefactor) {
         return Mono.empty();
     }
 }

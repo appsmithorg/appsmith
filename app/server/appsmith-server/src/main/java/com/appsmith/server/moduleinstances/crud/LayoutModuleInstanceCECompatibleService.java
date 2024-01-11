@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LayoutModuleInstanceCECompatibleService extends BaseModuleInstanceService {
     Mono<List<ModuleInstanceDTO>> getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
@@ -22,5 +23,8 @@ public interface LayoutModuleInstanceCECompatibleService extends BaseModuleInsta
             String rootModuleInstanceId, AclPermission editPermission);
 
     Mono<ModuleInstanceDTO> updateUnpublishedModuleInstance(
-            ModuleInstanceDTO moduleInstanceDTO, String moduleInstanceId, String branchName, boolean isRefactor);
+            ModuleInstanceDTO moduleInstanceDTO,
+            String moduleInstanceId,
+            Optional<String> branchNameOptional,
+            boolean isRefactor);
 }

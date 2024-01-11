@@ -10,6 +10,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.actioncollections.base.ActionCollectionServiceImpl;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -140,6 +141,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private ModuleMetadataService moduleMetadataService;
 
+    @MockBean
+    private DefaultResourcesService<ActionCollection> actionCollectionDefaultResourcesService;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -158,6 +162,7 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 applicationPermission,
                 actionPermission,
+                actionCollectionDefaultResourcesService,
                 modulePermissionChecker,
                 moduleMetadataService);
 

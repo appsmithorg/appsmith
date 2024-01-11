@@ -383,14 +383,6 @@ keycloak_migrate_h2_to_v3() {
     -script "$export_file"
 }
 
-# Keep Let's Encrypt directory persistent
-mount_letsencrypt_directory() {
-  echo "Mounting Let's encrypt directory"
-  rm -rf /etc/letsencrypt
-  mkdir -p /appsmith-stacks/{letsencrypt,ssl}
-  ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
-}
-
 is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
@@ -618,8 +610,6 @@ init_keycloak
 
 check_setup_custom_ca_certificates
 setup-custom-ca-certificates
-
-mount_letsencrypt_directory
 
 check_redis_compatible_page_size
 

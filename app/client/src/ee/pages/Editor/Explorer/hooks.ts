@@ -90,14 +90,22 @@ export const useConvertToModuleOptions = ({
     [id, moduleType],
   );
 
+  const hasPackagesOrCanCreateNewPackage = hasPackages || canCreateNewPackage;
+
+  const isCreateModuleBlocked =
+    !canConvertEntity || !canCreateNewPackage || isConverting;
+
+  const isOptionDisabled =
+    isCreateModuleBlocked || !hasPackagesOrCanCreateNewPackage;
+
   const option: TreeDropdownOption = {
     value: "",
-    onSelect: hasPackages ? noop : createNewModuleInstance,
+    onSelect: isOptionDisabled ? noop : createNewModuleInstance,
     label: createMessage(CONVERT_MODULE_CTA_TEXT),
-    disabled: !canConvertEntity || !canCreateNewPackage || isConverting,
+    disabled: isOptionDisabled,
   };
 
-  if (hasPackages) {
+  if (hasPackagesOrCanCreateNewPackage) {
     option.children = packages.map((pkg) => ({
       label: `Add to ${pkg.name}`,
       value: pkg.id,
@@ -107,12 +115,14 @@ export const useConvertToModuleOptions = ({
     }));
 
     // Add a divider
-    option.children?.push({
-      value: "divider",
-      onSelect: noop,
-      label: "divider",
-      type: "menu-divider",
-    });
+    if (hasPackages) {
+      option.children?.push({
+        value: "divider",
+        onSelect: noop,
+        label: "divider",
+        type: "menu-divider",
+      });
+    }
 
     option.children?.push({
       value: "",

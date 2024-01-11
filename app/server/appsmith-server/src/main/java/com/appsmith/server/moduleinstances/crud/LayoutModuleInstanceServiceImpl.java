@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ObjectUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
@@ -34,17 +35,20 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
     private final ModuleInstancePermission moduleInstancePermission;
     private final NewPageService newPageService;
     private final PagePermission pagePermission;
+    private final ResponseUtils responseUtils;
 
     public LayoutModuleInstanceServiceImpl(
             ModuleInstanceRepository repository,
             ModuleInstancePermission moduleInstancePermission,
             NewPageService newPageService,
-            PagePermission pagePermission) {
+            PagePermission pagePermission,
+            ResponseUtils responseUtils) {
         super(repository);
         this.repository = repository;
         this.moduleInstancePermission = moduleInstancePermission;
         this.newPageService = newPageService;
         this.pagePermission = pagePermission;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -68,6 +72,7 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
             return moduleInstanceFlux
                     .flatMap(repository::setUserPermissionsInObject)
                     .flatMap(moduleInstance -> generateModuleInstanceByViewMode(moduleInstance, resourceMode))
+                    .map(responseUtils::updateModuleInstanceDTOWithDefaultResources)
                     .collectList();
         });
     }
@@ -87,12 +92,23 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleInstanceDTO> updateUnpublishedModuleInstance(
-            ModuleInstanceDTO moduleInstanceDTO, String moduleInstanceId, String branchName, boolean isRefactor) {
-        Mono<ModuleInstance> moduleInstanceMono = repository
-                .findByBranchNameAndDefaultModuleInstanceId(
-                        branchName, moduleInstanceId, moduleInstancePermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_INSTANCE_ID, moduleInstanceId)));
+            ModuleInstanceDTO moduleInstanceDTO,
+            String moduleInstanceId,
+            Optional<String> branchNameOptional,
+            boolean isRefactor) {
+        Mono<ModuleInstance> moduleInstanceMono;
+        if (branchNameOptional.isPresent()) {
+            moduleInstanceMono = repository
+                    .findByBranchNameAndDefaultModuleInstanceId(
+                            branchNameOptional.get(), moduleInstanceId, moduleInstancePermission.getEditPermission())
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_INSTANCE_ID, moduleInstanceId)));
+        } else {
+            moduleInstanceMono = repository
+                    .findById(moduleInstanceId, moduleInstancePermission.getEditPermission())
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_INSTANCE_ID, moduleInstanceId)));
+        }
 
         return moduleInstanceMono.flatMap(moduleInstance -> {
             validateModuleInstanceDTO(moduleInstanceDTO, false);
@@ -103,7 +119,8 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
                             moduleInstanceId, updateObj, Optional.of(moduleInstancePermission.getEditPermission()))
                     .flatMap(repository::setUserPermissionsInObject)
                     .flatMap(updatedModuleInstance -> setTransientFieldsFromModuleInstanceToModuleInstanceDTO(
-                            updatedModuleInstance, updatedModuleInstance.getUnpublishedModuleInstance()));
+                            updatedModuleInstance, updatedModuleInstance.getUnpublishedModuleInstance()))
+                    .map(responseUtils::updateModuleInstanceDTOWithDefaultResources);
         });
     }
 
