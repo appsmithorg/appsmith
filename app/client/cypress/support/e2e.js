@@ -95,6 +95,7 @@ before(function () {
   cy.wait(2000);
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
+  cy.log("first pass : username is ", username, " password is ", password)
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
