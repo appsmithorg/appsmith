@@ -544,6 +544,8 @@ export default function* executePluginActionTriggerSaga(
     getCurrentEnvironmentDetails,
   );
 
+  const pluginActionNameToDisplay = getPluginActionNameToDisplay(action);
+
   const actionExecutionAnalytics = getActionExecutionAnalytics(
     action,
     plugin,
@@ -562,7 +564,7 @@ export default function* executePluginActionTriggerSaga(
     text: "Execution started from widget request",
     source: {
       type: ENTITY_TYPE.ACTION,
-      name: action.name,
+      name: pluginActionNameToDisplay,
       id: actionId,
     },
     state: action.actionConfiguration,
@@ -588,9 +590,9 @@ export default function* executePluginActionTriggerSaga(
           environmentName: currentEnvDetails.name,
           source: {
             type: ENTITY_TYPE.ACTION,
-            name: action.name,
+            name: pluginActionNameToDisplay,
             id: actionId,
-            httpMethod: action.actionConfiguration.httpMethod,
+            httpMethod: action?.actionConfiguration?.httpMethod,
             pluginType: action.pluginType,
           },
           state: payload.request,
@@ -635,7 +637,7 @@ export default function* executePluginActionTriggerSaga(
       timeTaken: payload.duration,
       source: {
         type: ENTITY_TYPE.ACTION,
-        name: action.name,
+        name: pluginActionNameToDisplay,
         id: actionId,
       },
       state: {
@@ -786,6 +788,9 @@ export function* runActionSaga(
     name: "",
     message: "",
   };
+
+  const pluginActionNameToDisplay = getPluginActionNameToDisplay(actionObject);
+
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
@@ -810,9 +815,12 @@ export function* runActionSaga(
           show: false,
         },
       });
-      toast.show(createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name), {
-        kind: "error",
-      });
+      toast.show(
+        createMessage(ACTION_EXECUTION_CANCELLED, pluginActionNameToDisplay),
+        {
+          kind: "error",
+        },
+      );
       return;
     }
     log.error(e);
@@ -902,9 +910,9 @@ export function* runActionSaga(
           }`,
           source: {
             type: ENTITY_TYPE.ACTION,
-            name: actionObject.name,
+            name: pluginActionNameToDisplay,
             id: actionId,
-            httpMethod: actionObject.actionConfiguration.httpMethod,
+            httpMethod: actionObject?.actionConfiguration?.httpMethod,
             pluginType: actionObject.pluginType,
           },
           messages: appsmithConsoleErrorMessageList,
@@ -931,7 +939,7 @@ export function* runActionSaga(
     }
     AnalyticsUtil.logEvent(failureEventName, {
       actionId,
-      actionName: actionObject.name,
+      actionName: pluginActionNameToDisplay,
       environmentId: currentEnvDetails.id,
       environmentName: currentEnvDetails.name,
       pageName: pageName,
@@ -954,7 +962,7 @@ export function* runActionSaga(
 
   AnalyticsUtil.logEvent(eventName, {
     actionId,
-    actionName: actionObject.name,
+    actionName: pluginActionNameToDisplay,
     environmentId: currentEnvDetails.id,
     environmentName: currentEnvDetails.name,
     pageName: pageName,
@@ -976,7 +984,7 @@ export function* runActionSaga(
       timeTaken: payload.duration,
       source: {
         type: ENTITY_TYPE.ACTION,
-        name: actionObject.name,
+        name: pluginActionNameToDisplay,
         id: actionId,
       },
       state: {
@@ -1103,11 +1111,15 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
       inputParams: 0,
     });
 
+    const actionName = getPluginActionNameToDisplay(
+      pageAction as unknown as Action,
+    );
+
     let payload = EMPTY_RESPONSE;
     let isError = true;
     let error = {
       name: "PluginExecutionError",
-      message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
+      message: createMessage(ACTION_EXECUTION_FAILED, actionName),
     };
 
     try {
@@ -1128,7 +1140,7 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
       if (e instanceof UserCancelledActionExecutionError) {
         error = {
           name: "PluginExecutionError",
-          message: createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name),
+          message: createMessage(ACTION_EXECUTION_CANCELLED, actionName),
         };
       }
     }
@@ -1148,9 +1160,9 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
             text: `Execution failed with status ${payload.statusCode}`,
             source: {
               type: ENTITY_TYPE.ACTION,
-              name: pageAction.name,
+              name: actionName,
               id: pageAction.id,
-              httpMethod: action.actionConfiguration.httpMethod,
+              httpMethod: action?.actionConfiguration?.httpMethod,
               pluginType: action.pluginType,
             },
             state: payload.request,
@@ -1192,7 +1204,7 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
       );
       AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
         type: pageAction.pluginType,
-        name: pageAction.name,
+        name: actionName,
         pageId: pageId,
         appMode: appMode,
         appId: currentApp.id,
@@ -1211,7 +1223,7 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
     } else {
       AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
         type: pageAction.pluginType,
-        name: pageAction.name,
+        name: actionName,
         pageId: pageId,
         appMode: appMode,
         appId: currentApp.id,

@@ -10,8 +10,6 @@ import {
 } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
 
-const DEFAULT_DROP_RANGE = 10;
-
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.
  * @param draggedWidgetTypes - Type of widget being dragged (e.g., SECTION, ZONE).
@@ -159,7 +157,7 @@ export const getClosestHighlight = (
   // Return the closest highlight.
   return sortedHighlights[0];
 };
-
+const PaddingForHorizontalDropZone = 8;
 export function getViableDropPositions(
   arr: AnvilHighlightInfo[],
   pos: XYCord,
@@ -167,31 +165,20 @@ export function getViableDropPositions(
   if (!arr) return [];
 
   // Filter out vertical highlights.
-  const verticalHighlights = arr.filter(
-    (highlight: AnvilHighlightInfo) => highlight.isVertical,
+  const verticalSelection = arr.filter(
+    (highlight: AnvilHighlightInfo) =>
+      highlight.isVertical &&
+      pos.y >= highlight.posY &&
+      pos.y <= highlight.posY + highlight.height,
   );
-
-  // Filter out horizontal highlights.
-  const horizontalHighlights = arr.filter(
-    (highlight: AnvilHighlightInfo) => !highlight.isVertical,
-  );
-
-  /**
-   * Each vertical highlight has a drop zone on the left and right.
-   *
-   * <-- left --> | <-- right -->
-   *
-   * If the mouse is within the drop zone, the highlight is a viable drop position.
-   */
-  const verticalSelection = verticalHighlights.filter(
-    (highlight: AnvilHighlightInfo) => {
-      return (
-        pos.y >= highlight.posY &&
-        pos.y <= highlight.posY + highlight.height &&
-        isWithinHorizontalDropZone(pos, highlight)
-      );
-    },
-  );
+  const isInsideACell = verticalSelection.length > 0;
+  const shouldShowHorizontalHighlights =
+    isInsideACell &&
+    verticalSelection[0].posY + PaddingForHorizontalDropZone < pos.y &&
+    pos.y <
+      verticalSelection[0].posY +
+        verticalSelection[0].height -
+        PaddingForHorizontalDropZone;
 
   /**
    * Each horizontal highlight has a drop zone on the top and bottom.
@@ -212,67 +199,17 @@ export function getViableDropPositions(
    * If there are also some contending vertical highlights sharing a drop zone,
    * then vertical highlights get priority and the a fraction of the drop zone of horizontal highlights is considered.
    */
-  const horizontalSelection = horizontalHighlights.filter(
-    (highlight: AnvilHighlightInfo) => {
-      return (
-        pos.x >= highlight.posX &&
-        pos.x <= highlight.posX + highlight.width &&
-        isWithinVerticalDropZone(pos, highlight, verticalSelection?.length > 0)
-      );
-    },
-  );
+  const horizontalSelection = shouldShowHorizontalHighlights
+    ? []
+    : arr.filter((highlight: AnvilHighlightInfo) => {
+        return (
+          !highlight.isVertical &&
+          pos.x >= highlight.posX &&
+          pos.x <= highlight.posX + highlight.width
+        );
+      });
 
   return [...verticalSelection, ...horizontalSelection];
-}
-
-export function isWithinHorizontalDropZone(
-  pos: XYCord,
-  highlight: AnvilHighlightInfo,
-): boolean {
-  const rightDropZone = highlight.dropZone?.right || DEFAULT_DROP_RANGE;
-  const leftDropZone = highlight.dropZone?.left || DEFAULT_DROP_RANGE;
-
-  const withinRightDropZone =
-    pos.x >= highlight.posX &&
-    pos.x <= highlight.posX + Math.max(rightDropZone, DEFAULT_DROP_RANGE);
-  const withinLeftDropZone =
-    pos.x < highlight.posX &&
-    pos.x >= highlight.posX - Math.max(leftDropZone, DEFAULT_DROP_RANGE);
-
-  return withinRightDropZone || withinLeftDropZone;
-}
-
-export function isWithinVerticalDropZone(
-  pos: XYCord,
-  highlight: AnvilHighlightInfo,
-  hasVerticalSelection: boolean,
-): boolean {
-  const topDropZone = calculateDropZone(
-    highlight.dropZone?.top,
-    hasVerticalSelection,
-  );
-  const bottomDropZone = calculateDropZone(
-    highlight.dropZone?.bottom,
-    hasVerticalSelection,
-  );
-
-  const withinBottomDropZone =
-    pos.y >= highlight.posY &&
-    pos.y <= highlight.posY + Math.max(bottomDropZone, DEFAULT_DROP_RANGE);
-  const withinTopDropZone =
-    pos.y < highlight.posY &&
-    pos.y >= highlight.posY - Math.max(topDropZone, DEFAULT_DROP_RANGE);
-
-  return withinTopDropZone || withinBottomDropZone;
-}
-
-function calculateDropZone(
-  dropZoneSide: number | undefined,
-  hasVerticalSelection: boolean,
-) {
-  return dropZoneSide
-    ? dropZoneSide * (hasVerticalSelection ? 0.2 : 1)
-    : DEFAULT_DROP_RANGE;
 }
 
 function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {

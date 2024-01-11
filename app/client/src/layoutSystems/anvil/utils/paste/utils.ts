@@ -12,6 +12,9 @@ import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import WidgetFactory from "WidgetProvider/factory";
+import { widgetHierarchy } from "../constants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { prePasteValidations } from "./valiationUtils";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
@@ -29,8 +32,8 @@ export function* addPastedWidgets(
   const evalTree: DataTree = yield select(getDataTree);
 
   AnalyticsUtil.logEvent("WIDGET_PASTE", {
-    widgetName: widgets[widgetId].widgetName,
-    widgetType: widgets[widgetId].type,
+    widgetName: list[0].widgetName,
+    widgetType: list[0].type,
   });
 
   /**
@@ -141,17 +144,29 @@ export function getContainingLayoutMapping(
 ): WidgetLayoutProps[][] {
   let widgetGrouping: WidgetLayoutProps[][] = [];
   const parentMap: { [key: string]: string[] } = {};
+  const layoutOrderMap: Record<string, WidgetLayoutProps[]> = {};
 
   /**
    * Group widgets by similar parents.
    */
   copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
-    if (parentMap[copiedWidget.parentId]) {
+    const { widgetPositionInfo } = copiedWidget;
+    if (!!widgetPositionInfo) {
+      const { layoutOrder, widgetLayoutProps } = widgetPositionInfo;
+      const str = layoutOrder.join("");
+      if (layoutOrderMap[str]) {
+        layoutOrderMap[str].push(widgetLayoutProps);
+      } else {
+        layoutOrderMap[str] = [widgetLayoutProps];
+      }
+    } else if (parentMap[copiedWidget.parentId]) {
       parentMap[copiedWidget.parentId].push(copiedWidget.widgetId);
     } else {
       parentMap[copiedWidget.parentId] = [copiedWidget.widgetId];
     }
   });
+
+  widgetGrouping = Object.values(layoutOrderMap);
 
   Object.keys(parentMap).forEach((key: string) => {
     const parent: FlattenedWidgetProps = allWidgets[key];
@@ -163,6 +178,7 @@ export function getContainingLayoutMapping(
     );
     widgetGrouping = [...widgetGrouping, ...containingLayouts];
   });
+
   return widgetGrouping;
 }
 
@@ -211,4 +227,82 @@ export function getParentLayout(
   if (!parent || !parent.layout) return null;
   // TODO: @Preet - remove this hard coding.
   return parent.layout[0];
+}
+
+export function getWidgetHierarchy(type: string, id: string): number {
+  if (widgetHierarchy[type]) return widgetHierarchy[type];
+  if (id === MAIN_CONTAINER_WIDGET_ID) return widgetHierarchy.MAIN_CANVAS;
+  return widgetHierarchy.OTHER;
+}
+
+export function splitWidgetsByHierarchy(
+  widgets: CopiedWidgetData[],
+): CopiedWidgetData[][] {
+  const widgetOrders: CopiedWidgetData[][] = [[], [], [], []];
+  widgets.forEach((widget: CopiedWidgetData) => {
+    widgetOrders[widget.hierarchy].push(widget);
+  });
+  return widgetOrders;
+}
+
+export function getNewParentId(
+  allWidgets: CanvasWidgetsReduxState,
+  selectedWidget: FlattenedWidgetProps,
+  copiedWidgets: CopiedWidgetData[],
+  order: CopiedWidgetData[][],
+): string | null {
+  /**
+   * Return selectedWidget if it is the MainCanvas.
+   */
+  if (selectedWidget.widgetId === MAIN_CONTAINER_WIDGET_ID)
+    return selectedWidget.widgetId;
+
+  /**
+   * Return selectedWidget if it has a layout property.
+   * => it is a container widget (Section / Zone / Modal).
+   */
+  if (!!selectedWidget.layout) {
+    if (!prePasteValidations(selectedWidget, copiedWidgets, order)) return null;
+    return selectedWidget.widgetId;
+  } else {
+    /**
+     * Selected widget is a non-layout widget.
+     *
+     * If the widget doesn't have a valid parent, return null.
+     */
+    if (!selectedWidget.parentId || !allWidgets[selectedWidget.parentId])
+      return null;
+    /**
+     * Recursively check if the parent is a valid layout widget.
+     */
+    const parentId: string | null = getNewParentId(
+      allWidgets,
+      allWidgets[selectedWidget.parentId],
+      copiedWidgets,
+      order,
+    );
+    return parentId;
+  }
+}
+
+/**
+ * Split copied widgets based on migration status.
+ * migrants => parentId has changed.
+ * residents => parentId has not changed.
+ * @param copiedWidgets | CopiedWidgetData[] : list of copied widgets.
+ * @param newParentId | string : new parent id to paste widgets into.
+ */
+export function splitWidgetsOnResidenceStatus(
+  copiedWidgets: CopiedWidgetData[],
+  newParentId: string,
+): { migrants: CopiedWidgetData[]; residents: CopiedWidgetData[] } {
+  const migrants: CopiedWidgetData[] = [];
+  const residents: CopiedWidgetData[] = [];
+
+  copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
+    if (copiedWidget.parentId === newParentId) residents.push(copiedWidget);
+    else migrants.push(copiedWidget);
+  });
+
+  return { migrants, residents };
 }

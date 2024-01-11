@@ -187,7 +187,6 @@ import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constan
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import { pasteSagas } from "layoutSystems/anvil/utils/paste";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -980,6 +979,7 @@ function* createSelectedWidgetsCopy(
     widgetId: string;
     parentId: string;
     list: FlattenedWidgetProps[];
+    hierarchy: number;
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
 
   const saveResult: boolean = yield saveCopiedWidgets(
@@ -1478,12 +1478,6 @@ function* pasteWidgetSaga(
 
   let copiedWidgetGroups = copiedWidgets ? [...copiedWidgets] : [];
   const shouldGroup: boolean = action.payload.groupWidgets;
-
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  if (layoutSystemType === LayoutSystemTypes.ANVIL) {
-    yield call(pasteSagas, copiedWidgetGroups);
-    return;
-  }
 
   const newlyCreatedWidgetIds: string[] = [];
   const evalTree: DataTree = yield select(getDataTree);
@@ -2175,6 +2169,13 @@ function* widgetBatchUpdatePropertySaga() {
   }
 }
 
+function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+    yield call(saga, action);
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
@@ -2213,7 +2214,11 @@ export default function* widgetOperationSagas() {
     ),
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
-    takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
+    takeLeading(
+      ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+      shouldCallSaga,
+      pasteWidgetSaga,
+    ),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
     takeEvery(ReduxActionTypes.PARTIAL_IMPORT_INIT, partialImportSaga),
