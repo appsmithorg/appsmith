@@ -46,10 +46,7 @@ import {
   Select,
   Tooltip,
 } from "design-system";
-import {
-  fetchAllApplicationsOfWorkspace,
-  updateApplication,
-} from "@appsmith/actions/applicationActions";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import PerformanceTracker, {
@@ -60,7 +57,6 @@ import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/appli
 import {
   deleteWorkspace,
   fetchAllWorkspaces,
-  fetchUsersForWorkspace,
   resetCurrentWorkspace,
   saveWorkspace,
 } from "@appsmith/actions/workspaceActions";
@@ -131,6 +127,8 @@ import {
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
 import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { fetchWorkspaceEntities } from "@appsmith/utils/workspaceHelpers";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -847,6 +845,7 @@ export const ApplictionsMainPage = (props: any) => {
   const fetchedPackages = useSelector(getPackagesList);
   const fetchedWorkflows = useSelector(getWorkflowsList);
   const fetchedWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
@@ -880,8 +879,7 @@ export const ApplictionsMainPage = (props: any) => {
           payload: { ...activeWorkspace },
         });
       }
-      dispatch(fetchAllApplicationsOfWorkspace(activeWorkspaceId));
-      dispatch(fetchUsersForWorkspace(activeWorkspaceId));
+      fetchWorkspaceEntities({ dispatch, activeWorkspaceId, featureFlags });
     }
   }, [urlHash, fetchedWorkspaces, activeWorkspaceId]);
 
