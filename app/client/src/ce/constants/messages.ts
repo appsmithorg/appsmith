@@ -2276,7 +2276,7 @@ export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
 export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
   "Choose an option below to embark on your app-building adventure!";
 
-export const PAGES_PANE_TEXTS = {
+export const EDITOR_PANE_TEXTS = {
   queries_tab: () => "Queries",
   js_tab: () => "JS",
   ui_tab: () => "UI",
@@ -2426,4 +2426,11 @@ export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
 export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
   title: () => "Add page(s) from a template",
   buildingBlocksTitle: () => "Building Blocks",
+};
+
+export const HEADER_TITLES = {
+  DATA: () => "Data",
+  EDITOR: () => "Pages",
+  SETTINGS: () => "Settings",
+  LIBRARIES: () => "Libraries",
 };
