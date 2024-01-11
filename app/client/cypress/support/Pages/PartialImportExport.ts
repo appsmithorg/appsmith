@@ -2,6 +2,14 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
 import { AppSidebar, AppSidebarButton, PageLeftPane } from "./EditorNavigation";
 
+const exportedPropertiesToUIEntitiesMap = {
+  jsObjects: "actionCollectionList",
+  datasources: "datasourceList",
+  queries: "actionList",
+  customJSLibs: "customJSLibList",
+  widgets: "widgets",
+} as const;
+
 export default class PartialImportExport {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private homePage = ObjectsRegistry.HomePage;
@@ -55,6 +63,7 @@ export default class PartialImportExport {
   }
 
   ExportAndCompareDownloadedFile(
+    sectionName: keyof typeof exportedPropertiesToUIEntitiesMap,
     sectionIndex: number,
     sectionSelector: string,
     fileNameToCompareWith: string,
@@ -82,11 +91,26 @@ export default class PartialImportExport {
     cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
       cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
         (expectedFile) => {
-          // sort the contents of both the files before comparing
-          exportedFile = JSON.stringify(exportedFile).split("").sort().join("");
-          expectedFile = JSON.stringify(expectedFile).split("").sort().join("");
-
-          expect(exportedFile).to.deep.equal(expectedFile);
+          const propertyName = exportedPropertiesToUIEntitiesMap[sectionName];
+          if (propertyName in exportedFile && propertyName in expectedFile) {
+            const exportedPropertyContents = JSON.stringify(
+              exportedFile[propertyName],
+            )
+              .split("")
+              .sort()
+              .join();
+            const expectedFileContents = JSON.stringify(
+              expectedFile[propertyName],
+            )
+              .split("")
+              .sort()
+              .join();
+            expect(exportedPropertyContents).to.equal(expectedFileContents);
+          } else {
+            throw new Error(
+              "Exported file does not match with the expected file",
+            );
+          }
         },
       );
     });

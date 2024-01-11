@@ -33,6 +33,7 @@ describe(
 
     it("1. Should export all the selected JsObjects", () => {
       partialImportExport.ExportAndCompareDownloadedFile(
+        "jsObjects",
         0,
         partialImportExport.locators.export.modelContents.jsObjectsSection,
         "JSExportedOnly.json",
@@ -42,6 +43,7 @@ describe(
 
     it("2. Should export all the selected datasources", () => {
       partialImportExport.ExportAndCompareDownloadedFile(
+        "datasources",
         1,
         partialImportExport.locators.export.modelContents.datasourcesSection,
         "DatasourceExportedOnly.json",
@@ -51,6 +53,7 @@ describe(
 
     it("3. Should export all the selected queries", () => {
       partialImportExport.ExportAndCompareDownloadedFile(
+        "queries",
         2,
         partialImportExport.locators.export.modelContents.queriesSection,
         "QueriesExportedOnly.json",
@@ -60,6 +63,7 @@ describe(
 
     it("4. Should export all the customjs libs", () => {
       partialImportExport.ExportAndCompareDownloadedFile(
+        "customJSLibs",
         3,
         partialImportExport.locators.export.modelContents.customJSLibsSection,
         "CustomJsLibsExportedOnly.json",
@@ -69,6 +73,7 @@ describe(
 
     it("5. Should export all the widgets", () => {
       partialImportExport.ExportAndCompareDownloadedFile(
+        "widgets",
         4,
         partialImportExport.locators.export.modelContents.widgetsSection,
         "WidgetsExportedOnly.json",
