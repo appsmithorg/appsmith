@@ -11,11 +11,15 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -741,6 +745,30 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
+                .collectList();
+    }
+
+    public Mono<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {
+        if (CollectionUtils.isEmpty(domainObjects)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        // convert the list of new actions to a list of DBObjects
+        List<WriteModel<Document>> dbObjects = domainObjects.stream()
+                .map(actionCollection -> {
+                    assert actionCollection.getId() != null;
+                    Document document = new Document();
+                    mongoOperations.getConverter().write(actionCollection, document);
+                    document.remove("_id");
+                    return (WriteModel<Document>) new UpdateOneModel<Document>(
+                            new Document("_id", new ObjectId(actionCollection.getId())),
+                            new Document("$set", document));
+                })
+                .collect(Collectors.toList());
+
+        return mongoOperations
+                .getCollection(mongoOperations.getCollectionName(genericDomain))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
                 .collectList();
     }
 }
