@@ -249,137 +249,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         }
     }
 
-    /**
-     * validates whether a ApplicationJSON contains the required fields or not.
-     *
-     * @param importedDoc ApplicationJSON object that needs to be validated
-     * @return Name of the field that have error. Empty string otherwise
-     */
-    private String validateApplicationJson(ApplicationJson importedDoc) {
-        String errorField = "";
-        if (importedDoc.getExportedApplication() == null) {
-            errorField = FieldName.APPLICATION;
-        } else if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
-            errorField = FieldName.PAGE_LIST;
-        } else if (importedDoc.getActionList() == null) {
-            errorField = FieldName.ACTIONS;
-        } else if (importedDoc.getDatasourceList() == null) {
-            errorField = FieldName.DATASOURCE;
-        }
-
-        return errorField;
-    }
-
-    private Mono<Application> getImportApplicationMono(
-            Application importedApplication,
-            ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            Mono<User> currUserMono) {
-        Mono<Application> importApplicationMono = Mono.just(importedApplication)
-                .map(application -> {
-                    if (application.getApplicationVersion() == null) {
-                        application.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
-                    }
-                    application.setViewMode(false);
-                    application.setForkWithConfiguration(null);
-                    application.setExportWithConfiguration(null);
-                    application.setWorkspaceId(importingMetaDTO.getWorkspaceId());
-                    application.setIsPublic(null);
-                    application.setPolicies(null);
-                    application.setPages(null);
-                    application.setPublishedPages(null);
-                    return application;
-                })
-                .map(application -> {
-                    application.setUnpublishedCustomJSLibs(
-                            new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
-                    return application;
-                });
-
-        importApplicationMono = importApplicationMono.zipWith(currUserMono).map(objects -> {
-            Application application = objects.getT1();
-            application.setModifiedBy(objects.getT2().getUsername());
-            return application;
-        });
-
-        if (StringUtils.isEmpty(importingMetaDTO.getArtifactId())) {
-            importApplicationMono = importApplicationMono.flatMap(application -> {
-                return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-            });
-        } else {
-            Mono<Application> existingApplicationMono = applicationService
-                    .findById(
-                            importingMetaDTO.getArtifactId(),
-                            importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
-                    .switchIfEmpty(Mono.defer(() -> {
-                        log.error(
-                                "No application found with id: {} and permission: {}",
-                                importingMetaDTO.getArtifactId(),
-                                importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                FieldName.APPLICATION,
-                                importingMetaDTO.getArtifactId()));
-                    }))
-                    .cache();
-
-            // this can be a git sync, import page from template, update app with json, restore snapshot
-            if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
-                importApplicationMono = existingApplicationMono;
-            } else {
-                importApplicationMono = importApplicationMono
-                        .zipWith(existingApplicationMono)
-                        .map(objects -> {
-                            Application newApplication = objects.getT1();
-                            Application existingApplication = objects.getT2();
-                            // This method sets the published mode properties in the imported
-                            // application.When a user imports an application from the git repo,
-                            // since the git only stores the unpublished version, the current
-                            // deployed version in the newly imported app is not updated.
-                            // This function sets the initial deployed version to the same as the
-                            // edit mode one.
-                            setPublishedApplicationProperties(newApplication);
-                            setPropertiesToExistingApplication(newApplication, existingApplication);
-                            return existingApplication;
-                        })
-                        .flatMap(application -> {
-                            Mono<Application> parentApplicationMono;
-                            if (application.getGitApplicationMetadata() != null) {
-                                parentApplicationMono = applicationService.findById(
-                                        application.getGitApplicationMetadata().getDefaultApplicationId());
-                            } else {
-                                parentApplicationMono = Mono.just(application);
-                            }
-                            return Mono.zip(Mono.just(application), parentApplicationMono);
-                        })
-                        .flatMap(objects -> {
-                            Application application = objects.getT1();
-                            Application parentApplication = objects.getT2();
-                            application.setPolicies(parentApplication.getPolicies());
-                            return applicationService
-                                    .save(application)
-                                    .onErrorResume(DuplicateKeyException.class, error -> {
-                                        if (error.getMessage() != null) {
-                                            return applicationPageService.createOrUpdateSuffixedApplication(
-                                                    application, application.getName(), 0);
-                                        }
-                                        throw error;
-                                    });
-                        });
-            }
-        }
-        return importApplicationMono
-                .elapsed()
-                .map(tuples -> {
-                    log.debug("time to create or update application object: {}", tuples.getT1());
-                    return tuples.getT2();
-                })
-                .onErrorResume(error -> {
-                    log.error("Error while creating or updating application object", error);
-                    return Mono.error(error);
-                });
-    }
-
     protected List<Mono<Void>> getPageDependentImportables(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
@@ -598,6 +467,11 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return applicationSpecificImportedEntities(
                 (ApplicationJson) artifactExchangeJson, importingMetaDTO, mappedImportableResourcesDTO);
+    }
+
+    @Override
+    public Mono<Boolean> isArtifactConnectedToGit(String artifactId) {
+        return applicationService.isApplicationConnectedToGit(artifactId);
     }
 
     @Override

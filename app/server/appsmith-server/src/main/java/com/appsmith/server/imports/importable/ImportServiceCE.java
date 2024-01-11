@@ -8,6 +8,8 @@ import com.appsmith.server.imports.internal.ContextBasedImportService;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ImportServiceCE {
 
     /**
@@ -75,6 +77,16 @@ public interface ImportServiceCE {
      */
     Mono<? extends ImportableArtifact> importArtifactInWorkspaceFromGit(
             String workspaceId, String artifactId, ArtifactExchangeJson artifactExchangeJson, String branchName);
+
+    Mono<? extends ImportableArtifact> mergeArtifactExchangeJsonWithImportableArtifact(
+            String workspaceId,
+            String artifactId,
+            String branchName,
+            ArtifactExchangeJson artifactExchangeJson,
+            List<String> entitiesToImport);
+
+    Mono<? extends ImportableArtifact> restoreSnapshot(
+            String workspaceId, ArtifactExchangeJson artifactExchangeJson, String artifactId, String branchName);
 
     Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
             String workspaceId,

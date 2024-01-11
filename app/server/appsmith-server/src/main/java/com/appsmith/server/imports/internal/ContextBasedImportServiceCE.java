@@ -139,6 +139,8 @@ public interface ContextBasedImportServiceCE<
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO);
 
+    Mono<Boolean> isArtifactConnectedToGit(String artifactId);
+
     String validateArtifactSpecificFields(ArtifactExchangeJson artifactExchangeJson);
 
     Map<String, String> getConstantsMap();

@@ -215,7 +215,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(artifactExchangeJson);
 
-        if (!StringUtils.isEmpty(workspaceId)) {
+        if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
@@ -226,9 +226,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     contextBasedImportService.getConstantsMap().get(FieldName.ID)));
         }
 
-        Mono<Boolean> isContextConnectedToGitMono = Mono.just(Boolean.FALSE);
+        // Check if the application is connected to git and if it's connected throw exception asking user to update
+        // app via git ops like pull, merge etc.
+        Mono<Boolean> isArtifactConnectedToGitMono = Mono.just(Boolean.FALSE);
+        if (!StringUtils.isEmpty(artifactId)) {
+            isArtifactConnectedToGitMono = contextBasedImportService.isArtifactConnectedToGit(artifactId);
+        }
 
-        Mono<ImportableArtifact> importedContextMono = isContextConnectedToGitMono.flatMap(isConnectedToGit -> {
+        Mono<ImportableArtifact> importedContextMono = isArtifactConnectedToGitMono.flatMap(isConnectedToGit -> {
             if (isConnectedToGit) {
                 return Mono.error(new AppsmithException(
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
@@ -302,6 +307,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 });
     }
 
+    @Override
     public Mono<? extends ImportableArtifact> restoreSnapshot(
             String workspaceId, ArtifactExchangeJson artifactExchangeJson, String artifactId, String branchName) {
 
@@ -345,6 +351,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      *                             If null or empty, all pages will be merged.
      * @return Merged ImportableArtifact
      */
+    @Override
     public Mono<? extends ImportableArtifact> mergeArtifactExchangeJsonWithImportableArtifact(
             String workspaceId,
             String artifactId,
