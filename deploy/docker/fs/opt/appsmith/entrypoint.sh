@@ -468,8 +468,6 @@ fi
 check_setup_custom_ca_certificates
 setup-custom-ca-certificates
 
-mount_letsencrypt_directory
-
 check_redis_compatible_page_size
 
 safe_init_postgres
