@@ -5,6 +5,7 @@ import {
   draggableWidgets,
   entityExplorer,
   homePage,
+  locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
@@ -19,7 +20,7 @@ describe("Slug URLs", () => {
       cy.visit(`/applications/${applicationId}/pages/${pageId}/edit`, {
         timeout: Cypress.config().pageLoadTimeout,
       }).then(() => {
-        cy.wait(5000);
+        agHelper.WaitUntilEleAppear(locators._sidebar);
         cy.location("pathname").then((pathname) => {
           const pageId = pathname.split("/")[3]?.split("-").pop();
           const appName = localStorage
