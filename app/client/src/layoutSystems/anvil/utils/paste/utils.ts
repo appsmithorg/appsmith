@@ -28,6 +28,7 @@ export function* addPastedWidgets(
   const reverseMap: { [key: string]: string } = { ...reverseWidgetIdMap };
   const { list, widgetId } = arr;
   const newList: FlattenedWidgetProps[] = [];
+  const oldWidgetMap: Record<string, FlattenedWidgetProps> = {};
 
   const evalTree: DataTree = yield select(getDataTree);
 
@@ -41,6 +42,7 @@ export function* addPastedWidgets(
    */
 
   list.forEach((each: FlattenedWidgetProps) => {
+    oldWidgetMap[each.widgetId] = each;
     // Clone old widget to create new one.
     const newWidget = cloneDeep(each);
     newWidget.widgetId = generateReactKey();
@@ -81,10 +83,9 @@ export function* addPastedWidgets(
         ...widgets,
         [widget.widgetId]: widget,
       },
+      oldWidgetMap[reverseMap[widget.widgetId]],
+      widget,
       map,
-      reverseMap,
-      widget.widgetId,
-      widget.type,
     );
 
     /**

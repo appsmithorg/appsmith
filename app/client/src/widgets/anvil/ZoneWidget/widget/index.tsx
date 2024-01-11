@@ -83,13 +83,14 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
     };
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   static pasteOperationChecks(
     allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
     widgetIdMap: Record<string, string>,
-    reverseWidgetIdMap: Record<string, string>,
-    widgetId: string,
   ): FlattenedWidgetProps | null {
-    let widget: FlattenedWidgetProps = allWidgets[widgetId];
+    let widget: FlattenedWidgetProps = { ...newWidget };
 
     if (widget.flexGrow && widget.flexGrow === SectionColumns) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

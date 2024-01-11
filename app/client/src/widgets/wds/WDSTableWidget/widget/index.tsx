@@ -561,31 +561,30 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   static pasteOperationChecks(
     allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
     widgetIdMap: Record<string, string>,
-    reverseWidgetIdMap: Record<string, string>,
-    widgetId: string,
   ): FlattenedWidgetProps | null {
-    const widget = allWidgets[widgetId];
-    if (!widget || !widget.primaryColumns) return null;
+    if (!newWidget || !newWidget.primaryColumns) return null;
     // If the primaryColumns of the table exist
-    const oldWidgetName: string =
-      allWidgets[reverseWidgetIdMap[widgetId]].widgetName;
+    const oldWidgetName: string = oldWidget.widgetName;
     if (!oldWidgetName) return null;
     // For each column
-    const updatedPrimaryColumns = { ...widget.primaryColumns };
+    const updatedPrimaryColumns = { ...newWidget.primaryColumns };
     for (const [columnId, column] of Object.entries(updatedPrimaryColumns)) {
       // For each property in the column
       for (const [key, value] of Object.entries(column as ColumnProperties)) {
         // Replace reference of previous widget with the new widgetName
         // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
         updatedPrimaryColumns[columnId][key] = isString(value)
-          ? value.replace(`${oldWidgetName}.`, `${widget.widgetName}.`)
+          ? value.replace(`${oldWidgetName}.`, `${newWidget.widgetName}.`)
           : value;
       }
     }
-    return { ...widget, primaryColumns: updatedPrimaryColumns };
+    return { ...newWidget, primaryColumns: updatedPrimaryColumns };
   }
 
   /*

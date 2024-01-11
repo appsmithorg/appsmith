@@ -566,24 +566,23 @@ class WidgetFactory {
   @memoize
   static performPasteOperationChecks(
     allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
     widgetIdMap: Record<string, string>,
-    reverseWidgetIdMap: Record<string, string>,
-    widgetId: string,
-    type: WidgetType,
   ): FlattenedWidgetProps {
-    const widget = WidgetFactory.widgetsMap.get(type);
+    const widget = WidgetFactory.widgetsMap.get(newWidget.type);
 
-    if (!widget) return allWidgets[widgetId];
+    if (!widget) return newWidget;
 
     const widgetProps: FlattenedWidgetProps | null =
       widget?.pasteOperationChecks(
         allWidgets,
+        oldWidget,
+        newWidget,
         widgetIdMap,
-        reverseWidgetIdMap,
-        widgetId,
       );
 
-    return widgetProps !== null ? widgetProps : allWidgets[widgetId];
+    return widgetProps !== null ? widgetProps : newWidget;
   }
 }
 
