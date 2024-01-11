@@ -10,7 +10,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
-describe.skip(
+describe(
   "Fork a template to the current app",
   { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
