@@ -1,7 +1,5 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import {
-  partialImportExport
-} from "../../../../support/Objects/ObjectsCore";
+import { partialImportExport } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Partial import functionality",
