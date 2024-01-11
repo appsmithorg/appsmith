@@ -50,6 +50,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
             pageId,
             datasourceId: props.datasourceId,
             params: getQueryParams(),
+            generateEditorPath: true,
           }),
         );
       }
