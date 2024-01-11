@@ -1618,7 +1618,7 @@ export class AggregateHelper {
       "include",
       url,
     );
-    this.Sleep(); //new url to open
+    this.assertHelper.AssertDocumentReady();
   }
 
   public ScrollTo(

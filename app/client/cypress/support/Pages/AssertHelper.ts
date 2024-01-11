@@ -21,13 +21,15 @@ export class AssertHelper {
   }
 
   public AssertDocumentReady() {
-    cy.waitUntil(() =>
-      //cy.document().then((doc) => doc.readyState === "complete"),
+    cy.waitUntil(() => {
       cy.document().should((doc) => {
         expect(doc.readyState).to.equal("complete");
-      }),
-    );
-    //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
+      });
+      cy.window({ timeout: Cypress.config().pageLoadTimeout }).should(
+        "have.property",
+        "onload",
+      );
+    });
   }
 
   public AssertDelete(entityType: EntityItemsType) {
