@@ -83,13 +83,14 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
     };
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   static pasteOperationChecks(
     allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
     widgetIdMap: Record<string, string>,
-    reverseWidgetIdMap: Record<string, string>,
-    widgetId: string,
   ): FlattenedWidgetProps | null {
-    const widget: FlattenedWidgetProps = allWidgets[widgetId];
+    const widget: FlattenedWidgetProps = { ...newWidget };
     if (widget.spaceDistributed) {
       const newSpaceDistribution: { [key: string]: string } = {};
       Object.keys(widget.spaceDistributed).forEach((key: string) => {

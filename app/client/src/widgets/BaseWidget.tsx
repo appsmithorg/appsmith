@@ -150,10 +150,10 @@ abstract class BaseWidget<
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
   static pasteOperationChecks(
-    allWidgets: CanvasWidgetsReduxState,
-    widgetIdMap: Record<string, string>,
-    reverseWidgetIdMap: Record<string, string>,
-    widgetId: string,
+    allWidgets: CanvasWidgetsReduxState, // All widgets
+    oldWidget: FlattenedWidgetProps, // Original copied widget
+    newWidget: FlattenedWidgetProps, // Newly generated widget
+    widgetIdMap: Record<string, string>, // Map of oldWidgetId -> newWidgetId
   ): FlattenedWidgetProps | null {
     return null;
   }

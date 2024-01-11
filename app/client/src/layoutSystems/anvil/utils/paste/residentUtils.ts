@@ -85,7 +85,7 @@ function updateLayout(
 ): LayoutProps[] {
   const { widgetPositionInfo } = copiedWidget;
 
-  if (!widgetPositionInfo && widgets[oldWidgetId]) {
+  if (widgets[oldWidgetId]) {
     // old Widget is not deleted
     return [addWidgetInPosition(oldWidgetId, newWidgetId, layout)];
   }
