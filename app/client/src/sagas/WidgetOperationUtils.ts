@@ -62,7 +62,7 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { Positioning } from "layoutSystems/common/utils/constants";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1499,19 +1499,6 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
     parentId: widget.parentId,
     widgetId: widget.widgetId,
   };
-}
-
-const widgetHierarchy: Record<string, number> = {
-  MAIN_CANVAS: 0,
-  [anvilWidgets.SECTION_WIDGET]: 1,
-  [anvilWidgets.ZONE_WIDGET]: 2,
-  OTHER: 3,
-};
-
-function getWidgetHierarchy(type: string, id: string): number {
-  if (widgetHierarchy[type]) return widgetHierarchy[type];
-  if (id === MAIN_CONTAINER_WIDGET_ID) return widgetHierarchy.MAIN_CANVAS;
-  return widgetHierarchy.OTHER;
 }
 
 export type WidgetsInTree = (WidgetProps & {
