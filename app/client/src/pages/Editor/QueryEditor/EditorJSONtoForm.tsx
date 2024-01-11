@@ -51,7 +51,6 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INVALID_FORM_CONFIGURATION,
-  // NO_DATASOURCE_FOR_QUERY,
   UNEXPECTED_ERROR,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
@@ -92,6 +91,7 @@ import { QueryEditorContext } from "./QueryEditorContext";
 import QueryResponseTabView from "./QueryResponseView";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
+import { isAppsmithAIPlugin } from "utils/editorContextUtils";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -190,20 +190,6 @@ const StyledSpinner = styled(Spinner)`
   justify-content: space-between;
   width: 5vw;
 `;
-
-// const NoDataSourceContainer = styled.div`
-//   align-items: center;
-//   display: flex;
-//   flex-direction: column;
-//   margin-top: 62px;
-//   flex: 1;
-//   .font18 {
-//     width: 50%;
-//     text-align: center;
-//     margin-bottom: 23px;
-//     font-size: 18px;
-//   }
-// `;
 
 const TabContainerView = styled.div`
   display: flex;
@@ -631,9 +617,8 @@ export function EditorJSONtoForm(props: Props) {
     currentActionPluginName !== PluginName.SMTP;
 
   // Datasource selection is hidden for Appsmith AI Plugin
-  // TODO: @Diljit Remove this condition when knowledge retrieval is implemented
-  const showDatasourceSelector =
-    currentActionPluginName !== PluginName.APPSMITH_AI;
+  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented
+  const showDatasourceSelector = !isAppsmithAIPlugin(plugin?.packageName);
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -738,22 +723,6 @@ export function EditorJSONtoForm(props: Props) {
                           </Tag>
                         </>
                       )}
-                      {/* {dataSources.length === 0 && (
-                        <NoDataSourceContainer>
-                          <p className="font18">
-                            {createMessage(NO_DATASOURCE_FOR_QUERY)}
-                          </p>
-                          <Button
-                            isDisabled={!canCreateDatasource}
-                            kind="primary"
-                            onClick={() => onCreateDatasourceClick()}
-                            size="sm"
-                            startIcon="plus"
-                          >
-                            Add a Datasource
-                          </Button>
-                        </NoDataSourceContainer>
-                      )} */}
                     </SettingsWrapper>
                   </TabPanelWrapper>
                   <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>

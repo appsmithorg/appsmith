@@ -55,7 +55,7 @@ export const StyledContainer = styled.div`
   }
 `;
 
-export const ApiCardsContainer = styled.div`
+export const DatasourceCardsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
@@ -71,7 +71,7 @@ export const ApiCardsContainer = styled.div`
   }
 `;
 
-export const ApiCard = styled.div`
+export const DatasourceCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -153,7 +153,7 @@ function AIDataSources(props: Props) {
   const aiPlugins = plugins
     .filter((p) => {
       // Remove Appsmith AI Plugin from Datasources page
-      // TODO: @Diljit Remove this when knowledge retrieval is implemented
+      // TODO: @Diljit Remove this when knowledge retrieval for Appsmith AI is implemented
       return p.packageName !== PluginPackageName.APPSMITH_AI;
     })
     .sort((a, b) => {
@@ -164,9 +164,9 @@ function AIDataSources(props: Props) {
 
   return (
     <StyledContainer>
-      <ApiCardsContainer data-testid="newapi-datasource-card-container">
+      <DatasourceCardsContainer data-testid="newapi-datasource-card-container">
         {aiPlugins.map((plugin) => (
-          <ApiCard
+          <DatasourceCard
             className={`t--createBlankApi-${plugin.packageName}`}
             key={plugin.id}
             onClick={() => {
@@ -185,9 +185,9 @@ function AIDataSources(props: Props) {
               />
               <p className="t--plugin-name textBtn">{plugin.name}</p>
             </CardContentWrapper>
-          </ApiCard>
+          </DatasourceCard>
         ))}
-      </ApiCardsContainer>
+      </DatasourceCardsContainer>
     </StyledContainer>
   );
 }
