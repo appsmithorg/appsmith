@@ -252,14 +252,6 @@ use-mongodb-key() {
   chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
 
-# Keep Let's Encrypt directory persistent
-mount_letsencrypt_directory() {
-  echo "Mounting Let's encrypt directory"
-  rm -rf /etc/letsencrypt
-  mkdir -p /appsmith-stacks/{letsencrypt,ssl}
-  ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
-}
-
 is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
