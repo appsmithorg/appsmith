@@ -7,42 +7,42 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 
-public class ContextSchemaMigrationCE {
+public class ArtifactSchemaMigrationCE {
 
-    private static boolean checkCompatibility(ArtifactExchangeJson importableContextJson) {
-        return (importableContextJson.getClientSchemaVersion() <= JsonSchemaVersions.clientVersion)
-                && (importableContextJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
+    private static boolean checkCompatibility(ArtifactExchangeJson artifactExchangeJson) {
+        return (artifactExchangeJson.getClientSchemaVersion() <= JsonSchemaVersions.clientVersion)
+                && (artifactExchangeJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
     }
 
-    public static ArtifactExchangeJson migrateImportableContextJsonToLatestSchema(
-            ArtifactExchangeJson importableContextJson) {
+    public static ArtifactExchangeJson migrateArtifactExchangeJsonToLatestSchema(
+            ArtifactExchangeJson artifactExchangeJson) {
         // Check if the schema versions are available and set to initial version if not present
-        Integer serverSchemaVersion = importableContextJson.getServerSchemaVersion() == null
+        Integer serverSchemaVersion = artifactExchangeJson.getServerSchemaVersion() == null
                 ? 0
-                : importableContextJson.getServerSchemaVersion();
-        Integer clientSchemaVersion = importableContextJson.getClientSchemaVersion() == null
+                : artifactExchangeJson.getServerSchemaVersion();
+        Integer clientSchemaVersion = artifactExchangeJson.getClientSchemaVersion() == null
                 ? 0
-                : importableContextJson.getClientSchemaVersion();
+                : artifactExchangeJson.getClientSchemaVersion();
 
-        importableContextJson.setClientSchemaVersion(clientSchemaVersion);
-        importableContextJson.setServerSchemaVersion(serverSchemaVersion);
-        if (!checkCompatibility(importableContextJson)) {
+        artifactExchangeJson.setClientSchemaVersion(clientSchemaVersion);
+        artifactExchangeJson.setServerSchemaVersion(serverSchemaVersion);
+        if (!checkCompatibility(artifactExchangeJson)) {
             throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
         }
 
-        migrateClientAndServerSchemas(importableContextJson);
-        return importableContextJson;
+        migrateClientAndServerSchemas(artifactExchangeJson);
+        return artifactExchangeJson;
     }
 
     /**
-     * This method migrates the client & server schema of context after choosing the right method for migration
+     * This method migrates the client & server schema of artifactExchangeJson after choosing the right method for migration
      * this will likely be overridden in EE codebase for more choices
-     * @param importableContextJson ContextJson which is imported
+     * @param artifactExchangeJson artifactExchangeJson which is imported
      */
-    private static void migrateClientAndServerSchemas(ArtifactExchangeJson importableContextJson) {
-        if (ArtifactJsonType.APPLICATION.equals(importableContextJson.getArtifactJsonType())) {
-            migrateApplicationJsonClientSchema((ApplicationJson) importableContextJson);
-            migrateApplicationJsonServerSchema((ApplicationJson) importableContextJson);
+    private static void migrateClientAndServerSchemas(ArtifactExchangeJson artifactExchangeJson) {
+        if (ArtifactJsonType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
+            migrateApplicationJsonClientSchema((ApplicationJson) artifactExchangeJson);
+            migrateApplicationJsonServerSchema((ApplicationJson) artifactExchangeJson);
         }
     }
 

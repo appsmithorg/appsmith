@@ -144,7 +144,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportArtifactPermissionProvider getImportContextPermissionProviderForImportingContext(
+    public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissionGroups) {
         return ImportArtifactPermissionProvider.builder(
                         applicationPermission,
@@ -160,7 +160,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportArtifactPermissionProvider getImportContextPermissionProviderForUpdatingContext(
+    public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForUpdatingArtifact(
             Set<String> userPermissions) {
         return ImportArtifactPermissionProvider.builder(
                         applicationPermission,
@@ -176,7 +176,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportArtifactPermissionProvider getImportContextPermissionProviderForConnectingToGit(
+    public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForConnectingToGit(
             Set<String> userPermissions) {
 
         /**
@@ -199,7 +199,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportArtifactPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(
+    public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForRestoringSnapshot(
             Set<String> userPermissions) {
         return ImportArtifactPermissionProvider.builder(
                         applicationPermission,
@@ -214,7 +214,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public ImportArtifactPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
+    public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForMergingJsonWithArtifact(
             Set<String> userPermissions) {
         return ImportArtifactPermissionProvider.builder(
                         applicationPermission,
@@ -427,8 +427,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<ApplicationImportDTO> getImportableArtifactDTO(
-            String workspaceId, String applicationId, ImportableArtifact importableContext) {
-        Application application = (Application) importableContext;
+            String workspaceId, String applicationId, ImportableArtifact importableArtifact) {
+        Application application = (Application) importableArtifact;
         return findDatasourceByApplicationId(applicationId, workspaceId)
                 .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {
@@ -483,10 +483,10 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public void updateContextJsonWithRequiredPagesToImport(
-            ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {
+    public void updateArtifactExchangeJsonWithEntitiesToBeConsumed(
+            ArtifactExchangeJson artifactExchangeJson, List<String> entitiesToImport) {
 
-        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         // Update the application JSON to prepare it for merging inside an existing application
         if (applicationJson.getExportedApplication() != null) {
@@ -507,8 +507,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     new ArrayList<>(applicationJson.getPageList().size());
             List<NewPage> importedNewPageList = applicationJson.getPageList().stream()
                     .filter(newPage -> newPage.getUnpublishedPage() != null
-                            && (CollectionUtils.isEmpty(pagesToImport)
-                                    || pagesToImport.contains(
+                            && (CollectionUtils.isEmpty(entitiesToImport)
+                                    || entitiesToImport.contains(
                                             newPage.getUnpublishedPage().getName())))
                     .peek(newPage -> {
                         ApplicationPage applicationPage = new ApplicationPage();
@@ -527,8 +527,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         if (applicationJson.getActionList() != null) {
             List<NewAction> importedNewActionList = applicationJson.getActionList().stream()
                     .filter(newAction -> newAction.getUnpublishedAction() != null
-                            && (CollectionUtils.isEmpty(pagesToImport)
-                                    || pagesToImport.contains(
+                            && (CollectionUtils.isEmpty(entitiesToImport)
+                                    || entitiesToImport.contains(
                                             newAction.getUnpublishedAction().getPageId())))
                     .peek(newAction ->
                             newAction.setGitSyncId(null)) // setting this null so that this action can be imported again
@@ -537,8 +537,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         }
         if (applicationJson.getActionCollectionList() != null) {
             List<ActionCollection> importedActionCollectionList = applicationJson.getActionCollectionList().stream()
-                    .filter(actionCollection -> (CollectionUtils.isEmpty(pagesToImport)
-                            || pagesToImport.contains(
+                    .filter(actionCollection -> (CollectionUtils.isEmpty(entitiesToImport)
+                            || entitiesToImport.contains(
                                     actionCollection.getUnpublishedCollection().getPageId())))
                     .peek(actionCollection -> actionCollection.setGitSyncId(
                             null)) // setting this null so that this action collection can be imported again
@@ -592,7 +592,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<Void> contextSpecificImportedEntities(
+    public Mono<Void> generateArtifactSpecificImportableEntities(
             ArtifactExchangeJson artifactExchangeJson,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
@@ -720,8 +720,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<Application> updateImportableContext(ImportableArtifact importableContext) {
-        return Mono.just((Application) importableContext).flatMap(application -> {
+    public Mono<Application> updateImportableArtifact(ImportableArtifact importableArtifact) {
+        return Mono.just((Application) importableArtifact).flatMap(application -> {
             log.info("Imported application with id {}", application.getId());
             // Need to update the application object with updated pages and publishedPages
             Application updateApplication = new Application();
@@ -748,10 +748,10 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-            ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext) {
+            ArtifactExchangeJson artifactExchangeJson, ImportableArtifact importableArtifact) {
 
-        Application application = (Application) importableContext;
-        ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+        Application application = (Application) importableArtifact;
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         int jsObjectCount = CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
                 ? 0
@@ -776,15 +776,15 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Flux<Void> obtainContextSpecificImportables(
+    public Flux<Void> generateArtifactContextIndependentImportableEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importedContextMono,
-            ArtifactExchangeJson importableContextJson) {
-        return importedContextMono.flatMapMany(importableContext -> {
+            Mono<? extends ImportableArtifact> importableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+        return importableArtifactMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
-            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
             // Updates pageNametoIdMap and pageNameMap in importable resources.
             // Also directly updates required information in DB
@@ -811,16 +811,16 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Flux<Void> obtainContextComponentDependentImportables(
+    public Flux<Void> generateArtifactContextDependentImportableEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importedContextMono,
-            ArtifactExchangeJson importableContextJson) {
+            Mono<? extends ImportableArtifact> importableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
 
-        return importedContextMono.flatMapMany(importableContext -> {
+        return importableArtifactMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
-            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
             List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
                     importingMetaDTO,
@@ -834,8 +834,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public String validateContextSpecificFields(ArtifactExchangeJson importableContextJson) {
-        ApplicationJson importedDoc = (ApplicationJson) importableContextJson;
+    public String validateArtifactSpecificFields(ArtifactExchangeJson artifactExchangeJson) {
+        ApplicationJson importedDoc = (ApplicationJson) artifactExchangeJson;
         String errorField = "";
         if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
             errorField = FieldName.PAGE_LIST;

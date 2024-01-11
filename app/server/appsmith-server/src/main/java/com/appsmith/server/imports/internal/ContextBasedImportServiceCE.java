@@ -20,25 +20,28 @@ public interface ContextBasedImportServiceCE<
 
     V extractArtifactExchangeJson(String jsonString);
 
-    ImportArtifactPermissionProvider getImportContextPermissionProviderForImportingContext(Set<String> userPermissions);
-
-    ImportArtifactPermissionProvider getImportContextPermissionProviderForUpdatingContext(Set<String> userPermissions);
-
-    ImportArtifactPermissionProvider getImportContextPermissionProviderForConnectingToGit(Set<String> userPermissions);
-
-    ImportArtifactPermissionProvider getImportContextPermissionProviderForRestoringSnapshot(
+    ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissions);
 
-    ImportArtifactPermissionProvider getImportContextPermissionProviderForMergingImportableContextWithJson(
+    ImportArtifactPermissionProvider getImportArtifactPermissionProviderForUpdatingArtifact(
+            Set<String> userPermissions);
+
+    ImportArtifactPermissionProvider getImportArtifactPermissionProviderForConnectingToGit(Set<String> userPermissions);
+
+    ImportArtifactPermissionProvider getImportArtifactPermissionProviderForRestoringSnapshot(
+            Set<String> userPermissions);
+
+    ImportArtifactPermissionProvider getImportArtifactPermissionProviderForMergingJsonWithArtifact(
             Set<String> userPermissions);
 
     /**
-     * this method creates updates the entities which is to be imported in the given context
-     * @param importableContextJson
-     * @param pagesToImport
+     * this method creates updates the entities which is to be imported in context to the artifact
+     *
+     * @param artifactExchangeJson : json for the artifact which is going to be imported
+     * @param entitiesToImport : list of names of entities which is going to be imported
      */
-    default void updateContextJsonWithRequiredPagesToImport(
-            ArtifactExchangeJson importableContextJson, List<String> pagesToImport) {}
+    default void updateArtifactExchangeJsonWithEntitiesToBeConsumed(
+            ArtifactExchangeJson artifactExchangeJson, List<String> entitiesToImport) {}
 
     /**
      * this method sets the names to null before the update to avoid conflict
@@ -48,19 +51,7 @@ public interface ContextBasedImportServiceCE<
      */
     void setJsonArtifactNameToNullBeforeUpdate(String artifactId, ArtifactExchangeJson artifactExchangeJson);
 
-    Mono<U> getImportableArtifactDTO(String workspaceId, String artifactId, ImportableArtifact importableContext);
-
-    /**
-     * Add entities which are specific to the context. i.e. customJsLib
-     * @param artifactExchangeJson
-     * @param importingMetaDTO
-     * @param mappedImportableResourcesDTO
-     * @return
-     */
-    Mono<Void> contextSpecificImportedEntities(
-            ArtifactExchangeJson artifactExchangeJson,
-            ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO);
+    Mono<U> getImportableArtifactDTO(String workspaceId, String artifactId, ImportableArtifact importableArtifact);
 
     /**
      * This method sets the client & server schema version to artifacts which is inside JSON from the clientSchemaVersion
@@ -97,30 +88,58 @@ public interface ContextBasedImportServiceCE<
             ImportingMetaDTO importingMetaDTO);
 
     /**
-     * Update the context after the entities has been created
-     * @param importableContext
+     * Update the artifact after the entities has been created
+     * @param importableArtifact : the artifact which has to be updated
      * @return
      */
-    Mono<T> updateImportableContext(ImportableArtifact importableContext);
+    Mono<T> updateImportableArtifact(ImportableArtifact importableArtifact);
 
     Map<String, Object> createImportAnalyticsData(
-            ArtifactExchangeJson importableContextJson, ImportableArtifact importableContext);
+            ArtifactExchangeJson artifactExchangeJson, ImportableArtifact importableArtifact);
 
-    Flux<Void> obtainContextSpecificImportables(
+    /**
+     * @param importingMetaDTO
+     * @param mappedImportableResourcesDTO
+     * @param workspaceMono
+     * @param importableArtifactMono
+     * @param artifactExchangeJson
+     * @return
+     */
+    Flux<Void> generateArtifactContextIndependentImportableEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importedContextMono,
-            ArtifactExchangeJson importableContextJson);
+            Mono<? extends ImportableArtifact> importableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson);
 
-    Flux<Void> obtainContextComponentDependentImportables(
+    /**
+     * @param importingMetaDTO
+     * @param mappedImportableResourcesDTO
+     * @param workspaceMono
+     * @param importableArtifactMono
+     * @param artifactExchangeJson
+     * @return
+     */
+    Flux<Void> generateArtifactContextDependentImportableEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importedContextMono,
-            ArtifactExchangeJson importableContextJson);
+            Mono<? extends ImportableArtifact> importableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson);
 
-    String validateContextSpecificFields(ArtifactExchangeJson importableContextJson);
+    /**
+     * Add entities which are specific to the artifact. i.e. customJsLib
+     * @param artifactExchangeJson
+     * @param importingMetaDTO
+     * @param mappedImportableResourcesDTO
+     * @return
+     */
+    Mono<Void> generateArtifactSpecificImportableEntities(
+            ArtifactExchangeJson artifactExchangeJson,
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO);
+
+    String validateArtifactSpecificFields(ArtifactExchangeJson artifactExchangeJson);
 
     Map<String, String> getConstantsMap();
 }

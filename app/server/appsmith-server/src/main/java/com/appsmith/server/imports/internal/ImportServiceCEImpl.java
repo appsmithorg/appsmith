@@ -22,7 +22,7 @@ import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportServiceCE;
 import com.appsmith.server.imports.importable.ImportableService;
-import com.appsmith.server.migrations.ContextSchemaMigration;
+import com.appsmith.server.migrations.ArtifactSchemaMigration;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -192,7 +192,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
                 .zipWhen(userPermissionGroup -> {
-                    return Mono.just(contextBasedImportService.getImportContextPermissionProviderForImportingContext(
+                    return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForImportingArtifact(
                             userPermissionGroup));
                 })
                 .flatMap(tuple2 -> {
@@ -238,7 +238,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         .getCurrentUserPermissionGroups()
                         .zipWhen(userPermissionGroup -> {
                             return Mono.just(
-                                    contextBasedImportService.getImportContextPermissionProviderForUpdatingContext(
+                                    contextBasedImportService.getImportArtifactPermissionProviderForUpdatingArtifact(
                                             userPermissionGroup));
                         })
                         .flatMap(tuple2 -> {
@@ -285,7 +285,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
                 .zipWhen(userPermissionGroups -> {
-                    return Mono.just(contextBasedImportService.getImportContextPermissionProviderForConnectingToGit(
+                    return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForConnectingToGit(
                             userPermissionGroups));
                 })
                 .flatMap(tuple2 -> {
@@ -314,7 +314,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
                 .zipWhen(userPermissionGroups -> {
-                    return Mono.just(contextBasedImportService.getImportContextPermissionProviderForRestoringSnapshot(
+                    return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForRestoringSnapshot(
                             userPermissionGroups));
                 })
                 .flatMap(tuple2 -> {
@@ -352,14 +352,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             List<String> pagesToImport) {
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
-        contextBasedImportService.updateContextJsonWithRequiredPagesToImport(importableContextJson, pagesToImport);
+        contextBasedImportService.updateArtifactExchangeJsonWithEntitiesToBeConsumed(
+                importableContextJson, pagesToImport);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(
-                            contextBasedImportService
-                                    .getImportContextPermissionProviderForMergingImportableContextWithJson(
-                                            userPermissionGroups));
+                            contextBasedImportService.getImportArtifactPermissionProviderForMergingJsonWithArtifact(
+                                    userPermissionGroups));
                 })
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
@@ -418,11 +418,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         // step 1: Schema Migration
         ArtifactExchangeJson importedDoc =
-                ContextSchemaMigration.migrateImportableContextJsonToLatestSchema(artifactExchangeJson);
+                ArtifactSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(artifactExchangeJson);
 
         // Step 2: Validation of context Json
         // check for validation error and raise exception if error found
-        String errorField = validateImportableContextJson(importedDoc);
+        String errorField = validateArtifactExchangeJson(importedDoc);
         if (!errorField.isEmpty()) {
             log.error("Error in importing {}. Field {} is missing", contextString, errorField);
             if (errorField.equals(contextString)) {
@@ -459,17 +459,18 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
 
-        // this would import customJsLibs for both the contexts
-        Mono<Void> contextSpecificImportedEntities = contextBasedImportService.contextSpecificImportedEntities(
-                importedDoc, importingMetaDTO, mappedImportableResourcesDTO);
+        // this would import customJsLibs for all type of artifacts
+        Mono<Void> artifactSpecificImportableEntities =
+                contextBasedImportService.generateArtifactSpecificImportableEntities(
+                        importedDoc, importingMetaDTO, mappedImportableResourcesDTO);
 
         /*
          Calling the workspaceMono first to avoid creating multiple mongo transactions.
          If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
          transactions which will lead to NoSuchTransaction exception.
         */
-        final Mono<? extends ImportableArtifact> importedContextMono = workspaceMono
-                .then(contextSpecificImportedEntities)
+        final Mono<? extends ImportableArtifact> importedArtifactMono = workspaceMono
+                .then(artifactSpecificImportableEntities)
                 .then(contextBasedImportService.updateAndSaveArtifactInContext(
                         importedDoc.getImportableArtifact(),
                         importingMetaDTO,
@@ -477,17 +478,17 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         currUserMono))
                 .cache();
 
-        Mono<? extends ImportableArtifact> importMono = importedContextMono
+        Mono<? extends ImportableArtifact> importMono = importedArtifactMono
                 .then(getImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
                         workspaceMono,
-                        importedContextMono,
+                        importedArtifactMono,
                         importedDoc))
-                .then(importedContextMono)
+                .then(importedArtifactMono)
                 .flatMap(importableContext -> updateImportableEntities(
                         contextBasedImportService, importableContext, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableContext -> updateImportableContext(contextBasedImportService, importableContext))
+                .flatMap(importableContext -> updateImportableArtifact(contextBasedImportService, importableContext))
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing {}. Error: {}", contextString, errorMessage, throwable);
@@ -524,7 +525,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param importedDoc importableContextJSON object that needs to be validated
      * @return Name of the field that have error. Empty string otherwise
      */
-    private String validateImportableContextJson(ArtifactExchangeJson importedDoc) {
+    private String validateArtifactExchangeJson(ArtifactExchangeJson importedDoc) {
         // validate common schema things
         ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(importedDoc);
         String errorField = "";
@@ -533,7 +534,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             errorField = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
         } else {
             // validate contextSpecific-errors
-            errorField = getContextBasedImportService(importedDoc).validateContextSpecificFields(importedDoc);
+            errorField = getContextBasedImportService(importedDoc).validateArtifactSpecificFields(importedDoc);
         }
 
         return errorField;
@@ -558,13 +559,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     /**
      * update the importable context with contextSpecific entities after the entities has been created.
+     *
      * @param contextBasedImportService
-     * @param importableContext
+     * @param importableArtifact
      * @return
      */
-    private Mono<? extends ImportableArtifact> updateImportableContext(
-            ContextBasedImportService<?, ?, ?> contextBasedImportService, ImportableArtifact importableContext) {
-        return contextBasedImportService.updateImportableContext(importableContext);
+    private Mono<? extends ImportableArtifact> updateImportableArtifact(
+            ContextBasedImportService<?, ?, ?> contextBasedImportService, ImportableArtifact importableArtifact) {
+        return contextBasedImportService.updateImportableArtifact(importableArtifact);
     }
 
     /**
@@ -587,58 +589,60 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
                 getContextBasedImportService(importableContextJson);
 
-        Flux<Void> contextAgnosticImportables = obtainContextAgnosticImportables(
+        Flux<Void> artifactAgnosticImportables = generateArtifactIndependentImportableEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedContextMono,
                 importableContextJson);
 
-        Flux<Void> contextSpecificImportables = contextBasedImportService.obtainContextSpecificImportables(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedContextMono,
-                importableContextJson);
-
-        Flux<Void> contextComponentDependentImportables =
-                contextBasedImportService.obtainContextComponentDependentImportables(
+        Flux<Void> artifactSpecificImportables =
+                contextBasedImportService.generateArtifactContextIndependentImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
                         workspaceMono,
                         importedContextMono,
                         importableContextJson);
 
-        return contextAgnosticImportables
-                .thenMany(contextSpecificImportables)
-                .thenMany(contextComponentDependentImportables)
+        Flux<Void> artifactContextDependentImportables =
+                contextBasedImportService.generateArtifactContextDependentImportableEntities(
+                        importingMetaDTO,
+                        mappedImportableResourcesDTO,
+                        workspaceMono,
+                        importedContextMono,
+                        importableContextJson);
+
+        return artifactAgnosticImportables
+                .thenMany(artifactSpecificImportables)
+                .thenMany(artifactContextDependentImportables)
                 .then();
     }
 
     /**
      * Generate the entities which should be imported irrespective of the context (be it application or packages).
      * some of these are plugin and datasources
+     *
      * @param importingMetaDTO
      * @param mappedImportableResourcesDTO
      * @param workspaceMono
-     * @param importedContextMono
-     * @param importableContextJson
+     * @param importedArtifactMono
+     * @param artifactExchangeJson
      * @return
      */
-    protected Flux<Void> obtainContextAgnosticImportables(
+    protected Flux<Void> generateArtifactIndependentImportableEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importedContextMono,
-            ArtifactExchangeJson importableContextJson) {
+            Mono<? extends ImportableArtifact> importedArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
 
         // Updates plugin map in importable resources
         Mono<Void> installedPluginsMono = pluginImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
-                importedContextMono,
-                importableContextJson,
+                importedArtifactMono,
+                artifactExchangeJson,
                 false,
                 true);
 
@@ -649,8 +653,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
-                importedContextMono,
-                importableContextJson,
+                importedArtifactMono,
+                artifactExchangeJson,
                 false,
                 true));
 
@@ -659,8 +663,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
-                importedContextMono,
-                importableContextJson,
+                importedArtifactMono,
+                artifactExchangeJson,
                 false,
                 true);
 
