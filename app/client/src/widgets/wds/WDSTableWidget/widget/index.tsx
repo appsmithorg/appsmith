@@ -580,7 +580,10 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         // Replace reference of previous widget with the new widgetName
         // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
         updatedPrimaryColumns[columnId][key] = isString(value)
-          ? value.replace(`${oldWidgetName}.`, `${newWidget.widgetName}.`)
+          ? value.replace(
+              new RegExp(`\\b${oldWidgetName}\\.`, "g"),
+              `${newWidget.widgetName}.`,
+            )
           : value;
       }
     }
