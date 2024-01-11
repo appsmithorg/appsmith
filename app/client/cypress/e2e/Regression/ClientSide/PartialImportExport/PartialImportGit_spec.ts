@@ -7,7 +7,7 @@ import {
 const repoName = "PartialImportGitRepo";
 describe(
   "Partial import functionality",
-  { tags: ["@tag.ImportExport"] },
+  { tags: ["@tag.ImportExportOnly"] },
   () => {
     before(() => {
       featureFlagIntercept({

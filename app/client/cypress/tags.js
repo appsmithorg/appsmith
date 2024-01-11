@@ -51,7 +51,7 @@ module.exports = {
     "@tag.MobileResponsive",
     "@tag.Theme",
     "@tag.Settings",
-    "@tag.ImportExport",
+    "@tag.ImportExportOnly",
     "@tag.AutoHeight",
     "@tag.Fork",
     "@tag.Perf",
