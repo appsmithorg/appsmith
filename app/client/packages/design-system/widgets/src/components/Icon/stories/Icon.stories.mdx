@@ -1,0 +1,50 @@
+import { Icon } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
+import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
+
+<Meta
+  title="Design-system/Widgets/Icon"
+  component={Icon}
+  args={{
+    name: "brand-react",
+  }}
+/>
+
+export const Template = (args) => <Icon {...args} />;
+
+# Icon
+
+Icon is a component that just displays an icon.
+
+<Canvas>
+  <Story name="Icon">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Icon" of={Icon} />
+
+# Sizes
+
+The Icon component comes with three sizes
+
+- small — 1rem = 16px
+- medium — 1.5rem = 24px
+- large — 2rem = 32px
+
+<Story name="Size">
+  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+    {["small", "medium", "large"].map((size) => (
+      <div key={size}>
+        <Icon size={size} name="home" />
+      </div>
+    ))}
+  </div>
+</Story>
+
+## Custom Icon
+
+You can also pass a custom icon to the Icon component.
+
+{" "}
+<Story name="Custom Icon">
+  <Icon icon={EmotionHappyLineIcon} />
+</Story>

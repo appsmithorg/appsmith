@@ -1,6 +1,4 @@
 // components
-export { Icon } from "@design-system/headless";
-
 export * from "./components/Button";
 export * from "./components/IconButton";
 export * from "./components/Checkbox";
@@ -19,6 +17,7 @@ export * from "./components/Menu";
 export * from "./components/Modal";
 export * from "./components/TagGroup";
 export * from "./components/ActionGroup";
+export * from "./components/Icon";
 
 export * from "./utils";
 export * from "./styles";

@@ -3100,6 +3100,7 @@ __metadata:
     "@react-aria/utils": ^3.16.0
     "@react-aria/visually-hidden": ^3.8.0
     "@react-types/actiongroup": ^3.4.6
+    "@tabler/icons-react": ^2.45.0
     clsx: ^2.0.0
     colorjs.io: ^0.4.3
     eslint-plugin-storybook: ^0.6.10
@@ -10433,6 +10434,25 @@ __metadata:
   dependencies:
     defer-to-connect: ^2.0.0
   checksum: c29df3bcec6fc3bdec2b17981d89d9c9fc9bd7d0c9bcfe92821dc533f4440bc890ccde79971838b4ceed1921d456973c4180d7175ee1d0023ad0562240a58d95
+  languageName: node
+  linkType: hard
+
+"@tabler/icons-react@npm:^2.45.0":
+  version: 2.45.0
+  resolution: "@tabler/icons-react@npm:2.45.0"
+  dependencies:
+    "@tabler/icons": 2.45.0
+    prop-types: ^15.7.2
+  peerDependencies:
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0
+  checksum: 2cc887b98a98abc09f353363c3d19a8173d2b2a6b7723d92bf752413e131a073f6c05613277af353935c9173b339475d5349c669a4a983c035426eabc0e2a642
+  languageName: node
+  linkType: hard
+
+"@tabler/icons@npm:2.45.0":
+  version: 2.45.0
+  resolution: "@tabler/icons@npm:2.45.0"
+  checksum: 01359255e2a1e3314262dc28891d39c984eaaa9d6f148de1a2a7c5de824e5da02f43cd29a735cb2a3ebcda1f801cb394f06cf5b4ecf5dd22ca0131d1cebe6ed3
   languageName: node
   linkType: hard
 
