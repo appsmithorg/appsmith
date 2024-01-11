@@ -131,7 +131,6 @@ describe("Undo/Redo functionality", function () {
     propPane.UpdatePropertyFieldValue("Text", "Label");
 
     cy.closePropertyPane();
-    cy.focused().blur();
 
     cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(100);
@@ -141,7 +140,6 @@ describe("Undo/Redo functionality", function () {
     );
 
     cy.closePropertyPane();
-    cy.focused().blur();
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.wait(100);
@@ -155,7 +153,6 @@ describe("Undo/Redo functionality", function () {
     localStorage.removeItem("undoToastShown");
     localStorage.removeItem("redoToastShown");
 
-    cy.focused().blur();
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(commonlocators.toastmsg).contains("is removed");
     cy.get(commonlocators.toastmsg).contains("redo");

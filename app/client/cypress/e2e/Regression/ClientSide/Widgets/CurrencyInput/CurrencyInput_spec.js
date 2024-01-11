@@ -10,6 +10,8 @@ describe(
   () => {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");
+      cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
     });
 
     it("1. Add new dropdown widget", () => {
@@ -284,7 +286,7 @@ describe(
       //Should check that widget input is not showing any errors on input
       cy.get(widgetInput).type("123456789");
       cy.focused().then(() => {
-        cy.get(themelocators.popover).eq(1).should("not.exist");
+        expect(Cypress.$(themelocators.popover)).not.to.exist;
       });
     });
   },

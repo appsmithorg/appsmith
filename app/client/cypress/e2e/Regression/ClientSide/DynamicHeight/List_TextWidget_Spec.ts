@@ -149,10 +149,6 @@ describe(
           agHelper.SimulateCopyPaste("paste");
 
           assertHelper.AssertNetworkStatus("@updateLayout", 200);
-          EditorNavigation.SelectEntityByName(
-            "Text3CopyCopyCopy1",
-            EntityType.Widget,
-          );
           agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         });
     });

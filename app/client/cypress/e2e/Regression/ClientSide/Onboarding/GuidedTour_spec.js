@@ -1,7 +1,6 @@
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
-
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 import {
   agHelper,
   locators,
@@ -28,7 +27,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
     homePage.NavigateToHome();
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
-    cy.get(PageLeftPane.locators.selector).should("not.be.visible");
+    cy.get(explorerLocators.entityExplorer).should("not.be.visible");
     // Refresh the page to validate if the tour resumes
     cy.reload();
     cy.get(".query-page").then(($ele) => {
