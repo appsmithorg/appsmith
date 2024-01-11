@@ -16,7 +16,7 @@ if (CUSTOM_DOMAIN !== "") {
     certLocation = "/appsmith-stacks/ssl"
   } catch {
     // no custom certs, see if old certbot certs are there.
-    const letsEncryptCertLocation = "/etc/letsencrypt/live/" + CUSTOM_DOMAIN
+    const letsEncryptCertLocation = "/appsmith-stacks/letsencrypt/live/" + CUSTOM_DOMAIN
     const fullChainPath = letsEncryptCertLocation + `/fullchain.pem`
     try {
       fs.accessSync(fullChainPath, fs.constants.R_OK)
