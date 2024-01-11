@@ -98,16 +98,18 @@ export default class PartialImportExport {
     sectionTitle: string,
     elementsToCheck: string[],
   ) {
+    cy.intercept("POST", "/api/v1/applications/import/partial/**").as(
+      "partialImportNetworkCall",
+    );
+
     cy.xpath(this.homePage._uploadFile).selectFile(
       `cypress/fixtures/PartialImportExport/${fileName}`,
       {
         force: true,
       },
     );
+    cy.wait("@partialImportNetworkCall");
 
-    this.agHelper.WaitUntilEleAppear(
-      "Partial Application imported successfully",
-    );
     this.agHelper.CheckForErrorToast(
       "Internal server error while processing request",
     );

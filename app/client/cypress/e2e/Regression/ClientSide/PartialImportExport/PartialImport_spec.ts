@@ -1,17 +1,7 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
-  homePage,
-  agHelper,
-  entityExplorer,
-  dataSources,
-  partialImportExport,
+  partialImportExport
 } from "../../../../support/Objects/ObjectsCore";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import {
-  AppSidebar,
-  AppSidebarButton,
-  PageLeftPane,
-} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Partial import functionality",
