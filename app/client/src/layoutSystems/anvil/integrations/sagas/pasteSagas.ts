@@ -288,7 +288,9 @@ function prePasteValidations(
       maxChildLimit !== undefined &&
       layout.length + getCopiedWidgetCount(order, parentWidget) > maxChildLimit
     ) {
-      showErrorToast("This widget can not hold as many children");
+      showErrorToast(
+        `Maximum child limit (${maxChildLimit}) exceeded for this widget.`,
+      );
       return false;
     }
   }

@@ -143,17 +143,29 @@ export function getContainingLayoutMapping(
 ): WidgetLayoutProps[][] {
   let widgetGrouping: WidgetLayoutProps[][] = [];
   const parentMap: { [key: string]: string[] } = {};
+  const layoutOrderMap: Record<string, WidgetLayoutProps[]> = {};
 
   /**
    * Group widgets by similar parents.
    */
   copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
-    if (parentMap[copiedWidget.parentId]) {
+    const { widgetPositionInfo } = copiedWidget;
+    if (!!widgetPositionInfo) {
+      const { layoutOrder, widgetLayoutProps } = widgetPositionInfo;
+      const str = layoutOrder.join("");
+      if (layoutOrderMap[str]) {
+        layoutOrderMap[str].push(widgetLayoutProps);
+      } else {
+        layoutOrderMap[str] = [widgetLayoutProps];
+      }
+    } else if (parentMap[copiedWidget.parentId]) {
       parentMap[copiedWidget.parentId].push(copiedWidget.widgetId);
     } else {
       parentMap[copiedWidget.parentId] = [copiedWidget.widgetId];
     }
   });
+
+  widgetGrouping = Object.values(layoutOrderMap);
 
   Object.keys(parentMap).forEach((key: string) => {
     const parent: FlattenedWidgetProps = allWidgets[key];
@@ -165,6 +177,7 @@ export function getContainingLayoutMapping(
     );
     widgetGrouping = [...widgetGrouping, ...containingLayouts];
   });
+
   return widgetGrouping;
 }
 
