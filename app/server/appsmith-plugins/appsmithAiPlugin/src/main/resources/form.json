@@ -9,7 +9,7 @@
           "configProperty": "datasourceConfiguration.description",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
-          "hidden": false
+          "hidden": true
         },
         {
           "label": "Endpoint URL (with or without protocol and port no)",

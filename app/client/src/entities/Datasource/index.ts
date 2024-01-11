@@ -100,6 +100,10 @@ interface BaseDatasource {
   isMock?: boolean;
 }
 
+export const isEmbeddedAppsmithAIDataSource = (datasource: any) => {
+  return !datasource.id;
+};
+
 export const isEmbeddedRestDatasource = (
   val: any,
 ): val is EmbeddedRestDatasource => {
