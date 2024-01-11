@@ -1,7 +1,7 @@
 package com.appsmith.server.constants;
 
 public class OtlpSpanNames {
-    public static final String CONSOLIDATED_API_PREFIX = "consolidated_api/";
+    public static final String CONSOLIDATED_API_PREFIX = "consolidated-api/";
     public static final String VIEW = "view/";
     public static final String EDIT = "edit/";
     public static final String ROOT = "root";

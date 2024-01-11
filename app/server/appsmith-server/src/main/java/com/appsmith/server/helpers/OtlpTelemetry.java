@@ -88,13 +88,13 @@ public class OtlpTelemetry {
 
         if (context != null) {
             return spanBuilder.setParent(context).startSpan();
-        } else {
-            if (parentSpan != null) {
-                return spanBuilder.setParent(Context.current().with(parentSpan)).startSpan();
-            }
-
-            return spanBuilder.startSpan();
         }
+
+        if (parentSpan != null) {
+            return spanBuilder.setParent(Context.current().with(parentSpan)).startSpan();
+        }
+
+        return spanBuilder.startSpan();
     }
     // we build traces using the client's trace context as the parent context, So that any other spans generated
     // from the server appear as a subspan of the client
