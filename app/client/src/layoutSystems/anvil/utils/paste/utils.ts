@@ -31,8 +31,8 @@ export function* addPastedWidgets(
   const evalTree: DataTree = yield select(getDataTree);
 
   AnalyticsUtil.logEvent("WIDGET_PASTE", {
-    widgetName: widgets[widgetId].widgetName,
-    widgetType: widgets[widgetId].type,
+    widgetName: list[0].widgetName,
+    widgetType: list[0].type,
   });
 
   /**

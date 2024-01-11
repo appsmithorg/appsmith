@@ -63,6 +63,11 @@ import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
+import {
+  getWidgetLayoutMetaInfo,
+  type WidgetLayoutPositionInfo,
+} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1359,12 +1364,9 @@ export const createSelectedWidgetsAsCopiedWidgets = function* () {
 
   if (!selectedWidgets || !selectedWidgets.length) return;
 
-  const widgetListsToStore: {
-    widgetId: string;
-    parentId: string;
-    list: FlattenedWidgetProps[];
-    hierarchy: number;
-  }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
+  const widgetListsToStore: CopiedWidgetData[] = yield all(
+    selectedWidgets.map((each) => call(createWidgetCopy, each)),
+  );
 
   return widgetListsToStore;
 };
@@ -1493,11 +1495,19 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
     yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
+  let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
+  if (widget.parentId) {
+    widgetPositionInfo = getWidgetLayoutMetaInfo(
+      allWidgets[widget?.parentId]?.layout[0] ?? null,
+      widget.widgetId,
+    );
+  }
   return {
     hierarchy: getWidgetHierarchy(widget.type, widget.widgetId),
     list: widgetsToStore,
     parentId: widget.parentId,
     widgetId: widget.widgetId,
+    widgetPositionInfo,
   };
 }
 

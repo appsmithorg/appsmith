@@ -2,11 +2,18 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import type { CopiedWidgetData } from "./types";
 import { all, call } from "redux-saga/effects";
 import { addPastedWidgets } from "./utils";
-import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  LayoutProps,
+  WidgetLayoutProps,
+} from "../anvilTypes";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../constants";
 import { generateReactKey } from "utils/generators";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { addWidgetsToPreset } from "../layouts/update/additionUtils";
+import type { WidgetLayoutPositionInfo } from "../layouts/widgetPositionUtils";
 
 export function* pasteResidentWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -53,13 +60,13 @@ export function* pasteResidentWidgets(
           ...widgets,
           [parentId]: {
             ...widgets[parentId],
-            layout: [
-              addWidgetInPosition(
-                widgetId,
-                map[widgetId],
-                widgets[parentId].layout[0],
-              ),
-            ],
+            layout: updateLayout(
+              widgets,
+              widgetId,
+              map[widgetId],
+              widgets[parentId].layout[0],
+              resident,
+            ),
           },
         };
       }),
@@ -67,6 +74,82 @@ export function* pasteResidentWidgets(
   );
 
   return { map, reverseMap, widgets };
+}
+
+function updateLayout(
+  widgets: CanvasWidgetsReduxState,
+  oldWidgetId: string,
+  newWidgetId: string,
+  layout: LayoutProps,
+  copiedWidget: CopiedWidgetData,
+): LayoutProps[] {
+  const { widgetPositionInfo } = copiedWidget;
+
+  if (!widgetPositionInfo && widgets[oldWidgetId]) {
+    // old Widget is not deleted
+    return [addWidgetInPosition(oldWidgetId, newWidgetId, layout)];
+  }
+
+  const widgetLayoutProps = getWidgetLayoutProps(
+    widgetPositionInfo,
+    newWidgetId,
+    widgets,
+  );
+  const highlightInfo = getHighlightInfo(
+    widgetPositionInfo,
+    copiedWidget,
+    layout,
+    widgets,
+    oldWidgetId,
+  );
+
+  return addWidgetsToPreset([layout], highlightInfo, widgetLayoutProps);
+}
+
+function getWidgetLayoutProps(
+  widgetPositionInfo: WidgetLayoutPositionInfo | null,
+  newWidgetId: string,
+  widgets: CanvasWidgetsReduxState,
+): WidgetLayoutProps[] {
+  if (widgetPositionInfo) {
+    return [{ ...widgetPositionInfo.widgetLayoutProps, widgetId: newWidgetId }];
+  } else {
+    return [
+      {
+        widgetId: newWidgetId,
+        widgetType: widgets[newWidgetId].type,
+        alignment: FlexLayerAlignment.Start,
+      },
+    ];
+  }
+}
+
+function getHighlightInfo(
+  widgetPositionInfo: WidgetLayoutPositionInfo | null,
+  copiedWidget: CopiedWidgetData,
+  parentLayout: LayoutProps,
+  widgets: CanvasWidgetsReduxState,
+  oldWidgetId: string,
+): AnvilHighlightInfo {
+  const { parentId } = copiedWidget;
+  const { layout, layoutId } = parentLayout;
+  const oldWidgetExists = widgetPositionInfo && widgets[oldWidgetId];
+
+  const layoutOrder = oldWidgetExists
+    ? widgetPositionInfo!.layoutOrder
+    : [layoutId];
+  const rowIndex =
+    widgetPositionInfo && oldWidgetExists
+      ? widgetPositionInfo!.rowIndex + 1
+      : layout.length;
+
+  return {
+    ...defaultHighlightRenderInfo,
+    canvasId: parentId,
+    layoutOrder,
+    rowIndex,
+    alignment: FlexLayerAlignment.Start,
+  };
 }
 
 function addWidgetInPosition(
