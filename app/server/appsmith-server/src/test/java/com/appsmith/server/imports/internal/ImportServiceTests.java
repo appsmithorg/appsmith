@@ -1276,7 +1276,7 @@ public class ImportServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplication_WithoutThemes_LegacyThemesAssigned() {
+    public void importArtifact_WithoutThemes_LegacyThemesAssigned() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
 
         Workspace newWorkspace = new Workspace();
@@ -1300,7 +1300,7 @@ public class ImportServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplication_withoutPageIdInActionCollection_succeeds() {
+    public void importArtifact_withoutPageIdInActionCollection_succeeds() {
 
         FilePart filePart = createFilePart(
                 "test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
@@ -1310,8 +1310,9 @@ public class ImportServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
-                .flatMap(workspace ->
-                        importApplicationService.extractFileAndSaveApplication(workspace.getId(), filePart));
+                .flatMap(workspace -> importService.extractAndSaveArtifact(
+                        filePart, workspace.getId(), null, ArtifactJsonType.APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
                         Mono.just(applicationImportDTO),
@@ -1350,6 +1351,7 @@ public class ImportServiceTests {
                 .verifyComplete();
     }
 
+    // this test would be re-written post export flow is completed
     @Test
     @WithUserDetails(value = "api_user")
     public void exportImportApplication_importWithBranchName_updateApplicationResourcesWithBranch() {
@@ -1392,8 +1394,9 @@ public class ImportServiceTests {
                 })
                 .then(exportApplicationService
                         .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
-                        .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                                workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                                workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .cache();
 
         Mono<List<NewPage>> updatedPagesMono = result.then(newPageService
@@ -1429,8 +1432,9 @@ public class ImportServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplication_incompatibleJsonFile_throwException() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
-        Mono<ApplicationImportDTO> resultMono =
-                importApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
+        Mono<ApplicationImportDTO> resultMono = importService
+                .extractAndSaveArtifact(filePart, workspaceId, null, ArtifactJsonType.APPLICATION)
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -1449,8 +1453,10 @@ public class ImportServiceTests {
 
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceMono.flatMap(
-                workspace -> importApplicationService.extractFileAndSaveApplication(workspace.getId(), filePart));
+        final Mono<ApplicationImportDTO> resultMono = workspaceMono
+                .flatMap(workspace -> importService.extractAndSaveArtifact(
+                        filePart, workspace.getId(), null, ArtifactJsonType.APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
                 .flatMapMany(savedWorkspace -> {
@@ -1562,7 +1568,7 @@ public class ImportServiceTests {
                 .verifyComplete();
     }
 
-    public void importApplicationIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
+    public void importArtifactIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoWorkspace_pageRemovedInBranchApplication_Success");
         testApplication.setWorkspaceId(workspaceId);
@@ -1606,8 +1612,9 @@ public class ImportServiceTests {
                 .block();
         applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
 
-        Application importedApplication = importApplicationService
-                .importApplicationInWorkspaceFromGit(workspaceId, applicationJson, application.getId(), "master")
+        Application importedApplication = importService
+                .importArtifactInWorkspaceFromGit(workspaceId, application.getId(), applicationJson, "master")
+                .map(artifact -> (Application) artifact)
                 .block();
 
         assert importedApplication != null;
@@ -1635,7 +1642,7 @@ public class ImportServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationIntoWorkspace_pageAddedInBranchApplication_Success() {
+    public void importArtifactIntoWorkspace_pageAddedInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoWorkspace_pageAddedInBranchApplication_Success");
         testApplication.setWorkspaceId(workspaceId);
@@ -1675,8 +1682,9 @@ public class ImportServiceTests {
                 .block();
         applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
 
-        Application applicationMono = importApplicationService
-                .importApplicationInWorkspaceFromGit(workspaceId, applicationJson, application.getId(), "master")
+        Application applicationMono = importService
+                .importArtifactInWorkspaceFromGit(workspaceId, application.getId(), applicationJson, "master")
+                .map(artifact -> (Application) artifact)
                 .block();
 
         Mono<List<NewPage>> pageList = Flux.fromIterable(applicationMono.getPages().stream()
