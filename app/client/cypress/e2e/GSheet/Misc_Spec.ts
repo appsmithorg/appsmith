@@ -18,7 +18,7 @@ import EditorNavigation, {
 } from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
-const dataSourceName = "gsheet-all;
+const dataSourceName = "gsheet-all";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe(
