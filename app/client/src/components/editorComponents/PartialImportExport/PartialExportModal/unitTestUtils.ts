@@ -1,3 +1,4 @@
+import type { Datasource } from "entities/Datasource";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 export const getAllWidgetIds = (widget: CanvasStructure): string[] =>
@@ -130,3 +131,112 @@ export const mockWidgetsProps = {
     },
   ],
 };
+export const mockDataBaseProps = {
+  Movies: [
+    {
+      type: "DB",
+      entity: {
+        id: "659fec82d0cbfb0c5e0a745b",
+        name: "Query1",
+      },
+      group: "Movies",
+    },
+  ],
+  users: [
+    {
+      type: "DB",
+      entity: {
+        id: "659f81c8d0cbfb0c5e0a743e",
+        name: "getUsers",
+      },
+      group: "users",
+    },
+  ],
+};
+export const mockAppDSProps: Datasource[] = [
+  {
+    id: "659febdcd0cbfb0c5e0a7457",
+    userPermissions: [
+      "execute:datasources",
+      "delete:datasources",
+      "manage:datasources",
+      "read:datasources",
+    ],
+    name: "Movies",
+    pluginId: "653236205e9a6424e4c04b53",
+    workspaceId: "659d2e14d0cbfb0c5e0a7424",
+    datasourceStorages: {
+      unused_env: {
+        datasourceId: "659febdcd0cbfb0c5e0a7457",
+        environmentId: "unused_env",
+        datasourceConfiguration: {
+          url: "string",
+          connection: {
+            mode: "READ_WRITE" as any,
+            ssl: {
+              authType: "DEFAULT" as any,
+            } as any,
+          },
+          authentication: {
+            authenticationType: "dbAuth",
+            authType: "SCRAM_SHA_1",
+            username: "mockdb-admin",
+          },
+          properties: [
+            {
+              key: "Use mongo connection string URI",
+              value: "Yes",
+            },
+            {
+              key: "Connection string URI",
+              value:
+                "mongodb+srv://mockdb-admin:****@mockdb.kce5o.mongodb.net/movies?w=majority&retrywrites=true&authsource=admin&minpoolsize=0",
+            },
+          ],
+        },
+        isConfigured: true,
+        isValid: true,
+      },
+    },
+    invalids: [],
+    messages: [],
+    isMock: true,
+  },
+  {
+    id: "659f81c8d0cbfb0c5e0a743c",
+    userPermissions: [
+      "execute:datasources",
+      "delete:datasources",
+      "manage:datasources",
+      "read:datasources",
+    ],
+    name: "users",
+    pluginId: "653236205e9a6424e4c04b51",
+    workspaceId: "659d2e14d0cbfb0c5e0a7424",
+    datasourceStorages: {
+      unused_env: {
+        datasourceId: "659f81c8d0cbfb0c5e0a743c",
+        environmentId: "unused_env",
+        datasourceConfiguration: {
+          url: "string",
+          connection: {
+            mode: "READ_WRITE" as any,
+            ssl: {
+              authType: "DEFAULT" as any,
+            } as any,
+          },
+
+          authentication: {
+            authenticationType: "dbAuth",
+            username: "users",
+          },
+        },
+        isConfigured: true,
+        isValid: true,
+      },
+    },
+    invalids: [],
+    messages: [],
+    isMock: true,
+  },
+];
