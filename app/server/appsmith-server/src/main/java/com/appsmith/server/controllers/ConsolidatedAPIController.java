@@ -55,15 +55,15 @@ public class ConsolidatedAPIController {
 
         Span consolidatedApiOtlpSpan = this.otlpTelemetry.startOTLPSpan(CONSOLIDATED_API_ROOT_EDIT, null);
         return Mono.usingWhen(
-            Mono.just(consolidatedApiOtlpSpan.makeCurrent()),
-            scope -> consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.EDIT)
-                .map(consolidatedAPIResponseDTO ->
-                    new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null)),
-            ignore -> {
-                this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan);
-                return Mono.empty();
-            });
+                Mono.just(consolidatedApiOtlpSpan.makeCurrent()),
+                scope -> consolidatedAPIService
+                        .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.EDIT)
+                        .map(consolidatedAPIResponseDTO ->
+                                new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null)),
+                ignore -> {
+                    this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan);
+                    return Mono.empty();
+                });
     }
 
     @JsonView(Views.Public.class)
@@ -82,14 +82,15 @@ public class ConsolidatedAPIController {
 
         Span consolidatedApiOtlpSpan = this.otlpTelemetry.startOTLPSpan(CONSOLIDATED_API_ROOT_VIEW, null);
         return Mono.usingWhen(
-            Mono.just(consolidatedApiOtlpSpan.makeCurrent()),
-            scope -> consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
-                .map(consolidatedAPIResponseDTO ->
-                    new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null)),
-            ignore -> {
-                this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan);
-                return Mono.empty();
-            });
+                Mono.just(consolidatedApiOtlpSpan.makeCurrent()),
+                scope -> consolidatedAPIService
+                        .getConsolidatedInfoForPageLoad(
+                                defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
+                        .map(consolidatedAPIResponseDTO ->
+                                new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null)),
+                ignore -> {
+                    this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan);
+                    return Mono.empty();
+                });
     }
 }
