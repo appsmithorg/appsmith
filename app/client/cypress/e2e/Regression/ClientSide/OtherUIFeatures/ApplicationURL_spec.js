@@ -134,11 +134,6 @@ describe("Slug URLs", () => {
     cy.url().then((url) => {
       homePage.Signout(true);
       agHelper.VisitNAssert(url + "?embed=true&a=b", "signUpLogin");
-      // cy.location().should((loc) => {
-      //   expect(loc.search).to.eq(
-      //     `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
-      //   );
-      // });
       agHelper.AssertURL(
         `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
       );
