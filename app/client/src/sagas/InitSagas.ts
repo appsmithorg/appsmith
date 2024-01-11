@@ -75,7 +75,6 @@ import { getCurrentUser } from "actions/authActions";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import {
   fetchFeatureFlagsInit,
-  fetchFeatureFlagsSuccess,
   fetchProductAlertInit,
 } from "actions/userActions";
 import { validateResponse } from "./ErrorSagas";
@@ -203,6 +202,15 @@ function* isConsolidatedFetchFeatureFlagEnabled() {
   );
   return consolidatedApiFetch;
 }
+function* executeActionDuringUserDetailsInitialisation(
+  actionType: string,
+  shouldInitialiseUserDetails?: boolean,
+) {
+  if (!shouldInitialiseUserDetails) {
+    return;
+  }
+  yield put({ type: actionType });
+}
 
 export function* getInitResponses({
   applicationId,
@@ -232,6 +240,12 @@ export function* getInitResponses({
 
   if (!!isConsolidatedApiFetchEnabled) {
     try {
+      yield call(
+        executeActionDuringUserDetailsInitialisation,
+        ReduxActionTypes.START_CONSOLIDATED_PAGE_LOAD,
+        shouldInitialiseUserDetails,
+      );
+
       const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
         yield mode === APP_MODE.EDIT
           ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
@@ -247,31 +261,11 @@ export function* getInitResponses({
         throw new Error("Error occured " + axiosConnectionAbortedCode);
       }
     } catch (e) {
-      // // log.error(e);
-      // // tie to userProfile
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-        payload: {},
-      });
-      // v1/users/features
-      // tie to featureFlags
-      // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
-      // do not fetch this again
-
-      yield put(
-        fetchFeatureFlagsSuccess({
-          [FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled]: true,
-        } as FeatureFlags),
+      yield call(
+        executeActionDuringUserDetailsInitialisation,
+        ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+        shouldInitialiseUserDetails,
       );
-      // v1/tenants/current
-      // tie to tenantConfig
-
-      yield put({
-        type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: { tenantConfiguration: { dfbjdjf: {} } },
-      });
-      // v1/product-alert/alert
-      // tie to productAlert
       Sentry.captureMessage(
         `consolidated api failure for ${JSON.stringify(
           params,
@@ -306,6 +300,11 @@ export function* getInitResponses({
   // v1/product-alert/alert
   // tie to productAlert
   yield put(fetchProductAlertInit(productAlert));
+  yield call(
+    executeActionDuringUserDetailsInitialisation,
+    ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+    shouldInitialiseUserDetails,
+  );
   return rest;
 }
 
