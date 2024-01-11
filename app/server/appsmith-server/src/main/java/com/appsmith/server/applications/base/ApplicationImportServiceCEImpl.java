@@ -134,7 +134,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         this.newActionImportableService = newActionImportableService;
         this.actionCollectionImportableService = actionCollectionImportableService;
         applicationConstantsMap.putAll(
-                Map.of(FieldName.CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID));
+                Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID));
     }
 
     @Override
