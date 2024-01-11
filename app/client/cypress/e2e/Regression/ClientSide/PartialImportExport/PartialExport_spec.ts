@@ -2,12 +2,10 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   homePage,
   agHelper,
-  templates,
+  partialImportExport,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
-
-import PartialImportExportLocatores from "./PartialImportExportLocators";
 
 let guid: any;
 let workspaceName;
@@ -39,17 +37,17 @@ describe(
       });
 
       agHelper.AssertElementVisibility(
-        PartialImportExportLocatores.export.exportModal,
+        partialImportExport.locators.export.exportModal,
       );
       agHelper.AssertElementEnabledDisabled(
-        PartialImportExportLocatores.export.modelContents.exportButton,
+        partialImportExport.locators.export.modelContents.exportButton,
       );
     });
 
     it("1. Should export all the selected JsObjects", () => {
       exportAndCompareDownloadedFile(
         0,
-        PartialImportExportLocatores.export.modelContents.jsObjectsSection,
+        partialImportExport.locators.export.modelContents.jsObjectsSection,
         "JSExportedOnly.json",
       );
     });
@@ -57,7 +55,7 @@ describe(
     it("2. Should export all the selected datasources", () => {
       exportAndCompareDownloadedFile(
         1,
-        PartialImportExportLocatores.export.modelContents.datasourcesSection,
+        partialImportExport.locators.export.modelContents.datasourcesSection,
         "DatasourceExportedOnly.json",
       );
     });
@@ -65,7 +63,7 @@ describe(
     it("3. Should export all the selected queries", () => {
       exportAndCompareDownloadedFile(
         2,
-        PartialImportExportLocatores.export.modelContents.queriesSection,
+        partialImportExport.locators.export.modelContents.queriesSection,
         "QueriesExportedOnly.json",
       );
     });
@@ -73,7 +71,7 @@ describe(
     it("4. Should export all the customjs libs", () => {
       exportAndCompareDownloadedFile(
         3,
-        PartialImportExportLocatores.export.modelContents.customJSLibsSection,
+        partialImportExport.locators.export.modelContents.customJSLibsSection,
         "CustomJsLibsExportedOnly.json",
       );
     });
@@ -81,7 +79,7 @@ describe(
     it("5. Should export all the widgets", () => {
       exportAndCompareDownloadedFile(
         4,
-        PartialImportExportLocatores.export.modelContents.widgetsSection,
+        partialImportExport.locators.export.modelContents.widgetsSection,
         "WidgetsExportedOnly.json",
       );
     });
@@ -94,7 +92,7 @@ function exportAndCompareDownloadedFile(
   fileNameToCompareWith: string,
 ) {
   agHelper.GetNClick(
-    PartialImportExportLocatores.export.modelContents.sectionHeaders,
+    partialImportExport.locators.export.modelContents.sectionHeaders,
     sectionIndex,
   );
 
@@ -106,12 +104,12 @@ function exportAndCompareDownloadedFile(
   });
 
   agHelper.AssertElementEnabledDisabled(
-    PartialImportExportLocatores.export.modelContents.exportButton,
+    partialImportExport.locators.export.modelContents.exportButton,
     0,
     false,
   );
   agHelper.GetNClick(
-    PartialImportExportLocatores.export.modelContents.exportButton,
+    partialImportExport.locators.export.modelContents.exportButton,
   );
 
   cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {

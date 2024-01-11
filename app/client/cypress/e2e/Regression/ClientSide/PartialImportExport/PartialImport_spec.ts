@@ -2,9 +2,9 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   homePage,
   agHelper,
-  templates,
   entityExplorer,
   dataSources,
+  partialImportExport,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 import {
@@ -12,8 +12,6 @@ import {
   AppSidebarButton,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
-
-import PartialImportExportLocatores from "./PartialImportExportLocators";
 
 describe(
   "Partial import functionality",
@@ -35,7 +33,7 @@ describe(
       });
 
       agHelper.AssertElementVisibility(
-        PartialImportExportLocatores.import.importModal,
+        partialImportExport.locators.import.importModal,
       );
     });
 
@@ -95,8 +93,8 @@ function importPartiallyExportedFile(
       force: true,
     },
   );
-  agHelper.Sleep(3500);
 
+  agHelper.WaitUntilEleAppear("Partial Application imported successfully");
   agHelper.CheckForErrorToast("Internal server error while processing request");
   agHelper.WaitUntilToastDisappear("Partial Application imported successfully");
 
