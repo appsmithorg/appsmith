@@ -11,7 +11,7 @@ import type {
   DatasourceStructure,
 } from "entities/Datasource";
 import {
-  isEmbeddedAppsmithAIDataSource,
+  isEmbeddedAIDataSource,
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import type { Action } from "entities/Action";
@@ -1034,7 +1034,7 @@ export const selectFilesForExplorer = createSelector(
           ? "APIs"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
       } else if (file.config.pluginType === PluginType.AI) {
-        group = isEmbeddedAppsmithAIDataSource(file.config.datasource)
+        group = isEmbeddedAIDataSource(file.config.datasource)
           ? "AI Queries"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
       } else {
@@ -1427,7 +1427,7 @@ const GroupAndSortPagePaneData = (
         ? "APIs"
         : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
     } else if (file.config.pluginType === PluginType.AI) {
-      group = isEmbeddedAppsmithAIDataSource(file.config.datasource)
+      group = isEmbeddedAIDataSource(file.config.datasource)
         ? "AI Queries"
         : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
     } else {
