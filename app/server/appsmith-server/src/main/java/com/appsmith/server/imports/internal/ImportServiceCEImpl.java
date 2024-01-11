@@ -162,9 +162,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     ImportableArtifact context = tuple2.getT2();
-                    ArtifactExchangeJson importableContextJson = tuple2.getT1();
+                    ArtifactExchangeJson artifactExchangeJson = tuple2.getT1();
                     return getArtifactImportDTO(
-                            context.getWorkspaceId(), context.getId(), context, importableContextJson);
+                            context.getWorkspaceId(), context.getId(), context, artifactExchangeJson);
                 });
 
         return Mono.create(
@@ -303,14 +303,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     public Mono<? extends ImportableArtifact> restoreSnapshot(
-            String workspaceId, ArtifactExchangeJson importableContextJson, String contextId, String branchName) {
+            String workspaceId, ArtifactExchangeJson artifactExchangeJson, String artifactId, String branchName) {
 
         /**
          * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
          * Only permission required is to edit the Context.
          */
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
-                getContextBasedImportService(importableContextJson);
+                getContextBasedImportService(artifactExchangeJson);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
                 .zipWhen(userPermissionGroups -> {
@@ -322,8 +322,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     ImportArtifactPermissionProvider contextPermissionProvider = tuple2.getT2();
                     return importArtifactInWorkspace(
                             workspaceId,
-                            importableContextJson,
-                            contextId,
+                            artifactExchangeJson,
+                            artifactId,
                             branchName,
                             false,
                             contextPermissionProvider,
@@ -332,28 +332,29 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This function will take the Json filepart and saves the context (likely an application) in workspace.
-     * It'll not create a new ImportableArtifact, it'll update the existing importableContext by appending the pages to the importableContext.
+     * This function will take the Json filePart and saves the context (likely an application) in workspace.
+     * It'll not create a new ImportableArtifact, it'll update the existing ImportableArtifact by appending the pages to the ImportableArtifact.
      * The destination ImportableArtifact will be as it is, only the pages will be appended.
      * This method will likely be only applicable for applications
-     * @param workspaceId ID in which the context is to be merged
-     * @param contextId   default ID of the importableContext where this importableContextJson is going to get merged with
-     * @param branchName      name of the branch of the importableContext where this importableContextJson is going to get merged with
-     * @param importableContextJson importableContextJson of the importableContext that will be merged to
-     * @param pagesToImport   Name of the pages that should be merged from the importableContextJson.
-     *                        If null or empty, all pages will be merged.
+     *
+     * @param workspaceId          ID in which the context is to be merged
+     * @param artifactId           default ID of the importableArtifact where this artifactExchangeJson is going to get merged with
+     * @param branchName           name of the branch of the importableArtifact where this artifactExchangeJson is going to get merged with
+     * @param artifactExchangeJson artifactExchangeJson of the importableArtifact that will be merged to
+     * @param entitiesToImport     Name of the pages that should be merged from the artifactExchangeJson.
+     *                             If null or empty, all pages will be merged.
      * @return Merged ImportableArtifact
      */
-    public Mono<? extends ImportableArtifact> mergeImportableContextJsonWithImportableContext(
+    public Mono<? extends ImportableArtifact> mergeArtifactExchangeJsonWithImportableArtifact(
             String workspaceId,
-            String contextId,
+            String artifactId,
             String branchName,
-            ArtifactExchangeJson importableContextJson,
-            List<String> pagesToImport) {
+            ArtifactExchangeJson artifactExchangeJson,
+            List<String> entitiesToImport) {
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
-                getContextBasedImportService(importableContextJson);
+                getContextBasedImportService(artifactExchangeJson);
         contextBasedImportService.updateArtifactExchangeJsonWithEntitiesToBeConsumed(
-                importableContextJson, pagesToImport);
+                artifactExchangeJson, entitiesToImport);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
                 .zipWhen(userPermissionGroups -> {
@@ -366,8 +367,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     ImportArtifactPermissionProvider contextPermissionProvider = tuple2.getT2();
                     return importArtifactInWorkspace(
                             workspaceId,
-                            importableContextJson,
-                            contextId,
+                            artifactExchangeJson,
+                            artifactId,
                             branchName,
                             true,
                             contextPermissionProvider,
@@ -377,7 +378,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     /**
      * @param workspaceId          ID in which the context is to be merged
-     * @param artifactId           default ID of the importableContext where this importableContextJson is going to get merged with
+     * @param artifactId           default ID of the artifact where this artifactExchangeJson is going to get merged with
      * @param importableArtifact   the context (i.e. application, packages which is imported)
      * @param artifactExchangeJson the Json entity from which the import is happening
      * @return ImportableArtifactDTO
@@ -479,16 +480,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .cache();
 
         Mono<? extends ImportableArtifact> importMono = importedArtifactMono
-                .then(getImportableEntities(
+                .then(generateImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
                         workspaceMono,
                         importedArtifactMono,
                         importedDoc))
                 .then(importedArtifactMono)
-                .flatMap(importableContext -> updateImportableEntities(
-                        contextBasedImportService, importableContext, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableContext -> updateImportableArtifact(contextBasedImportService, importableContext))
+                .flatMap(importableArtifact -> updateImportableEntities(
+                        contextBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
+                .flatMap(importableArtifact -> updateImportableArtifact(contextBasedImportService, importableArtifact))
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing {}. Error: {}", contextString, errorMessage, throwable);
@@ -498,15 +499,15 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .as(transactionalOperator::transactional);
 
         final Mono<? extends ImportableArtifact> resultMono = importMono
-                .flatMap(importableContext -> sendImportedContextAnalyticsEvent(
-                        contextBasedImportService, importableContext, AnalyticsEvents.IMPORT))
+                .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
+                        contextBasedImportService, importableArtifact, AnalyticsEvents.IMPORT))
                 .zipWith(currUserMono)
                 .flatMap(tuple -> {
-                    ImportableArtifact importableContext = tuple.getT1();
+                    ImportableArtifact importableArtifact = tuple.getT1();
                     User user = tuple.getT2();
                     stopwatch.stopTimer();
                     stopwatch.stopAndLogTimeInMillis();
-                    return sendImportRelatedAnalyticsEvent(importedDoc, importableContext, stopwatch, user);
+                    return sendImportRelatedAnalyticsEvent(importedDoc, importableArtifact, stopwatch, user);
                 });
 
         // Import Context is currently a slow API because it needs to import and create context, pages, actions
@@ -520,9 +521,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * validates whether a importableContextJson contains the required fields or not.
+     * validates whether an artifactExchangeJson contains the required fields or not.
      *
-     * @param importedDoc importableContextJSON object that needs to be validated
+     * @param importedDoc artifactExchangeJson object that needs to be validated
      * @return Name of the field that have error. Empty string otherwise
      */
     private String validateArtifactExchangeJson(ArtifactExchangeJson importedDoc) {
@@ -542,19 +543,20 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     /**
      * Updates importable entities with the contextDetails.
+     *
      * @param contextBasedImportService
-     * @param importableContext
+     * @param importableArtifact
      * @param mappedImportableResourcesDTO
      * @param importingMetaDTO
      * @return
      */
     private Mono<? extends ImportableArtifact> updateImportableEntities(
             ContextBasedImportService<?, ?, ?> contextBasedImportService,
-            ImportableArtifact importableContext,
+            ImportableArtifact importableArtifact,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO) {
         return contextBasedImportService.updateImportableEntities(
-                importableContext, mappedImportableResourcesDTO, importingMetaDTO);
+                importableArtifact, mappedImportableResourcesDTO, importingMetaDTO);
     }
 
     /**
@@ -572,45 +574,46 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     /**
      * This method creates the entities which are mentioned in the contextJson, these are imported in mongodb and then
      * the references are added to context
+     *
      * @param importingMetaDTO
      * @param mappedImportableResourcesDTO
      * @param workspaceMono
-     * @param importedContextMono
-     * @param importableContextJson
+     * @param importedArtifactMono
+     * @param artifactExchangeJson
      * @return
      */
-    private Mono<Void> getImportableEntities(
+    private Mono<Void> generateImportableEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importedContextMono,
-            ArtifactExchangeJson importableContextJson) {
+            Mono<? extends ImportableArtifact> importedArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
 
         ContextBasedImportService<?, ?, ?> contextBasedImportService =
-                getContextBasedImportService(importableContextJson);
+                getContextBasedImportService(artifactExchangeJson);
 
         Flux<Void> artifactAgnosticImportables = generateArtifactIndependentImportableEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
-                importedContextMono,
-                importableContextJson);
+                importedArtifactMono,
+                artifactExchangeJson);
 
         Flux<Void> artifactSpecificImportables =
                 contextBasedImportService.generateArtifactContextIndependentImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
                         workspaceMono,
-                        importedContextMono,
-                        importableContextJson);
+                        importedArtifactMono,
+                        artifactExchangeJson);
 
         Flux<Void> artifactContextDependentImportables =
                 contextBasedImportService.generateArtifactContextDependentImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
                         workspaceMono,
-                        importedContextMono,
-                        importableContextJson);
+                        importedArtifactMono,
+                        artifactExchangeJson);
 
         return artifactAgnosticImportables
                 .thenMany(artifactSpecificImportables)
@@ -672,49 +675,49 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * To send analytics event for import and export of ImportableContexts i.e. application, packages
+     * To send analytics event for import and export of ImportableArtifact i.e. application, packages
      *
-     * @param importableContext ImportableArtifact object imported or exported
-     * @param event             AnalyticsEvents event
-     * @return The importableContext which is imported or exported
+     * @param importableArtifact ImportableArtifact object imported or exported
+     * @param event              AnalyticsEvents event
+     * @return The ImportableArtifact which is imported or exported
      */
     private Mono<? extends ImportableArtifact> sendImportedContextAnalyticsEvent(
             ContextBasedImportService<?, ?, ?> contextBasedImportService,
-            ImportableArtifact importableContext,
+            ImportableArtifact importableArtifact,
             AnalyticsEvents event) {
         // this would result in "application", "packages", or "workflows"
         String contextString = contextBasedImportService.getConstantsMap().get(FieldName.CONTEXT);
         // this would result in "applicationId", "packageId", or "workflowId"
         String contextIdString = contextBasedImportService.getConstantsMap().get(FieldName.ID);
-        return workspaceService.getById(importableContext.getWorkspaceId()).flatMap(workspace -> {
+        return workspaceService.getById(importableArtifact.getWorkspaceId()).flatMap(workspace -> {
             final Map<String, Object> eventData =
-                    Map.of(contextString, importableContext, FieldName.WORKSPACE, workspace);
+                    Map.of(contextString, importableArtifact, FieldName.WORKSPACE, workspace);
 
             final Map<String, Object> data = Map.of(
                     contextIdString,
-                    importableContext.getId(),
+                    importableArtifact.getId(),
                     FieldName.WORKSPACE_ID,
                     workspace.getId(),
                     FieldName.EVENT_DATA,
                     eventData);
 
-            return analyticsService.sendObjectEvent(event, importableContext, data);
+            return analyticsService.sendObjectEvent(event, importableArtifact, data);
         });
     }
 
     private Mono<ImportableArtifact> sendImportRelatedAnalyticsEvent(
-            ArtifactExchangeJson importableContextJson,
-            ImportableArtifact importableContext,
+            ArtifactExchangeJson artifactExchangeJson,
+            ImportableArtifact importableArtifact,
             Stopwatch stopwatch,
             User currentUser) {
 
-        Map<String, Object> analyticsData = new HashMap<>(getContextBasedImportService(importableContextJson)
-                .createImportAnalyticsData(importableContextJson, importableContext));
+        Map<String, Object> analyticsData = new HashMap<>(getContextBasedImportService(artifactExchangeJson)
+                .createImportAnalyticsData(artifactExchangeJson, importableArtifact));
         analyticsData.put(FieldName.FLOW_NAME, stopwatch.getFlow());
         analyticsData.put("executionTime", stopwatch.getExecutionTime());
 
         return analyticsService
                 .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), analyticsData)
-                .thenReturn(importableContext);
+                .thenReturn(importableArtifact);
     }
 }
