@@ -6,8 +6,10 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.services.ConsolidatedAPIService;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.opentelemetry.api.trace.Span;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +19,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import static com.appsmith.server.constants.OtlpSpanNames.CONSOLIDATED_API_ROOT_EDIT;
+import static com.appsmith.server.constants.OtlpSpanNames.CONSOLIDATED_API_ROOT_VIEW;
+
 @Slf4j
 @RestController
 @RequestMapping(Url.CONSOLIDATED_API_URL)
 public class ConsolidatedAPIController {
     private final ConsolidatedAPIService consolidatedAPIService;
+    private final OtlpTelemetry otlpTelemetry;
 
-    public ConsolidatedAPIController(ConsolidatedAPIService consolidatedAPIService) {
+    public ConsolidatedAPIController(ConsolidatedAPIService consolidatedAPIService, OtlpTelemetry otlpTelemetry) {
         this.consolidatedAPIService = consolidatedAPIService;
+        this.otlpTelemetry = otlpTelemetry;
     }
 
     /**
@@ -45,10 +52,18 @@ public class ConsolidatedAPIController {
                 defaultPageId,
                 branchName,
                 ApplicationMode.EDIT);
-        return consolidatedAPIService
+
+        Span consolidatedApiOtlpSpan = this.otlpTelemetry.startOTLPSpan(CONSOLIDATED_API_ROOT_EDIT, null);
+        return Mono.usingWhen(
+            Mono.just(consolidatedApiOtlpSpan.makeCurrent()),
+            scope -> consolidatedAPIService
                 .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.EDIT)
                 .map(consolidatedAPIResponseDTO ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
+                    new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null)),
+            ignore -> {
+                this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan);
+                return Mono.empty();
+            });
     }
 
     @JsonView(Views.Public.class)
@@ -64,9 +79,17 @@ public class ConsolidatedAPIController {
                 defaultPageId,
                 branchName,
                 ApplicationMode.PUBLISHED);
-        return consolidatedAPIService
+
+        Span consolidatedApiOtlpSpan = this.otlpTelemetry.startOTLPSpan(CONSOLIDATED_API_ROOT_VIEW, null);
+        return Mono.usingWhen(
+            Mono.just(consolidatedApiOtlpSpan.makeCurrent()),
+            scope -> consolidatedAPIService
                 .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
                 .map(consolidatedAPIResponseDTO ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null));
+                    new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null)),
+            ignore -> {
+                this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan);
+                return Mono.empty();
+            });
     }
 }
