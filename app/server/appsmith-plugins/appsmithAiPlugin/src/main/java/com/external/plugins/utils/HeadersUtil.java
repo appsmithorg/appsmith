@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 
 import static com.external.plugins.constants.AppsmithAiConstants.ACTION_ID;
 import static com.external.plugins.constants.AppsmithAiConstants.DATASOURCE_ID;
+import static com.external.plugins.constants.AppsmithAiConstants.INSTANCE_ID;
 import static com.external.plugins.constants.AppsmithAiConstants.WORKSPACE_ID;
 
 public class HeadersUtil {
@@ -24,6 +25,10 @@ public class HeadersUtil {
                 + SEMI_COLON
                 + WORKSPACE_ID
                 + COLON
-                + executeActionDTO.getWorkspaceId();
+                + executeActionDTO.getWorkspaceId()
+                + SEMI_COLON
+                + INSTANCE_ID
+                + COLON
+                + executeActionDTO.getInstanceId();
     }
 }

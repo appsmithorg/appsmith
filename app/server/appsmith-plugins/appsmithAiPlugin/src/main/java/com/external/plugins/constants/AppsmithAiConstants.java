@@ -26,6 +26,7 @@ public class AppsmithAiConstants {
     public static final String DATASOURCE_ID = "datasourceId";
     public static final String ACTION_ID = "actionId";
     public static final String WORKSPACE_ID = "workspaceId";
+    public static final String INSTANCE_ID = "instanceId";
     public static final String SOURCE_DETAILS = "sourceDetail";
 
     // Action properties
