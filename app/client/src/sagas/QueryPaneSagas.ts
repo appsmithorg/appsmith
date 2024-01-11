@@ -302,7 +302,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasourceStorages[currentEnvironment].datasourceConfiguration,
+              datasourceStorages[currentEnvironment]?.datasourceConfiguration,
             ),
           ]
         : [];

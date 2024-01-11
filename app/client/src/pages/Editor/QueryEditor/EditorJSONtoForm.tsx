@@ -51,7 +51,7 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INVALID_FORM_CONFIGURATION,
-  NO_DATASOURCE_FOR_QUERY,
+  // NO_DATASOURCE_FOR_QUERY,
   UNEXPECTED_ERROR,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
@@ -191,19 +191,19 @@ const StyledSpinner = styled(Spinner)`
   width: 5vw;
 `;
 
-const NoDataSourceContainer = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin-top: 62px;
-  flex: 1;
-  .font18 {
-    width: 50%;
-    text-align: center;
-    margin-bottom: 23px;
-    font-size: 18px;
-  }
-`;
+// const NoDataSourceContainer = styled.div`
+//   align-items: center;
+//   display: flex;
+//   flex-direction: column;
+//   margin-top: 62px;
+//   flex: 1;
+//   .font18 {
+//     width: 50%;
+//     text-align: center;
+//     margin-bottom: 23px;
+//     font-size: 18px;
+//   }
+// `;
 
 const TabContainerView = styled.div`
   display: flex;
@@ -630,6 +630,11 @@ export function EditorJSONtoForm(props: Props) {
     ((hasDependencies || !!actionResponse) && !guidedTourEnabled) ||
     currentActionPluginName !== PluginName.SMTP;
 
+  // Datasource selection is hidden for Appsmith AI Plugin
+  // TODO: @Diljit Remove this condition when knowledge retrieval is implemented
+  const showDatasourceSelector =
+    currentActionPluginName !== PluginName.APPSMITH_AI;
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -650,26 +655,30 @@ export function EditorJSONtoForm(props: Props) {
           </NameWrapper>
           <ActionsWrapper>
             {moreActionsMenu}
-            <DropdownSelect>
-              <DropdownField
-                className={"t--switch-datasource"}
-                formName={formName}
-                isDisabled={!isChangePermitted}
-                name="datasource.id"
-                options={DATASOURCES_OPTIONS}
-                placeholder="Datasource"
-              >
-                {canCreateDatasource && (
-                  // this additional div is here so that rc-select can render the child with the onClick correctly
-                  <div>
-                    <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-                      <Icon className="createIcon" name="plus" size="md" />
-                      {createMessage(CREATE_NEW_DATASOURCE)}
-                    </CreateDatasource>
-                  </div>
-                )}
-              </DropdownField>
-            </DropdownSelect>
+            {showDatasourceSelector && (
+              <DropdownSelect>
+                <DropdownField
+                  className={"t--switch-datasource"}
+                  formName={formName}
+                  isDisabled={!isChangePermitted}
+                  name="datasource.id"
+                  options={DATASOURCES_OPTIONS}
+                  placeholder="Datasource"
+                >
+                  {canCreateDatasource && (
+                    // this additional div is here so that rc-select can render the child with the onClick correctly
+                    <div>
+                      <CreateDatasource
+                        onClick={() => onCreateDatasourceClick()}
+                      >
+                        <Icon className="createIcon" name="plus" size="md" />
+                        {createMessage(CREATE_NEW_DATASOURCE)}
+                      </CreateDatasource>
+                    </div>
+                  )}
+                </DropdownField>
+              </DropdownSelect>
+            )}
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
@@ -729,7 +738,7 @@ export function EditorJSONtoForm(props: Props) {
                           </Tag>
                         </>
                       )}
-                      {dataSources.length === 0 && (
+                      {/* {dataSources.length === 0 && (
                         <NoDataSourceContainer>
                           <p className="font18">
                             {createMessage(NO_DATASOURCE_FOR_QUERY)}
@@ -744,7 +753,7 @@ export function EditorJSONtoForm(props: Props) {
                             Add a Datasource
                           </Button>
                         </NoDataSourceContainer>
-                      )}
+                      )} */}
                     </SettingsWrapper>
                   </TabPanelWrapper>
                   <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
