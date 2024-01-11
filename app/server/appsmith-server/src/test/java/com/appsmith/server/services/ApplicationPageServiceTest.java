@@ -3,12 +3,15 @@ package com.appsmith.server.services;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -409,5 +412,23 @@ public class ApplicationPageServiceTest {
                     assertThat(application1.getName()).isEqualTo(appName + " (1)");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void createApplicationWithId_throwsException() {
+        final String appName = "app" + UUID.randomUUID();
+        Application application = new Application();
+        application.setName(appName);
+        String id = "anyIdHere";
+        application.setId(id);
+
+        Mono<Application> createApplicationMono =
+                applicationPageService.createApplication(application, workspace.getId());
+
+        StepVerifier.create(createApplicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID, id)))
+                .verify();
     }
 }

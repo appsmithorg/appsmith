@@ -4,11 +4,15 @@ import {
   BUILDER_PATH,
   basePathForActiveAction as CE_basePathForActiveAction,
   DATA_SOURCES_EDITOR_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "ce/constants/routes/appRoutes";
 import { MODULE_EDITOR_PATH, PACKAGE_EDITOR_PATH } from "./packageRoutes";
 import { matchPath } from "react-router";
 import { WorkflowSettingsTabs } from "@appsmith/pages/Editor/WorkflowEditor/WorkflowSettingsPane/WorkflowSettings";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { match } = require("path-to-regexp");
 
 export const matchDatasourcePath = (pathname: string) =>
   matchPath(pathname, {
@@ -50,3 +54,7 @@ export const WORKFLOW_SETTINGS_PATHS = (path: string) => [
   WORKFLOW_GENERAL_SETTINGS_PATH(path),
   WORKFLOW_TRIGGER_SETTINGS_PATH(path),
 ];
+
+export const matchQueryBuilderPath =
+  match(BUILDER_PATH + QUERIES_EDITOR_ID_PATH) ||
+  match(MODULE_EDITOR_PATH + QUERIES_EDITOR_ID_PATH);

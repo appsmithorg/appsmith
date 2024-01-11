@@ -169,4 +169,21 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
 
         return queryAll(criteria, permission);
     }
+
+    @Override
+    public Flux<ModuleInstance> findByDefaultApplicationId(
+            String defaultApplicationId, Optional<AclPermission> permissionOptional) {
+        final String defaultResources = fieldName(QModuleInstance.moduleInstance.defaultResources);
+        Criteria defaultAppIdCriteria =
+                where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        return queryAll(List.of(defaultAppIdCriteria), permissionOptional);
+    }
+
+    @Override
+    public Mono<Long> getModuleInstanceCountByApplicationId(String applicationId, AclPermission permission) {
+        Criteria moduleIdCriteria =
+                where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
+
+        return count(List.of(moduleIdCriteria), Optional.of(permission));
+    }
 }

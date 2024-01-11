@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Header, Body, Container } from "../common";
@@ -108,10 +108,10 @@ function JSModuleInstanceEditor({
 
   const sortedJSactions = sortBy(publicJSCollection?.actions, ["name"]);
 
+  const jsActionOption = getJSActionOption(activeJSAction, sortedJSactions);
+
   const [selectedJSActionOption, setSelectedJSActionOption] =
-    useState<JSActionDropdownOption>(
-      getJSActionOption(activeJSAction, sortedJSactions),
-    );
+    useState<JSActionDropdownOption>(jsActionOption);
 
   const isExecutePermitted = hasExecuteModuleInstancePermission(
     moduleInstance?.userPermissions,
@@ -120,6 +120,12 @@ function JSModuleInstanceEditor({
   const canManageModuleInstance = hasManageModuleInstancePermission(
     moduleInstance?.userPermissions,
   );
+
+  useEffect(() => {
+    if (jsActionOption.value !== selectedJSActionOption?.value) {
+      setSelectedJSActionOption(jsActionOption);
+    }
+  }, [jsActionOption, selectedJSActionOption]);
 
   const renderParamsColumns = useCallback(
     (action: JSAction) => {
@@ -184,7 +190,7 @@ function JSModuleInstanceEditor({
     if (
       !disableRunFunctionality &&
       !isExecutingCurrentJSAction &&
-      selectedJSActionOption.data
+      selectedJSActionOption?.data
     ) {
       const jsAction = selectedJSActionOption.data;
       setActiveResponse(jsAction);

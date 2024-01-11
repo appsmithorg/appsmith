@@ -50,6 +50,11 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     }
 
     @Override
+    public Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String moduleInstanceId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
     public Mono<ModuleInstanceEntitiesDTO> getAllEntities(
             String contextId, CreatorContextType contextType, String branchName, boolean viewMode) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));

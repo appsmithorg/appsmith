@@ -802,7 +802,7 @@ class AutoUpgradePackageTest {
 
         // Update the module instance with the overridden input value
         queryInstance = layoutModuleInstanceService
-                .updateUnpublishedModuleInstance(queryInstance, queryInstance.getId(), null, false)
+                .updateUnpublishedModuleInstance(queryInstance, queryInstance.getId(), Optional.empty(), false)
                 .block();
 
         ModuleInstanceDTO jsInstanceReqDTO = new ModuleInstanceDTO();

@@ -147,3 +147,9 @@ export const saveJSObjectNameForPackage = (payload: {
   type: ReduxActionTypes.SAVE_JS_OBJECT_NAME_FOR_PACKAGE_INIT,
   payload,
 });
+
+export const softRefreshModules = () => {
+  return {
+    type: ReduxActionTypes.MODULES_SOFT_REFRESH,
+  };
+};

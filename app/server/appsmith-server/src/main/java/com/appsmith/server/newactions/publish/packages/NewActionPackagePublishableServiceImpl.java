@@ -1,4 +1,4 @@
-package com.appsmith.server.newactions.publish;
+package com.appsmith.server.newactions.publish.packages;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;

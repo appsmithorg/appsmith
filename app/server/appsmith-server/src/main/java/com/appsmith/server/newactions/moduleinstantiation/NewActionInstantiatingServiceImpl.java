@@ -3,9 +3,9 @@ package com.appsmith.server.newactions.moduleinstantiation;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Page;
@@ -36,6 +36,8 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
     private final PolicyGenerator policyGenerator;
     private final RefactoringService refactoringService;
     private final NewActionService newActionService;
+    private final DefaultResourcesService<NewAction> defaultResourcesService;
+    private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
@@ -65,21 +67,27 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
                     setRootModuleInstanceIdAndModuleInstanceId(
                             moduleInstantiatingMetaDTO, sourceAction, toBeInstantiatedAction);
 
-                    setDefaultResources(moduleInstantiatingMetaDTO, sourceAction, toBeInstantiatedAction);
+                    defaultResourcesService.initialize(
+                            toBeInstantiatedAction, moduleInstantiatingMetaDTO.getBranchName(), true);
+                    dtoDefaultResourcesService.initialize(
+                            unpublishedAction, moduleInstantiatingMetaDTO.getBranchName(), true);
+                    toBeInstantiatedAction.setGitSyncId(null);
+
+                    //                    setDefaultResources(moduleInstantiatingMetaDTO, sourceAction,
+                    // toBeInstantiatedAction);
 
                     setPolicies(moduleInstantiatingMetaDTO, toBeInstantiatedAction);
 
                     Map<String, RefactorEntityNameDTO> oldToNewModuleEntityRefactorDTOsMap =
                             moduleInstantiatingMetaDTO.getOldToNewModuleEntityRefactorDTOsMap();
 
-                    Mono<NewAction> newActionMono = refactorAndExtractJsonPathKeysForAction(
+                    return refactorAndExtractJsonPathKeysForAction(
                             toBeInstantiatedAction,
                             unpublishedAction,
                             moduleInstantiatingMetaDTO,
                             oldToNewModuleEntityRefactorDTOsMap);
-
-                    return newActionMono;
                 })
+                .flatMap(newActionService::validateAction)
                 .collectList();
     }
 
@@ -95,7 +103,7 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
             Map<String, RefactorEntityNameDTO> oldToNewModuleEntityRefactorDTOsMap) {
 
         // For each entity name, call refactor current entity
-        Mono<NewAction> newActionMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
+        return Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
                 .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
                         unpublishedAction,
                         EntityType.ACTION,
@@ -107,8 +115,6 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
                             .extractAndSetJsonPathKeys(toBeInstantiatedAction)
                             .map(actionWithJsonPathKeys -> toBeInstantiatedAction);
                 }));
-
-        return newActionMono;
     }
 
     private void resetIsPublicAttributeForComposedModuleInstances(NewAction toBeInstantiatedAction) {
@@ -129,20 +135,19 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
         toBeInstantiatedAction.setPolicies(policies);
     }
 
-    private void setDefaultResources(
-            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,
-            NewAction sourceAction,
-            NewAction toBeInstantiatedAction) {
-        DefaultResources defaultResources = sourceAction.getDefaultResources();
-        defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
-        defaultResources.setActionId(toBeInstantiatedAction.getId());
-        defaultResources.setModuleInstanceId(toBeInstantiatedAction.getModuleInstanceId());
-        defaultResources.setPageId(
-                moduleInstantiatingMetaDTO.getPage().getDefaultResources().getPageId());
-
-        toBeInstantiatedAction.setDefaultResources(defaultResources);
-        toBeInstantiatedAction.getUnpublishedAction().setDefaultResources(defaultResources);
-    }
+    //    private void setDefaultResources(
+    //            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,
+    //            NewAction sourceAction,
+    //            NewAction toBeInstantiatedAction) {
+    //        DefaultResources defaultResources = sourceAction.getDefaultResources();
+    //        defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
+    //        defaultResources.setActionId(toBeInstantiatedAction.getId());
+    //        defaultResources.setPageId(
+    //                moduleInstantiatingMetaDTO.getPage().getDefaultResources().getPageId());
+    //
+    //        toBeInstantiatedAction.setDefaultResources(defaultResources);
+    //        toBeInstantiatedAction.getUnpublishedAction().setDefaultResources(defaultResources);
+    //    }
 
     private void setRootModuleInstanceIdAndModuleInstanceId(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,

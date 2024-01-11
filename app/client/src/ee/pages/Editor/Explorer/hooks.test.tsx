@@ -258,7 +258,7 @@ describe("#useConvertToModuleOptions", () => {
     expect(result.current).toEqual(expectedOutput);
   });
 
-  it("should return without any children when packageList is empty", () => {
+  it("should return with only 1 child when packageList is empty", () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider store={store}>{children}</Provider>
     );
@@ -274,6 +274,14 @@ describe("#useConvertToModuleOptions", () => {
       onSelect: expect.any(Function),
       label: createMessage(CONVERT_MODULE_CTA_TEXT),
       disabled: false,
+      children: [
+        {
+          value: "",
+          onSelect: expect.any(Function),
+          label: "Add to a new package",
+          disabled: false,
+        },
+      ],
     };
 
     const { result } = renderHook(

@@ -219,6 +219,10 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                                             existingActionDTO.getConfirmBeforeExecute());
                                 }
 
+                                // Retain default resources as well
+                                simulatedActionDTO.setDefaultResources(existingActionDTO.getDefaultResources());
+                                simulatedNewAction.setDefaultResources(existingNewAction.getDefaultResources());
+
                                 copyNestedNonNullProperties(simulatedActionDTO, existingActionDTO);
                                 return existingNewAction;
                             })
@@ -249,22 +253,20 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                                         .getDefaultResources()
                                         .setCollectionId(existingActionCollection.getId());
                                 simulatedNewAction
-                                        .getDefaultResources()
-                                        .setModuleInstanceId(existingModuleInstance.getId());
-                                simulatedNewAction
                                         .getUnpublishedAction()
                                         .getDefaultResources()
                                         .setCollectionId(existingActionCollection.getId());
-                                simulatedNewAction
-                                        .getUnpublishedAction()
-                                        .getDefaultResources()
-                                        .setModuleInstanceId(existingModuleInstance.getId());
                                 return simulatedNewAction;
                             })
                             .collectList()
                             .flatMapMany(newActionService::saveAll)
                             .mapNotNull(NewAction::getId)
                             .collect(Collectors.toSet());
+
+                    // Retain default resources and action references
+                    simulatedActionCollectionDTO.setDefaultResources(existingActionCollectionDTO.getDefaultResources());
+                    simulatedActionCollectionDTO.setDefaultToBranchedActionIdsMap(
+                            existingActionCollectionDTO.getDefaultToBranchedActionIdsMap());
 
                     copyNestedNonNullProperties(simulatedActionCollectionDTO, existingActionCollectionDTO);
 
@@ -325,6 +327,8 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                                         .getName());
                         // Copy git sync id from invalid collection
                         simulatedActionCollection.setGitSyncId(existingInvalidActionCollection.getGitSyncId());
+                        simulatedActionCollection.setDefaultResources(
+                                existingInvalidActionCollection.getDefaultResources());
                     }
 
                     List<NewAction> newActionsToSave = originCollectionIdToSimulatedJSActionsMap.get(
@@ -334,10 +338,8 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                                 newAction.setRootModuleInstanceId(existingModuleInstance.getId());
                                 newAction.setModuleInstanceId(existingModuleInstance.getId());
                                 DefaultResources defaultResources = newAction.getDefaultResources();
-                                defaultResources.setModuleInstanceId(existingModuleInstance.getId());
                                 newAction.setDefaultResources(defaultResources);
                                 ActionDTO actionDTO = newAction.getUnpublishedAction();
-                                actionDTO.getDefaultResources().setModuleInstanceId(existingModuleInstance.getId());
 
                                 if (Boolean.TRUE.equals(newAction.getIsPublic())) {
                                     NewAction existingInvalidNewAction =

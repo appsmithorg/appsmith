@@ -51,6 +51,8 @@ public interface CrudModuleInstanceServiceCECompatible extends BaseModuleInstanc
 
     Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String defaultModuleInstanceId, String branchName);
 
+    Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String moduleInstanceId);
+
     Mono<ModuleInstanceEntitiesDTO> getAllEntities(
             String contextId, CreatorContextType contextType, String branchName, boolean viewMode);
 

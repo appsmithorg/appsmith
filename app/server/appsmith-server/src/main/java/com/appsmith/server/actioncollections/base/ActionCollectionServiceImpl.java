@@ -6,6 +6,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -46,6 +47,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
+    private final ResponseUtils responseUtils;
     private final ModulePermissionChecker modulePermissionChecker;
     private final ModuleMetadataService moduleMetadataService;
 
@@ -62,6 +64,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
+            DefaultResourcesService<ActionCollection> defaultResourcesService,
             ModulePermissionChecker modulePermissionChecker,
             ModuleMetadataService moduleMetadataService) {
         super(
@@ -76,9 +79,11 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                defaultResourcesService);
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
+        this.responseUtils = responseUtils;
         this.modulePermissionChecker = modulePermissionChecker;
         this.moduleMetadataService = moduleMetadataService;
     }
@@ -118,6 +123,15 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             String rootModuleInstanceId, AclPermission permission) {
         return repository.findAllByRootModuleInstanceIds(
                 List.of(rootModuleInstanceId), Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Flux<ActionCollectionDTO> findAllUnpublishedComposedActionCollectionDTOsByRootModuleInstanceId(
+            String rootModuleInstanceId, AclPermission permission) {
+        return repository
+                .findAllByRootModuleInstanceIds(List.of(rootModuleInstanceId), Optional.ofNullable(permission))
+                .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false))
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override
@@ -241,10 +255,13 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     }
 
     @Override
-    public Flux<ActionCollection> getAllModuleInstanceCollectionsInContext(
+    public Flux<ActionCollectionDTO> getAllModuleInstanceCollectionsInContext(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode) {
-        return repository.findAllModuleInstanceEntitiesByContextAndViewMode(
-                contextId, contextType, Optional.of(permission), viewMode);
+        return repository
+                .findAllModuleInstanceEntitiesByContextAndViewMode(
+                        contextId, contextType, Optional.of(permission), viewMode)
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode))
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override

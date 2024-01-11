@@ -1255,6 +1255,7 @@ function* changeDatasourceSaga(
     datasourcesEditorIdURL({
       pageId,
       datasourceId: datasource.id,
+      generateEditorPath: true,
     }),
   );
 
@@ -1264,6 +1265,7 @@ function* changeDatasourceSaga(
         pageId,
         datasourceId: datasource.id,
         params: getQueryParams(),
+        generateEditorPath: true,
       }),
     );
   yield put(

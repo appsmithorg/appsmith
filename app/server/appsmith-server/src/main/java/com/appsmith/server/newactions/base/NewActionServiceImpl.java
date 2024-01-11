@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -13,6 +14,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -84,6 +86,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final WorkflowRepository workflowRepository;
     private final EntityValidationService entityValidationService;
     private final WorkflowPermission workflowPermission;
+    private final ResponseUtils responseUtils;
     private final ModuleMetadataService moduleMetadataService;
 
     public NewActionServiceImpl(
@@ -111,6 +114,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ActionPermission actionPermission,
             EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry,
+            DefaultResourcesService<NewAction> defaultResourcesService,
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService,
             PermissionGroupRepository permissionGroupRepository,
             WorkflowRepository workflowRepository,
             WorkflowPermission workflowPermission,
@@ -139,7 +144,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry);
+                observationRegistry,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
         this.permissionGroupRepository = permissionGroupRepository;
         this.datasourceService = datasourceService;
         this.permissionGroupService = permissionGroupService;
@@ -148,6 +155,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.workflowRepository = workflowRepository;
         this.entityValidationService = entityValidationService;
         this.workflowPermission = workflowPermission;
+        this.responseUtils = responseUtils;
         this.moduleMetadataService = moduleMetadataService;
     }
 
@@ -426,8 +434,26 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Flux<ActionViewDTO> findAllUnpublishedComposedActionViewDTOsByRootModuleInstanceId(
+            String rootModuleInstanceId, AclPermission permission, boolean includeJs) {
+        return repository
+                .findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.ofNullable(permission), includeJs)
+                .map(newAction -> this.generateActionViewDTO(newAction, newAction.getUnpublishedAction(), false))
+                .map(responseUtils::updateActionViewDTOWithDefaultResources);
+    }
+
+    @Override
     public Flux<NewAction> findAllJSActionsByCollectionIds(List<String> collectionIds, List<String> projectionFields) {
         return repository.findAllByActionCollectionIdWithoutPermissions(collectionIds, projectionFields);
+    }
+
+    @Override
+    public Flux<ActionDTO> findAllJSActionsByCollectionIdsAndViewMode(
+            List<String> collectionIds, List<String> projectionFields, boolean viewMode) {
+        return repository
+                .findAllByActionCollectionIdWithoutPermissions(collectionIds, projectionFields)
+                .flatMap(newAction -> this.generateActionByViewMode(newAction, viewMode))
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
@@ -494,11 +520,18 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
     @Override
     public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
-        return super.generateActionByViewMode(newAction, viewMode).flatMap(actionDTO -> {
+        return super.generateActionByViewMode(newAction, viewMode).map(actionDTO -> {
             actionDTO.setIsPublic(newAction.getIsPublic());
             actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
             actionDTO.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
-            return Mono.just(actionDTO);
+
+            DefaultResources defaultResources = newAction.getDefaultResources();
+            if (actionDTO.getDefaultResources() != null) {
+                actionDTO.getDefaultResources().setModuleInstanceId(defaultResources.getModuleInstanceId());
+                actionDTO.getDefaultResources().setRootModuleInstanceId(defaultResources.getRootModuleInstanceId());
+            }
+
+            return actionDTO;
         });
     }
 
@@ -506,7 +539,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode) {
         ActionViewDTO actionViewDTO = super.generateActionViewDTO(action, actionDTO, viewMode);
 
-        if (action.getModuleInstanceId() != null) {
+        if (action.getRootModuleInstanceId() != null) {
             actionViewDTO.setIsPublic(action.getIsPublic());
             actionViewDTO.setModuleInstanceId(action.getModuleInstanceId());
             actionViewDTO.setRootModuleInstanceId(action.getRootModuleInstanceId());
@@ -618,14 +651,25 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Flux<NewAction> getAllModuleInstanceActionInContext(
+    public Flux<ActionViewDTO> getAllModuleInstanceActionInContext(
             String contextId,
             CreatorContextType contextType,
             AclPermission permission,
             boolean viewMode,
             boolean includeJs) {
-        return repository.findAllModuleInstanceEntitiesByContextAndViewMode(
-                contextId, contextType, Optional.of(permission), viewMode, includeJs);
+        return repository
+                .findAllModuleInstanceEntitiesByContextAndViewMode(
+                        contextId, contextType, Optional.of(permission), viewMode, includeJs)
+                .map(newAction -> {
+                    ActionDTO actionDTO;
+                    if (viewMode) {
+                        actionDTO = newAction.getPublishedAction();
+                    } else {
+                        actionDTO = newAction.getUnpublishedAction();
+                    }
+                    return this.generateActionViewDTO(newAction, actionDTO, viewMode);
+                })
+                .map(responseUtils::updateActionViewDTOWithDefaultResources);
     }
 
     @Override
