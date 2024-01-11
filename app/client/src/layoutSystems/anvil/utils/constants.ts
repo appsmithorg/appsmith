@@ -5,9 +5,6 @@ import { anvilWidgets } from "widgets/anvil/constants";
 export const MOBILE_BREAKPOINT = 480;
 
 export const HIGHLIGHT_SIZE = 4;
-export const INFINITE_DROP_ZONE = 100;
-export const VERTICAL_DROP_ZONE_MULTIPLIER = 0.5;
-export const HORIZONTAL_DROP_ZONE_MULTIPLIER = 0.35;
 export const SectionColumns = 12;
 export const ZoneMinColumnWidth = 2;
 export const AlignmentIndexMap: { [key: string]: number } = {
@@ -22,7 +19,6 @@ export const defaultHighlightPayload: HighlightPayload = {
 };
 
 export const defaultHighlightRenderInfo: HighlightRenderInfo = {
-  dropZone: {},
   height: 0,
   isVertical: false,
   posX: 0,

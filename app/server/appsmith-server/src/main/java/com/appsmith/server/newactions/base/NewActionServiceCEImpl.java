@@ -206,7 +206,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setId(newAction.getId());
         action.setUserPermissions(newAction.getUserPermissions());
         action.setPolicies(newAction.getPolicies());
-        action.setCreatedAt(newAction.getCreatedAt());
+        /*
+         * Important: This null check before setting the createdAt field to ActionDTO is temporary.
+         * createdAt is part of exported JSON, and we used to import actions with the same value from JSON.
+         * It's wrong but if we fix this, the existing Git connected applications will show a diff for all actions.
+         * We want to avoid this and hence this null check is there.
+         * We're going to remove the createdAt field from JSON and post that this null check will be removed.
+         */
+        if (action.getCreatedAt() == null) {
+            action.setCreatedAt(newAction.getCreatedAt());
+        }
     }
 
     @Override
