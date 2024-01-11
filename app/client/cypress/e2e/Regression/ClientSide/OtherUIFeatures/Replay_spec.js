@@ -114,7 +114,6 @@ describe("Undo/Redo functionality", function () {
   it("4. checks undo/redo for deletion of widgets", function () {
     cy.deleteWidget(widgetsPage.checkboxWidget);
     cy.get(widgetsPage.checkboxWidget).should("not.exist");
-    cy.focused().blur();
 
     cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(100);

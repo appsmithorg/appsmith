@@ -150,7 +150,7 @@ describe(
 
           assertHelper.AssertNetworkStatus("@updateLayout", 200);
           EditorNavigation.SelectEntityByName(
-            "Text3CopyCopy",
+            "Text3CopyCopyCopy1",
             EntityType.Widget,
           );
           agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);

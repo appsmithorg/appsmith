@@ -410,6 +410,11 @@ describe(
         jsName as string,
         EntityType.JSObject,
       );
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: jsName as string,
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "getCitiesList",
@@ -418,11 +423,6 @@ describe(
       });
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "getBooks",
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: jsName as string,
         action: "Delete",
         entityType: entityItems.Query,
       });

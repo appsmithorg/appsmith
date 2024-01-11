@@ -123,6 +123,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     // discard changes
     gitSync.DiscardChanges();
     //verify query1 is recovered
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertPresence(query1);
     cy.get(".bp3-input").should("have.value", "Nancy");
   });
@@ -144,6 +145,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     cy.wait("@getPage");
     cy.wait(3000);
     //verify JSObject is recovered
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.assertPresence(jsObject);
     cy.get(".bp3-input").should("have.value", "Success");
   });

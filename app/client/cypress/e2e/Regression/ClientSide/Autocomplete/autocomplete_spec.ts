@@ -36,7 +36,7 @@ describe("Dynamic input autocomplete", { tags: ["@tag.JS"] }, () => {
         cy.get(dynamicInputLocators.hints).should("exist");
         // Tests if data tree entities are sorted
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
+          .eq(1)
           .should("have.text", "Button1.text");
         cy.testJsontext("label", "", {
           parseSpecialCharSequences: true,

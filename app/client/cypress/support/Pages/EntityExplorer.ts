@@ -52,7 +52,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 'ide-editor-left-pane')]//div[contains(@class, 't--entity-name')][text()='" +
+    "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
     "']";
 
@@ -193,7 +193,7 @@ export class EntityExplorer {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.switchToAddNew();
-    cy.get("body").type("{esc}");
+    cy.focused().blur();
     this.DragNDropWidget(
       widgetType,
       x,
@@ -248,7 +248,7 @@ export class EntityExplorer {
         entityNameinLeftSidebar: entityName,
         action: "Edit name",
       });
-    else cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
+    else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName))
       .type(renameVal)
       .wait(500)

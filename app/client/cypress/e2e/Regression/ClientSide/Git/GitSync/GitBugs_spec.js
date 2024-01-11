@@ -124,13 +124,11 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.latestDeployPreview();
     cy.wait(2000);
-    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
     // switch to Page1 and validate data binding
     cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
-    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -219,7 +217,6 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
             cy.get(".t--page-switch-tab")
               .contains("Page1")
               .click({ force: true });
-            EditorNavigation.ShowCanvas();
             cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
               "be.visible",
             );

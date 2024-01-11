@@ -62,18 +62,22 @@ describe(
       cy.CreateAPI(firstApiName);
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       PageLeftPane.assertPresence(firstApiName);
-      cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
-        cy.get(".t--context-menu").click({ force: true });
+      entityExplorer.ActionContextMenuByEntityName({
+        action: "Delete",
+        entityType: EntityItems.Api,
+        entityNameinLeftSidebar: firstApiName,
       });
-      cy.deleteActionAndConfirm();
-      cy.get(`.t--entity-item:contains(Page2)`).within(() => {
-        cy.get(".t--context-menu").click({ force: true });
+      entityExplorer.ActionContextMenuByEntityName({
+        action: "Delete",
+        entityType: EntityItems.Page,
+        entityNameinLeftSidebar: "Page2",
       });
-      cy.deleteActionAndConfirm();
-      cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
-        cy.get(".t--context-menu").click({ force: true });
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      entityExplorer.ActionContextMenuByEntityName({
+        action: "Delete",
+        entityType: EntityItems.Api,
+        entityNameinLeftSidebar: firstApiName,
       });
-      cy.deleteActionAndConfirm();
       cy.wait(1000);
     });
   },

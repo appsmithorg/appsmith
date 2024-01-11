@@ -151,7 +151,7 @@ describe(
       cy.focused().blur();
 
       agHelper.AssertElementLength(locators._selectedWidget, 0);
-      cy.focused().blur();
+
       //paste
       agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
       agHelper.Sleep();
