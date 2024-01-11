@@ -119,8 +119,12 @@ function StarterBuildingBlocks() {
   }
 
   return (
-    <TemplateLayoutFrame screenshot={templateSreenshot}>
+    <TemplateLayoutFrame
+      data-testid="t--canvas-building-block-frame"
+      screenshot={templateSreenshot}
+    >
       <TemplateLayoutContainer
+        data-testid="t--canvas-building-block-container"
         onMouseEnter={() => setLayoutActive(true)}
         onMouseLeave={() => setLayoutActive(false)}
       >

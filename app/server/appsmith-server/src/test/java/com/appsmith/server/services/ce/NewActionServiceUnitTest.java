@@ -6,6 +6,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -123,6 +124,12 @@ public class NewActionServiceUnitTest {
     @MockBean
     ObservationRegistry observationRegistry;
 
+    @MockBean
+    DefaultResourcesService<NewAction> defaultResourcesService;
+
+    @MockBean
+    DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
+
     @BeforeEach
     public void setup() {
         newActionService = new NewActionServiceCEImpl(
@@ -149,7 +156,9 @@ public class NewActionServiceUnitTest {
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry);
+                observationRegistry,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
