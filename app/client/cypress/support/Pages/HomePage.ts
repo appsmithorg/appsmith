@@ -684,7 +684,9 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
-    this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    // Toast has been removed
+    // this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    this.assertHelper.AssertNetworkStatus("@deleteApp", 200);
   }
 
   public DeleteAppviaAPI(appId: any) {
@@ -722,7 +724,8 @@ export class HomePage {
   public SelectMultipleApplicationToDelete(applicationName: string) {
     this.agHelper
       .GetElement(this._appCard(applicationName))
-      .first().realHover();
+      .first()
+      .realHover();
     this.agHelper.GetNClick(
       this._applicationMultiSelectionCheckbox(applicationName),
     );

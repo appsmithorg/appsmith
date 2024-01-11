@@ -8,12 +8,13 @@ import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
 import { Checkbox, type MenuItemProps } from "design-system";
 
 import GitConnectedBadge from "./GitConnectedBadge";
+import { noop } from "utils/AppsmithUtils";
 
 type CardProps = PropsWithChildren<{
   backgroundColor: string;
   contextMenu: React.ReactNode;
   editedByText: string;
-  handleMultipleSelection?: () => void;
+  handleMultipleSelection?: (e: any) => void;
   hasReadPermission: boolean;
   icon: string;
   isEnabledMultipleSelection: boolean;
@@ -181,6 +182,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     border-color: var(--ads-v2-color-gray-100);
     .t--app-multi-select-checkbox {
       display: inline;
+      visibility: visible;
+      opacity: 1;
     }
   }
 
@@ -188,8 +191,15 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     display: none;
     height: 14px;
     margin-left: 4px;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      visibility 0s,
+      opacity 0.2s linear;
     &.t--app-multi-select-mode-checkbox {
       display: inline;
+      visibility: visible;
+      opacity: 1;
     }
   }
 
@@ -197,6 +207,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     border-color: var(--ads-v2-color-blue-300);
     .t--app-multi-select-checkbox {
       display: inline;
+      visibility: visible;
+      opacity: 1;
     }
   }`}
 `;
@@ -277,9 +289,8 @@ const Control = styled.div<{ fixed?: boolean }>`
 
 const CardFooter = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin: 4px 0;
+  margin: 4px 0 0 0;
   width: ${(props) => props.theme.card.minWidth}px;
 
   @media screen and (min-width: 1500px) {
@@ -316,8 +327,12 @@ const ModifiedDataComponent = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  flex-grow: 1;
   &::first-letter {
     text-transform: uppercase;
+  }
+  & ~ * {
+    flex-shrink: 0;
   }
 `;
 
@@ -344,7 +359,14 @@ function Card({
   titleTestId,
 }: CardProps) {
   return (
-    <Container isMobile={isMobile} onClick={primaryAction}>
+    <Container
+      isMobile={isMobile}
+      onClick={
+        isEnabledMultipleSelection && handleMultipleSelection
+          ? handleMultipleSelection
+          : primaryAction
+      }
+    >
       <NameWrapper
         className={`${testId} ${isSelected ? `${testId}-selected` : ""}`}
         hasReadPermission={hasReadPermission}
@@ -386,15 +408,21 @@ function Card({
         </Wrapper>
         <CardFooter>
           {handleMultipleSelection && (
-            <Checkbox
-              className={`t--app-multi-select-checkbox ${
-                isEnabledMultipleSelection
-                  ? "t--app-multi-select-mode-checkbox"
-                  : ""
-              }`}
-              isSelected={isSelected}
-              onChange={handleMultipleSelection}
-            />
+            <div
+              onClick={
+                isEnabledMultipleSelection ? noop : handleMultipleSelection
+              }
+            >
+              <Checkbox
+                aria-label="Multiple Selection"
+                className={`t--app-multi-select-checkbox ${
+                  isEnabledMultipleSelection
+                    ? "t--app-multi-select-mode-checkbox"
+                    : ""
+                }`}
+                isSelected={isSelected}
+              />
+            </div>
           )}
           <ModifiedDataComponent className="t--application-edited-text">
             {editedByText}

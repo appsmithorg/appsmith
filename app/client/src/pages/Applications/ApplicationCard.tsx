@@ -483,7 +483,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
     dispatch(getCurrentUser());
   }, [props.application.defaultPageId]);
 
-  const handleMultipleSelection = () => {
+  const handleMultipleSelection = (event: MouseEvent) => {
+    if (typeof event === "object" && event.stopImmediatePropagation)
+      event.stopImmediatePropagation();
     if (!hasDeletePermission) {
       toast.show(createMessage(NO_PERMISSION_TO_SELECT_FOR_DELETE), {
         kind: "error",
