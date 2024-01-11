@@ -167,6 +167,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
      * This method is meant to be used by the client application at the time of 1st page load. Client currently makes
      * several API calls to fetch all the required data. This method consolidates all that data and returns them as
      * response hence enabling the client to fetch the required data via a single API call only.
+     * Please check out this Slack conversation to understand why span objects need be put in a list:
+     * https://theappsmith.slack.com/archives/C024GUDM0LT/p1704891881312049
      *
      * PLEASE TAKE CARE TO USE .cache() FOR Mono THAT GETS REUSED SO THAT FIRST PAGE LOAD PERFORMANCE DOES NOT DEGRADE.
      */
