@@ -297,4 +297,8 @@ public enum RoleTab {
                 .findFirst()
                 .orElse(null);
     }
+
+    public static List<RoleTab> getRoleTabOrder() {
+        return List.of(APPLICATION_RESOURCES, DATASOURCES_ENVIRONMENTS, WORKFLOWS, GROUPS_ROLES, OTHERS);
+    }
 }

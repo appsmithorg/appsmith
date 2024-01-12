@@ -103,6 +103,7 @@ import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORI
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 import static com.appsmith.server.solutions.roles.constants.RoleTab.WORKFLOWS;
+import static com.appsmith.server.solutions.roles.constants.RoleTab.getRoleTabOrder;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -205,7 +206,21 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                     return roleViewDTO;
                 });
         return appendAdditionalTabsBasedOnFeatureFlag(
-                permissionGroupId, dataFromRepositoryForAllTabs, baseRoleViewDTOMono);
+                        permissionGroupId, dataFromRepositoryForAllTabs, baseRoleViewDTOMono)
+                .map(this::putTabsInOrder);
+    }
+
+    private RoleViewDTO putTabsInOrder(RoleViewDTO roleViewDTO) {
+        List<RoleTab> roleTabOrder = getRoleTabOrder();
+        LinkedHashMap<String, RoleTabDTO> unsortedTabs = roleViewDTO.getTabs();
+        LinkedHashMap<String, RoleTabDTO> sortedTabs = new LinkedHashMap<>();
+        roleTabOrder.forEach(roleTabInRank -> {
+            if (unsortedTabs.containsKey(roleTabInRank.getName())) {
+                sortedTabs.put(roleTabInRank.getName(), unsortedTabs.get(roleTabInRank.getName()));
+            }
+        });
+        roleViewDTO.setTabs(sortedTabs);
+        return roleViewDTO;
     }
 
     private Mono<RoleViewDTO> appendAdditionalTabsBasedOnFeatureFlag(
