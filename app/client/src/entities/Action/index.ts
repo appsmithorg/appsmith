@@ -14,6 +14,7 @@ export enum PluginType {
   JS = "JS",
   REMOTE = "REMOTE",
   AI = "AI",
+  INTERNAL = "INTERNAL",
 }
 
 export enum PluginPackageName {

@@ -50,6 +50,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       PluginType.DB,
       PluginType.REMOTE,
       PluginType.AI,
+      PluginType.INTERNAL,
     ],
     icon: dbQueryIcon,
     key: generateReactKey(),
@@ -68,7 +69,8 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       } else if (
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE ||
-        pluginType === PluginType.AI
+        pluginType === PluginType.AI ||
+        pluginType === PluginType.INTERNAL
       ) {
         return queryEditorIdURL({
           parentEntityId,
