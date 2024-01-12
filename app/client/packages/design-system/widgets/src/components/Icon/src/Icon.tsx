@@ -10,32 +10,28 @@ import { toPascalCase } from "../../../utils";
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   const { icon, name, size = "medium", ...rest } = props;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let Icon: any;
+  let Icon: React.ComponentType | null = null;
 
-  switch (true) {
-    case icon !== undefined:
-      Icon = icon;
-      break;
-    case name !== undefined:
-      const pascalName = `Icon${toPascalCase(name)}`;
+  if (icon !== undefined) {
+    Icon = icon;
+  } else if (name !== undefined) {
+    const pascalName = `Icon${toPascalCase(name)}`;
 
-      Icon = lazy(async () =>
-        import("@tabler/icons-react").then((module) => {
-          if (pascalName in module) {
-            return { default: module[pascalName] as React.ComponentType };
-          }
+    Icon = lazy(async () =>
+      import("@tabler/icons-react").then((module) => {
+        if (pascalName in module) {
+          return { default: module[pascalName] as React.ComponentType };
+        }
 
-          return { default: FallbackIcon };
-        }),
-      );
-      break;
-    default:
-      Icon = FallbackIcon;
+        return { default: FallbackIcon };
+      }),
+    );
+  } else {
+    Icon = FallbackIcon;
   }
 
   return (
-    <Suspense fallback={<svg {...rest} />}>
+    <Suspense fallback={<FallbackIcon {...rest} />}>
       <HeadlessIcon
         className={styles.icon}
         data-icon-button=""
