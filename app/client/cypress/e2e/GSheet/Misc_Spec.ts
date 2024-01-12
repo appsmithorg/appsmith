@@ -121,12 +121,12 @@ describe(
       PageLeftPane.assertPresence("Sheet1");
       PageLeftPane.expandCollapseItem("Sheet1");
       agHelper.ClickButton("Generate new page");
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true, 2000);
       agHelper.GetNClickByContains(
         dataSources._dropdownOption,
         spreadSheetName,
       );
-      agHelper.GetNClick(dataSources._selectSheetNameDropdown, 0, true);
+      agHelper.GetNClick(dataSources._selectSheetNameDropdown, 0, true, 1000);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "Sheet1");
 
       // Click on generate page button and verify the page is generated
@@ -190,7 +190,7 @@ describe(
         spreadSheetName,
         0,
         true,
-        1000,
+        2000,
       );
       agHelper.GetNClick(dataSources._selectSheetNameDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "Sheet1");
