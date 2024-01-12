@@ -50,7 +50,7 @@ public interface ImportServiceCE {
      * @param artifactId
      * @param  artifactJsonType
      */
-    Mono<? extends ImportableArtifactDTO> extractAndSaveArtifact(
+    Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
             Part filePart, String workspaceId, String artifactId, ArtifactJsonType artifactJsonType);
 
     /**

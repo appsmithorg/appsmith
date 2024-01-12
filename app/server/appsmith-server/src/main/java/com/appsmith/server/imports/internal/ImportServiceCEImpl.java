@@ -145,7 +145,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param workspaceId The identifier for the destination workspace.
      */
     @Override
-    public Mono<? extends ImportableArtifactDTO> extractAndSaveArtifact(
+    public Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
             Part filePart, String workspaceId, String artifactId, ArtifactJsonType artifactJsonType) {
 
         if (StringUtils.isEmpty(workspaceId)) {
