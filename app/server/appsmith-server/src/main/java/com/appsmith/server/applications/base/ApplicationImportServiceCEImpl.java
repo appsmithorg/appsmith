@@ -80,6 +80,12 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     private final ImportableService<CustomJSLib> customJSLibImportableService;
     private final ImportableService<NewAction> newActionImportableService;
     private final ImportableService<ActionCollection> actionCollectionImportableService;
+
+    /**
+     * This map keeps constants which are specific to context of Application, parallel to other Artifacts.
+     * i.e. Artifact --> Application
+     * i.e. ID --> applicationId
+     */
     protected final Map<String, String> applicationConstantsMap = new HashMap<>();
 
     public ApplicationImportServiceCEImpl(
