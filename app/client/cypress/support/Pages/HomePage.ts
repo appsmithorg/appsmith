@@ -2,10 +2,10 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
+import { AppSidebar, PageLeftPane } from "./EditorNavigation";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
-  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private onboarding = ObjectsRegistry.Onboarding;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
@@ -281,9 +281,8 @@ export class HomePage {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
     this.AssertApplicationCreated();
     if (skipSignposting) {
-      this.agHelper.AssertElementVisibility(
-        this.entityExplorer._entityExplorer,
-      );
+      AppSidebar.assertVisible();
+      this.agHelper.AssertElementVisibility(PageLeftPane.locators.selector);
       this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
