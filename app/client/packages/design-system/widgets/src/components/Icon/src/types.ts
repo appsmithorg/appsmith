@@ -13,5 +13,5 @@ export type IconProps = HeadlessIconProps & {
    */
   icon?: ComponentType;
   /** Name of the icon*/
-  name?: keyof typeof ICONS;
+  name?: (typeof ICONS)[number];
 };

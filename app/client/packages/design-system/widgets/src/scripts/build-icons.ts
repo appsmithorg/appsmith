@@ -5,21 +5,15 @@ import kebabCase from "lodash/kebabCase";
 
 import * as ICONS from "@tabler/icons-react";
 
-let content = `import { importTablerIcon } from "./loadables";
-
-export const ICONS = {
-`;
+let content = `export const ICONS = [`;
 
 Object.keys(ICONS)
   .filter((name) => name !== "createReactComponent")
-  .forEach((name) => {
-    content += `"${kebabCase(name).replace(
-      "icon-",
-      "",
-    )}":importTablerIcon(async () => import("@tabler/icons-react/dist/esm/icons/${name}")),`;
+  .map((name) => {
+    content += `"${kebabCase(name).replace("icon-", "")}",`;
   });
 
-content += "} as const";
+content += "] as const";
 
 prettier
   .format(content, {
