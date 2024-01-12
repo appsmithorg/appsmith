@@ -140,7 +140,7 @@ export default class PartialImportExport {
     );
     cy.wait("@partialImportNetworkCall");
 
-    this.agHelper.CheckForErrorToast(
+    this.agHelper.FailIfErrorToast(
       "Internal server error while processing request",
     );
     this.agHelper.WaitUntilToastDisappear(
