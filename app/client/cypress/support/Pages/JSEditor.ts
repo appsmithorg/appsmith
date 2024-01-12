@@ -136,15 +136,15 @@ export class JSEditor {
     this.agHelper.ClickOutside(); //to enable click of below!
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    cy.get(this.locator._createNew).last().click({ force: true });
-    cy.get(this._newJSobj).eq(0).click({ force: true });
-
+    this.agHelper.GetNClick(this.locator._createNew);
+    this.agHelper.GetNClick(this._newJSobj, 0, true);
     this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-    this.agHelper.PressEnter(1000); //for name to settle
+    this.agHelper.PressEnter();
+    this.agHelper.PressEnter();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 
