@@ -1029,7 +1029,7 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
     TRIGGER_PARAMETERS_EMPTY(
-            500,
+            400,
             AppsmithErrorCode.TRIGGER_PARAMETERS_EMPTY.getCode(),
             "Trigger parameters empty.",
             AppsmithErrorAction.DEFAULT,

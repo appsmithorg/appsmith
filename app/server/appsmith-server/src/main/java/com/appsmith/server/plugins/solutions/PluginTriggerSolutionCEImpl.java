@@ -55,7 +55,7 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
             return Mono.error(new AppsmithException(AppsmithError.TRIGGER_PARAMETERS_EMPTY));
         }
 
-        if (checkIfDatasourceIdExists(triggerRequestDTO)) {
+        if (StringUtils.isNotEmpty(triggerRequestDTO.getDatasourceId())) {
             return datasourceTriggerSolution.trigger(
                     triggerRequestDTO.getDatasourceId(), environmentId, triggerRequestDTO);
         }
@@ -75,10 +75,6 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
             setHeadersToTriggerRequest(plugin, httpHeaders, triggerRequestDTO);
             return ((PluginExecutor<Object>) pluginExecutor).trigger(null, null, triggerRequestDTO);
         });
-    }
-
-    private Boolean checkIfDatasourceIdExists(TriggerRequestDTO triggerRequestDTO) {
-        return StringUtils.isNotEmpty(triggerRequestDTO.getDatasourceId());
     }
 
     protected void setHeadersToTriggerRequest(
