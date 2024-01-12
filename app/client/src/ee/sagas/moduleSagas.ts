@@ -66,8 +66,6 @@ import type {
   RefactorAction,
   UpdateCollectionActionNameRequest,
 } from "@appsmith/api/JSActionAPI";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { deleteErrorLog } from "actions/debuggerActions";
 import type { JSCollection } from "entities/JSCollection";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 
@@ -347,17 +345,6 @@ export function* setupModuleSaga(action: ReduxAction<SetupModulePayload>) {
 
     // To start eval for new module
     yield put(fetchAllModuleEntityCompletion([executePageLoadActions()]));
-
-    // clear all existing debugger errors
-    const debuggerErrors: ReturnType<typeof getDebuggerErrors> =
-      yield select(getDebuggerErrors);
-    const existingErrors = Object.values(debuggerErrors).filter(
-      (payload) => !!payload.id,
-    );
-    const errorsToDelete = existingErrors.map(
-      (payload) => payload.id,
-    ) as string[];
-    yield put(deleteErrorLog(errorsToDelete));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SETUP_MODULE_ERROR,

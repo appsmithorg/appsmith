@@ -42,14 +42,17 @@ export function getJSActionPathNameToDisplay(
   );
 
   for (const moduleInstanceJSCollection of moduleInstanceJSCollections) {
-    if (moduleInstanceJSCollection.config.id === action.id) {
-      const moduleInstanceId =
-        moduleInstanceJSCollection.config.moduleInstanceId;
-      if (!moduleInstanceId) break;
-      const moduleInstances = getModuleInstances(store.getState());
-      const moduleInstance = moduleInstances[moduleInstanceId];
-      if (!moduleInstance) break;
-      return moduleInstance.name + "." + action.name;
+    const moduleInstanceJSActions = moduleInstanceJSCollection.config.actions;
+    for (const moduleInstanceJSAction of moduleInstanceJSActions) {
+      if (moduleInstanceJSAction.id === action.id) {
+        const moduleInstanceId =
+          moduleInstanceJSCollection.config.moduleInstanceId;
+        if (!moduleInstanceId) break;
+        const moduleInstances = getModuleInstances(store.getState());
+        const moduleInstance = moduleInstances[moduleInstanceId];
+        if (!moduleInstance) break;
+        return moduleInstance.name + "." + action.name;
+      }
     }
   }
 
