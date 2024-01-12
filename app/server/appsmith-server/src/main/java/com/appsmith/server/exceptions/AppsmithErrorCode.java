@@ -154,6 +154,7 @@ public enum AppsmithErrorCode {
     PACKAGE_CANNOT_BE_PUBLISHED("AE-PKG-4000", "Package cannot be published"),
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
+    TRIGGER_PARAMETERS_EMPTY("AE-DS-4001", "Trigger parameters empty."),
     INVALID_APPROVAL_REQUEST_RESOLUTION("AE-APP-4029", "Invalid approval request resolution"),
     INVALID_APPROVAL_REQUEST_CREATION("AE-APP-4030", "Invalid approval request creation"),
     WORKFLOW_PROXY_REQUEST_FAILED("AE-APP-5016", "Workflow Proxy request failed"),
