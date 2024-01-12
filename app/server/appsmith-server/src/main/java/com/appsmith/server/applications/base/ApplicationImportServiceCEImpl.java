@@ -13,7 +13,6 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -28,10 +27,8 @@ import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -44,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -61,11 +57,13 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
 import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 
+/**
+ * This service is currently not in use, however this service will replace ImportApplicationService
+ */
 @Slf4j
 public class ApplicationImportServiceCEImpl implements ApplicationImportServiceCE {
 
     private final DatasourceService datasourceService;
-    private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
@@ -77,20 +75,15 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final Gson gson;
-    private final TransactionalOperator transactionalOperator;
-    private final PermissionGroupRepository permissionGroupRepository;
-    private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Theme> themeImportableService;
     private final ImportableService<NewPage> newPageImportableService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
-    private final ImportableService<Datasource> datasourceImportableService;
     private final ImportableService<NewAction> newActionImportableService;
     private final ImportableService<ActionCollection> actionCollectionImportableService;
     protected final Map<String, String> applicationConstantsMap = new HashMap<>();
 
     public ApplicationImportServiceCEImpl(
             DatasourceService datasourceService,
-            SessionUserService sessionUserService,
             WorkspaceService workspaceService,
             ApplicationService applicationService,
             ApplicationPageService applicationPageService,
@@ -102,17 +95,12 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             PagePermission pagePermission,
             ActionPermission actionPermission,
             Gson gson,
-            TransactionalOperator transactionalOperator,
-            PermissionGroupRepository permissionGroupRepository,
-            ImportableService<Plugin> pluginImportableService,
             ImportableService<Theme> themeImportableService,
             ImportableService<NewPage> newPageImportableService,
             ImportableService<CustomJSLib> customJSLibImportableService,
-            ImportableService<Datasource> datasourceImportableService,
             ImportableService<NewAction> newActionImportableService,
             ImportableService<ActionCollection> actionCollectionImportableService) {
         this.datasourceService = datasourceService;
-        this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.applicationService = applicationService;
         this.applicationPageService = applicationPageService;
@@ -124,13 +112,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
         this.gson = gson;
-        this.transactionalOperator = transactionalOperator;
-        this.permissionGroupRepository = permissionGroupRepository;
-        this.pluginImportableService = pluginImportableService;
         this.themeImportableService = themeImportableService;
         this.newPageImportableService = newPageImportableService;
         this.customJSLibImportableService = customJSLibImportableService;
-        this.datasourceImportableService = datasourceImportableService;
         this.newActionImportableService = newActionImportableService;
         this.actionCollectionImportableService = actionCollectionImportableService;
         applicationConstantsMap.putAll(
@@ -175,18 +159,17 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 .build();
     }
 
+    /**
+     * If the application is connected to git, then the user must have edit permission on the application.
+     * If user is importing application from Git, create application permission is already checked by the
+     * caller method, so it's not required here.
+     * Other permissions are not required because Git is the source of truth for the application and Git
+     * Sync is a system level operation to get the latest code from Git. If the user does not have some
+     * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
+     */
     @Override
     public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForConnectingToGit(
             Set<String> userPermissions) {
-
-        /**
-         * If the application is connected to git, then the user must have edit permission on the application.
-         * If user is importing application from Git, create application permission is already checked by the
-         * caller method, so it's not required here.
-         * Other permissions are not required because Git is the source of truth for the application and Git
-         * Sync is a system level operation to get the latest code from Git. If the user does not have some
-         * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
-         */
         return ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
@@ -233,17 +216,13 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
      * this method removes the application name from Json file as updating the app-name is not supported via import
      * this avoids name conflict during import flow within workspace
      *
-     * @param applicationId
-     * @param artifactExchangeJson
+     * @param applicationId : ID of the application which has been saved.
+     * @param artifactExchangeJson : the ArtifactExchangeJSON which is getting imported
      */
     @Override
     public void setJsonArtifactNameToNullBeforeUpdate(String applicationId, ArtifactExchangeJson artifactExchangeJson) {
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
-            // Remove the application name from JSON file as updating the application name is not
-            // supported
-            // via JSON import. This is to avoid name conflict during the import flow within the
-            // workspace
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
         }
@@ -259,7 +238,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap to be present in importable
         // resources.
         // Updates actionResultDTO in importable resources.
-        // Also directly updates required information in DB
+        // Also, directly updates required information in DB
         Mono<Void> importedNewActionsMono = newActionImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
@@ -271,7 +250,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable
         // resources.
         // Updates actionCollectionResultDTO in importable resources.
-        // Also directly updates required information in DB
+        // Also, directly updates required information in DB
         Mono<Void> importedActionCollectionsMono = actionCollectionImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
@@ -282,16 +261,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
         Mono<Void> combinedActionImportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
         return List.of(combinedActionImportablesMono);
-    }
-
-    private Mono<Void> applicationSpecificImportedEntities(
-            ApplicationJson applicationJson,
-            ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        // Persists relevant information and updates mapped resources
-        Mono<Void> installedJsLibsMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, false);
-        return installedJsLibsMono;
     }
 
     @Override
@@ -343,7 +312,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                                     .getUnpublishedAction()
                                     .getDatasource()
                                     .getId())
-                            .collect(Collectors.toList());
+                            .toList();
 
                     datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
 
@@ -442,7 +411,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     /**
      * To send analytics event for import and export of application
      *
-     * @param applicationId Id of application being imported or exported
+     * @param applicationId ID of application being imported or exported
      * @param event         AnalyticsEvents event
      * @return The application which is imported or exported
      */
@@ -465,8 +434,15 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             ArtifactExchangeJson artifactExchangeJson,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return applicationSpecificImportedEntities(
-                (ApplicationJson) artifactExchangeJson, importingMetaDTO, mappedImportableResourcesDTO);
+
+        // Persists relevant information and updates mapped resources
+        return customJSLibImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                null,
+                null,
+                (ApplicationJson) artifactExchangeJson,
+                false);
     }
 
     @Override
@@ -661,7 +637,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
             // Updates pageNametoIdMap and pageNameMap in importable resources.
-            // Also directly updates required information in DB
+            // Also, directly updates required information in DB
             Mono<Void> importedPagesMono = newPageImportableService.importEntities(
                     importingMetaDTO,
                     mappedImportableResourcesDTO,
