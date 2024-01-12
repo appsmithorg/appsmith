@@ -2,6 +2,7 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ClientSide/PartialImportExport/PartialImport_spec.ts
 cypress/e2e/Regression/ClientSide/PartialImportExport/PartialExport_spec.ts
+cypress/e2e/Regression/ServerSide/AppLevelImport/AppImportwithDS_Spec.ts
 
 
 # For running all specs - uncomment below:
