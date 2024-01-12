@@ -5,8 +5,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.workflows.base.BaseWorkflowServiceCECompatibleImpl;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Validator;
-import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -28,12 +28,12 @@ public class ProxyWorkflowServiceCECompatibleImpl extends BaseWorkflowServiceCEC
     }
 
     @Override
-    public Mono<JSONObject> getWorkflowHistory(MultiValueMap<String, String> filters) {
+    public Mono<JsonNode> getWorkflowHistory(MultiValueMap<String, String> filters) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override
-    public Mono<JSONObject> getWorkflowHistoryByWorkflowId(String id, MultiValueMap<String, String> filters) {
+    public Mono<JsonNode> getWorkflowHistoryByWorkflowId(String id, MultiValueMap<String, String> filters) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

@@ -1,9 +1,9 @@
 package com.appsmith.server.workflows.interact;
 
 import com.appsmith.server.dtos.ApprovalRequestResolutionDTO;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import reactor.core.publisher.Mono;
 
 public interface InteractApprovalRequestServiceCECompatible {
-    Mono<JSONObject> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO);
+    Mono<JsonNode> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO);
 }

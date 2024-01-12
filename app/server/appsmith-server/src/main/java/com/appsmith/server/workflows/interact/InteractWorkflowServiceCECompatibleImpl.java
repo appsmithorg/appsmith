@@ -8,7 +8,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.workflows.base.BaseWorkflowServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Validator;
-import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.HttpHeaders;
@@ -45,7 +44,7 @@ public class InteractWorkflowServiceCECompatibleImpl extends BaseWorkflowService
     }
 
     @Override
-    public Mono<JSONObject> triggerWorkflow(String workflowId, HttpHeaders headers, JsonNode triggerData) {
+    public Mono<JsonNode> triggerWorkflow(String workflowId, HttpHeaders headers, JsonNode triggerData) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

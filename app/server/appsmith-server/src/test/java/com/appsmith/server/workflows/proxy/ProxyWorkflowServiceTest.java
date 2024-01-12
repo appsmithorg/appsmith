@@ -20,6 +20,9 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -165,8 +168,8 @@ public class ProxyWorkflowServiceTest {
     @WithUserDetails(value = "api_user")
     void testInvalidGetWorkflowHistoryByWorkflowId() {
         Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(new JSONObject()));
-        Mono<JSONObject> workflowHistoryByWorkflowIdMono =
+                .thenReturn(Mono.just(emptyJsonNode()));
+        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
                 proxyWorkflowService.getWorkflowHistoryByWorkflowId("random-workflow-id", new LinkedMultiValueMap<>());
 
         StepVerifier.create(workflowHistoryByWorkflowIdMono)
@@ -183,8 +186,8 @@ public class ProxyWorkflowServiceTest {
     @WithUserDetails(value = "api_user")
     void testValidGetWorkflowHistoryByWorkflowId() {
         Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(new JSONObject()));
-        Mono<JSONObject> workflowHistoryByWorkflowIdMono =
+                .thenReturn(Mono.just(emptyJsonNode()));
+        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
                 proxyWorkflowService.getWorkflowHistoryByWorkflowId(workflow.getId(), new LinkedMultiValueMap<>());
 
         StepVerifier.create(workflowHistoryByWorkflowIdMono)
@@ -200,11 +203,11 @@ public class ProxyWorkflowServiceTest {
     @WithUserDetails(value = "api_user")
     void testValidGetWorkflowHistory_validWorkflowIdsOnly() {
         Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(new JSONObject()));
+                .thenReturn(Mono.just(emptyJsonNode()));
         MultiValueMap<String, String> workflowIdFilter = new LinkedMultiValueMap<>();
         List<String> validWorkflowIds = List.of(workflow.getId());
         workflowIdFilter.add(WORKFLOW_ID, String.join(FILTER_DELIMITER, validWorkflowIds));
-        Mono<JSONObject> workflowHistoryByWorkflowIdMono = proxyWorkflowService.getWorkflowHistory(workflowIdFilter);
+        Mono<JsonNode> workflowHistoryByWorkflowIdMono = proxyWorkflowService.getWorkflowHistory(workflowIdFilter);
 
         StepVerifier.create(workflowHistoryByWorkflowIdMono)
                 .assertNext(workflowHistoryByWorkflowId -> {
@@ -219,11 +222,11 @@ public class ProxyWorkflowServiceTest {
     @WithUserDetails(value = "api_user")
     void testValidGetWorkflowHistory_validAndInvalidWorkflowIds() {
         Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(new JSONObject()));
+                .thenReturn(Mono.just(emptyJsonNode()));
         MultiValueMap<String, String> workflowIdFilter = new LinkedMultiValueMap<>();
         List<String> validAndInvalidWorkflowIds = List.of(workflow.getId(), "random-workflow-id");
         workflowIdFilter.add(WORKFLOW_ID, String.join(FILTER_DELIMITER, validAndInvalidWorkflowIds));
-        Mono<JSONObject> workflowHistoryByWorkflowIdMono = proxyWorkflowService.getWorkflowHistory(workflowIdFilter);
+        Mono<JsonNode> workflowHistoryByWorkflowIdMono = proxyWorkflowService.getWorkflowHistory(workflowIdFilter);
 
         StepVerifier.create(workflowHistoryByWorkflowIdMono)
                 .assertNext(workflowHistoryByWorkflowId -> {
@@ -238,8 +241,8 @@ public class ProxyWorkflowServiceTest {
     @WithUserDetails(value = "api_user")
     void testValidGetWorkflowHistory_noWorkflowIds() {
         Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(new JSONObject()));
-        Mono<JSONObject> workflowHistoryByWorkflowIdMono =
+                .thenReturn(Mono.just(emptyJsonNode()));
+        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
                 proxyWorkflowService.getWorkflowHistory(new LinkedMultiValueMap<>());
 
         StepVerifier.create(workflowHistoryByWorkflowIdMono)
@@ -262,7 +265,7 @@ public class ProxyWorkflowServiceTest {
         user.setEmail(testName);
         user.setPassword(testName);
         User createdUser = userService.create(user).block();
-        Mono<JSONObject> workflowHistoryByWorkflowIdMono =
+        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
                 runAs(proxyWorkflowService.getWorkflowHistory(new LinkedMultiValueMap<>()), createdUser, testName);
 
         StepVerifier.create(workflowHistoryByWorkflowIdMono)
@@ -272,5 +275,14 @@ public class ProxyWorkflowServiceTest {
                     assertThat(workflowHistoryByWorkflowId.toString()).isEqualTo(expectedResponse.toString());
                 })
                 .verifyComplete();
+    }
+
+    private JsonNode emptyJsonNode() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readTree("{}");
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

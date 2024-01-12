@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -112,7 +111,7 @@ public class WorkflowController {
     @JsonView(Views.Public.class)
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/history")
-    public Mono<ResponseDTO<JSONObject>> getWorkflowHistory(@RequestParam MultiValueMap<String, String> filters) {
+    public Mono<ResponseDTO<JsonNode>> getWorkflowHistory(@RequestParam MultiValueMap<String, String> filters) {
         return proxyWorkflowService
                 .getWorkflowHistory(filters)
                 .map(workflowHistory -> new ResponseDTO<>(HttpStatus.OK.value(), workflowHistory, null));
@@ -121,7 +120,7 @@ public class WorkflowController {
     @JsonView(Views.Public.class)
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/history/{id}")
-    public Mono<ResponseDTO<JSONObject>> getWorkflowHistoryForWorkflowId(
+    public Mono<ResponseDTO<JsonNode>> getWorkflowHistoryForWorkflowId(
             @PathVariable String id, @RequestParam MultiValueMap<String, String> filters) {
         return proxyWorkflowService
                 .getWorkflowHistoryByWorkflowId(id, filters)
@@ -148,7 +147,7 @@ public class WorkflowController {
 
     @JsonView(Views.Public.class)
     @PostMapping("/trigger/{workflowId}")
-    public Mono<ResponseDTO<JSONObject>> triggerWorkflow(
+    public Mono<ResponseDTO<JsonNode>> triggerWorkflow(
             @PathVariable String workflowId, ServerWebExchange serverWebExchange, @RequestBody JsonNode triggerData) {
         return interactWorkflowService
                 .triggerWorkflow(workflowId, serverWebExchange.getRequest().getHeaders(), triggerData)

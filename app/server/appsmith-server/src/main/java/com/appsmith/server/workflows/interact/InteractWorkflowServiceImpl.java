@@ -37,7 +37,6 @@ import com.appsmith.server.workflows.permission.WorkflowPermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.bulk.BulkWriteResult;
 import jakarta.validation.Validator;
-import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.HttpHeaders;
@@ -389,7 +388,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
      */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JSONObject> triggerWorkflow(String workflowId, HttpHeaders headers, JsonNode triggerData) {
+    public Mono<JsonNode> triggerWorkflow(String workflowId, HttpHeaders headers, JsonNode triggerData) {
         Mono<Workflow> workflowMono = findById(workflowId, workflowPermission.getExecutePermission());
 
         Mono<WorkflowTriggerProxyDTO> workflowTriggerProxyDTOMono =

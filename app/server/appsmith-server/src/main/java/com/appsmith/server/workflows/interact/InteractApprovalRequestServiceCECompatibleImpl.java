@@ -6,8 +6,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApprovalRequestRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.workflows.base.BaseApprovalRequestServiceImpl;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Validator;
-import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class InteractApprovalRequestServiceCECompatibleImpl extends BaseApproval
     }
 
     @Override
-    public Mono<JSONObject> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
+    public Mono<JsonNode> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }
