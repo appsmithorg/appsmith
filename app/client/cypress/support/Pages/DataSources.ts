@@ -6,6 +6,7 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
@@ -960,7 +961,7 @@ export class DataSources {
   }
 
   DeleteQuery(queryName: string) {
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",

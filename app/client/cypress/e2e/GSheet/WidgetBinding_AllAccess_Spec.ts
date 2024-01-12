@@ -82,7 +82,7 @@ describe(
 
     after("Delete app", function () {
       // Delete spreadsheet and app
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
       cy.get("@postExecute").then((interception: any) => {
         expect(interception.response.body.data.body.message).to.deep.equal(

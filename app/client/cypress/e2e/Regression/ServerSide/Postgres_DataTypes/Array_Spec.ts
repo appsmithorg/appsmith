@@ -14,6 +14,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -73,8 +74,6 @@ describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("2. Inserting record - arraytypes", () => {
@@ -171,7 +170,7 @@ describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     dataSources.CreateQueryForDS(dsName);
     agHelper.RenameWithInPane("verifyArrayFunctions");
 
@@ -479,7 +478,6 @@ describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
       entityType: entityItems.Query,
     });
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("7. Deleting records - arraytypes", () => {
@@ -528,7 +526,6 @@ describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.AssertQueryTableResponse(0, "0");
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes", false);
   });
 
@@ -537,13 +534,10 @@ describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     () => {
       //Verify Deletion of all created queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
       AppSidebar.navigate(AppSidebarButton.Editor);
     },
