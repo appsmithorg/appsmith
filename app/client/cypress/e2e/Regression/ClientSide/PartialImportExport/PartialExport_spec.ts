@@ -5,8 +5,6 @@ import {
   partialImportExport,
 } from "../../../../support/Objects/ObjectsCore";
 
-let guid: any;
-let workspaceName;
 const fixtureName = "PartialImportExportSampleApp.json";
 
 describe(
@@ -15,12 +13,12 @@ describe(
   () => {
     before(() => {
       agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        guid = uid;
-        workspaceName = "workspaceName-" + guid;
-        homePage.CreateNewWorkspace(workspaceName, true);
-        homePage.ImportApp(`PartialImportExport/${fixtureName}`, workspaceName);
-      });
+      // cy.get("@guid").then((uid) => {
+      //   guid = uid;
+      //   workspaceName = "workspaceName-" + guid;
+      //   homePage.CreateNewWorkspace(workspaceName, true);
+      // });
+      homePage.ImportApp(`PartialImportExport/${fixtureName}`);
 
       featureFlagIntercept({
         release_show_partial_import_export_enabled: true,
