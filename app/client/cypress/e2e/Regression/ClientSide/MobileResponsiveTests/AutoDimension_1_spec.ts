@@ -1,10 +1,12 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
   autoLayout,
   draggableWidgets,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Validating use cases for Auto Dimension",
@@ -59,7 +61,8 @@ describe(
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.LIST_V2, 100, 30);
 
         // Delete existing widgets within list
-        agHelper.SelectAllWidgets(locators._widgetByName("Container1"));
+        EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
+        agHelper.SelectAllWidgets();
         agHelper.PressDelete();
         agHelper.Sleep(2000);
         autoLayout.DropButtonAndTestForAutoDimension(

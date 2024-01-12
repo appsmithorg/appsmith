@@ -6,7 +6,6 @@ import EditorNavigation, {
 
 const dsl = require("../../../../fixtures/editorContextdsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import Canvas from "../../../../support/Pages/Canvas";
 
 const page1 = "Page1";
 const page2 = "Page2";
@@ -92,7 +91,6 @@ describe(
       _.agHelper
         .GetElement(PageLeftPane.listItemSelector("Button1"))
         .click({ ctrlKey: true });
-      // Canvas.selectMultipleWidgets(["Camera1", "Button1"]);
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);
@@ -117,7 +115,12 @@ describe(
 
     it("4. Multiple widgets should be selected while switching back to page from API pane", function () {
       //select widgets in page1
-      Canvas.selectMultipleWidgets(["Camera1", "Button1"]);
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Camera1"))
+        .click({ ctrlKey: true });
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Button1"))
+        .click({ ctrlKey: true });
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);

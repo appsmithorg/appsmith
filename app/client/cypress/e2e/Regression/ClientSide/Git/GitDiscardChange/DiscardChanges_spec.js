@@ -125,6 +125,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     //verify query1 is recovered
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertPresence(query1);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(".bp3-input").should("have.value", "Nancy");
   });
 
@@ -137,7 +138,9 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     //     jsEditor.CreateJSObject('return "Success";');
     // delete jsObject1
     EditorNavigation.SelectEntityByName(jsObject, EntityType.JSObject);
-    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?", true);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+    });
     PageLeftPane.assertAbsence(jsObject);
     // discard changes
     gitSync.DiscardChanges();
