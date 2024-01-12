@@ -8,12 +8,12 @@ import { FallbackIcon } from "./FallbackIcon";
 import { toPascalCase } from "../../../utils";
 
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
-  const { icon, name, size = "medium", stroke = 2, ...rest } = props;
+  const { icon, name, size = "medium", ...rest } = props;
 
-  let Icon: React.ComponentType<Pick<IconProps, "stroke">> | null = null;
+  let Icon: React.ComponentType | null = null;
 
   if (icon !== undefined) {
-    Icon = icon as React.ComponentType<Pick<IconProps, "stroke">>;
+    Icon = icon as React.ComponentType;
   } else if (name !== undefined) {
     const pascalName = `Icon${toPascalCase(name)}`;
 
@@ -21,9 +21,7 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
       import("@tabler/icons-react").then((module) => {
         if (pascalName in module) {
           return {
-            default: module[pascalName] as React.ComponentType<
-              Pick<IconProps, "stroke">
-            >,
+            default: module[pascalName] as React.ComponentType,
           };
         }
 
@@ -35,17 +33,17 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   }
 
   return (
-    <Suspense fallback={<FallbackIcon {...rest} />}>
-      <HeadlessIcon
-        className={styles.icon}
-        data-icon-button=""
-        data-size={size ? size : undefined}
-        ref={ref}
-        {...rest}
-      >
-        <Icon stroke={stroke} />
-      </HeadlessIcon>
-    </Suspense>
+    <HeadlessIcon
+      className={styles.icon}
+      data-icon-button=""
+      data-size={size ? size : undefined}
+      ref={ref}
+      {...rest}
+    >
+      <Suspense fallback={<FallbackIcon {...rest} />}>
+        <Icon {...props} />
+      </Suspense>
+    </HeadlessIcon>
   );
 };
 
