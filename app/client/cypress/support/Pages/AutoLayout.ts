@@ -192,10 +192,7 @@ export class AutoLayout {
     // Increase the length of button label & verify if the component expands
     this.agHelper.GetWidth(this._buttonWidgetSelector);
     cy.get("@eleWidth").then(($initialWidth) => {
-      this.propPane.UpdatePropertyFieldValue(
-        "Label",
-        "Lengthy Button Label by a bit more",
-      );
+      this.propPane.UpdatePropertyFieldValue("Label", "Lengthy Button Label");
       this.agHelper.Sleep(2000); //to allow time for widget to resize itself before checking width again!
       this.agHelper.GetWidth(this._buttonWidgetSelector);
       cy.get("@eleWidth").then((width: any) => {
