@@ -310,18 +310,15 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
 Cypress.Commands.add("Signup", (uname, pword) => {
   homePageTS.InvokeDispatchOnStore();
   cy.wait("@postLogout");
-
   cy.visit("/user/signup", { timeout: 60000 });
-  cy.wait(4000); //for sign up page to open fully
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")
     .should("eq", 200);
-  cy.get(signupPage.username).should("be.visible");
+  agHelper.WaitUntilEleAppear(signupPage.username);
   cy.get(signupPage.username).type(uname);
   cy.get(signupPage.password).type(pword);
-  cy.get(signupPage.submitBtn).click();
-  cy.wait(1000);
-  cy.get("body").then(($body) => {
+  agHelper.GetNClick(signupPage.submitBtn);
+  agHelper.GetElement("body").then(($body) => {
     if ($body.find(signupPage.proficiencyGroupButton).length > 0) {
       cy.get(signupPage.proficiencyGroupButton).first().click();
       cy.get(signupPage.useCaseGroupButton).first().click();
