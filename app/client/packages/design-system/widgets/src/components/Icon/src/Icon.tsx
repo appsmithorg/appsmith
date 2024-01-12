@@ -8,19 +8,23 @@ import { FallbackIcon } from "./FallbackIcon";
 import { toPascalCase } from "../../../utils";
 
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
-  const { icon, name, size = "medium", ...rest } = props;
+  const { icon, name, size = "medium", stroke = 2, ...rest } = props;
 
-  let Icon: React.ComponentType | null = null;
+  let Icon: React.ComponentType<Pick<IconProps, "stroke">> | null = null;
 
   if (icon !== undefined) {
-    Icon = icon;
+    Icon = icon as React.ComponentType<Pick<IconProps, "stroke">>;
   } else if (name !== undefined) {
     const pascalName = `Icon${toPascalCase(name)}`;
 
     Icon = lazy(async () =>
       import("@tabler/icons-react").then((module) => {
         if (pascalName in module) {
-          return { default: module[pascalName] as React.ComponentType };
+          return {
+            default: module[pascalName] as React.ComponentType<
+              Pick<IconProps, "stroke">
+            >,
+          };
         }
 
         return { default: FallbackIcon };
@@ -39,7 +43,7 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
         ref={ref}
         {...rest}
       >
-        <Icon />
+        <Icon stroke={stroke} />
       </HeadlessIcon>
     </Suspense>
   );
