@@ -73,6 +73,7 @@ import static com.appsmith.server.constants.Url.ANALYTICS_URL;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.ASSET_URL;
 import static com.appsmith.server.constants.Url.CUSTOM_JS_LIB_URL;
+import static com.appsmith.server.constants.Url.MODULE_INSTANCE_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
 import static com.appsmith.server.constants.Url.PLUGIN_URL;
 import static com.appsmith.server.constants.Url.PRODUCT_ALERT;
@@ -271,6 +272,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resendEmailVerification"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, MODULE_INSTANCE_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, MODULE_INSTANCE_URL + "/entities"),
                         ServerWebExchangeMatchers.pathMatchers(
                                 HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ENVIRONMENT_URL + "/workspaces/**"),

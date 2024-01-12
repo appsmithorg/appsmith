@@ -39,5 +39,5 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
     Flux<ModuleInstance> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permissionOptional);
 
-    Mono<Long> getModuleInstanceCountByApplicationId(String applicationId, AclPermission permission);
+    Mono<Long> getModuleInstanceCountByApplicationId(String applicationId, Optional<AclPermission> permission);
 }
