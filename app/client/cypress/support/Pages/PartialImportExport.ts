@@ -32,7 +32,7 @@ export default class PartialImportExport {
         customJSLibsSection:
           "[data-testid='t--partialExportModal-customJSLibsSection']",
         widgetsSection: "[data-testid='t--partialExportModal-widgetsSection']",
-        exportButton: "[data-testid='t--partialExportModal-exportBtn']",
+        exportButton: "[data-testid='t-partial-export-entities-btn']",
       },
     },
   };
