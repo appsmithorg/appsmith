@@ -1,3 +1,10 @@
+"""
+This is a supervisor event listener, used to capture processes log and forward
+to container log. The `event_handler` function does this work.
+
+Originally taken from https://github.com/coderanger/supervisor-stdout/blob/973ba19967cdaf46d9c1634d1675fc65b9574f6e/supervisor_stdout.py
+"""
+
 import sys
 
 
