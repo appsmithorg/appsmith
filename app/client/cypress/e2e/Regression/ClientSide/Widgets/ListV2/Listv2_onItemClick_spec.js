@@ -25,15 +25,7 @@ function deleteAllWidgetsInContainer() {
   cy.wait(200);
 
   // Clear All Toast
-  cy.get(commonlocators.toastBody).each(($el) => {
-    cy.wrap($el).click();
-  });
-  cy.wait(1000);
-}
-
-function validateToastDoestExist() {
-  cy.wait(500);
-  cy.get(commonlocators.toastmsg, { timeout: 100 }).should("not.exist");
+  agHelper.WaitUntilAllToastsDisappear();
 }
 
 describe(
