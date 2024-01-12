@@ -1036,13 +1036,13 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
     TRIGGER_PARAMETERS_EMPTY(
-        400,
-        AppsmithErrorCode.TRIGGER_PARAMETERS_EMPTY.getCode(),
-        "Trigger parameters empty.",
-        AppsmithErrorAction.DEFAULT,
-        "Trigger parameters empty.",
-        ErrorType.INTERNAL_ERROR,
-        null),
+            400,
+            AppsmithErrorCode.TRIGGER_PARAMETERS_EMPTY.getCode(),
+            "Trigger parameters empty.",
+            AppsmithErrorAction.DEFAULT,
+            "Trigger parameters empty.",
+            ErrorType.INTERNAL_ERROR,
+            null),
     // EE-only errors below this line:
     ASSIGN_UNASSIGN_MISSING_PERMISSION(
             403,
