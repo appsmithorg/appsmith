@@ -7,6 +7,8 @@ import type { Action } from "entities/Action";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { QueryModuleInstanceEntity } from "@appsmith/entities/DataTree/types";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { JSCollection } from "entities/JSCollection";
 
 const DEFAULT_SAVING_STATUS = {
   isSaving: false,
@@ -36,6 +38,19 @@ export const getIsModuleInstanceNameSavingStatus = (
     state.ui.moduleInstancePane.nameSavingStatus[moduleInstanceId] ||
     DEFAULT_SAVING_STATUS
   );
+};
+
+export const getModuleInstancePublicEntity = (
+  state: AppState,
+  moduleInstanceId: string,
+  type: MODULE_TYPE | undefined,
+): Action | JSCollection | undefined => {
+  if (!!type && type === MODULE_TYPE.QUERY) {
+    return getModuleInstancePublicAction(state, moduleInstanceId);
+  } else if (!!type && type === MODULE_TYPE.JS) {
+    return getModuleInstancePublicJSCollectionData(state, moduleInstanceId)
+      ?.config;
+  }
 };
 
 export const getModuleInstancePublicAction = (

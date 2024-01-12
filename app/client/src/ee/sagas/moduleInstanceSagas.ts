@@ -32,6 +32,7 @@ import {
 import {
   getModuleInstanceById,
   getModuleInstancePublicAction,
+  getModuleInstancePublicEntity,
 } from "@appsmith/selectors/moduleInstanceSelectors";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
@@ -53,19 +54,21 @@ import {
 } from "@appsmith/constants/messages";
 import * as log from "loglevel";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type { JSCollection } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import { updateActionData } from "actions/pluginActionActions";
 import { fetchAllPackagesSaga } from "./packagesSagas";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export interface RefactorModuleInstanceNameProps {
   id: string;
   pageId: string;
   oldName: string;
   newName: string;
+  type: MODULE_TYPE | undefined;
 }
 
 function* createQueryModuleInstanceSaga(
@@ -383,12 +386,14 @@ export function* refactorModuleInstanceName({
   newName,
   oldName,
   pageId,
+  type,
 }: RefactorModuleInstanceNameProps) {
   const layoutId: string = yield select(getCurrentLayoutId);
   // call to refactor module instance
   const oldPublicQuery: Action | undefined = yield select(
-    getModuleInstancePublicAction,
+    getModuleInstancePublicEntity,
     id,
+    type,
   );
 
   const refactorResponse: ApiResponse =
@@ -425,9 +430,10 @@ export function* refactorModuleInstanceName({
       },
     });
     if (currentPageId === pageId) {
-      const publicQuery: Action | undefined = yield select(
-        getModuleInstancePublicAction,
+      const publicQuery: Action | JSAction | undefined = yield select(
+        getModuleInstancePublicEntity,
         id,
+        type,
       );
       yield put(
         updateActionData([
@@ -459,6 +465,7 @@ function* saveModuleInstanceNameSaga(
       pageId: moduleInstance?.contextId || "",
       oldName: moduleInstance?.name || "",
       newName: action.payload.name,
+      type: moduleInstance?.type || undefined,
     });
   } catch (error) {
     yield put({
