@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.dtos.Query;
-import com.external.plugins.dtos.TextEntityExtractionQuery;
 import com.external.plugins.services.AiFeatureService;
 
 import java.util.Arrays;
@@ -31,7 +30,7 @@ public class ImageEntityExtractionServiceImpl implements AiFeatureService {
         // labels string is comma-separated list of labels
         List<String> entitiesList =
                 Arrays.stream(entities.split(",")).map(String::trim).toList();
-        Query query = new TextEntityExtractionQuery();
+        Query query = new Query();
         query.setInput(input);
         query.setLabels(entitiesList);
         query.setInstructions(instructions);

@@ -21,6 +21,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -127,6 +128,9 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     DatasourceStorageService datasourceStorageService;
 
+    @SpyBean
+    ConfigService configService;
+
     @Autowired
     EnvironmentPermission environmentPermission;
 
@@ -153,7 +157,8 @@ class ActionExecutionSolutionCEImplTest {
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                environmentPermission);
+                environmentPermission,
+                configService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);

@@ -25,6 +25,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -38,6 +39,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -111,6 +113,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final AnalyticsService analyticsService;
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
+    private final ConfigService configService;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -136,7 +139,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            ConfigService configService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -154,6 +158,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
+        this.configService = configService;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -175,9 +180,13 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .flatMap(executeActionDTO -> newActionService
                         .findByBranchNameAndDefaultActionId(
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
-                        .flatMap(branchedAction -> {
+                        .zipWith(configService.getInstanceId())
+                        .flatMap(tuple -> {
+                            NewAction branchedAction = tuple.getT1();
+                            String instanceId = tuple.getT2();
                             executeActionDTO.setActionId(branchedAction.getId());
                             executeActionDTO.setWorkspaceId(branchedAction.getWorkspaceId());
+                            executeActionDTO.setInstanceId(instanceId);
 
                             boolean isEmbedded;
                             if (executeActionDTO.getViewMode()) {
