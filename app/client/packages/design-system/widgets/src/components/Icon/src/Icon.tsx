@@ -10,7 +10,8 @@ import { FallbackIcon } from "./FallbackIcon";
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   const { icon, name, size = "medium", ...rest } = props;
 
-  let Icon;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let Icon: any;
 
   switch (true) {
     case icon !== undefined:
@@ -32,8 +33,6 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
     default:
       Icon = FallbackIcon;
   }
-
-  Icon;
 
   return (
     <Suspense fallback={<svg {...rest} />}>
