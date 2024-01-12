@@ -80,9 +80,13 @@ function WidgetSelector({
   ) {
     const isSelected = selectedWidgetIds.includes(widget.widgetId);
     return (
-      <div style={{ marginLeft: level > 0 ? level + 8 : level }}>
+      <div
+        key={widget.widgetId}
+        style={{ marginLeft: level > 0 ? level + 8 : level }}
+      >
         <CheckboxContainer>
           <Checkbox
+            data-testid={`t--partial-export-modal-widget-select-${widget.widgetId}`}
             isDisabled={isParentSelected}
             isSelected={isSelected}
             onChange={(checked) => toggleNode(widget, checked)}
@@ -113,6 +117,7 @@ function WidgetSelector({
     <CheckboxWrapper data-testid="t--partialExportModal-widgetsSection">
       <Checkbox
         className="mb-4"
+        data-testid="t--partial-export-modal-widget-select-all"
         isSelected={selectAllchecked}
         onChange={handleSelectAllClick}
       >

@@ -984,3 +984,7 @@ export const isAPathDynamicBindingPath = (
     isPathADynamicBinding(entityConfig, propertyPath)
   );
 };
+
+export const isNotEntity = (entity: DataTreeEntity) => {
+  return !isAction(entity) && !isWidget(entity) && !isJSAction(entity);
+};
