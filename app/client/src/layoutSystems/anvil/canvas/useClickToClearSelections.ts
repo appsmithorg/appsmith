@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import type { AppState } from "@appsmith/reducers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
@@ -11,7 +12,7 @@ import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
  * @returns {Function} - Click event handler function.
  */
 export const useClickToClearSelections = (widgetId: string) => {
-  const { deselectAll, focusWidget } = useWidgetSelection();
+  const { focusWidget, goToWidgetAdd } = useWidgetSelection();
 
   // Function to show the property pane
   const showPropertyPane = useShowPropertyPane();
@@ -27,7 +28,7 @@ export const useClickToClearSelections = (widgetId: string) => {
   );
 
   // Click event handler function
-  return (e: React.MouseEvent<HTMLElement>) => {
+  return (e: MouseEvent<HTMLElement>) => {
     const isTargetMainCanvas = widgetId === MAIN_CONTAINER_WIDGET_ID;
 
     // Checking if there is no ongoing dragging, canvas resizing, or space distribution
@@ -35,7 +36,7 @@ export const useClickToClearSelections = (widgetId: string) => {
       // Check if the target is the MainCanvas
       if (isTargetMainCanvas) {
         // Deselect all widgets, focus on the clicked widget, show the property pane, and prevent the default click behavior
-        deselectAll();
+        goToWidgetAdd();
         focusWidget && focusWidget(widgetId);
         showPropertyPane && showPropertyPane();
         e.preventDefault();

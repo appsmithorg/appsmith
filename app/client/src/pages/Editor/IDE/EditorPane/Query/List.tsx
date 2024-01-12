@@ -42,7 +42,7 @@ const ListQuery = () => {
     <Flex
       flex="1"
       flexDirection="column"
-      gap="spaces-4"
+      gap="spaces-3"
       overflow="hidden"
       py="spaces-3"
     >

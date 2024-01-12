@@ -15,7 +15,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
   getAppMode,
   getAppSidebarPinned,
@@ -23,7 +22,6 @@ import {
   getSidebarWidth,
 } from "@appsmith/selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
-import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
@@ -54,7 +52,6 @@ import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 function WidgetsEditor() {
-  const { deselectAll, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
@@ -142,19 +139,10 @@ function WidgetsEditor() {
         !isAutoHeightWithLimitsChanging &&
         !isCanvasWrapperClicked
       ) {
-        focusWidget && focusWidget();
-        deselectAll && deselectAll();
-        dispatch(closePropertyPane());
-        dispatch(closeTableFilterPane());
         dispatch(setCanvasSelectionFromEditor(false));
       }
     },
-    [
-      allowDragToSelect,
-      focusWidget,
-      deselectAll,
-      isAutoHeightWithLimitsChanging,
-    ],
+    [allowDragToSelect, isAutoHeightWithLimitsChanging],
   );
 
   /**

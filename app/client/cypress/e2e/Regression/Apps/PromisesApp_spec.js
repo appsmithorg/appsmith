@@ -1,6 +1,5 @@
 import {
   agHelper,
-  entityExplorer,
   jsEditor,
   apiPage,
   dataManager,
@@ -64,28 +63,24 @@ describe(
       cy.wait("@getPage");
       // verify text in the text widget
 
-      agHelper.AssertText(
-        ".t--draggable-textwidget span",
-        "text",
+      agHelper.AssertContains(
         "Step 4: Value is Green and will default to undefined",
-        5,
       );
       // toggle off the switch
       cy.get(".t--switch-widget-active .bp3-control-indicator").click({
         force: true,
       });
-      agHelper.AssertContains("Switch widget has changed");
+      agHelper.ValidateToastMessage("Switch widget has changed");
 
       // select an option from select widget
       cy.get(".bp3-button.select-button").click({ force: true });
       cy.get(".menu-item-text").eq(2).click({ force: true });
       // verify text in the text widget
 
-      agHelper.AssertText(
-        ".t--draggable-textwidget span",
-        "text",
+      agHelper.AssertContains(
         "Step 4: Value is Red and will default to undefined",
-        5,
+        "be.visible",
+        ".t--draggable-textwidget span",
       );
       // move to page  2 on table widget
       agHelper.GetNClick(commonlocators.tableNextPage);
