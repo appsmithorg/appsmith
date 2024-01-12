@@ -21,6 +21,8 @@ describe(
     beforeEach(() => {
       // Cleanup the canvas before each test
       PageLeftPane.switchSegment(PagePaneSegment.UI);
+      PageLeftPane.switchToAddNew();
+      cy.focused().blur();
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
       agHelper.SetCanvasViewportWidth(808);
@@ -64,7 +66,13 @@ describe(
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.LIST_V2, 100, 30);
 
         // Delete existing widgets within list
-        EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
+
+        EditorNavigation.SelectEntityByName(
+          "Container1",
+          EntityType.Widget,
+          {},
+          ["List1"],
+        );
         agHelper.SelectAllWidgets();
         agHelper.PressDelete();
         agHelper.Sleep(2000);
