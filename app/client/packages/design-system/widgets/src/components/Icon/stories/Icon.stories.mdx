@@ -1,4 +1,4 @@
-import { Icon } from "@design-system/widgets";
+import { Icon, ICONS } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
 import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
@@ -46,4 +46,23 @@ You can also pass a custom icon to the Icon component.
 
 <Story name="Custom Icon">
   <Icon icon={EmotionHappyLineIcon} />
+</Story>
+
+## All Icons
+
+<Story name="All Icons">
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(16px, 1fr))",
+      gap: "10px",
+      width: "-webkit-fill-available",
+    }}
+  >
+    {ICONS.map((icon) => (
+      <div key={icon} style={{ height: 24, width: 24 }}>
+        <Icon name={icon} />
+      </div>
+    ))}
+  </div>
 </Story>
