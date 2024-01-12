@@ -84,6 +84,12 @@ public class CustomApprovalRequestRepositoryImpl extends BaseAppsmithRepositoryI
                 criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.resolvedBy))
                         .in(approvalRequestStatus));
             }
+
+            if (filters.containsKey("workflowId")) {
+                List<String> approvalRequestsForWorkflowId = filters.get("workflowId");
+                criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.workflowId))
+                        .in(approvalRequestsForWorkflowId));
+            }
         }
         return criteriaList;
     }

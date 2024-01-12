@@ -2743,7 +2743,9 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        actionExecutionSolution.executeAction(executeActionDTO, environmentId).block();
+        actionExecutionSolution
+                .executeAction(executeActionDTO, environmentId, null)
+                .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(
                 null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
@@ -2885,7 +2887,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setViewMode(true);
 
         ActionExecutionResult actionExecutionResult = actionExecutionSolution
-                .executeAction(executeActionDTO, environmentId)
+                .executeAction(executeActionDTO, environmentId, null)
                 .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(
