@@ -18,6 +18,7 @@ describe(
     before(() => {
       // Import an application
       homePage.NavigateToHome();
+      agHelper.RefreshPage();
       homePage.ImportApp(
         "appNavigationTestingAppWithLongPageNamesAndTitle.json",
       );

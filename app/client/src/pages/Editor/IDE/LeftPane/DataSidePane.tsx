@@ -14,7 +14,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
-import { getSelectedDatasourceId } from "../../../../navigation/FocusSelectors";
+import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
 import { countBy, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
@@ -31,7 +31,7 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { EmptyState } from "../EditorPane/EmptyState";
+import { EmptyState } from "../EditorPane/components/EmptyState";
 
 const PaneContainer = styled.div`
   width: 300px;

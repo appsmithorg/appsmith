@@ -108,23 +108,45 @@ export async function installLibrary(
 
     let module = null;
     try {
+      /**
+       * Try to import the library using importScripts
+       * This works for UMD modules
+       * If this fails, we try to import the library using dynamic import
+       */
       self.importScripts(url);
+
       // Find keys add that were installed to the global scope.
       const keysAfterInstallation = Object.keys(self);
       accessors.push(
         ...difference(keysAfterInstallation, envKeysBeforeInstallation),
       );
 
-      // Check the list of installed library to see if their values have changed.
-      // This is to check if the newly installed library overwrites an already existing
+      /**
+       * Check the list of installed library to see if their values have changed.
+       * This is to check if the newly installed library overwrites an already existing one
+       * For eg. let's say lodash v1 and v2 both have the same accessor `_`.
+       * If lodash v1 is installed first, `_` will be added to the global scope.
+       * This value is stored in libStore. ie libStore['_'] = lodash v1
+       * Now when lodash v2 is installed, `_` will be added to the global scope again.
+       * We check if the value of `_` has changed to detect this. ie . libStore['_'] !== lodash v2
+       * If it has changed, we add the new value to the global scope with a unique name.
+       * */
       accessors.push(
         ...Object.keys(libStore).filter((k) => {
           return libStore[k] !== self[k];
         }),
       );
 
+      /**
+       * Certain libraries are added to the global scope with { configurable: false }
+       * These libraries cannot be removed from the global scope via delete operation so we set them to undefined them during uninstall request.
+       * These library accessors are removed from takenAccessors list.
+       * So they will remain in the global scope even after uninstallation. self[accessor] = undefined.
+       * Any attempt to reinstall the same library will overwrite the library with undefined and we need to detect these accessors.
+       */
       accessors.push(...unsetLibraryKeys.filter((k) => self[k] !== undefined));
 
+      // Generate unique names for accessors that are already taken.
       for (let i = 0; i < accessors.length; i++) {
         if (
           takenNamesMap.hasOwnProperty(accessors[i]) ||
@@ -142,7 +164,10 @@ export async function installLibrary(
     } catch (e) {
       log.debug(e, `importScripts failed for ${url}`);
       try {
+        // If importScripts fails, try to import the library using dynamic import
         module = await import(/* webpackIgnore: true */ url);
+
+        // If the module is not an object, it is not a valid ESM library
         if (module && typeof module === "object") {
           const uniqAccessor = generateUniqueAccessor(
             url,
@@ -163,6 +188,7 @@ export async function installLibrary(
       throw new Error("Unable to determine a unique accessor");
     }
 
+    // Name of the library is the last accessor. This is totally random and needs fixing.
     const name = accessors[accessors.length - 1];
 
     defs["!name"] = `LIB/${name}`;
@@ -180,7 +206,8 @@ export async function installLibrary(
       );
     }
 
-    // All the existing library and the newly installed one is added to global.
+    // Restore the libraries from libStore to the global scope.
+    // This is done to ensure that the libraries are not overwritten by the newly installed library.
     Object.keys(libStore).forEach((k) => (self[k] = libStore[k]));
 
     //Reserve accessor names.
@@ -246,7 +273,8 @@ export async function loadLibraries(
           ...Object.keys(libStore).filter((k) => libStore[k] !== self[k]),
         );
 
-        /** Sort the accessor list from backend and installed accessor list using the same rule to apply all modifications.
+        /**
+         * Sort the accessor list from backend and installed accessor list using the same rule to apply all modifications.
          * This is required only for UMD builds, since we always generate unique names for ESM.
          */
         accessors.sort();
@@ -303,8 +331,12 @@ function generateUniqueAccessor(
   try {
     // Checks to see if a URL was passed
     const urlObject = new URL(urlOrName);
-    // URL pattern for ESM modules from jsDelivr - https://cdn.jsdelivr.net/npm/stripe@13.3.0/+esm
-    // Assuming the file name is the last part of the path
+    /**
+     * URL pattern for ESM modules from jsDelivr - https://cdn.jsdelivr.net/npm/stripe@13.3.0/+esm
+     * Assuming the file name is the last part of the path
+     * TODO: Find a better way to extract the file name from the URL
+     * TODO: Handle the case where the URL is from a different CDN like unpkg, cdnjs etc.
+     */
     const urlPathParts = urlObject.pathname.split("/");
     name = urlPathParts.pop() as string;
     name = name?.includes("+esm") ? (urlPathParts.pop() as string) : name;
@@ -319,6 +351,11 @@ function generateUniqueAccessor(
     return validVar;
   }
   let index = 0;
+  /**
+   * If the accessor is already taken, generate a unique name by appending an index to the accessor.
+   * The index is incremented until a unique name is found.
+   * 100 is a very large number and this loop should never run more than a few times.
+   */
   while (index++ < 100) {
     const name = `${validVar}_${index}`;
     if (!takenAccessors.includes(name) && !takenNamesMap.hasOwnProperty(name)) {

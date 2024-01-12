@@ -28,11 +28,13 @@ import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { startSpansInAnEvaluation } from "UITelemetry/generateWebWorkerTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 export let canvasWidgetsMeta: Record<string, any>;
+export let metaWidgetsCache: MetaWidgetsReduxState;
 export let canvasWidgets: CanvasWidgetsReduxState;
 
 export default function (request: EvalWorkerSyncRequest) {
@@ -68,6 +70,7 @@ export default function (request: EvalWorkerSyncRequest) {
   configTree = __unevalTree__.configTree as ConfigTree;
   canvasWidgets = widgets;
   canvasWidgetsMeta = widgetsMeta;
+  metaWidgetsCache = metaWidgets;
 
   try {
     if (!dataTreeEvaluator) {

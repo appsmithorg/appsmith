@@ -219,6 +219,8 @@ jobs:
         run: |
           npm install -g yarn
           yarn install --immutable
+          sudo apt update -y
+          sudo apt install -y postgresql-client
 
       # Type checking before starting the build
       - name: Run type check
