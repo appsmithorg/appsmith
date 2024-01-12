@@ -28,7 +28,7 @@ const tabsStyle = {
 const MinimalSegment = () => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
-  const actionsCount = useSelector((state) => getActionsCount(state, pageId));
+  const actionsCount = useSelector(getActionsCount(pageId));
   const jsActionsCount = useSelector((state) =>
     getJsActionsCount(state, pageId),
   );
