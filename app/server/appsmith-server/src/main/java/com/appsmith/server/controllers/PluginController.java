@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.PluginDTO;
 import com.appsmith.server.dtos.RemotePluginWorkspaceDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.plugins.solutions.PluginTriggerSolution;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,8 +26,8 @@ import java.util.List;
 @RequestMapping(Url.PLUGIN_URL)
 public class PluginController extends PluginControllerCE {
 
-    public PluginController(PluginService service) {
-        super(service);
+    public PluginController(PluginService service, PluginTriggerSolution pluginTriggerSolution) {
+        super(service, pluginTriggerSolution);
     }
 
     /**
