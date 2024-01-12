@@ -59,8 +59,8 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     /** @deprecated to rely only on `deletedAt` for all domain models.
      * This field only exists here because its removal will cause a huge diff on all entities in git-connected
      * applications. So, instead, we keep it, deprecated, transient (no read/write to DB), query-transient (no
-     * corresponding field in Q* class), no getter/setter methods and only use it for the git sync implementation.
-     * For all practical purposes, this field doesn't exist.
+     * corresponding field in Q* class), no getter/setter methods and only use it for reflection-powered services, like
+     * the git sync implementation. For all other practical purposes, this field doesn't exist.
      */
     @Deprecated(forRemoval = true)
     @JsonView(Views.Internal.class)
