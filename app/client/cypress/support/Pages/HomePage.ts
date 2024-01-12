@@ -22,6 +22,9 @@ export class HomePage {
   private _renameWorkspaceInput = ".t--workspace-rename-input input";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
+  private _workspaceNoApps = (workspaceName: string) =>
+    this._workspaceList(workspaceName) +
+    ":contains('There are no apps in this workspace.')";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ") .ads-v2-avatar";
   _shareWorkspace = (workspaceName: string) =>
@@ -153,14 +156,11 @@ export class HomePage {
     });
 
     workspaceNewName &&
-      cy
-        .get(this._workspaceNameText)
-        .find(this.adsV2Text)
-        .then(($ele) => {
-          oldName = $ele.text();
-          cy.log("oldName is : " + oldName);
-          this.RenameWorkspace(oldName, workspaceNewName);
-        });
+      cy.get("@workspaceName").then(($wsName: any) => {
+        oldName = $wsName;
+        cy.log("oldName is : " + $wsName);
+        this.RenameWorkspace(oldName, workspaceNewName);
+      });
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
@@ -178,10 +178,14 @@ export class HomePage {
     this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
-    this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
-    this.agHelper.Sleep(2000); //for new workspace to settle for CI
+    this.agHelper.AssertElementVisibility(
+      this._workspaceList(newWorkspaceName),
+    );
+    this.agHelper.AssertElementVisibility(
+      this._workspaceNoApps(newWorkspaceName),
+    );
   }
 
   //Maps to CheckShareIcon in command.js
@@ -249,15 +253,15 @@ export class HomePage {
   }
 
   public NavigateToHome() {
-    this.agHelper.Sleep(2000); //to avoid CI flakyness
+    this.agHelper.AssertElementVisibility(this._homeIcon);
     this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
     if (!Cypress.env("AIRGAPPED")) {
       this.assertHelper.AssertNetworkStatus("@getAllWorkspaces");
     } else {
       this.agHelper.Sleep(2000);
     }
-    //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
-    this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
+    this.agHelper.WaitUntilEleAppear(this._homeAppsmithImage);
+    this.agHelper.AssertElementVisibility(this._newWorkSpaceLink);
   }
 
   public AssertApplicationCreated() {
@@ -281,7 +285,6 @@ export class HomePage {
       );
       this.onboarding.skipSignposting();
     }
-    this.agHelper.Sleep(2000); //for getWorkspace to go thru!
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
@@ -298,7 +301,6 @@ export class HomePage {
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
-    //this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
   }
 
   //Maps to AppSetupForRename in command.js
@@ -345,7 +347,7 @@ export class HomePage {
     if (CURRENT_REPO === REPO.CE) {
       this.assertHelper.AssertNetworkStatus("@postLogout");
     }
-    return this.agHelper.Sleep(); //for logout to complete!
+    this.agHelper.AssertURL("/login");
   }
 
   public GotoProfileMenu() {

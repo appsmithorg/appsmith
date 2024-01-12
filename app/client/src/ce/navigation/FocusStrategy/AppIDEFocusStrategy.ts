@@ -1,6 +1,7 @@
 import { select, take } from "redux-saga/effects";
 import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
 import type { AppsmithLocationState } from "utils/history";
+import { NavigationMethod } from "utils/history";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
@@ -10,7 +11,6 @@ import {
 } from "navigation/FocusEntity";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { NavigationMethod } from "utils/history";
 import {
   datasourcesEditorURL,
   jsCollectionListURL,
@@ -38,6 +38,17 @@ function shouldSetState(
   const currFocusEntityInfo = identifyEntityFromPath(currPath);
   const isSamePage = !isPageChange(prevPath, currPath);
 
+  // While switching from Widget Add state to a widget, we should
+  // not restore any last selected widget. We are breaking this because
+  // to break a user selection loop whenever trying to close a widget
+  if (
+    prevFocusEntityInfo.entity === FocusEntity.CANVAS &&
+    currFocusEntityInfo.entity === FocusEntity.WIDGET_LIST &&
+    isSamePage &&
+    state?.invokedBy !== NavigationMethod.ContextSwitching
+  ) {
+    return false;
+  }
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(

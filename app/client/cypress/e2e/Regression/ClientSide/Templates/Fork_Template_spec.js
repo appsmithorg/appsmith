@@ -18,6 +18,8 @@ describe(
 
     it("1. Fork a template to an workspace", () => {
       _.agHelper.GetNClick(templateLocators.templateCard);
+      _.agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
+
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
       _.agHelper.WaitUntilEleAppear(commonlocators.canvas);
     });

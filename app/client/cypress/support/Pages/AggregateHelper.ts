@@ -275,7 +275,7 @@ export class AggregateHelper {
   public GetElement(
     selector: ElementType,
     exists: "exist" | "not.exist" | "noVerify" = "exist",
-    timeout = Cypress.config("defaultCommandTimeout"),
+    timeout = Cypress.config("pageLoadTimeout"),
   ) {
     let locator;
     if (typeof selector == "string") {
@@ -485,7 +485,10 @@ export class AggregateHelper {
 
   public WaitUntilEleDisappear(selector: string) {
     cy.waitUntil(() => this.GetElement(selector, "not.exist"), {
-      errorMsg: "Element did not disappear even after 10 seconds",
+      errorMsg:
+        "Element did not disappear after " +
+        Cypress.config().pageLoadTimeout +
+        "seconds",
       timeout: Cypress.config().pageLoadTimeout,
       interval: 1000,
     });
@@ -497,8 +500,11 @@ export class AggregateHelper {
         this.GetElement(this.locator._toastContainer).waitUntil(
           ($ele) => cy.wrap($ele).should("have.length", 0),
           {
-            errorMsg: "Toasts did not disappear even after 10 seconds",
-            timeout: 10000,
+            errorMsg:
+              "Toasts did not disappear even after " +
+              Cypress.config().defaultCommandTimeout +
+              " seconds",
+            timeout: Cypress.config().defaultCommandTimeout,
             interval: 1000,
           },
         );
@@ -507,16 +513,18 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    this.GetElement(selector).waitUntil(
-      ($ele) =>
-        cy
-          .wrap($ele)
+    cy.waitUntil(
+      () =>
+        this.GetElement(selector)
           .should("exist")
           .should("be.visible")
           .its("length")
           .should("be.gte", 1),
       {
-        errorMsg: "Element did not appear even after 10 seconds",
+        errorMsg:
+          "Element did not appear even after " +
+          Cypress.config().pageLoadTimeout +
+          " seconds",
         timeout: Cypress.config().pageLoadTimeout,
         interval: 2000,
       },
@@ -914,14 +922,14 @@ export class AggregateHelper {
     let index: number;
     let shouldFocus = true;
     let parseSpecialCharSeq = false;
-    let delay = 5;
+    let delay = 10;
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
     } else {
       index = indexOrOptions.index || 0;
       parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
-      delay = indexOrOptions.delay || 5;
+      delay = indexOrOptions.delay || 10;
       shouldFocus =
         indexOrOptions.shouldFocus !== undefined
           ? indexOrOptions.shouldFocus
@@ -1510,7 +1518,7 @@ export class AggregateHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = Cypress.config("defaultCommandTimeout"),
+    timeout = Cypress.config("pageLoadTimeout"),
   ) {
     return this.GetElement(selector, "exist", timeout)
       .eq(index)
@@ -1525,10 +1533,10 @@ export class AggregateHelper {
     ) as Cypress.Chainable<boolean>;
   }
 
-  public CheckForErrorToast(error: string) {
+  public FailIfErrorToast(error: string) {
     cy.get("body").then(($ele) => {
-      if ($ele.find(this.locator._toastMsg).length) {
-        if ($ele.find(this.locator._specificToast(error)).length) {
+      if ($ele.find(this.locator._toastMsg).length > 0) {
+        if ($ele.find(this.locator._specificToast(error)).length > 0) {
           throw new Error("Error Toast from Application:" + error);
         }
       }
@@ -1607,8 +1615,11 @@ export class AggregateHelper {
   }
 
   public AssertURL(url: string) {
-    cy.url().should("include", url);
-    this.Sleep(); //settle time for new url!
+    cy.url({ timeout: Cypress.config().pageLoadTimeout }).should(
+      "include",
+      url,
+    );
+    this.assertHelper.AssertDocumentReady();
   }
 
   public ScrollTo(
