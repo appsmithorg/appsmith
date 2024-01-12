@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
+import { START_SWITCH_ENVIRONMENT } from "@appsmith/constants/messages";
 
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   const appId = useSelector(getCurrentApplicationId) || "";
@@ -22,11 +23,14 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   return (
     <Container>
       <Wrapper>
-        <SwitchEnvironment
-          editorId={appId}
-          onChangeEnv={onChangeEnv}
-          viewMode={viewMode}
-        />
+        {!viewMode && (
+          <SwitchEnvironment
+            editorId={appId}
+            onChangeEnv={onChangeEnv}
+            startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
+            viewMode={viewMode}
+          />
+        )}
         {!viewMode && <QuickGitActions />}
       </Wrapper>
       {!viewMode && (

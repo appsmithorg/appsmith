@@ -11,7 +11,9 @@ import {
   WIDGET_NAME_ICON_PADDING,
   WIDGET_NAME_TEXT_COLOR,
   WIDGET_NAME_VERTICAL_PADDING,
+  WIDGET_OUTLINE_OFFSET,
 } from "./WidgetNameConstants";
+import { Colors } from "constants/Colors";
 
 /**
  * used to get the Konva Group Element that is a group of all the elements
@@ -82,6 +84,16 @@ export const getWidgetNameComponent = (
     widgetNameData: widgetNameData,
   };
 
+  //rectangle border encompassing the widget name
+  const rectBorderEl = new Konva.Rect({
+    cornerRadius: [4, 4, 0, 0],
+    fill: Colors.GREY_1,
+    height: WIDGET_NAME_HEIGHT,
+    width: componentWidth + WIDGET_OUTLINE_OFFSET * 2.25,
+    x: -WIDGET_OUTLINE_OFFSET,
+    y: -WIDGET_OUTLINE_OFFSET,
+  });
+
   //rectangle encompassing the widget name
   const rectEl = new Konva.Rect({
     cornerRadius: [4, 4, 0, 0],
@@ -110,6 +122,7 @@ export const getWidgetNameComponent = (
     y: top,
   });
 
+  groupEl.add(rectBorderEl);
   groupEl.add(rectEl);
   groupEl.add(textEl);
   showIcon && groupEl.add(iconEl);
@@ -145,7 +158,7 @@ const getPositionsForBoundary = (
   const canvasLeftOffset = parentLeft - canvasLeft;
   const canvasTopOffset = parentTop - canvasTop;
 
-  const left: number = position.left + canvasLeftOffset;
+  const left: number = position.left + canvasLeftOffset + WIDGET_OUTLINE_OFFSET;
   const top: number = position.top + canvasTopOffset - scrollTop;
 
   return { left, top, canvasLeftOffset, canvasTopOffset };

@@ -49,6 +49,7 @@ interface Props {
   viewMode?: boolean;
   editorId: string;
   onChangeEnv?: () => void;
+  startSwitchEnvMessage: (...strArgs: any[]) => string;
 }
 
 interface EnvironmentType {

@@ -149,7 +149,8 @@ export function useActionGroup<T>(
       onKeyDown,
     },
     isMeasuring,
-    visibleItems,
+    visibleItems:
+      orientation === "vertical" ? state.collection.size : visibleItems,
   };
 }
 

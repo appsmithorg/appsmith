@@ -12,23 +12,30 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import { changeQuery } from "actions/queryPaneActions";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
   getAction,
+  getIsActionConverting,
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { QueryEditorContextProvider } from "./QueryEditorContext";
 import type { QueryEditorRouteParams } from "constants/routes";
 import {
+  getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import Disabler from "pages/common/Disabler";
+import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -45,6 +52,10 @@ function QueryEditor(props: QueryEditorProps) {
   const settingsConfig = useSelector((state) =>
     getPluginSettingConfigs(state, pluginId),
   );
+  const pagePermissions = useSelector(getPagePermissions);
+  const isConverting = useSelector((state) =>
+    getIsActionConverting(state, actionId || ""),
+  );
 
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
@@ -56,18 +67,38 @@ function QueryEditor(props: QueryEditorProps) {
     action?.userPermissions,
   );
 
+  const isCreatePermitted = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
   const moreActionsMenu = useMemo(
     () => (
-      <MoreActionsMenu
-        className="t--more-action-menu"
-        id={action ? action.id : ""}
-        isChangePermitted={isChangePermitted}
-        isDeletePermitted={isDeletePermitted}
-        name={action ? action.name : ""}
-        pageId={pageId}
-      />
+      <>
+        <MoreActionsMenu
+          className="t--more-action-menu"
+          id={action?.id || ""}
+          isChangePermitted={isChangePermitted}
+          isDeletePermitted={isDeletePermitted}
+          name={action?.name || ""}
+          pageId={pageId}
+        />
+        <ConvertToModuleInstanceCTA
+          canCreateModuleInstance={isCreatePermitted}
+          canDeleteEntity={isDeletePermitted}
+          entityId={action?.id || ""}
+          moduleType={MODULE_TYPE.QUERY}
+        />
+      </>
     ),
-    [action?.id, action?.name, isChangePermitted, isDeletePermitted, pageId],
+    [
+      action?.id,
+      action?.name,
+      isChangePermitted,
+      isDeletePermitted,
+      pageId,
+      isCreatePermitted,
+    ],
   );
 
   const actionRightPaneBackLink = useMemo(() => {
@@ -119,20 +150,29 @@ function QueryEditor(props: QueryEditorProps) {
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
+  const notification = useMemo(() => {
+    if (!isConverting) return null;
+
+    return <ConvertEntityNotification name={action?.name || ""} withPadding />;
+  }, [action?.name, isConverting]);
+
   return (
     <QueryEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
       closeEditorLink={isPagesPaneEnabled ? null : closeEditorLink}
       moreActionsMenu={moreActionsMenu}
+      notification={notification}
       onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={onEntityNotFoundBackClick}
     >
-      <Editor
-        {...props}
-        isEditorInitialized={isEditorInitialized}
-        settingsConfig={settingsConfig}
-      />
+      <Disabler isDisabled={isConverting}>
+        <Editor
+          {...props}
+          isEditorInitialized={isEditorInitialized}
+          settingsConfig={settingsConfig}
+        />
+      </Disabler>
     </QueryEditorContextProvider>
   );
 }

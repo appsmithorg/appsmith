@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
 import {
+  getIsActionConverting,
   getPageList,
   getPluginSettingConfigs,
   getPlugins,
@@ -12,10 +13,14 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getIsEditorInitialized,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 import type { APIEditorRouteParams } from "constants/routes";
 import {
+  getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -28,6 +33,10 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import Disabler from "pages/common/Disabler";
+import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -50,7 +59,11 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const settingsConfig = useSelector((state) =>
     getPluginSettingConfigs(state, pluginId),
   );
+  const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isConverting = useSelector((state) =>
+    getIsActionConverting(state, action?.id || ""),
+  );
 
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
@@ -60,19 +73,38 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     isFeatureEnabled,
     action?.userPermissions,
   );
+  const isCreatePermitted = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const moreActionsMenu = useMemo(
     () => (
-      <MoreActionsMenu
-        className="t--more-action-menu"
-        id={action ? action.id : ""}
-        isChangePermitted={isChangePermitted}
-        isDeletePermitted={isDeletePermitted}
-        name={action ? action.name : ""}
-        pageId={pageId}
-      />
+      <>
+        <MoreActionsMenu
+          className="t--more-action-menu"
+          id={action?.id || ""}
+          isChangePermitted={isChangePermitted}
+          isDeletePermitted={isDeletePermitted}
+          name={action?.name || ""}
+          pageId={pageId}
+        />
+        <ConvertToModuleInstanceCTA
+          canCreateModuleInstance={isCreatePermitted}
+          canDeleteEntity={isDeletePermitted}
+          entityId={action?.id || ""}
+          moduleType={MODULE_TYPE.QUERY}
+        />
+      </>
     ),
-    [action?.id, action?.name, isChangePermitted, isDeletePermitted, pageId],
+    [
+      action?.id,
+      action?.name,
+      isChangePermitted,
+      isDeletePermitted,
+      pageId,
+      isCreatePermitted,
+    ],
   );
 
   const handleRunClick = useCallback(
@@ -116,6 +148,12 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
+  const notification = useMemo(() => {
+    if (!isConverting) return null;
+
+    return <ConvertEntityNotification name={action?.name || ""} />;
+  }, [action?.name, isConverting]);
+
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
@@ -123,9 +161,12 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
+      notification={notification}
       settingsConfig={settingsConfig}
     >
-      <Editor {...props} isEditorInitialized={isEditorInitialized} />
+      <Disabler isDisabled={isConverting}>
+        <Editor {...props} isEditorInitialized={isEditorInitialized} />
+      </Disabler>
     </ApiEditorContextProvider>
   );
 }

@@ -60,17 +60,19 @@ class WDSButtonGroupWidget extends BaseWidget<
   }
 
   onButtonClick = (
-    onClick: string,
-    callback: (result: ExecutionResult) => void,
+    onClick: string | undefined,
+    callback?: (result: ExecutionResult) => void,
   ) => {
-    super.executeAction({
-      triggerPropertyName: "onClick",
-      dynamicString: onClick,
-      event: {
-        type: EventType.ON_CLICK,
-        callback: callback,
-      },
-    });
+    if (onClick) {
+      super.executeAction({
+        triggerPropertyName: "onClick",
+        dynamicString: onClick,
+        event: {
+          type: EventType.ON_CLICK,
+          callback: callback,
+        },
+      });
+    }
 
     return;
   };
@@ -80,6 +82,7 @@ class WDSButtonGroupWidget extends BaseWidget<
       <ButtonGroupComponent
         buttonsList={this.props.buttonsList}
         color={this.props.buttonColor}
+        density={this.props.density}
         key={this.props.widgetId}
         onButtonClick={this.onButtonClick}
         orientation={this.props.orientation}

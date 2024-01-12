@@ -73,8 +73,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions);
-
     Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);

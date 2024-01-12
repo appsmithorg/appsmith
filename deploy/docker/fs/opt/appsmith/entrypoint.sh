@@ -252,14 +252,6 @@ use-mongodb-key() {
   chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
 
-# Keep Let's Encrypt directory persistent
-mount_letsencrypt_directory() {
-  echo "Mounting Let's encrypt directory"
-  rm -rf /etc/letsencrypt
-  mkdir -p /appsmith-stacks/{letsencrypt,ssl}
-  ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
-}
-
 is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
@@ -476,8 +468,6 @@ fi
 check_setup_custom_ca_certificates
 setup-custom-ca-certificates
 
-mount_letsencrypt_directory
-
 check_redis_compatible_page_size
 
 safe_init_postgres
@@ -485,7 +475,7 @@ safe_init_postgres
 configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
-mkdir -p /appsmith-stacks/data/{backup,restore}
+mkdir -p /appsmith-stacks/data/{backup,restore} /appsmith-stacks/ssl
 
 # Create sub-directory to store services log in the container mounting folder
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
