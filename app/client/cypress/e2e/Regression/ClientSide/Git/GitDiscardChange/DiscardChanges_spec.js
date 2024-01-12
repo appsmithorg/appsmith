@@ -150,6 +150,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     //verify JSObject is recovered
     PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.assertPresence(jsObject);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(".bp3-input").should("have.value", "Success");
   });
 
