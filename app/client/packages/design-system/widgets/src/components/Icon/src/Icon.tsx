@@ -4,8 +4,8 @@ import { Icon as HeadlessIcon } from "@design-system/headless";
 
 import styles from "./styles.module.css";
 import type { IconProps } from "./types";
-import { kebabCase, upperFirst } from "lodash";
 import { FallbackIcon } from "./FallbackIcon";
+import { toPascalCase } from "../../../utils";
 
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   const { icon, name, size = "medium", ...rest } = props;
@@ -18,7 +18,7 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
       Icon = icon;
       break;
     case name !== undefined:
-      const pascalName = `Icon${upperFirst(kebabCase(name))}`;
+      const pascalName = `Icon${toPascalCase(name)}`;
 
       Icon = lazy(async () =>
         import("@tabler/icons-react").then((module) => {
