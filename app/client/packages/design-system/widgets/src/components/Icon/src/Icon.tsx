@@ -17,8 +17,8 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
     case icon !== undefined:
       Icon = icon;
       break;
-    case name !== undefined:
-      const pascalName = `Icon${toPascalCase(name)}`;
+    case Boolean(true):
+      const pascalName = `Icon${toPascalCase(name ?? "")}`;
 
       Icon = lazy(async () =>
         import("@tabler/icons-react").then((module) => {
