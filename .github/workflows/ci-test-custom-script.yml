@@ -307,7 +307,7 @@ jobs:
         run: |
           eventCommit=$(echo ${{env.EVENT_COMMITS}} | sed "s/'//g")
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            echo "COMMIT_INFO_MESSAGE=Scheduled run for Airgap" >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=Scheduled daily run" >> $GITHUB_ENV
           elif [[ ${{ github.event_name }} == 'workflow_dispatch' && ${{ inputs.airgap-enabled }} == 'true' ]]; then
             echo "COMMIT_INFO_MESSAGE=Workflow run for Airgap" >> $GITHUB_ENV
           elif [[ ${{ inputs.pr }} -ne 0 ]]; then
