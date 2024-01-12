@@ -1,7 +1,6 @@
 package com.appsmith.server.fork.internal;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
@@ -107,7 +106,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
     protected Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
         Mono<Boolean> forkingEnabledCheckForModuleInstanceMono = applicationMono.flatMap(application -> {
             return moduleInstanceMetadataService
-                    .getModuleInstanceCountByApplicationId(application.getId(), AclPermission.READ_MODULE_INSTANCES)
+                    .getModuleInstanceCountByApplicationId(application.getId())
                     .flatMap(moduleInstanceCount -> {
                         if (moduleInstanceCount > 0) {
                             return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));

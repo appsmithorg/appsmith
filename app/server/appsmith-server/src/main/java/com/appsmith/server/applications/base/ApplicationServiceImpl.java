@@ -1320,8 +1320,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
         if (forkStatusInDB != forkStatusInReq) {
             if (Boolean.TRUE.equals(applicationReq.getForkingEnabled())) {
                 return moduleInstanceMetadataService
-                        .getModuleInstanceCountByApplicationId(
-                                branchedApplication.getId(), AclPermission.READ_MODULE_INSTANCES)
+                        .getModuleInstanceCountByApplicationId(branchedApplication.getId())
                         .flatMap(moduleInstanceCount -> {
                             if (moduleInstanceCount > 0) {
                                 return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
