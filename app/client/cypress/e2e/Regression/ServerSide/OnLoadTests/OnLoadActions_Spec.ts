@@ -1,6 +1,7 @@
 import {
   agHelper,
   apiPage,
+  assertHelper,
   deployMode,
   entityExplorer,
   entityItems,
@@ -137,7 +138,9 @@ describe(
 
       deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
       agHelper.Sleep(5000); //for all api's to ccomplete call!
-      cy.wait("@getConsolidatedData").then(($response) => {
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
+
+      cy.get("@getConsolidatedData").then(($response:any) => {
         const respBody = JSON.stringify($response.response?.body);
         const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
         const _randomFlora =
@@ -196,8 +199,9 @@ describe(
       }); // verifies Bug 10055
 
       deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
-      agHelper.Sleep(5000); //for all api's to ccomplete call!
-      cy.wait("@getConsolidatedData").then(($response) => {
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
+
+      cy.get("@getConsolidatedData").then(($response:any ) => {
         const respBody = JSON.stringify($response.response?.body);
         const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
 
