@@ -133,8 +133,6 @@ describe("Slug URLs", () => {
 
   it("4. Checks redirect url", () => {
     cy.url().then((url) => {
-      // wait for page to settle down
-      cy.wait("@getConsolidatedData")
       homePage.Signout(true);
       agHelper.VisitNAssert(url + "?embed=true&a=b");
       
