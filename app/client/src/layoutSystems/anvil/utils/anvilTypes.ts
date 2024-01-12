@@ -4,7 +4,6 @@ import type {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { DropZone } from "layoutSystems/common/utils/types";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
@@ -108,7 +107,6 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
 }
 
 export interface HighlightRenderInfo {
-  dropZone: DropZone; // size of the drop zone of this highlight.
   height: number; // height of the highlight.
   isVertical: boolean; // Whether the highlight is vertical or horizontal.
   width: number; // width of the highlight.
@@ -117,6 +115,7 @@ export interface HighlightRenderInfo {
 }
 
 export interface HighlightDropInfo {
+  layoutId: string;
   alignment: FlexLayerAlignment; // Alignment of the child in the layout.
   canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
   layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
