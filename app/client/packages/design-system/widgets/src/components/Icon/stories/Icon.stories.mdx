@@ -66,3 +66,14 @@ You can also pass a custom icon to the Icon component.
     ))}
   </div>
 </Story>
+
+## Filled
+
+For some icons, you can also pass a `filled` prop to the Icon component to get a filled variant. If there is no filled variant, it will just display the normal icon.
+
+<Story name="Filled Variant">
+  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+    <Icon name="stars" />
+    <Icon name="stars" filled />
+  </div>
+</Story>

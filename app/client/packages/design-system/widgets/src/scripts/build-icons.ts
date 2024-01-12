@@ -9,11 +9,12 @@ let content = `export const ICONS = [`;
 
 Object.keys(ICONS)
   .filter((name) => name !== "createReactComponent")
+  .filter((name) => !name.endsWith("Filled"))
   .map((name) => {
     content += `"${kebabCase(name).replace("icon-", "")}",`;
   });
 
-content += "] as const";
+content += "] as const;";
 
 prettier
   .format(content, {

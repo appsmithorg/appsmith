@@ -14,5 +14,8 @@ export type IconProps = HeadlessIconProps & {
   icon?: ComponentType;
   /** Name of the icon*/
   name?: (typeof ICONS)[number];
+  /** storke width */
   stroke?: number;
+  /** filled variant */
+  filled?: boolean;
 };
