@@ -29,9 +29,7 @@ describe(
     beforeEach(() => {
       _.agHelper.RefreshPage();
       // Deselect all widgets
-      cy.get(`#div-selection-0`).click({
-        force: true,
-      });
+      cy.get("body").type("{esc}");
     });
 
     it("1. Widget should be selected while switching back and forth betw_.entityExplorer.n pages", function () {
@@ -88,7 +86,13 @@ describe(
 
     it("3. Multiple widgets should be selected while switching back and forth betw_.entityExplorer.n pages", function () {
       //select widgets in page1
-      Canvas.selectMultipleWidgets(["Camera1", "Button1"]);
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Camera1"))
+        .click({ ctrlKey: true });
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Button1"))
+        .click({ ctrlKey: true });
+      // Canvas.selectMultipleWidgets(["Camera1", "Button1"]);
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);
