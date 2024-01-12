@@ -20,7 +20,7 @@ public class ProjectProperties {
 
     public static final String EDITION = "CE";
     private String version = "UNKNOWN";
-    private String commitId = "UNKNOWN";
+    private String commitSha = "UNKNOWN";
 
     public ProjectProperties() {
         try {
@@ -30,7 +30,7 @@ public class ProjectProperties {
                 // Parse JSON content using the AppsmithInfo class
                 BuildInfo buildInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
                 version = buildInfo.getVersion();
-                commitId = buildInfo.getCommitId();
+                commitSha = buildInfo.getCommitSha();
             }
         } catch (IOException e) {
             // Ignore the exception and return "UNKNOWN" as the version

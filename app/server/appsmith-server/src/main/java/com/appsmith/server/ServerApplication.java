@@ -36,7 +36,7 @@ public class ServerApplication {
 
     private void printBuildInfo() {
         String version = projectProperties.getVersion();
-        String commitId = projectProperties.getCommitId();
+        String commitId = projectProperties.getCommitSha();
         log.info("Application started with build version {}, and commitSha {}", version, commitId);
     }
 
