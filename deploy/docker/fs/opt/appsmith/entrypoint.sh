@@ -108,6 +108,16 @@ init_env_file() {
 setup_proxy_variables() {
   export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
 
+  # Ensure `localhost` and `127.0.0.1` are in always present in `NO_PROXY`.
+  local no_proxy_lines
+  no_proxy_lines="$(echo "$NO_PROXY" | tr , \\n)"
+  if ! echo "$no_proxy_lines" | grep -q '^localhost$'; then
+    export NO_PROXY="localhost,$NO_PROXY"
+  fi
+  if ! echo "$no_proxy_lines" | grep -q '^127.0.0.1$'; then
+    export NO_PROXY="127.0.0.1,$NO_PROXY"
+  fi
+
   # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
   if [[ -n ${HTTPS_PROXY-} ]]; then
     export https_proxy="$HTTPS_PROXY"
