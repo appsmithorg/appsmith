@@ -27,14 +27,14 @@
             config.indexOf("%") === 0
           )
             return "";
-  
+
           const result = config.trim();
           if (result.toLowerCase() === "false" || result === "") {
             return false;
           } else if (result.toLowerCase() === "true") {
             return true;
           }
-  
+
           return result;
         };
         const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
@@ -44,7 +44,7 @@
         NREUM = undefined
       </script>
       <script>
-        
+
         const enableNewRelic=parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__");
       //only when newRelic is enabled do we load the browser agent script
       if (!!enableNewRelic) {
@@ -55,8 +55,8 @@
           //we load the new relic browser agent script from our CDN.
           script.src = "https://assets.appsmith.com/newRelicBrowserAgent1.js";
           script.onload = () => {
-            // we have defined and init function within the Browser agent script. 
-            // This init fn gets assigned to a global var called NEW_RELIC_BROWSER_AGENT, when the script tag element loads 
+            // we have defined and init function within the Browser agent script.
+            // This init fn gets assigned to a global var called NEW_RELIC_BROWSER_AGENT, when the script tag element loads
             // we call the init fn with all env vars. Through this step browser agent has the required license key to push telemetry info to new relic.
             NEW_RELIC_BROWSER_AGENT && NEW_RELIC_BROWSER_AGENT.init([accountId,applicationId,browserAgentlicenseKey]);
           };
@@ -278,7 +278,7 @@
           otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),
           //OTLP following the naming convention of Sdk initialisation
           otlpServiceName: parseConfig("__APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME__"),
-          otlpEndpoint:parseConfig("__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__"), 
+          otlpEndpoint:parseConfig("__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__"),
 
         },
         fusioncharts: {
@@ -295,7 +295,6 @@
             ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
             : LOG_LEVELS[1],
         cloudHosting: CLOUD_HOSTING,
-        enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
         appVersion: {
           id: parseConfig("__APPSMITH_VERSION_ID__"),
           releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__"),

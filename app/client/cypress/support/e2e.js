@@ -170,8 +170,8 @@ after(function () {
     return;
   }
   //-- Deleting the application by Api---//
-  cy.DeleteAppByApi();
-  cy.DeleteWorkspaceByApi();
+  // cy.DeleteAppByApi();
+  // cy.DeleteWorkspaceByApi();
   //-- LogOut Application---//
   //cy.LogOut(false);
   // Commenting until Upgrade Appsmith cases are fixed
