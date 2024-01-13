@@ -140,7 +140,7 @@ describe(
       agHelper.Sleep(5000); //for all api's to ccomplete call!
       assertHelper.AssertNetworkStatus("@getConsolidatedData");
 
-      cy.get("@getConsolidatedData").then(($response:any) => {
+      cy.get("@getConsolidatedData").then(($response: any) => {
         const respBody = JSON.stringify($response.response?.body);
         const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
         const _randomFlora =
@@ -201,7 +201,7 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
       assertHelper.AssertNetworkStatus("@getConsolidatedData");
 
-      cy.get("@getConsolidatedData").then(($response:any ) => {
+      cy.get("@getConsolidatedData").then(($response: any) => {
         const respBody = JSON.stringify($response.response?.body);
         const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
 

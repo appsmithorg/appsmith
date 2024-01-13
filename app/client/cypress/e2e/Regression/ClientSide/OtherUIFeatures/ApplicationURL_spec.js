@@ -135,11 +135,11 @@ describe("Slug URLs", () => {
     cy.url().then((url) => {
       homePage.Signout(true);
       agHelper.VisitNAssert(url + "?embed=true&a=b");
-      
+
       // status should be 401 since the user is still unauthenticated from the previous signin request
       cy.wait("@getConsolidatedData").then((res1) => {
         expect(res1.response).to.have.property("statusCode", 401);
-      })
+      });
       agHelper.AssertURL(
         `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
       );
