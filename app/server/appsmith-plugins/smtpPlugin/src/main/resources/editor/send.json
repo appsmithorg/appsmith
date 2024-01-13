@@ -64,7 +64,7 @@
         {
           "label": "Body type",
           "configProperty": "actionConfiguration.formData.send.bodyType",
-          "controlType": "SEGMENTED_CONTROL",
+          "controlType": "DROP_DOWN",
           "initialValue": "text/plain",
           "options": [
             {
