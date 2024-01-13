@@ -1,6 +1,5 @@
 import React from "react";
 import type { WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import type { CurrencyInputComponentProps } from "../component";
 import CurrencyInputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -10,7 +9,7 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import {
   CurrencyDropdownOptions,
   getCountryCodeFromCurrencyCode,
@@ -27,16 +26,26 @@ import {
   limitDecimalValue,
 } from "../component/utilities";
 import { getLocale, mergeWidgetConfig } from "utils/helpers";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultValueValidation(
   value: any,
@@ -143,6 +152,84 @@ class CurrencyInputWidget extends BaseInputWidget<
   CurrencyInputWidgetProps,
   WidgetState
 > {
+  static type = "CURRENCY_INPUT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Currency Input",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.INPUTS],
+      needsMeta: true,
+      searchTags: ["amount", "total"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      ...BaseInputWidget.getDefaults(),
+      widgetName: "CurrencyInput",
+      version: 1,
+      rows: 7,
+      labelPosition: LabelPosition.Top,
+      allowCurrencyChange: false,
+      defaultCurrencyCode: getDefaultCurrency().currency,
+      decimals: 0,
+      showStepArrows: false,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "120px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -497,7 +584,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     });
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -507,6 +594,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
+    const { componentHeight } = this.props;
 
     if (this.props.showStepArrows) {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.RIGHT;
@@ -521,13 +609,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         currencyCode={currencyCode}
         decimals={this.props.decimals}
         defaultValue={this.props.defaultText}
@@ -545,7 +627,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
@@ -560,10 +642,6 @@ class CurrencyInputWidget extends BaseInputWidget<
         {...conditionalProps}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "CURRENCY_INPUT_WIDGET";
   }
 }
 

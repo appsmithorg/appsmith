@@ -1,5 +1,5 @@
-import urlBuilder from "entities/URLRedirect/URLAssembly";
-import { builderURL, viewerURL } from "RouteBuilder";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 
 describe("builderURL", () => {
   let location: typeof window.location;

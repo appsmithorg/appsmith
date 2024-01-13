@@ -163,7 +163,7 @@ export const getLogItemProps = (e: Log) => {
   };
 };
 
-export type LogItemProps = {
+export interface LogItemProps {
   collapsable?: boolean;
   icon: string;
   timestamp: string;
@@ -182,7 +182,7 @@ export type LogItemProps = {
   pluginErrorDetails?: PluginErrorDetails;
   isExpanded: boolean;
   environmentName?: string;
-};
+}
 
 // Log item component
 const ErrorLogItem = (props: LogItemProps) => {

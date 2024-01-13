@@ -16,7 +16,6 @@
     <description>This is the API server for the Appsmith project</description>
 
     <properties>
-        <ff4j.version>2.0.0</ff4j.version>
         <jmh.version>1.35</jmh.version>
         <org.modelmapper.version>2.4.4</org.modelmapper.version>
     </properties>
@@ -30,10 +29,39 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>1.22.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp-logs</artifactId>
+            <version>1.22.0-alpha</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
+            <version>1.22.0-alpha</version>
+        </dependency>
 
         <!--
             Ideally this dependency should have been added in the pom.xml file of GraphQLPlugin module, but it is
@@ -44,7 +72,7 @@
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>20.1</version>
+            <version>21.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -118,6 +146,12 @@
             <groupId>io.mongock</groupId>
             <artifactId>mongock-springboot-v3</artifactId>
         </dependency>
+        <dependency>
+            <!-- remove after mongock-springboot-v3 brings v32.0.1-jre at least -->
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.0.1-jre</version>
+        </dependency>
 
         <dependency>
             <groupId>io.mongock</groupId>
@@ -134,6 +168,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-redis</artifactId>
+            <version>8.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
@@ -157,13 +196,13 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <version>4.3.1</version>
+            <version>4.12.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
-            <version>4.3.2</version>
+            <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -251,6 +290,12 @@
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
             <version>0.8.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>${org.pf4j.version}</version>
         </dependency>
 
         <dependency>
@@ -356,18 +401,11 @@
             <version>1.10.0</version>
         </dependency>
 
-        <!-- Dependencies for feature flagging -->
-        <dependency>
-            <groupId>org.ff4j</groupId>
-            <artifactId>ff4j-core</artifactId>
-            <version>${ff4j.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.appsmith</groupId>
             <artifactId>reactiveCaching</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>

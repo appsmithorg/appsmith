@@ -18,6 +18,8 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -26,17 +28,14 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -54,6 +53,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -90,67 +90,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
-    // TODO: Remove after client side changes have been merged
-    public Mono<String> getAuthorizationCodeURLForGenericOAuth2(
-            String datasourceId,
-            String environmentId,
-            String pageId,
-            ServerHttpRequest httpRequest,
-            Boolean isTrueEnvironmentIdRequired) {
-        if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
-            return datasourceService
-                    .findById(datasourceId, datasourcePermission.getEditPermission())
-                    .flatMap(datasource -> {
-                        return datasourceService.getTrueEnvironmentId(
-                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null);
-                    })
-                    .flatMap(trueEnvironmentId -> getAuthorizationCodeURLForGenericOAuth2(
-                            datasourceId, trueEnvironmentId, pageId, httpRequest));
-        }
-
-        return getAuthorizationCodeURLForGenericOAuth2(datasourceId, environmentId, pageId, httpRequest);
-    }
-
-    public Mono<String> getAppsmithToken(
-            String datasourceId,
-            String environmentId,
-            String pageId,
-            String branchName,
-            ServerHttpRequest request,
-            String importForGit,
-            Boolean isTrueEnvironmentIdRequired) {
-
-        if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
-            return datasourceService
-                    .findById(datasourceId, datasourcePermission.getEditPermission())
-                    .flatMap(datasource -> {
-                        return datasourceService.getTrueEnvironmentId(
-                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null);
-                    })
-                    .flatMap(trueEnvironmentId -> getAppsmithToken(
-                            datasourceId, trueEnvironmentId, pageId, branchName, request, importForGit));
-        }
-
-        return getAppsmithToken(datasourceId, environmentId, pageId, branchName, request, importForGit);
-    }
-
-    public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
-            String datasourceId, String environmentId, String appsmithToken, Boolean isTrueEnvironmentIdRequired) {
-
-        if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
-            return datasourceService
-                    .findById(datasourceId, datasourcePermission.getEditPermission())
-                    .flatMap(datasource -> {
-                        return datasourceService.getTrueEnvironmentId(
-                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null);
-                    })
-                    .flatMap(trueEnvironmentId ->
-                            getAccessTokenFromCloud(datasourceId, trueEnvironmentId, appsmithToken));
-        }
-
-        return getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken);
-    }
-
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
      * when hitting the authorization url and redirect to it from the controller.
@@ -162,20 +101,42 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      * @return a url String to continue the authorization flow
      */
     public Mono<String> getAuthorizationCodeURLForGenericOAuth2(
-            String datasourceId, String environmentId, String pageId, ServerHttpRequest httpRequest) {
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            String branchName,
+            ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService
+
+        Mono<Datasource> datasourceMonoCached = datasourceService
                 .findById(datasourceId, datasourcePermission.getEditPermission())
-                .flatMap(datasource1 ->
-                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
+                .cache();
+        Mono<String> trueEnvironmentIdCached = datasourceMonoCached
+                .flatMap(datasource -> datasourceService.getTrueEnvironmentId(
+                        datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null))
+                .cache();
+
+        return datasourceMonoCached
+                .zipWith(trueEnvironmentIdCached)
+                .flatMap(tuple2 -> {
+                    Datasource datasource = tuple2.getT1();
+                    String trueEnvironmentId = tuple2.getT2();
+                    return datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, trueEnvironmentId);
+                })
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .flatMap((datasourceStorage -> {
+                .zipWith(trueEnvironmentIdCached)
+                .flatMap(tuple2 -> {
+                    DatasourceStorage datasourceStorage = tuple2.getT1();
+                    String trueEnvironmentId = tuple2.getT2();
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
+                    final String state = StringUtils.hasText(branchName)
+                            ? String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, branchName)
+                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
@@ -184,7 +145,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             .queryParam(REDIRECT_URI, redirectUri + Url.DATASOURCE_URL + "/authorize")
                             // The state is used internally to calculate the redirect url when returning control to the
                             // client
-                            .queryParam(STATE, String.join(",", pageId, datasourceId, environmentId, redirectUri));
+                            .queryParam(STATE, state);
                     // Adding optional scope parameter
                     if (oAuth2.getScope() != null && !oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder.queryParam(
@@ -197,7 +158,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     }
 
                     return Mono.just(uriComponentsBuilder.toUriString());
-                }));
+                });
     }
 
     private Mono<DatasourceStorage> validateRequiredFieldsForGenericOAuth2(DatasourceStorage datasourceStorage) {
@@ -209,7 +170,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         }
 
         return datasourceStorageService
-                .validateDatasourceStorage(datasourceStorage, true)
+                .validateDatasourceStorage(datasourceStorage)
                 .flatMap(datasourceStorage1 -> {
                     if (!datasourceStorage1.getIsValid()) {
                         return Mono.error(new AppsmithException(
@@ -242,7 +203,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(localState -> {
                     String[] splitStates = localState.split(",");
-                    if (splitStates.length != 4) {
+                    if (splitStates.length < 4) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     } else
                         return datasourceService
@@ -288,7 +249,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         }
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-                        final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+                        final String authorizationHeader =
+                                "Basic " + Base64.getEncoder().encodeToString(clientCredentials);
                         builder.defaultHeader("Authorization", authorizationHeader);
                     } else {
                         return Mono.error(
@@ -370,13 +332,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String datasourceId = splitState[1];
         final String environmentId = splitState[2];
         final String redirectOrigin = splitState[3];
+        final String branchName = splitState.length == 5 ? splitState[4] : null;
         String response = SUCCESS;
         if (error != null) {
             response = error;
         }
         final String responseStatus = response;
         return newPageService
-                .getById(pageId)
+                .findByIdAndBranchName(pageId, branchName)
                 .map(newPage -> redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + Entity.SLASH + newPage.getApplicationId()
                         + Entity.SLASH + Entity.PAGES
@@ -385,7 +348,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         + Entity.SLASH + Entity.DATASOURCE
                         + Entity.SLASH + datasourceId
                         + "?response_status="
-                        + responseStatus + "&view_mode=true")
+                        + responseStatus
+                        + "&view_mode=true"
+                        + (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
                         + responseStatus + "&view_mode=true"));
@@ -404,15 +369,27 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // If successful, then request for appsmithToken
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
+
+        Mono<Datasource> datasourceMonoCached = datasourceService
                 .findById(datasourceId, datasourcePermission.getEditPermission())
-                .flatMap(datasource1 ->
-                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .cache();
+
+        Mono<String> trueEnvironmentIdCached = datasourceMonoCached
+                .flatMap(datasource -> datasourceService.getTrueEnvironmentId(
+                        datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null))
+                .cache();
+
+        Mono<DatasourceStorage> datasourceStorageMonoCached = datasourceMonoCached
+                .zipWith(trueEnvironmentIdCached)
+                .flatMap(tuple2 -> {
+                    Datasource datasource = tuple2.getT1();
+                    String trueEnvironmentId = tuple2.getT2();
+                    return datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, trueEnvironmentId);
+                });
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
 
-        return datasourceStorageMono
+        return datasourceStorageMonoCached
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
@@ -467,7 +444,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .map(body -> String.valueOf(body.get("data")))
-                            .zipWith(datasourceStorageMono)
+                            .zipWith(datasourceStorageMonoCached)
                             .flatMap(tuple -> {
                                 String appsmithToken = tuple.getT1();
                                 DatasourceStorage datasourceStorage = tuple.getT2();
@@ -487,7 +464,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 })
                 .onErrorResume(
                         BaseException.class,
-                        error -> datasourceStorageMono.flatMap(datasourceStorage -> {
+                        error -> datasourceStorageMonoCached.flatMap(datasourceStorage -> {
                             datasourceStorage
                                     .getDatasourceConfiguration()
                                     .getAuthentication()
@@ -506,16 +483,24 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Update datasource as being authorized
         // Return control to client
 
-        Mono<Datasource> datasourceMonoCache = datasourceService
+        Mono<Datasource> datasourceMonoCached = datasourceService
                 .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
 
-        Mono<DatasourceStorage> datasourceStorageMonoCache = datasourceMonoCache
-                .flatMap(datasource1 ->
-                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
+        Mono<String> trueEnvironmentIdCached = datasourceMonoCached
+                .flatMap(datasource -> datasourceService.getTrueEnvironmentId(
+                        datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null))
                 .cache();
 
-        return datasourceStorageMonoCache
+        Mono<DatasourceStorage> datasourceStorageMonoCached = datasourceMonoCached
+                .zipWith(trueEnvironmentIdCached)
+                .flatMap(tuple2 -> {
+                    Datasource datasource = tuple2.getT1();
+                    String trueEnvironmentId = tuple2.getT2();
+                    return datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, trueEnvironmentId);
+                });
+
+        return datasourceStorageMonoCached
                 .filter(datasourceStorage -> AuthenticationDTO.AuthenticationStatus.IN_PROGRESS.equals(datasourceStorage
                         .getDatasourceConfiguration()
                         .getAuthentication()
@@ -631,7 +616,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 "Unable to connect to Appsmith authentication server."))
                 .onErrorResume(
                         BaseException.class,
-                        error -> datasourceStorageMonoCache.flatMap(datasourceStorage -> {
+                        error -> datasourceStorageMonoCached.flatMap(datasourceStorage -> {
                             datasourceStorage
                                     .getDatasourceConfiguration()
                                     .getAuthentication()

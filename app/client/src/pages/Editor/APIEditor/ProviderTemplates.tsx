@@ -12,7 +12,7 @@ import {
   getProvidersTemplatesLoadingState,
 } from "@appsmith/selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { ProviderTemplateArray } from "constants/providerConstants";
 import { DEFAULT_TEMPLATE_TYPE } from "constants/providerConstants";
 import type { AddApiToPageRequest } from "api/ProvidersApi";
@@ -32,7 +32,7 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";

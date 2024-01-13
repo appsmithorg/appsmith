@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
@@ -14,6 +15,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
@@ -60,6 +62,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -72,6 +75,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -94,6 +98,7 @@ import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
 import static com.external.plugins.utils.PostgresDataTypeUtils.extractExplicitCasting;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
@@ -123,6 +128,8 @@ public class PostgresPlugin extends BasePlugin {
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
     private static final int HEAVY_OP_FREQUENCY = 100;
+
+    public static final Long DEFAULT_POSTGRES_PORT = 5432L;
 
     private static int MAX_SIZE_SUPPORTED;
 
@@ -180,9 +187,11 @@ public class PostgresPlugin extends BasePlugin {
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
         private final SharedConfig sharedConfig;
+        private final ConnectionPoolConfig connectionPoolConfig;
 
-        public PostgresPluginExecutor(SharedConfig sharedConfig) {
+        public PostgresPluginExecutor(SharedConfig sharedConfig, ConnectionPoolConfig connectionPoolConfig) {
             this.sharedConfig = sharedConfig;
+            this.connectionPoolConfig = connectionPoolConfig;
             MAX_SIZE_SUPPORTED = sharedConfig.getMaxResponseSize();
         }
 
@@ -268,6 +277,38 @@ public class PostgresPlugin extends BasePlugin {
                     explicitCastDataTypes);
         }
 
+        @Override
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            // Sets query body
+            actionConfig.setBody(queryTemplate.getBody());
+
+            // Sets prepared statement to false
+            Property preparedStatement = new Property();
+            preparedStatement.setValue(false);
+            List<Property> pluginSpecifiedTemplates = new ArrayList<Property>();
+            pluginSpecifiedTemplates.add(preparedStatement);
+            actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return actionConfig;
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, DEFAULT_POSTGRES_PORT);
+                }
+            }
+            return Mono.just(identifier);
+        }
+
         private Mono<ActionExecutionResult> executeCommon(
                 HikariDataSource connection,
                 DatasourceConfiguration datasourceConfiguration,
@@ -285,6 +326,7 @@ public class PostgresPlugin extends BasePlugin {
             String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
+            Instant requestedAt = Instant.now();
 
             return Mono.fromCallable(() -> {
                         Connection connectionFromPool;
@@ -544,6 +586,9 @@ public class PostgresPlugin extends BasePlugin {
                         request.setQuery(query);
                         request.setProperties(requestData);
                         request.setRequestParams(requestParams);
+                        if (request.getRequestedAt() == null) {
+                            request.setRequestedAt(requestedAt);
+                        }
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -588,9 +633,13 @@ public class PostgresPlugin extends BasePlugin {
                         e.getMessage()));
             }
 
-            return Mono.fromCallable(() -> {
-                        log.debug("Connecting to Postgres db");
-                        return createConnectionPool(datasourceConfiguration);
+            return connectionPoolConfig
+                    .getMaxConnectionPoolSize()
+                    .flatMap(maxPoolSize -> {
+                        return Mono.fromCallable(() -> {
+                            log.debug("Connecting to Postgres db");
+                            return createConnectionPool(datasourceConfiguration, maxPoolSize);
+                        });
                     })
                     .subscribeOn(scheduler);
         }
@@ -657,7 +706,7 @@ public class PostgresPlugin extends BasePlugin {
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
 
             final DatasourceStructure structure = new DatasourceStructure();
-            final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
+            final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
             return Mono.fromSupplier(() -> {
                         Connection connectionFromPool;
@@ -835,26 +884,29 @@ public class PostgresPlugin extends BasePlugin {
 
                                 final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                                 table.getTemplates()
-                                        .addAll(
-                                                List.of(
-                                                        new DatasourceStructure.Template(
-                                                                "SELECT",
-                                                                "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
-                                                        new DatasourceStructure.Template(
-                                                                "INSERT",
-                                                                "INSERT INTO " + quotedTableName
-                                                                        + " (" + String.join(", ", columnNames) + ")\n"
-                                                                        + "  VALUES (" + String.join(", ", columnValues)
-                                                                        + ");"),
-                                                        new DatasourceStructure.Template(
-                                                                "UPDATE",
-                                                                "UPDATE " + quotedTableName + " SET"
-                                                                        + setFragments.toString() + "\n"
-                                                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                                        new DatasourceStructure.Template(
-                                                                "DELETE",
-                                                                "DELETE FROM " + quotedTableName
-                                                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")));
+                                        .addAll(List.of(
+                                                new DatasourceStructure.Template(
+                                                        "SELECT",
+                                                        "SELECT * FROM " + quotedTableName + " LIMIT 10;",
+                                                        true),
+                                                new DatasourceStructure.Template(
+                                                        "INSERT",
+                                                        "INSERT INTO " + quotedTableName
+                                                                + " (" + String.join(", ", columnNames) + ")\n"
+                                                                + "  VALUES (" + String.join(", ", columnValues)
+                                                                + ");",
+                                                        false),
+                                                new DatasourceStructure.Template(
+                                                        "UPDATE",
+                                                        "UPDATE " + quotedTableName + " SET"
+                                                                + setFragments.toString() + "\n"
+                                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                                        false),
+                                                new DatasourceStructure.Template(
+                                                        "DELETE",
+                                                        "DELETE FROM " + quotedTableName
+                                                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                                        false)));
                             }
 
                         } catch (SQLException throwable) {
@@ -1046,7 +1098,8 @@ public class PostgresPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
+    private static HikariDataSource createConnectionPool(
+            DatasourceConfiguration datasourceConfiguration, Integer maximumConfigurablePoolSize)
             throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
@@ -1055,7 +1108,13 @@ public class PostgresPlugin extends BasePlugin {
         // Set SSL property
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         config.setMinimumIdle(MINIMUM_POOL_SIZE);
-        config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+
+        int maxPoolSize = MAXIMUM_POOL_SIZE;
+        if (maximumConfigurablePoolSize != null && maximumConfigurablePoolSize >= maxPoolSize) {
+            maxPoolSize = maximumConfigurablePoolSize;
+        }
+
+        config.setMaximumPoolSize(maxPoolSize);
 
         // Set authentication properties
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();

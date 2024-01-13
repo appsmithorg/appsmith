@@ -1,0 +1,106 @@
+.tag-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--inner-spacing-2);
+
+  /**
+  * ----------------------------------------------------------------------------
+  * ERROR MESSAGE
+  *-----------------------------------------------------------------------------
+  */
+  [slot="errorMessage"] {
+    color: var(--color-fg-negative);
+  }
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--inner-spacing-2);
+}
+
+.tag {
+  height: var(--sizing-5);
+  color: var(--color-fg);
+  background-color: var(--color-bg-neutral-subtle);
+  border-radius: var(--border-radius-1);
+  padding: 0 var(--inner-spacing-1);
+  outline: none;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  transition: border-color 200ms;
+  overflow: hidden;
+
+  &:has([slot="remove"]) {
+    padding-inline-end: 0;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * HOVERED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-hovered] {
+    background-color: var(--color-bg-neutral-subtle-hover);
+  }
+
+  &[data-focus-visible] {
+    outline: 2px solid var(--color-bd-focus);
+    outline-offset: 2px;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * SELECTED TAG
+  *-----------------------------------------------------------------------------
+  */
+  &[data-selected] {
+    border-color: var(--color-bd-neutral);
+    background: var(--color-bg-neutral);
+    color: var(--color-fg-on-neutral);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * REMOVE BUTTON
+  *-----------------------------------------------------------------------------
+  */
+  [slot="remove"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--sizing-6);
+    width: var(--sizing-6);
+    background: none;
+    border: none;
+    padding: 0;
+    margin-inline-start: var(--inner-spacing-0);
+    color: var(--color-fg);
+    transition: color 200ms;
+    outline: none;
+    font-size: 0.95em;
+
+    &[data-hovered] {
+      background: var(--color-bg-neutral-subtle-hover);
+    }
+
+    :is(svg) {
+      width: 1em;
+      height: 1em;
+    }
+
+    &[data-hovered] {
+      color: var(--remove-button-color-hovered);
+    }
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED TAG
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+  }
+}

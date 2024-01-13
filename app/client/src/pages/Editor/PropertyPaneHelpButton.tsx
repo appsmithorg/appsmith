@@ -6,7 +6,7 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { getSelectedWidget } from "sagas/selectors";
 import { Icon } from "design-system";
 

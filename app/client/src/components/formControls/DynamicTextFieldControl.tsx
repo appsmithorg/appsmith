@@ -16,7 +16,7 @@ import styled from "styled-components";
 import {
   getPluginResponseTypes,
   getPluginNameFromId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";

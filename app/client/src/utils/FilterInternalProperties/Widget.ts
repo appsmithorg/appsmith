@@ -1,14 +1,13 @@
 import type {
-  ConfigTree,
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { isFunction } from "lodash";
 import type { Def } from "tern";
-import WidgetFactory from "utils/WidgetFactory";
-import { addSettersToDefinitions } from "utils/autocomplete/dataTreeTypeDefCreator";
+import WidgetFactory from "WidgetProvider/factory";
+import { addSettersToDefinitions } from "utils/autocomplete/defCreatorUtils";
 
 export const getWidgetChildrenPeekData = (
   widgetName: string,

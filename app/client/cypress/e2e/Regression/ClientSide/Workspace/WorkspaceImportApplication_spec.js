@@ -1,73 +1,86 @@
-import homePage from "../../../../locators/HomePage";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import homePageLocators from "../../../../locators/HomePage";
+import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
-describe("Workspace Import Application", function () {
-  let workspaceId;
-  let newWorkspaceName;
-  let appname;
+describe(
+  "Workspace Import Application",
+  { tags: ["@tag.Workspace"] },
+  function () {
+    let workspaceId;
+    let newWorkspaceName;
+    let appname, workspaceName;
 
-  before(() => {
-    _.agHelper.AddDsl("displayWidgetDsl");
-  });
+    before(() => {
+      agHelper.AddDsl("displayWidgetDsl");
+    });
 
-  it("1. Can Import Application from json", function () {
-    _.homePage.NavigateToHome();
-    appname = localStorage.getItem("AppName");
-    cy.get(homePage.searchInput).type(appname);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(homePage.appMoreIcon).first().click({ force: true });
-    cy.get(homePage.exportAppFromMenu).click({ force: true });
-    cy.get(homePage.searchInput).clear();
-    cy.get(`a[id=t--export-app-link]`).then((anchor) => {
-      const url = anchor.prop("href");
-      cy.request(url).then(({ body, headers }) => {
-        expect(headers).to.have.property("content-type", "application/json");
-        expect(headers)
-          .to.have.property("content-disposition")
-          .that.includes("attachment;")
-          .and.includes(`filename*=UTF-8''${appname}.json`);
-        cy.writeFile("cypress/fixtures/exported-app.json", body, "utf-8");
+    it("1. Can Import Application from json", function () {
+      homePage.NavigateToHome();
+      workspaceName = localStorage.getItem("workspaceName");
+      appname = localStorage.getItem("appName");
 
-        cy.generateUUID().then((uid) => {
-          workspaceId = uid;
-          localStorage.setItem("WorkspaceName", workspaceId);
-          cy.createWorkspace();
-          cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
-            newWorkspaceName =
-              createWorkspaceInterception.response.body.data.name;
-            _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
-            cy.get(homePage.workspaceImportAppOption).click({ force: true });
+      cy.get(homePageLocators.searchInput).type(workspaceName);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(2000);
+      cy.get(homePageLocators.appMoreIcon).first().click({ force: true });
+      cy.get(homePageLocators.exportAppFromMenu).click({ force: true });
+      agHelper.ValidateToastMessage("Successfully exported");
+      // fetching the exported app file manually to be verified.
+      cy.get(homePageLocators.searchInput).clear();
+      cy.get(`a[id=t--export-app-link]`).then((anchor) => {
+        const url = anchor.prop("href");
+        cy.request(url).then(({ body, headers }) => {
+          expect(headers).to.have.property("content-type", "application/json");
+          expect(headers)
+            .to.have.property("content-disposition")
+            .that.includes("attachment;")
+            .and.includes(
+              `filename="=?UTF-8?Q?${appname.replace(/\s/g, "_")}.json`,
+            );
+          cy.writeFile("cypress/fixtures/exported-app.json", body, "utf-8");
 
-            cy.get(homePage.workspaceImportAppModal).should("be.visible");
-            cy.xpath(homePage.uploadLogo)
-              .first()
-              .selectFile("cypress/fixtures/exported-app.json", {
+          cy.generateUUID().then((uid) => {
+            workspaceId = uid;
+            cy.createWorkspace();
+            cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
+              newWorkspaceName =
+                createWorkspaceInterception.response.body.data.name;
+              homePage.RenameWorkspace(newWorkspaceName, workspaceId);
+              cy.get(homePageLocators.workspaceImportAppOption).click({
                 force: true,
               });
 
-            cy.wait("@importNewApplication").then((interception) => {
-              const importedApp = interception.response.body.data.application;
-              const { pages } = importedApp;
-              const appSlug = importedApp.slug;
-              let defaultPage = pages.find((eachPage) => eachPage.isDefault);
-              cy.get(homePage.toastMessage).should(
-                "contain",
-                "Application imported successfully",
+              cy.get(homePageLocators.workspaceImportAppModal).should(
+                "be.visible",
               );
-              cy.wait("@getPagesForCreateApp").then((interception) => {
-                const pages = interception.response.body.data.pages;
-                const pageSlug =
-                  pages.find((page) => page.isDefault)?.slug ?? "page";
-                cy.url().should(
-                  "include",
-                  `/${appSlug}/${pageSlug}-${defaultPage.id}`,
+              cy.xpath(homePageLocators.uploadLogo)
+                .first()
+                .selectFile("cypress/fixtures/exported-app.json", {
+                  force: true,
+                });
+
+              cy.wait("@importNewApplication").then((interception) => {
+                const importedApp = interception.response.body.data.application;
+                const { pages } = importedApp;
+                const appSlug = importedApp.slug;
+                let defaultPage = pages.find((eachPage) => eachPage.isDefault);
+                cy.get(homePageLocators.toastMessage).should(
+                  "contain",
+                  "Application imported successfully",
                 );
+                cy.wait("@getPagesForCreateApp").then((interception) => {
+                  const pages = interception.response.body.data.pages;
+                  const pageSlug =
+                    pages.find((page) => page.isDefault)?.slug ?? "page";
+                  cy.url().should(
+                    "include",
+                    `/${appSlug}/${pageSlug}-${defaultPage.id}`,
+                  );
+                });
               });
             });
           });
         });
       });
     });
-  });
-});
+  },
+);

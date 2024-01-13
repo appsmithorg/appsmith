@@ -5,36 +5,39 @@ const jsEditor = ObjectsRegistry.JSEditor,
   ee = ObjectsRegistry.EntityExplorer,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Multiple rejection of confirmation for onPageLoad function execution", function () {
-  before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-  });
-  it("1. Works properly", function () {
-    const FUNCTIONS_SETTINGS_DEFAULT_DATA = [
-      {
-        name: "myFun1",
-        onPageLoad: true,
-        confirmBeforeExecute: true,
-      },
-      {
-        name: "myFun2",
-        onPageLoad: true,
-        confirmBeforeExecute: true,
-      },
-      {
-        name: "myFun3",
-        onPageLoad: true,
-        confirmBeforeExecute: true,
-      },
-    ];
+describe(
+  "Multiple rejection of confirmation for onPageLoad function execution",
+  { tags: ["@tag.JS"] },
+  function () {
+    before(() => {
+      ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
+    });
+    it("1. Works properly", function () {
+      const FUNCTIONS_SETTINGS_DEFAULT_DATA = [
+        {
+          name: "myFun1",
+          onPageLoad: true,
+          confirmBeforeExecute: true,
+        },
+        {
+          name: "myFun2",
+          onPageLoad: true,
+          confirmBeforeExecute: true,
+        },
+        {
+          name: "myFun3",
+          onPageLoad: true,
+          confirmBeforeExecute: true,
+        },
+      ];
 
-    const numOfOnLoadAndConfirmExecutionActions =
-      FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
-        (setting) => setting.confirmBeforeExecute && setting.onPageLoad,
-      ).length;
+      const numOfOnLoadAndConfirmExecutionActions =
+        FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
+          (setting) => setting.confirmBeforeExecute && setting.onPageLoad,
+        ).length;
 
-    jsEditor.CreateJSObject(
-      `export default {
+      jsEditor.CreateJSObject(
+        `export default {
   	${FUNCTIONS_SETTINGS_DEFAULT_DATA[0].name}: async ()=>{
   		return 1
   	},
@@ -45,42 +48,43 @@ describe("Multiple rejection of confirmation for onPageLoad function execution",
         return 1
     }
   }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-        prettify: false,
-      },
-    );
-
-    // Switch to settings tab
-    agHelper.GetNClick(jsEditor._settingsTab);
-    // Add settings for each function (according to data)
-    Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
-      (functionSetting) => {
-        jsEditor.EnableDisableAsyncFuncSettings(
-          functionSetting.name,
-          functionSetting.onPageLoad,
-          functionSetting.confirmBeforeExecute,
-        );
-        agHelper.Sleep(2000);
-      },
-    );
-
-    deployMode.DeployApp();
-    // For as many as the number of actions set to run on page load and should confirm before running,
-    // Expect to see confirmation dialogs.
-    for (let i = 0; i < numOfOnLoadAndConfirmExecutionActions; i++) {
-      cy.get("[data-testid='t--query-run-confirmation-modal']").should(
-        "be.visible",
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+          prettify: false,
+        },
       );
-      cy.get(
-        "[data-testid='t--query-run-confirmation-modal'] .ads-v2-button__content-children:contains('No')",
-      )
-        .last()
-        .click();
-      cy.wait(3000);
-    }
-  });
-});
+
+      // Switch to settings tab
+      agHelper.GetNClick(jsEditor._settingsTab);
+      // Add settings for each function (according to data)
+      Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
+        (functionSetting) => {
+          jsEditor.EnableDisableAsyncFuncSettings(
+            functionSetting.name,
+            functionSetting.onPageLoad,
+            functionSetting.confirmBeforeExecute,
+          );
+          agHelper.Sleep(2000);
+        },
+      );
+
+      deployMode.DeployApp();
+      // For as many as the number of actions set to run on page load and should confirm before running,
+      // Expect to see confirmation dialogs.
+      for (let i = 0; i < numOfOnLoadAndConfirmExecutionActions; i++) {
+        cy.get("[data-testid='t--query-run-confirmation-modal']").should(
+          "be.visible",
+        );
+        cy.get(
+          "[data-testid='t--query-run-confirmation-modal'] .ads-v2-button__content-children:contains('No')",
+        )
+          .last()
+          .click();
+        cy.wait(3000);
+      }
+    });
+  },
+);

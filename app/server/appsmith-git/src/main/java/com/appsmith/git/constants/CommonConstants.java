@@ -25,7 +25,7 @@ public class CommonConstants {
     public static final String DELIMITER_PATH = "/";
     public static final String EMPTY_STRING = "";
     public static final String FILE_MIGRATION_MESSAGE =
-            "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.";
+            "Some of the changes above are due to an improved file structure. You can safely commit them to your repository.";
 
     public static final String TABS_WIDGET = "TABS_WIDGET";
 

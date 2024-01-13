@@ -1,1 +1,0 @@
-0 0 * * SUN root find /appsmith-stacks/logs/backend /appsmith-stacks/logs/rts/ /appsmith-stacks/logs/editor/ -name "*.log*" -type f -mtime +7 -delete

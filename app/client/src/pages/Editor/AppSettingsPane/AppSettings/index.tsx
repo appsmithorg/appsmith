@@ -1,8 +1,9 @@
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
+import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllPages } from "selectors/entitiesSelector";
+import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
 import type { SectionHeaderProps } from "./SectionHeader";
@@ -27,10 +28,15 @@ import {
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
-import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
+import {
+  closeAppSettingsPaneAction,
+  updateAppSettingsPaneSelectedTabAction,
+} from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import BetaCard from "components/editorComponents/BetaCard";
 
 export enum AppSettingsTabs {
   General,
@@ -80,6 +86,7 @@ function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
   const dispatch = useDispatch();
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -109,6 +116,10 @@ function AppSettings() {
         },
       }),
     );
+
+    return () => {
+      dispatch(closeAppSettingsPaneAction());
+    };
   }, [selectedTab]);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
@@ -214,12 +225,17 @@ function AppSettings() {
               return (
                 <>
                   <div className="px-4">
-                    <SectionTitle>
+                    <SectionTitle className="flex items-center gap-2">
                       {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
+                      <BetaCard />
                     </SectionTitle>
                   </div>
                   <ThemeContentWrapper>
-                    <ThemePropertyPane />
+                    {isWDSEnabled ? (
+                      <WDSThemePropertyPane />
+                    ) : (
+                      <ThemePropertyPane />
+                    )}
                   </ThemeContentWrapper>
                 </>
               );

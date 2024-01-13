@@ -8,12 +8,15 @@ import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
-import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
-import { getHintDetailsFromClassName } from "./utils/sqlHint";
+import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
+import {
+  filterCompletions,
+  getHintDetailsFromClassName,
+} from "./utils/sqlHint";
+import { isAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 
-export const bindingHint: HintHelper = (editor) => {
+export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
@@ -33,21 +36,26 @@ export const bindingHint: HintHelper = (editor) => {
       additionalData,
     ): boolean => {
       if (additionalData && additionalData.blockCompletions) {
-        CodemirrorTernService.setEntityInformation({
+        CodemirrorTernService.setEntityInformation(editor, {
           ...entityInformation,
           blockCompletions: additionalData.blockCompletions,
         });
       } else {
-        CodemirrorTernService.setEntityInformation(entityInformation);
+        CodemirrorTernService.setEntityInformation(editor, entityInformation);
       }
 
-      const entityType = entityInformation?.entityType;
       let shouldShow = false;
-      if (entityType === ENTITY_TYPE.JSACTION) {
-        shouldShow = true;
+
+      if (additionalData?.isJsEditor) {
+        if (additionalData?.enableAIAssistance) {
+          shouldShow = !isAISlashCommand(editor);
+        } else {
+          shouldShow = true;
+        }
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
+
       if (shouldShow) {
         CodemirrorTernService.complete(editor);
 
@@ -66,7 +74,7 @@ type HandleCompletions = (
   | { showHints: false; completions: null }
   | { showHints: true; completions: Hints };
 
-class SqlHintHelper {
+export class SqlHintHelper {
   datasourceTableKeys: NonNullable<
     ReturnType<typeof getAllDatasourceTableKeys>
   > = {};
@@ -78,6 +86,7 @@ class SqlHintHelper {
     this.addCustomAttributesToCompletions =
       this.addCustomAttributesToCompletions.bind(this);
     this.generateTables = this.generateTables.bind(this);
+    this.getCompletions = this.getCompletions.bind(this);
   }
 
   setDatasourceTableKeys(
@@ -145,14 +154,20 @@ class SqlHintHelper {
     return completions;
   }
 
-  handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
-    const noHints = { showHints: false, completions: null } as const;
-    if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
+  getCompletions(editor: CodeMirror.Editor) {
     // @ts-expect-error: No types available
     const completions: Hints = CodeMirror.hint.sql(editor, {
       tables: this.tables,
     });
+    return completions;
+  }
+
+  handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
+    const noHints = { showHints: false, completions: null } as const;
+    if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
+    let completions: Hints = this.getCompletions(editor);
     if (isEmpty(completions.list)) return noHints;
+    completions = filterCompletions(completions);
     return {
       completions: this.addCustomAttributesToCompletions(completions),
       showHints: true,

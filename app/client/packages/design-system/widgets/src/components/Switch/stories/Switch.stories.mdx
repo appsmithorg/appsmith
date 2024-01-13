@@ -1,0 +1,92 @@
+import { Switch } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta
+  title="Design-system/widgets/Switch"
+  component={Switch}
+  args={{
+    children: "Toggle me",
+  }}
+/>
+
+export const Template = (args) => <Switch {...args} />;
+
+# Switch
+
+Switch is a component that allows the user to select one or more options from a set.
+
+<Canvas>
+  <Story name="Switch">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Switch" of={Switch} />
+
+### States
+
+<Story
+  name="State - unchecked"
+  args={{
+    children: "Unchecked",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="State - Default Checked"
+  args={{
+    defaultSelected: true,
+    children: "Checked",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="State - Disabled"
+  args={{
+    defaultSelected: true,
+    children: "Disabled",
+    isDisabled: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="State - Disabled unchecked"
+  args={{
+    children: "Disabled unchecked",
+    isDisabled: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+### Label Position
+
+<Story
+  parameters={{
+    width: 250,
+  }}
+  name="Label Position - Left"
+  args={{
+    labelPosition: "left",
+    children: "Label Position - Left",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  parameters={{
+    width: 250,
+  }}
+  name="Label Position - Right"
+  args={{
+    labelPosition: "right",
+    children: "Label Position - Right",
+  }}
+>
+  {Template.bind({})}
+</Story>

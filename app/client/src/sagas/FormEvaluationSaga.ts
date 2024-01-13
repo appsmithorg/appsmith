@@ -11,25 +11,26 @@ import type {
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
+import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActionsList";
 import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { klona } from "klona/lite";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
 import type { DatasourceConfiguration } from "entities/Datasource";
+import { buffers } from "redux-saga";
 
-export type FormEvalActionPayload = {
+export interface FormEvalActionPayload {
   formId: string;
   datasourceId?: string;
   pluginId?: string;
@@ -39,7 +40,7 @@ export type FormEvalActionPayload = {
   actionDiffPath?: string;
   hasRouteChanged?: boolean;
   datasourceConfiguration?: DatasourceConfiguration;
-};
+}
 
 // This value holds an array of values that needs to be dynamically fetched
 // when we run form evaluations we store dynamic values to be fetched in this array
@@ -260,12 +261,17 @@ function* fetchDynamicValueSaga(
 }
 
 function* formEvaluationChangeListenerSaga() {
+  const buffer = buffers.fixed();
   const formEvalChannel: ActionPattern<ReduxAction<FormEvalActionPayload>> =
-    yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
+    yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS, buffer as any);
   while (true) {
-    const action: ReduxAction<FormEvalActionPayload> = yield take(
-      formEvalChannel,
-    );
+    if (buffer.isEmpty()) {
+      yield put({
+        type: ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER,
+      });
+    }
+    const action: ReduxAction<FormEvalActionPayload> =
+      yield take(formEvalChannel);
     yield call(setFormEvaluationSagaAsync, action);
   }
 }

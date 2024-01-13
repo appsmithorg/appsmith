@@ -11,7 +11,7 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
@@ -37,11 +37,11 @@ import {
   getCanvasLevelMap,
 } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
-import { getAppMode } from "selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import {
   getDimensionMap,
@@ -243,9 +243,8 @@ export function* updateWidgetAutoHeightSaga(
     // Get the canvas level map from the store
     // This map tells us the nesting of each canvas widget in the DSL.
     // MainContainer's level is 0.
-    const canvasLevelMap: CanvasLevelsReduxState = yield select(
-      getCanvasLevelMap,
-    );
+    const canvasLevelMap: CanvasLevelsReduxState =
+      yield select(getCanvasLevelMap);
     // 1. Get all siblings together.
 
     // Get all updates for that level.

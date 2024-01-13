@@ -21,10 +21,10 @@ const crudInfoModalReducer = createReducer(initialState, {
   },
 });
 
-export type GenerateCRUDSuccessInfoData = {
+export interface GenerateCRUDSuccessInfoData {
   successImageUrl: string;
   successMessage: string;
-};
+}
 
 export interface CrudInfoModalReduxState {
   crudInfoModalOpen: boolean;

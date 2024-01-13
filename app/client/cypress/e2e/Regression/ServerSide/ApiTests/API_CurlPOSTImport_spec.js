@@ -1,11 +1,11 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import {
-  agHelper,
   dataSources,
   apiPage,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test curl import flow", function () {
+describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("1. Test curl import flow for POST action with JSON body", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       localStorage.setItem("ApiPaneV2", "ApiPaneV2");
@@ -17,7 +17,7 @@ describe("Test curl import flow", function () {
           parseSpecialCharSequences: false,
         },
       );
-      agHelper.AssertNetworkExecutionSuccess("@postExecute");
+      assertHelper.AssertNetworkExecutionSuccess("@postExecute");
       cy.get("@curlImport").then((response) => {
         cy.expect(response.response.body.responseMeta.success).to.eq(true);
         cy.get(apiwidget.ApiName)

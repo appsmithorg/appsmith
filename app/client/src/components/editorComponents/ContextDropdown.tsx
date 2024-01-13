@@ -32,7 +32,7 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
-type ContextDropdownProps = {
+interface ContextDropdownProps {
   options: ContextDropdownOption[];
   className: string;
   toggle: {
@@ -43,7 +43,7 @@ type ContextDropdownProps = {
     placeholder?: string;
     color?: string;
   };
-};
+}
 
 function DropdownItem(option: ContextDropdownOption) {
   return (

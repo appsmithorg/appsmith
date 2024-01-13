@@ -1,0 +1,95 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+import { TextArea } from "@design-system/widgets";
+
+<Meta
+  title="Design-system/widgets/TextArea"
+  component={TextArea}
+  args={{
+    label: "Label",
+    placeholder: "Placeholder",
+  }}
+/>
+
+export const Template = (args) => <TextArea {...args} />;
+
+# TextArea
+
+TextArea is a component that is similar to the native textarea element, but with a few extra features.
+
+<Canvas>
+  <Story name="TextArea">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable of={TextArea} story="TextArea" />
+
+## Description
+
+<Story
+  name="Description"
+  args={{
+    placeholder: "Description",
+    description: "This is a description",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Disabled
+
+<Story
+  name="Disabled"
+  args={{
+    placeholder: "Disabled",
+    isDisabled: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Validation
+
+<Story
+  name="Validation"
+  args={{
+    placeholder: "Validation",
+    validationState: "invalid",
+    errorMessage: "This field is required",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Required and Optional
+
+<Story
+  name="Required - Icon"
+  args={{
+    placeholder: "Required - Icon Indicator",
+    isRequired: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Required - Label"
+  args={{
+    placeholder: "Required - Label Indicator",
+    isRequired: true,
+    necessityIndicator: "label",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Optional - Label"
+  args={{
+    placeholder: "Required - Label Indicator",
+    isRequired: false,
+    necessityIndicator: "label",
+  }}
+>
+  {Template.bind({})}
+</Story>

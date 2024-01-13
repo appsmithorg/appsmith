@@ -21,7 +21,12 @@ export default [
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
-      return hideByColumnType(props, path, [ColumnTypes.NUMBER], true);
+      return hideByColumnType(
+        props,
+        path,
+        [ColumnTypes.NUMBER, ColumnTypes.CURRENCY],
+        true,
+      );
     },
     dependencies: ["primaryColumns"],
   },
@@ -39,7 +44,12 @@ export default [
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
-      return hideByColumnType(props, path, [ColumnTypes.NUMBER], true);
+      return hideByColumnType(
+        props,
+        path,
+        [ColumnTypes.NUMBER, ColumnTypes.CURRENCY],
+        true,
+      );
     },
     dependencies: ["primaryColumns"],
   },

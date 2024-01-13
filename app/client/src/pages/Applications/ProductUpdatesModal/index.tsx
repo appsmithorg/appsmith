@@ -17,11 +17,11 @@ const Container = styled.div`
   height: 410px;
 `;
 
-type ProductUpdatesModalProps = {
+interface ProductUpdatesModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   hideTrigger?: boolean;
-};
+}
 
 function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const { releaseItems } = useSelector((state: AppState) => state.ui.releases);

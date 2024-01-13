@@ -6,13 +6,35 @@ import type { IconType } from "../component";
 import IconComponent from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import IconSVG from "../icon.svg";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 const IconWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
+  static type = "ICON_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Icon",
+      iconSVG: IconSVG,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "ICON_BUTTON_WIDGET",
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "Icon",
+      rows: 4,
+      columns: 4,
+      version: 1,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [];
   }
@@ -45,7 +67,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <IconWrapper>
         <IconComponent
@@ -57,10 +79,6 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
         />
       </IconWrapper>
     );
-  }
-
-  static getWidgetType(): string {
-    return "ICON_WIDGET";
   }
 }
 

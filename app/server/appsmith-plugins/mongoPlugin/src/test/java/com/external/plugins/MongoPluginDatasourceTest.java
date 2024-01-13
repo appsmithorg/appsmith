@@ -18,7 +18,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
@@ -47,6 +47,7 @@ import static com.external.plugins.utils.DatasourceUtils.extractInfoFromConnecti
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -66,11 +67,11 @@ public class MongoPluginDatasourceTest {
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static GenericContainer mongoContainer = new MongoTestContainer();
+    public static MongoDBContainer mongoContainer = MongoTestDBContainerManager.getMongoDBForTest();
 
     @BeforeAll
     public static void setUp() {
-        address = mongoContainer.getContainerIpAddress();
+        address = mongoContainer.getHost();
         port = mongoContainer.getFirstMappedPort();
     }
 
@@ -99,10 +100,7 @@ public class MongoPluginDatasourceTest {
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         StepVerifier.create(dsConnectionMono)
-                .assertNext(obj -> {
-                    MongoClient client = obj;
-                    assertNotNull(client);
-                })
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 
@@ -268,7 +266,7 @@ public class MongoPluginDatasourceTest {
                 .assertNext(invalids -> {
                     String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource "
                             + "configuration form. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(invalids.stream().anyMatch(error -> expectedError.equals(error)));
+                    assertTrue(invalids.stream().anyMatch(expectedError::equals));
                 })
                 .verifyComplete();
     }
@@ -420,8 +418,8 @@ public class MongoPluginDatasourceTest {
                 + "&minpoolsize=0";
         Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
         assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
-        assertEquals(null, extractedInfo.get(KEY_USERNAME));
-        assertEquals(null, extractedInfo.get(KEY_PASSWORD));
+        assertNull(extractedInfo.get(KEY_USERNAME));
+        assertNull(extractedInfo.get(KEY_PASSWORD));
         assertEquals("localhost:28017", extractedInfo.get(KEY_HOST_PORT));
         assertEquals("mongo_samples", extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
         assertEquals("w=majority&retrywrites=true&authsource=admin&minpoolsize=0", extractedInfo.get(KEY_URI_TAIL));
@@ -433,8 +431,8 @@ public class MongoPluginDatasourceTest {
                 + "&minpoolsize=0";
         Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
         assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
-        assertEquals(null, extractedInfo.get(KEY_USERNAME));
-        assertEquals(null, extractedInfo.get(KEY_PASSWORD));
+        assertNull(extractedInfo.get(KEY_USERNAME));
+        assertNull(extractedInfo.get(KEY_PASSWORD));
         assertEquals("localhost:28017", extractedInfo.get(KEY_HOST_PORT));
         assertEquals("mongo_samples", extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
         assertEquals("w=majority&retrywrites=true&authsource=admin&minpoolsize=0", extractedInfo.get(KEY_URI_TAIL));

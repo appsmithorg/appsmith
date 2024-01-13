@@ -2,8 +2,8 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Git with Theming:", function () {
-  const backgroudColorMaster = "rgb(85, 61, 233)";
+describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
+  const backgroudColorMaster = "rgb(22, 163, 74)";
   const backgroudColorChildBranch = "rgb(100, 116, 139)";
   const tempBranch = "tempBranch";
   let repoName;

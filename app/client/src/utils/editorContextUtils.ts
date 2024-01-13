@@ -4,10 +4,7 @@ import {
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
 } from "@appsmith/constants/forms";
-import {
-  DB_NOT_SUPPORTED,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
+import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import type {
@@ -19,9 +16,10 @@ import type {
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
 import store from "store";
-import { getPlugin } from "selectors/entitiesSelector";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import {
+  DATASOURCES_ALLOWED_FOR_PREVIEW_MODE,
   MOCK_DB_TABLE_NAMES,
   SQL_DATASOURCES,
 } from "constants/QueryEditorConstants";
@@ -104,7 +102,7 @@ export function getPropertyControlFocusElement(
 export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
-  currentEnvironment = getCurrentEnvironment(),
+  currentEnvironment: string,
   validStatusArr: Array<AuthenticationStatus> = [AuthenticationStatus.SUCCESS],
 ): boolean {
   if (!datasource || !datasource.hasOwnProperty("datasourceStorages"))
@@ -188,6 +186,7 @@ export function getFormName(plugin: Plugin): string {
     switch (pluginType) {
       case PluginType.DB:
       case PluginType.REMOTE:
+      case PluginType.AI:
         return DATASOURCE_DB_FORM;
       case PluginType.SAAS:
         return DATASOURCE_SAAS_FORM;
@@ -288,3 +287,17 @@ export function getDefaultTemplateActionConfig(
     return null;
   }
 }
+
+export const isEnabledForPreviewData = (
+  datasource: Datasource,
+  plugin: Plugin,
+) => {
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
+
+  return (
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
+    (plugin?.name === PluginName.MONGO &&
+      !!(datasource as Datasource)?.isMock) ||
+    isGoogleSheetPlugin
+  );
+};

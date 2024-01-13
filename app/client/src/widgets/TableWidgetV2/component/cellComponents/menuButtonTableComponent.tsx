@@ -27,7 +27,7 @@ import {
   getBooleanPropertyValue,
   getPropertyValue,
 } from "widgets/TableWidgetV2/widget/utilities";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import type {
   ConfigureMenuItems,
   MenuItem,
@@ -57,8 +57,11 @@ const PopoverStyles = createGlobalStyle<{
       margin-top: 8px !important;
       border-radius: ${({ borderRadius }) =>
         borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+      max-height: 400px;
     }
+
     & .${BlueprintClasses.MENU_ITEM} {
       padding: 9px 12px;
       border-radius: 0;

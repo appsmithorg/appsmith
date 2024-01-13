@@ -32,14 +32,17 @@ function ThemeSelector() {
   /**
    * stores user saved themes
    */
-  const userSavedThemes = themes.filter(
-    (theme) => theme.isSystemTheme === false,
-  );
+  const userSavedThemes = themes
+    .filter((theme) => theme.isSystemTheme === false)
+    .filter((theme) => !theme.config.isDeprecated);
 
   /**
    * stores default system themes
    */
-  const systemThemes = themes.filter((theme) => theme.isSystemTheme === true);
+  const systemThemes = themes
+    .filter((theme) => theme.isSystemTheme === true)
+    .filter((theme) => !theme.config.isDeprecated)
+    .sort((a, b) => a.config.order - b.config.order);
 
   return (
     <div className="relative">
@@ -49,7 +52,6 @@ function ThemeSelector() {
           kind="secondary"
           onClick={onClickBack}
           startIcon="back-control"
-          to="#"
         >
           Back
         </Link>

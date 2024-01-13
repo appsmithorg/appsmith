@@ -18,10 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
@@ -71,18 +70,15 @@ public class MongoPluginQueriesTest {
     private static String address;
     private static Integer port;
     private JsonNode value;
-    private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static GenericContainer mongoContainer = new MongoTestContainer();
+    public static MongoDBContainer mongoContainer = MongoTestDBContainerManager.getMongoDBForTest();
 
     @BeforeAll
     public static void setUp() {
-        address = mongoContainer.getContainerIpAddress();
+        address = mongoContainer.getHost();
         port = mongoContainer.getFirstMappedPort();
-        String uri = "mongodb://" + address + ":" + port;
-        mongoClient = MongoClients.create(uri);
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -398,7 +394,7 @@ public class MongoPluginQueriesTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<DatasourceStructure> structureMono = pluginExecutor
                 .datasourceCreate(dsConfig)
-                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig, null, null));
 
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {

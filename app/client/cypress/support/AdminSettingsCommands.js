@@ -8,7 +8,9 @@ const googleForm = require("../locators/GoogleForm.json");
 const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
 import adminSettings from "../locators/AdminsSettings";
+import { ObjectsRegistry } from "./Objects/Registry";
 
+let agHelper = ObjectsRegistry.AggregateHelper;
 const BASE_URL = Cypress.config().baseUrl;
 
 Cypress.Commands.add("fillGoogleFormPartly", () => {
@@ -73,8 +75,17 @@ Cypress.Commands.add("waitForServerRestart", () => {
   cy.get(adminSettings.restartNotice).should("be.visible");
   // Wait for restart notice to not be visible with a timeout
   // Cannot use cy.get as mentioned in https://github.com/NoriSte/cypress-wait-until/issues/75#issuecomment-572685623
-  cy.waitUntil(() => !Cypress.$(adminSettings.restartNotice).length, {
-    timeout: 120000,
+  // cy.waitUntil(() => !Cypress.$(adminSettings.restartNotice).length, {
+  //   timeout: 180000,
+  // });
+  cy.get(adminSettings.restartNotice, { timeout: 300000 }).should("not.exist");
+  cy.get(adminSettings.appsmithStarting, { timeout: 300000 }).should(
+    "not.exist",
+  );
+
+  cy.window().then((win) => {
+    win.location.reload();
   });
-  cy.get(adminSettings.saveButton).should("be.visible");
+  agHelper.AssertElementVisibility(adminSettings.saveButton, true, 0, 30000);
+  agHelper.AssertElementAbsence(adminSettings.restartNotice, 30000);
 });

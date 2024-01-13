@@ -36,6 +36,7 @@ const VideoWrapper = styled.div<{
   backgroundColor?: string;
 }>`
   height: 100%;
+  width: 100%;
 
   & video,
   & > div {

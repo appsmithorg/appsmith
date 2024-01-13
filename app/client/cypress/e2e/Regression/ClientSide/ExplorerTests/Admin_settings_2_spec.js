@@ -12,7 +12,7 @@ const routes = {
   SETTINGS: "/settings",
   GENERAL: "/settings/general",
   EMAIL: "/settings/email",
-  GOOGLE_MAPS: "/settings/google-maps",
+  DEVELOPER_SETTINGS: "/settings/developer-settings",
   AUTHENTICATION: "/settings/authentication",
   GOOGLEAUTH: "/settings/authentication/google-auth",
   GITHUBAUTH: "/settings/authentication/github-auth",
@@ -21,9 +21,9 @@ const routes = {
   VERSION: "/settings/version",
 };
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   it("1. should test that configure link redirects to google maps setup doc", () => {
-    cy.visit(routes.GOOGLE_MAPS, { timeout: 60000 });
+    cy.visit(routes.DEVELOPER_SETTINGS, { timeout: 60000 });
     cy.get(adminsSettings.readMoreLink).within(() => {
       cy.get("a")
         .should("have.attr", "target", "_blank")
@@ -69,8 +69,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "3. should test that configure link redirects to google signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -89,8 +89,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "4. should test that configure link redirects to github signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -109,8 +109,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "5. should test that read more on version opens up release notes",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();
@@ -144,13 +144,13 @@ describe("Admin settings page", function () {
   );
 
   it("6. should test that settings page is not accessible to normal users", () => {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
     cy.visit(routes.GENERAL, { timeout: 60000 });
     // non super users are redirected to home page
     cy.url().should("contain", routes.APPLICATIONS);
-    cy.LogOut();
+    cy.LogOut(false);
   });
 });

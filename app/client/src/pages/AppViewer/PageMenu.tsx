@@ -14,9 +14,8 @@ import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
@@ -24,15 +23,16 @@ import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
 import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
 import BackToAppsButton from "./Navigation/components/BackToAppsButton";
+import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
 
-type NavigationProps = {
+interface NavigationProps {
   isOpen?: boolean;
   application?: ApplicationPayload;
   pages: Page[];
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;
   headerRef?: React.RefObject<HTMLDivElement>;
-};
+}
 
 export function PageMenu(props: NavigationProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;
@@ -41,7 +41,7 @@ export function PageMenu(props: NavigationProps) {
   const workspaceID = useSelector(getCurrentWorkspaceId);
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
-  const { hideWatermark } = getAppsmithConfigs();
+  const hideWatermark = useSelector(getHideWatermark);
   const navColorStyle =
     application?.applicationDetail?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
@@ -79,11 +79,6 @@ export function PageMenu(props: NavigationProps) {
       }
     });
   }
-
-  // TODO: Rahul - Check how to use this function in the new layout.
-  // const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-  //   dispatch(setShowAppInviteUsersDialog(isOpen));
-  // }, []);
 
   return (
     <>
@@ -152,7 +147,7 @@ export function PageMenu(props: NavigationProps) {
 
               {!hideWatermark && (
                 <a
-                  className="flex hover:no-underline mt-2"
+                  className="flex mt-2 hover:no-underline"
                   href="https://appsmith.com"
                   rel="noreferrer"
                   target="_blank"

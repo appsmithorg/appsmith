@@ -1,0 +1,27 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Commands",
+          "description": "Choose the method you would like to use",
+          "configProperty": "actionConfiguration.formData.command.data",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "CHAT",
+          "options": [
+            {
+              "label": "Chat",
+              "value": "CHAT"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    "chat.json"
+  ]
+}

@@ -16,9 +16,10 @@ import {
   initialize,
   isValid,
 } from "redux-form";
-import { merge, isEmpty, get, set, partition, omit } from "lodash";
+import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
@@ -32,38 +33,39 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import type { DatasourceGroupByPluginCategory } from "@appsmith/selectors/entitiesSelector";
 import {
   getDatasource,
-  getDatasourceDraft,
-  getPluginForm,
-  getGenerateCRUDEnabledPluginMap,
-  getPluginPackageFromDatasourceId,
-  getDatasources,
   getDatasourceActionRouteInfo,
-  getPlugin,
-  getEditorConfig,
-  getPluginByPackageName,
+  getDatasourceDraft,
+  getDatasources,
+  getDatasourcesGroupedByPluginCategory,
   getDatasourcesUsedInApplicationByActions,
+  getEditorConfig,
   getEntityExplorerDatasources,
-} from "selectors/entitiesSelector";
+  getGenerateCRUDEnabledPluginMap,
+  getPlugin,
+  getPluginByPackageName,
+  getPluginForm,
+  getPluginPackageFromDatasourceId,
+  PluginCategory,
+} from "@appsmith/selectors/entitiesSelector";
+import type {
+  executeDatasourceQueryReduxAction,
+  UpdateDatasourceSuccessAction,
+} from "actions/datasourceActions";
 import {
   addMockDatasourceToWorkspace,
-  setDatasourceViewModeFlag,
-} from "actions/datasourceActions";
-import type {
-  UpdateDatasourceSuccessAction,
-  executeDatasourceQueryReduxAction,
-} from "actions/datasourceActions";
-import { updateDatasourceAuthState } from "actions/datasourceActions";
-import {
   changeDatasource,
-  fetchDatasourceStructure,
-  setDatasourceViewMode,
-  updateDatasourceSuccess,
-  createTempDatasourceFromForm,
-  removeTempDatasource,
   createDatasourceSuccess,
+  createTempDatasourceFromForm,
+  fetchDatasourceStructure,
+  removeTempDatasource,
   resetDefaultKeyValPairFlag,
+  setDatasourceViewMode,
+  setDatasourceViewModeFlag,
+  updateDatasourceAuthState,
+  updateDatasourceSuccess,
 } from "actions/datasourceActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -71,11 +73,15 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type {
   Datasource,
   DatasourceStorage,
+  DatasourceStructureContext,
   MockDatasource,
   TokenResponse,
 } from "entities/Datasource";
-import { AuthenticationStatus, ToastMessageType } from "entities/Datasource";
-import { FilePickerActionStatus } from "entities/Datasource";
+import {
+  AuthenticationStatus,
+  FilePickerActionStatus,
+  ToastMessageType,
+} from "entities/Datasource";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_TABS,
@@ -116,7 +122,7 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginType, PluginPackageName } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -127,14 +133,18 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+  getWorkspaceIdForImport,
+} from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
   GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
@@ -147,19 +157,23 @@ import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import {
-  getCurrentEditingEnvID,
-  getCurrentEnvName,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
-import {
   getFormDiffPaths,
   getFormName,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
+import {
+  getCurrentEditingEnvironmentId,
+  getCurrentEnvironmentDetails,
+} from "@appsmith/selectors/environmentSelectors";
+import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -253,7 +267,15 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
     const { name, packageName, pluginId, skipRedirection, workspaceId } =
       actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
-    const pageId: string = yield select(getCurrentPageId);
+    const currentApplicationIdForCreateNewApp: string | undefined =
+      yield select(getCurrentApplicationIdForCreateNewApp);
+    const application: ApplicationPayload | undefined = yield select(
+      getApplicationByIdFromWorkspaces,
+      currentApplicationIdForCreateNewApp || "",
+    );
+    const pageId: string = !!currentApplicationIdForCreateNewApp
+      ? application?.defaultPageId
+      : yield select(getCurrentPageId);
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.addMockDbToDatasources(
         name,
@@ -324,6 +346,63 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
   }
 }
 
+/**
+ * Adds custom redirect logic to redirect after an item is deleted
+ * 1. Do not navigate if the deleted item is not selected
+ * 2. If it is the only item, navigate to the add url
+ * 3. If there are other items, navigate to an item close to the current one
+ * **/
+function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
+  const allDatasources: Datasource[] = yield select(getDatasources);
+
+  const currentSelectedEntity = identifyEntityFromPath(
+    window.location.pathname,
+  );
+  const isSelectedDatasourceDeleted =
+    currentSelectedEntity.id === deletedDatasourceId;
+
+  // Don't do anything if current selection is not the deleted datasource
+  if (!isSelectedDatasourceDeleted) {
+    return;
+  }
+
+  const remainingDatasources = allDatasources.filter(
+    (d) => d.id !== deletedDatasourceId,
+  );
+  // Go to the add datasource if the last item is deleted
+  if (remainingDatasources.length === 0) {
+    history.push(integrationEditorURL({ selectedTab: INTEGRATION_TABS.NEW }));
+    return;
+  }
+
+  // Try to find if any other item in the same group is present,
+  // if not, navigate to the first item on the list
+  const groupedDatasources: DatasourceGroupByPluginCategory = yield select(
+    getDatasourcesGroupedByPluginCategory,
+  );
+  let deletedGroup: PluginCategory = PluginCategory.Others;
+  for (const [group, datasources] of Object.entries(groupedDatasources)) {
+    if (datasources.find((d) => d.id === deletedDatasourceId)) {
+      deletedGroup = group as PluginCategory;
+      break;
+    }
+  }
+
+  const groupDatasources = groupedDatasources[deletedGroup];
+  const remainingGroupDatasources = groupDatasources.filter(
+    (d) => d.id !== deletedDatasourceId,
+  );
+  if (remainingGroupDatasources.length === 0) {
+    history.push(
+      datasourcesEditorIdURL({ datasourceId: remainingDatasources[0].id }),
+    );
+  } else {
+    history.push(
+      datasourcesEditorIdURL({ datasourceId: remainingGroupDatasources[0].id }),
+    );
+  }
+}
+
 export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
@@ -356,10 +435,16 @@ export function* deleteDatasourceSaga(
           datasourceId: id,
         }),
       );
-
-      if (
-        window.location.pathname === datasourcePathWithoutQuery ||
-        window.location.pathname === saasPathWithoutQuery
+      const isPagePaneSegmentsEnabled: boolean = yield select(
+        selectFeatureFlagCheck,
+        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      );
+      const currentUrl = `${window.location.pathname}`;
+      if (isPagePaneSegmentsEnabled) {
+        yield call(handleDatasourceDeleteRedirect, id);
+      } else if (
+        currentUrl === datasourcePathWithoutQuery ||
+        currentUrl === saasPathWithoutQuery
       ) {
         history.push(
           integrationEditorURL({
@@ -376,6 +461,8 @@ export function* deleteDatasourceSaga(
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",
       });
+
+      yield put(removeFocusHistoryRequest(currentUrl));
 
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_SUCCESS,
@@ -426,6 +513,23 @@ export function* deleteDatasourceSaga(
   }
 }
 
+const getConnectionMethod = (
+  datasourceStoragePayload: DatasourceStorage,
+  pluginPackageName: string,
+) => {
+  const properties = get(
+    datasourceStoragePayload,
+    "datasourceConfiguration.properties",
+  );
+
+  switch (pluginPackageName) {
+    case PluginPackageName.MY_SQL:
+      return properties?.[1]?.value;
+    default:
+      return null;
+  }
+};
+
 function* updateDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<
     Datasource & { isInsideReconnectModal: boolean; currEditingEnvId?: string },
@@ -434,9 +538,12 @@ function* updateDatasourceSaga(
   >,
 ) {
   try {
+    const currentEnvDetails: { editingId: string; name: string } = yield select(
+      getCurrentEnvironmentDetails,
+    );
     const queryParams = getQueryParams();
     const currentEnvironment =
-      actionPayload.payload?.currEditingEnvId || getCurrentEnvironment();
+      actionPayload.payload?.currEditingEnvId || currentEnvDetails.editingId;
     const datasourcePayload = omit(actionPayload.payload, "name");
     const datasourceStoragePayload =
       datasourcePayload.datasourceStorages[currentEnvironment];
@@ -510,11 +617,15 @@ function* updateDatasourceSaga(
         datasourceId: responseData?.id,
         datasourceName: responseData.name,
         environmentId: currentEnvironment,
-        environmentName: getCurrentEnvName(),
+        environmentName: currentEnvDetails.name,
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
+        connectionMethod: getConnectionMethod(
+          datasourceStoragePayload,
+          pluginPackageName,
+        ),
       });
       toast.show(createMessage(DATASOURCE_UPDATE, responseData.name), {
         kind: "success",
@@ -594,9 +705,17 @@ function* redirectAuthorizationCodeSaga(
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
+  const branchName: string | undefined = yield select(getCurrentGitBranch);
 
   if (pluginType === PluginType.API) {
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${getCurrentEditingEnvID()}`;
+    const currentEnvironment: string = yield select(
+      getCurrentEditingEnvironmentId,
+    );
+    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    if (!!branchName) {
+      windowLocation = windowLocation + `&branchName=` + branchName;
+    }
+    window.location.href = windowLocation;
   } else {
     try {
       // Get an "appsmith token" from the server
@@ -641,6 +760,8 @@ function* getOAuthAccessTokenSaga(
     return;
   }
   try {
+    // wait for envs to be fetched
+    yield call(waitForFetchEnvironments);
     // Get access token for datasource
     const response: ApiResponse<TokenResponse> = yield OAuthApi.getAccessToken(
       datasourceId,
@@ -666,11 +787,14 @@ function* getOAuthAccessTokenSaga(
           },
         });
       } else {
+        const currentEnvDetails: { id: string; name: string } = yield select(
+          getCurrentEnvironmentDetails,
+        );
         AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
           applicationId: applicationId,
           datasourceId: datasourceId,
-          environmentId: getCurrentEnvironment(),
-          environmentName: getCurrentEnvName(),
+          environmentId: currentEnvDetails.id,
+          environmentName: currentEnvDetails.name,
           pageId: pageId,
           oAuthPassOrFailVerdict: "success",
           workspaceId: response.data.datasource?.workspaceId,
@@ -743,7 +867,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     yield select(getDatasource, actionPayload.payload.id),
     `Datasource not found for id - ${actionPayload.payload.id}`,
   );
-  const currentEnvironment = getCurrentEditingEnvID();
+  const currentEnvironment: string = yield select(
+    getCurrentEditingEnvironmentId,
+  );
   const payload = {
     ...actionPayload.payload,
     id: actionPayload.payload.id as any,
@@ -767,6 +893,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     };
   }
 
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
   try {
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.testDatasource(
@@ -790,7 +919,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
           datasoureId: datasource?.id,
           environmentId: currentEnvironment,
-          environmentName: getCurrentEnvName(),
+          environmentName: currentEnvDetails.name,
           pluginName: plugin?.name,
           errorMessages: responseData.invalids,
           messages: responseData.messages,
@@ -828,7 +957,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           datasourceName: payload.name,
           datasoureId: datasource?.id,
           environmentId: currentEnvironment,
-          environmentName: getCurrentEnvName(),
+          environmentName: currentEnvDetails.name,
           pluginName: plugin?.name,
         });
         toast.show(createMessage(DATASOURCE_VALID, payload.name), {
@@ -861,7 +990,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
       datasoureId: datasource?.id,
       environmentId: currentEnvironment,
-      environmentName: getCurrentEnvName(),
+      environmentName: currentEnvDetails.name,
       pluginName: plugin?.name,
       errorMessages: (error as any)?.message,
     });
@@ -928,6 +1057,17 @@ function* createTempDatasourceFromFormSaga(
     initialValues,
   );
 
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+
+  if (currentApplicationIdForCreateNewApp) {
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+      payload: actionPayload.payload.pluginId,
+    });
+  }
+
   yield put(createDatasourceSuccess(payload as Datasource));
 
   yield put({
@@ -962,7 +1102,9 @@ function* createDatasourceFromFormSaga(
       getPluginForm,
       actionPayload.payload.pluginId,
     );
-    const currentEnvironment = getCurrentEditingEnvID();
+    const currentEnvironment: string = yield select(
+      getCurrentEditingEnvironmentId,
+    );
 
     const initialValues: unknown = yield call(
       getConfigInitialValues,
@@ -1000,6 +1142,9 @@ function* createDatasourceFromFormSaga(
         workspaceId,
       });
     const isValidResponse: boolean = yield validateResponse(response);
+    const currentEnvDetails: { id: string; name: string } = yield select(
+      getCurrentEnvironmentDetails,
+    );
     if (isValidResponse) {
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       const formName: string = getFormName(plugin);
@@ -1014,11 +1159,15 @@ function* createDatasourceFromFormSaga(
         datasourceId: response?.data?.id,
         datasourceName: response?.data?.name,
         environmentId: currentEnvironment,
-        environmentName: getCurrentEnvName(),
+        environmentName: currentEnvDetails.name,
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
+        connectionMethod: getConnectionMethod(
+          datasourceStoragePayload,
+          plugin?.packageName,
+        ),
       });
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
@@ -1080,6 +1229,9 @@ function* changeDatasourceSaga(
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
   const pageId: string = yield select(getCurrentPageId);
   let data;
   if (isEmpty(draft)) {
@@ -1096,12 +1248,14 @@ function* changeDatasourceSaga(
     ),
   );
   // on reconnect modal, it shouldn't be redirected to datasource edit page
-  if (shouldNotRedirect) return;
+  // on create new app onboarding flow, it shouldn't redirect either
+  if (shouldNotRedirect || currentApplicationIdForCreateNewApp) return;
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
       pageId,
       datasourceId: datasource.id,
+      generateEditorPath: true,
     }),
   );
 
@@ -1111,6 +1265,7 @@ function* changeDatasourceSaga(
         pageId,
         datasourceId: datasource.id,
         params: getQueryParams(),
+        generateEditorPath: true,
       }),
     );
   yield put(
@@ -1171,7 +1326,11 @@ function* storeAsDatasourceSaga() {
   let datasource = get(values, "datasource");
   datasource = omit(datasource, ["name"]);
   const originalHeaders = get(values, "actionConfiguration.headers", []);
-  const currentEnvironment = getCurrentEnvironment();
+
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
+  const currentEnvironment = currentEnvDetails.id;
   const [datasourceHeaders, actionHeaders] = partition(
     originalHeaders,
     ({ key, value }: { key: string; value: string }) => {
@@ -1326,11 +1485,13 @@ function* fetchDatasourceStructureSaga(
         });
       }
       if (!!(response.data as any)?.error) {
+        isSuccess = false;
         errorMessage = (response.data as any).error?.message;
       }
     }
   } catch (error) {
     errorMessage = (error as any)?.message;
+    isSuccess = false;
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
@@ -1348,11 +1509,14 @@ function* fetchDatasourceStructureSaga(
       },
     });
   }
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
   AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
     datasourceId: datasource?.id,
     pluginName: plugin?.name,
-    environmentId: getCurrentEnvironment(),
-    environmentName: getCurrentEnvName(),
+    environmentId: currentEnvDetails.id,
+    environmentName: currentEnvDetails.name,
     errorMessage: errorMessage,
     isSuccess: isSuccess,
     source: action.payload.schemaFetchContext,
@@ -1440,10 +1604,12 @@ function* refreshDatasourceStructure(
         });
       }
       if (!!(response.data as any)?.error) {
-        errorMessage = (response.data as any)?.message;
+        isSuccess = false;
+        errorMessage = (response.data as any)?.error?.message;
       }
     }
   } catch (error) {
+    isSuccess = false;
     errorMessage = (error as any)?.message;
     yield put({
       type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,
@@ -1462,12 +1628,15 @@ function* refreshDatasourceStructure(
       },
     });
   }
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
 
   AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
     datasourceId: datasource?.id,
     pluginName: plugin?.name,
-    environmentId: getCurrentEnvironment(),
-    environmentName: getCurrentEnvName(),
+    environmentId: currentEnvDetails.id,
+    environmentName: currentEnvDetails.name,
     errorMessage: errorMessage,
     isSuccess: isSuccess,
     source: action.payload.schemaRefreshContext,
@@ -1478,18 +1647,25 @@ function* executeDatasourceQuerySaga(
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
-    // const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
-    //   action.payload,
-    // );
-    const response: ApiResponse =
-      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload);
+    // isGeneratePage value is because we are reusing the same action which calls this saga for both generating the page and fetching preview data
+    // We use it to choose the appropriate API to call and the appropriate payload to pass to the API.
+    // We are reusing this saga because of its similar flow, and since we do not persist the data to redux state but instead trigger callbacks.
+    const response: ApiResponse = action.payload.isGeneratePage
+      ? yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload)
+      : yield DatasourcesApi.executeDatasourceQuery({
+          data: action.payload?.template,
+          datasourceId: action.payload.datasourceId,
+        });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS,
         payload: {
-          // @ts-expect-error: we don't know what the response will be
-          data: response.data?.trigger,
+          data: action.payload.isGeneratePage
+            ? // @ts-expect-error: we don't know what the response will be
+              response.data?.trigger
+            : // @ts-expect-error: we don't know what the response will be
+              response.data?.body,
           datasourceId: action.payload.datasourceId,
         },
       });
@@ -1506,8 +1682,12 @@ function* executeDatasourceQuerySaga(
       },
     });
     if (action.onErrorCallback) {
-      // @ts-expect-error: onErrorCallback expects string
-      action.onErrorCallback(error);
+      if (error instanceof Error) {
+        action.onErrorCallback(error.message);
+      } else {
+        // @ts-expect-error: onErrorCallback expects string
+        action.onErrorCallback(error);
+      }
     }
   }
 }
@@ -1573,7 +1753,9 @@ function* filePickerActionCallbackSaga(
     const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);
-    const currentEnvironment = getCurrentEnvironment();
+    const currentEnvDetails: { id: string; name: string } = yield select(
+      getCurrentEnvironmentDetails,
+    );
 
     // update authentication status based on whether files were picked or not
     const authStatus =
@@ -1584,7 +1766,7 @@ function* filePickerActionCallbackSaga(
     // Once files are selected in case of import, set this flag
     set(
       datasource,
-      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+      `datasourceStorages.${currentEnvDetails.id}.datasourceConfiguration.authentication.authenticationStatus`,
       true,
     );
 
@@ -1593,8 +1775,8 @@ function* filePickerActionCallbackSaga(
       applicationId: applicationId,
       pageId: pageId,
       datasourceId: datasource?.id,
-      environmentId: currentEnvironment,
-      environmentName: getCurrentEnvName(),
+      environmentId: currentEnvDetails.id,
+      environmentName: currentEnvDetails.name,
       oAuthPassOrFailVerdict:
         authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED
           ? createMessage(FILES_NOT_SELECTED_EVENT)
@@ -1610,7 +1792,7 @@ function* filePickerActionCallbackSaga(
     // using the second index specifically for file ids.
     set(
       datasource,
-      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties[1]`,
+      `datasourceStorages.${currentEnvDetails.id}.datasourceConfiguration.properties[1]`,
       {
         key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
         value: fileIds,
@@ -1847,7 +2029,9 @@ function* updateDatasourceAuthStateSaga(
 ) {
   try {
     const { authStatus, datasource } = actionPayload.payload;
-    const currentEnvironment = getCurrentEditingEnvID();
+    const currentEnvironment: string = yield select(
+      getCurrentEditingEnvironmentId,
+    );
     set(
       datasource,
       `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,

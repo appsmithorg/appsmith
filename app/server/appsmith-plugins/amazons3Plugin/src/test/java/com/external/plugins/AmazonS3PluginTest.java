@@ -98,6 +98,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 public class AmazonS3PluginTest {
@@ -1333,6 +1334,8 @@ public class AmazonS3PluginTest {
         signedURLS.add("https://example.signed.url");
         doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(), any(), any(), anyString(), anyString());
         doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(), any(), any());
+        String unsignedURL = "https://example.unsigned.url";
+        doReturn(unsignedURL).when(spyS3PluginExecutor).createFileUrl(any(), anyString(), anyString());
         Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
 
@@ -1340,6 +1343,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertEquals(((HashMap) result.getBody()).get("signedUrl"), signedURLS.get(0));
+                    assertEquals(((HashMap) result.getBody()).get("url"), unsignedURL);
                 })
                 .verifyComplete();
     }
@@ -1372,6 +1376,12 @@ public class AmazonS3PluginTest {
         signedURLS.add("https://example.signed.url2");
         doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(), any(), any(), anyString(), anyString());
         doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(), any(), any());
+        ArrayList<String> unsignedURLS = new ArrayList<>();
+        unsignedURLS.add("https://example.unsigned.url1");
+        unsignedURLS.add("https://example.unsigned.url2");
+        doReturn(unsignedURLS)
+                .when(spyS3PluginExecutor)
+                .createFileUrlsFromBody(any(), anyString(), anyString(), anyString());
         Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
 
@@ -1382,6 +1392,10 @@ public class AmazonS3PluginTest {
                     assertEquals(x.size(), signedURLS.size());
                     assertEquals(x.get(0), signedURLS.get(0));
                     assertEquals(x.get(1), signedURLS.get(1));
+                    ArrayList<String> urls = (ArrayList<String>) ((HashMap) result.getBody()).get("urls");
+                    assertEquals(urls.size(), unsignedURLS.size());
+                    assertEquals(urls.get(0), unsignedURLS.get(0));
+                    assertEquals(urls.get(1), unsignedURLS.get(1));
                 })
                 .verifyComplete();
     }
@@ -1496,5 +1510,33 @@ public class AmazonS3PluginTest {
         StepVerifier.create(datasourceTestResultMono)
                 .assertNext(result -> assertEquals(0, result.getInvalids().size()))
                 .verifyComplete();
+    }
+
+    @Test
+    public void verify_sanitizeGenerateCRUDPageTemplateInfo_doesNothing_onEmptyActionConfig() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        List<ActionConfiguration> actionConfigurationList = new ArrayList<>();
+        Map<String, String> mappedColumnsAndTableName = new HashMap<>();
+        pluginExecutor
+                .sanitizeGenerateCRUDPageTemplateInfo(actionConfigurationList, mappedColumnsAndTableName, "test")
+                .block();
+        assertEquals(0, actionConfigurationList.size());
+        assertEquals(true, isEmpty(mappedColumnsAndTableName));
+    }
+
+    @Test
+    public void verify_sanitizeGenerateCRUDPageTemplateInfo_addsInfoToReplaceTemplateBucket_withUserSelectedBucket() {
+        Map<String, String> mappedColumnsAndTableName = new HashMap<>();
+        String userSelectedBucketName = "userBucket";
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, "bucket", "templateBucket");
+        actionConfiguration.setFormData(formData);
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        pluginExecutor
+                .sanitizeGenerateCRUDPageTemplateInfo(
+                        List.of(actionConfiguration), mappedColumnsAndTableName, userSelectedBucketName)
+                .block();
+        assertEquals(userSelectedBucketName, mappedColumnsAndTableName.get("templateBucket"));
     }
 }

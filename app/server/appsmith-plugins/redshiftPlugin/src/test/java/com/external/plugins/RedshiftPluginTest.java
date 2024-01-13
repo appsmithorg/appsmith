@@ -481,21 +481,24 @@ public class RedshiftPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
                                 new DatasourceStructure.Template(
-                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"possessions\" "
-                                                + "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);"),
+                                                + "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"possessions\" SET\n" + "    \"id\" = 1\n"
                                                 + "    \"title\" = ''\n"
                                                 + "    \"user_id\" = 1\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"possessions\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             possessionsTable.getTemplates().toArray());
 
@@ -521,20 +524,24 @@ public class RedshiftPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"users\" (\"username\", \"password\")\n"
-                                                + "  VALUES ('', '');"),
+                                                + "  VALUES ('', '');",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"users\" SET\n" + "    \"username\" = ''\n"
                                                 + "    \"password\" = ''\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"users\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             usersTable.getTemplates().toArray());
                 })
@@ -622,6 +629,72 @@ public class RedshiftPluginTest {
                                         .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
                     assertEquals(expectedColumnNames, foundColumnNames);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_endpointNotPresent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        // setting endpoints to empty list
+        dsConfig.setEndpoints(new ArrayList());
+
+        final Mono<String> rateLimitIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(rateLimitIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAbsent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("");
+        dsConfig.getEndpoints().get(0).setPort(5439L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAndPortPresent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(590L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_590", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5439", endpointIdentifier);
                 })
                 .verifyComplete();
     }

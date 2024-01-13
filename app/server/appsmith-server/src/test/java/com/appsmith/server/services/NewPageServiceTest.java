@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
@@ -12,10 +13,14 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +66,29 @@ public class NewPageServiceTest {
     @Autowired
     PagePermission pagePermission;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    String workspaceId = null;
+
+    @BeforeEach
+    public void setup() {
+        String randomId = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        workspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
+    }
+
     @Test
     @WithUserDetails("api_user")
     public void testCreateDefault() {
@@ -94,19 +122,14 @@ public class NewPageServiceTest {
     @WithUserDetails("api_user")
     public void findApplicationPages_WhenApplicationIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
-        Workspace workspace = new Workspace();
-        workspace.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService
-                .create(workspace)
-                .flatMap(createdOrg -> {
-                    Application application = new Application();
-                    application.setName("app_" + randomId);
-                    return applicationPageService.createApplication(application, createdOrg.getId());
-                })
-                .flatMap(application -> {
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
                     PageDTO pageDTO = new PageDTO();
                     pageDTO.setName("page_" + randomId);
-                    pageDTO.setApplicationId(application.getId());
+                    pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
                 .flatMap(pageDTO -> newPageService.findApplicationPages(
@@ -130,23 +153,18 @@ public class NewPageServiceTest {
     @WithUserDetails("api_user")
     public void findApplicationPagesInViewMode_WhenApplicationIdPresent_ReturnsViewMode() {
         String randomId = UUID.randomUUID().toString();
-        Workspace workspace = new Workspace();
-        workspace.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService
-                .create(workspace)
-                .flatMap(createdOrg -> {
-                    Application application = new Application();
-                    application.setName("app_" + randomId);
-                    return applicationPageService.createApplication(application, createdOrg.getId());
-                })
-                .flatMap(application -> {
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
                     PageDTO pageDTO = new PageDTO();
                     pageDTO.setName("page_" + randomId);
-                    pageDTO.setApplicationId(application.getId());
+                    pageDTO.setApplicationId(application1.getId());
                     Mono<PageDTO> pageDTOMono =
                             applicationPageService.createPage(pageDTO).cache();
                     return pageDTOMono
-                            .then(applicationPageService.publish(application.getId(), true))
+                            .then(applicationPageService.publish(application1.getId(), true))
                             .then(pageDTOMono);
                 })
                 .flatMap(pageDTO -> newPageService.findApplicationPages(
@@ -170,19 +188,14 @@ public class NewPageServiceTest {
     @WithUserDetails("api_user")
     public void findApplicationPages_WhenPageIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
-        Workspace workspace = new Workspace();
-        workspace.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application application = new Application();
-                    application.setName("app_" + randomId);
-                    return applicationPageService.createApplication(application, createdWorkspace.getId());
-                })
-                .flatMap(application -> {
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
                     PageDTO pageDTO = new PageDTO();
                     pageDTO.setName("page_" + randomId);
-                    pageDTO.setApplicationId(application.getId());
+                    pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
                 .flatMap(pageDTO ->
@@ -204,21 +217,16 @@ public class NewPageServiceTest {
     @WithUserDetails("api_user")
     public void findApplicationPagesByApplicationIdViewMode_WhenApplicationHasNoHomePage_FirstPageIsSetAsHomePage() {
         String randomId = UUID.randomUUID().toString();
-        Workspace workspace = new Workspace();
-        workspace.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application application = new Application();
-                    application.setName("app_" + randomId);
-                    return applicationPageService.createApplication(application, createdWorkspace.getId());
-                })
-                .flatMap(application -> {
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
                     // set isDefault=false to the default page
-                    ApplicationPage applicationPage = application.getPages().get(0);
+                    ApplicationPage applicationPage = application1.getPages().get(0);
                     applicationPage.setIsDefault(false);
                     return applicationService
-                            .save(application)
+                            .save(application1)
                             .then(newPageService.findApplicationPages(
                                     null, applicationPage.getId(), null, ApplicationMode.EDIT));
                 });
@@ -235,24 +243,19 @@ public class NewPageServiceTest {
     @WithUserDetails("api_user")
     public void findApplicationPage_CheckPageIcon_IsValid() {
         String randomId = UUID.randomUUID().toString();
-        Workspace workspace = new Workspace();
-        workspace.setName("org_" + randomId);
-        Mono<PageDTO> applicationPageDTOMono = workspaceService
-                .create(workspace)
-                .flatMap(createdWorkspace -> {
-                    Application application = new Application();
-                    application.setName("app_" + randomId);
-                    return applicationPageService.createApplication(application, createdWorkspace.getId());
-                })
-                .flatMap(application -> {
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<PageDTO> applicationPageDTOMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
                     PageDTO pageDTO = new PageDTO();
                     pageDTO.setName("page_" + randomId);
                     pageDTO.setIcon("flight");
-                    pageDTO.setApplicationId(application.getId());
+                    pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO ->
-                        applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false));
+                .flatMap(pageDTO -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                        pageDTO.getId(), null, false, false));
 
         StepVerifier.create(applicationPageDTOMono)
                 .assertNext(applicationPageDTO -> {

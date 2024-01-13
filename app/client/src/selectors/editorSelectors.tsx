@@ -25,13 +25,11 @@ import {
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import type {
-  DataTree,
-  ConfigTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { find, sortBy } from "lodash";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
   getLoadingEntities,
@@ -43,34 +41,34 @@ import {
   getActions,
   getCanvasWidgets,
   getJSCollections,
-} from "selectors/entitiesSelector";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+} from "@appsmith/selectors/entitiesSelector";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
-  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
-import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { protectedModeSelector } from "./gitSyncSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
 const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
-export const getWidgetConfigs = (state: AppState) =>
-  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -187,11 +185,14 @@ export const getCurrentPageDescription = createSelector(
 );
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
-  pages.reduce((acc, page: Page) => {
-    // Comeback
-    acc[page.pageId] = page.slug || "";
-    return acc;
-  }, {} as Record<string, string>),
+  pages.reduce(
+    (acc, page: Page) => {
+      // Comeback
+      acc[page.pageId] = page.slug || "";
+      return acc;
+    },
+    {} as Record<string, string>,
+  ),
 );
 
 export const getCurrentApplication = (state: AppState) =>
@@ -220,7 +221,9 @@ export const selectURLSlugs = createSelector(
   getCurrentPageId,
   (application, pages, pageId) => {
     const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
-    const currentPage = pages.find((page) => page.pageId === pageId);
+    const currentPage: Page | undefined = pages.find(
+      (page) => page.pageId === pageId,
+    );
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     const customSlug = currentPage?.customSlug;
     return { applicationSlug, pageSlug, customSlug };
@@ -260,36 +263,21 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-export const getAppPositioningType = (state: AppState) => {
-  if (
-    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
-      ?.type
-  ) {
-    return AppPositioningTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
-  }
-  return AppPositioningTypes.FIXED;
-};
-
-export const getCurrentAppPositioningType = createSelector(
-  getAppPositioningType,
-  (appPositionType: AppPositioningTypes): AppPositioningTypes => {
-    return appPositionType || AppPositioningTypes.FIXED;
-  },
+export const getIsMobileCanvasLayout = createSelector(
+  getAppLayout,
+  (appLayout: AppLayoutConfig) => appLayout.type === "MOBILE",
 );
 
 export const getIsAutoLayout = createSelector(
-  getCurrentAppPositioningType,
-  (positioningType) => positioningType === AppPositioningTypes.AUTO,
+  getLayoutSystemType,
+  (layoutSystemType) => layoutSystemType === LayoutSystemTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
-  getCurrentAppPositioningType,
-  (appLayout: AppLayoutConfig, appPositionType) => {
-    return appPositionType === AppPositioningTypes.FIXED
+  getLayoutSystemType,
+  (appLayout: AppLayoutConfig, layoutSystemType) => {
+    return layoutSystemType === LayoutSystemTypes.FIXED
       ? appLayout
       : defaultLayout;
   },
@@ -336,11 +324,13 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getWidgetCards = createSelector(
-  getWidgetConfigs,
   getIsAutoLayout,
-  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
-  (widgetConfigs, isAutoLayout, isWDSEnabled) => {
-    const cards = Object.values(widgetConfigs.config).filter((config) => {
+  (_state: AppState) =>
+    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (isAutoLayout, isWDSEnabled) => {
+    const widgetConfigs = WidgetFactory.getConfigs();
+
+    const cards = Object.values(widgetConfigs).filter((config) => {
       // if wds_vs is not enabled, hide all wds_v2 widgets
       if (
         Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
@@ -366,6 +356,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout = false,
         displayName,
         iconSVG,
+        isSearchWildcard,
         key,
         searchTags,
         tags,
@@ -390,6 +381,7 @@ export const getWidgetCards = createSelector(
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
+        isSearchWildcard: isSearchWildcard,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -556,14 +548,6 @@ export const getChildWidgets = createSelector(
   buildChildWidgetTree,
 );
 
-export const getFlattenedChildCanvasWidgets = createSelector(
-  [
-    getCanvasWidgets,
-    (_state: AppState, parentWidgetId: string) => parentWidgetId,
-  ],
-  buildFlattenedChildCanvasWidgets,
-);
-
 const getOccupiedSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],
@@ -623,11 +607,11 @@ const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
   dimensionMap = DefaultDimensionMap,
-): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
+): { [containerWidgetId: string]: WidgetSpace[] } => {
   const occupiedSpaces: {
     [containerWidgetId: string]: WidgetSpace[];
   } = {};
-  if (!fetchNow) return;
+  if (!fetchNow) return {};
   // Get all widgets with type "CONTAINER_WIDGET" and has children
   const containerWidgets: FlattenedWidgetProps[] = Object.values(
     widgets,
@@ -654,7 +638,7 @@ const generateOccupiedSpacesMap = (
     });
   }
   // Return undefined if there are no occupiedSpaces.
-  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : {};
 };
 
 // returns occupied spaces
@@ -939,6 +923,18 @@ export const getActionById = createSelector(
   },
 );
 
+export const getJSCollectionDataById = createSelector(
+  [getJSCollections, (state: AppState, collectionId: string) => collectionId],
+  (jsActions, id) => {
+    const action = jsActions.find((action) => action.config.id === id);
+    if (action) {
+      return action;
+    } else {
+      return undefined;
+    }
+  },
+);
+
 export const getJSCollectionById = createSelector(
   [
     getJSCollections,
@@ -1015,3 +1011,9 @@ export const getGsheetToken = (state: AppState) =>
 
 export const getGsheetProjectID = (state: AppState) =>
   state.entities.datasources.gsheetProjectID;
+
+export const combinedPreviewModeSelector = createSelector(
+  previewModeSelector,
+  protectedModeSelector,
+  (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
+);

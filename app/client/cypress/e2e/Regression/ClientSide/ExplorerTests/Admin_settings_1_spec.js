@@ -12,7 +12,7 @@ const routes = {
   SETTINGS: "/settings",
   GENERAL: "/settings/general",
   EMAIL: "/settings/email",
-  GOOGLE_MAPS: "/settings/google-maps",
+  DEVELOPER_SETTINGS: "/settings/developer-settings",
   AUTHENTICATION: "/settings/authentication",
   GOOGLEAUTH: "/settings/authentication/google-auth",
   GITHUBAUTH: "/settings/authentication/github-auth",
@@ -21,7 +21,7 @@ const routes = {
   VERSION: "/settings/version",
 };
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -45,8 +45,8 @@ describe("Admin settings page", function () {
 
   it("2. should test that page header is visible", () => {
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
-    cy.visit(routes.GOOGLE_MAPS, { timeout: 60000 });
-    cy.url().should("contain", "/google-maps");
+    cy.visit(routes.DEVELOPER_SETTINGS, { timeout: 60000 });
+    cy.url().should("contain", "/developer-settings");
     cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.visit(routes.GOOGLEAUTH, { timeout: 60000 });
@@ -70,8 +70,8 @@ describe("Admin settings page", function () {
   });
 
   it(
-    "excludeForAirgap",
     "5. should test that settings page tab redirects not airgap",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.APPLICATIONS, { timeout: 60000 });
       cy.wait(3000);
@@ -84,8 +84,8 @@ describe("Admin settings page", function () {
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.emailTab).click();
       cy.url().should("contain", routes.EMAIL);
-      cy.get(adminsSettings.googleMapsTab).click();
-      cy.url().should("contain", routes.GOOGLE_MAPS);
+      cy.get(adminsSettings.developerSettingsTab).click();
+      cy.url().should("contain", routes.DEVELOPER_SETTINGS);
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", routes.VERSION);
     },
@@ -105,7 +105,7 @@ describe("Admin settings page", function () {
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.emailTab).click();
-      cy.get(adminsSettings.googleMapsTab).should("not.exist");
+      cy.get(adminsSettings.developerSettingsTab).should("not.exist");
       cy.url().should("contain", routes.EMAIL);
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", routes.VERSION);

@@ -33,7 +33,7 @@ import {
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { toast } from "design-system";
 
 const RecaptchaWrapper = styled.div`
@@ -160,7 +160,7 @@ export const StyledButton = styled((props) => (
   ${buttonBaseStyle}
 `;
 
-export type ButtonStyleProps = {
+export interface ButtonStyleProps {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   boxShadow?: string;
@@ -173,7 +173,7 @@ export type ButtonStyleProps = {
   maxWidth?: number;
   minWidth?: number;
   minHeight?: number;
-};
+}
 
 // To be used in any other part of the app
 export function BaseButton(props: IButtonProps & ButtonStyleProps) {
@@ -280,14 +280,14 @@ interface ButtonComponentProps extends ComponentProps {
   maxWidth?: number;
 }
 
-type RecaptchaV2ComponentPropType = {
+interface RecaptchaV2ComponentPropType {
   children: any;
   className?: string;
   isDisabled?: boolean;
   recaptchaType?: RecaptchaType;
   isLoading: boolean;
   handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
-};
+}
 
 function RecaptchaV2Component(
   props: RecaptchaV2ComponentPropType & RecaptchaProps,
@@ -335,14 +335,14 @@ function RecaptchaV2Component(
   );
 }
 
-type RecaptchaV3ComponentPropType = {
+interface RecaptchaV3ComponentPropType {
   children: any;
   className?: string;
   isDisabled?: boolean;
   recaptchaType?: RecaptchaType;
   isLoading: boolean;
   handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
-};
+}
 
 function RecaptchaV3Component(
   props: RecaptchaV3ComponentPropType & RecaptchaProps,

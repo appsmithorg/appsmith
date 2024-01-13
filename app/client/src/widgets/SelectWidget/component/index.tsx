@@ -18,12 +18,14 @@ import {
   DropdownStyles,
   DropdownContainer,
   MenuItem,
+  RTLStyleContainer,
 } from "./index.styled";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import type { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
 import { labelMargin } from "../../WidgetUtils";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
@@ -239,9 +241,11 @@ class SelectComponent extends React.Component<
         {renderItem(items[itemProps.index], itemProps.index)}
       </div>
     );
+
     return (
       <FixedSizeList
         className="menu-virtual-list"
+        direction={this.props.rtl ? "rtl" : "ltr"}
         height={MAX_RENDER_MENU_ITEMS_HEIGHT}
         initialScrollOffset={scrollOffset}
         itemCount={items.length}
@@ -327,7 +331,13 @@ class SelectComponent extends React.Component<
         compactMode={compactMode}
         data-testid="select-container"
         labelPosition={labelPosition}
+        rtl={this.props.rtl}
       >
+        {this.props.rtl ? (
+          <RTLStyleContainer
+            dropdownPopoverContainer={`select-popover-wrapper-${this.props.widgetId}`}
+          />
+        ) : null}
         <DropdownStyles
           accentColor={accentColor}
           borderRadius={borderRadius}
@@ -383,7 +393,7 @@ class SelectComponent extends React.Component<
             onQueryChange={this.onQueryChange}
             popoverProps={{
               portalContainer:
-                document.getElementById("art-board") || undefined,
+                document.getElementById(CANVAS_ART_BOARD) || undefined,
               boundary: "window",
               isOpen: this.state.isOpen,
               minimal: true,
@@ -403,7 +413,7 @@ class SelectComponent extends React.Component<
                   enabled: false,
                 },
               },
-              popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
+              popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId} select-popover-wrapper-${this.props.widgetId}`,
             }}
             query={this.props.filterText}
             resetOnClose={this.props.resetFilterTextOnClose}
@@ -465,6 +475,7 @@ export interface SelectComponentProps extends ComponentProps {
   onClose?: () => void;
   hideCancelIcon?: boolean;
   resetFilterTextOnClose?: boolean;
+  rtl?: boolean;
 }
 
 export default React.memo(SelectComponent);

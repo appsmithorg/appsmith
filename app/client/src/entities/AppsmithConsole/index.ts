@@ -29,14 +29,14 @@ export type Methods =
   | "count"
   | "assert";
 
-export type LogObject = {
+export interface LogObject {
   method: Methods | "result";
   data: any[];
   timestamp: string;
   id: string;
   severity: Severity;
   source: SourceEntity;
-};
+}
 
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
@@ -53,7 +53,7 @@ export enum Severity {
   // CRITICAL = "critical",
 }
 
-export type UserAction = {
+export interface UserAction {
   // Label is used to display the
   label: string;
   // As there can be multiple errors of the same base type at the same time
@@ -61,7 +61,7 @@ export type UserAction = {
   // these action types should have a dynamic `id` associated with them
   // or we should use JS callback functions instead
   reduxAction: ReduxAction<unknown>;
-};
+}
 
 export interface SourceEntity {
   type: ENTITY_TYPE;
@@ -71,8 +71,8 @@ export interface SourceEntity {
   id: string;
   // property path of the child
   propertyPath?: string;
-  // plugin type of the action
-  pluginType?: PluginType;
+  // plugin type of the action or type of widget
+  pluginType?: PluginType | string;
   // http method of the api. (Only for api actions)
   httpMethod?: HTTP_METHOD;
 }
@@ -118,6 +118,7 @@ export interface Message {
   type?: ErrorType;
   subType?: string;
   lineNumber?: number;
+  character?: number;
   // The section of code being referred to
   // codeSegment?: string;
 }

@@ -1,5 +1,10 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
 
 import {
@@ -7,18 +12,17 @@ import {
   apiPage,
   dataSources,
   entityItems,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test curl import flow", function () {
+describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("1. Test curl import flow Run and Delete", function () {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
-    cy.NavigateToApiEditor();
     dataSources.NavigateToDSCreateNew();
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
       "curl -X GET " +
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
@@ -40,11 +44,9 @@ describe("Test curl import flow", function () {
 
   it("2. Bug:15175 Creating new cURL import query from entity explorer crashes the app", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
-      cy.CheckAndUnfoldEntityItem("Pages");
-      cy.get(`.t--entity-name:contains("Page1")`)
-        .should("be.visible")
-        .click({ force: true });
-      cy.get(globalSearchLocators.createNew).click();
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      PageLeftPane.switchToAddNew();
       cy.xpath("//span[text()='New cURL import']").click();
       cy.get("textarea").type(
         'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +

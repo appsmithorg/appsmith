@@ -1,6 +1,5 @@
 import React from "react";
 import type { WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import type { PhoneInputComponentProps } from "../component";
 import PhoneInputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -10,7 +9,7 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import {
   getCountryCode,
   ISDCodeDropdownOptions,
@@ -25,13 +24,23 @@ import type { CountryCode } from "libphonenumber-js";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { getDefaultISDCode } from "../component/ISDCodeDropdown";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultValueValidation(
   value: any,
@@ -73,6 +82,83 @@ class PhoneInputWidget extends BaseInputWidget<
   PhoneInputWidgetProps,
   WidgetState
 > {
+  static type = "PHONE_INPUT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Phone Input",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.INPUTS],
+      needsMeta: true,
+      searchTags: ["call"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      ...BaseInputWidget.getDefaults(),
+      widgetName: "PhoneInput",
+      version: 1,
+      rows: 7,
+      labelPosition: LabelPosition.Top,
+      defaultDialCode: getDefaultISDCode().dial_code,
+      allowDialCodeChange: false,
+      allowFormatting: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "160px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
@@ -276,11 +362,13 @@ class PhoneInputWidget extends BaseInputWidget<
     ) {
       const formattedValue = this.getFormattedPhoneNumber(this.props.text);
 
-      this.props.updateWidgetMetaProperty(
-        "value",
-        parseIncompletePhoneNumber(formattedValue),
-      );
-      this.props.updateWidgetMetaProperty("text", formattedValue);
+      if (formattedValue) {
+        this.props.updateWidgetMetaProperty(
+          "value",
+          parseIncompletePhoneNumber(formattedValue),
+        );
+        this.props.updateWidgetMetaProperty("text", formattedValue);
+      }
     }
 
     // If defaultText property has changed, reset isDirty to false
@@ -380,7 +468,7 @@ class PhoneInputWidget extends BaseInputWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -390,6 +478,7 @@ class PhoneInputWidget extends BaseInputWidget<
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
+    const { componentHeight } = this.props;
 
     return (
       <PhoneInputComponent
@@ -398,13 +487,7 @@ class PhoneInputWidget extends BaseInputWidget<
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         countryCode={countryCode}
         defaultValue={this.props.defaultText}
         dialCode={this.props.dialCode}
@@ -422,7 +505,7 @@ class PhoneInputWidget extends BaseInputWidget<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         onFocusChange={this.handleFocusChange}
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
@@ -435,10 +518,6 @@ class PhoneInputWidget extends BaseInputWidget<
         {...conditionalProps}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "PHONE_INPUT_WIDGET";
   }
 }
 

@@ -98,6 +98,7 @@ export interface ControlBuilder<T extends ControlProps> {
 export interface ControlProps extends ControlData, ControlFunctions {
   key?: string;
   additionalAutoComplete?: AdditionalDynamicDataTree;
+  isSearchResult?: boolean;
 }
 export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete" | "label"> {

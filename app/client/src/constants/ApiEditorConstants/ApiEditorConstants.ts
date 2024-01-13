@@ -4,9 +4,11 @@ import {
   HTTP_METHOD,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHODS_DEFAULT_FORMAT_TYPES,
+  HTTP_PROTOCOL,
 } from "./CommonApiConstants";
 
 const DEFAULT_METHOD_TYPE = HTTP_METHOD.GET;
+const DEFAULT_HTTP_VERSION_TYPE = HTTP_PROTOCOL.HTTP11.value;
 
 export const DEFAULT_DATASOURCE_NAME = "DEFAULT_REST_DATASOURCE";
 
@@ -14,6 +16,7 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
   httpMethod: DEFAULT_METHOD_TYPE,
+  httpVersion: DEFAULT_HTTP_VERSION_TYPE,
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
   body: "",

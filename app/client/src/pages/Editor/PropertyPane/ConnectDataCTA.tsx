@@ -7,7 +7,7 @@ import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { WidgetType } from "constants/WidgetConstants";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
@@ -26,11 +26,11 @@ const Container = styled.div`
 export const actionsExist = (state: AppState): boolean =>
   !!state.entities.actions.length;
 
-type ConnectDataCTAProps = {
+interface ConnectDataCTAProps {
   widgetTitle: string;
   widgetId?: string;
   widgetType?: WidgetType;
-};
+}
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
   const pageId: string = useSelector(getCurrentPageId);

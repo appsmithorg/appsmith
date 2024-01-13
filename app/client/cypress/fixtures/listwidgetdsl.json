@@ -172,7 +172,7 @@
               "type": "LIST_WIDGET",
               "isLoading": false,
               "parentColumnSpace": 57.875,
-              "parentRowSpace": 40,
+              "parentRowSpace": 10,
               "leftColumn": 4,
               "rightColumn": 12,
               "topRow": 2,

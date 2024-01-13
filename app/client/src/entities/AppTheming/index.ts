@@ -8,24 +8,24 @@ export type Stylesheet<T = void> = T extends void
   ? DefaultStylesheet
   : T & DefaultStylesheet;
 
-export type AppThemeStylesheet = {
+export interface AppThemeStylesheet {
   [key: string]: Stylesheet;
-};
+}
 
-export type ButtonStyles = {
+export interface ButtonStyles {
   resetButtonStyles: {
     [key: string]: string;
   };
   submitButtonStyles: {
     [key: string]: string;
   };
-};
+}
 
-export type ChildStylesheet = {
+export interface ChildStylesheet {
   childStylesheet: AppThemeStylesheet;
-};
+}
 
-export type AppTheme = {
+export interface AppTheme {
   id: string;
   name: string;
   displayName: string;
@@ -36,6 +36,8 @@ export type AppTheme = {
   // NOTE: config represents options available and
   // properties represents the selected option
   config: {
+    order: number;
+    isDeprecated?: boolean;
     colors: {
       primaryColor: string;
       backgroundColor: string;
@@ -58,25 +60,27 @@ export type AppTheme = {
   // styles for specific widgets
   stylesheet: AppThemeStylesheet;
   // current values for the theme
-  properties: {
-    colors: {
-      primaryColor: string;
-      backgroundColor: string;
-      [key: string]: string;
-    };
-    borderRadius: {
-      [key: string]: string;
-    };
-    boxShadow: {
-      [key: string]: string;
-    };
-    fontFamily: {
-      [key: string]: string;
-    };
-  };
-};
+  properties: AppThemeProperties;
+}
 
-export type SetterConfig = {
+export interface AppThemeProperties {
+  colors: {
+    primaryColor: string;
+    backgroundColor: string;
+    [key: string]: string;
+  };
+  borderRadius: {
+    [key: string]: string;
+  };
+  boxShadow: {
+    [key: string]: string;
+  };
+  fontFamily: {
+    [key: string]: string;
+  };
+}
+
+export interface SetterConfig {
   __setters: {
     [key: string]: {
       path: string;
@@ -85,4 +89,4 @@ export type SetterConfig = {
       accessor?: string;
     };
   };
-};
+}

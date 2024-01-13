@@ -1,0 +1,82 @@
+import { RadioGroup, Radio } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta
+  title="Design-system/Widgets/RadioGroup"
+  component={RadioGroup}
+  args={{
+    label: "Radio Group",
+    defaultValue: "value-1",
+    children: (
+      <>
+        <Radio value="value-1">Value 1</Radio>
+        <Radio value="value-2">Value 2</Radio>
+      </>
+    ),
+  }}
+/>
+
+export const Template = (args) => <RadioGroup {...args} />;
+
+# Radio Group
+
+Radio group is a component that allows users to select one option from a set of options.
+
+<Canvas>
+  <Story name="Radio Group">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Radio Group" of={RadioGroup} />
+
+# Orientation
+
+<Story
+  args={{
+    orientation: "vertical",
+  }}
+  name="Orientation - Vertical"
+>
+  {Template.bind({})}
+</Story>
+<Story
+  args={{
+    orientation: "horizontal",
+  }}
+  name="Orientation - Horizontal"
+>
+  {Template.bind({})}
+</Story>
+
+# Is Disabled
+
+<Story
+  args={{
+    isDisabled: true,
+  }}
+  name="Is Disabled"
+>
+  {Template.bind({})}
+</Story>
+
+# Is Required
+
+<Story
+  args={{
+    isRequired: true,
+  }}
+  name="Is Required"
+>
+  {Template.bind({})}
+</Story>
+
+# Invalid State
+
+<Story
+  args={{
+    validationState: "invalid",
+    errorMessage: "This is a error message",
+  }}
+  name="Invalid State"
+>
+  {Template.bind({})}
+</Story>

@@ -2,9 +2,11 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Diff } from "deep-diff";
 import { applyChange } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
+import { get } from "lodash";
+import type { DiffWithReferenceState } from "workers/Evaluation/helpers";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -15,12 +17,12 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     state: EvaluatedTreeState,
     action: ReduxAction<{
       dataTree: DataTree;
-      updates: Diff<DataTree, DataTree>[];
+      updates: DiffWithReferenceState[];
       removedPaths: [string];
     }>,
   ) => {
     const { updates } = action.payload;
-    if (updates.length === 0) {
+    if (!updates || updates.length === 0) {
       return state;
     }
     for (const update of updates) {
@@ -29,7 +31,20 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
         continue;
       }
       try {
-        applyChange(state, undefined, update);
+        //these are the decompression updates, there are cases where identical values are present in the state
+        //over here we have the path which has the identical value and apply as an update
+        if (update.kind === "referenceState") {
+          const { path, referencePath } = update;
+
+          const patch = {
+            kind: "N",
+            path,
+            rhs: get(state, referencePath),
+          } as Diff<DataTree, DataTree>;
+          applyChange(state, undefined, patch);
+        } else {
+          applyChange(state, undefined, update);
+        }
       } catch (e) {
         Sentry.captureException(e, {
           extra: {

@@ -25,10 +25,11 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch'
-    defaults:
-      run:
-        working-directory: app/client
-        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [0, 1]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -46,17 +47,14 @@ jobs:
     steps:
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -98,7 +96,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
@@ -184,7 +182,7 @@ jobs:
           echo ref=$ref >> $GITHUB_OUTPUT
 
       - name: Checkout Performance Infra code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
@@ -222,6 +220,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"
           MACHINE: ubuntu-latest-4-cores
+          JOB: ${{ matrix.job }}
 
         run: ./start-test.sh
 

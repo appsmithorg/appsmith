@@ -15,6 +15,7 @@ import { Spinner } from "design-system";
 import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
 
 export default function CodeEditorFallback({
+  borderLess,
   height,
   input,
   isReadOnly,
@@ -28,7 +29,7 @@ export default function CodeEditorFallback({
 > & {
   onInteracted: () => void;
   showLoadingProgress: boolean;
-} & Pick<EditorStyleProps, "height">) {
+} & Pick<EditorStyleProps, "height" | "borderLess">) {
   const parsedValue = parseInputValue();
 
   let contentKind: ContentKind;
@@ -63,6 +64,7 @@ export default function CodeEditorFallback({
 
   return (
     <ContentWrapper
+      borderLess={!!borderLess}
       contentKind={contentKind}
       height={height}
       showLineNumbers={showLineNumbers}

@@ -17,7 +17,7 @@ import {
 } from "widgets/WidgetUtils";
 import Interweave from "interweave";
 import { Popover2 } from "@blueprintjs/popover2";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 
 const ToolTipWrapper = styled.div`
   height: 100%;
@@ -41,13 +41,13 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-type IconButtonContainerProps = {
+interface IconButtonContainerProps {
   disabled?: boolean;
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   hasOnClickAction?: boolean;
   renderMode: RenderMode;
-};
+}
 
 const IconButtonContainer = styled.div<IconButtonContainerProps>`
   display: flex;

@@ -11,15 +11,16 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import { previewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "selectors/entitiesSelector";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {
-  const isPreviewMode: boolean = yield select(previewModeSelector);
+  const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
 
   return isPreviewMode || appMode === APP_MODE.PUBLISHED;

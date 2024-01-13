@@ -40,6 +40,7 @@ export interface JSONtoFormProps {
   featureFlags?: FeatureFlags;
   setupConfig: (config: ControlProps) => void;
   currentEnvironment: string;
+  isOnboardingFlow?: boolean;
 }
 
 export class JSONtoForm<
@@ -48,10 +49,20 @@ export class JSONtoForm<
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   renderForm = (formContent: any) => {
+    const { featureFlags } = this.props;
+    const isSidebarEnabled =
+      featureFlags?.release_app_sidebar_enabled === true ||
+      featureFlags?.rollout_app_sidebar_enabled === true;
+    const isPagePaneSegmentsEnabled =
+      featureFlags?.release_show_new_sidebar_pages_pane_enabled;
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        <CloseEditor />
+        {isSidebarEnabled ||
+        isPagePaneSegmentsEnabled ||
+        !!this.props.isOnboardingFlow ? null : (
+          <CloseEditor />
+        )}
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>

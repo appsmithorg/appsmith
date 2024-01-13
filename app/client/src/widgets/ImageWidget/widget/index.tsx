@@ -1,4 +1,3 @@
-import type { WidgetType } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import * as React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -8,14 +7,78 @@ import ImageComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import IconSVG from "../icon.svg";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
+  }
+
+  static type = "IMAGE_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Image",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.MEDIA],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
+      imageShape: "RECTANGLE",
+      maxZoomLevel: 1,
+      enableRotation: false,
+      enableDownload: false,
+      objectFit: "cover",
+      image: "",
+      rows: 12,
+      columns: 12,
+      widgetName: "Image",
+      version: 1,
+      animateLoading: true,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "280px" },
+      },
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -250,7 +313,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const { maxZoomLevel, objectFit } = this.props;
     return (
       <ImageComponent
@@ -283,10 +346,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         },
       });
     }
-  }
-
-  static getWidgetType(): WidgetType {
-    return "IMAGE_WIDGET";
   }
 }
 

@@ -7,7 +7,6 @@ import {
 } from "@appsmith/constants/messages";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getCurrentPageId,
   getApplicationLastDeployedAt,
@@ -16,10 +15,10 @@ import {
   getPageActions,
   getCanvasWidgets,
   getSavedDatasources,
-} from "selectors/entitiesSelector";
-import { useIsWidgetActionConnectionPresent } from "../utils";
+} from "@appsmith/selectors/entitiesSelector";
 import { showSignpostingTooltip } from "actions/onboardingActions";
 import { SIGNPOSTING_STEP } from "./Utils";
+import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
 
 const SIGNPOSTING_STEPS = [
   SIGNPOSTING_STEP.CONNECT_A_DATASOURCE,
@@ -34,12 +33,7 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
-  const deps = useSelector(getEvaluationInverseDependencyMap);
-  const isConnectionPresent = useIsWidgetActionConnectionPresent(
-    widgets,
-    actions,
-    deps,
-  );
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const dispatch = useDispatch();
 
@@ -49,13 +43,13 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
   let completedTasks = 0;
 
   useEffect(() => {
-    const handleClickOutside = () => {
+    const handleEvent = () => {
       dispatch(showSignpostingTooltip(false));
     };
 
-    document.addEventListener("click", handleClickOutside, true);
+    document.addEventListener("mousemove", handleEvent, true);
     return () => {
-      document.removeEventListener("click", handleClickOutside, true);
+      document.removeEventListener("mousemove", handleEvent, true);
     };
   }, []);
 

@@ -1,12 +1,9 @@
 import type { ReactNode } from "react";
 import React from "react";
-
 import type { TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
-
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -17,12 +14,154 @@ import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";
 import type { TextAlign } from "../component";
 import TextComponent from "../component";
-import { OverflowTypes } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { OverflowTypes } from "../constants";
+import IconSVG from "../icon.svg";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+import { get } from "lodash";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+  static type = "TEXT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Text",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.CONTENT],
+      searchTags: ["typography", "paragraph", "label"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      text: "Hello {{appsmith.user.name || appsmith.user.email}}",
+      fontSize: DEFAULT_FONT_SIZE,
+      fontStyle: "BOLD",
+      textAlign: "LEFT",
+      textColor: "#231F20",
+      rows: 4,
+      columns: 16,
+      widgetName: "Text",
+      shouldTruncate: false,
+      overflow: OverflowTypes.NONE,
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      blueprint: {
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+              if (!isDynamicValue(widget.text)) {
+                return [];
+              }
+
+              const dynamicBindingPathList: DynamicPath[] = [
+                ...get(widget, "dynamicBindingPathList", []),
+              ];
+
+              dynamicBindingPathList.push({
+                key: "text",
+              });
+
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "dynamicBindingPathList",
+                  propertyValue: dynamicBindingPathList,
+                },
+              ];
+
+              return updatePropertyMap;
+            },
+          },
+        ],
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      autoDimension: {
+        height: true,
+      },
+      disabledPropsDefaults: {
+        overflow: OverflowTypes.NONE,
+        dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+      },
+      defaults: {
+        columns: 4,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "120px" },
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "text",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -395,7 +534,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const disableLink: boolean = this.props.disableLink
       ? true
       : this.shouldDisableLink();
@@ -412,21 +551,17 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         <TextComponent
           accentColor={this.props.accentColor}
           backgroundColor={this.props.backgroundColor}
-          bottomRow={this.props.bottomRow}
           disableLink={disableLink}
           fontFamily={this.props.fontFamily}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          leftColumn={this.props.leftColumn}
           minHeight={this.props.minHeight}
           overflow={this.props.overflow}
-          rightColumn={this.props.rightColumn}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
-          topRow={this.props.topRow}
           truncateButtonColor={
             this.props.truncateButtonColor || this.props.accentColor
           }
@@ -450,10 +585,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       text: "string",
     };
-  }
-
-  static getWidgetType() {
-    return "TEXT_WIDGET";
   }
 }
 

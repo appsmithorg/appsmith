@@ -1,12 +1,12 @@
 import type { Datasource } from "entities/Datasource";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 
-type Props = {
+interface Props {
   currentEnv: string;
   config: any;
   datasource: Datasource;
   viewMode: boolean | undefined;
-};
+}
 
 export function EnvConfigSection({
   config,

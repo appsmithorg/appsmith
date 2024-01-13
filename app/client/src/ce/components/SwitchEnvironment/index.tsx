@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import styled from "styled-components";
 import { Icon, Link, Option, Select, Text, Tooltip } from "design-system";
 import { capitalizeFirstLetter } from "utils/helpers";
@@ -9,11 +8,17 @@ import {
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getRampLink, showProductRamps } from "utils/ProductRamps";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
-import { useLocation } from "react-router";
-import { RAMP_NAME, RampFeature } from "utils/ProductRamps/RampsControlList";
+import {
+  RAMP_NAME,
+  RampFeature,
+  RampSection,
+} from "utils/ProductRamps/RampsControlList";
 
 const Wrapper = styled.div`
   display: flex;
@@ -40,15 +45,18 @@ const StyledIcon = styled(Icon)`
   margin-right: 8px;
 `;
 
-type Props = {
+interface Props {
   viewMode?: boolean;
-};
+  editorId: string;
+  onChangeEnv?: () => void;
+  startSwitchEnvMessage: (...strArgs: any[]) => string;
+}
 
-type EnvironmentType = {
+interface EnvironmentType {
   id: string;
   name: string;
   selected: boolean;
-};
+}
 
 const environmentList: Array<EnvironmentType> = [
   {
@@ -68,23 +76,29 @@ const TooltipLink = styled(Link)`
 `;
 
 export default function SwitchEnvironment({}: Props) {
-  const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
+  const [disableSwitchEnvironment, setDisableSwitchEnvironment] =
+    useState(false);
   // Fetching feature flags from the store and checking if the feature is enabled
-  const allowedToRender = useSelector(datasourceEnvEnabled);
-  const showRamps = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
-  const location = useLocation();
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
+  const canShowRamp = useSelector(showRampSelector);
+  const rampLinkSelector = getRampLink({
+    section: RampSection.BottomBarEnvSwitcher,
+    feature: RampFeature.MultipleEnv,
+  });
+  const rampLink = useSelector(rampLinkSelector);
+
   //listen to url change and disable switch environment if datasource page is open
   useEffect(() => {
-    setDiableSwitchEnvironment(
+    setDisableSwitchEnvironment(
       !!matchDatasourcePath(window.location.pathname) ||
         !!matchSAASGsheetsPath(window.location.pathname),
     );
-  }, [location.pathname]);
+  }, [window.location.pathname]);
   //URL for datasource edit and review page is same
   //this parameter helps us to differentiate between the two.
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
 
-  if (!allowedToRender || !showRamps) return null;
+  if (!canShowRamp) return null;
 
   const renderEnvOption = (env: EnvironmentType) => {
     return (
@@ -99,13 +113,13 @@ export default function SwitchEnvironment({}: Props) {
 
   const DisabledTooltipContent = () => {
     return (
-      <Text color="var(--ads-v2-color-white)" kind="action-m">
+      <Text
+        color="var(--ads-v2-color-white)"
+        data-testid="t--switch-env-tooltip"
+        kind="action-m"
+      >
         {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
-        <TooltipLink
-          kind="primary"
-          target="_blank"
-          to={getRampLink("bottom_bar_env_switcher", RampFeature.MultipleEnv)}
-        >
+        <TooltipLink kind="primary" target="_blank" to={rampLink}>
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
       </Text>
@@ -114,7 +128,7 @@ export default function SwitchEnvironment({}: Props) {
 
   return (
     <Wrapper
-      aria-disabled={diableSwitchEnvironment && !isDatasourceViewMode}
+      aria-disabled={disableSwitchEnvironment && !isDatasourceViewMode}
       data-testid="t--switch-env"
     >
       <Select
@@ -122,7 +136,7 @@ export default function SwitchEnvironment({}: Props) {
         dropdownClassName="select_environemnt_dropdown"
         getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
         isDisabled={
-          (diableSwitchEnvironment && !isDatasourceViewMode) ||
+          (disableSwitchEnvironment && !isDatasourceViewMode) ||
           environmentList.length === 1
         }
         listHeight={400}

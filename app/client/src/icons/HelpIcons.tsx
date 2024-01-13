@@ -5,24 +5,26 @@ import { IconWrapper } from "constants/IconConstants";
 import { Icon } from "@blueprintjs/core";
 import { importRemixIcon, importSvg } from "design-system-old";
 
-const UpdatesIcon = importSvg(() => import("assets/icons/help/updates.svg"));
+const UpdatesIcon = importSvg(
+  async () => import("assets/icons/help/updates.svg"),
+);
 const GithubIcon = importRemixIcon(
-  () => import("remixicon-react/GithubFillIcon"),
+  async () => import("remixicon-react/GithubFillIcon"),
 );
 const DocumentIcon = importRemixIcon(
-  () => import("remixicon-react/FileTextFillIcon"),
+  async () => import("remixicon-react/FileTextFillIcon"),
 );
 const HelpIcon = importRemixIcon(
-  () => import("remixicon-react/QuestionMarkIcon"),
+  async () => import("remixicon-react/QuestionMarkIcon"),
 );
 const DiscordIcon = importRemixIcon(
-  () => import("remixicon-react/DiscordFillIcon"),
+  async () => import("remixicon-react/DiscordFillIcon"),
 );
 const OpenLinkIcon = importRemixIcon(
-  () => import("remixicon-react/ShareBoxLineIcon"),
+  async () => import("remixicon-react/ShareBoxLineIcon"),
 );
 const FileCopyLineIcon = importRemixIcon(
-  () => import("remixicon-react/FileCopyLineIcon"),
+  async () => import("remixicon-react/FileCopyLineIcon"),
 );
 
 /* eslint-disable react/display-name */

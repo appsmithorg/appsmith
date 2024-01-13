@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useRouteMatch } from "react-router-dom";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
@@ -22,7 +22,10 @@ import ProfileDropdown from "./ProfileDropdown";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import MobileSideBar from "./MobileSidebar";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import {
+  getTenantConfig,
+  shouldShowLicenseBanner,
+} from "@appsmith/selectors/tenantSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button } from "design-system";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -30,12 +33,15 @@ import { getCurrentApplication } from "selectors/editorSelectors";
 import { get } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { Banner } from "@appsmith/utils/licenseHelpers";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
   isMobile?: boolean;
   showSeparator?: boolean;
   showingTabs: boolean;
+  isBannerVisible?: boolean;
 }>`
   justify-content: normal;
   background: var(--ads-v2-color-bg);
@@ -51,6 +57,7 @@ const StyledPageHeader = styled(StyledHeader)<{
     padding: 0 12px;
     padding-left: 10px;
   `};
+  ${({ isBannerVisible }) => isBannerVisible && `top: 40px;`};
 `;
 
 const HeaderSection = styled.div`
@@ -130,12 +137,12 @@ const Tab = styled.div<{ isSelected: boolean }>`
   }
 `;
 
-type PageHeaderProps = {
+interface PageHeaderProps {
   user?: User;
   hideShadow?: boolean;
   showSeparator?: boolean;
   hideEditProfileLink?: boolean;
-};
+}
 
 export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
@@ -159,6 +166,10 @@ export function PageHeader(props: PageHeaderProps) {
     selectedTheme,
     "properties.colors.primaryColor",
     "inherit",
+  );
+
+  const currentApplicationIdForCreateNewApp = useSelector(
+    getCurrentApplicationIdForCreateNewApp,
   );
 
   useEffect(() => {
@@ -188,104 +199,111 @@ export function PageHeader(props: PageHeaderProps) {
   }, [location.pathname]);
 
   const isAirgappedInstance = isAirgapped();
+  const showBanner = useSelector(shouldShowLicenseBanner);
+  const isHomePage = useRouteMatch("/applications")?.isExact;
+  const isLicensePage = useRouteMatch("/license")?.isExact;
 
   return (
-    <StyledPageHeader
-      data-testid="t--appsmith-page-header"
-      hideShadow={props.hideShadow || false}
-      isMobile={isMobile}
-      showSeparator={props.showSeparator || false}
-      showingTabs={showTabs}
-    >
-      <HeaderSection>
-        {tenantConfig.brandLogoUrl && (
-          <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-            <img
-              alt="Logo"
-              className="h-6"
-              src={getAssetUrl(tenantConfig.brandLogoUrl)}
-            />
-          </Link>
-        )}
-      </HeaderSection>
-      <Tabs>
-        {showTabs && !isMobile && (
-          <TabsList>
-            <Tab
-              className="t--apps-tab"
-              isSelected={matchApplicationPath(location.pathname)}
-              onClick={() => history.push(APPLICATIONS_URL)}
-            >
-              <div>Apps</div>
-            </Tab>
-
-            {!isAirgappedInstance && (
-              <Tab
-                className="t--templates-tab"
-                isSelected={
-                  matchTemplatesPath(location.pathname) ||
-                  matchTemplatesIdPath(location.pathname)
-                }
-                onClick={() => {
-                  AnalyticsUtil.logEvent("TEMPLATES_TAB_CLICK");
-                  history.push(TEMPLATES_PATH);
-                }}
-              >
-                <div>Templates</div>
-              </Tab>
-            )}
-          </TabsList>
-        )}
-      </Tabs>
-
-      {user && !isMobile && (
-        <div>
-          {user.username === ANONYMOUS_USERNAME ? (
-            <EditorButton
-              filled
-              intent={"primary"}
-              onClick={() => history.push(loginUrl)}
-              size="small"
-              text="Sign In"
-            />
-          ) : (
-            <ProfileDropdown
-              hideEditProfileLink={props.hideEditProfileLink}
-              name={user.name}
-              navColorStyle={navColorStyle}
-              photoId={user?.photoId}
-              primaryColor={primaryColor}
-              userName={user.username}
-            />
+    <>
+      <Banner />
+      <StyledPageHeader
+        data-testid="t--appsmith-page-header"
+        hideShadow={props.hideShadow || false}
+        isBannerVisible={showBanner && (isHomePage || isLicensePage)}
+        isMobile={isMobile}
+        showSeparator={props.showSeparator || false}
+        showingTabs={showTabs}
+      >
+        <HeaderSection>
+          {tenantConfig.brandLogoUrl && (
+            <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+              <img
+                alt="Logo"
+                className="h-6"
+                src={getAssetUrl(tenantConfig.brandLogoUrl)}
+              />
+            </Link>
           )}
-        </div>
-      )}
-      {isMobile && !isMobileSidebarOpen && (
-        <Button
-          isIconButton
-          kind="tertiary"
-          onClick={() => setIsMobileSidebarOpen(true)}
-          size={"md"}
-          startIcon="hamburger"
-        />
-      )}
-      {isMobile && isMobileSidebarOpen && (
-        <Button
-          isIconButton
-          kind="tertiary"
-          onClick={() => setIsMobileSidebarOpen(false)}
-          size="sm"
-          startIcon="close-x"
-        />
-      )}
-      {isMobile && user && (
-        <MobileSideBar
-          isOpen={isMobileSidebarOpen}
-          name={user.name}
-          userName={user.username}
-        />
-      )}
-    </StyledPageHeader>
+        </HeaderSection>
+        <Tabs>
+          {showTabs && !isMobile && !currentApplicationIdForCreateNewApp && (
+            <TabsList>
+              <Tab
+                className="t--apps-tab"
+                isSelected={matchApplicationPath(location.pathname)}
+                onClick={() => history.push(APPLICATIONS_URL)}
+              >
+                <div>Apps</div>
+              </Tab>
+
+              {!isAirgappedInstance && (
+                <Tab
+                  className="t--templates-tab"
+                  isSelected={
+                    matchTemplatesPath(location.pathname) ||
+                    matchTemplatesIdPath(location.pathname)
+                  }
+                  onClick={() => {
+                    AnalyticsUtil.logEvent("TEMPLATES_TAB_CLICK");
+                    history.push(TEMPLATES_PATH);
+                  }}
+                >
+                  <div>Templates</div>
+                </Tab>
+              )}
+            </TabsList>
+          )}
+        </Tabs>
+
+        {user && !isMobile && (
+          <div>
+            {user.username === ANONYMOUS_USERNAME ? (
+              <EditorButton
+                filled
+                intent={"primary"}
+                onClick={() => history.push(loginUrl)}
+                size="small"
+                text="Sign In"
+              />
+            ) : (
+              <ProfileDropdown
+                hideEditProfileLink={props.hideEditProfileLink}
+                name={user.name}
+                navColorStyle={navColorStyle}
+                photoId={user?.photoId}
+                primaryColor={primaryColor}
+                userName={user.username}
+              />
+            )}
+          </div>
+        )}
+        {isMobile && !isMobileSidebarOpen && (
+          <Button
+            isIconButton
+            kind="tertiary"
+            onClick={() => setIsMobileSidebarOpen(true)}
+            size={"md"}
+            startIcon="hamburger"
+          />
+        )}
+        {isMobile && isMobileSidebarOpen && (
+          <Button
+            isIconButton
+            kind="tertiary"
+            onClick={() => setIsMobileSidebarOpen(false)}
+            size="sm"
+            startIcon="close-x"
+          />
+        )}
+        {isMobile && user && (
+          <MobileSideBar
+            isOpen={isMobileSidebarOpen}
+            name={user.name}
+            userName={user.username}
+          />
+        )}
+      </StyledPageHeader>
+    </>
   );
 }
 

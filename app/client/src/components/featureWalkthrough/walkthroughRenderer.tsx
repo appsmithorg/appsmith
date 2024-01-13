@@ -1,4 +1,4 @@
-import { Icon, Text } from "design-system";
+import { Icon, Text, Button, Divider } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -8,19 +8,26 @@ import type {
   FeatureParams,
   OffsetType,
 } from "./walkthroughContext";
-import WalkthroughContext from "./walkthroughContext";
+import WalkthroughContext, {
+  isFeatureFooterDetails,
+} from "./walkthroughContext";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;
 
-const WalkthroughWrapper = styled.div`
+const WalkthroughDescription = styled(Text)`
+  // CSS to add new line for each \n in the description
+  white-space: pre-line;
+`;
+
+const WalkthroughWrapper = styled.div<{ overlayColor?: string }>`
   left: 0px;
   top: 0px;
   position: fixed;
   width: 100%;
   height: 100%;
-  color: rgb(0, 0, 0, 0.7);
+  color: ${(props) => props.overlayColor ?? "rgb(0, 0, 0, 0.7)"};
   z-index: ${Z_INDEX};
   // This allows the user to click on the target element rather than the overlay div
   pointer-events: none;
@@ -70,7 +77,20 @@ const InstructionsHeaderWrapper = styled.div`
   }
 `;
 
-type RefRectParams = {
+const FeatureFooterDivider = styled(Divider)`
+  margin-top: 8px;
+`;
+
+const FeatureFooterWrapper = styled.div`
+  height: 36px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+interface RefRectParams {
   // body params
   bh: number;
   bw: number;
@@ -79,7 +99,7 @@ type RefRectParams = {
   tw: number;
   tx: number;
   ty: number;
-};
+}
 
 /*
  * Clip Path Polygon for single target with bounding rect :
@@ -122,10 +142,12 @@ type BoundingRectTargets = Record<string, RefRectParams>;
 
 const WalkthroughRenderer = ({
   details,
-  offset,
-  targetId,
+  dismissOnOverlayClick,
   eventParams = {},
   multipleHighlights,
+  offset,
+  overlayColor,
+  targetId,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);
@@ -137,11 +159,11 @@ const WalkthroughRenderer = ({
   if (multipleHighlightsIds.indexOf(targetId) === -1)
     multipleHighlightsIds.push(targetId);
   const updateBoundingRect = () => {
-    const mainTarget = document.getElementById(targetId);
+    const mainTarget = document.querySelector(targetId);
     if (mainTarget) {
       const data: BoundingRectTargets = {};
       multipleHighlightsIds.forEach((id) => {
-        const highlightArea = document.getElementById(id);
+        const highlightArea = document.querySelector(id);
         if (highlightArea) {
           const boundingRect = highlightArea.getBoundingClientRect();
           const bodyRect = document.body.getBoundingClientRect();
@@ -162,7 +184,7 @@ const WalkthroughRenderer = ({
 
       if (Object.keys(data).length > 0) {
         setBoundingRects(data);
-        showIndicator(`#${targetId}`, offset?.position, {
+        showIndicator(`${targetId}`, offset?.position, {
           top: offset?.indicatorTop || 0,
           left: offset?.indicatorLeft || 0,
           zIndex: Z_INDEX + 1,
@@ -173,7 +195,7 @@ const WalkthroughRenderer = ({
 
   useEffect(() => {
     updateBoundingRect();
-    const highlightArea = document.getElementById(targetId);
+    const highlightArea = document.querySelector(targetId);
     window.addEventListener("resize", updateBoundingRect);
     const resizeObserver = new ResizeObserver(updateBoundingRect);
     if (highlightArea) {
@@ -196,9 +218,13 @@ const WalkthroughRenderer = ({
   if (!targetBounds) return null;
 
   return (
-    <WalkthroughWrapper className="t--walkthrough-overlay">
+    <WalkthroughWrapper
+      className="t--walkthrough-overlay"
+      overlayColor={overlayColor}
+    >
       <SvgWrapper
         height={targetBounds.bh}
+        onClick={dismissOnOverlayClick ? onDismissWalkthrough : () => null}
         width={targetBounds.bw}
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -210,14 +236,18 @@ const WalkthroughRenderer = ({
                     0 ${targetBounds.bh}, 
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
-                      acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
-                      ${boundingRect.tx} ${boundingRect.ty}, 
-                      ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
-                      ${boundingRect.tx + boundingRect.tw} ${
-                        boundingRect.ty + boundingRect.th
-                      }, 
-                      ${boundingRect.tx} ${boundingRect.ty + boundingRect.th}, 
-                      ${boundingRect.tx} ${boundingRect.bh},`;
+                      if (boundingRect) {
+                        acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
+                        ${boundingRect.tx} ${boundingRect.ty}, 
+                        ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
+                        ${boundingRect.tx + boundingRect.tw} ${
+                          boundingRect.ty + boundingRect.th
+                        }, 
+                        ${boundingRect.tx} ${
+                          boundingRect.ty + boundingRect.th
+                        }, 
+                        ${boundingRect.tx} ${boundingRect.bh},`;
+                      }
                       return acc;
                     }, "")}
                     ${targetBounds.bw} ${targetBounds.bh}, 
@@ -236,6 +266,7 @@ const WalkthroughRenderer = ({
           }}
         />
       </SvgWrapper>
+
       <InstructionsComponent
         details={details}
         offset={offset}
@@ -270,14 +301,32 @@ const InstructionsComponent = ({
         <Text kind="heading-s" renderAs="p">
           {details.title}
         </Text>
-        <Icon name="close" onClick={onClose} size="md" />
+        <Icon
+          className="t--walkthrough-close"
+          color="black"
+          name="close"
+          onClick={onClose}
+          size="md"
+        />
       </InstructionsHeaderWrapper>
-      <Text>{details.description}</Text>
+      <WalkthroughDescription>{details.description}</WalkthroughDescription>
       {details.imageURL && (
         <ImageWrapper>
           <img src={details.imageURL} />
         </ImageWrapper>
       )}
+      {!!details.footerDetails &&
+        isFeatureFooterDetails(details.footerDetails) && (
+          <>
+            <FeatureFooterDivider />
+            <FeatureFooterWrapper>
+              <Text kind="body-s">{details.footerDetails.footerText}</Text>
+              <Button onClick={details.footerDetails.onClickHandler} size="sm">
+                {details.footerDetails.footerButtonText}
+              </Button>
+            </FeatureFooterWrapper>
+          </>
+        )}
     </InstructionsWrapper>
   );
 };

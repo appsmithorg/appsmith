@@ -18,7 +18,7 @@ import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import { ToggleButton, Tooltip } from "design-system";
 import styled from "styled-components";
 
-type Props = {
+interface Props {
   viewType: ViewTypes;
   customStyles: Record<string, any>;
   componentControlType: string;
@@ -27,13 +27,13 @@ type Props = {
   formName: string;
   disabled: boolean | undefined;
   renderCompFunction: (config?: ControlProps) => JSX.Element;
-};
+}
 
-type HandlerProps = {
+interface HandlerProps {
   configProperty: string;
   formName: string;
   change: (formName: string, id: string, value: any) => void;
-};
+}
 
 function ToggleComponentToJsonHandler(props: HandlerProps) {
   const formValues: Partial<Action> = useSelector((state: AppState) =>

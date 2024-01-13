@@ -21,33 +21,34 @@ import {
 import { countFields } from "../helper";
 import SchemaParser from "../schemaParser";
 
-type FieldStateItem = {
+interface FieldStateItem {
   isRequired?: boolean;
   isVisible?: boolean;
   isDisabled?: boolean;
   isValid?: boolean;
   filterText?: string;
-};
+}
 
 type MetaFieldState = FieldState<FieldStateItem>;
 
 type PathList = Array<{ key: string }>;
-type ComputedSchema = {
+interface ComputedSchema {
   status: ComputedSchemaStatus;
   schema: Schema;
   dynamicPropertyPathList?: PathList;
   modifiedSchemaItems: Record<string, SchemaItem>;
   removedSchemaItems: string[];
-};
+}
 
-type ComputeSchemaProps = {
+interface ComputeSchemaProps {
   currSourceData?: JSON;
   prevSourceData?: JSON;
   prevSchema?: Schema;
   widgetName: string;
   currentDynamicPropertyPathList?: PathList;
   fieldThemeStylesheets: FieldThemeStylesheet;
-};
+  prevDynamicPropertyPathList?: PathList;
+}
 
 export enum ComputedSchemaStatus {
   LIMIT_EXCEEDED = "LIMIT_EXCEEDED",
@@ -245,10 +246,10 @@ const computeDynamicPropertyPathList = (
   const pathListFromProps = (currentDynamicPropertyPathList || []).map(
     ({ key }) => key,
   );
-
   const newPaths = difference(pathListFromSchema, pathListFromProps);
-
-  return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
+  return [...pathListFromProps, ...newPaths].map((path) => ({
+    key: path,
+  }));
 };
 
 /**
@@ -263,6 +264,7 @@ export const computeSchema = ({
   widgetName,
 }: ComputeSchemaProps): ComputedSchema => {
   // Hot path - early exit
+
   if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
     return {
       status: ComputedSchemaStatus.UNCHANGED,

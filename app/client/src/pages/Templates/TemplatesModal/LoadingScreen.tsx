@@ -11,9 +11,9 @@ const Wrapper = styled.div`
   gap: ${(props) => props.theme.spaces[9]}px;
 `;
 
-type LoadingScreenProps = {
+interface LoadingScreenProps {
   text: string;
-};
+}
 
 function LoadingScreen(props: LoadingScreenProps) {
   return (

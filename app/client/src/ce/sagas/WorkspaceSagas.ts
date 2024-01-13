@@ -13,7 +13,6 @@ import {
   getResponseErrorMessage,
 } from "sagas/ErrorSagas";
 import type {
-  FetchWorkspaceRolesResponse,
   SaveWorkspaceRequest,
   FetchWorkspaceRequest,
   FetchWorkspaceResponse,
@@ -41,30 +40,7 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-import { resetCurrentWorkspace } from "../actions/workspaceActions";
-
-export function* fetchRolesSaga() {
-  try {
-    const response: FetchWorkspaceRolesResponse = yield call(
-      WorkspaceApi.fetchRoles,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_WORKSPACE_ROLES_SUCCESS,
-        payload: response.data,
-      });
-    }
-  } catch (error) {
-    log.error(error);
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_WORKSPACE_ROLES_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
+import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
 
 export function* fetchWorkspaceSaga(
   action: ReduxAction<FetchWorkspaceRequest>,
@@ -77,7 +53,7 @@ export function* fetchWorkspaceSaga(
     );
     const isValidResponse: boolean = yield request.skipValidation ||
       validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response) {
       yield put({
         type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
         payload: response.data || {},
@@ -273,9 +249,8 @@ export function* createWorkspaceSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage: string | undefined = yield getResponseErrorMessage(
-        response,
-      );
+      const errorMessage: string | undefined =
+        yield getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({

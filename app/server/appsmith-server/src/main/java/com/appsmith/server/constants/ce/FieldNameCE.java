@@ -15,6 +15,7 @@ public class FieldNameCE {
     public static final String UPDATED_AT = "updatedAt";
     public static final String CURL_CODE = "curlCode";
     public static final String PLUGIN_TYPE = "pluginType";
+    public static final String PACKAGE_NAME = "packageName";
     public static final String COLLECTION_ID = "collectionId";
     public static final String ACTION_ID = "actionId";
     public static String WORKSPACE = "workspace";
@@ -45,6 +46,7 @@ public class FieldNameCE {
     public static String PAGES = "pages";
     public static String SIZE = "size";
     public static String ROLE = "role";
+    public static String PROFICIENCY = "proficiency";
     public static String DEFAULT_WIDGET_NAME = "MainContainer";
     public static String DEFAULT_PAGE_LAYOUT = "{\n" + "        \"widgetName\": \"MainContainer\",\n"
             + "        \"backgroundColor\": \"none\",\n"
@@ -152,12 +154,14 @@ public class FieldNameCE {
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+    public static final String SOURCE = "source";
     public static final String IS_SUPPORTED_FOR_AIR_GAP = "isSupportedForAirGap";
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
+    public static final String HEADER_ENVIRONMENT_ID = "X-Appsmith-EnvironmentId";
     public static final String ENVIRONMENT_ID = "environmentId";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
@@ -185,4 +189,11 @@ public class FieldNameCE {
     public static final String GIT_HOSTING_PROVIDER = "gitHostingProvider";
 
     public static final String IS_MERGEABLE = "isMergeable";
+
+    public static final String FILE_LOCK_DURATION = "fileLockDuration";
+
+    public static final String REMOTE_PLUGINS = "remotePlugins";
+    public static final String INSTANCE_ID = "instanceId";
+    public static final String IP_ADDRESS = "ipAddress";
+    public static final String VERSION = "version";
 }

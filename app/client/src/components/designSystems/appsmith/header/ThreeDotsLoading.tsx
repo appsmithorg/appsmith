@@ -52,9 +52,9 @@ const Spinner = styled.div`
   }
 `;
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
 function ThreeDotLoading(props: Props) {
   return (

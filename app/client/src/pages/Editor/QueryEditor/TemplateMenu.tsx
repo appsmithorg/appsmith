@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { getPluginTemplates } from "selectors/entitiesSelector";
+import { getPluginTemplates } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
@@ -47,9 +47,9 @@ interface TemplateMenuProps {
   pluginId: string;
 }
 
-type ReduxProps = {
+interface ReduxProps {
   allPluginTemplates: Record<string, any>;
-};
+}
 
 type Props = TemplateMenuProps & ReduxProps;
 

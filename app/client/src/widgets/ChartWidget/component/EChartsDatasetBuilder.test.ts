@@ -1,10 +1,8 @@
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
-import type { ChartData } from "../constants";
-import { LabelOrientation } from "../constants";
-import type { ChartComponentProps } from ".";
+import type { ChartData, ChartType } from "../constants";
 
 describe("EChartsConfigurationBuilder", () => {
-  describe("get chart data", () => {
+  describe("filteredChartData", () => {
     const chartData1: ChartData = {
       seriesName: "series1",
       data: [{ x: "x1", y: "y1" }],
@@ -17,49 +15,21 @@ describe("EChartsConfigurationBuilder", () => {
     };
 
     const chartData = { seriesID1: chartData1, seriesID2: chartData2 };
-    const defaultProps: ChartComponentProps = {
-      allowScroll: true,
-      chartData: chartData,
-      chartName: "chart name",
-      chartType: "AREA_CHART",
-      customFusionChartConfig: { type: "type", dataSource: undefined },
-      hasOnDataPointClick: true,
-      isVisible: true,
-      isLoading: false,
-      setAdaptiveYMin: false,
-      labelOrientation: LabelOrientation.AUTO,
-      onDataPointClick: (point) => {
-        return point;
-      },
-      widgetId: "widgetID",
-      xAxisName: "xaxisname",
-      yAxisName: "yaxisname",
-      borderRadius: "1",
-      boxShadow: "1",
-      primaryColor: "primarycolor",
-      fontFamily: "fontfamily",
-      dimensions: { componentWidth: 11, componentHeight: 11 },
-      parentColumnSpace: 1,
-      parentRowSpace: 1,
-      topRow: 0,
-      bottomRow: 0,
-      leftColumn: 0,
-      rightColumn: 0,
-    };
 
     it("1. returns all series data if chart type is not pie", () => {
-      const output = EChartsDatasetBuilder.chartData(defaultProps);
-      expect(output).toEqual(chartData);
+      const chartType: ChartType = "AREA_CHART";
+      const builder = new EChartsDatasetBuilder(chartType, chartData);
+      expect(builder.filteredChartData).toEqual(chartData);
     });
 
     it("2. returns only the first series data if chart type is pie", () => {
-      const props = JSON.parse(JSON.stringify(defaultProps));
-      props.chartType = "PIE_CHART";
-      const output = EChartsDatasetBuilder.chartData(props);
+      const chartType: ChartType = "PIE_CHART";
+
+      const builder = new EChartsDatasetBuilder(chartType, chartData);
       const expectedOutput = {
         seriesID1: chartData1,
       };
-      expect(output).toEqual(expectedOutput);
+      expect(builder.filteredChartData).toEqual(expectedOutput);
     });
   });
 
@@ -87,7 +57,8 @@ describe("EChartsConfigurationBuilder", () => {
         seriesID2: chartData2,
         seriesID3: chartData3,
       };
-      const chartDataSource = EChartsDatasetBuilder.datasetFromData(chartData);
+      const chartType: ChartType = "LINE_CHART";
+      const builder = new EChartsDatasetBuilder(chartType, chartData);
 
       const expectedChartDataSource = {
         source: [
@@ -96,7 +67,45 @@ describe("EChartsConfigurationBuilder", () => {
           ["Product1", "", "y2", ""],
         ],
       };
-      expect(chartDataSource).toEqual(expectedChartDataSource);
+      expect(builder.datasetFromData()).toEqual(expectedChartDataSource);
+    });
+  });
+
+  describe("longestDataLabels", () => {
+    it("returns the x and y values with longest number of characters in chart data", () => {
+      const longestXLabel = "longestXLabel";
+      const longestYValue = "1234.56";
+
+      const chartData1: ChartData = {
+        seriesName: "series1",
+        data: [
+          { x: "smallLabel", y: "123" },
+          { x: longestXLabel, y: "1234" },
+        ],
+        color: "series1color",
+      };
+
+      const chartData2: ChartData = {
+        seriesName: "series2",
+        data: [
+          { x: "largeLabel", y: longestYValue },
+          { x: "largerLabel", y: "12" },
+        ],
+        color: "series2color",
+      };
+
+      const chartType: ChartType = "LINE_CHART";
+
+      const builder = new EChartsDatasetBuilder(chartType, {
+        series1ID: chartData1,
+        series2ID: chartData2,
+      });
+      builder.datasetFromData();
+
+      expect(builder.longestDataLabels()).toEqual({
+        x: longestXLabel,
+        y: longestYValue,
+      });
     });
   });
 });

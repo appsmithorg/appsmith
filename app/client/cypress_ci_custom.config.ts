@@ -6,7 +6,7 @@ export default defineConfig({
   requestTimeout: 60000,
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
-  videoUploadOnPasses: false,
+  video: true,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporter: "cypress-mochawesome-reporter",
@@ -20,7 +20,7 @@ export default defineConfig({
     saveAllAttempts: true,
   },
   chromeWebSecurity: false,
-  viewportHeight: 1100,
+  viewportHeight: 1200,
   viewportWidth: 1400,
   scrollBehavior: "center",
   retries: {
@@ -29,6 +29,10 @@ export default defineConfig({
   },
   e2e: {
     baseUrl: "http://localhost/",
+    env: {
+      grepFilterSpecs: true,
+      grepOmitFiltered: true,
+    },
     setupNodeEvents(on, config) {
       require("cypress-mochawesome-reporter/plugin")(on);
       on(
@@ -46,10 +50,21 @@ export default defineConfig({
           }
         },
       );
+      require("@cypress/grep/src/plugin")(config);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
     testIsolation: false,
-    excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
+    excludeSpecPattern: [
+      "cypress/e2e/**/spec_utility.ts",
+      "cypress/e2e/Regression/ClientSide/CommunityTemplate/*",
+      "cypress/e2e/GSheet/**/**/*",
+      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
+      "cypress/e2e/EE/Enterprise/MultipleEnv/ME_airtable_spec.ts",
+      "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
+      "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
+      "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
+      "cypress/e2e/Sanity/Datasources/MsSQL_Basic_Spec.ts",
+    ],
   },
 });

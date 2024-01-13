@@ -15,3 +15,6 @@ export const getApiPaneConfigSelectedTabIndex = (state: AppState) =>
 
 export const getApiRightPaneSelectedTab = (state: AppState) =>
   state.ui.apiPane.selectedRightPaneTab;
+
+export const getIsRunning = (state: AppState, apiId: string) =>
+  state.ui.apiPane.isRunning[apiId];

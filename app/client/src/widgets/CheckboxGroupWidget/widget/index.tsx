@@ -4,7 +4,7 @@ import {
   LabelPosition,
 } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -12,19 +12,25 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { compact, xor } from "lodash";
 import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
-import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -59,6 +65,93 @@ class CheckboxGroupWidget extends BaseWidget<
   CheckboxGroupWidgetProps,
   WidgetState
 > {
+  static type = "CHECKBOX_GROUP_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Checkbox Group",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.TOGGLES],
+      needsMeta: true,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 6,
+      columns: 23,
+      animateLoading: true,
+      labelTextSize: "0.875rem",
+      options: [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      defaultSelectedValues: ["BLUE"],
+      isDisabled: false,
+      isInline: true,
+      isRequired: false,
+      isVisible: true,
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      widgetName: "CheckboxGroup",
+      version: 2,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        active: true,
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      defaults: {
+        columns: 14,
+        rows: 7,
+      },
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "240px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "240px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -553,18 +646,14 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
+    const { componentHeight } = this.props;
+
     return (
       <CheckboxGroupComponent
         accentColor={this.props.accentColor}
         borderRadius={this.props.borderRadius}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInline={this.props.isInline}
@@ -579,7 +668,7 @@ class CheckboxGroupWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         minWidth={this.props.minWidth}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}
@@ -589,10 +678,6 @@ class CheckboxGroupWidget extends BaseWidget<
         widgetId={this.props.widgetId}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "CHECKBOX_GROUP_WIDGET";
   }
 
   private handleCheckboxChange = (value: string) => {
@@ -669,6 +754,7 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   labelStyle?: string;
   accentColor: string;
   borderRadius: string;
+  labelComponentWidth?: number;
 }
 
 export default CheckboxGroupWidget;

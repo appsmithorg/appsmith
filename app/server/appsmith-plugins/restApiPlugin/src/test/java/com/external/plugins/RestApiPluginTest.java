@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ParamProperty;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
@@ -144,7 +145,6 @@ public class RestApiPluginTest {
 
                         recordedRequestBody.readFully(bodyBytes);
                         recordedRequestBody.close();
-
                         assertEquals(requestBody, new String(bodyBytes));
                     } catch (EOFException | InterruptedException e) {
                         assert false : e.getMessage();
@@ -153,7 +153,8 @@ public class RestApiPluginTest {
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(baseUrl, request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
-                    assertEquals(requestBody, request.getBody().toString());
+                    // this change is due to the fact that linked hash maps serialisation here is using  = instead of :
+                    assertEquals("{key=value}", request.getBody().toString());
                     final Iterator<Map.Entry<String, JsonNode>> fields =
                             ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
@@ -162,6 +163,48 @@ public class RestApiPluginTest {
                                     "application/json", field.getValue().get(0).asText());
                         }
                     });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testOrderedJsonBodyInApiExecution() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        final List<Property> headers = List.of(new Property("content-type", "application/json"));
+        actionConfig.setHeaders(headers);
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"a\":\"value\",\"x\":\"value\",\"b\":\"value\",\"y\":\"value\",\"z\":\"value\"}";
+        actionConfig.setBody(requestBody);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+                        assertEquals(requestBody, new String(bodyBytes));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(HttpMethod.POST, request.getHttpMethod());
                 })
                 .verifyComplete();
     }
@@ -895,7 +938,7 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     String resultBody =
-                            "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
+                            "{\"name\":\"this is a string! Yay :D\",\"email\":true,\"username\":0,\"password\":\"12/01/2018\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}]}";
 
                     try {
                         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
@@ -1011,6 +1054,267 @@ public class RestApiPluginTest {
                                 Content-Type: application/json\r
                                 \r
                                 {key2=value2}"""));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testMultipartFormDataWithJSON() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type", "multipart/form-data")));
+
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        final Property key1 = new Property("key1", "onlyValue");
+        final Property key2 = new Property(
+                "key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
+        final Property key3 = new Property(
+                "key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
+        final Property key4 = new Property(null, "irrelevantValue");
+        key2.setType("FILE");
+        key3.setType("FILE");
+        String jsonString = " {\"id\": abcd,\"email\": \"abcd@xyz.mn\",\"userName\": \"Michael Law\"} ";
+        final Property key5 = new Property("key5", jsonString);
+        key5.setType("JSON");
+        List<Property> formData = List.of(key1, key2, key3, key4, key5);
+        actionConfig.setBodyFormData(formData);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            Map.of(
+                                    "key1", "onlyValue",
+                                    "key2", "<file>",
+                                    "key3", "<file>",
+                                    "key5", jsonString),
+                            result.getRequest().getBody());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        String bodyString = new String(bodyBytes);
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+                    Content-Disposition: form-data; name="key1"\r
+                    Content-Type: text/plain;charset=UTF-8\r
+                    Content-Length: 9\r
+                    \r
+                    onlyValue"""));
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+                    Content-Disposition: form-data; name="key2"; filename="fileName"\r
+                    Content-Type: application/json\r
+                    \r
+                    {key=value}"""));
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+                    Content-Disposition: form-data; name="key3"; filename="fileName2"\r
+                    Content-Type: application/json\r
+                    \r
+                    {key2=value2}"""));
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+                    Content-Type: application/json\r
+                    Content-Disposition: form-data; name="key5"\r
+                    Content-Length: 60\r
+                    \r"""));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testMultipartFormDataWithArray() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type", "multipart/form-data")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+
+        String jsonString = " {\"id\": abcd,\"email\": \"abcd@xyz.mn\",\"userName\": \"Michael Law\"} ";
+        final Property jsonKey = new Property("dictionary", jsonString);
+        jsonKey.setType("JSON");
+
+        String listString = "[\"a\",\"b\",\"c\"]";
+        final Property listKey = new Property("list", listString);
+        listKey.setType("JSON");
+
+        String listedDictionaryString = "[{\"id\": abcd,\"email\": \"abcd@xyz.mn\",\"userName\": \"Bruce Banner\"}, "
+                + "{\"id\": efgh,\"email\": \"efgh@xyz.mn\",\"userName\": \"Matt Murdock\"}]";
+        final Property listedDictionaryKey = new Property("listedDictionary", listedDictionaryString);
+        listedDictionaryKey.setType("JSON");
+
+        List<Property> formData = List.of(jsonKey, listKey, listedDictionaryKey);
+        actionConfig.setBodyFormData(formData);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            Map.of(
+                                    "list",
+                                    listString,
+                                    "dictionary",
+                                    jsonString,
+                                    "listedDictionary",
+                                    listedDictionaryString),
+                            result.getRequest().getBody());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        String bodyString = new String(bodyBytes);
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+        Content-Type: application/json\r
+        Content-Disposition: form-data; name="dictionary"\r
+        Content-Length: 60\r
+        \r"""));
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+        Content-Type: application/json\r
+        Content-Disposition: form-data; name="list"\r
+        Content-Length: 13\r
+        \r
+        ["a","b","c"]"""));
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+        Content-Type: application/json\r
+        Content-Disposition: form-data; name="listedDictionary"\r
+        Content-Length: 125\r
+        \r"""));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testMultipartFormDataJSONWithMustacheBinding() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type", "multipart/form-data")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+
+        String jsonMustacheString =
+                " {\"id\": \"{{Input1.text}}\",\"email\": \"abcd@xyz.mn\",\"userName\": \"Michael Law\"} ";
+        String jsonString = " {\"id\": \"abcde\",\"email\": \"abcd@xyz.mn\",\"userName\": \"Michael Law\"} ";
+        final Property jsonKey = new Property("dictionary", jsonMustacheString);
+        jsonKey.setType("JSON");
+
+        String listMustacheString = "[\"{{Input2.text}}\",\"b\",\"c\"]";
+        String listString = "[\"a\",\"b\",\"c\"]";
+        final Property listKey = new Property("list", listMustacheString);
+        listKey.setType("JSON");
+
+        List<Property> formData = List.of(jsonKey, listKey);
+        actionConfig.setBodyFormData(formData);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("abcde");
+        param1.setClientDataType(ClientDataType.STRING);
+        params.add(param1);
+
+        Param param2 = new Param();
+        param2.setKey("Input2.text");
+        param2.setValue("a");
+        param2.setClientDataType(ClientDataType.STRING);
+        params.add(param2);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            Map.of("list", listString, "dictionary", jsonString),
+                            result.getRequest().getBody());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        String bodyString = new String(bodyBytes);
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+        Content-Type: application/json\r
+        Content-Disposition: form-data; name="dictionary"\r
+        Content-Length: 61\r
+        \r"""));
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+        Content-Type: application/json\r
+        Content-Disposition: form-data; name="list"\r
+        Content-Length: 13\r
+        \r
+        ["a","b","c"]"""));
                     } catch (EOFException | InterruptedException e) {
                         assert false : e.getMessage();
                     }
@@ -1615,6 +1919,46 @@ public class RestApiPluginTest {
     }
 
     @Test
+    public void testDenyInstanceMetadataAwsViaCnameIpv6() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://0--a9fe-a9fe.sslip.io/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(result.getPluginErrorDetails()
+                            .getDownstreamErrorMessage()
+                            .contains("Host not allowed."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDenyInstanceMetadataAwsViaCompatibleIpv6Address() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://[::169.254.169.254]/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(result.getPluginErrorDetails()
+                            .getDownstreamErrorMessage()
+                            .contains("Host not allowed."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testDenyInstanceMetadataGcp() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
@@ -1916,6 +2260,180 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNull(result.getRequest().getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRedirectionSuccessWithLocationHeaderHavingPath() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        String initialPath = "/start";
+        String redirectPath = "/redirection";
+        String responseBody = "this is a successful response";
+
+        MockResponse initialResponse =
+                new MockResponse().setResponseCode(302).addHeader(HttpHeaders.LOCATION, redirectPath);
+        MockResponse redirectedResponse =
+                new MockResponse().setResponseCode(200).setBody(responseBody);
+
+        mockEndpoint.enqueue(initialResponse);
+        mockEndpoint.enqueue(redirectedResponse);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(initialPath);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final RecordedRequest initialRequest;
+                    try {
+                        initialRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert initialRequest != null;
+                    assertEquals(initialRequest.getPath(), initialPath);
+
+                    // redirected Request
+                    final RecordedRequest redirectedRequest;
+                    try {
+                        redirectedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert redirectedRequest != null;
+                    assertEquals(redirectedRequest.getPath(), redirectPath);
+
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(baseUrl + redirectPath, request.getUrl());
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    assertEquals(result.getBody(), responseBody);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRedirectionSuccessWithAddingFullUrlExecution() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        String initialPath = "/start";
+        String redirectPath = "/redirection";
+        String responseBody = "this is a successful response";
+
+        MockResponse initialResponse =
+                new MockResponse().setResponseCode(302).addHeader(HttpHeaders.LOCATION, baseUrl + redirectPath);
+        MockResponse redirectedResponse =
+                new MockResponse().setResponseCode(200).setBody(responseBody);
+
+        mockEndpoint.enqueue(initialResponse);
+        mockEndpoint.enqueue(redirectedResponse);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(initialPath);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final RecordedRequest initialRequest;
+                    try {
+                        initialRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert initialRequest != null;
+                    assertEquals(initialRequest.getPath(), initialPath);
+
+                    // redirected Request
+                    final RecordedRequest redirectedRequest;
+                    try {
+                        redirectedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert redirectedRequest != null;
+                    assertEquals(redirectedRequest.getPath(), redirectPath);
+
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(baseUrl + redirectPath, request.getUrl());
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    assertEquals(result.getBody(), responseBody);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecutionSuccessWhenRedirectionEndsWithoutALocationHeader() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        String path = "/start";
+        String responseBody = "this is a successful response, even when it ends with a redirection";
+
+        MockResponse initialResponse = new MockResponse().setResponseCode(302).setBody(responseBody);
+
+        mockEndpoint.enqueue(initialResponse);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(path);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final RecordedRequest finalRequest;
+                    try {
+                        finalRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert finalRequest != null;
+                    assertEquals(finalRequest.getPath(), path);
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(baseUrl + path, request.getUrl());
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    assertEquals(result.getBody(), responseBody);
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testEmptyHostErrorMessage() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("  ");
+        String path = "/start";
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(path);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertFalse(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(
+                            actionExecutionResult.getStatusCode(),
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR.getAppErrorCode());
                 })
                 .verifyComplete();
     }

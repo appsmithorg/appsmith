@@ -13,9 +13,9 @@ import type { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 
-type ControlWrapperProps = {
+interface ControlWrapperProps {
   orientation?: ContainerOrientation;
-};
+}
 
 export const ControlWrapper = styled.div<ControlWrapperProps>`
   display: ${(props) =>

@@ -14,5 +14,5 @@ export const config: AdminConfigType = {
   component: AccessControlUpgradePage,
   title: "Access Control",
   canSave: false,
-  needsUpgrade: true,
+  isFeatureEnabled: false,
 } as AdminConfigType;

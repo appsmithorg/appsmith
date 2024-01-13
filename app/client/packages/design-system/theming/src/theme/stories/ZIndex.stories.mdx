@@ -1,0 +1,35 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme, ThemeProvider } from "@design-system/theming";
+import { TokenTable, StyledSquarePreview } from "@design-system/storybook";
+
+<Meta title="Design-system/Theme/Tokens/ZIndex" />
+
+# ZIndex
+
+Z-index design token is a numerical value used to determine the layering
+of elements in a UI. By assigning different z-index values to elements,
+developers can control which elements appear on top of others. This can
+be useful in creating visual hierarchies, such as ensuring that
+navigation menus appear above other content on a page.
+
+## Tokens Table
+
+export const ZIndex = () => {
+  const { theme } = useTheme();
+  const { zIndex } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="z-index" tokens={zIndex}>
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              zIndex: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<ZIndex />

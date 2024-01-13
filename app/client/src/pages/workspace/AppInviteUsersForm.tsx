@@ -2,18 +2,17 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import useWorkspace from "utils/hooks/useWorkspace";
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
@@ -21,12 +20,11 @@ import {
   MAKE_APPLICATION_PUBLIC,
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
 import { Button, Icon, Switch, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SwitchContainer = styled.div`
   flex-basis: 220px;
@@ -58,9 +56,8 @@ function AppInviteUsersForm(props: any) {
     isFetchingApplication,
   } = props;
   const [isCopied, setIsCopied] = useState(false);
-  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const currentWorkspace = useWorkspace(currentWorkspaceId);
-  const userWorkspacePermissions = currentWorkspace.userPermissions ?? [];
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToApplication = hasInviteUserToApplicationPermission([
     ...userWorkspacePermissions,
@@ -70,8 +67,10 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
-  const copyToClipboard = (e: any) => {
-    e.preventDefault();
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const copyToClipboard = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(appViewEndPoint);
     } else {
@@ -103,7 +102,7 @@ function AppInviteUsersForm(props: any) {
   }, [defaultPageId]);
 
   useEffect(() => {
-    if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToApplication) {
+    if (currentUser?.name !== ANONYMOUS_USERNAME) {
       fetchCurrentWorkspace(props.workspaceId);
     }
   }, [props.workspaceId, fetchCurrentWorkspace, currentUser?.name]);
@@ -113,8 +112,8 @@ function AppInviteUsersForm(props: any) {
       {canInviteToApplication && (
         <WorkspaceInviteUsersForm
           applicationId={applicationId}
-          isApplicationInvite
-          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          isApplicationPage
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, !isGACEnabled)}
           workspaceId={props.workspaceId}
         />
       )}
@@ -127,7 +126,7 @@ function AppInviteUsersForm(props: any) {
           data-testid={"copy-application-url"}
           endIcon="links-line"
           kind="tertiary"
-          onClick={(e) => copyToClipboard(e)}
+          onClick={copyToClipboard}
           size="md"
         >
           {`${
@@ -194,6 +193,6 @@ export default connect(
         },
       }),
     fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch(fetchWorkspace(workspaceId)),
+      dispatch(fetchWorkspace(workspaceId, true)),
   }),
 )(AppInviteUsersForm);

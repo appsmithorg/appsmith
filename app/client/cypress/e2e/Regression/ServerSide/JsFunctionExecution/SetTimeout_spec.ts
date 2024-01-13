@@ -1,5 +1,5 @@
 import {
-  tedTestConfig,
+  dataManager,
   jsEditor,
   agHelper,
   apiPage,
@@ -9,7 +9,7 @@ import {
 
 let userName: string;
 
-describe("Tests setTimeout API", function () {
+describe("Tests setTimeout API", { tags: ["@tag.JS"] }, function () {
   it("1. Executes showAlert after 3 seconds and uses default value", () => {
     jsEditor.CreateJSObject(
       `export default {
@@ -116,7 +116,7 @@ describe("Tests setTimeout API", function () {
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist("Hey there!");
     debuggerHelper.DoesConsoleLogExist("Bye!");
-    debuggerHelper.DoesConsoleLogExist("Working!", false, undefined, 100);
+    debuggerHelper.DoesConsoleLogExist("Working!", false);
     agHelper.Sleep(4000);
     debuggerHelper.DoesConsoleLogExist("Working!");
   });
@@ -148,7 +148,7 @@ describe("Tests setTimeout API", function () {
 
   it("6. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     jsEditor.CreateJSObject(
       `export default {

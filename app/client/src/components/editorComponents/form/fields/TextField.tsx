@@ -4,9 +4,9 @@ import { Field } from "redux-form";
 import type { InputProps } from "design-system";
 import { Input } from "design-system";
 
-type FieldProps = {
+interface FieldProps {
   type?: string;
-};
+}
 
 class TextField extends React.Component<
   BaseFieldProps & InputProps & FieldProps

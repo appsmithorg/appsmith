@@ -3,22 +3,22 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getPageWidgets } from "selectors/entitiesSelector";
-import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
-import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
-import type { DSLWidget } from "widgets/constants";
+import { getPageWidgets } from "@appsmith/selectors/entitiesSelector";
+import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
+import convertToAutoLayout from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   createSnapshotSaga,
   deleteApplicationSnapshotSaga,
 } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { saveAllPagesSaga } from "./PageSagas";
+import { saveAllPagesSaga } from "@appsmith/sagas/PageSagas";
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import {
   getCurrentApplicationId,
@@ -84,7 +84,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield call(saveAllPagesSaga, pageLayouts);
     //Set type of fixed layout
     yield call(setLayoutTypePostConversion, action.payload);
-    yield call(updateApplicationLayoutType, AppPositioningTypes.FIXED);
+    yield call(updateApplicationLayoutType, LayoutSystemTypes.FIXED);
     //update conversion form state to success
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
@@ -165,7 +165,7 @@ function* convertFromFixedToAutoSaga() {
     }
 
     yield call(saveAllPagesSaga, pageLayouts);
-    yield call(updateApplicationLayoutType, AppPositioningTypes.AUTO);
+    yield call(updateApplicationLayoutType, LayoutSystemTypes.AUTO);
     //update conversion form state to success
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),

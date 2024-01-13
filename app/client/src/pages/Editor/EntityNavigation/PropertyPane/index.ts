@@ -10,7 +10,7 @@ import type {
   IPanelStack,
   PropertyPaneNavigationConfig,
 } from "../types";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   getPropertyPanePanelNavigationConfig,
   getSectionId,
@@ -66,7 +66,10 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     if (!this.entityInfo.propertyPath) return config;
 
     const propertyPaneContentConfig =
-      WidgetFactory.getWidgetPropertyPaneContentConfig(this.widget?.type);
+      WidgetFactory.getWidgetPropertyPaneContentConfig(
+        this.widget?.type,
+        this.widget,
+      );
     const propertyPaneStyleConfig =
       WidgetFactory.getWidgetPropertyPaneStyleConfig(this.widget?.type);
     const widgetProps: WidgetProps | undefined = yield select(

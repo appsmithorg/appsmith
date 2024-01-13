@@ -9,19 +9,18 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 
@@ -40,11 +39,11 @@ const StyledResizer = styled.div<{ resizing: boolean }>`
   }
 `;
 
-type Props = {
+interface Props {
   width: number;
   onDragEnd?: () => void;
   onWidthChange: (width: number) => void;
-};
+}
 
 export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -53,7 +52,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const { onMouseDown, onMouseUp, onTouchStart, resizing } =
     useHorizontalResize(sidebarRef, props.onWidthChange, props.onDragEnd, true);
 
-  const isPreviewMode = useSelector(previewModeSelector);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
@@ -64,15 +62,18 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   //the current selected WidgetId is not equal to previous widget id,
   //then don't render PropertyPane
   const shouldNotRenderPane =
-    isDraggingOrResizing &&
-    selectedWidgetIds[0] !== prevSelectedWidgetId.current;
+    (isDraggingOrResizing &&
+      selectedWidgetIds[0] !== prevSelectedWidgetId.current) ||
+    selectedWidgetIds[0] === MAIN_CONTAINER_WIDGET_ID;
 
   // This is to keep the theming properties from changing,
   // while dragging a widget when no other widgets were selected
   const keepThemeWhileDragging =
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
-  const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+  const selectedWidgetsLength = useSelector(
+    (state) => selectedWidgetsPresentInCanvas(state).length,
+  );
 
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
@@ -96,19 +97,19 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     switch (true) {
       case isAppSettingsPaneOpen:
         return <AppSettingsPane />;
-      case selectedWidgets.length > 1:
+      case selectedWidgetsLength > 1:
         return <MultiSelectPropertyPane />;
-      case selectedWidgets.length === 1:
+      case selectedWidgetsLength === 1:
         if (shouldNotRenderPane) return <CanvasPropertyPane />;
         else return <WidgetPropertyPane />;
-      case selectedWidgets.length === 0:
+      case selectedWidgetsLength === 0:
         return <CanvasPropertyPane />;
       default:
         return <CanvasPropertyPane />;
     }
   }, [
     isAppSettingsPaneOpen,
-    selectedWidgets.length,
+    selectedWidgetsLength,
     isDraggingForSelection,
     shouldNotRenderPane,
     keepThemeWhileDragging,
@@ -130,15 +131,10 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   }, [isWalkthroughOpened]);
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* PROPERTY PANE */}
       <div
-        className={classNames({
-          [`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
-            true,
-          "relative ": !isPreviewMode,
-          "fixed translate-x-full right-0": isPreviewMode,
-        })}
+        className="js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white"
         id={PROPERTY_PANE_ID}
         ref={sidebarRef}
       >

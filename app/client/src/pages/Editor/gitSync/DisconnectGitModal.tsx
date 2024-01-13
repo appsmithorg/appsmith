@@ -33,8 +33,14 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
+import { GitSyncModalTab } from "entities/GitSync";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 function DisconnectGitModal() {
+  const isGitConnectV2Enabled = useFeatureFlag(
+    FEATURE_FLAG.release_git_connect_v2_enabled,
+  );
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsDisconnectGitModalOpen);
   const disconnectingApp = useSelector(getDisconnectingGitApplication);
@@ -44,7 +50,14 @@ function DisconnectGitModal() {
 
   const handleClickOnBack = useCallback(() => {
     dispatch(setIsDisconnectGitModalOpen(false));
-    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: isGitConnectV2Enabled
+          ? GitSyncModalTab.SETTINGS
+          : GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
     dispatch(setDisconnectingGitApplication({ id: "", name: "" }));
   }, [dispatch]);
 
@@ -105,7 +118,7 @@ function DisconnectGitModal() {
             kind="error"
             links={[
               {
-                children: "Learn More",
+                children: "Learn more",
                 to: gitDisconnectDocumentUrl,
                 className: "t--disconnect-learn-more",
               },

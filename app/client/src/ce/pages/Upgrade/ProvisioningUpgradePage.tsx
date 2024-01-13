@@ -14,11 +14,14 @@ import {
   USER_PROVISIONING_FOR_ENTERPRISES,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 export function ProvisioningUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "PROVISIONING_UPGRADE_ADMIN_SETTINGS",
     logEventData: { source: "Provisioning" },
+    featureName: RampFeature.Provisioning,
+    sectionName: RampSection.AdminSettings,
   });
 
   const header: Header = {

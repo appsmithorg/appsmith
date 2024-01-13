@@ -216,9 +216,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId);
-        Criteria deletionCriteria =
-                where(fieldName(QApplication.application.deleted)).ne(true);
-        return queryAll(List.of(applicationIdCriteria, deletionCriteria), permission);
+        return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     /**
@@ -282,12 +280,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         query.addCriteria(where(gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId));
-        query.addCriteria(where(fieldName(QApplication.application.deleted)).ne(true));
-        query.equals(where("this." + gitApplicationMetadata + "."
-                        + fieldName(QApplication.application.gitApplicationMetadata.branchName))
-                .equals("this." + gitApplicationMetadata + "."
-                        + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName)));
-
+        query.addCriteria(notDeleted());
         return mongoOperations.findOne(query, Application.class);
     }
 
@@ -318,13 +311,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Application> findByNameAndWorkspaceId(
-            String applicationName, String workspaceId, AclPermission permission) {
+    public Mono<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         Criteria applicationNameCriteria =
                 where(fieldName(QApplication.application.name)).is(applicationName);
-        return queryOne(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
+
+        return count(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
     }
 
     @Override
@@ -344,5 +337,61 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
         return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)), null, -1)
                 .map(application -> application.getId());
+    }
+
+    @Override
+    public Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
+            AclPermission permission, String permissionGroupId) {
+
+        Query query = new Query();
+        Criteria permissionGroupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(Criteria.where("permissionGroups")
+                        .in(permissionGroupId)
+                        .and("permission")
+                        .is(permission.getValue()));
+
+        query.addCriteria(permissionGroupCriteria);
+        query.addCriteria(notDeleted());
+        return mongoOperations.count(query, Application.class);
+    }
+
+    @Override
+    public Mono<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission) {
+        String isProtectedFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
+                + fieldName(QApplication.application.gitApplicationMetadata.isProtectedBranch);
+
+        Criteria defaultApplicationIdCriteria = Criteria.where(
+                        fieldName(QApplication.application.gitApplicationMetadata) + "."
+                                + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
+                .is(applicationId);
+
+        Update unsetProtected = new Update().set(isProtectedFieldPath, false);
+
+        return updateByCriteria(List.of(defaultApplicationIdCriteria), unsetProtected, permission);
+    }
+
+    /**
+     * This method sets protected=true to the Applications whose branch names are present in the given branchNames list.
+     * @param applicationId default Application id which is stored in git Application Meta data
+     * @param branchNames list of branches to be protected
+     * @return Mono<Void>
+     */
+    @Override
+    public Mono<UpdateResult> protectBranchedApplications(
+            String applicationId, List<String> branchNames, AclPermission permission) {
+        String isProtectedFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
+                + fieldName(QApplication.application.gitApplicationMetadata.isProtectedBranch);
+
+        String branchNameFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
+                + fieldName(QApplication.application.gitApplicationMetadata.branchName);
+
+        Criteria defaultApplicationIdCriteria = Criteria.where(
+                        fieldName(QApplication.application.gitApplicationMetadata) + "."
+                                + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
+                .is(applicationId);
+        Criteria branchMatchCriteria = Criteria.where(branchNameFieldPath).in(branchNames);
+        Update setProtected = new Update().set(isProtectedFieldPath, true);
+
+        return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission);
     }
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useContext, useRef } from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
@@ -6,17 +6,13 @@ import classNames from "classnames";
 import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import type { Action } from "entities/Action";
-import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";
-import {
-  getAction,
-  getActionData,
-} from "../../../../selectors/entitiesSelector";
+import { getAction, getActionData } from "@appsmith/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
@@ -24,6 +20,8 @@ import QueryEditor from "./QueryEditor";
 import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
+import { ApiEditorContext } from "../ApiEditorContext";
+import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -84,6 +82,8 @@ function GraphQLEditorForm(props: Props) {
     DEFAULT_GRAPHQL_VARIABLE_WIDTH,
   );
 
+  const { closeEditorLink } = useContext(ApiEditorContext);
+
   /**
    * Variable Editor's resizeable handler for the changing of width
    */
@@ -134,6 +134,7 @@ function GraphQLEditorForm(props: Props) {
           </ResizeableDiv>
         </BodyWrapper>
       }
+      closeEditorLink={closeEditorLink}
       defaultTabSelected={2}
       formName={API_EDITOR_FORM_NAME}
       paginationUIComponent={
@@ -151,9 +152,9 @@ function GraphQLEditorForm(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateDatasource: (datasource: Datasource) => void;
-};
+}
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) => {
@@ -234,37 +235,21 @@ export default connect(
 
     let hasResponse = false;
     let suggestedWidgets;
-    if (apiId) {
-      const response = getActionData(state, apiId) || EMPTY_RESPONSE;
+    const actionResponse = getActionData(state, apiId);
+    if (actionResponse) {
       hasResponse =
-        !isEmpty(response.statusCode) && response.statusCode[0] === "2";
-      suggestedWidgets = response.suggestedWidgets;
+        !isEmpty(actionResponse.statusCode) &&
+        actionResponse.statusCode[0] === "2";
+      suggestedWidgets = actionResponse.suggestedWidgets;
     }
 
     const actionData = getActionData(state, apiId);
-    let responseDisplayFormat: { title: string; value: string };
-    let responseDataTypes: { key: string; title: string }[];
-    if (!!actionData && actionData.responseDisplayFormat) {
-      responseDataTypes = actionData.dataTypes.map((data) => {
-        return {
-          key: data.dataType,
-          title: data.dataType,
-        };
-      });
-      responseDisplayFormat = {
-        title: actionData.responseDisplayFormat,
-        value: actionData.responseDisplayFormat,
-      };
-    } else {
-      responseDataTypes = [];
-      responseDisplayFormat = {
-        title: "",
-        value: "",
-      };
-    }
+    const { responseDataTypes, responseDisplayFormat } =
+      actionResponseDisplayDataFormats(actionData);
 
     return {
       actionName,
+      actionResponse,
       apiId,
       httpMethodFromForm,
       actionConfigurationHeaders,

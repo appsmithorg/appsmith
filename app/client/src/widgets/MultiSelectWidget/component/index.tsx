@@ -149,10 +149,12 @@ function MultiSelectComponent({
   // input is always a string.
   const filterOption = useCallback(
     (input, option) =>
-      String(option?.props.label).toLowerCase().indexOf(input.toLowerCase()) >=
-        0 ||
-      String(option?.props.value).toLowerCase().indexOf(input.toLowerCase()) >=
-        0,
+      String(option?.props.label)
+        .toLowerCase()
+        .indexOf(input.toLowerCase()) >= 0 ||
+      String(option?.props.value)
+        .toLowerCase()
+        .indexOf(input.toLowerCase()) >= 0,
     [],
   );
 

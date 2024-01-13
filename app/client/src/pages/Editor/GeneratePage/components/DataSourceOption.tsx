@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { getPluginImages } from "selectors/entitiesSelector";
+import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import type {
   DropdownOption,
   RenderDropdownOptionType,

@@ -1,18 +1,23 @@
-import { Positioning } from "utils/autoLayout/constants";
+import {
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
 import {
+  cloneDeep,
   compact,
   get,
+  indexOf,
   isBoolean,
   isEmpty,
   isNumber,
+  isString,
   omit,
   range,
   set,
@@ -23,15 +28,22 @@ import log from "loglevel";
 import memoizeOne from "memoize-one";
 import React from "react";
 import shallowEqual from "shallowequal";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import WidgetFactory from "utils/WidgetFactory";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  type FlattenedWidgetProps,
+  type DSLWidget,
+} from "WidgetProvider/constants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
@@ -44,7 +56,17 @@ import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import IconSVG from "../icon.svg";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -57,6 +79,455 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
   };
+
+  static type = "LIST_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "List",
+      iconSVG: IconSVG,
+      needsMeta: true,
+      isCanvas: true,
+      isDeprecated: true,
+      hideCard: true,
+      replacement: "LIST_WIDGET_V2",
+      needsHeightForContent: true,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      backgroundColor: "transparent",
+      itemBackgroundColor: "#FFFFFF",
+      rows: 40,
+      columns: 24,
+      animateLoading: true,
+      gridType: "vertical",
+      template: {},
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      positioning: Positioning.Fixed,
+      enhancements: {
+        child: {
+          autocomplete: (parentProps: any) => {
+            return parentProps.childAutoComplete;
+          },
+          updateDataTreePath: (parentProps: any, dataTreePath: string) => {
+            return `${parentProps.widgetName}.template.${dataTreePath}`;
+          },
+          shouldHideProperty: (parentProps: any, propertyName: string) => {
+            if (propertyName === "dynamicHeight") return true;
+
+            return false;
+          },
+          propertyUpdateHook: (
+            parentProps: any,
+            widgetName: string,
+            propertyPath: string,
+            propertyValue: string,
+            isTriggerProperty: boolean,
+          ) => {
+            let value = propertyValue;
+
+            if (!parentProps.widgetId) return [];
+
+            const { jsSnippets, stringSegments } =
+              getDynamicBindings(propertyValue);
+
+            const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+            value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
+                return (function(){
+                  return  ${js};
+                })();
+              })}}`;
+
+            if (!js) {
+              value = propertyValue;
+            }
+
+            const path = `template.${widgetName}.${propertyPath}`;
+
+            return [
+              {
+                widgetId: parentProps.widgetId,
+                propertyPath: path,
+                propertyValue: isTriggerProperty ? propertyValue : value,
+                isDynamicTrigger: isTriggerProperty,
+              },
+            ];
+          },
+        },
+      },
+      gridGap: 0,
+      listData: [
+        {
+          id: "001",
+          name: "Blue",
+          img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
+        },
+        {
+          id: "002",
+          name: "Green",
+          img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
+        },
+        {
+          id: "003",
+          name: "Red",
+          img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
+        },
+      ],
+      widgetName: "List",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              dropDisabled: true,
+              openParentPropertyPane: true,
+              noPad: true,
+              children: [],
+              blueprint: {
+                view: [
+                  {
+                    type: "CONTAINER_WIDGET",
+                    size: {
+                      rows: 12,
+                      cols: 64,
+                    },
+                    position: { top: 0, left: 0 },
+                    props: {
+                      backgroundColor: "white",
+                      containerStyle: "card",
+                      dragDisabled: true,
+                      isDeletable: false,
+                      disallowCopy: true,
+                      disablePropertyPane: true,
+                      openParentPropertyPane: true,
+                      children: [],
+                      positioning: Positioning.Fixed,
+                      blueprint: {
+                        view: [
+                          {
+                            type: "CANVAS_WIDGET",
+                            position: { top: 0, left: 0 },
+                            props: {
+                              containerStyle: "none",
+                              canExtend: false,
+                              detachFromLayout: true,
+                              children: [],
+                              version: 1,
+                              blueprint: {
+                                view: [
+                                  {
+                                    type: "IMAGE_WIDGET",
+                                    size: {
+                                      rows: 8,
+                                      cols: 16,
+                                    },
+                                    position: { top: 0, left: 0 },
+                                    props: {
+                                      defaultImage: getAssetUrl(
+                                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                                      ),
+                                      imageShape: "RECTANGLE",
+                                      maxZoomLevel: 1,
+                                      image: "{{currentItem.img}}",
+                                      boxShadow: "none",
+                                      objectFit: "cover",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "image",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                  {
+                                    type: "TEXT_WIDGET",
+                                    size: {
+                                      rows: 4,
+                                      cols: 12,
+                                    },
+                                    position: {
+                                      top: 0,
+                                      left: 16,
+                                    },
+                                    props: {
+                                      text: "{{currentItem.name}}",
+                                      textStyle: "HEADING",
+                                      textAlign: "LEFT",
+                                      boxShadow: "none",
+                                      dynamicHeight: "FIXED",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "text",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                  {
+                                    type: "TEXT_WIDGET",
+                                    size: {
+                                      rows: 4,
+                                      cols: 8,
+                                    },
+                                    position: {
+                                      top: 4,
+                                      left: 16,
+                                    },
+                                    props: {
+                                      text: "{{currentItem.id}}",
+                                      textStyle: "BODY",
+                                      textAlign: "LEFT",
+                                      boxShadow: "none",
+                                      dynamicHeight: "FIXED",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "text",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (
+              widget: WidgetProps & { children?: WidgetProps[] },
+              widgets: { [widgetId: string]: FlattenedWidgetProps },
+            ) => {
+              let template = {};
+              const logBlackListMap: any = {};
+              const container = get(
+                widgets,
+                `${get(widget, "children.0.children.0")}`,
+              );
+              const canvas = get(widgets, `${get(container, "children.0")}`);
+              let updatePropertyMap: any = [];
+              const dynamicBindingPathList: any[] = get(
+                widget,
+                "dynamicBindingPathList",
+                [],
+              );
+
+              canvas.children &&
+                get(canvas, "children", []).forEach((child: string) => {
+                  const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const logBlackList: { [key: string]: boolean } = {};
+                  const keys = Object.keys(childWidget);
+
+                  for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    let value = childWidget[key];
+
+                    if (isString(value) && value.indexOf("currentItem") > -1) {
+                      const { jsSnippets, stringSegments } =
+                        getDynamicBindings(value);
+
+                      const js = combineDynamicBindings(
+                        jsSnippets,
+                        stringSegments,
+                      );
+
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
+
+                      childWidget[key] = value;
+
+                      dynamicBindingPathList.push({
+                        key: `template.${childWidget.widgetName}.${key}`,
+                      });
+                    }
+                  }
+
+                  Object.keys(childWidget).map((key) => {
+                    logBlackList[key] = true;
+                  });
+
+                  logBlackListMap[childWidget.widgetId] = logBlackList;
+
+                  template = {
+                    ...template,
+                    [childWidget.widgetName]: childWidget,
+                  };
+                });
+
+              updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "dynamicBindingPathList",
+                  propertyValue: dynamicBindingPathList,
+                },
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "template",
+                  propertyValue: template,
+                },
+                {
+                  widgetId: container.widgetId,
+                  propertyName: "dynamicHeight",
+                  propertyValue: "FIXED",
+                },
+              ];
+
+              // add logBlackList to updateProperyMap for all children
+              updatePropertyMap = updatePropertyMap.concat(
+                Object.keys(logBlackListMap).map((logBlackListMapKey) => {
+                  return {
+                    widgetId: logBlackListMapKey,
+                    propertyName: "logBlackList",
+                    propertyValue: logBlackListMap[logBlackListMapKey],
+                  };
+                }),
+              );
+
+              return updatePropertyMap;
+            },
+          },
+          {
+            type: BlueprintOperationTypes.CHILD_OPERATIONS,
+            fn: (
+              widgets: { [widgetId: string]: FlattenedWidgetProps },
+              widgetId: string,
+              parentId: string,
+            ) => {
+              if (!parentId) return { widgets };
+              const widget = { ...widgets[widgetId] };
+              const parent = { ...widgets[parentId] };
+              const logBlackList: { [key: string]: boolean } = {};
+
+              widget.dynamicHeight = "FIXED";
+
+              /*
+               * Only widgets that don't have derived or meta properties
+               * work well inside the current version of List widget.
+               * Widgets like Input, Select maintain the state on meta properties,
+               * which won't be available in List.selectedItem object. Hence we're
+               * restricting them from being placed inside the List widget.
+               */
+              const allowedWidgets = [
+                "AUDIO_WIDGET",
+                "BUTTON_GROUP_WIDGET",
+                "BUTTON_WIDGET",
+                "CHART_WIDGET",
+                "CHECKBOX_WIDGET",
+                "CHECKBOX_GROUP_WIDGET",
+                "DIVIDER_WIDGET",
+                "ICON_BUTTON_WIDGET",
+                "IFRAME_WIDGET",
+                "IMAGE_WIDGET",
+                "INPUT_WIDGET_V2",
+                "MAP_CHART_WIDGET",
+                "MAP_WIDGET",
+                "MENU_BUTTON_WIDGET",
+                "PROGRESS_WIDGET",
+                "STATBOX_WIDGET",
+                "SWITCH_WIDGET",
+                "SWITCH_GROUP_WIDGET",
+                "TEXT_WIDGET",
+                "VIDEO_WIDGET",
+              ];
+
+              if (indexOf(allowedWidgets, widget.type) === -1) {
+                const widget = widgets[widgetId];
+                if (widget.children && widget.children.length > 0) {
+                  widget.children.forEach((childId: string) => {
+                    delete widgets[childId];
+                  });
+                }
+                if (widget.parentId) {
+                  const _parent = { ...widgets[widget.parentId] };
+                  _parent.children = _parent.children?.filter(
+                    (id) => id !== widgetId,
+                  );
+                  widgets[widget.parentId] = _parent;
+                }
+                delete widgets[widgetId];
+                return {
+                  widgets,
+                  message: `This widget cannot be used inside the list widget.`,
+                };
+              }
+
+              // add logBlackList for the children being added
+              Object.keys(widget).map((key) => {
+                logBlackList[key] = true;
+              });
+
+              widget.logBlackList = logBlackList;
+
+              widgets[parentId] = parent;
+              widgets[widgetId] = widget;
+              return { widgets };
+            },
+          },
+        ],
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "listData",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (
@@ -392,7 +863,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   renderChild = (childWidgetData: WidgetProps) => {
     const { shouldPaginate } = this.shouldPaginate();
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     childWidgetData.parentId = this.props.widgetId;
     // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
@@ -408,8 +879,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.positioning || childWidgetData.positioning;
     childWidgetData.positioning = positioning;
     childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
   getGridGap = () =>
@@ -892,9 +1362,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * view that is rendered in editor
    */
-  getPageView() {
+  getWidgetView() {
     const children = this.renderChildren();
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
@@ -985,13 +1455,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           ))}
       </ListComponent>
     );
-  }
-
-  /**
-   * returns type of the widget
-   */
-  static getWidgetType(): WidgetType {
-    return "LIST_WIDGET";
   }
 }
 

@@ -12,6 +12,7 @@ import { Callout } from "design-system";
  * @param setShowKeyGeneratedMessage {( value: ((prevState: boolean) => boolean) | boolean ) => void}
  */
 export default function getNotificationBanner(
+  deployKeyDocUrl: string,
   learnMoreClickHandler: (e: React.MouseEvent) => void,
   setShowKeyGeneratedMessage: (value: boolean) => void,
 ): JSX.Element {
@@ -23,8 +24,10 @@ export default function getNotificationBanner(
         isClosable
         links={[
           {
-            children: "Learn More",
+            children: "Learn more",
             onClick: learnMoreClickHandler,
+            to: deployKeyDocUrl,
+            target: "_blank",
           },
         ]}
         onClose={() => setShowKeyGeneratedMessage(false)}

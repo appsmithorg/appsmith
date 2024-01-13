@@ -5,11 +5,16 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import inputData from "../../../../support/Objects/mySqlData";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 
-describe("MySQL Datatype tests", function () {
+describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   before("Create Mysql DS & Create mysqlDTs table", function () {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -18,23 +23,15 @@ describe("MySQL Datatype tests", function () {
       query = inputData.query.createTable;
       dataSources.CreateQueryAfterDSSaved(query, "createTable"); //Creating query from EE overlay
       dataSources.RunQuery();
-
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer(inputData.tableName),
-      );
     });
   });
 
   //Insert false values to each column and check for the error status of the request.
   it("1. False Cases & Long Integer as query param", () => {
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       inputData.tableName,
-      "INSERT",
+      "Insert",
     );
     agHelper.RenameWithInPane("falseCases");
     inputData.falseResult.forEach((res_array, i) => {
@@ -66,7 +63,6 @@ describe("MySQL Datatype tests", function () {
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
 
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
       // ["falseCases", "createTable"].forEach((type) => {
       //   entityExplorer.ActionContextMenuByEntityName(
       //     type,
@@ -77,8 +73,7 @@ describe("MySQL Datatype tests", function () {
       entityExplorer.DeleteAllQueriesForDB(dsName);
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });

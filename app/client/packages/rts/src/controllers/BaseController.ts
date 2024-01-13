@@ -3,22 +3,22 @@ import type { ValidationError } from "express-validator";
 import { StatusCodes } from "http-status-codes";
 import type { IdentifierInfo } from "@shared/ast";
 
-type ErrorData = {
+interface ErrorData {
   error: string | string[];
   validationErrors?: ValidationError[];
-};
+}
 
-type ErrorBag = {
+interface ErrorBag {
   success: boolean;
   message: string;
   data?: ErrorData;
-};
+}
 
-type ResponseData = {
+interface ResponseData {
   success: boolean;
   message?: string;
   data: IdentifierInfo;
-};
+}
 
 export default class BaseController {
   serverErrorMessaage = "Something went wrong";

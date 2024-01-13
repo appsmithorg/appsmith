@@ -3,9 +3,9 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 
-export type EvaluationDependencyState = {
+export interface EvaluationDependencyState {
   inverseDependencyMap: DependencyMap;
-};
+}
 
 const initialState: EvaluationDependencyState = {
   inverseDependencyMap: {},

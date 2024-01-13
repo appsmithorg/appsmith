@@ -2,6 +2,7 @@ package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
@@ -12,10 +13,8 @@ import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
-import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
@@ -24,7 +23,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_INVALID_SSH_HOSTNAME_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_HOSTNAME_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_KEY_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_USERNAME_ERROR_MSG;
+import static com.appsmith.external.helpers.SSHUtils.isSSHEnabled;
+import static com.external.plugins.MySqlPlugin.CONNECTION_METHOD_INDEX;
+import static com.external.plugins.MySqlPlugin.MYSQL_DEFAULT_PORT;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public class MySqlDatasourceUtils {
 
@@ -59,18 +69,27 @@ public class MySqlDatasourceUtils {
      */
     public static final Duration BACKGROUND_EVICTION_TIME = Duration.ofMinutes(5);
 
-    public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
+    public static ConnectionFactoryOptions.Builder getBuilder(
+            DatasourceConfiguration datasourceConfiguration, ConnectionContext connectionContext) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
         StringBuilder urlBuilder = new StringBuilder();
-        if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+        if (isEmpty(datasourceConfiguration.getEndpoints())) {
             urlBuilder.append(datasourceConfiguration.getUrl());
         } else {
             urlBuilder.append("r2dbc:pool:mariadb://");
             final List<String> hosts = new ArrayList<>();
 
-            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+            if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    hosts.add(endpoint.getHost() + ":" + defaultIfNull(endpoint.getPort(), MYSQL_DEFAULT_PORT));
+                }
+            } else {
+                hosts.add(LOCALHOST + ":"
+                        + connectionContext
+                                .getSshTunnelContext()
+                                .getServerSocket()
+                                .getLocalPort());
             }
 
             urlBuilder.append(String.join(",", hosts)).append("/");
@@ -83,12 +102,12 @@ public class MySqlDatasourceUtils {
         urlBuilder.append("?zeroDateTimeBehavior=convertToNull&allowMultiQueries=true");
         final List<Property> dsProperties = datasourceConfiguration.getProperties();
 
-        if (dsProperties != null) {
-            for (Property property : dsProperties) {
-                if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
-                    urlBuilder.append("&serverTimezone=").append(property.getValue());
-                    break;
-                }
+        if (!isEmpty(dsProperties)) {
+            Property property = dsProperties.get(0);
+            if (property != null
+                    && "serverTimezone".equals(property.getKey())
+                    && !StringUtils.isEmpty(property.getValue())) {
+                urlBuilder.append("&serverTimezone=").append(property.getValue());
             }
         }
 
@@ -153,10 +172,9 @@ public class MySqlDatasourceUtils {
             invalids.add(MySQLErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
         }
 
-        if (StringUtils.isEmpty(datasourceConfiguration.getUrl())
-                && CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+        if (StringUtils.isEmpty(datasourceConfiguration.getUrl()) && isEmpty(datasourceConfiguration.getEndpoints())) {
             invalids.add(MySQLErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
-        } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+        } else if (!isEmpty(datasourceConfiguration.getEndpoints())) {
             for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                 if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
                     invalids.add(MySQLErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
@@ -197,12 +215,39 @@ public class MySqlDatasourceUtils {
             invalids.add(MySQLErrorMessages.DS_SSL_CONFIGURATION_FETCHING_FAILED_ERROR_MSG);
         }
 
+        if (isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
+            if (datasourceConfiguration.getSshProxy() == null
+                    || isBlank(datasourceConfiguration.getSshProxy().getHost())) {
+                invalids.add(DS_MISSING_SSH_HOSTNAME_ERROR_MSG);
+            } else {
+                String sshHost = datasourceConfiguration.getSshProxy().getHost();
+                if (sshHost.contains("/") || sshHost.contains(":")) {
+                    invalids.add(DS_INVALID_SSH_HOSTNAME_ERROR_MSG);
+                }
+            }
+
+            if (isBlank(datasourceConfiguration.getSshProxy().getUsername())) {
+                invalids.add(DS_MISSING_SSH_USERNAME_ERROR_MSG);
+            }
+
+            if (datasourceConfiguration.getSshProxy().getPrivateKey() == null
+                    || datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile() == null
+                    || isBlank(datasourceConfiguration
+                            .getSshProxy()
+                            .getPrivateKey()
+                            .getKeyFile()
+                            .getBase64Content())) {
+                invalids.add(DS_MISSING_SSH_KEY_ERROR_MSG);
+            }
+        }
+
         return invalids;
     }
 
-    public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration)
+    public static ConnectionPool getNewConnectionPool(
+            DatasourceConfiguration datasourceConfiguration, ConnectionContext connectionContext)
             throws AppsmithPluginException {
-        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
+        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration, connectionContext);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
         MariadbConnectionFactory connectionFactory =
                 MariadbConnectionFactory.from(MariadbConnectionConfiguration.fromOptions(ob.build())

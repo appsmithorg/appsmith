@@ -4,7 +4,6 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import equal from "fast-deep-equal/es6";
-import type { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import type { Task } from "redux-saga";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
@@ -15,6 +14,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type { SelectedArenaDimensions } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];

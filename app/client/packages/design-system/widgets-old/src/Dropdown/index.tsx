@@ -19,7 +19,9 @@ import { debounce, isArray } from "lodash";
 import "./styles.css";
 import { importSvg } from "../utils/icon-loadables";
 
-const Check = importSvg(() => import("../assets/icons/control/checkmark.svg"));
+const Check = importSvg(
+  async () => import("../assets/icons/control/checkmark.svg"),
+);
 
 export type DropdownOnSelect = (
   value?: string,
@@ -27,7 +29,7 @@ export type DropdownOnSelect = (
   isUpdatedViaKeyboard?: boolean,
 ) => void;
 
-export type DropdownOption = {
+export interface DropdownOption {
   label?: string;
   value?: string;
   id?: string;
@@ -45,7 +47,7 @@ export type DropdownOption = {
   disabledTooltipText?: string;
   hasCustomBadge?: boolean;
   link?: string;
-};
+}
 
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -344,7 +346,8 @@ export const DropdownWrapper = styled.div<{
   border: 1px solid var(--ads-dropdown-default-menu-border-color);
   overflow: hidden;
   overflow-y: auto;
-  box-shadow: 0px 12px 16px -4px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0px 12px 16px -4px rgba(0, 0, 0, 0.1),
     0px 4px 6px -2px rgba(0, 0, 0, 0.05);
   display: ${(props) => (props.isOpen ? "inline-block" : "none")};
   .dropdown-search {
@@ -1119,9 +1122,8 @@ export default function Dropdown(props: DropdownProps) {
 
   const handleKeydown = useCallback(
     (e: React.KeyboardEvent) => {
-      const elementList = document.getElementById(
-        "ds--dropdown-options",
-      )?.children;
+      const elementList = document.getElementById("ds--dropdown-options")
+        ?.children;
       if (!elementList || elementList?.length === 0) {
         setHighlight(-1);
       }

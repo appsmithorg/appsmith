@@ -1,7 +1,11 @@
 import ChartComponent from ".";
 import type { ChartComponentProps } from ".";
 import type { ChartData } from "../constants";
-import { LabelOrientation } from "../constants";
+import {
+  DefaultEChartConfig,
+  LabelOrientation,
+  DefaultFusionChartConfig,
+} from "../constants";
 
 import React from "react";
 
@@ -9,6 +13,10 @@ import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { screen } from "@testing-library/react";
+
+import { Provider } from "react-redux";
+import configureMockStore from "redux-mock-store";
+import { APP_MODE } from "entities/App";
 
 let container: any;
 
@@ -25,13 +33,15 @@ describe("Chart Widget", () => {
   };
   const defaultProps: ChartComponentProps = {
     allowScroll: true,
+    showDataPointLabel: true,
     chartData: {
       seriesID1: seriesData1,
       seriesID2: seriesData2,
     },
     chartName: "chart name",
     chartType: "AREA_CHART",
-    customFusionChartConfig: { type: "type", dataSource: undefined },
+    customEChartConfig: DefaultEChartConfig,
+    customFusionChartConfig: DefaultFusionChartConfig,
     hasOnDataPointClick: true,
     isVisible: true,
     isLoading: false,
@@ -47,13 +57,13 @@ describe("Chart Widget", () => {
     boxShadow: "1",
     primaryColor: "primarycolor",
     fontFamily: "fontfamily",
-    dimensions: { componentWidth: 11, componentHeight: 11 },
+    dimensions: { componentWidth: 1000, componentHeight: 1000 },
     parentColumnSpace: 1,
     parentRowSpace: 1,
     topRow: 0,
-    bottomRow: 0,
+    bottomRow: 100,
     leftColumn: 0,
-    rightColumn: 0,
+    rightColumn: 100,
   };
 
   beforeEach(() => {
@@ -66,9 +76,35 @@ describe("Chart Widget", () => {
     container = null;
   });
 
+  const mockStore = configureMockStore();
+  const store = mockStore({
+    entities: {
+      canvasWidgets: {},
+      app: {
+        mode: APP_MODE.PUBLISHED,
+      },
+    },
+    ui: {
+      widgetDragResize: {
+        selectedWidgets: [],
+      },
+      editor: {
+        isPreviewMode: false,
+      },
+      applications: {
+        currentApplication: "",
+      },
+      gitSync: {
+        protectedBranches: [],
+      },
+    },
+  });
+
   it("1. renders the correct library for chart type", async () => {
     const { container, getByText, rerender } = render(
-      <ChartComponent {...defaultProps} />,
+      <Provider store={store}>
+        <ChartComponent {...defaultProps} />
+      </Provider>,
     );
 
     const xAxisLabel = getByText("xaxisname");
@@ -82,10 +118,14 @@ describe("Chart Widget", () => {
     );
     expect(fusionContainer).not.toBeInTheDocument();
 
-    const props = { ...defaultProps };
+    let props = { ...defaultProps };
     props.chartType = "CUSTOM_FUSION_CHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     echartsContainer = container.querySelector("#widgetIDechart-container");
     expect(echartsContainer).not.toBeInTheDocument();
@@ -94,15 +134,29 @@ describe("Chart Widget", () => {
       "#widgetIDcustom-fusion-chart-container",
     );
     expect(fusionContainer).toBeInTheDocument();
+
+    props = JSON.parse(JSON.stringify(defaultProps));
+    props.chartType = "CUSTOM_ECHART";
+
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
+
+    echartsContainer = container.querySelector("iframe");
+    expect(echartsContainer).toBeInTheDocument();
   });
 
-  it("2. successfully switches sequence of basic chart/custom fusion chart/basic chart", async () => {
+  it("2. successfully switches sequence of basic chart/custom fusion chart/basic chart/custom echart", async () => {
     // First render with Area Chart
     let props = JSON.parse(JSON.stringify(defaultProps));
     props.chartType = "AREA_CHART";
 
     const { container, getByText, rerender } = render(
-      <ChartComponent {...props} />,
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
     );
 
     let xAxisLabel = getByText("xaxisname");
@@ -120,7 +174,11 @@ describe("Chart Widget", () => {
     props = JSON.parse(JSON.stringify(defaultProps));
     props.chartType = "CUSTOM_FUSION_CHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     echartsContainer = container.querySelector("#widgetIDechart-container");
     expect(echartsContainer).not.toBeInTheDocument();
@@ -134,24 +192,45 @@ describe("Chart Widget", () => {
     props = JSON.parse(JSON.stringify(defaultProps));
     props.chartType = "AREA_CHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     xAxisLabel = getByText("xaxisname");
     expect(xAxisLabel).toBeInTheDocument();
 
     echartsContainer = container.querySelector("#widgetIDechart-container");
     expect(echartsContainer).toBeInTheDocument();
+
+    // Render Custom EChart
+    props = JSON.parse(JSON.stringify(defaultProps));
+    props.chartType = "CUSTOM_ECHART";
+
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
+
+    echartsContainer = container.querySelector("iframe");
+    expect(echartsContainer).toBeInTheDocument();
   });
 
   it("3. adds a click event when user adds a click callback", async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = jest.fn((params) => params);
     const props = { ...defaultProps };
     props.onDataPointClick = (point) => {
       point;
-      mockCallback();
+      mockCallback(point);
     };
 
-    render(<ChartComponent {...props} />);
+    render(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     expect(mockCallback.mock.calls.length).toEqual(0);
     const el = await screen.findByText("1000");

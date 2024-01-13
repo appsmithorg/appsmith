@@ -271,10 +271,10 @@ public class MssqlDatasourceUtils {
                             + "delete everything in the table!",
                     table.getName());
 
-            table.getTemplates().add(new DatasourceStructure.Template("SELECT", selectQueryTemplate));
-            table.getTemplates().add(new DatasourceStructure.Template("INSERT", insertQueryTemplate));
-            table.getTemplates().add(new DatasourceStructure.Template("UPDATE", updateQueryTemplate));
-            table.getTemplates().add(new DatasourceStructure.Template("DELETE", deleteQueryTemplate));
+            table.getTemplates().add(new DatasourceStructure.Template("SELECT", selectQueryTemplate, true));
+            table.getTemplates().add(new DatasourceStructure.Template("INSERT", insertQueryTemplate, false));
+            table.getTemplates().add(new DatasourceStructure.Template("UPDATE", updateQueryTemplate, false));
+            table.getTemplates().add(new DatasourceStructure.Template("DELETE", deleteQueryTemplate, false));
         });
     }
 

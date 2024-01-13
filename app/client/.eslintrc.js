@@ -13,6 +13,8 @@ const baseNoRestrictedImports =
 const eslintConfig = {
   extends: ["./.eslintrc.base.json"],
   rules: {
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "react/display-name": "off",
     "react/prop-types": "off",

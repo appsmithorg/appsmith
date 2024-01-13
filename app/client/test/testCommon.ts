@@ -6,15 +6,15 @@ import { APP_MODE } from "entities/App";
 import { useDispatch } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
-import { getCanvasWidgetsPayload } from "sagas/PageSagas";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgetsPayload } from "@appsmith/sagas/PageSagas";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import type { AppState } from "@appsmith/reducers";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { nestDSL } from "@shared/dsl";
 
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
@@ -51,7 +51,7 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
     payload: [
       {
         pageId: mockResp.data.id,
-        dsl: extractCurrentDSL(mockResp).dsl,
+        dsl: extractCurrentDSL({ response: mockResp }).dsl,
       },
     ],
   });

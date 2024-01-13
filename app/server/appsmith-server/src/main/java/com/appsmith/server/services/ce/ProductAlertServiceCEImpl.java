@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.dtos.ce.ProductAlertResponseDTO;
+import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.databind.ObjectMapper;

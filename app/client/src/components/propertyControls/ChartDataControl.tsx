@@ -17,6 +17,8 @@ import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import ColorPickerComponent from "./ColorPickerComponentV2";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
 const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg-subtle);
@@ -78,7 +80,7 @@ const Box = styled.div`
   height: 16px;
 `;
 
-type RenderComponentProps = {
+interface RenderComponentProps {
   index: string;
   item: ChartData;
   length: number;
@@ -92,7 +94,7 @@ type RenderComponentProps = {
   };
   theme: EditorTheme;
   isPieChart?: boolean;
-};
+}
 
 const expectedSeriesName: CodeEditorExpected = {
   type: "string",
@@ -144,6 +146,7 @@ function DataControlComponent(props: RenderComponentProps) {
           dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
           expected={expectedSeriesName}
+          hinting={[bindingHintHelper, slashCommandHintHelper]}
           input={{
             value: item.seriesName,
             onChange: (
@@ -158,6 +161,7 @@ function DataControlComponent(props: RenderComponentProps) {
           }}
           mode={EditorModes.TEXT_WITH_BINDING}
           placeholder="Series Name"
+          positionCursorInsideBinding
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INPUT}
           theme={props.theme}
@@ -193,6 +197,7 @@ function DataControlComponent(props: RenderComponentProps) {
           dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
           expected={expectedSeriesData}
+          hinting={[bindingHintHelper, slashCommandHintHelper]}
           input={{
             value: item.data,
             onChange: (
@@ -207,6 +212,7 @@ function DataControlComponent(props: RenderComponentProps) {
           }}
           mode={EditorModes.JSON_WITH_BINDING}
           placeholder=""
+          positionCursorInsideBinding
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INPUT}
           theme={props.theme}

@@ -21,7 +21,7 @@ import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system";
-import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
+import LogoInput from "pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
@@ -39,10 +39,10 @@ export type UpdateSetting = (
   value: NavigationSetting[keyof NavigationSetting],
 ) => void;
 
-export type LogoConfigurationSwitches = {
+export interface LogoConfigurationSwitches {
   logo: boolean;
   applicationTitle: boolean;
-};
+}
 
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);

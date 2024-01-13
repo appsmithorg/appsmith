@@ -5,9 +5,9 @@ import { klona } from "klona";
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
 
-export type UseUpdateInternalMetaStateProps = {
+export interface UseUpdateInternalMetaStateProps {
   propertyName?: string;
-};
+}
 
 const DEBOUNCE_TIMEOUT = 100;
 

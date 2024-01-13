@@ -8,6 +8,9 @@ import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { omit } from "lodash";
+import type { OtlpSpan } from "UITelemetry/generateTraces";
+import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -139,11 +142,18 @@ export interface CopyActionRequest {
 }
 
 export interface UpdateActionNameRequest {
-  pageId: string;
+  pageId?: string;
   actionId: string;
-  layoutId: string;
+  layoutId?: string;
   newName: string;
   oldName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
+}
+
+export interface FetchActionsPayload {
+  applicationId?: string;
+  workflowId?: string;
 }
 class ActionAPI extends API {
   static url = "v1/actions";
@@ -151,33 +161,33 @@ class ActionAPI extends API {
   static queryUpdateCancelTokenSource: CancelTokenSource;
   static abortActionExecutionTokenSource: CancelTokenSource;
 
-  static createAction(
+  static async createAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     return API.post(ActionAPI.url, apiConfig);
   }
 
-  static fetchActions(
-    applicationId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
-    return API.get(ActionAPI.url, { applicationId });
+  static async fetchActions(
+    payload: FetchActionsPayload,
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
+    return API.get(ActionAPI.url, payload);
   }
 
-  static fetchActionsForViewMode(
+  static async fetchActionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<ActionViewMode[]>> {
+  ): Promise<AxiosPromise<ApiResponse<ActionViewMode[]>>> {
     return API.get(`${ActionAPI.url}/view`, { applicationId });
   }
 
-  static fetchActionsByPageId(
+  static async fetchActionsByPageId(
     pageId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, { pageId });
   }
 
-  static updateAction(
+  static async updateAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     if (ActionAPI.apiUpdateCancelTokenSource) {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
@@ -192,19 +202,19 @@ class ActionAPI extends API {
     });
   }
 
-  static updateActionName(updateActionNameRequest: UpdateActionNameRequest) {
+  static async updateActionName(
+    updateActionNameRequest: UpdateActionNameRequest,
+  ) {
     return API.put(ActionAPI.url + "/refactor", updateActionNameRequest);
   }
 
-  static deleteAction(id: string) {
+  static async deleteAction(id: string) {
     return API.delete(`${ActionAPI.url}/${id}`);
   }
-
-  static executeAction(
+  private static async executeApiCall(
     executeAction: FormData,
     timeout?: number,
-  ): AxiosPromise<ActionExecutionResponse> {
-    ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
+  ): Promise<AxiosPromise<ActionExecutionResponse>> {
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
       headers: {
@@ -216,13 +226,30 @@ class ActionAPI extends API {
     });
   }
 
-  static moveAction(moveRequest: MoveActionRequest) {
+  static async executeAction(
+    executeAction: FormData,
+    timeout?: number,
+    parentSpan?: OtlpSpan,
+  ): Promise<AxiosPromise<ActionExecutionResponse>> {
+    ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
+    if (!parentSpan) {
+      return this.executeApiCall(executeAction, timeout);
+    }
+    return wrapFnWithParentTraceContext(parentSpan, async () => {
+      return await this.executeApiCall(executeAction, timeout);
+    });
+  }
+
+  static async moveAction(moveRequest: MoveActionRequest) {
     return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
       timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
   }
 
-  static toggleActionExecuteOnLoad(actionId: string, shouldExecute: boolean) {
+  static async toggleActionExecuteOnLoad(
+    actionId: string,
+    shouldExecute: boolean,
+  ) {
     return API.put(ActionAPI.url + `/executeOnLoad/${actionId}`, undefined, {
       flag: shouldExecute.toString(),
     });

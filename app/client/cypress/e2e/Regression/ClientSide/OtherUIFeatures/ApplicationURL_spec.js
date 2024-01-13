@@ -1,34 +1,38 @@
-const explorer = require("../../../../locators/explorerlocators.json");
 import {
   agHelper,
   assertHelper,
+  draggableWidgets,
   entityExplorer,
   homePage,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Slug URLs", () => {
   let applicationName;
   let applicationId;
+
   it("1. Checks URL redirection from legacy URLs to slug URLs", () => {
     applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
       const pageId = pathname.split("/")[3]?.split("-").pop();
-      cy.visit(`/applications/${applicationId}/pages/${pageId}/edit`).then(
-        () => {
-          cy.wait(10000);
-          cy.location("pathname").then((pathname) => {
-            const pageId = pathname.split("/")[3]?.split("-").pop();
-            const appName = localStorage.getItem("AppName");
-            expect(pathname).to.be.equal(
-              `/app/${appName}/page1-${pageId}/edit`,
-            );
-          });
-        },
-      );
+      cy.visit(`/applications/${applicationId}/pages/${pageId}/edit`, {
+        timeout: Cypress.config().pageLoadTimeout,
+      }).then(() => {
+        agHelper.WaitUntilEleAppear(locators._sidebar);
+        cy.location("pathname").then((pathname) => {
+          const pageId = pathname.split("/")[3]?.split("-").pop();
+          const appName = localStorage
+            .getItem("appName")
+            .replace(/\s+/g, "-")
+            .toLowerCase();
+          expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
+        });
+      });
     });
   });
 
-  it("2. Checks if application slug updates on the URL when application name changes", () => {
+  it("2. Checks if application slug updates & page slug updates on the URL when application name/page name changes", () => {
     cy.generateUUID().then((appName) => {
       applicationName = appName;
       homePage.RenameApplication(applicationName);
@@ -38,29 +42,20 @@ describe("Slug URLs", () => {
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
       });
     });
-  });
-
-  it("3. Checks if page slug updates on the URL when page name changes", () => {
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Page1",
-      action: "Edit name",
-    });
-    cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
-    cy.get("body").click(0, 0, { force: true });
-    cy.wait("@updatePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.location("pathname").then((pathname) => {
+    entityExplorer.RenameEntityFromExplorer("Page1", "Renamed");
+    assertHelper.AssertNetworkStatus("updatePage");
+    // cy.location("pathname").then((pathname) => {
+    cy.url().then((url) => {
+      const urlObject = new URL(url);
+      const pathname = urlObject.pathname;
       const pageId = pathname.split("/")[3]?.split("-").pop();
       expect(pathname).to.be.equal(
-        `/app/${applicationName}/page-renamed-${pageId}/edit`,
+        `/app/${applicationName}/renamed-${pageId}/edit`,
       );
     });
   });
 
-  it("4. Check the url of old applications, upgrades version and compares appsmith.URL values", () => {
+  it("3. Check the url of old applications, upgrades version and compares appsmith.URL values", () => {
     cy.request("PUT", `/api/v1/applications/${applicationId}`, {
       applicationVersion: 1,
     }).then((response) => {
@@ -88,20 +83,17 @@ describe("Slug URLs", () => {
               `/applications/${application.id}/pages/${currentPageId}`,
             );
           });
-          cy.get(explorer.addWidget).click();
-          cy.dragAndDropToCanvas("textwidget", { x: 300, y: 700 });
-          cy.get(".t--widget-textwidget").should("exist");
+          entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
+
           cy.updateCodeInput(
             ".t--property-control-text",
             `{{appsmith.URL.pathname}}`,
           );
 
-          cy.get(".t--draggable-textwidget .bp3-ui-text")
-            .should(
-              "contain.text",
-              `/applications/${application.id}/pages/${currentPageId}/edit`,
-            )
-            .wait(2000);
+          cy.get(".t--draggable-textwidget .bp3-ui-text").should(
+            "contain.text",
+            `/applications/${application.id}/pages/${currentPageId}/edit`,
+          );
 
           cy.get(".t--upgrade").click({ force: true });
 
@@ -137,16 +129,10 @@ describe("Slug URLs", () => {
     });
   });
 
-  it("5. Checks redirect url", () => {
+  it("4. Checks redirect url", () => {
     cy.url().then((url) => {
-      cy.LogOut();
+      homePage.Signout(true);
       agHelper.VisitNAssert(url + "?embed=true&a=b", "signUpLogin");
-      agHelper.Sleep(2000);
-      // cy.location().should((loc) => {
-      //   expect(loc.search).to.eq(
-      //     `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
-      //   );
-      // });
       agHelper.AssertURL(
         `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
       );

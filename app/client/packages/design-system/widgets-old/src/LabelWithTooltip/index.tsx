@@ -8,7 +8,9 @@ import Tooltip from "../Tooltip";
 import { IconWrapper } from "../Icon";
 import { importSvg } from "../utils/icon-loadables";
 
-const HelpIcon = importSvg(() => import("../assets/icons/control/help.svg"));
+const HelpIcon = importSvg(
+  async () => import("../assets/icons/control/help.svg"),
+);
 
 export interface LabelWithTooltipProps {
   alignment?: Alignment;

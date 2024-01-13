@@ -14,9 +14,12 @@ import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -29,15 +32,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -80,6 +81,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final DatasourceStorageService datasourceStorageService;
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final ApplicationPageService applicationPageService;
     private final ApplicationService applicationService;
     private final PluginService pluginService;
@@ -226,7 +228,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getEditPermission())
+                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
@@ -387,24 +389,26 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             .peek(newAction -> newAction.setDefaultResources(page.getDefaultResources()))
                             .collect(Collectors.toList());
 
-                    // Extract S3 bucket name from template application and map to users bucket. Bucket name is stored
-                    // at
-                    // index 1 in plugin specified templates
+                    List<ActionConfiguration> templateUnpublishedActionConfigList = templateActionList.stream()
+                            .map(NewAction::getUnpublishedAction)
+                            .map(ActionDTO::getActionConfiguration)
+                            .collect(Collectors.toList());
 
-                    if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName())
-                            && !CollectionUtils.isEmpty(templateActionList)) {
-                        final Map<String, Object> formData = templateActionList
-                                .get(0)
-                                .getUnpublishedAction()
-                                .getActionConfiguration()
-                                .getFormData();
-                        mappedColumnsAndTableName.put(
-                                (String) ((Map<?, ?>) formData.get("bucket")).get("data"), tableName);
-                    }
+                    /**
+                     * Any plugin specific update to the template queries should be defined by overriding the
+                     * `sanitizeGenerateCRUDPageTemplateInfo` method in the respective plugin. In the default case no
+                     * changes are made to the template. e.g. please check the sanitizeGenerateCRUDPageTemplateInfo
+                     * method defined in AmazonS3Plugin.java .
+                     */
+                    Mono<Void> sanitizeTemplateInfoMono = pluginExecutorHelper
+                            .getPluginExecutorFromPackageName(plugin.getPackageName())
+                            .flatMap(pluginExecutor -> pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(
+                                    templateUnpublishedActionConfigList, mappedColumnsAndTableName, tableName));
 
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
-                    return layoutActionService
-                            .updateLayout(savedPageId, page.getApplicationId(), layoutId, layout)
+                    return sanitizeTemplateInfoMono
+                            .then(updateLayoutService.updateLayout(
+                                    savedPageId, page.getApplicationId(), layoutId, layout))
                             .then(Mono.zip(
                                     Mono.just(datasourceStorage),
                                     Mono.just(templateActionList),
@@ -493,7 +497,10 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         }
 
         return applicationService
-                .findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .findBranchedApplicationId(
+                        branchName, defaultApplicationId, applicationPermission.getPageCreatePermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)))
                 .flatMapMany(childApplicationId -> newPageService.findByApplicationId(
                         childApplicationId, pagePermission.getEditPermission(), false))
                 .collectList()

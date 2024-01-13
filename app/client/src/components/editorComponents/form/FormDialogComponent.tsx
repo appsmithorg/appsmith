@@ -7,18 +7,17 @@ import {
   ModalHeader,
 } from "design-system";
 
-type FormDialogComponentProps = {
+interface FormDialogComponentProps {
   isOpen?: boolean;
   workspace?: any;
   title?: string;
   message?: string;
   Form: any;
   onClose?: () => void;
-  onOpenOrClose?: (isOpen: boolean) => void;
   applicationId?: string;
   placeholder?: string;
   hideDefaultTrigger?: boolean;
-};
+}
 
 export function FormDialogComponent(props: FormDialogComponentProps) {
   const [isModalOpen, setIsModalOpenState] = useState(!!props.isOpen);
@@ -29,7 +28,6 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
 
   const setIsOpen = (isOpen: boolean) => {
     setIsModalOpenState(isOpen);
-    props.onOpenOrClose && props.onOpenOrClose(isOpen);
   };
 
   const onOpenChange = (isOpen: boolean) => {
@@ -58,7 +56,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         <ModalContent style={{ width: "640px" }}>
           <ModalHeader>
             <div className="text-ellipsis overflow-hidden whitespace-nowrap">
-              {props.title || `Invite Users to ${props.workspace.name}`}
+              {props.title || `Invite users to ${props.workspace.name}`}
             </div>
           </ModalHeader>
           <ModalBody>

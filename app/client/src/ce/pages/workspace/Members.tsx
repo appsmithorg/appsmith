@@ -30,18 +30,17 @@ import {
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
-import { CustomRolesRamp } from "./WorkspaceInviteUsersForm";
-import { showProductRamps } from "utils/ProductRamps";
+import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
+import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
@@ -52,52 +51,55 @@ export type PageProps = RouteComponentProps<{
 export const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
-  table {
-    table-layout: fixed;
+  &.members-wrapper {
+    overflow: scroll;
+    height: 100%;
+    ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
+    table {
+      table-layout: fixed;
 
-    thead {
-      z-index: 1;
-      tr {
-        border-bottom: 1px solid var(--ads-v2-color-border);
-        th {
-          font-size: 14px;
-          font-weight: 500;
-          line-height: 1.5;
-          color: var(--ads-v2-color-fg);
-          padding: 8px 20px;
+      thead {
+        tr {
+          border-bottom: 1px solid var(--ads-v2-color-border);
+          th {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: var(--ads-v2-color-fg);
+            padding: 8px 20px;
 
-          &:last-child {
-            width: 120px;
-          }
+            &:last-child {
+              width: 120px;
+            }
 
-          svg {
-            margin: auto 8px;
-            display: initial;
+            svg {
+              margin: auto 8px;
+              display: initial;
+            }
           }
         }
       }
-    }
 
-    tbody {
-      tr {
-        td {
-          word-break: break-word;
-          padding: 0 var(--ads-spaces-9);
-          border-bottom: none;
-          height: 40px;
+      tbody {
+        tr {
+          td {
+            word-break: break-word;
+            padding: 0 var(--ads-spaces-9);
+            border-bottom: none;
+            height: 40px;
 
-          &:first-child {
-            text-align: left;
-          }
+            &:first-child {
+              text-align: left;
+            }
 
-          .ads-v2-select {
-            width: fit-content;
-            > .rc-select-selector {
-              border: none;
+            .ads-v2-select {
+              width: fit-content;
+              > .rc-select-selector {
+                border: none;
 
-              > .rc-select-selection-item {
-                padding-left: 0;
+                > .rc-select-selection-item {
+                  padding-left: 0;
+                }
               }
             }
           }
@@ -124,7 +126,7 @@ export const UserCard = styled(Card)`
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   padding: ${(props) =>
-    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
+    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`};
   width: 100%;
   height: 201px;
   margin: auto;
@@ -200,6 +202,9 @@ export default function MemberSettings(props: PageProps) {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
+  const canShowRamp = useSelector(showRampSelector);
+
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
     dispatch(fetchRolesForWorkspace(workspaceId));
@@ -260,6 +265,8 @@ export default function MemberSettings(props: PageProps) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
 
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
       const userBeingDeleted = allUsers.find(
@@ -317,7 +324,7 @@ export default function MemberSettings(props: PageProps) {
   const columns = [
     {
       Header: createMessage(() =>
-        MEMBERS_TAB_TITLE(filteredData?.length, cloudHosting),
+        MEMBERS_TAB_TITLE(filteredData?.length, !isGACEnabled),
       ),
       accessor: "users",
       Cell: function UserCell(props: any) {
@@ -416,7 +423,7 @@ export default function MemberSettings(props: PageProps) {
                 </div>
               </Option>
             ))}
-            {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+            {canShowRamp && (
               <Option disabled>
                 <CustomRolesRamp />
               </Option>
@@ -469,7 +476,11 @@ export default function MemberSettings(props: PageProps) {
   };
 
   return (
-    <MembersWrapper data-testid="t--members-wrapper" isMobile={isMobile}>
+    <MembersWrapper
+      className="members-wrapper"
+      data-testid="t--members-wrapper"
+      isMobile={isMobile}
+    >
       <>
         {!isMobile && (
           <Table
@@ -559,7 +570,7 @@ export default function MemberSettings(props: PageProps) {
                           </div>
                         </Option>
                       ))}
-                      {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                      {canShowRamp && (
                         <Option disabled>
                           <CustomRolesRamp />
                         </Option>

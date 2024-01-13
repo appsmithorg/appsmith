@@ -2,7 +2,6 @@ import React, { lazy, Suspense } from "react";
 
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -25,11 +24,21 @@ import {
   MapTypes,
 } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-const MapChartComponent = lazy(() =>
+const MapChartComponent = lazy(async () =>
   retryPromise(
-    () => import(/* webpackChunkName: "mapCharts" */ "../component"),
+    async () => import(/* webpackChunkName: "mapCharts" */ "../component"),
   ),
 );
 
@@ -63,6 +72,80 @@ const updateDataSet = (
 };
 
 class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
+  static type = "MAP_CHART_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Map Chart", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.DISPLAY],
+      needsMeta: true, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+      searchTags: ["graph", "visuals", "visualisations"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 32,
+      columns: 24,
+      widgetName: "MapChart",
+      version: 1,
+      mapType: MapTypes.WORLD,
+      mapTitle: "Global Population",
+      showLabels: true,
+      data: dataSetForWorld,
+      colorRange: [
+        {
+          minValue: 0.5,
+          maxValue: 1.0,
+          code: "#FFD74D",
+        },
+        {
+          minValue: 1.0,
+          maxValue: 2.0,
+          code: "#FB8C00",
+        },
+        {
+          minValue: 2.0,
+          maxValue: 3.0,
+          code: "#E65100",
+        },
+      ],
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -357,10 +440,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     };
   }
 
-  static getWidgetType(): WidgetType {
-    return "MAP_CHART_WIDGET";
-  }
-
   static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -381,7 +460,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     });
   };
 
-  getPageView() {
+  getWidgetView() {
     const { colorRange, data, isVisible, mapTitle, mapType, showLabels } =
       this.props;
 

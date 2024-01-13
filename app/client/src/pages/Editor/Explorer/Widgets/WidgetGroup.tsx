@@ -14,7 +14,7 @@ import {
   EMPTY_WIDGET_BUTTON_TEXT,
   EMPTY_WIDGET_MAIN_TEXT,
 } from "@appsmith/constants/messages";
-import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
+import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   getExplorerStatus,
@@ -22,14 +22,16 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { Icon } from "design-system";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
-type ExplorerWidgetGroupProps = {
+interface ExplorerWidgetGroupProps {
   step: number;
   searchKeyword?: string;
   addWidgetsFn?: () => void;
-};
+}
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -58,7 +60,12 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = hasManagePagePermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canManagePages = getHasManagePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   return (
     <Entity

@@ -1,11 +1,16 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-describe("Widget Copy paste", function () {
+describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
     _.agHelper.AddDsl("WidgetCopyPaste");
@@ -83,7 +88,6 @@ describe("Widget Copy paste", function () {
 
   it("4. When modal is open, it should paste inside the modal", () => {
     //add modal widget
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 700 });
     cy.get(".t--modal-widget").should("exist");
 
@@ -111,14 +115,11 @@ describe("Widget Copy paste", function () {
 
   it("6. Should be able to paste list widget inside another list widget", function () {
     //clean up
-    cy.get(`#div-selection-0`).click({
-      force: true,
-    });
     cy.get("body").type(`{${modifierKey}}{a}`);
     cy.get("body").type("{del}");
 
     //add list widget
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchToAddNew();
     cy.dragAndDropToCanvas("listwidgetv2", { x: 500, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
@@ -147,11 +148,13 @@ describe("Widget Copy paste", function () {
   });
 
   it("8. Should not be able to copy/cut canvas widgets (i.e. Individual Tabs) of tabs widget", function () {
-    _.entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 400, 200);
 
-    _.entityExplorer.SelectEntityByName("Tab 1", "Tabs1");
+    EditorNavigation.SelectEntityByName("Tab 1", EntityType.Widget, {}, [
+      "Tabs1",
+    ]);
 
     cy.get("body").type(`{${modifierKey}}{c}`);
 

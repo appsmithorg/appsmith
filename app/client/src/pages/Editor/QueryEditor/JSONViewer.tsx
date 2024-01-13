@@ -22,9 +22,9 @@ const Record = styled(Card)`
   }
 `;
 
-type JSONOutputProps = {
+interface JSONOutputProps {
   src: Record<string, any>[];
-};
+}
 
 type Props = JSONOutputProps;
 

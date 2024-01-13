@@ -124,9 +124,8 @@ export function* fetchProvidersWithCategorySaga(
 ) {
   try {
     const request: FetchProviderWithCategoryRequest = action.payload;
-    const response: Providers = yield ProvidersApi.fetchProvidersWithCategory(
-      request,
-    );
+    const response: Providers =
+      yield ProvidersApi.fetchProvidersWithCategory(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 

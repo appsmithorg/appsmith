@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import React from "react";
 
-export type PageErrorMessageProps = {
+export interface PageErrorMessageProps {
   text: string;
   links?: Array<{
     from: number;
@@ -9,7 +9,7 @@ export type PageErrorMessageProps = {
     href: string;
   }>;
   addNewLine?: boolean;
-};
+}
 
 export function PageErrorMessage(props: { data: PageErrorMessageProps }) {
   const errorMessage = props.data;

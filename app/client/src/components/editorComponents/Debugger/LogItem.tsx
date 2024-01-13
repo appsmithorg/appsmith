@@ -6,17 +6,14 @@ import type { PropsWithChildren } from "react";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
-import EntityLink, { DebuggerLinkUI } from "./EntityLink";
+import EntityLink from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import { Classes, getTypographyByKey } from "design-system-old";
 import ContextualMenu from "./ContextualMenu";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import moment from "moment";
-
-const InnerWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`;
+import classNames from "classnames";
+import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
@@ -159,10 +156,6 @@ type StyledCollapseProps = PropsWithChildren<{
   category: LOG_CATEGORY;
 }>;
 
-const StyledButton = styled(Button)<{ isVisible: boolean }>`
-  visibility: ${(props) => (props.isVisible ? "visible" : "hidden")};
-`;
-
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   margin-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
@@ -213,13 +206,13 @@ export const getLogItemProps = (e: Log) => {
     state: e.state,
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
-    collapsable: showToggleIcon(e),
+    collapsible: showToggleIcon(e),
     occurences: e.occurrenceCount || 1,
   };
 };
 
-type LogItemProps = {
-  collapsable?: boolean;
+interface LogItemProps {
+  collapsible?: boolean;
   icon: string;
   timestamp: string;
   label: string;
@@ -234,7 +227,7 @@ type LogItemProps = {
   expand?: boolean;
   messages?: Message[];
   occurences: number;
-};
+}
 
 function LogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(!!props.expand);
@@ -255,22 +248,24 @@ function LogItem(props: LogItemProps) {
   };
 
   const messages = props.messages || [];
-  const { collapsable } = props;
+  const { collapsible } = props;
   return (
     <Wrapper
-      className={props.severity}
+      className={`${props.severity} ${collapsible ? "cursor-pointer" : ""}`}
       collapsed={!isOpen}
       onClick={() => {
-        if (collapsable) setIsOpen(!isOpen);
+        if (collapsible) setIsOpen(!isOpen);
       }}
     >
-      <InnerWrapper>
-        <Button
-          isDisabled={collapsable}
-          isIconButton
-          kind={props.severity === Severity.ERROR ? "error" : "tertiary"}
+      <div className="flex items-center gap-1">
+        <Icon
+          color={
+            props.severity === Severity.ERROR
+              ? "var(--ads-v2-colors-response-error-icon-default-fg)"
+              : "inherit"
+          }
+          name={props.icon}
           size="md"
-          startIcon={props.icon}
         />
         <span className={`debugger-time ${props.severity}`}>
           {props.severity === Severity.ERROR
@@ -278,18 +273,20 @@ function LogItem(props: LogItemProps) {
             : props.timestamp}
         </span>
 
-        <StyledButton
-          className={`${Classes.ICON} debugger-toggle`}
-          isDisabled={!collapsable}
+        <Button
+          className={classNames(
+            `${Classes.ICON} debugger-toggle`,
+            collapsible ? "visible" : "invisible",
+          )}
+          isDisabled={!collapsible}
           isIconButton
-          isVisible={!!collapsable}
           kind="tertiary"
           onClick={() => setIsOpen(!isOpen)}
           size="sm"
           startIcon={"expand-more"}
         />
         {!(
-          props.collapsable &&
+          collapsible &&
           isOpen &&
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
@@ -302,7 +299,7 @@ function LogItem(props: LogItemProps) {
               </span>
             )}
             <span
-              className="debugger-label t--debugger-log-message"
+              className="debugger-label t--debugger-log-message cursor-text"
               onClick={(e) => e.stopPropagation()}
             >
               {props.text}
@@ -341,9 +338,9 @@ function LogItem(props: LogItemProps) {
             uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />
         )}
-      </InnerWrapper>
+      </div>
 
-      {collapsable && isOpen && (
+      {collapsible && isOpen && (
         <StyledCollapse
           category={props.category}
           isOpen={isOpen}

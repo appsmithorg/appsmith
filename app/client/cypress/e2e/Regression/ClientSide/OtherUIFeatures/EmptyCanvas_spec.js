@@ -1,5 +1,9 @@
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const { CommonLocators: locators, EntityExplorer: ee } = ObjectsRegistry;
 
@@ -8,9 +12,9 @@ describe("Empty canvas ctas", () => {
     cy.wait(3000); // for page to load, failing in CI
     //Ctas should not be shown in the second page
     cy.get(locators._emptyCanvasCta).should("be.visible");
-    ee.AddNewPage();
+    PageList.AddNewPage();
     cy.get(locators._emptyCanvasCta).should("not.exist");
-    ee.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     //Ctas should continue to show on refresh
     cy.get(locators._emptyCanvasCta).should("be.visible");
@@ -21,7 +25,7 @@ describe("Empty canvas ctas", () => {
     cy.get(locators._emptyCanvasCta).should("be.visible");
     ee.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
     cy.get(locators._emptyCanvasCta).should("not.exist");
-    ee.AddNewPage();
+    PageList.AddNewPage();
     cy.get(locators._emptyCanvasCta).should("not.exist");
   });
 });

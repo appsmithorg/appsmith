@@ -25,17 +25,17 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { ScannerLayout } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { usePageVisibility } from "react-page-visibility";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "widgets/utils";
 import { isMobile } from "react-device-detect";
 
 const CameraOfflineIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera-offline.svg"),
+  async () => import("assets/icons/widget/camera/camera-offline.svg"),
 );
 const FlipImageIcon = importSvg(
-  () => import("assets/icons/widget/codeScanner/flip.svg"),
+  async () => import("assets/icons/widget/codeScanner/flip.svg"),
 );
 
 const CodeScannerGlobalStyles = createGlobalStyle<{
@@ -156,6 +156,7 @@ export interface DisabledOverlayerProps {
 
 const CodeScannerContainer = styled.div`
   height: 100%;
+  width: 100%;
 `;
 
 const DisabledOverlayer = styled.div<DisabledOverlayerProps>`

@@ -2,12 +2,12 @@ import React from "react";
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import type { SelectEvent } from "components/editorComponents/GlobalSearch/utils";
 
-type Props = {
+interface Props {
   handleUpKey: () => void;
   handleDownKey: () => void;
   handleSubmitKey: (e: SelectEvent) => void;
   children: React.ReactNode;
-};
+}
 
 @HotkeysTarget
 class SubmenuHotKeys extends React.Component<Props> {

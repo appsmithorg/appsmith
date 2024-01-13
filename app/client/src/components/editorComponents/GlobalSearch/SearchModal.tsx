@@ -30,12 +30,12 @@ const StyledDocsSearchModal = styled(ModalContent)`
   }
 `;
 
-type Props = {
+interface Props {
   modalOpen: boolean;
   toggleShow: () => void;
   children: React.ReactNode;
   className?: string;
-};
+}
 
 function DocsSearchModal({
   children,

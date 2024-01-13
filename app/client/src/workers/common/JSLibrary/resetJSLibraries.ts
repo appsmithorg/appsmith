@@ -1,15 +1,12 @@
 import _ from "./lodash-wrapper";
 import moment from "moment-timezone";
-import parser from "fast-xml-parser";
 import forge from "node-forge";
 import { defaultLibraries } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
 import { invalidEntityIdentifiers } from "../DependencyMap/utils";
-
 const defaultLibImplementations = {
   lodash: _,
   moment: moment,
-  xmlParser: parser,
   // We are removing some functionalities of node-forge because they wont
   // work in the worker thread
   forge: /*#__PURE*/ _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),

@@ -38,6 +38,32 @@ module.exports = {
             test: /\.m?js/,
             resolve: { fullySpecified: false },
           },
+          {
+            test: /\.module\.css$/,
+            use: [
+              {
+                loader: "postcss-loader",
+                options: {
+                  postcssOptions: {
+                    plugins: [
+                      "postcss-nesting",
+                      "postcss-import",
+                      "postcss-at-rules-variables",
+                      "postcss-each",
+                      "postcss-url",
+                      "postcss-modules-values",
+                      [
+                        "cssnano",
+                        {
+                          preset: ["default"],
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
+            ],
+          },
         ],
       },
       optimization: {
@@ -86,10 +112,11 @@ module.exports = {
       ignoreWarnings: [
         function ignoreSourcemapsloaderWarnings(warning) {
           return (
-            warning.module &&
+            (warning.module &&
             warning.module.resource.includes("node_modules") &&
             warning.details &&
-            warning.details.includes("source-map-loader")
+            warning.details.includes("source-map-loader")) ||
+            warning.module.resource.includes("/node_modules/@babel/standalone/babel.js")
           );
         },
       ],

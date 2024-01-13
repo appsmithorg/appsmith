@@ -12,7 +12,10 @@ import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
 import AddButton from "./AddButton";
 import Collapse from "./Collapse";
-import { useEntityUpdateState, useEntityEditState } from "../hooks";
+import {
+  useEntityUpdateState,
+  useEntityEditState,
+} from "@appsmith/pages/Editor/Explorer/hooks";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -218,7 +221,7 @@ const SubItemWrapper = styled.div`
   margin-right: 4px;
 `;
 
-export type EntityProps = {
+export interface EntityProps {
   entityId: string;
   showAddButton?: boolean;
   className?: string;
@@ -250,7 +253,7 @@ export type EntityProps = {
   collapseRef?: RefObject<HTMLDivElement> | null;
   customAddButton?: ReactNode;
   forceExpand?: boolean;
-};
+}
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
@@ -336,7 +339,7 @@ export const Entity = forwardRef(
         isDisabled={!props.addButtonHelptext}
         placement="right"
       >
-        <AddButtonWrapper>
+        <AddButtonWrapper id={`add_${props.entityId}`}>
           <AddButton
             className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
             onClick={props.onCreate}

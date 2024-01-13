@@ -3,7 +3,7 @@ import React from "react";
 import { StyledButton } from "../styles";
 import { useConnectData } from "./useConnectData";
 
-export function ConnectData() {
+export function ConnectData({ btnText }: { btnText: string }) {
   const { disabled, isLoading, onClick, show } = useConnectData();
 
   if (show) {
@@ -15,7 +15,7 @@ export function ConnectData() {
         onClick={onClick}
         size="md"
       >
-        Connect data
+        {btnText}
       </StyledButton>
     );
   } else {

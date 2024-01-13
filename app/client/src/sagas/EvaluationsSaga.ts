@@ -22,9 +22,9 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getMetaWidgets, getWidgets } from "sagas/selectors";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import WidgetFactory from "utils/WidgetFactory";
+import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
@@ -39,25 +39,26 @@ import type { Action } from "redux";
 import {
   EVAL_AND_LINT_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
+  getRequiresLinting,
+} from "@appsmith/actions/evaluationActionsList";
+import {
   setDependencyMap,
   setEvaluatedTree,
   shouldForceEval,
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
-  shouldTriggerLinting,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
   dynamicTriggerErrorHandler,
-  evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
   logJSVarCreatedEvent,
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty } from "lodash";
@@ -68,7 +69,6 @@ import {
   TriggerKind,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { validate } from "workers/Evaluation/validations";
-import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
@@ -82,13 +82,9 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
-} from "selectors/entitiesSelector";
-import type {
-  DataTree,
-  UnEvalTree,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-
+} from "@appsmith/selectors/entitiesSelector";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
@@ -101,9 +97,16 @@ import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { fetchFeatureFlagsInit } from "actions/userActions";
+import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
+import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
+import { evalErrorHandler } from "./EvalErrorHandler";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
-
 export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
@@ -132,21 +135,20 @@ export function* updateDataTreeHandler(
 
   const {
     configTree,
-    dataTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
-    reValidatedPaths,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
+    jsVarsCreatedEvent,
     logs,
     removedPaths,
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
-    jsVarsCreatedEvent,
+    updates,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -157,14 +159,13 @@ export function* updateDataTreeHandler(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: ReturnType<typeof getDataTree> = yield select(getDataTree);
-
-  const updates = diff(oldDataTree, dataTree) || [];
 
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
-  yield put(setEvaluatedTree(updates));
+  const parsedUpdates = parseUpdatesAndDeleteUndefinedUpdates(updates);
+  yield put(setEvaluatedTree(parsedUpdates));
+
   ConfigTreeActions.setConfigTree(configTree);
 
   PerformanceTracker.stopAsyncTracking(
@@ -188,11 +189,10 @@ export function* updateDataTreeHandler(
     errors,
     updatedDataTree,
     evaluationOrder,
-    reValidatedPaths,
     configTree,
     removedPaths,
   );
-
+  AnalyticsUtil.setBlockErrorLogs(isCreateFirstTree);
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
@@ -250,18 +250,17 @@ export function* evaluateTreeSaga(
   > = yield select(getAllActionValidationConfig);
   const unevalTree = unEvalAndConfigTree.unEvalTree;
   const widgets: ReturnType<typeof getWidgets> = yield select(getWidgets);
-  const metaWidgets: ReturnType<typeof getMetaWidgets> = yield select(
-    getMetaWidgets,
-  );
-  const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
-    getSelectedAppTheme,
-  );
-  const toPrintConfigTree = unEvalAndConfigTree.configTree;
-  log.debug({ unevalTree, configTree: toPrintConfigTree });
+  const metaWidgets: ReturnType<typeof getMetaWidgets> =
+    yield select(getMetaWidgets);
+  const theme: ReturnType<typeof getSelectedAppTheme> =
+    yield select(getSelectedAppTheme);
+  log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+  const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
+    yield select(getWidgetsMeta);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -273,6 +272,7 @@ export function* evaluateTreeSaga(
     forceEvaluation,
     metaWidgets,
     appMode,
+    widgetsMeta,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -292,6 +292,7 @@ export function* evaluateActionBindings(
   bindings: string[],
   executionParams: Record<string, any> | string = {},
 ) {
+  const span = startRootSpan("evaluateActionBindings");
   const workerResponse: { errors: EvalError[]; values: unknown } = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
@@ -304,6 +305,7 @@ export function* evaluateActionBindings(
   const { errors, values } = workerResponse;
 
   yield call(evalErrorHandler, errors);
+  endSpan(span);
   return values;
 }
 
@@ -381,8 +383,13 @@ export function* executeTriggerRequestSaga(
 }
 
 export function* clearEvalCache() {
-  yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
+  /**
+   * Reset cache in worker before resetting the dataTree
+   * This order is important because there could be pending evaluation requests that are being processed by the worker
+   * The diffs generated by the already queued eval request when applied to a reset data tree will cause unexpected crash.
+   */
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
+  yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
   return true;
 }
 
@@ -392,11 +399,8 @@ interface JSFunctionExecutionResponse {
   logs?: LogObject[];
 }
 
-function* executeAsyncJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
+  const { id: collectionId, name: collectionName } = collection;
   const functionCall = `${collectionName}.${action.name}()`;
   const triggerMeta = {
     source: {
@@ -417,27 +421,17 @@ function* executeAsyncJSFunction(
   return response;
 }
 
-export function* executeJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+export function* executeJSFunction(action: JSAction, collection: JSCollection) {
   const response: {
     errors: unknown[];
     result: unknown;
     logs?: LogObject[];
-  } = yield call(executeAsyncJSFunction, collectionName, action, collectionId);
+  } = yield call(executeAsyncJSFunction, action, collection);
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
   // After every function execution, log execution errors if present
-  yield call(
-    handleJSFunctionExecutionErrorLog,
-    collectionId,
-    collectionName,
-    action,
-    errors,
-  );
+  yield call(handleJSFunctionExecutionErrorLog, action, collection, errors);
   return { result, isDirty };
 }
 
@@ -539,11 +533,10 @@ function* evalAndLintingHandler(
     requiresLogging: boolean;
   }>,
 ) {
+  const span = startRootSpan("evalAndLintingHandler");
   const { forceEvaluation, requiresLogging, shouldReplay } = options;
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
-  const requiresLinting =
-    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+  const requiresLinting = getRequiresLinting(action);
 
   const requiresEval = shouldTriggerEvaluation(action);
   log.debug({
@@ -552,7 +545,10 @@ function* evalAndLintingHandler(
     triggeredEvaluation: requiresEval,
   });
 
-  if (!requiresEval && !requiresLinting) return;
+  if (!requiresEval && !requiresLinting) {
+    endSpan(span);
+    return;
+  }
 
   // Generate all the data needed for both eval and linting
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
@@ -580,6 +576,7 @@ function* evalAndLintingHandler(
   }
 
   yield all(effects);
+  endSpan(span);
 }
 
 function* evaluationChangeListenerSaga(): any {
@@ -590,15 +587,34 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
+  const isFFFetched = yield select(getFeatureFlagsFetched);
+  if (!isFFFetched) {
+    yield call(fetchFeatureFlagsInit);
+    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
+  }
+
+  const featureFlags: Record<string, boolean> =
+    yield select(selectFeatureFlags);
+
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+    featureFlags: featureFlags,
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
-  yield call(waitForWidgetConfigBuild);
+
+  // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
+  const isCurrentEditorWorkflowType = yield select(
+    getIsCurrentEditorWorkflowType,
+  );
+
+  if (!isCurrentEditorWorkflowType) {
+    yield call(waitForWidgetConfigBuild);
+  }
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,
@@ -609,9 +625,8 @@ function* evaluationChangeListenerSaga(): any {
     evalQueueBuffer(),
   );
   while (true) {
-    const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
-      evtActionChannel,
-    );
+    const action: EvaluationReduxAction<unknown | unknown[]> =
+      yield take(evtActionChannel);
 
     yield call(evalAndLintingHandler, true, action, {
       shouldReplay: get(action, "payload.shouldReplay"),

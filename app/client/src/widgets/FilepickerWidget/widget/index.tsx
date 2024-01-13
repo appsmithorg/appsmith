@@ -2,11 +2,10 @@ import React from "react";
 import type { Uppy } from "@uppy/core";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import FilePickerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
@@ -14,9 +13,14 @@ import FileDataTypes from "./FileDataTypes";
 import log from "loglevel";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
 import { importUppy, isUppyLoaded } from "utils/importUppy";
 import type { SetterConfig } from "entities/AppTheming";
+import IconSVG from "../icon.svg";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -27,6 +31,55 @@ class FilePickerWidget extends BaseWidget<
     this.state = {
       areFilesLoading: false,
       isWaitingForUppyToLoad: false,
+    };
+  }
+
+  static type = "FILE_PICKER_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "FilePicker",
+      iconSVG: IconSVG,
+      needsMeta: true,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "FILE_PICKER_WIDGET_V2",
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 4,
+      files: [],
+      selectedFiles: [],
+      allowedFileTypes: [],
+      label: "Select Files",
+      columns: 16,
+      maxNumFiles: 1,
+      maxFileSize: 5,
+      fileDataType: FileDataTypes.Base64,
+      widgetName: "FilePicker",
+      isDefaultClickDisabled: true,
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      animateLoading: true,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "onFilesSelected",
+            propertyValue: propValueMap.run,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
     };
   }
 
@@ -357,7 +410,7 @@ class FilePickerWidget extends BaseWidget<
 
     if (location.protocol === "https:") {
       uppy.use(Webcam, {
-        onBeforeSnapshot: () => Promise.resolve(),
+        onBeforeSnapshot: async () => Promise.resolve(),
         countdown: false,
         mirror: true,
         facingMode: "user",
@@ -378,7 +431,7 @@ class FilePickerWidget extends BaseWidget<
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
-      const fileReaderPromises = files.map((file) => {
+      const fileReaderPromises = files.map(async (file) => {
         const reader = new FileReader();
         return new Promise((resolve) => {
           reader.readAsDataURL(file.data);
@@ -496,7 +549,7 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <FilePickerComponent
         closeModal={async () => {
@@ -533,10 +586,6 @@ class FilePickerWidget extends BaseWidget<
         widgetId={this.props.widgetId}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "FILE_PICKER_WIDGET";
   }
 }
 

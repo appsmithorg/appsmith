@@ -205,30 +205,35 @@ public class RedirectHelper {
         }
     }
 
+    public Mono<String> getAuthSuccessRedirectUrl(
+            WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+        ServerWebExchange exchange = webFilterExchange.getExchange();
+        return Mono.just(exchange.getRequest()).flatMap(this::getRedirectUrl).map(redirectUrl -> {
+            String url = redirectUrl;
+            if (isFromSignup) {
+                boolean addFirstTimeExperienceParam = false;
+
+                // only redirect to default application if the redirectUrl contains no other url
+                if (isDefaultRedirectUrl(url) && defaultApplication != null) {
+                    addFirstTimeExperienceParam = true;
+                    HttpHeaders headers = exchange.getRequest().getHeaders();
+                    url = this.buildApplicationUrl(defaultApplication, headers);
+                }
+                // This redirectUrl will be used by the client to redirect after showing a welcome page.
+                url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
+            }
+            return url;
+        });
+    }
+
     public Mono<Void> handleRedirect(
             WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
-        return Mono.just(exchange.getRequest())
-                .flatMap(this::getRedirectUrl)
-                .map(s -> {
-                    String url = s;
-                    if (isFromSignup) {
-                        boolean addFirstTimeExperienceParam = false;
 
-                        // only redirect to default application if the redirectUrl contains no other url
-                        if (isDefaultRedirectUrl(url) && defaultApplication != null) {
-                            addFirstTimeExperienceParam = true;
-                            HttpHeaders headers = exchange.getRequest().getHeaders();
-                            url = this.buildApplicationUrl(defaultApplication, headers);
-                        }
-                        // This redirectUrl will be used by the client to redirect after showing a welcome page.
-                        url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
-                    }
-                    return url;
-                })
+        return getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, isFromSignup)
                 .map(URI::create)
                 .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
     }

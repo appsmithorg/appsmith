@@ -34,9 +34,9 @@ import com.zaxxer.hikari.pool.HikariPool;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -70,6 +71,7 @@ import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_P
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.external.plugins.constants.MssqlPluginConstants.GENERATE_CRUD_PAGE_SELECT_QUERY;
 import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
 import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_INVALID_ERROR_MSG;
 import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_NULL_ERROR_MSG;
@@ -77,6 +79,8 @@ import static com.external.plugins.utils.MssqlDatasourceUtils.logHikariCPStatus;
 import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 public class MssqlPlugin extends BasePlugin {
@@ -329,7 +333,7 @@ public class MssqlPlugin extends BasePlugin {
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if (!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!isEmpty(identicalColumns)) {
                 messages.add("Your MsSQL query result may not have all the columns because duplicate column names "
                         + "were found for the column(s): "
                         + String.join(", ", identicalColumns) + ". You may use the "
@@ -359,7 +363,7 @@ public class MssqlPlugin extends BasePlugin {
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+            if (isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
             }
 
@@ -483,6 +487,49 @@ public class MssqlPlugin extends BasePlugin {
             }
 
             return preparedStatement;
+        }
+
+        /**
+         * MsSQL plugin makes use of a common template that is available for SQL query which is also used for other SQL
+         * type plugins e.g. Postgres to create select, insert, update, delete, find queries for the CRUD page. In
+         * case of MsSQL the  template select query needs to be replaced because its syntax does not match with MsSQL
+         * syntax. Hence, this method updates the template select query with the correct syntax select query for MsSQL.
+         */
+        @Override
+        public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
+                List<ActionConfiguration> actionConfigurationList, Object... args) {
+            if (isEmpty(actionConfigurationList)) {
+                return Mono.empty();
+            }
+
+            /* Find the actionConfiguration containing select query */
+            Optional<ActionConfiguration> selectQueryConfigOptional = actionConfigurationList.stream()
+                    .filter(actionConfiguration -> actionConfiguration.getBody().contains("SELECT"))
+                    .findFirst();
+
+            if (selectQueryConfigOptional.isPresent()) {
+                ActionConfiguration selectQueryActionConfiguration = selectQueryConfigOptional.get();
+                selectQueryActionConfiguration.setBody(GENERATE_CRUD_PAGE_SELECT_QUERY);
+            }
+
+            return Mono.empty();
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, MS_SQL_DEFAULT_PORT);
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 

@@ -14,6 +14,7 @@ import type { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import type { OtlpSpan } from "UITelemetry/generateTraces";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -29,9 +30,9 @@ export const createActionSuccess = (payload: Action) => {
   };
 };
 
-export type FetchActionsPayload = {
+export interface FetchActionsPayload {
   applicationId: string;
-};
+}
 
 export const fetchActions = (
   { applicationId }: { applicationId: string },
@@ -228,11 +229,16 @@ export const executePluginActionRequest = (payload: { id: string }) => ({
   payload: payload,
 });
 
-export const executePluginActionSuccess = (payload: {
+export interface ExecutePluginActionSuccessPayload {
   id: string;
   response: ActionResponse;
   isPageLoad?: boolean;
-}) => ({
+  isActionCreatedInApp: boolean;
+}
+
+export const executePluginActionSuccess = (
+  payload: ExecutePluginActionSuccessPayload,
+) => ({
   type: ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
   payload: payload,
 });
@@ -258,12 +264,12 @@ export const saveActionName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export type SetActionPropertyPayload = {
+export interface SetActionPropertyPayload {
   actionId: string;
   propertyName: string;
   value: any;
   skipSave?: boolean;
-};
+}
 
 export const setActionProperty = (
   payload: SetActionPropertyPayload,
@@ -274,11 +280,11 @@ export const setActionProperty = (
   postEvalActions,
 });
 
-export type UpdateActionPropertyActionPayload = {
+export interface UpdateActionPropertyActionPayload {
   id: string;
   field: string;
   value: any;
-};
+}
 
 export const updateActionProperty = (
   payload: UpdateActionPropertyActionPayload,
@@ -337,6 +343,33 @@ export const bindDataOnCanvas = (payload: {
   return {
     type: ReduxActionTypes.BIND_DATA_ON_CANVAS,
     payload,
+  };
+};
+
+type actionDataPayload = {
+  entityName: string;
+  dataPath: string;
+  data: unknown;
+  dataPathRef?: string;
+}[];
+
+export interface updateActionDataPayloadType {
+  actionDataPayload: actionDataPayload;
+  parentSpan?: OtlpSpan;
+}
+export const updateActionData = (
+  payload: actionDataPayload,
+  parentSpan?: OtlpSpan,
+): {
+  type: string;
+  payload: updateActionDataPayloadType;
+} => {
+  return {
+    type: ReduxActionTypes.UPDATE_ACTION_DATA,
+    payload: {
+      actionDataPayload: payload,
+      parentSpan,
+    },
   };
 };
 

@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
 import { OverflowTypes } from "./constants";
-import IconSVG from "./icon.svg";
+import IconSVG from "../icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {

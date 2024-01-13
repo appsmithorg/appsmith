@@ -19,7 +19,7 @@ const getPropsFromTree = (tree: unknown, widgetName?: string): unknown => {
   return get(tree, widgetName, undefined);
 };
 
-export type EnhancementFns = {
+export interface EnhancementFns {
   enhancementFns: {
     updateDataTreePathFn: any;
     propertyPaneEnhancementFn: any;
@@ -29,7 +29,7 @@ export type EnhancementFns = {
     shouldHidePropertyFn: any;
   };
   parentIdWithEnhancementFn: any;
-};
+}
 
 export const getWidgetEnhancementSelector = (widgetId: string | undefined) => {
   return createSelector(

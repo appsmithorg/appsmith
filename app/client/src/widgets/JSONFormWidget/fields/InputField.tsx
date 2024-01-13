@@ -15,9 +15,9 @@ type InputComponentProps = BaseInputComponentProps & {
 
 export type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
 
-type IsValidOptions = {
+interface IsValidOptions {
   fieldType: FieldType;
-};
+}
 
 const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   iconAlign: "left",

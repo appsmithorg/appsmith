@@ -1,10 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ce.ApplicationSnapshotServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,14 +19,16 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
     public ApplicationSnapshotServiceImpl(
             ApplicationSnapshotRepository applicationSnapshotRepository,
             ApplicationService applicationService,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             ApplicationPermission applicationPermission,
             Gson gson,
             ResponseUtils responseUtils) {
         super(
                 applicationSnapshotRepository,
                 applicationService,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 applicationPermission,
                 gson,
                 responseUtils);

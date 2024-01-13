@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`<IconSelectControl /> - (none) icon Should display (none) icon when hideNoneIcon property is false/undefined 1`] = `
+DOMTokenList {
+  "0": "bp3-fill",
+  "1": "bp3-icon-(none)",
+  "2": "bp3-text-overflow-ellipsis",
+}
+`;
+
+exports[`<IconSelectControl /> - (none) icon Should not display (none) icon when hideNoneIcon property is true 1`] = `undefined`;
+
 exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowDown}' should navigate the icon selection downwards 1`] = `
 DOMTokenList {
   "0": "bp3-fill",

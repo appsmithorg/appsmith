@@ -18,9 +18,9 @@ const importReducer = createReducer(initialState, {
   }),
 });
 
-export type ReleasesState = {
+export interface ReleasesState {
   newReleasesCount: string;
   releaseItems: any[];
-};
+}
 
 export default importReducer;

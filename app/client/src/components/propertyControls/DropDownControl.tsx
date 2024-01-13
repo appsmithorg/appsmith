@@ -100,9 +100,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
-      selected = options.find(
-        (option) => option.value === computedValue,
-      )?.value;
+      selected = options.find((option) => option.value === computedValue)
+        ?.value;
 
       if (this.props.alwaysShowSelected && !selected) {
         selected = computedValue;

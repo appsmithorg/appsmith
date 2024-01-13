@@ -19,7 +19,7 @@ import Resizable, {
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import Errors from "components/editorComponents/Debugger/Errors";
-import DebbuggerLogs, {
+import DebuggerLogs, {
   LIST_HEADER_HEIGHT,
 } from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
@@ -74,11 +74,28 @@ export const ResizerContentContainer = styled.div`
   &.api-datasource-content-container {
     flex-direction: column;
     padding: 0 var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
+    & .t--ds-form-header {
+      border-bottom: 1px solid var(--ads-v2-color-border);
+    }
   }
+  &.db-form-resizer-content.db-form-resizer-content-show-tabs,
+  &.saas-form-resizer-content.saas-form-resizer-content-show-tabs {
+    padding: 0;
+    & .t--ds-form-header {
+      border-bottom: none;
+    }
+  }
+  &.saas-form-resizer-content.saas-form-resizer-content-show-tabs form {
+    padding-bottom: 0;
+  }
+  border-top: none;
   .db-form-content-container {
     display: flex;
     flex-direction: column;
     width: 100%;
+    form {
+      flex-grow: 1;
+    }
   }
 `;
 
@@ -107,7 +124,7 @@ export default function Debugger() {
     {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebbuggerLogs hasShortCut />,
+      panelComponent: <DebuggerLogs hasShortCut />,
     },
     {
       key: DEBUGGER_TAB_KEYS.INSPECT_TAB,

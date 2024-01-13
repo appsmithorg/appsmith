@@ -1,13 +1,12 @@
-import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
+import { Severity, type ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  getEntityNameAndPropertyPath,
-  isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
+import isLintErrorLoggingEnabledForEntity from "@appsmith/plugins/Linting/utils/isLintErrorLoggingEnabledForEntity";
+import getEntityUniqueIdForLogs from "@appsmith/plugins/Linting/utils/getEntityUniqueIdForLogs";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({
@@ -24,7 +23,7 @@ export function* logLatestLintPropertyErrors({
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];
     // only log lint errors in JSObjects
-    if (!isJSAction(entity)) continue;
+    if (!isLintErrorLoggingEnabledForEntity(entity)) continue;
     // only log lint errors (not warnings)
     const lintErrorsInPath = errors[path].filter(
       (error) => error.severity === Severity.ERROR,
@@ -33,8 +32,11 @@ export function* logLatestLintPropertyErrors({
       type: error.errorType,
       message: error.errorMessage,
       lineNumber: error.line,
+      character: error.ch,
     }));
-    const debuggerKey = entity.actionId + propertyPath + "-lint";
+    const uniqueId = getEntityUniqueIdForLogs(entity);
+
+    const debuggerKey = uniqueId + propertyPath + "-lint";
 
     if (isEmpty(lintErrorsInPath)) {
       errorsToRemove.push({ id: debuggerKey });
@@ -48,9 +50,9 @@ export function* logLatestLintPropertyErrors({
         text: "LINT ERROR",
         messages: lintErrorMessagesInPath,
         source: {
-          id: entity.actionId,
+          id: uniqueId,
           name: entityName,
-          type: ENTITY_TYPE.JSACTION,
+          type: entity.ENTITY_TYPE as unknown as ENTITY_TYPE,
           propertyPath,
         },
       },

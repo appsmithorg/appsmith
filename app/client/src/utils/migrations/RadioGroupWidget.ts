@@ -1,6 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 export const migrateRadioGroupAlignmentProperty = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {

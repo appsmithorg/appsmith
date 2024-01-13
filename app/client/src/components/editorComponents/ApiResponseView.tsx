@@ -1,19 +1,14 @@
 import type { PropsWithChildren, RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
-import type { RouteComponentProps } from "react-router";
-import { withRouter } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
 import type { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
-import type { APIEditorRouteParams } from "constants/routes";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { getActionResponses } from "selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
@@ -25,7 +20,7 @@ import {
   DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import type { EditorTheme } from "./CodeEditor/EditorConfig";
+import { EditorTheme } from "./CodeEditor/EditorConfig";
 import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -38,11 +33,11 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
-import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import {
   getDebuggerSelectedTab,
+  getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -64,9 +59,9 @@ import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
 
-type TextStyleProps = {
+interface TextStyleProps {
   accent: "primary" | "secondary" | "error";
-};
+}
 export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
@@ -179,29 +174,17 @@ const ResponseBodyContainer = styled.div`
   display: grid;
 `;
 
-interface ReduxStateProps {
-  responses: Record<string, ActionResponse | undefined>;
-  isRunning: Record<string, boolean>;
-  errorCount: number;
+interface Props {
+  currentActionConfig?: Action;
+  theme?: EditorTheme;
+  apiName: string;
+  disabled?: boolean;
+  onRunClick: () => void;
+  responseDataTypes: { key: string; title: string }[];
+  responseDisplayFormat: { title: string; value: string };
+  actionResponse?: ActionResponse;
+  isRunning: boolean;
 }
-interface ReduxDispatchProps {
-  updateActionResponseDisplayFormat: ({
-    field,
-    id,
-    value,
-  }: UpdateActionPropertyActionPayload) => void;
-}
-
-type Props = ReduxStateProps &
-  ReduxDispatchProps &
-  RouteComponentProps<APIEditorRouteParams> & {
-    theme?: EditorTheme;
-    apiName: string;
-    disabled?: boolean;
-    onRunClick: () => void;
-    responseDataTypes: { key: string; title: string }[];
-    responseDisplayFormat: { title: string; value: string };
-  };
 
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
@@ -259,7 +242,6 @@ export const responseTabComponent = (
   return {
     [API_RESPONSE_TYPE_OPTIONS.JSON]: (
       <ReadOnlyEditor
-        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -272,7 +254,6 @@ export const responseTabComponent = (
     ),
     [API_RESPONSE_TYPE_OPTIONS.RAW]: (
       <ReadOnlyEditor
-        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -315,31 +296,21 @@ export const NoResponse = (props: NoResponseProps) => (
 
 function ApiResponseView(props: Props) {
   const {
+    actionResponse = EMPTY_RESPONSE,
+    currentActionConfig,
     disabled,
-    match: {
-      params: { apiId },
-    },
+    isRunning,
     responseDataTypes,
     responseDisplayFormat,
-    responses,
-    updateActionResponseDisplayFormat,
+    theme = EditorTheme.LIGHT,
   } = props;
-  let response: ActionResponse = EMPTY_RESPONSE;
-  let isRunning = false;
-  let hasFailed = false;
-  if (apiId && apiId in responses) {
-    response = responses[apiId] || EMPTY_RESPONSE;
-    isRunning = props.isRunning[apiId];
-    hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
-  }
-  const actions: Action[] = useSelector((state: AppState) =>
-    state.entities.actions.map((action) => action.config),
-  );
-  const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === apiId,
-  );
+  const hasFailed = actionResponse.statusCode
+    ? actionResponse.statusCode[0] !== "2"
+    : false;
+
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
+  const errorCount = useSelector(getErrorCount);
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -355,12 +326,12 @@ function ApiResponseView(props: Props) {
     });
   };
 
-  const messages = response?.messages;
+  const messages = actionResponse?.messages;
   let responseHeaders = {};
 
   // if no headers are present in the response, use the default body text.
-  if (response.headers) {
-    Object.entries(response.headers).forEach(([key, value]) => {
+  if (actionResponse.headers) {
+    Object.entries(actionResponse.headers).forEach(([key, value]) => {
       if (isArray(value) && value.length < 2)
         return (responseHeaders = {
           ...responseHeaders,
@@ -377,17 +348,19 @@ function ApiResponseView(props: Props) {
   }
 
   const onResponseTabSelect = (tab: string) => {
-    updateActionResponseDisplayFormat({
-      id: apiId ? apiId : "",
-      field: "responseDisplayFormat",
-      value: tab,
-    });
+    dispatch(
+      setActionResponseDisplayFormat({
+        id: currentActionConfig?.id || "",
+        field: "responseDisplayFormat",
+        value: tab,
+      }),
+    );
   };
 
   let filteredResponseDataTypes: { key: string; title: string }[] = [
     ...responseDataTypes,
   ];
-  if (!!response.body && !isArray(response.body)) {
+  if (!!actionResponse.body && !isArray(actionResponse.body)) {
     filteredResponseDataTypes = responseDataTypes.filter(
       (item) => item.key !== API_RESPONSE_TYPE_OPTIONS.TABLE,
     );
@@ -405,7 +378,7 @@ function ApiResponseView(props: Props) {
         title: dataType.title,
         panelComponent: responseTabComponent(
           dataType.key,
-          response?.body,
+          actionResponse?.body,
           responsePaneHeight,
         ),
       };
@@ -446,12 +419,12 @@ function ApiResponseView(props: Props) {
   }, []);
 
   // get request timestamp formatted to human readable format.
-  const responseState = getUpdateTimestamp(response.request);
+  const responseState = getUpdateTimestamp(actionResponse.request);
   // action source for analytics.
   const actionSource: SourceEntity = {
     type: ENTITY_TYPE.ACTION,
     name: currentActionConfig ? currentActionConfig.name : "API",
-    id: apiId ? apiId : "",
+    id: currentActionConfig?.id || "",
   };
   const tabs = [
     {
@@ -473,16 +446,18 @@ function ApiResponseView(props: Props) {
               <ResponseTabErrorContent>
                 <ResponseTabErrorDefaultMessage>
                   Your API failed to execute
-                  {response.pluginErrorDetails && ":"}
+                  {actionResponse.pluginErrorDetails && ":"}
                 </ResponseTabErrorDefaultMessage>
-                {response.pluginErrorDetails && (
+                {actionResponse.pluginErrorDetails && (
                   <>
-                    <div>
-                      {response.pluginErrorDetails.downstreamErrorMessage}
+                    <div className="t--debugger-log-downstream-message">
+                      {actionResponse.pluginErrorDetails.downstreamErrorMessage}
                     </div>
-                    {response.pluginErrorDetails.downstreamErrorCode && (
+                    {actionResponse.pluginErrorDetails.downstreamErrorCode && (
                       <LogAdditionalInfo
-                        text={response.pluginErrorDetails.downstreamErrorCode}
+                        text={
+                          actionResponse.pluginErrorDetails.downstreamErrorCode
+                        }
                       />
                     )}
                   </>
@@ -490,11 +465,11 @@ function ApiResponseView(props: Props) {
                 <LogHelper
                   logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
                   name="PluginExecutionError"
-                  pluginErrorDetails={response.pluginErrorDetails}
+                  pluginErrorDetails={actionResponse.pluginErrorDetails}
                   source={actionSource}
                 />
               </ResponseTabErrorContent>
-              {response.request && (
+              {actionResponse.request && (
                 <JsonWrapper
                   className="t--debugger-log-state"
                   onClick={(e) => e.stopPropagation()}
@@ -505,7 +480,7 @@ function ApiResponseView(props: Props) {
             </ResponseTabErrorContainer>
           ) : (
             <ResponseDataContainer>
-              {isEmpty(response.statusCode) ? (
+              {isEmpty(actionResponse.statusCode) ? (
                 <NoResponse
                   isButtonDisabled={disabled}
                   isQueryRunning={isRunning}
@@ -513,12 +488,13 @@ function ApiResponseView(props: Props) {
                 />
               ) : (
                 <ResponseBodyContainer>
-                  {isString(response?.body) && isHtml(response?.body) ? (
+                  {isString(actionResponse?.body) &&
+                  isHtml(actionResponse?.body) ? (
                     <ReadOnlyEditor
                       folding
                       height={"100%"}
                       input={{
-                        value: response?.body,
+                        value: actionResponse?.body,
                       }}
                     />
                   ) : responseTabs &&
@@ -538,7 +514,7 @@ function ApiResponseView(props: Props) {
                       />
                       {responseTabComponent(
                         selectedControl || segmentedControlOptions[0]?.value,
-                        response?.body,
+                        actionResponse?.body,
                         responsePaneHeight,
                       )}
                     </SegmentedControlContainer>
@@ -571,7 +547,7 @@ function ApiResponseView(props: Props) {
             </Callout>
           )}
           <ResponseDataContainer>
-            {isEmpty(response.statusCode) ? (
+            {isEmpty(actionResponse.statusCode) ? (
               <NoResponse
                 isButtonDisabled={disabled}
                 isQueryRunning={isRunning}
@@ -595,7 +571,7 @@ function ApiResponseView(props: Props) {
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
-      count: props.errorCount,
+      count: errorCount,
       panelComponent: <ErrorLogs />,
     },
     {
@@ -626,48 +602,49 @@ function ApiResponseView(props: Props) {
         snapToHeight={ActionExecutionResizerHeight}
       />
       {isRunning && (
-        <ActionExecutionInProgressView actionType="API" theme={props.theme} />
+        <ActionExecutionInProgressView actionType="API" theme={theme} />
       )}
       <TabbedViewWrapper>
-        {response.statusCode && (
+        {actionResponse.statusCode && (
           <ResponseMetaWrapper>
-            {response.statusCode && (
+            {actionResponse.statusCode && (
               <Flex>
                 <Text type={TextType.P3}>Status: </Text>
                 <StatusCodeText
                   accent="secondary"
                   className="t--response-status-code"
-                  code={response.statusCode.toString()}
+                  code={actionResponse.statusCode.toString()}
                 >
-                  {response.statusCode}
+                  {actionResponse.statusCode}
                 </StatusCodeText>
               </Flex>
             )}
             <ResponseMetaInfo>
-              {response.duration && (
+              {actionResponse.duration && (
                 <Flex>
                   <Text type={TextType.P3}>Time: </Text>
-                  <Text type={TextType.H5}>{response.duration} ms</Text>
+                  <Text type={TextType.H5}>{actionResponse.duration} ms</Text>
                 </Flex>
               )}
-              {response.size && (
+              {actionResponse.size && (
                 <Flex>
                   <Text type={TextType.P3}>Size: </Text>
                   <Text type={TextType.H5}>
-                    {formatBytes(parseInt(response.size))}
+                    {formatBytes(parseInt(actionResponse.size))}
                   </Text>
                 </Flex>
               )}
-              {!isEmpty(response?.body) && Array.isArray(response?.body) && (
-                <Flex>
-                  <Text type={TextType.P3}>Result: </Text>
-                  <Text type={TextType.H5}>
-                    {`${response?.body.length} Record${
-                      response?.body.length > 1 ? "s" : ""
-                    }`}
-                  </Text>
-                </Flex>
-              )}
+              {!isEmpty(actionResponse?.body) &&
+                Array.isArray(actionResponse?.body) && (
+                  <Flex>
+                    <Text type={TextType.P3}>Result: </Text>
+                    <Text type={TextType.H5}>
+                      {`${actionResponse?.body.length} Record${
+                        actionResponse?.body.length > 1 ? "s" : ""
+                      }`}
+                    </Text>
+                  </Flex>
+                )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
@@ -690,25 +667,4 @@ function ApiResponseView(props: Props) {
   );
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
-  return {
-    responses: getActionResponses(state),
-    isRunning: state.ui.apiPane.isRunning,
-    errorCount: state.ui.debugger.context.errorCount,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  updateActionResponseDisplayFormat: ({
-    field,
-    id,
-    value,
-  }: UpdateActionPropertyActionPayload) => {
-    dispatch(setActionResponseDisplayFormat({ id, field, value }));
-  },
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withRouter(ApiResponseView));
+export default ApiResponseView;

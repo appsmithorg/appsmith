@@ -33,7 +33,7 @@ import type {
   MenuItem,
   PopoverContentProps,
 } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -42,8 +42,8 @@ const PopoverStyles = createGlobalStyle<{
   borderRadius: string;
 }>`
   .menu-button-popover, .${BlueprintClasses.MINIMAL}.menu-button-popover.${
-  Classes.POPOVER2
-} {
+    Classes.POPOVER2
+  } {
     background: none;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     margin-top: 8px !important;

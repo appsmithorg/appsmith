@@ -1,6 +1,6 @@
 import type { WidgetProps } from "widgets/BaseWidget";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { OverflowTypes } from "widgets/TextWidget/constants";
 
 export const migrateTextStyleFromTextWidget = (

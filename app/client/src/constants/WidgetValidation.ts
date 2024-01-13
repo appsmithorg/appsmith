@@ -17,14 +17,16 @@ export enum ValidationTypes {
   SAFE_URL = "SAFE_URL",
   ARRAY_OF_TYPE_OR_TYPE = "ARRAY_OF_TYPE_OR_TYPE",
   UNION = "UNION",
+  OBJECT_WITH_FUNCTION = "OBJECT_WITH_FUNCTION",
 }
 
-export type ValidationResponse = {
+export interface ValidationResponse {
   isValid: boolean;
   parsed: any;
   messages?: Array<Error>;
   transformed?: any;
-};
+  isParsedValueTheSame?: boolean;
+}
 
 export type Validator = (
   config: ValidationConfig,
@@ -286,7 +288,7 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   PermissionStatus: "PermissionStatus",
   Permissions: "Permissions",
   postMessage: "postMessage",
-  ProgressEvent: "ProgressEvent",
+  AxiosProgressEvent: "AxiosProgressEvent",
   Promise: "Promise",
   PromiseRejectionEvent: "PromiseRejectionEvent",
   Proxy: "Proxy",

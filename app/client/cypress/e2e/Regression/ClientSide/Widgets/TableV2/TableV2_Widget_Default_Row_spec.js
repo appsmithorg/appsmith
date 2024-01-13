@@ -1,37 +1,38 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+import {
+  agHelper,
+  draggableWidgets,
+  entityExplorer,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 property pane deafult feature validation", function () {
-  before(() => {
-    _.agHelper.AddDsl("defaultTableV2Dsl");
-  });
-
-  it("1. Verify default table row Data", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidgetv2");
-    // Open Widget side bar
-    cy.get(widgetsPage.addWidget).click();
-    // Drag and drop table widget
-    cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 100 });
-    _.table.AddSampleTableData();
-    // close Widget side bar
-    _.entityExplorer.NavigateToSwitcher("Explorer");
-    cy.wait(2000);
-    _.entityExplorer.SelectEntityByName("Table2");
-
-    // Verify default array data
-    cy.wait(2000);
-    cy.readTableV2dataFromSpecificIndex("0", "0", 0).then((tabData) => {
-      const tabValue = tabData;
-      cy.log("the table is" + tabValue);
-      cy.get(".bp3-ui-text span").eq(1).should("have.text", tabData);
+describe(
+  "Table Widget V2 property pane deafult feature validation",
+  { tags: ["@tag.Widget", "@tag.Table"] },
+  function () {
+    before(() => {
+      agHelper.AddDsl("defaultTableV2Dsl");
     });
-    _.entityExplorer.SelectEntityByName("Table1");
-    cy.wait(2000);
-    cy.readTableV2dataFromSpecificIndex("2", "0", 1).then((tabData) => {
-      const tabValue = tabData;
-      cy.log("the table is" + tabValue);
-      cy.get(".bp3-ui-text span").eq(0).should("have.text", tabData);
+
+    it("1. Verify default table row Data", function () {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      table.AddSampleTableData();
+      EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
+
+      // Verify default array data
+      cy.readTableV2dataFromSpecificIndex("0", "0", 0).then((tabData) => {
+        const tabValue = tabData;
+        cy.log("the table is" + tabValue);
+        cy.get(".bp3-ui-text span").eq(1).should("have.text", tabData);
+      });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      cy.readTableV2dataFromSpecificIndex("2", "0", 1).then((tabData) => {
+        const tabValue = tabData;
+        cy.log("the table is" + tabValue);
+        cy.get(".bp3-ui-text span").eq(0).should("have.text", tabData);
+      });
     });
-  });
-});
+  },
+);

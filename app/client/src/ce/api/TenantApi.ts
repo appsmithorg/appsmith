@@ -1,4 +1,5 @@
-import type { AxiosPromise } from "axios";
+import type { AxiosPromise, AxiosRequestConfig } from "axios";
+
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 
@@ -12,23 +13,33 @@ export type UpdateTenantConfigResponse = ApiResponse<{
   tenantConfiguration: Record<string, string>;
 }>;
 
-export type UpdateTenantConfigRequest = {
+export interface UpdateTenantConfigRequest {
   tenantConfiguration: Record<string, string>;
   needsRefresh?: boolean;
-  isOnlyTenantSettings: boolean;
-};
+  isOnlyTenantSettings?: boolean;
+  apiConfig?: AxiosRequestConfig;
+}
 
 export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";
 
-  static fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
+  static async fetchCurrentTenantConfig(): Promise<
+    AxiosPromise<FetchCurrentTenantConfigResponse>
+  > {
     return Api.get(`${TenantApi.tenantsUrl}/current`);
   }
 
-  static updateTenantConfig(
+  static async updateTenantConfig(
     request: UpdateTenantConfigRequest,
-  ): AxiosPromise<UpdateTenantConfigResponse> {
-    return Api.put(`${TenantApi.tenantsUrl}`, request.tenantConfiguration);
+  ): Promise<AxiosPromise<UpdateTenantConfigResponse>> {
+    return Api.put(
+      `${TenantApi.tenantsUrl}`,
+      request.tenantConfiguration,
+      null,
+      {
+        ...(request.apiConfig || {}),
+      },
+    );
   }
 }
 

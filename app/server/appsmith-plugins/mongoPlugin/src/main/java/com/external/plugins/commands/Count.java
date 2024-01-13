@@ -105,6 +105,6 @@ public class Count extends MongoCommand {
                 + "{\"_id\": {\"$exists\": true}} \n" + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template("Count", null, configMap));
+        return Collections.singletonList(new DatasourceStructure.Template("Count", null, configMap, false));
     }
 }

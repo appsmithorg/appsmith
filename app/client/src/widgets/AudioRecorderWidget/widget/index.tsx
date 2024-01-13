@@ -1,17 +1,24 @@
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { FileDataTypes } from "widgets/constants";
+import { FileDataTypes } from "WidgetProvider/constants";
 import AudioRecorderComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
   borderRadius: string;
@@ -29,6 +36,64 @@ class AudioRecorderWidget extends BaseWidget<
   AudioRecorderWidgetProps,
   WidgetState
 > {
+  static type = "AUDIO_RECORDER_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Audio Recorder",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.EXTERNAL],
+      needsMeta: true,
+      searchTags: ["sound recorder", "voice recorder"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      iconColor: "white",
+      isDisabled: false,
+      isVisible: true,
+      rows: 7,
+      columns: 16,
+      widgetName: "AudioRecorder",
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -251,18 +316,9 @@ class AudioRecorderWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
-    const {
-      blobURL,
-      bottomRow,
-      iconColor,
-      isDisabled,
-      leftColumn,
-      parentColumnSpace,
-      parentRowSpace,
-      rightColumn,
-      topRow,
-    } = this.props;
+  getWidgetView() {
+    const { blobURL, componentHeight, componentWidth, iconColor, isDisabled } =
+      this.props;
 
     return (
       <AudioRecorderComponent
@@ -270,18 +326,14 @@ class AudioRecorderWidget extends BaseWidget<
         blobUrl={blobURL}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        height={(bottomRow - topRow) * parentRowSpace}
+        height={componentHeight}
         iconColor={iconColor}
         isDisabled={isDisabled}
         onRecordingComplete={this.handleRecordingComplete}
         onRecordingStart={this.handleRecordingStart}
-        width={(rightColumn - leftColumn) * parentColumnSpace}
+        width={componentWidth}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "AUDIO_RECORDER_WIDGET";
   }
 }
 

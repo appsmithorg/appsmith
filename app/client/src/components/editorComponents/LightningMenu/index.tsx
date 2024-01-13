@@ -55,7 +55,7 @@ const lightningMenuOptions = (
   };
 };
 
-type LightningMenuProps = {
+interface LightningMenuProps {
   isFocused: boolean;
   isOpened: boolean;
   onSelect?: (value: string) => void;
@@ -63,7 +63,7 @@ type LightningMenuProps = {
   onCloseLightningMenu?: () => void;
   updateDynamicInputValue: (value: string, cursor?: number) => void;
   skin: Skin;
-};
+}
 
 export function LightningMenu(props: LightningMenuProps) {
   const widgets = useWidgets();

@@ -31,7 +31,7 @@ jobs:
                   "status": "IN_PROGRESS",
                   "githubWorkflowId": "${{ github.run_id }}"
           }'
-            
+
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
@@ -62,7 +62,7 @@ jobs:
     steps:
       # Check out merge commit
       - name: Checkout Branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -104,6 +104,12 @@ jobs:
           echo "Cleaning up the tar files"
           rm app/client/packages/rts/dist/rts-dist.tar
 
+      - name: Generate info.json
+        run: |
+          if [[ -f scripts/generate_info_json.sh ]]; then
+            scripts/generate_info_json.sh
+          fi
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -121,6 +127,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ github.event.inputs.sub-domain-name }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
 
     outputs:
       imageHash: ${{ github.event.inputs.sub-domain-name }}
@@ -135,7 +142,7 @@ jobs:
     if: success()
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -189,5 +196,3 @@ jobs:
           --data ' {
                   "status": "FAILED"
           }'
-
-      

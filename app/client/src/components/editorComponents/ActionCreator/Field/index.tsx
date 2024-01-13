@@ -106,6 +106,7 @@ export function Field(props: FieldProps) {
     case FieldType.NAVIGATION_TARGET_FIELD:
     case FieldType.RESET_CHILDREN_FIELD:
     case FieldType.WIDGET_NAME_FIELD:
+    case FieldType.SOURCE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: sortSubMenuOptions(options as TreeDropdownOption[]),
         label: label,
@@ -205,7 +206,6 @@ export function Field(props: FieldProps) {
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
     case FieldType.MESSAGE_FIELD:
     case FieldType.TARGET_ORIGIN_FIELD:
-    case FieldType.SOURCE_FIELD:
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: label,
         toolTip: toolTip,
@@ -217,6 +217,7 @@ export function Field(props: FieldProps) {
         },
         value: value,
         additionalAutoComplete: props.additionalAutoComplete,
+        dataTreePath: props.dataTreePath,
       });
       break;
     case FieldType.CALLBACK_FUNCTION_API_AND_QUERY:
@@ -235,6 +236,7 @@ export function Field(props: FieldProps) {
         },
         value: value,
         additionalAutoComplete: props.additionalAutoComplete,
+        dataTreePath: props.dataTreePath,
       });
       break;
     default:

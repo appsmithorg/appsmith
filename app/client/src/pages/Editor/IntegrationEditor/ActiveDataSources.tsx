@@ -12,8 +12,10 @@ import {
   createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
 } from "@appsmith/constants/messages";
-import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -38,7 +40,7 @@ const EmptyActiveDatasource = styled.div`
   gap: 1rem;
 `;
 
-type ActiveDataSourcesProps = {
+interface ActiveDataSourcesProps {
   dataSources: Datasource[];
   pageId: string;
   location: {
@@ -49,7 +51,7 @@ type ActiveDataSourcesProps = {
     push: (data: string) => void;
   };
   onCreateNew: () => void;
-};
+}
 
 function ActiveDataSources(props: ActiveDataSourcesProps) {
   const { dataSources } = props;
@@ -62,7 +64,10 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 

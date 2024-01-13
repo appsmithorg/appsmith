@@ -20,7 +20,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 
 const getCustomTextColor = (
   theme: Theme,
@@ -274,7 +274,7 @@ const StyledButton = styled((props) => (
       : "none"} !important;
 `;
 
-type ButtonStyleProps = {
+interface ButtonStyleProps {
   buttonColor?: string;
   buttonStyle?: ButtonStyleType;
   prevButtonStyle?: ButtonStyleType;
@@ -283,7 +283,7 @@ type ButtonStyleProps = {
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;
-};
+}
 
 // To be used in any other part of the app
 export function BaseButton(props: IButtonProps & ButtonStyleProps) {

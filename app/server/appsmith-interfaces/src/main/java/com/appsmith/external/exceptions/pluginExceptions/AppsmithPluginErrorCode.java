@@ -17,10 +17,14 @@ public enum AppsmithPluginErrorCode {
     PLUGIN_DATASOURCE_TIMEOUT_ERROR("PE-DSE-5004", "Timed out when connecting to datasource"),
     PLUGIN_QUERY_TIMEOUT_ERROR("PE-QRY-5000", "Timed out on query execution"),
     PLUGIN_AUTHENTICATION_ERROR("PE-ATH-5000", "Datasource authentication error"),
+    PLUGIN_DATASOURCE_AUTHENTICATION_ERROR("PE-ATH-4000", "Datasource authentication error"),
+    PLUGIN_DATASOURCE_ERROR("PE-DSE-4000", "Datasource error"),
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN("PE-UQI-5000", "Where condition could not be parsed"),
     GENERIC_STALE_CONNECTION("PE-STC-5000", "Secondary stale connection error"),
     PLUGIN_EXECUTE_ARGUMENT_ERROR("PE-ARG-5000", "Wrong arguments provided"),
-    PLUGIN_VALIDATE_DATASOURCE_ERROR("PE-DSE-5005", "Failed to validate datasource");
+    PLUGIN_VALIDATE_DATASOURCE_ERROR("PE-DSE-5005", "Failed to validate datasource"),
+    PLUGIN_GET_PREVIEW_DATA_ERROR("PE-DSE-5006", "Failed to get preview data"),
+    PLUGIN_UNSUPPORTED_OPERATION("PE-DSE-5007", "Unsupported Operation");
 
     private final String code;
     private final String description;

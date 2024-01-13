@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
+  <style>
+    .bg {
+    fill: #542bd1;
+    }
+    @media (prefers-color-scheme: dark) {
+    .bg {
+    fill: #734bee;
+    }
+    }
+  </style>
+  <path class="bg" d="M0 0h16v16H0z" />
+  <path fill="#fff" d="M3 13v-2h10v2H3Z" />
+</svg>

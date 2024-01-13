@@ -1,4 +1,3 @@
-import { updateFunctionProperty } from "actions/jsPaneActions";
 import {
   FUNCTION_SETTINGS_HEADING,
   NO_JS_FUNCTIONS,
@@ -6,28 +5,38 @@ import {
 } from "@appsmith/constants/messages";
 import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
 
-type SettingsHeadingProps = {
+interface SettingsHeadingProps {
   text: string;
   hasInfo?: boolean;
   info?: string;
   grow: boolean;
-};
+}
 
-type SettingsItemProps = {
+export interface OnUpdateSettingsProps {
+  value: boolean | number;
+  propertyName: string;
+  action: JSAction;
+}
+
+interface SettingsItemProps {
   action: JSAction;
   disabled?: boolean;
-};
+  onUpdateSettings?: (props: OnUpdateSettingsProps) => void;
+  renderAdditionalColumns?: (action: JSAction) => React.ReactNode;
+}
 
-type JSFunctionSettingsProps = {
+export interface JSFunctionSettingsProps {
   actions: JSAction[];
   disabled?: boolean;
-};
+  onUpdateSettings: SettingsItemProps["onUpdateSettings"];
+  renderAdditionalColumns?: SettingsItemProps["renderAdditionalColumns"];
+  additionalHeadings?: typeof SETTINGS_HEADINGS;
+}
 
 const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   display: flex;
@@ -51,7 +60,10 @@ const StyledIcon = styled(Icon)`
   height: max-content;
 `;
 
-const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
+export const SettingColumn = styled.div<{
+  grow?: boolean;
+  isHeading?: boolean;
+}>`
   display: flex;
   align-items: center;
   flex-grow: ${(props) => (props.grow ? 1 : 0)};
@@ -115,8 +127,12 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
   );
 }
 
-function SettingsItem({ action, disabled }: SettingsItemProps) {
-  const dispatch = useDispatch();
+function SettingsItem({
+  action,
+  disabled,
+  onUpdateSettings,
+  renderAdditionalColumns,
+}: SettingsItemProps) {
   const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
     String(!!action.executeOnLoad),
   );
@@ -124,18 +140,13 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
     String(!!action.confirmBeforeExecute),
   );
 
-  const updateProperty = (value: boolean | number, propertyName: string) => {
-    dispatch(
-      updateFunctionProperty({
-        action: action,
-        propertyName: propertyName,
-        value: value,
-      }),
-    );
-  };
   const onChangeExecuteOnPageLoad = (value: string) => {
     setExecuteOnPageLoad(value);
-    updateProperty(value === "true", "executeOnLoad");
+    onUpdateSettings?.({
+      value: value === "true",
+      propertyName: "executeOnLoad",
+      action,
+    });
 
     AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
       toggleSetting: "ON_PAGE_LOAD",
@@ -144,7 +155,11 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
   };
   const onChangeConfirmBeforeExecute = (value: string) => {
     setConfirmBeforeExecute(value);
-    updateProperty(value === "true", "confirmBeforeExecute");
+    onUpdateSettings?.({
+      value: value === "true",
+      propertyName: "confirmBeforeExecute",
+      action,
+    });
 
     AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
       toggleSetting: "CONFIRM_BEFORE_RUN",
@@ -196,13 +211,17 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
           ))}
         </RadioGroup>
       </SettingColumn>
+      {renderAdditionalColumns?.(action)}
     </SettingRow>
   );
 }
 
 function JSFunctionSettingsView({
   actions,
+  additionalHeadings = [],
   disabled = false,
+  onUpdateSettings,
+  renderAdditionalColumns,
 }: JSFunctionSettingsProps) {
   return (
     <JSFunctionSettingsWrapper>
@@ -211,15 +230,17 @@ function JSFunctionSettingsView({
         <SettingsRowWrapper>
           <SettingsHeaderWrapper>
             <SettingRow isHeading>
-              {SETTINGS_HEADINGS.map((setting, index) => (
-                <SettingsHeading
-                  grow={index === 0}
-                  hasInfo={setting.hasInfo}
-                  info={setting.info}
-                  key={setting.key}
-                  text={setting.text}
-                />
-              ))}
+              {[...SETTINGS_HEADINGS, ...additionalHeadings].map(
+                (setting, index) => (
+                  <SettingsHeading
+                    grow={index === 0}
+                    hasInfo={setting.hasInfo}
+                    info={setting.info}
+                    key={setting.key}
+                    text={setting.text}
+                  />
+                ),
+              )}
             </SettingRow>
           </SettingsHeaderWrapper>
           <SettingsBodyWrapper>
@@ -229,6 +250,8 @@ function JSFunctionSettingsView({
                   action={action}
                   disabled={disabled}
                   key={action.id}
+                  onUpdateSettings={onUpdateSettings}
+                  renderAdditionalColumns={renderAdditionalColumns}
                 />
               ))
             ) : (

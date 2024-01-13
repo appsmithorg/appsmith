@@ -116,3 +116,10 @@ export const TABLE_DATA_STATIC = `
   }
 ]
 `;
+
+export const WALKTHROUGH_TEST_PAGE = "WALKTHROUGH_TEST_PAGE";
+export const DEFAULT_COLUMN_NAME = "Table Column";
+export const FEATURE_WALKTHROUGH_INDEX_KEY = "FEATURE_WALKTHROUGH";
+export const USER_SIGN_UP_INDEX_KEY = "USER_SIGN_UP";
+
+export const LICENSE_FEATURE_FLAGS = ["license_audit_logs_enabled"];

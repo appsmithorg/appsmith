@@ -15,6 +15,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.ElasticSearchErrorMessages;
 import com.external.plugins.exceptions.ElasticSearchPluginError;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -51,6 +52,7 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ElasticSearchPlugin extends BasePlugin {
 
@@ -314,6 +316,23 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                 return new DatasourceTestResult();
             });
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, ELASTIC_SEARCH_DEFAULT_PORT);
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 }

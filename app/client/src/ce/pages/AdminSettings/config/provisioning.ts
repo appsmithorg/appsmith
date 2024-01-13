@@ -14,6 +14,6 @@ export const config: AdminConfigType = {
   component: ProvisioningUpgradePage,
   title: "Provisioning",
   canSave: false,
-  needsUpgrade: true,
+  isFeatureEnabled: false,
   isEnterprise: true,
 } as AdminConfigType;

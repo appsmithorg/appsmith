@@ -26,13 +26,12 @@ import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARA
 @RequiredArgsConstructor
 public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailureHandler {
 
-    private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+    private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
         log.error("In the login failure handler. Cause: {}", exception.getMessage(), exception);
         ServerWebExchange exchange = webFilterExchange.getExchange();
-
         // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
         // login page again with an error message shown to the user.
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
@@ -41,41 +40,46 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         String redirectUrl = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
         if (state != null && !state.isEmpty()) {
-            // This is valid for OAuth2 login failures. We derive the client login URL from the state query parameter
-            // that would have been set when we initiated the OAuth2 request.
-            String[] stateArray = state.split(",");
-            for (int i = 0; i < stateArray.length; i++) {
-                String stateVar = stateArray[i];
-                if (stateVar != null
-                        && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN)
-                        && stateVar.contains("=")) {
-                    // This is the origin of the request that we want to redirect to
-                    originHeader = stateVar.split("=")[1];
-                }
-            }
+            originHeader = getOriginFromState(state);
         } else {
-            // This is a form login authentication failure
-            originHeader = exchange.getRequest().getHeaders().getOrigin();
-            if (originHeader == null || originHeader.isEmpty()) {
-                // Check the referer header if the origin is not available
-                String refererHeader = exchange.getRequest().getHeaders().getFirst(Security.REFERER_HEADER);
-                if (refererHeader != null && !refererHeader.isBlank()) {
-                    URI uri = null;
-                    try {
-                        uri = new URI(refererHeader);
-                        String authority = uri.getAuthority();
-                        String scheme = uri.getScheme();
-                        originHeader = scheme + "://" + authority;
-                    } catch (URISyntaxException e) {
-                        originHeader = "/";
-                    }
-                }
-            }
+            originHeader =
+                    getOriginFromReferer(exchange.getRequest().getHeaders().getOrigin());
         }
 
-        // Authentication failure message can hold sensitive information, directly or indirectly. So we don't show all
-        // possible error messages. Only the ones we know are okay to be read by the user. Like a whitelist.
-        URI defaultRedirectLocation;
+        // Construct the redirect URL based on the exception type
+        String url = constructRedirectUrl(exception, originHeader, redirectUrl);
+
+        return redirectWithUrl(exchange, url);
+    }
+
+    private String getOriginFromState(String state) {
+        String[] stateArray = state.split(",");
+        for (int i = 0; i < stateArray.length; i++) {
+            String stateVar = stateArray[i];
+            if (stateVar != null && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN) && stateVar.contains("=")) {
+                return stateVar.split("=")[1];
+            }
+        }
+        return "/";
+    }
+
+    // this method extracts the origin from the referer header
+    private String getOriginFromReferer(String refererHeader) {
+        if (refererHeader != null && !refererHeader.isBlank()) {
+            try {
+                URI uri = new URI(refererHeader);
+                String authority = uri.getAuthority();
+                String scheme = uri.getScheme();
+                return scheme + "://" + authority;
+            } catch (URISyntaxException e) {
+                return "/";
+            }
+        }
+        return "/";
+    }
+
+    // this method constructs the redirect URL based on the exception type
+    private String constructRedirectUrl(AuthenticationException exception, String originHeader, String redirectUrl) {
         String url = "";
         if (exception instanceof OAuth2AuthenticationException
                 && AppsmithError.SIGNUP_DISABLED
@@ -96,7 +100,11 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
             url = url + "&" + REDIRECT_URL_QUERY_PARAM + "=" + redirectUrl;
         }
-        defaultRedirectLocation = URI.create(url);
+        return url;
+    }
+
+    private Mono<Void> redirectWithUrl(ServerWebExchange exchange, String url) {
+        URI defaultRedirectLocation = URI.create(url);
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
     }
 }

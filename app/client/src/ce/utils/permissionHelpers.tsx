@@ -35,6 +35,11 @@ export enum PERMISSION_TYPE {
   MANAGE_ACTIONS = "manage:actions",
   DELETE_ACTIONS = "delete:actions",
   EXECUTE_ACTIONS = "execute:actions",
+  /* Git permissions */
+  CONNECT_TO_GIT = "connectToGit:applications",
+  MANAGE_PROTECTED_BRANCHES = "manageProtectedBranches:applications",
+  MANAGE_DEFAULT_BRANCH = "manageDefaultBranches:applications",
+  MANAGE_AUTO_COMMIT = "manageAutoCommit:applications",
 }
 
 export enum LOGIC_FILTER {
@@ -81,6 +86,10 @@ export const hasCreateDatasourcePermission = (_permissions?: string[]) => true;
 
 export const hasManageDatasourcePermission = (_permissions?: string[]) => true;
 
+export const hasManageWorkspaceDatasourcePermission = (
+  _permissions?: string[],
+) => true;
+
 export const hasDeleteDatasourcePermission = (_permissions?: string[]) => true;
 
 export const hasCreateDatasourceActionPermission = (_permissions?: string[]) =>
@@ -99,3 +108,29 @@ export const hasManageActionPermission = (_permissions?: string[]) => true;
 export const hasDeleteActionPermission = (_permissions?: string[]) => true;
 
 export const hasExecuteActionPermission = (_permissions?: string[]) => true;
+
+export const hasAuditLogsReadPermission = (_permissions?: string[]) => true;
+
+export const hasManageWorkspaceEnvironmentPermission = (
+  _permissions?: string[],
+) => false;
+
+export const hasConnectToGitPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.CONNECT_TO_GIT);
+};
+
+export const hasManageProtectedBranchesPermission = (
+  permissions: string[] = [],
+) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_PROTECTED_BRANCHES);
+};
+
+export const hasManageDefaultBranchPermission = (
+  permissions: string[] = [],
+) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_DEFAULT_BRANCH);
+};
+
+export const hasManageAutoCommitPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_AUTO_COMMIT);
+};

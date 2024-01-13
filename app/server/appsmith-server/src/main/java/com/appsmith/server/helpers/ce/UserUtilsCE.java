@@ -39,7 +39,6 @@ public class UserUtilsCE {
 
     private final PermissionGroupRepository permissionGroupRepository;
 
-    private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final PermissionGroupPermission permissionGroupPermission;
 
     public UserUtilsCE(
@@ -49,7 +48,6 @@ public class UserUtilsCE {
             PermissionGroupPermission permissionGroupPermission) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
-        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.permissionGroupPermission = permissionGroupPermission;
     }
 

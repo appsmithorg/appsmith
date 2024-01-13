@@ -82,7 +82,7 @@ public class StructureUtils {
         String rawQuery = "FOR document IN " + collectionName + "\n" + "FILTER " + "document." + filterKey + " == \""
                 + filterValue + "\"\n" + "RETURN document";
 
-        return new DatasourceStructure.Template("Select", rawQuery);
+        return new DatasourceStructure.Template("Select", rawQuery, true);
     }
 
     private static DatasourceStructure.Template generateCreateTemplate(Map<String, Object> templateConfiguration) {
@@ -90,7 +90,7 @@ public class StructureUtils {
 
         String rawQuery = "INSERT \n" + "{\n" + "    insertKey: \"insertValue\"\n" + "}\n" + "INTO " + collectionName;
 
-        return new DatasourceStructure.Template("Create", rawQuery);
+        return new DatasourceStructure.Template("Create", rawQuery, false);
     }
 
     private static DatasourceStructure.Template generateUpdateTemplate(Map<String, Object> templateConfiguration) {
@@ -109,7 +109,7 @@ public class StructureUtils {
                 + "IN "
                 + collectionName;
 
-        return new DatasourceStructure.Template("Update", rawQuery);
+        return new DatasourceStructure.Template("Update", rawQuery, false);
     }
 
     private static DatasourceStructure.Template generateRemoveTemplate(Map<String, Object> templateConfiguration) {
@@ -119,7 +119,7 @@ public class StructureUtils {
 
         String rawQuery = "REMOVE \"" + filterValue + "\" IN " + collectionName;
 
-        return new DatasourceStructure.Template("Delete", rawQuery);
+        return new DatasourceStructure.Template("Delete", rawQuery, false);
     }
 
     public static String getOneDocumentQuery(String collectionName) {

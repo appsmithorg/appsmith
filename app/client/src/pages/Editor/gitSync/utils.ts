@@ -19,7 +19,7 @@ export const getIsStartingWithRemoteBranches = (
 };
 
 const GIT_REMOTE_URL_PATTERN =
-  /^((git|ssh)|(git@[\w\-\.]+))(:(\/\/)?)([\w\.@\:\/\-~\(\)]+)[^\/]$/im;
+  /^((git|ssh)|(git@[\w\-\.]+))(:(\/\/)?)([\w\.@\:\/\-~\(\)%]+)[^\/]$/im;
 
 const gitRemoteUrlRegExp = new RegExp(GIT_REMOTE_URL_PATTERN);
 

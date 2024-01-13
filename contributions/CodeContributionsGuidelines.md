@@ -5,13 +5,13 @@
 All submissions, including submissions by project members, require review. We use GitHub pull requests for this purpose. Consult GitHub Help for more information on using pull requests.
 Before raising a pull request, ensure you have raised a corresponding issue and discussed a possible solution with a maintainer. This gives your pull request the highest chance of getting merged quickly.
 
-### Good First Issues 
+### Good First Issues
 
 Looking for issues to contribute? [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) is a great place to begin your contribution journey with Appsmith!
 
 ### 🍴 Git Workflow
 
-We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests. 
+We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests.
 
 1. Fork the repo and create a new branch from the `release` branch.
 2. Branches are named as `fix/fix-name` or `feature/feature-name`
@@ -25,16 +25,9 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 
 #### Pre-requisites
 
-1. Install git-secrets
-   1. `brew install git-secrets` (macOS)
-   2. [Linux](https://github.com/awslabs/git-secrets#nix-linuxmacos)
-   3. [Windows](https://github.com/awslabs/git-secrets#windows)
-2. Register the secrets with git-secrets
-   1. `git secrets --register-aws`
-   2. This is very important step as it registers the regex to be scanned by the git-secrets.
-3. Verify the secrets are registered
-   1. `git secrets --list`
-4. Refer to [this repo](https://github.com/awslabs/git-secrets) for more information.
+1. Install `gitleaks`
+   - `brew install gitleaks` (macOS)
+   - [Others](https://github.com/gitleaks/gitleaks#getting-started)
 
 #### Code setup
 

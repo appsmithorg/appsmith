@@ -1,19 +1,22 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
@@ -50,6 +53,7 @@ public class DatasourceControllerCE {
     private final MockDataService mockDataService;
     private final DatasourceTriggerSolution datasourceTriggerSolution;
     private final DatasourceService datasourceService;
+    private final RateLimitService rateLimitService;
 
     @Autowired
     public DatasourceControllerCE(
@@ -57,12 +61,14 @@ public class DatasourceControllerCE {
             DatasourceStructureSolution datasourceStructureSolution,
             AuthenticationService authenticationService,
             MockDataService datasourceService,
-            DatasourceTriggerSolution datasourceTriggerSolution) {
+            DatasourceTriggerSolution datasourceTriggerSolution,
+            RateLimitService rateLimitService) {
         this.datasourceService = service;
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
         this.mockDataService = datasourceService;
         this.datasourceTriggerSolution = datasourceTriggerSolution;
+        this.rateLimitService = rateLimitService;
     }
 
     @JsonView(Views.Public.class)
@@ -80,7 +86,7 @@ public class DatasourceControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Datasource>> create(
             @Valid @RequestBody Datasource resource,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
         log.debug("Going to create resource from datasource controller");
         return datasourceService
                 .create(resource)
@@ -92,7 +98,7 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<Datasource>> update(
             @PathVariable String id,
             @RequestBody Datasource datasource,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to update resource from datasource controller with id: {}", id);
         return datasourceService
                 .updateDatasource(id, datasource, environmentId, Boolean.TRUE)
@@ -103,7 +109,7 @@ public class DatasourceControllerCE {
     @PutMapping("/datasource-storages")
     public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(
             @RequestBody DatasourceStorageDTO datasourceStorageDTO,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
         log.debug(
                 "Going to update datasource from datasource controller with id: {} and environmentId: {}",
                 datasourceStorageDTO.getDatasourceId(),
@@ -127,7 +133,7 @@ public class DatasourceControllerCE {
     @PostMapping("/test")
     public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(
             @RequestBody DatasourceStorageDTO datasourceStorageDTO,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
         log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
         return datasourceService
@@ -140,7 +146,7 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<DatasourceStructure>> getStructure(
             @PathVariable String datasourceId,
             @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentId)
@@ -152,13 +158,14 @@ public class DatasourceControllerCE {
     public Mono<Void> getTokenRequestUrl(
             @PathVariable String datasourceId,
             @PathVariable String pageId,
-            ServerWebExchange serverWebExchange,
-            @RequestParam String environmentId) {
+            @RequestParam String environmentId,
+            @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            ServerWebExchange serverWebExchange) {
         log.debug(
                 "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, environmentId, pageId, serverWebExchange.getRequest(), Boolean.TRUE)
+                        datasourceId, environmentId, pageId, branchName, serverWebExchange.getRequest())
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));
@@ -189,7 +196,7 @@ public class DatasourceControllerCE {
     @PostMapping(Url.MOCKS)
     public Mono<ResponseDTO<Datasource>> createMockDataSet(
             @RequestBody MockDataSource mockDataSource,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         return mockDataService
                 .createMockDataSet(mockDataSource, environmentId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
@@ -200,10 +207,22 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(
             @PathVariable String datasourceId,
             @RequestBody TriggerRequestDTO triggerRequestDTO,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Trigger received for datasource {}", datasourceId);
         return datasourceTriggerSolution
                 .trigger(datasourceId, environmentId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{datasourceId}/schema-preview")
+    public Mono<ResponseDTO<ActionExecutionResult>> getSchemaPreviewData(
+            @PathVariable String datasourceId,
+            @RequestBody Template template,
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
+        log.debug("Going to get schema preview data for datasource with id: '{}'.", datasourceId);
+        return datasourceStructureSolution
+                .getSchemaPreviewData(datasourceId, environmentId, template)
+                .map(actionExecutionResult -> new ResponseDTO<>(HttpStatus.OK.value(), actionExecutionResult, null));
     }
 }

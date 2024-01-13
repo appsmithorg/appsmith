@@ -172,6 +172,6 @@ public class Aggregate extends MongoCommand {
                 "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template("Aggregate", null, configMap));
+        return Collections.singletonList(new DatasourceStructure.Template("Aggregate", null, configMap, false));
     }
 }

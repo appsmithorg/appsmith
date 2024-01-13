@@ -7,12 +7,12 @@ import type {
 import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
-} from "widgets/constants";
+} from "WidgetProvider/constants";
 import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
 
-type DenormalizeOptions = {
+interface DenormalizeOptions {
   widgetTypeForHaltingRecursion?: string;
-};
+}
 
 export const compareAndGenerateImmutableCanvasStructure = (
   original: CanvasStructure,

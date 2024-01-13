@@ -6,8 +6,8 @@ import type {
   EvaluatedPopupState,
   PropertyPanelContext,
   PropertyPanelState,
-} from "reducers/uiReducers/editorContextReducer";
-import { isSubEntities } from "reducers/uiReducers/editorContextReducer";
+} from "@appsmith/reducers/uiReducers/editorContextReducer";
+import { isSubEntities } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 

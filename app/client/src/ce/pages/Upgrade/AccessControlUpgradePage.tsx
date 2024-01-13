@@ -18,11 +18,14 @@ import {
   SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 export function AccessControlUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "GAC_UPGRADE_CLICK_ADMIN_SETTINGS",
     logEventData: { source: "Granular Access Control" },
+    featureName: RampFeature.Gac,
+    sectionName: RampSection.AdminSettings,
   });
 
   const header: Header = {

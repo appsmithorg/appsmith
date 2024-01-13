@@ -5,7 +5,7 @@ import { Text, Button } from "design-system";
 import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
-import { getPageListAsOptions } from "selectors/entitiesSelector";
+import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
@@ -19,10 +19,12 @@ import { getCodeFromMoustache, getSelectedFieldFromValue } from "../../utils";
 
 export default function ActionSelector(props: {
   action: TActionBlock;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
   children: React.ReactNode;
   open: boolean;
   id: string;
   level: number;
+  dataTreePath: string | undefined;
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
 }) {
   const action = props.action;
@@ -43,7 +45,14 @@ export default function ActionSelector(props: {
     <Popover2
       canEscapeKeyClose
       className="w-full"
-      content={<ActionSelectorForm action={action} onChange={props.onChange} />}
+      content={
+        <ActionSelectorForm
+          action={action}
+          additionalAutoComplete={props.additionalAutoComplete}
+          dataTreePath={props.dataTreePath}
+          onChange={props.onChange}
+        />
+      }
       isOpen={props.open}
       minimal
       popoverClassName={popoverClassName}
@@ -56,11 +65,12 @@ export default function ActionSelector(props: {
   );
 }
 
-type TActionSelectorFormProps = {
+interface TActionSelectorFormProps {
   action: TActionBlock;
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
   additionalAutoComplete?: AdditionalDynamicDataTree;
-};
+  dataTreePath: string | undefined;
+}
 
 const pathClassList = [
   "CodeMirror-hints",
@@ -176,6 +186,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       <div className="p-3 pt-0">
         <FieldGroup
           additionalAutoComplete={additionalAutoComplete}
+          dataTreePath={props.dataTreePath}
           integrationOptions={integrationOptions}
           isChainedAction={isChainedAction}
           modalDropdownList={modalDropdownList}

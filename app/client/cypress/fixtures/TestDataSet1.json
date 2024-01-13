@@ -178,11 +178,7 @@
       "y": 1000
     }
   ],
-  "Chartval": [
-    "Test1",
-    "Test2",
-    "Test3"
-  ],
+  "Chartval": ["Test1", "Test2", "Test3"],
   "paginationUrl": "http://host.docker.internal:5001/v1/",
   "paginationParam": "mock-api?records=20&page={{Table1.pageNo}}&size={{Table1.pageSize}}",
   "TableInputUpdate": [
@@ -201,60 +197,180 @@
       "orderAmount": 9.99
     }
   ],
+  "Custom3DEChartConfig": {
+    "grid3D": {
+      "top": 0,
+      "bottom": 0
+    },
+    "tooltip": {},
+    "xAxis3D": {
+      "type": "category"
+    },
+    "yAxis3D": {
+      "type": "category"
+    },
+    "zAxis3D": {},
+    "visualMap": {
+      "max": 100000000,
+      "dimension": "Population",
+      "bottom": -50
+    },
+    "dataset": {
+      "dimensions": [
+        "Income",
+        "Life Expectancy",
+        "Population",
+        "Country",
+        {
+          "name": "Year",
+          "type": "ordinal"
+        }
+      ],
+      "source": [
+        ["Income", "Life Expectancy", "Population", "Country", "Year"],
+        [37599, 81.9, 64395345, "France", 2015],
+        [44053, 81.1, 80688545, "Germany", 2015],
+        [42182, 82.8, 329425, "Iceland", 2015],
+        [5903, 66.8, 1311050527, "India", 2015],
+        [36162, 83.5, 126573481, "Japan", 2015],
+        [1390, 71.4, 25155317, "North Korea", 2015],
+        [34644, 80.7, 50293439, "South Korea", 2015],
+        [34186, 80.6, 4528526, "New Zealand", 2015],
+        [64304, 81.6, 5210967, "Norway", 2015],
+        [24787, 77.3, 38611794, "Poland", 2015],
+        [23038, 73.13, 143456918, "Russia", 2015],
+        [19360, 76.5, 78665830, "Turkey", 2015],
+        [38225, 81.4, 64715810, "United Kingdom", 2015],
+        [53354, 79.1, 321773631, "United States", 2015]
+      ]
+    },
+    "series": [
+      {
+        "type": "bar3D",
+        "shading": "lambert",
+        "encode": {
+          "x": "Year",
+          "y": "Country",
+          "z": "Life Expectancy",
+          "tooltip": [0, 1, 2, 3, 4]
+        }
+      }
+    ]
+  },
+  "InvalidCustom3DEChartConfig": {
+    "grid3D": {
+      "top": 0,
+      "bottom": 0
+    },
+    "tooltip": {},
+    "xAxis3D": {
+      "type": "category"
+    },
+    "yAxis3D": {
+      "type": "category"
+    },
+    "zAxisD": {},
+    "visualMap": {
+      "max": 100000000,
+      "dimension": "Population",
+      "bottom": -50
+    },
+    "dataset": {
+      "dimensions": [
+        "Income",
+        "Life Expectancy",
+        "Population",
+        "Country",
+        {
+          "name": "Year",
+          "type": "ordinal"
+        }
+      ],
+      "source": [
+        ["Income", "Life Expectancy", "Population", "Country", "Year"],
+        [37599, 81.9, 64395345, "France", 2015],
+        [44053, 81.1, 80688545, "Germany", 2015],
+        [42182, 82.8, 329425, "Iceland", 2015],
+        [5903, 66.8, 1311050527, "India", 2015],
+        [36162, 83.5, 126573481, "Japan", 2015],
+        [1390, 71.4, 25155317, "North Korea", 2015],
+        [34644, 80.7, 50293439, "South Korea", 2015],
+        [34186, 80.6, 4528526, "New Zealand", 2015],
+        [64304, 81.6, 5210967, "Norway", 2015],
+        [24787, 77.3, 38611794, "Poland", 2015],
+        [23038, 73.13, 143456918, "Russia", 2015],
+        [19360, 76.5, 78665830, "Turkey", 2015],
+        [38225, 81.4, 64715810, "United Kingdom", 2015],
+        [53354, 79.1, 321773631, "United States", 2015]
+      ]
+    },
+    "series": [
+      {
+        "type": "bar3D",
+        "shading": "lambert",
+        "encode": {
+          "x": "Year",
+          "y": "Country",
+          "z": "Life Expectancy",
+          "tooltip": [0, 1, 2, 3, 4]
+        }
+      }
+    ]
+  },
   "ChartCustomConfig": {
-      "type":"column2d",
-      "dataSource":{
-          "chart":{
-            "caption":"Monthly revenue for last year",
-            "subCaption":"Harry's SuperMart",
-            "xAxisName":"Month",
-            "yAxisName":"Revenues (In USD)",
-            "numberPrefix":"$",
-            "theme":"fusion"
-          },
-          "data":[
+    "type": "column2d",
+    "dataSource": {
+      "chart": {
+        "caption": "Monthly revenue for last year",
+        "subCaption": "Harry's SuperMart",
+        "xAxisName": "Month",
+        "yAxisName": "Revenues (In USD)",
+        "numberPrefix": "$",
+        "theme": "fusion"
+      },
+      "data": [
+        {
+          "label": "Jan",
+          "value": "420000"
+        },
+        {
+          "label": "Feb",
+          "value": "810000"
+        },
+        {
+          "label": "Mar",
+          "value": "720000"
+        },
+        {
+          "label": "Apr",
+          "value": "550000"
+        },
+        {
+          "label": "May",
+          "value": "910000"
+        },
+        {
+          "label": "Jun",
+          "value": "256000"
+        },
+        {
+          "label": "Jul",
+          "value": "512000"
+        }
+      ],
+      "trendlines": [
+        {
+          "line": [
             {
-                "label":"Jan",
-                "value":"420000"
-            },
-            {
-                "label":"Feb",
-                "value":"810000"
-            },
-            {
-                "label":"Mar",
-                "value":"720000"
-            },
-            {
-                "label":"Apr",
-                "value":"550000"
-            },
-            {
-                "label":"May",
-                "value":"910000"
-            },
-            {
-                "label":"Jun",
-                "value":"256000"
-            },
-            {
-                "label":"Jul",
-                "value":"512000"
-            }
-          ],
-          "trendlines":[
-            {
-                "line":[
-                  {
-                      "startvalue":"700000",
-                      "valueOnRight":"1",
-                      "displayvalue":"Monthly Target"
-                  }
-                ]
+              "startvalue": "700000",
+              "valueOnRight": "1",
+              "displayvalue": "Monthly Target"
             }
           ]
-      }
-    },
+        }
+      ]
+    }
+  },
   "TableInputWithNull": [
     {
       "id": 2381224,
@@ -286,7 +402,7 @@
       "last_name": "Ferguson",
       "avatar": "https://reqres.in/img/faces/8-image.jpg"
     },
-   {
+    {
       "id": 3,
       "email": "brock.lesnar@reqres.in",
       "first_name": "Brock",
@@ -315,7 +431,7 @@
       "last_name": "Ferguson",
       "avatar": "https://reqres.in/img/faces/8-image.jpg"
     },
-   {
+    {
       "id": 3,
       "email": "brock.lesnar@reqres.in",
       "first_name": "Brock",
@@ -345,5 +461,994 @@
     "name": "John",
     "date_of_birth": "20/02/1990",
     "employee_id": 1001
+  },
+  "GetAnimeResponse": {
+    "pagination": {
+      "last_visible_page": 2,
+      "has_next_page": true,
+      "current_page": 1,
+      "items": {
+        "count": 3,
+        "total": 5,
+        "per_page": 3
+      }
+    },
+    "data": [
+      {
+        "mal_id": 42938,
+        "url": "https://myanimelist.net/anime/42938/Fruits_Basket__The_Final",
+        "images": {
+          "jpg": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1085/114792.jpg",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1085/114792t.jpg",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1085/114792l.jpg"
+          },
+          "webp": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1085/114792.webp",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1085/114792t.webp",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1085/114792l.webp"
+          }
+        },
+        "trailer": {
+          "youtube_id": "Ip8Btv2t_6c",
+          "url": "https://www.youtube.com/watch?v=Ip8Btv2t_6c",
+          "embed_url": "https://www.youtube.com/embed/Ip8Btv2t_6c?enablejsapi=1&wmode=opaque&autoplay=1",
+          "images": {
+            "image_url": "https://img.youtube.com/vi/Ip8Btv2t_6c/default.jpg",
+            "small_image_url": "https://img.youtube.com/vi/Ip8Btv2t_6c/sddefault.jpg",
+            "medium_image_url": "https://img.youtube.com/vi/Ip8Btv2t_6c/mqdefault.jpg",
+            "large_image_url": "https://img.youtube.com/vi/Ip8Btv2t_6c/hqdefault.jpg",
+            "maximum_image_url": "https://img.youtube.com/vi/Ip8Btv2t_6c/maxresdefault.jpg"
+          }
+        },
+        "approved": true,
+        "titles": [
+          {
+            "type": "Default",
+            "title": "Fruits Basket: The Final"
+          },
+          {
+            "type": "Synonym",
+            "title": "Fruits Basket 3rd Season"
+          },
+          {
+            "type": "Synonym",
+            "title": "Fruits Basket (2019) 3rd Season"
+          },
+          {
+            "type": "Synonym",
+            "title": "Furuba"
+          },
+          {
+            "type": "Japanese",
+            "title": "フルーツバスケット The Final"
+          },
+          {
+            "type": "English",
+            "title": "Fruits Basket: The Final Season"
+          },
+          {
+            "type": "German",
+            "title": "Fruits Basket Staffel 3"
+          },
+          {
+            "type": "Spanish",
+            "title": "Fruits Basket: The Final Season"
+          },
+          {
+            "type": "French",
+            "title": "Fruits Basket Saison 3"
+          }
+        ],
+        "title": "Fruits Basket: The Final",
+        "title_english": "Fruits Basket: The Final Season",
+        "title_japanese": "フルーツバスケット The Final",
+        "title_synonyms": [
+          "Fruits Basket 3rd Season",
+          "Fruits Basket (2019) 3rd Season",
+          "Furuba"
+        ],
+        "type": "TV",
+        "source": "Manga",
+        "episodes": 13,
+        "status": "Finished Airing",
+        "airing": false,
+        "aired": {
+          "from": "2021-04-06T00:00:00+00:00",
+          "to": "2021-06-29T00:00:00+00:00",
+          "prop": {
+            "from": {
+              "day": 6,
+              "month": 4,
+              "year": 2021
+            },
+            "to": {
+              "day": 29,
+              "month": 6,
+              "year": 2021
+            }
+          },
+          "string": "Apr 6, 2021 to Jun 29, 2021"
+        },
+        "duration": "23 min per ep",
+        "rating": "PG-13 - Teens 13 or older",
+        "score": 8.99,
+        "scored_by": 224744,
+        "rank": 13,
+        "popularity": 476,
+        "members": 455463,
+        "favorites": 19536,
+        "synopsis": "Hundreds of years ago, the Chinese zodiac spirits and their god swore to stay together eternally. United by this promise, the possessed members of the Souma family shall always return to each other under any circumstances. Yet, when these bonds shackle them from freedom, it becomes an undesirable burden—a curse. As head of the clan, Akito is convinced that he shares a special connection with the other Soumas. While he desperately clings to this fantasy, the rest of the family remains isolated and suppressed by the fear of punishment.\n\nTooru Honda, who has grown attached to the Soumas, is determined to break the chains that bind them. Her companionship with the family and her friends encourages her to move forward with lifting the curse. However, due to confounding revelations, she struggles to find the tenacity to continue her endeavors. With time slowly withering away, Tooru contends with an uncertain future in hopes of reaching the tranquility that may lie beyond all this commotion.\n\n[Written by MAL Rewrite]",
+        "background": null,
+        "season": "spring",
+        "year": 2021,
+        "broadcast": {
+          "day": "Tuesdays",
+          "time": "01:30",
+          "timezone": "Asia/Tokyo",
+          "string": "Tuesdays at 01:30 (JST)"
+        },
+        "producers": [
+          {
+            "mal_id": 16,
+            "type": "anime",
+            "name": "TV Tokyo",
+            "url": "https://myanimelist.net/anime/producer/16/TV_Tokyo"
+          },
+          {
+            "mal_id": 100,
+            "type": "anime",
+            "name": "TV Osaka",
+            "url": "https://myanimelist.net/anime/producer/100/TV_Osaka"
+          },
+          {
+            "mal_id": 139,
+            "type": "anime",
+            "name": "Nihon Ad Systems",
+            "url": "https://myanimelist.net/anime/producer/139/Nihon_Ad_Systems"
+          },
+          {
+            "mal_id": 148,
+            "type": "anime",
+            "name": "Hakusensha",
+            "url": "https://myanimelist.net/anime/producer/148/Hakusensha"
+          },
+          {
+            "mal_id": 1284,
+            "type": "anime",
+            "name": "Avex Pictures",
+            "url": "https://myanimelist.net/anime/producer/1284/Avex_Pictures"
+          },
+          {
+            "mal_id": 2174,
+            "type": "anime",
+            "name": "TMS Music",
+            "url": "https://myanimelist.net/anime/producer/2174/TMS_Music"
+          },
+          {
+            "mal_id": 2495,
+            "type": "anime",
+            "name": "8PAN",
+            "url": "https://myanimelist.net/anime/producer/2495/8PAN"
+          }
+        ],
+        "licensors": [
+          {
+            "mal_id": 102,
+            "type": "anime",
+            "name": "Funimation",
+            "url": "https://myanimelist.net/anime/producer/102/Funimation"
+          }
+        ],
+        "studios": [
+          {
+            "mal_id": 73,
+            "type": "anime",
+            "name": "TMS Entertainment",
+            "url": "https://myanimelist.net/anime/producer/73/TMS_Entertainment"
+          }
+        ],
+        "genres": [
+          {
+            "mal_id": 8,
+            "type": "anime",
+            "name": "Drama",
+            "url": "https://myanimelist.net/anime/genre/8/Drama"
+          },
+          {
+            "mal_id": 22,
+            "type": "anime",
+            "name": "Romance",
+            "url": "https://myanimelist.net/anime/genre/22/Romance"
+          },
+          {
+            "mal_id": 37,
+            "type": "anime",
+            "name": "Supernatural",
+            "url": "https://myanimelist.net/anime/genre/37/Supernatural"
+          }
+        ],
+        "explicit_genres": [],
+        "themes": [],
+        "demographics": [
+          {
+            "mal_id": 25,
+            "type": "anime",
+            "name": "Shoujo",
+            "url": "https://myanimelist.net/anime/genre/25/Shoujo"
+          }
+        ]
+      },
+      {
+        "mal_id": 49310,
+        "url": "https://myanimelist.net/anime/49310/Fruits_Basket__Prelude",
+        "images": {
+          "jpg": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1034/120096.jpg",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1034/120096t.jpg",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1034/120096l.jpg"
+          },
+          "webp": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1034/120096.webp",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1034/120096t.webp",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1034/120096l.webp"
+          }
+        },
+        "trailer": {
+          "youtube_id": "G3W_3EEzzSg",
+          "url": "https://www.youtube.com/watch?v=G3W_3EEzzSg",
+          "embed_url": "https://www.youtube.com/embed/G3W_3EEzzSg?enablejsapi=1&wmode=opaque&autoplay=1",
+          "images": {
+            "image_url": "https://img.youtube.com/vi/G3W_3EEzzSg/default.jpg",
+            "small_image_url": "https://img.youtube.com/vi/G3W_3EEzzSg/sddefault.jpg",
+            "medium_image_url": "https://img.youtube.com/vi/G3W_3EEzzSg/mqdefault.jpg",
+            "large_image_url": "https://img.youtube.com/vi/G3W_3EEzzSg/hqdefault.jpg",
+            "maximum_image_url": "https://img.youtube.com/vi/G3W_3EEzzSg/maxresdefault.jpg"
+          }
+        },
+        "approved": true,
+        "titles": [
+          {
+            "type": "Default",
+            "title": "Fruits Basket: Prelude"
+          },
+          {
+            "type": "Synonym",
+            "title": "Kyouko to Katsuya no Monogatari"
+          },
+          {
+            "type": "Synonym",
+            "title": "The Story of Kyoko and Katsuya"
+          },
+          {
+            "type": "Japanese",
+            "title": "フルーツバスケット -prelude-"
+          }
+        ],
+        "title": "Fruits Basket: Prelude",
+        "title_english": null,
+        "title_japanese": "フルーツバスケット -prelude-",
+        "title_synonyms": [
+          "Kyouko to Katsuya no Monogatari",
+          "The Story of Kyoko and Katsuya"
+        ],
+        "type": "Movie",
+        "source": "Manga",
+        "episodes": 1,
+        "status": "Finished Airing",
+        "airing": false,
+        "aired": {
+          "from": "2022-02-18T00:00:00+00:00",
+          "to": null,
+          "prop": {
+            "from": {
+              "day": 18,
+              "month": 2,
+              "year": 2022
+            },
+            "to": {
+              "day": null,
+              "month": null,
+              "year": null
+            }
+          },
+          "string": "Feb 18, 2022"
+        },
+        "duration": "1 hr 28 min",
+        "rating": "PG-13 - Teens 13 or older",
+        "score": 8.42,
+        "scored_by": 34487,
+        "rank": 164,
+        "popularity": 2006,
+        "members": 100204,
+        "favorites": 795,
+        "synopsis": "Despite Kyouko Honda's tragic death, her vivid memory lives on, providing guidance through times of hardship to her close ones. However, Kyouko was not always the wise and radiant person that she is fondly remembered as in the present day.\n\nFeeling deserted by her own family and rejected by society, a young Kyouko abandons stability for a life of delinquency, jeopardizing her education and future. Fortunately, her descent into despair is interrupted by a fateful encounter with her husband-to-be Katsuya, who has recently started his teaching internship at her school. \n\nWith a composure surprisingly unaffected by Kyouko's tantrums, Katsuya quickly wins her over through his gentleness and attention toward her—sincere gestures that she has never received before. As the two grow closer together, Kyouko opens her tormented heart to him and, along with it, a door to new horizons.\n\n[Written by MAL Rewrite]",
+        "background": "Fruits Basket: Prelude centers on the Kyouko to Katsuya no Monogatari prequel, which covers part of the manga's 16th volume not shown in the television series. The movie also features a short compilation of the three-season anime and new scenes written by the author set after the original story. Mubichike cards with illustrations by Natsuki Takaya were made available on December 17, 2021. A Blu-ray version was commercialized exclusively at theaters screening the film, and limited edition items were distributed to the audience on a first-come, first-served basis. The gifts consisted of an original 16-page manga that established the setting for the new scenes as well as excerpts from the movie. Another Blu-ray was released on June 24, 2022, including a bonus eight-page manga booklet. Only in the first two days after its premiere, Fruits Basket: Prelude grossed a total of 33 million yen. Moreover, supplementary theaters held additional screenings to accommodate the greater turnout of viewers.",
+        "season": null,
+        "year": null,
+        "broadcast": {
+          "day": null,
+          "time": null,
+          "timezone": null,
+          "string": null
+        },
+        "producers": [
+          {
+            "mal_id": 16,
+            "type": "anime",
+            "name": "TV Tokyo",
+            "url": "https://myanimelist.net/anime/producer/16/TV_Tokyo"
+          },
+          {
+            "mal_id": 100,
+            "type": "anime",
+            "name": "TV Osaka",
+            "url": "https://myanimelist.net/anime/producer/100/TV_Osaka"
+          },
+          {
+            "mal_id": 102,
+            "type": "anime",
+            "name": "Funimation",
+            "url": "https://myanimelist.net/anime/producer/102/Funimation"
+          },
+          {
+            "mal_id": 139,
+            "type": "anime",
+            "name": "Nihon Ad Systems",
+            "url": "https://myanimelist.net/anime/producer/139/Nihon_Ad_Systems"
+          },
+          {
+            "mal_id": 148,
+            "type": "anime",
+            "name": "Hakusensha",
+            "url": "https://myanimelist.net/anime/producer/148/Hakusensha"
+          },
+          {
+            "mal_id": 1284,
+            "type": "anime",
+            "name": "Avex Pictures",
+            "url": "https://myanimelist.net/anime/producer/1284/Avex_Pictures"
+          },
+          {
+            "mal_id": 2495,
+            "type": "anime",
+            "name": "8PAN",
+            "url": "https://myanimelist.net/anime/producer/2495/8PAN"
+          }
+        ],
+        "licensors": [
+          {
+            "mal_id": 1468,
+            "type": "anime",
+            "name": "Crunchyroll",
+            "url": "https://myanimelist.net/anime/producer/1468/Crunchyroll"
+          }
+        ],
+        "studios": [
+          {
+            "mal_id": 73,
+            "type": "anime",
+            "name": "TMS Entertainment",
+            "url": "https://myanimelist.net/anime/producer/73/TMS_Entertainment"
+          }
+        ],
+        "genres": [
+          {
+            "mal_id": 8,
+            "type": "anime",
+            "name": "Drama",
+            "url": "https://myanimelist.net/anime/genre/8/Drama"
+          },
+          {
+            "mal_id": 22,
+            "type": "anime",
+            "name": "Romance",
+            "url": "https://myanimelist.net/anime/genre/22/Romance"
+          }
+        ],
+        "explicit_genres": [],
+        "themes": [],
+        "demographics": [
+          {
+            "mal_id": 25,
+            "type": "anime",
+            "name": "Shoujo",
+            "url": "https://myanimelist.net/anime/genre/25/Shoujo"
+          }
+        ]
+      },
+      {
+        "mal_id": 120,
+        "url": "https://myanimelist.net/anime/120/Fruits_Basket",
+        "images": {
+          "jpg": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/4/75204.jpg",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/4/75204t.jpg",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/4/75204l.jpg"
+          },
+          "webp": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/4/75204.webp",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/4/75204t.webp",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/4/75204l.webp"
+          }
+        },
+        "trailer": {
+          "youtube_id": null,
+          "url": null,
+          "embed_url": null,
+          "images": {
+            "image_url": null,
+            "small_image_url": null,
+            "medium_image_url": null,
+            "large_image_url": null,
+            "maximum_image_url": null
+          }
+        },
+        "approved": true,
+        "titles": [
+          {
+            "type": "Default",
+            "title": "Fruits Basket"
+          },
+          {
+            "type": "Synonym",
+            "title": "Furuba"
+          },
+          {
+            "type": "Japanese",
+            "title": "フルーツバスケット"
+          },
+          {
+            "type": "English",
+            "title": "Fruits Basket"
+          }
+        ],
+        "title": "Fruits Basket",
+        "title_english": "Fruits Basket",
+        "title_japanese": "フルーツバスケット",
+        "title_synonyms": ["Furuba"],
+        "type": "TV",
+        "source": "Manga",
+        "episodes": 26,
+        "status": "Finished Airing",
+        "airing": false,
+        "aired": {
+          "from": "2001-07-05T00:00:00+00:00",
+          "to": "2001-12-27T00:00:00+00:00",
+          "prop": {
+            "from": {
+              "day": 5,
+              "month": 7,
+              "year": 2001
+            },
+            "to": {
+              "day": 27,
+              "month": 12,
+              "year": 2001
+            }
+          },
+          "string": "Jul 5, 2001 to Dec 27, 2001"
+        },
+        "duration": "24 min per ep",
+        "rating": "PG-13 - Teens 13 or older",
+        "score": 7.69,
+        "scored_by": 279969,
+        "rank": 1200,
+        "popularity": 400,
+        "members": 532349,
+        "favorites": 9417,
+        "synopsis": "After the accident in which she lost her mother, 16-year-old Tooru moves in with her grandfather, but due to his home being renovated, is unable to continue living with him. Claiming she will find someone to stay with but also fearing the criticism of her family and not wanting to burden any of her friends, Tooru resorts to secretly living on her own in a tent in the woods.\n\nOne night on her way back from work, she finds her tent buried underneath a landslide. Yuki Souma, the \"prince\" of her school, and his cousin Shigure Souma, a famous author, stumble across Tooru's situation and invite her to stay with them until her grandfather's home renovations are complete.\n\nUpon arriving at the Souma house, Tooru discovers their secret: if a Souma is hugged by someone of the opposite gender, they temporarily transform into one of the animals of the zodiac! However, this strange phenomenon is no laughing matter; rather, it is a terrible curse that holds a dark history. As she continues her journey, meeting more members of the zodiac family, will Tooru's kindhearted yet resilient nature be enough to prepare her for what lies behind the Souma household's doors?\n\n[Written by MAL Rewrite]",
+        "background": "Fruits Basket won the 2001 Animage's Anime Grand Prix Award.",
+        "season": "summer",
+        "year": 2001,
+        "broadcast": {
+          "day": "Thursdays",
+          "time": "18:00",
+          "timezone": "Asia/Tokyo",
+          "string": "Thursdays at 18:00 (JST)"
+        },
+        "producers": [
+          {
+            "mal_id": 16,
+            "type": "anime",
+            "name": "TV Tokyo",
+            "url": "https://myanimelist.net/anime/producer/16/TV_Tokyo"
+          },
+          {
+            "mal_id": 139,
+            "type": "anime",
+            "name": "Nihon Ad Systems",
+            "url": "https://myanimelist.net/anime/producer/139/Nihon_Ad_Systems"
+          },
+          {
+            "mal_id": 1344,
+            "type": "anime",
+            "name": "King Records",
+            "url": "https://myanimelist.net/anime/producer/1344/King_Records"
+          }
+        ],
+        "licensors": [
+          {
+            "mal_id": 102,
+            "type": "anime",
+            "name": "Funimation",
+            "url": "https://myanimelist.net/anime/producer/102/Funimation"
+          }
+        ],
+        "studios": [
+          {
+            "mal_id": 37,
+            "type": "anime",
+            "name": "Studio Deen",
+            "url": "https://myanimelist.net/anime/producer/37/Studio_Deen"
+          }
+        ],
+        "genres": [
+          {
+            "mal_id": 8,
+            "type": "anime",
+            "name": "Drama",
+            "url": "https://myanimelist.net/anime/genre/8/Drama"
+          },
+          {
+            "mal_id": 22,
+            "type": "anime",
+            "name": "Romance",
+            "url": "https://myanimelist.net/anime/genre/22/Romance"
+          },
+          {
+            "mal_id": 37,
+            "type": "anime",
+            "name": "Supernatural",
+            "url": "https://myanimelist.net/anime/genre/37/Supernatural"
+          }
+        ],
+        "explicit_genres": [],
+        "themes": [
+          {
+            "mal_id": 64,
+            "type": "anime",
+            "name": "Love Polygon",
+            "url": "https://myanimelist.net/anime/genre/64/Love_Polygon"
+          },
+          {
+            "mal_id": 23,
+            "type": "anime",
+            "name": "School",
+            "url": "https://myanimelist.net/anime/genre/23/School"
+          }
+        ],
+        "demographics": [
+          {
+            "mal_id": 25,
+            "type": "anime",
+            "name": "Shoujo",
+            "url": "https://myanimelist.net/anime/genre/25/Shoujo"
+          }
+        ]
+      },
+      {
+        "mal_id": 38680,
+        "url": "https://myanimelist.net/anime/38680/Fruits_Basket_1st_Season",
+        "images": {
+          "jpg": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1447/99827.jpg",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1447/99827t.jpg",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1447/99827l.jpg"
+          },
+          "webp": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1447/99827.webp",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1447/99827t.webp",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1447/99827l.webp"
+          }
+        },
+        "trailer": {
+          "youtube_id": "g5MDFMukmUI",
+          "url": "https://www.youtube.com/watch?v=g5MDFMukmUI",
+          "embed_url": "https://www.youtube.com/embed/g5MDFMukmUI?enablejsapi=1&wmode=opaque&autoplay=1",
+          "images": {
+            "image_url": "https://img.youtube.com/vi/g5MDFMukmUI/default.jpg",
+            "small_image_url": "https://img.youtube.com/vi/g5MDFMukmUI/sddefault.jpg",
+            "medium_image_url": "https://img.youtube.com/vi/g5MDFMukmUI/mqdefault.jpg",
+            "large_image_url": "https://img.youtube.com/vi/g5MDFMukmUI/hqdefault.jpg",
+            "maximum_image_url": "https://img.youtube.com/vi/g5MDFMukmUI/maxresdefault.jpg"
+          }
+        },
+        "approved": true,
+        "titles": [
+          {
+            "type": "Default",
+            "title": "Fruits Basket 1st Season"
+          },
+          {
+            "type": "Synonym",
+            "title": "Furuba"
+          },
+          {
+            "type": "Synonym",
+            "title": "Fruits Basket (Zenpen)"
+          },
+          {
+            "type": "Japanese",
+            "title": "フルーツバスケット"
+          },
+          {
+            "type": "English",
+            "title": "Fruits Basket 1st Season"
+          },
+          {
+            "type": "German",
+            "title": "Fruits Basket"
+          },
+          {
+            "type": "Spanish",
+            "title": "Fruits Basket"
+          },
+          {
+            "type": "French",
+            "title": "Fruits Basket"
+          }
+        ],
+        "title": "Fruits Basket 1st Season",
+        "title_english": "Fruits Basket 1st Season",
+        "title_japanese": "フルーツバスケット",
+        "title_synonyms": ["Furuba", "Fruits Basket (Zenpen)"],
+        "type": "TV",
+        "source": "Manga",
+        "episodes": 25,
+        "status": "Finished Airing",
+        "airing": false,
+        "aired": {
+          "from": "2019-04-06T00:00:00+00:00",
+          "to": "2019-09-21T00:00:00+00:00",
+          "prop": {
+            "from": {
+              "day": 6,
+              "month": 4,
+              "year": 2019
+            },
+            "to": {
+              "day": 21,
+              "month": 9,
+              "year": 2019
+            }
+          },
+          "string": "Apr 6, 2019 to Sep 21, 2019"
+        },
+        "duration": "23 min per ep",
+        "rating": "PG-13 - Teens 13 or older",
+        "score": 8.22,
+        "scored_by": 382547,
+        "rank": 330,
+        "popularity": 221,
+        "members": 804546,
+        "favorites": 15736,
+        "synopsis": "Tooru Honda has always been fascinated by the story of the Chinese zodiac that her beloved mother told her as a child. However, a sudden family tragedy changes her life, and subsequent circumstances leave her all alone. Tooru is now forced to live in a tent, but little does she know that her temporary home resides on the private property of the esteemed Souma family. Stumbling upon their home one day, she encounters Shigure, an older Souma cousin, and Yuki, the \"prince\" of her school. Tooru explains that she lives nearby, but the Soumas eventually discover her well-kept secret of being homeless when they see her walking back to her tent one night.\n\nThings start to look up for Tooru as they kindly offer to take her in after hearing about her situation. But soon after, she is caught up in a fight between Yuki and his hot-tempered cousin, Kyou. While trying to stop them, she learns that the Souma family has a well-kept secret of their own: whenever they are hugged by a member of the opposite sex, they transform into the animals of the Chinese zodiac.\n\nWith this new revelation, Tooru will find that living with the Soumas is an unexpected adventure filled with laughter and romance.\n\n[Written by MAL Rewrite]",
+        "background": null,
+        "season": "spring",
+        "year": 2019,
+        "broadcast": {
+          "day": "Saturdays",
+          "time": "01:23",
+          "timezone": "Asia/Tokyo",
+          "string": "Saturdays at 01:23 (JST)"
+        },
+        "producers": [
+          {
+            "mal_id": 16,
+            "type": "anime",
+            "name": "TV Tokyo",
+            "url": "https://myanimelist.net/anime/producer/16/TV_Tokyo"
+          },
+          {
+            "mal_id": 100,
+            "type": "anime",
+            "name": "TV Osaka",
+            "url": "https://myanimelist.net/anime/producer/100/TV_Osaka"
+          },
+          {
+            "mal_id": 139,
+            "type": "anime",
+            "name": "Nihon Ad Systems",
+            "url": "https://myanimelist.net/anime/producer/139/Nihon_Ad_Systems"
+          },
+          {
+            "mal_id": 148,
+            "type": "anime",
+            "name": "Hakusensha",
+            "url": "https://myanimelist.net/anime/producer/148/Hakusensha"
+          },
+          {
+            "mal_id": 1284,
+            "type": "anime",
+            "name": "Avex Pictures",
+            "url": "https://myanimelist.net/anime/producer/1284/Avex_Pictures"
+          },
+          {
+            "mal_id": 2174,
+            "type": "anime",
+            "name": "TMS Music",
+            "url": "https://myanimelist.net/anime/producer/2174/TMS_Music"
+          },
+          {
+            "mal_id": 2495,
+            "type": "anime",
+            "name": "8PAN",
+            "url": "https://myanimelist.net/anime/producer/2495/8PAN"
+          }
+        ],
+        "licensors": [
+          {
+            "mal_id": 102,
+            "type": "anime",
+            "name": "Funimation",
+            "url": "https://myanimelist.net/anime/producer/102/Funimation"
+          }
+        ],
+        "studios": [
+          {
+            "mal_id": 73,
+            "type": "anime",
+            "name": "TMS Entertainment",
+            "url": "https://myanimelist.net/anime/producer/73/TMS_Entertainment"
+          }
+        ],
+        "genres": [
+          {
+            "mal_id": 8,
+            "type": "anime",
+            "name": "Drama",
+            "url": "https://myanimelist.net/anime/genre/8/Drama"
+          },
+          {
+            "mal_id": 22,
+            "type": "anime",
+            "name": "Romance",
+            "url": "https://myanimelist.net/anime/genre/22/Romance"
+          },
+          {
+            "mal_id": 37,
+            "type": "anime",
+            "name": "Supernatural",
+            "url": "https://myanimelist.net/anime/genre/37/Supernatural"
+          }
+        ],
+        "explicit_genres": [],
+        "themes": [
+          {
+            "mal_id": 64,
+            "type": "anime",
+            "name": "Love Polygon",
+            "url": "https://myanimelist.net/anime/genre/64/Love_Polygon"
+          },
+          {
+            "mal_id": 23,
+            "type": "anime",
+            "name": "School",
+            "url": "https://myanimelist.net/anime/genre/23/School"
+          }
+        ],
+        "demographics": [
+          {
+            "mal_id": 25,
+            "type": "anime",
+            "name": "Shoujo",
+            "url": "https://myanimelist.net/anime/genre/25/Shoujo"
+          }
+        ]
+      },
+      {
+        "mal_id": 40417,
+        "url": "https://myanimelist.net/anime/40417/Fruits_Basket_2nd_Season",
+        "images": {
+          "jpg": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1972/111635.jpg",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1972/111635t.jpg",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1972/111635l.jpg"
+          },
+          "webp": {
+            "image_url": "https://cdn.myanimelist.net/images/anime/1972/111635.webp",
+            "small_image_url": "https://cdn.myanimelist.net/images/anime/1972/111635t.webp",
+            "large_image_url": "https://cdn.myanimelist.net/images/anime/1972/111635l.webp"
+          }
+        },
+        "trailer": {
+          "youtube_id": "yBBePKQTWFE",
+          "url": "https://www.youtube.com/watch?v=yBBePKQTWFE",
+          "embed_url": "https://www.youtube.com/embed/yBBePKQTWFE?enablejsapi=1&wmode=opaque&autoplay=1",
+          "images": {
+            "image_url": "https://img.youtube.com/vi/yBBePKQTWFE/default.jpg",
+            "small_image_url": "https://img.youtube.com/vi/yBBePKQTWFE/sddefault.jpg",
+            "medium_image_url": "https://img.youtube.com/vi/yBBePKQTWFE/mqdefault.jpg",
+            "large_image_url": "https://img.youtube.com/vi/yBBePKQTWFE/hqdefault.jpg",
+            "maximum_image_url": "https://img.youtube.com/vi/yBBePKQTWFE/maxresdefault.jpg"
+          }
+        },
+        "approved": true,
+        "titles": [
+          {
+            "type": "Default",
+            "title": "Fruits Basket 2nd Season"
+          },
+          {
+            "type": "Synonym",
+            "title": "Fruits Basket (2019) 2nd Season"
+          },
+          {
+            "type": "Synonym",
+            "title": "Furuba"
+          },
+          {
+            "type": "Synonym",
+            "title": "Fruits Basket (Kouhen)"
+          },
+          {
+            "type": "Japanese",
+            "title": "フルーツバスケット 2nd season"
+          },
+          {
+            "type": "English",
+            "title": "Fruits Basket 2nd Season"
+          },
+          {
+            "type": "German",
+            "title": "Fruits Basket Staffel 2"
+          },
+          {
+            "type": "Spanish",
+            "title": "Fruits Basket Temporada 2"
+          },
+          {
+            "type": "French",
+            "title": "Fruits Basket Sasion 2"
+          }
+        ],
+        "title": "Fruits Basket 2nd Season",
+        "title_english": "Fruits Basket 2nd Season",
+        "title_japanese": "フルーツバスケット 2nd season",
+        "title_synonyms": [
+          "Fruits Basket (2019) 2nd Season",
+          "Furuba",
+          "Fruits Basket (Kouhen)"
+        ],
+        "type": "TV",
+        "source": "Manga",
+        "episodes": 25,
+        "status": "Finished Airing",
+        "airing": false,
+        "aired": {
+          "from": "2020-04-07T00:00:00+00:00",
+          "to": "2020-09-22T00:00:00+00:00",
+          "prop": {
+            "from": {
+              "day": 7,
+              "month": 4,
+              "year": 2020
+            },
+            "to": {
+              "day": 22,
+              "month": 9,
+              "year": 2020
+            }
+          },
+          "string": "Apr 7, 2020 to Sep 22, 2020"
+        },
+        "duration": "23 min per ep",
+        "rating": "PG-13 - Teens 13 or older",
+        "score": 8.55,
+        "scored_by": 250613,
+        "rank": 105,
+        "popularity": 436,
+        "members": 491692,
+        "favorites": 5906,
+        "synopsis": "A year has passed since Tooru Honda began living in the Souma residence, and she has since created stronger relationships with its inhabitants Shigure, Kyou, and Yuki. She has also grown closer to the rest of the Souma family and has become familiar with their ancestral secret, having helped them with many of their personal issues. The closer Tooru gets, however, the more she begins to realize that their secret holds a darker truth than she first presumed.\n\nSummer is approaching and Tooru is invited to spend her days with the Soumas, mainly Kyou and Yuki. Tooru wishes for an easy-going vacation, but her close relationships with the two boys and the rest of the Soumas may prove to cause trouble. As they grow more intimate, their carefree time together is hindered by older hardships and feelings from the past that begin to resurface. The Eternal Banquet also dawns on the members of the zodiac, and they must tend to their duties alongside the unnerving head of the family, Akito Souma.\n\nWith the banquet approaching and a plethora of feelings to be solved, will Tooru's life with the Soumas remain peaceful, or will she find herself in a situation from which she cannot escape?\n\n[Written by MAL Rewrite]",
+        "background": null,
+        "season": "spring",
+        "year": 2020,
+        "broadcast": {
+          "day": "Tuesdays",
+          "time": "01:30",
+          "timezone": "Asia/Tokyo",
+          "string": "Tuesdays at 01:30 (JST)"
+        },
+        "producers": [
+          {
+            "mal_id": 16,
+            "type": "anime",
+            "name": "TV Tokyo",
+            "url": "https://myanimelist.net/anime/producer/16/TV_Tokyo"
+          },
+          {
+            "mal_id": 100,
+            "type": "anime",
+            "name": "TV Osaka",
+            "url": "https://myanimelist.net/anime/producer/100/TV_Osaka"
+          },
+          {
+            "mal_id": 139,
+            "type": "anime",
+            "name": "Nihon Ad Systems",
+            "url": "https://myanimelist.net/anime/producer/139/Nihon_Ad_Systems"
+          },
+          {
+            "mal_id": 148,
+            "type": "anime",
+            "name": "Hakusensha",
+            "url": "https://myanimelist.net/anime/producer/148/Hakusensha"
+          },
+          {
+            "mal_id": 1284,
+            "type": "anime",
+            "name": "Avex Pictures",
+            "url": "https://myanimelist.net/anime/producer/1284/Avex_Pictures"
+          },
+          {
+            "mal_id": 2174,
+            "type": "anime",
+            "name": "TMS Music",
+            "url": "https://myanimelist.net/anime/producer/2174/TMS_Music"
+          },
+          {
+            "mal_id": 2495,
+            "type": "anime",
+            "name": "8PAN",
+            "url": "https://myanimelist.net/anime/producer/2495/8PAN"
+          }
+        ],
+        "licensors": [
+          {
+            "mal_id": 102,
+            "type": "anime",
+            "name": "Funimation",
+            "url": "https://myanimelist.net/anime/producer/102/Funimation"
+          }
+        ],
+        "studios": [
+          {
+            "mal_id": 73,
+            "type": "anime",
+            "name": "TMS Entertainment",
+            "url": "https://myanimelist.net/anime/producer/73/TMS_Entertainment"
+          }
+        ],
+        "genres": [
+          {
+            "mal_id": 8,
+            "type": "anime",
+            "name": "Drama",
+            "url": "https://myanimelist.net/anime/genre/8/Drama"
+          },
+          {
+            "mal_id": 22,
+            "type": "anime",
+            "name": "Romance",
+            "url": "https://myanimelist.net/anime/genre/22/Romance"
+          },
+          {
+            "mal_id": 37,
+            "type": "anime",
+            "name": "Supernatural",
+            "url": "https://myanimelist.net/anime/genre/37/Supernatural"
+          }
+        ],
+        "explicit_genres": [],
+        "themes": [
+          {
+            "mal_id": 23,
+            "type": "anime",
+            "name": "School",
+            "url": "https://myanimelist.net/anime/genre/23/School"
+          }
+        ],
+        "demographics": [
+          {
+            "mal_id": 25,
+            "type": "anime",
+            "name": "Shoujo",
+            "url": "https://myanimelist.net/anime/genre/25/Shoujo"
+          }
+        ]
+      }
+    ]
   }
 }

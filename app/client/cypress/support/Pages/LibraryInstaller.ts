@@ -2,9 +2,9 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export class LibraryInstaller {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
-  private _installer_trigger_locator =
-    ".t--entity-add-btn.group.libraries button";
-  private _installer_close_locator = ".t--close-installer";
+  private _installer_trigger_locator = ".t--install-library-button";
+  private _installer_close_locator =
+    ".ads-v2-popover__body-header .ads-v2-icon";
 
   private getLibraryLocatorInExplorer(libraryName: string) {
     return `.t--installed-library-${libraryName}`;
@@ -14,6 +14,9 @@ export class LibraryInstaller {
     return `div.library-card.t--${libraryName}`;
   }
 
+  private libraryURLLocator = "[data-testid='library-url']";
+  private installBtnLocator = "[data-testid='install-library-btn']";
+
   public OpenInstaller(force = false) {
     this._aggregateHelper.GetNClick(this._installer_trigger_locator, 0, force);
   }
@@ -22,7 +25,7 @@ export class LibraryInstaller {
     this._aggregateHelper.GetNClick(this._installer_close_locator);
   }
 
-  public installLibrary(
+  public InstallLibrary(
     libraryName: string,
     accessor: string,
     checkIfSuccessful = true,
@@ -31,6 +34,20 @@ export class LibraryInstaller {
       .find(".t--download")
       .click();
     if (checkIfSuccessful) this.assertInstall(libraryName, accessor);
+  }
+
+  public InstallLibraryViaURL(
+    url: string,
+    accessor: string,
+    checkIfSuccessful = true,
+  ) {
+    this._aggregateHelper.TypeText(this.libraryURLLocator, url);
+    this._aggregateHelper.GetNClick(this.installBtnLocator);
+    if (checkIfSuccessful) {
+      this._aggregateHelper.AssertContains(
+        `Installation Successful. You can access the library via ${accessor}`,
+      );
+    }
   }
 
   private assertInstall(libraryName: string, accessor: string) {
@@ -53,7 +70,7 @@ export class LibraryInstaller {
   }
 
   public assertUnInstall(libraryName: string) {
-    this._aggregateHelper.AssertContains(
+    this._aggregateHelper.WaitUntilToastDisappear(
       `${libraryName} is uninstalled successfully.`,
     );
     this._aggregateHelper.AssertElementAbsence(

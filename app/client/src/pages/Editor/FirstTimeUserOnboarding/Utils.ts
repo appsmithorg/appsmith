@@ -2,6 +2,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import type { Dispatch } from "react";
 import history from "utils/history";
+
 export const triggerWelcomeTour = (dispatch: Dispatch<any>) => {
   history.push(APPLICATIONS_URL);
   dispatch({

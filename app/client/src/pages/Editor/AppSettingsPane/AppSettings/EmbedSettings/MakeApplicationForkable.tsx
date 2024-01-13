@@ -19,11 +19,11 @@ import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelect
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
-type ConfirmEnableForkingModalProps = {
+interface ConfirmEnableForkingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-};
+}
 
 function ConfirmEnableForkingModal({
   isOpen,

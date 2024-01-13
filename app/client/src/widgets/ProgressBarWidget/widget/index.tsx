@@ -2,7 +2,7 @@ import React from "react";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 import ProgressBarComponent from "../component";
@@ -11,12 +11,43 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
 import type { Stylesheet } from "entities/AppTheming";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
 
 class ProgressBarWidget extends BaseWidget<
   ProgressBarWidgetProps,
   WidgetState
 > {
+  static type = "PROGRESSBAR_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Progress Bar", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "PROGRESS_WIDGET",
+      iconSVG: IconSVG,
+      needsMeta: false, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "ProgressBar",
+      rows: 4,
+      columns: 28,
+      isVisible: true,
+      showResult: false,
+      barType: BarType.INDETERMINATE,
+      progress: 50,
+      steps: 1,
+      version: 1,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc": "Progress bar is a simple UI widget used to show progress",
@@ -165,7 +196,7 @@ class ProgressBarWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <ProgressBarComponent
         barType={this.props.barType}
@@ -176,10 +207,6 @@ class ProgressBarWidget extends BaseWidget<
         steps={this.props.steps}
       />
     );
-  }
-
-  static getWidgetType(): string {
-    return "PROGRESSBAR_WIDGET";
   }
 }
 

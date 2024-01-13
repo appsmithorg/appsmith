@@ -51,9 +51,9 @@ const Wrapper = styled.div`
   }
 `;
 
-type Props = {
+interface Props {
   goBackFn?: () => void; // custom function for returning to any declared route.
-};
+}
 
 function EntityNotFoundPane(props: Props) {
   const history = useHistory();

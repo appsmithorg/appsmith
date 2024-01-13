@@ -1,6 +1,6 @@
 import React from "react";
 import { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";
@@ -20,7 +20,7 @@ import {
 } from "./mockData";
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { Button } from "design-system";
 
 describe("URL slug names", () => {

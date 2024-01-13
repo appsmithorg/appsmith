@@ -2,18 +2,19 @@ import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Update Application", () => {
-  let appname;
+  let appname, workspaceName;
   let iconname;
-  let colorname;
   let veryLongAppName = `gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1${Math.random()
     .toString(36)
     .slice(2, -1)}`;
 
   it("1. Open the application menu and update name and then check whether update is reflected in the application card", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
-    appname = localStorage.getItem("AppName");
+    workspaceName = localStorage.getItem("workspaceName");
+    appname = localStorage.getItem("appName");
+
     cy.get(homePage.searchInput).clear();
-    cy.get(homePage.searchInput).type(appname);
+    cy.get(homePage.searchInput).type(workspaceName);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appMoreIcon).first().click({ force: true });
@@ -43,7 +44,7 @@ describe("Update Application", () => {
   it("3. Check for errors in updating application name", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
-    cy.get(homePage.searchInput).type(appname);
+    cy.get(homePage.searchInput).type(workspaceName);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.applicationCard).first().trigger("mouseover");

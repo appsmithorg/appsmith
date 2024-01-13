@@ -10,14 +10,12 @@ export function CodeEditorSignPosting(props: {
   isOpen?: boolean;
   editorTheme?: EditorTheme;
   showLightningMenu?: boolean;
-  isAIEnabled?: boolean;
   mode: TEditorModes;
   forComp?: string;
 }): JSX.Element {
   return (
     <BindingPrompt
       editorTheme={props.editorTheme}
-      isAIEnabled={props.isAIEnabled}
       isOpen={props.isOpen || false}
       promptMessage={props.promptMessage}
       showLightningMenu={props.showLightningMenu}

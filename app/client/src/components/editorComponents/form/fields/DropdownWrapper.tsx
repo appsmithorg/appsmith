@@ -3,7 +3,7 @@ import { Text, Option, Select } from "design-system";
 import React, { useEffect, useState } from "react";
 import type { DropdownOnSelect } from "./SelectField";
 
-type DropdownWrapperProps = {
+interface DropdownWrapperProps {
   allowDeselection?: boolean;
   placeholder: string;
   input?: {
@@ -24,7 +24,7 @@ type DropdownWrapperProps = {
   disabled?: boolean;
   dropdownMaxHeight?: string;
   enableSearch?: boolean;
-};
+}
 
 function DropdownWrapper(props: DropdownWrapperProps) {
   const [selectedOption, setSelectedOption] = useState<any>([

@@ -7,7 +7,7 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { RenderModes } from "constants/WidgetConstants";
@@ -227,6 +227,8 @@ describe("generateDataTreeWidget", () => {
       widgetId: "123",
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      componentWidth: 0,
+      componentHeight: 0,
       defaultText: "",
       type: "INPUT_WIDGET_V2",
       deepObj: {
@@ -292,6 +294,7 @@ describe("generateDataTreeWidget", () => {
           META: "meta.text",
         },
       },
+      dependencyMap: {},
       defaultMetaProps: ["text", "isDirty", "isFocused"],
       defaultProps: {
         text: "defaultText",
@@ -304,7 +307,7 @@ describe("generateDataTreeWidget", () => {
       isMetaPropDirty: true,
     };
 
-    const result = generateDataTreeWidget(widget, widgetMetaProps);
+    const result = generateDataTreeWidget(widget, widgetMetaProps, new Set());
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
   });

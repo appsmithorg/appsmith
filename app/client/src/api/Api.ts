@@ -35,14 +35,18 @@ axiosInstance.interceptors.response.use(
 );
 
 class Api {
-  static get(url: string, queryParams?: any, config: AxiosRequestConfig = {}) {
+  static async get(
+    url: string,
+    queryParams?: any,
+    config: AxiosRequestConfig = {},
+  ) {
     return axiosInstance.get(url + convertObjectToQueryParams(queryParams), {
       ...apiRequestConfig,
       ...config,
     });
   }
 
-  static post(
+  static async post(
     url: string,
     body?: any,
     queryParams?: any,
@@ -58,7 +62,7 @@ class Api {
     );
   }
 
-  static put(
+  static async put(
     url: string,
     body?: any,
     queryParams?: any,
@@ -74,7 +78,7 @@ class Api {
     );
   }
 
-  static patch(
+  static async patch(
     url: string,
     body?: any,
     queryParams?: any,
@@ -90,7 +94,7 @@ class Api {
     );
   }
 
-  static delete(
+  static async delete(
     url: string,
     queryParams?: any,
     config: AxiosRequestConfig = {},

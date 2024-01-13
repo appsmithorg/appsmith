@@ -16,7 +16,7 @@ const ErrorIconContainer = styled.div`
   }
 `;
 
-type PageProps = {
+interface PageProps {
   children?: React.ReactNode;
   errorCode?: string | number;
   errorIcon?: React.ReactNode;
@@ -25,7 +25,7 @@ type PageProps = {
   cta?: React.ReactNode;
   flushErrorsAndRedirect?: any;
   errorMessages?: PageErrorMessageProps[];
-};
+}
 
 function Page(props: PageProps) {
   const { cta, description, errorCode, errorIcon, title } = props;

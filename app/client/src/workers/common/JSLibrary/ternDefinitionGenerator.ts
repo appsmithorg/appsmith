@@ -1,7 +1,7 @@
 import log from "loglevel";
 import type { Def } from "tern";
 
-function getTernDocType(obj: any) {
+export function getTernDocType(obj: any) {
   const type = typeof obj;
   switch (type) {
     case "string":
@@ -17,6 +17,13 @@ function getTernDocType(obj: any) {
     default:
       return "?";
   }
+}
+
+export function typeToTernType(type: string) {
+  if (type === "boolean") return "bool";
+  if (type === "undefined") return "?";
+  if (type === "function") return "fn()";
+  return "string";
 }
 
 const ignoredKeys = [

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -7,12 +7,12 @@ import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
 import type { AppState } from "@appsmith/reducers";
 
-type PropertyPaneTabProps = {
+interface PropertyPaneTabProps {
   styleComponent: JSX.Element | null;
   contentComponent: JSX.Element | null;
   isPanelProperty?: boolean;
   panelPropertyPath?: string;
-};
+}
 
 const tabs = ["content", "style"];
 
@@ -37,17 +37,20 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
     getSelectedPropertyTabIndex(state, props.panelPropertyPath),
   );
 
-  const setSelectedIndex = (index: number) => {
-    dispatch(setSelectedPropertyTabIndex(index, props.panelPropertyPath));
-  };
-
+  const setSelectedIndex = useCallback(
+    (index: number) => {
+      dispatch(setSelectedPropertyTabIndex(index, props.panelPropertyPath));
+    },
+    [dispatch, props.panelPropertyPath],
+  );
+  const onValueChange = useCallback(
+    (value) => {
+      setSelectedIndex(tabs.indexOf(value) || 0);
+    },
+    [setSelectedIndex],
+  );
   return (
-    <StyledTabs
-      onValueChange={(value) => {
-        setSelectedIndex(tabs.indexOf(value) || 0);
-      }}
-      value={tabs[selectedIndex]}
-    >
+    <StyledTabs onValueChange={onValueChange} value={tabs[selectedIndex]}>
       <TabsList>
         {props.contentComponent && <Tab value={tabs[0]}>Content</Tab>}
         {props.styleComponent && <Tab value={tabs[1]}>Style</Tab>}

@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
@@ -133,6 +134,15 @@ public class CustomNewActionRepositoryCEImplTest {
         return action;
     }
 
+    private NewAction createActionWithDatasource(String applicationId, String datasourceId) {
+        NewAction action = createUnpublishedAction(applicationId, PluginType.API);
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceId);
+        datasource.setName(datasourceId);
+        action.getUnpublishedAction().setDatasource(datasource);
+        return action;
+    }
+
     private NewAction createUnpublishedDeletedAction(String applicationId, PluginType pluginType) {
         NewAction action = createUnpublishedAction(applicationId, pluginType);
         action.getUnpublishedAction().setDeletedAt(Instant.now());
@@ -160,7 +170,6 @@ public class CustomNewActionRepositoryCEImplTest {
         // one deleted action with applicationId1 and pluginType JS
         NewAction deletedAction = createAction(applicationId1, PluginType.JS);
         deletedAction.setDeletedAt(Instant.now());
-        deletedAction.setDeleted(true);
         actionList.add(deletedAction);
 
         Flux<PluginTypeAndCountDTO> pluginTypeAndCountDTOFlux = newActionRepository

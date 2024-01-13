@@ -25,7 +25,7 @@ const QueryHeader = styled.div`
   padding: 8px 16px;
 `;
 
-type QueryProps = {
+interface QueryProps {
   // Path to store the value in the actual data object
   dataTreePath: string;
   // Height for the editor
@@ -34,7 +34,7 @@ type QueryProps = {
   name: string;
   // Theme to be used in CodeEditor
   theme: EditorTheme;
-};
+}
 
 /**
  * Query Editor is for writing Graphql query using the Codemirror Editor which we use

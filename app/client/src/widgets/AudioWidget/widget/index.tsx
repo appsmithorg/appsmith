@@ -1,6 +1,5 @@
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React, { lazy, Suspense } from "react";
 import type ReactPlayer from "react-player";
@@ -8,12 +7,21 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { SetterConfig } from "entities/AppTheming";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-const AudioComponent = lazy(() => retryPromise(() => import("../component")));
+const AudioComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
+);
 
 export enum PlayState {
   NOT_STARTED = "NOT_STARTED",
@@ -23,6 +31,63 @@ export enum PlayState {
 }
 
 class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
+  static type = "AUDIO_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Audio",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.MEDIA],
+      needsMeta: true,
+      searchTags: ["mp3", "sound", "wave", "player"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 4,
+      columns: 28,
+      widgetName: "Audio",
+      url: getAssetUrl(`${ASSETS_CDN_URL}/widgets/birds_chirping.mp3`),
+      autoPlay: false,
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "180px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "180px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -197,7 +262,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const { onEnd, onPause, onPlay, playing, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
@@ -263,10 +328,6 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
         />
       </Suspense>
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "AUDIO_WIDGET";
   }
 }
 

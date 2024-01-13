@@ -20,10 +20,6 @@ public class Collection extends BaseDomain {
 
     String applicationId;
 
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    String organizationId;
-
     String workspaceId;
 
     Boolean shared;

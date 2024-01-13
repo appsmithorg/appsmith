@@ -22,13 +22,13 @@ type PhoneInputComponentProps = BaseInputComponentProps & {
 export type PhoneInputFieldProps =
   BaseFieldComponentProps<PhoneInputComponentProps>;
 
-type ISDCodeDropdownComponentProps = {
+interface ISDCodeDropdownComponentProps {
   allowDialCodeChange: boolean;
   dialCode: string;
   fieldName: string;
   isDisabled: boolean;
   propertyPath: string;
-};
+}
 
 const COMPONENT_DEFAULT_VALUES: PhoneInputComponentProps = {
   allowDialCodeChange: false,

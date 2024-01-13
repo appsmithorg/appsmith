@@ -65,7 +65,8 @@ const CarouselContainer = styled.div`
 
       &.active {
         height: max-content;
-        box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+        box-shadow:
+          0 2px 4px -2px rgba(0, 0, 0, 0.06),
           0 4px 8px -2px rgba(0, 0, 0, 0.1);
 
         background-color: var(--ads-v2-color-bg);

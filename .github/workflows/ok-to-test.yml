@@ -31,4 +31,7 @@ jobs:
             ok-to-test
             perf-test
             ci-merge-check
+            ci-test-limit
+            ok-to-test-with-documentdb
+            build-deploy-preview
           permission: write

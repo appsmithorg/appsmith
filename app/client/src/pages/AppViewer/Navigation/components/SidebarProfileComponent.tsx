@@ -10,12 +10,12 @@ import {
   StyledTextContainer,
 } from "./SidebarProfileComponent.styled";
 
-type SidebarProfileComponent = {
+interface SidebarProfileComponent {
   currentUser: User | undefined;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   isMinimal: boolean;
-};
+}
 
 const SidebarProfileComponent = (props: SidebarProfileComponent) => {
   const { currentUser, isMinimal, navColorStyle, primaryColor } = props;

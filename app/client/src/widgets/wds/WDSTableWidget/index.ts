@@ -1,0 +1,1 @@
+export { WDSTableWidget } from "./widget";

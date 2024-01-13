@@ -108,7 +108,7 @@ public class Delete extends MongoCommand {
                 + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template("Delete", null, configMap));
+        return Collections.singletonList(new DatasourceStructure.Template("Delete", null, configMap, false));
     }
 
     /**

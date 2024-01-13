@@ -1,18 +1,18 @@
 import React from "react";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import moment from "moment";
 import type { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
+import IconSVG from "../icon.svg";
 
 function defaultDateValidation(
   value: unknown,
@@ -179,6 +179,34 @@ function maxDateValidation(
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+  static type = "DATE_PICKER_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "DatePicker",
+      iconSVG: IconSVG,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "DATE_PICKER_WIDGET2",
+      needsMeta: true,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      isDisabled: false,
+      datePickerType: "DATE_PICKER",
+      rows: 4,
+      label: "",
+      dateFormat: "YYYY-MM-DD HH:mm",
+      columns: 20,
+      widgetName: "DatePicker",
+      defaultDate: moment().format("YYYY-MM-DD HH:mm"),
+      version: 1,
+      animateLoading: true,
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -420,7 +448,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <DatePickerComponent
         dateFormat={this.props.dateFormat}
@@ -446,10 +474,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       },
     });
   };
-
-  static getWidgetType(): WidgetType {
-    return "DATE_PICKER_WIDGET";
-  }
 }
 
 export interface DatePickerWidgetProps extends WidgetProps {

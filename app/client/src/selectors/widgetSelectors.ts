@@ -7,7 +7,7 @@ import type {
 import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   getFocusedWidget,
   getLastSelectedWidget,
@@ -20,7 +20,7 @@ import { APP_MODE } from "entities/App";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
-import { previewModeSelector } from "./editorSelectors";
+import { combinedPreviewModeSelector } from "./editorSelectors";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -152,7 +152,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
     (state: AppState) => state.ui.canvasSelection.isDraggingForSelection,
     getAppMode,
-    previewModeSelector,
+    combinedPreviewModeSelector,
     getIsAutoHeightWithLimitsChanging,
     (
       focusedWidgetId,

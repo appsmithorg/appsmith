@@ -1,0 +1,22 @@
+import { Button } from "@design-system/headless";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta
+  title="Design-system/Headless/Button"
+  component={Button}
+  args={{
+    children: "Button",
+  }}
+/>
+
+export const Template = (args) => <Button {...args} />;
+
+# Button
+
+A button is a clickable element that is used to trigger an action.
+
+<Canvas>
+  <Story name="Button">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Button" of={Button} />

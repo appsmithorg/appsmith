@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -77,8 +78,15 @@ public class PostgresPluginTest {
         }
     }
 
+    public class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+    }
+
     PostgresPlugin.PostgresPluginExecutor pluginExecutor =
-            new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig());
+            new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig(), new MockConnectionPoolConfig());
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
@@ -276,6 +284,17 @@ public class PostgresPluginTest {
         dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
 
         return dsConfig;
+    }
+
+    private DatasourceStructure.Table findTableByName(List<DatasourceStructure.Table> tables, String tableToBeFound) {
+        DatasourceStructure.Table tableFound = null;
+        for (DatasourceStructure.Table table : tables) {
+            if (table.getName().equals(tableToBeFound)) {
+                tableFound = table;
+                break;
+            }
+        }
+        return tableFound;
     }
 
     @Test
@@ -478,9 +497,8 @@ public class PostgresPluginTest {
                     assertNotNull(structure);
                     assertEquals(5, structure.getTables().size());
 
-                    final DatasourceStructure.Table campusTable =
-                            structure.getTables().get(0);
-                    assertEquals("public.campus", campusTable.getName());
+                    DatasourceStructure.Table campusTable = findTableByName(structure.getTables(), "public.campus");
+                    assertNotNull(campusTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -490,9 +508,9 @@ public class PostgresPluginTest {
                             campusTable.getColumns().toArray());
                     assertEquals(campusTable.getKeys().size(), 0);
 
-                    final DatasourceStructure.Table dataTypeTestTable =
-                            structure.getTables().get(1);
-                    assertEquals("public.datatypetest", dataTypeTestTable.getName());
+                    DatasourceStructure.Table dataTypeTestTable =
+                            findTableByName(structure.getTables(), "public.datatypetest");
+                    assertNotNull(dataTypeTestTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -505,9 +523,9 @@ public class PostgresPluginTest {
                             dataTypeTestTable.getColumns().toArray());
                     assertEquals(dataTypeTestTable.getKeys().size(), 1);
 
-                    final DatasourceStructure.Table possessionsTable =
-                            structure.getTables().get(2);
-                    assertEquals("public.possessions", possessionsTable.getName());
+                    DatasourceStructure.Table possessionsTable =
+                            findTableByName(structure.getTables(), "public.possessions");
+                    assertNotNull(possessionsTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -530,26 +548,28 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
                                 new DatasourceStructure.Template(
-                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"possessions\" (\"title\", \"user_id\")\n"
-                                                + "  VALUES ('', 1);"),
+                                                + "  VALUES ('', 1);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"possessions\" SET\n" + "    \"title\" = '',\n"
                                                 + "    \"user_id\" = 1\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"possessions\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             possessionsTable.getTemplates().toArray());
 
-                    final DatasourceStructure.Table usersTable =
-                            structure.getTables().get(4);
-                    assertEquals("public.users", usersTable.getName());
+                    DatasourceStructure.Table usersTable = findTableByName(structure.getTables(), "public.users");
+                    assertNotNull(usersTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[] {
@@ -579,7 +599,8 @@ public class PostgresPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"users\" "
@@ -588,7 +609,8 @@ public class PostgresPluginTest {
                                                 + "\"interval1\", \"numbers\", \"texts\", \"rating\")\n  "
                                                 + "VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', "
                                                 + "'04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE "
-                                                + "'2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
+                                                + "'2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"users\" SET\n" + "    \"username\" = '',\n"
@@ -604,17 +626,19 @@ public class PostgresPluginTest {
                                                 + "    \"numbers\" = '{1, 2, 3}',\n"
                                                 + "    \"texts\" = '{\"first\", \"second\"}',\n"
                                                 + "    \"rating\" = 1.0\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"users\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             usersTable.getTemplates().toArray());
 
-                    final DatasourceStructure.Table sampleTable =
-                            structure.getTables().get(3);
-                    assertEquals("sample_schema.sample_table", sampleTable.getName());
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "sample_schema.sample_table");
+                    assertNotNull(sampleTable);
                     assertEquals("sample_schema", sampleTable.getSchema());
                     assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
                     assertArrayEquals(
@@ -639,12 +663,13 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
                                 new DatasourceStructure.Template(
-                                        "SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;"),
+                                        "SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO sample_schema.\"sample_table\" "
                                                 + "(\"username\", \"email\", \"numbers\", \"texts\", \"rating\")\n  "
-                                                + "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
+                                                + "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE sample_schema.\"sample_table\" SET\n" + "    \"username\" = '',\n"
@@ -652,11 +677,13 @@ public class PostgresPluginTest {
                                                 + "    \"numbers\" = '{1, 2, 3}',\n"
                                                 + "    \"texts\" = '{\"first\", \"second\"}',\n"
                                                 + "    \"rating\" = 1.0\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM sample_schema.\"sample_table\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             sampleTable.getTemplates().toArray());
                 })
@@ -1615,5 +1642,71 @@ public class PostgresPluginTest {
                         .collect(Collectors.toList())
                         .size()
                 == 0);
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_endpointNotPresent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        // setting endpoints to empty list
+        dsConfig.setEndpoints(new ArrayList());
+
+        final Mono<String> rateLimitIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(rateLimitIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAbsent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("");
+        dsConfig.getEndpoints().get(0).setPort(5432L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAndPortPresent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(5431L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5431", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432", endpointIdentifier);
+                })
+                .verifyComplete();
     }
 }

@@ -16,7 +16,7 @@ const StyledSegmentedControl = styled(SegmentedControl)`
   }
 `;
 
-export type ButtonGroupSettingProps = {
+export interface ButtonGroupSettingProps {
   heading: string;
   options: Array<
     SegmentedControlOption & { startIcon?: any; hidden?: boolean }
@@ -24,7 +24,7 @@ export type ButtonGroupSettingProps = {
   navigationSetting: NavigationSetting;
   keyName: keyof StringsFromNavigationSetting;
   updateSetting: UpdateSetting;
-};
+}
 
 const ButtonGroupSetting = ({
   heading,

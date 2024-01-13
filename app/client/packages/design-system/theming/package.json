@@ -7,7 +7,8 @@
   "scripts": {
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
-    "build:tokens": "npx ts-node ./src/utils/buildTokens.ts"
+    "build:tokens": "npx ts-node ./src/utils/tokensToJson.ts && npx ts-node ./src/utils/tokensToCss.ts",
+    "test:unit": "yarn g:jest"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
@@ -15,7 +16,9 @@
   "dependencies": {
     "@capsizecss/core": "^3.1.1",
     "@capsizecss/metrics": "^1.2.0",
-    "lodash": "*",
-    "styled-components": "6.0.2"
+    "@emotion/sheet": "^1.2.2",
+    "@react-hook/debounce": "^4.0.0",
+    "@react-hook/resize-observer": "^1.2.6",
+    "lodash": "*"
   }
 }

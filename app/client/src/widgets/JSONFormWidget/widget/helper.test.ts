@@ -616,6 +616,7 @@ describe(".computeSchema", () => {
     const existingDynamicBindingPropertyPathList = [
       { key: "dummy.path1" },
       { key: "dummy.path2" },
+      { key: "sourceData" },
     ];
 
     const expectedDynamicPropertyPathList = [
@@ -642,6 +643,7 @@ describe(".computeSchema", () => {
     const existingDynamicBindingPropertyPathList = [
       { key: "dummy.path1" },
       { key: "dummy.path2" },
+      { key: "sourceData" },
     ];
 
     const expectedDynamicPropertyPathList = [

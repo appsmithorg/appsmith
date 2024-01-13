@@ -10,12 +10,20 @@ import type { SliderComponentProps } from "../../NumberSliderWidget/component/Sl
 import SliderComponent from "../../NumberSliderWidget/component/Slider";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-export type SliderOption = {
+export interface SliderOption {
   label: string;
   value: string;
-};
+}
 
 export interface CategorySliderWidgetProps
   extends WidgetProps,
@@ -43,6 +51,87 @@ class CategorySliderWidget extends BaseWidget<
   CategorySliderWidgetProps,
   WidgetState
 > {
+  static type = "CATEGORY_SLIDER_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Category Slider",
+      needsMeta: true,
+      searchTags: ["range"],
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SLIDERS],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      options: [
+        { label: "xs", value: "xs" },
+        { label: "sm", value: "sm" },
+        { label: "md", value: "md" },
+        { label: "lg", value: "lg" },
+        { label: "xl", value: "xl" },
+      ],
+      defaultOptionValue: "md",
+      isVisible: true,
+      isDisabled: false,
+      showMarksLabel: true,
+      rows: 8,
+      columns: 40,
+      widgetName: "CategorySlider",
+      shouldScroll: false,
+      shouldTruncate: false,
+      version: 1,
+      animateLoading: true,
+      labelText: "Size",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      labelTextSize: "0.875rem",
+      sliderSize: "m",
+      responsiveBehavior: ResponsiveBehavior.Fill,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 7,
+        columns: 40,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "180px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "180px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
@@ -162,7 +251,7 @@ class CategorySliderWidget extends BaseWidget<
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     const { sliderOptions, stepSize } = this.getSliderOptions();
 
     const sliderValue = sliderOptions.find(
@@ -180,7 +269,7 @@ class CategorySliderWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         marks={sliderOptions}
         max={stepSize * sliderOptions.length}
@@ -197,10 +286,6 @@ class CategorySliderWidget extends BaseWidget<
         tooltipAlwaysOn={false}
       />
     );
-  }
-
-  static getWidgetType() {
-    return "CATEGORY_SLIDER_WIDGET";
   }
 }
 

@@ -1,25 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import FormControl from "pages/Editor/FormControl";
-import { Classes, Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
 import type { ControlProps } from "./BaseControl";
 import { Button } from "design-system";
 
-const CenteredIcon = styled(Button)`
-  margin-top: 26px;
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
+const CenteredIconButton = styled(Button)<{
+  alignSelf?: string;
+  top?: string;
+}>`
+  position: relative;
+  align-self: ${(props) => (props.alignSelf ? props.alignSelf : "center")};
+  top: ${(props) => (props.top ? props.top : "0px")};
 `;
 
 const PrimaryBox = styled.div`
   display: flex;
   width: min-content;
   flex-direction: column;
-  border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  padding: 10px;
+  padding: 10px 0px 0px 0px;
+
+  > div:not(:first-child) .form-config-top {
+    display: none;
+  }
 `;
 
 const SecondaryBox = styled.div`
@@ -28,11 +31,10 @@ const SecondaryBox = styled.div`
   width: min-content;
   align-items: center;
   justify-content: space-between;
-  padding: 5px;
 
   & > div {
     margin-right: 8px;
-    height: 60px;
+    margin-bottom: 8px;
   }
 
   & > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > div {
@@ -47,21 +49,22 @@ const SecondaryBox = styled.div`
 `;
 
 const AddMoreAction = styled.div`
-  width: fit-content;
   cursor: pointer;
-  display: flex;
-  margin-top: 16px;
-  .${Classes.TEXT} {
-    margin-left: 8px;
-    color: #03b365;
-  }
+  width: max-content;
 `;
+
 function NestedComponents(props: any) {
-  useEffect(() => {
-    if (props.fields.length < 1) {
-      props.fields.push({ path: "", value: "" });
-    }
-  }, [props.fields.length]);
+  const addMore = useCallback(() => {
+    const { schema = {} } = props;
+    const newObject: any = {};
+
+    schema.forEach((s: any) => {
+      newObject[s.key] = s.initialValue || "";
+    });
+
+    props.fields.push(newObject);
+  }, [props.fields]);
+
   return (
     <PrimaryBox>
       {props.fields &&
@@ -75,7 +78,7 @@ function NestedComponents(props: any) {
                   configProperty: `${field}.${sch.key}`,
                   customStyles: {
                     width: "20vw",
-                    ...props.customStyles,
+                    ...(props.customStyles ?? {}),
                   },
                 };
                 return (
@@ -86,34 +89,55 @@ function NestedComponents(props: any) {
                   />
                 );
               })}
-              <CenteredIcon
-                isIconButton
+              <CenteredIconButton
+                alignSelf={"start"}
+                data-testid={`t--where-clause-delete-[${index}]`}
                 kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   props.fields.remove(index);
                 }}
-                size="sm"
-                startIcon="delete"
+                size="md"
+                startIcon="close"
+                top={index === 0 ? "20px" : ""}
               />
             </SecondaryBox>
           );
         })}
-      <AddMoreAction onClick={() => props.fields.push({ path: "", value: "" })}>
-        {/*Hardcoded label to be removed */}
-        <Text type={TextType.H5}>+ Add Condition (And)</Text>
+      <AddMoreAction>
+        <Button
+          className={`t--where-add-condition[${props?.currentNestingLevel}]`}
+          kind="tertiary"
+          onClick={addMore}
+          size="md"
+          startIcon="add-more"
+        >
+          {props.addMoreButtonLabel}
+        </Button>
       </AddMoreAction>
     </PrimaryBox>
   );
 }
 
 export default function FieldArrayControl(props: FieldArrayControlProps) {
-  const { configProperty, formName, schema } = props;
+  const {
+    addMoreButtonLabel = "+ Add Condition (And)",
+    configProperty,
+    customStyles = {},
+    formName,
+    schema,
+  } = props;
   return (
     <FieldArray
       component={NestedComponents}
       name={configProperty}
-      props={{ formName, schema }}
+      props={{
+        formName,
+        schema,
+        addMoreButtonLabel,
+        configProperty,
+        customStyles,
+      }}
       rerenderOnEveryChange={false}
     />
   );

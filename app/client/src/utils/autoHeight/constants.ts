@@ -1,4 +1,4 @@
-export type TreeNode = {
+export interface TreeNode {
   aboves: string[];
   belows: string[];
   topRow: number;
@@ -6,14 +6,14 @@ export type TreeNode = {
   originalTopRow: number;
   originalBottomRow: number;
   distanceToNearestAbove: number;
-};
+}
 
-export type NodeSpace = {
+export interface NodeSpace {
   left: number;
   right: number;
   top: number;
   bottom: number;
   id: string;
-};
+}
 
 export const MAX_BOX_SIZE = 20000;

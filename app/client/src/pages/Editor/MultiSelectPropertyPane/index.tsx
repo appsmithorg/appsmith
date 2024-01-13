@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Text, Button } from "design-system";
 import { useSelector } from "react-redux";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

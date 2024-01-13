@@ -1,6 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomServerOAuth2AuthorizationRequestResolverCE;
+import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.RedirectHelper;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -29,12 +30,14 @@ public class CustomServerOAuth2AuthorizationRequestResolver extends CustomServer
     public CustomServerOAuth2AuthorizationRequestResolver(
             ReactiveClientRegistrationRepository clientRegistrationRepository,
             CommonConfig commonConfig,
-            RedirectHelper redirectHelper) {
+            RedirectHelper redirectHelper,
+            CustomOauth2ClientRepositoryManager oauth2ClientManager) {
         this(
                 clientRegistrationRepository,
                 new PathPatternParserServerWebExchangeMatcher(DEFAULT_AUTHORIZATION_REQUEST_PATTERN),
                 commonConfig,
-                redirectHelper);
+                redirectHelper,
+                oauth2ClientManager);
     }
 
     /**
@@ -49,8 +52,14 @@ public class CustomServerOAuth2AuthorizationRequestResolver extends CustomServer
             ReactiveClientRegistrationRepository clientRegistrationRepository,
             ServerWebExchangeMatcher authorizationRequestMatcher,
             CommonConfig commonConfig,
-            RedirectHelper redirectHelper) {
-        super(clientRegistrationRepository, authorizationRequestMatcher, commonConfig, redirectHelper);
+            RedirectHelper redirectHelper,
+            CustomOauth2ClientRepositoryManager oauth2ClientManager) {
+        super(
+                clientRegistrationRepository,
+                authorizationRequestMatcher,
+                commonConfig,
+                redirectHelper,
+                oauth2ClientManager);
         this.redirectHelper = redirectHelper;
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");

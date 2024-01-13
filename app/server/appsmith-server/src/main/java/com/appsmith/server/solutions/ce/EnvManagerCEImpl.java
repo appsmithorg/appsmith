@@ -9,11 +9,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UserUtils;
@@ -22,6 +22,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -49,6 +50,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -116,6 +119,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final ObjectMapper objectMapper;
 
+    private final EmailService emailService;
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -141,7 +146,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             ConfigService configService,
             UserUtils userUtils,
             TenantService tenantService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            EmailService emailService) {
 
         this.sessionUserService = sessionUserService;
         this.userService = userService;
@@ -158,6 +164,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userUtils = userUtils;
         this.tenantService = tenantService;
         this.objectMapper = objectMapper;
+        this.emailService = emailService;
     }
 
     /**
@@ -263,6 +270,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return valueBuilder.toString();
     }
 
+    // Expect user object to be null when this method is getting called to run the tenant specific migrations without
+    // user context
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
         if (changes.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
             String emailCsv = StringUtils.trimAllWhitespace(changes.get(APPSMITH_ADMIN_EMAILS.name()));
@@ -272,7 +281,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Admin Emails"));
             } else { // make sure user is not removing own email
                 Set<String> adminEmails = TextUtils.csvToSet(emailCsv);
-                if (!adminEmails.contains(user.getEmail())) { // user can not remove own email address
+                if (user != null && !adminEmails.contains(user.getEmail())) { // user can not remove own email address
                     return Mono.error(new AppsmithException(
                             AppsmithError.GENERIC_BAD_REQUEST, "Removing own email from Admin Email is not allowed"));
                 }
@@ -336,48 +345,19 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
+    public Mono<Void> applyChanges(Map<String, String> changes, String originHeader) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant
         // configuration
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> validateChanges(user, changes).thenReturn(user))
-                .flatMap(user -> {
-                    // Write the changes to the env file.
-                    final String originalContent;
-                    final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
-
-                    try {
-                        originalContent = Files.readString(envFilePath);
-                    } catch (IOException e) {
-                        log.error("Unable to read env file " + envFilePath, e);
-                        return Mono.error(e);
-                    }
-                    Map<String, String> originalVariables = parseToMap(originalContent);
-
-                    final Map<String, String> envFileChanges = new HashMap<>(changes);
-                    final Set<String> tenantConfigurationKeys = allowedTenantConfiguration();
-                    for (final String key : changes.keySet()) {
-                        if (tenantConfigurationKeys.contains(key)) {
-                            envFileChanges.remove(key);
-                        }
-                    }
-                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
-
-                    try {
-                        Files.write(envFilePath, changedContent);
-                    } catch (IOException e) {
-                        log.error("Unable to write to env file " + envFilePath, e);
-                        return Mono.error(e);
-                    }
-
-                    // For configuration variables, save the variables to the config collection instead of .env file
-                    // We ideally want to migrate all variables from .env file to the config collection for better
-                    // scalability
-                    // Write the changes to the tenant collection in configuration field
-                    return updateTenantConfiguration(user.getTenantId(), changes)
-                            .then(sendAnalyticsEvent(user, originalVariables, changes))
-                            .thenReturn(originalVariables);
-                })
+                .flatMap(user -> applyChangesToEnvFileWithoutAclCheck(changes)
+                        // For configuration variables, save the variables to the config collection instead of .env file
+                        // We ideally want to migrate all variables from .env file to the config collection for better
+                        // scalability
+                        // Write the changes to the tenant collection in configuration field
+                        .flatMap(originalVariables -> updateTenantConfiguration(user.getTenantId(), changes)
+                                .then(sendAnalyticsEvent(user, originalVariables, changes))
+                                .thenReturn(originalVariables)))
                 .flatMap(originalValues -> {
                     Mono<Void> dependentTasks = Mono.empty();
 
@@ -397,7 +377,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
                         dependentTasks = dependentTasks
-                                .then(updateAdminUserPolicies(oldAdminEmailsCsv))
+                                .then(updateAdminUserPolicies(oldAdminEmailsCsv, originHeader))
                                 .then();
                     }
 
@@ -417,8 +397,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         emailConfig.setEmailEnabled("true".equals(changesCopy.remove(APPSMITH_MAIL_SMTP_AUTH.name())));
                     }
 
-                    if (javaMailSender instanceof JavaMailSenderImpl) {
-                        JavaMailSenderImpl javaMailSenderImpl = (JavaMailSenderImpl) javaMailSender;
+                    if (javaMailSender instanceof JavaMailSenderImpl javaMailSenderImpl) {
                         if (changesCopy.containsKey(APPSMITH_MAIL_HOST.name())) {
                             javaMailSenderImpl.setHost(changesCopy.remove(APPSMITH_MAIL_HOST.name()));
                         }
@@ -446,12 +425,51 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                 "true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
+                    return dependentTasks.then();
                 });
     }
 
+    /**
+     * This method applies the changes to the env file and should be called internally within the server as the ACL
+     * checks are skipped. For client side calls please use {@link EnvManagerCEImpl#applyChanges(Map, String)}.
+     * Please refer {@link FeatureFlagMigrationHelper} for the use case where ACL checks
+     * should be skipped.
+     *
+     * @param changes       Map of changes to be applied to the env file
+     * @return              Map of original variables before the changes were applied
+     */
     @Override
-    public Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+    public Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes) {
+        final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
+        String originalContent;
+        try {
+            originalContent = Files.readString(envFilePath);
+        } catch (IOException e) {
+            log.error("Unable to read env file " + envFilePath, e);
+            return Mono.error(e);
+        }
+        Map<String, String> originalVariables = parseToMap(originalContent);
+
+        final Map<String, String> envFileChanges = new HashMap<>(changes);
+        final Set<String> tenantConfigurationKeys = allowedTenantConfiguration();
+        for (final String key : changes.keySet()) {
+            if (tenantConfigurationKeys.contains(key)) {
+                envFileChanges.remove(key);
+            }
+        }
+        final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
+
+        try {
+            Files.write(envFilePath, changedContent);
+        } catch (IOException e) {
+            log.error("Unable to write to env file " + envFilePath, e);
+            return Mono.error(e);
+        }
+        return Mono.just(originalVariables);
+    }
+
+    @Override
+    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
@@ -476,7 +494,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             });
                 })
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
-                .flatMap(this::applyChanges);
+                .flatMap(changesMap -> this.applyChanges(changesMap, originHeader));
     }
 
     @Override
@@ -573,7 +591,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      *
      * @param oldAdminEmailsCsv comma separated email addresses that was set as admin email earlier
      */
-    private Mono<Boolean> updateAdminUserPolicies(String oldAdminEmailsCsv) {
+    private Mono<Boolean> updateAdminUserPolicies(String oldAdminEmailsCsv, String originHeader) {
         Set<String> oldAdminEmails = TextUtils.csvToSet(oldAdminEmailsCsv);
         Set<String> newAdminEmails = commonConfig.getAdminEmails();
 
@@ -586,14 +604,50 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         Mono<Boolean> removedUsersMono = Flux.fromIterable(removedUsers)
                 .flatMap(userService::findByEmail)
                 .collectList()
-                .flatMap(users -> userUtils.removeSuperUser(users));
+                .flatMap(userUtils::removeSuperUser);
 
-        Mono<Boolean> newUsersMono = Flux.fromIterable(newUsers)
-                .flatMap(userService::findByEmail)
+        Flux<Tuple2<User, Boolean>> usersFlux = Flux.fromIterable(newUsers)
+                .flatMap(email -> userService
+                        .findByEmail(email)
+                        .flatMap(user -> {
+                            return Mono.just(Tuples.of(user, false));
+                        })
+                        .switchIfEmpty(Mono.defer(() -> {
+                            User newUser = new User();
+                            newUser.setEmail(email);
+                            newUser.setIsEnabled(false);
+                            return Mono.just(Tuples.of(newUser, true));
+                        })))
+                .cache();
+
+        Flux<User> newUsersFlux = usersFlux.filter(Tuple2::getT2).map(Tuple2::getT1);
+        Flux<User> existingUsersFlux = usersFlux.filter(tuple -> !tuple.getT2()).map(Tuple2::getT1);
+
+        // we are sending email to existing users who are not already super-users
+        Mono<List<User>> existingUsersWhichAreNotAlreadySuperUsersMono = existingUsersFlux
+                .filterWhen(user -> userUtils.isSuperUser(user).map(isSuper -> !isSuper))
+                .collectList();
+
+        Mono<Boolean> newUsersMono = newUsersFlux
+                .flatMap(newUsersFluxUser -> sessionUserService
+                        .getCurrentUser()
+                        .flatMap(invitingUser -> emailService.sendInstanceAdminInviteEmail(
+                                newUsersFluxUser, invitingUser, originHeader, true)))
                 .collectList()
-                .flatMap(users -> userUtils.makeSuperUser(users));
+                .map(results -> results.stream().allMatch(result -> result));
 
-        return Mono.when(removedUsersMono, newUsersMono).then(Mono.just(TRUE));
+        Mono<Boolean> existingUsersMono = existingUsersWhichAreNotAlreadySuperUsersMono.flatMap(users -> userUtils
+                .makeSuperUser(users)
+                .flatMap(
+                        success -> Flux.fromIterable(users)
+                                .flatMap(user -> sessionUserService
+                                        .getCurrentUser()
+                                        .flatMap(invitingUser -> emailService.sendInstanceAdminInviteEmail(
+                                                user, invitingUser, originHeader, false)))
+                                .then(Mono.just(success)) // Emit 'success' as the result
+                        ));
+
+        return Mono.when(removedUsersMono, newUsersMono, existingUsersMono).map(tuple -> TRUE);
     }
 
     @Override
@@ -615,22 +669,28 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     @Override
     public Mono<Map<String, String>> getAll() {
-        return verifyCurrentUserIsSuper().flatMap(user -> {
-            final String originalContent;
-            try {
-                originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
-            } catch (NoSuchFileException e) {
-                return Mono.error(new AppsmithException(AppsmithError.ENV_FILE_NOT_FOUND));
-            } catch (IOException e) {
-                log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
-                return Mono.error(e);
-            }
+        return verifyCurrentUserIsSuper().then(getAllWithoutAclCheck());
+    }
 
-            // set the default values to response
-            Map<String, String> envKeyValueMap = parseToMap(originalContent);
-
-            return Mono.justOrEmpty(envKeyValueMap);
-        });
+    /**
+     * This function is used to get all the env variables from the env file and should be called internally within the
+     * server as the ACL checks are skipped. For client side calls please use {@link EnvManagerCEImpl#getAll()}.
+     *
+     * @return  Returns a map of all the env variables
+     */
+    @Override
+    public Mono<Map<String, String>> getAllWithoutAclCheck() {
+        String originalContent;
+        try {
+            originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
+        } catch (NoSuchFileException e) {
+            return Mono.error(new AppsmithException(AppsmithError.ENV_FILE_NOT_FOUND));
+        } catch (IOException e) {
+            log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
+            return Mono.error(e);
+        }
+        // set the default values to response
+        return Mono.just(parseToMap(originalContent));
     }
 
     /**
@@ -663,18 +723,27 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     @Override
     public Mono<Void> restart() {
-        return verifyCurrentUserIsSuper().flatMap(user -> {
-            log.warn("Initiating restart via supervisor.");
-            try {
-                Runtime.getRuntime().exec(new String[] {
-                    "supervisorctl", "restart", "backend", "editor", "rts",
-                });
-            } catch (IOException e) {
-                log.error("Error invoking supervisorctl to restart.", e);
-                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-            }
-            return Mono.empty();
-        });
+        return verifyCurrentUserIsSuper().then(restartWithoutAclCheck());
+    }
+
+    /**
+     * This function is used to restart the server using supervisorctl command and should be called internally within
+     * the server as the ACL checks are skipped. For client side calls we should use {@link EnvManagerCEImpl#restart()}
+     *
+     * @return  Returns a Mono<Void>
+     */
+    @Override
+    public Mono<Void> restartWithoutAclCheck() {
+        log.warn("Initiating restart via supervisor.");
+        try {
+            Runtime.getRuntime().exec(new String[] {
+                "supervisorctl", "restart", "backend", "editor", "rts",
+            });
+        } catch (IOException e) {
+            log.error("Error invoking supervisorctl to restart.", e);
+            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+        }
+        return Mono.empty();
     }
 
     @Override

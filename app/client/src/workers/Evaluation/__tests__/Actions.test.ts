@@ -1,4 +1,5 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import type { EvalContext } from "workers/Evaluation/evaluate";
@@ -9,7 +10,6 @@ import {
   addPlatformFunctionsToEvalContext,
 } from "@appsmith/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
-import type { ActionEntity } from "entities/DataTree/types";
 
 jest.mock("lodash/uniqueId");
 
@@ -309,7 +309,6 @@ describe("Add functions", () => {
   it("resetWidget works", () => {
     const widgetName = "widget1";
     const resetChildren = true;
-
     expect(evalContext.resetWidget(widgetName, resetChildren)).resolves.toBe(
       {},
     );
@@ -323,6 +322,7 @@ describe("Add functions", () => {
             payload: {
               widgetName,
               resetChildren,
+              metaUpdates: [],
             },
           },
           eventType: undefined,
@@ -397,22 +397,6 @@ const dataTree = {
     backgroundColor: "",
     borderColor: "",
   },
-  pageList: [
-    {
-      pageName: "Page1",
-      pageId: "63349fb5d39f215f89b8245e",
-      isDefault: false,
-      isHidden: false,
-      slug: "page1",
-    },
-    {
-      pageName: "Page2",
-      pageId: "637cc6b4a3664a7fe679b7b0",
-      isDefault: true,
-      isHidden: false,
-      slug: "page2",
-    },
-  ],
   appsmith: {
     store: {},
     geolocation: {

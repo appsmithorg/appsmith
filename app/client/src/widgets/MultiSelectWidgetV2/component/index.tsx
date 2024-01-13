@@ -15,6 +15,7 @@ import MenuItemCheckBox, {
   MultiSelectContainer,
   StyledCheckbox,
   InputContainer,
+  RTLStyles,
 } from "./index.styled";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
@@ -68,6 +69,7 @@ export interface MultiSelectProps
   onDropdownClose?: () => void;
   renderMode?: RenderMode;
   isDynamicHeightEnabled?: boolean;
+  rtl?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -101,6 +103,7 @@ function MultiSelectComponent({
   options,
   placeholder,
   renderMode,
+  rtl,
   serverSideFiltering,
   value,
   widgetId,
@@ -238,7 +241,7 @@ function MultiSelectComponent({
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
-      <>
+      <div dir={rtl ? "rtl" : "ltr"}>
         <BackDrop />
         {isFilterable ? (
           <InputGroup
@@ -267,7 +270,7 @@ function MultiSelectComponent({
           ) : null}
           {menu}
         </div>
-      </>
+      </div>
     ),
     [
       isSelectAll,
@@ -277,6 +280,7 @@ function MultiSelectComponent({
       isFilterable,
       filter,
       onQueryChange,
+      rtl,
     ],
   );
 
@@ -290,7 +294,11 @@ function MultiSelectComponent({
       isValid={isValid}
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
+      rtl={rtl}
     >
+      {rtl ? (
+        <RTLStyles dropdownContainer={`multi-select-dropdown-${widgetId}`} />
+      ) : null}
       <DropdownStyles
         accentColor={accentColor}
         borderRadius={borderRadius}
@@ -325,7 +333,7 @@ function MultiSelectComponent({
           // autoFocus
           defaultActiveFirstOption={false}
           disabled={disabled}
-          dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
+          dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId} multi-select-dropdown-${widgetId}`}
           dropdownRender={dropdownRender}
           dropdownStyle={dropdownStyle}
           getPopupContainer={getPopupContainer}

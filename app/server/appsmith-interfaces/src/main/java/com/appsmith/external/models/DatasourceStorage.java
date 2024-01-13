@@ -101,37 +101,6 @@ public class DatasourceStorage extends BaseDomain {
         }
     }
 
-    // TODO: Get rid of this after migration
-    public DatasourceStorage(Datasource datasource, String environmentId) {
-        this.datasourceId = datasource.getId();
-        this.environmentId = environmentId;
-        this.datasourceConfiguration = datasource.getDatasourceConfiguration();
-        this.isConfigured = datasource.getIsConfigured();
-        this.gitSyncId = datasource.getGitSyncId();
-        this.invalids = new HashSet<>();
-        if (datasource.getMessages() != null) {
-            this.messages.addAll(datasource.getMessages());
-        }
-
-        this.prepareTransientFields(datasource);
-    }
-
-    public DatasourceStorage(DatasourceStorageDTO datasourceStorageDTO) {
-        this.setId(datasourceStorageDTO.getId());
-        this.datasourceId = datasourceStorageDTO.getDatasourceId();
-        this.environmentId = datasourceStorageDTO.getEnvironmentId();
-        this.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
-        this.isConfigured = datasourceStorageDTO.getIsConfigured();
-        this.pluginId = datasourceStorageDTO.getPluginId();
-        this.workspaceId = datasourceStorageDTO.getWorkspaceId();
-        if (datasourceStorageDTO.invalids != null) {
-            this.invalids.addAll(datasourceStorageDTO.getInvalids());
-        }
-        if (datasourceStorageDTO.getMessages() != null) {
-            this.messages.addAll(datasourceStorageDTO.getMessages());
-        }
-    }
-
     public void prepareTransientFields(Datasource datasource) {
         this.datasourceId = datasource.getId();
         this.name = datasource.getName();

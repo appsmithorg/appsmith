@@ -38,9 +38,9 @@ const SvgCircle = styled.circle`
   stroke-width: var(--ads-spaces-1);
 `;
 
-export type SpinnerProp = {
+export interface SpinnerProp {
   size?: IconSize;
-};
+}
 
 Spinner.defaultProp = {
   size: "small",

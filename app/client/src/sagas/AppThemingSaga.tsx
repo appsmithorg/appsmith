@@ -24,7 +24,7 @@ import {
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { updateReplayEntity } from "actions/pageActions";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -74,9 +74,8 @@ export function* initAppTheming() {
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
     const { applicationId } = action.payload;
-    const response: ApiResponse<AppTheme> = yield ThemingApi.fetchThemes(
-      applicationId,
-    );
+    const response: ApiResponse<AppTheme> =
+      yield ThemingApi.fetchThemes(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -294,9 +293,8 @@ function* closeisBetaCardShown() {
  */
 function* resetTheme() {
   try {
-    const canvasWidgets: CanvasWidgetsReduxState = yield select(
-      getCanvasWidgets,
-    );
+    const canvasWidgets: CanvasWidgetsReduxState =
+      yield select(getCanvasWidgets);
     const propertiesToUpdate: UpdateWidgetPropertyPayload[] =
       getPropertiesToUpdateForReset(canvasWidgets);
 
@@ -313,9 +311,8 @@ function* setDefaultSelectedThemeOnError() {
   const applicationId: string = yield select(getCurrentApplicationId);
   try {
     // Fetch all system themes
-    const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchThemes(
-      applicationId,
-    );
+    const response: ApiResponse<AppTheme[]> =
+      yield ThemingApi.fetchThemes(applicationId);
 
     // Gets default theme
     const theme = find(response.data, { name: "Default" });

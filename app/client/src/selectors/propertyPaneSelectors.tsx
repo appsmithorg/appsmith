@@ -1,11 +1,8 @@
 import type { AppState } from "@appsmith/reducers";
-import { find, get, pick, set } from "lodash";
+import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
-import type {
-  DataTree,
-  DataTreeEntity,
-  WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   PropertyPaneReduxState,
@@ -21,9 +18,11 @@ import {
 import { generateClassName } from "utils/generators";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "./entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { getRenderMode } from "./editorSelectors";
+import { RenderModes } from "constants/WidgetConstants";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -71,44 +70,41 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getCurrentAppPositioningType,
-  getDataTree,
+  getLayoutSystemType,
+  (state) => {
+    const currentWidget = getCurrentWidgetProperties(state);
+    if (!currentWidget) return;
+    const evaluatedWidget = find(getDataTree(state), {
+      widgetId: currentWidget.widgetId,
+    }) as WidgetEntity;
+    if (!evaluatedWidget) return;
+    return evaluatedWidget[EVALUATION_PATH];
+  },
   (
     widget: WidgetProps | undefined,
-    appPositioningType,
-    evaluatedTree: DataTree,
+    layoutSystemType,
+    evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
-    const evaluatedWidget = find(evaluatedTree, {
-      widgetId: widget.widgetId,
-    }) as WidgetEntity;
+
     const widgetProperties = {
       ...widget,
-      appPositioningType,
+      layoutSystemType,
     };
-    if (evaluatedWidget) {
-      widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
+    if (evaluatedValue) {
+      widgetProperties[EVALUATION_PATH] = evaluatedValue;
     }
     return widgetProperties;
   },
 );
 
-type WidgetPropertiesForPropertyPaneView = {
-  type: string;
-  widgetId: string;
-  widgetName: string;
-  displayName: string;
-};
-
-export const getWidgetPropsForPropertyPaneView = createSelector(
+export const isWidgetSelectedForPropertyPane = createSelector(
   getWidgetPropsForPropertyPane,
-  (props) =>
-    pick(props, [
-      "type",
-      "widgetId",
-      "widgetName",
-      "displayName",
-    ]) as WidgetPropertiesForPropertyPaneView,
+  getRenderMode,
+  (_state: AppState, widgetId: string) => widgetId,
+  (widget: WidgetProps | undefined, renderMode: RenderModes, widgetId) => {
+    return renderMode === RenderModes.CANVAS && widget?.widgetId === widgetId;
+  },
 );
 
 export const selectedWidgetsPresentInCanvas = createSelector(
@@ -127,7 +123,12 @@ const populateWidgetProperties = (
   widget: WidgetProps | undefined,
   propertyPath: string,
   dependencies: string[],
+  dynamicDependencies?: (widget: WidgetProps) => string[],
 ) => {
+  if (widget && typeof dynamicDependencies === "function") {
+    dependencies = [...dependencies, ...dynamicDependencies(widget)];
+  }
+
   const widgetProperties: any = {};
 
   if (!widget) return widgetProperties;
@@ -209,6 +210,7 @@ export const getWidgetPropsForPropertyName = (
   propertyName: string,
   dependencies: string[] = [],
   evaluatedDependencies: string[] = [],
+  dynamicDependencies?: (widget: WidgetProps) => string[],
 ) => {
   return createSelector(
     getCurrentWidgetProperties,
@@ -223,6 +225,7 @@ export const getWidgetPropsForPropertyName = (
         widget,
         propertyName,
         dependencies,
+        dynamicDependencies,
       );
 
       // if the widget has a googleMapsApiKey dependency, add it to the widget properties

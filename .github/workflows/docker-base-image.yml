@@ -1,0 +1,53 @@
+name: Docker Base Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release
+      - master
+    paths:
+      - "deploy/docker/base.dockerfile"
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Get tag
+        id: tag
+        run: |
+          tag="${GITHUB_REF_NAME//\//-}"
+          if [[ "$tag" == master ]]; then
+            tag=nightly
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push base image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/docker/base.dockerfile
+          push: true
+          platforms: linux/arm64,linux/amd64
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.tag.outputs.tag }}

@@ -14,24 +14,15 @@ export class Templates {
     _templateDialogBox: "[data-testid=t--templates-dialog-component]",
     _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
     _requestForTemplateBtn: "span:contains('Request for a template')",
+    _tempaltesFilterItem: "[data-testid='t--templates-filter-item']",
   };
 
   FilterTemplatesByName(query: string) {
-    return ObjectsRegistry.AggregateHelper.TypeText(
+    ObjectsRegistry.AggregateHelper.TypeText(
       this.locators._templatesSearchInput,
       query,
     );
-  }
-
-  AssertResultsHeaderText(
-    text: string,
-    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
-  ) {
-    ObjectsRegistry.AggregateHelper.GetNAssertElementText(
-      this.locators._resultsHeader,
-      text,
-      textPresence,
-    );
+    this.agHelper.Sleep();
   }
 
   GetTemplatesCardsList() {
@@ -74,5 +65,16 @@ export class Templates {
     cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
     this.agHelper.RefreshPage("fetchFilters");
     this.agHelper.AssertElementVisibility(this.locators._templateCard);
+  }
+
+  FilterByFirst2Categories() {
+    return this.agHelper
+      .GetElement(this.locators._tempaltesFilterItem)
+      .then((categories) => {
+        const first2Categories = categories.slice(1, 3);
+        first2Categories.map((_, category) => {
+          cy.wrap(category).click();
+        });
+      });
   }
 }

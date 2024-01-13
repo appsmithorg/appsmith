@@ -1,5 +1,5 @@
-import WidgetFactory from "utils/WidgetFactory";
-import { BlueprintOperationTypes } from "widgets/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 
 import type { BlueprintOperation } from "./WidgetBlueprintSagas";
 import { executeWidgetBlueprintChildOperations } from "./WidgetBlueprintSagas";

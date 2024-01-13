@@ -122,7 +122,7 @@ public class Migration016RenameIndexesWithLongNames {
         Index newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt = makeIndex(
                         fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
                         fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
-                        fieldName(QPermissionGroup.permissionGroup.deleted),
+                        FieldName.DELETED,
                         fieldName(QPermissionGroup.permissionGroup.deletedAt))
                 .named(
                         Migration011CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId

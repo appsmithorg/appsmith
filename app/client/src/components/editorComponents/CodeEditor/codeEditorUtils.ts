@@ -1,7 +1,9 @@
 import type CodeMirror from "codemirror";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity } from "entities/DataTree/types";
+import type {
+  WidgetEntity,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";

@@ -5,10 +5,10 @@ import { Provider } from "react-redux";
 import { render } from "test/testUtils";
 import OnboardingStatusbar from "./Statusbar";
 import { getStore } from "./testUtils";
-import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
+import * as onboardingSelectors from "selectors/onboardingSelectors";
 
 let container: any = null;
 
@@ -19,6 +19,20 @@ jest.mock("react-redux", () => {
     useDispatch: () => dispatch,
   };
 });
+
+jest.mock("../../../selectors/onboardingSelectors", () => {
+  const originalModule = jest.requireActual(
+    "../../../selectors/onboardingSelectors",
+  );
+  return {
+    ...originalModule,
+    isWidgetActionConnectionPresent: jest.fn(),
+  };
+});
+
+const originalOnboardingSelectors = jest.requireActual(
+  "../../../selectors/onboardingSelectors",
+);
 
 function renderComponent(store: any) {
   render(
@@ -87,6 +101,13 @@ describe("Statusbar", () => {
   });
 
   it("on completing fourth step", async () => {
+    const isWidgetActionConnectionPresentSelector = jest.spyOn(
+      onboardingSelectors,
+      "isWidgetActionConnectionPresent",
+    );
+    isWidgetActionConnectionPresentSelector.mockImplementation(() => {
+      return true;
+    });
     renderComponent(getStore(4));
     expect(dispatch).toHaveBeenNthCalledWith(
       4,
@@ -110,22 +131,22 @@ describe("Statusbar", () => {
 
   it("should test useIsWidgetActionConnectionPresent function", () => {
     const store = getStore(4).getState() as any;
-    const useIsWidgetActionConnectionPresentHelper = () => {
-      return useIsWidgetActionConnectionPresent(
+    const isWidgetActionConnectionPresentHelper = () => {
+      return originalOnboardingSelectors.isWidgetActionConnectionPresent.resultFunc(
         store.entities.canvasWidgets,
         store.entities.actions,
         store.evaluations.dependencies.inverseDependencyMap,
       );
     };
     //Both property and trigger dependency present
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(true);
     //only trigger dependency present
     store.evaluations.dependencies.inverseDependencyMap = {};
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(true);
     //no dependency present
     store.entities.canvasWidgets = {};
     store.entities.actions = [];
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(false);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(false);
     //only trigger dependency present
     store.entities.canvasWidgets = {
       [Math.random()]: {
@@ -148,11 +169,11 @@ describe("Statusbar", () => {
         },
       },
     ];
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(true);
     //no dependency present
     store.entities.canvasWidgets = {};
     store.entities.actions = [];
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(false);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(false);
     //only nested trigger dependency present
     store.entities.canvasWidgets = {
       [Math.random()]: {
@@ -177,11 +198,11 @@ describe("Statusbar", () => {
         },
       },
     ];
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(true);
     //no dependency present
     store.entities.canvasWidgets = {};
     store.entities.actions = [];
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(false);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(false);
     //only property dependency present
     store.entities.canvasWidgets = {
       [Math.random()]: {
@@ -202,6 +223,6 @@ describe("Statusbar", () => {
     store.evaluations.dependencies.inverseDependencyMap = {
       "Query.data": ["Query", "widget.text"],
     };
-    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    expect(isWidgetActionConnectionPresentHelper()).toBe(true);
   });
 });

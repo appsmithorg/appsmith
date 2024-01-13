@@ -7,23 +7,23 @@ import { useStopwatch } from "react-timer-hook";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { importSvg } from "design-system-old";
 
 const RecorderDefaultIcon = importSvg(
-  () => import("assets/icons/widget/recorder/recorder_default.svg"),
+  async () => import("assets/icons/widget/recorder/recorder_default.svg"),
 );
 const RecorderRecordingIcon = importSvg(
-  () => import("assets/icons/widget/recorder/recorder_recording.svg"),
+  async () => import("assets/icons/widget/recorder/recorder_recording.svg"),
 );
 const RecorderPauseIcon = importSvg(
-  () => import("assets/icons/widget/recorder/recorder_pause.svg"),
+  async () => import("assets/icons/widget/recorder/recorder_pause.svg"),
 );
 const RecorderCompleteIcon = importSvg(
-  () => import("assets/icons/widget/recorder/recorder_complete.svg"),
+  async () => import("assets/icons/widget/recorder/recorder_complete.svg"),
 );
 const RecorderNoPermissionIcon = importSvg(
-  () => import("assets/icons/widget/recorder/recorder_no_permission.svg"),
+  async () => import("assets/icons/widget/recorder/recorder_no_permission.svg"),
 );
 
 export enum RecorderStatusTypes {

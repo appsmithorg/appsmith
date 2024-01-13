@@ -19,15 +19,18 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { DISCORD_URL } from "constants/ThirdPartyConstants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
-type MobileSideBarProps = {
+interface MobileSideBarProps {
   name: string;
   isOpen: boolean;
   userName?: string;
   photoId?: string;
-};
+}
 
 const MainContainer = styled.div<{ isOpen: boolean }>`
   position: absolute;
@@ -83,8 +86,9 @@ const LeftPaneVersionData = styled.div`
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
-  const { appVersion, cloudHosting } = getAppsmithConfigs();
+  const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   return (
     <MainContainer isOpen={props.isOpen}>
@@ -109,10 +113,11 @@ export default function MobileSideBar(props: MobileSideBarProps) {
             icon="setting"
             onSelect={() => {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: getDefaultAdminSettingsPath({
-                  isSuperUser: user?.isSuperUser,
+                path: getAdminSettingsPath(
+                  isFeatureEnabled,
+                  user?.isSuperUser,
                   tenantPermissions,
-                }),
+                ),
               });
             }}
             text={createMessage(ADMIN_SETTINGS)}
@@ -133,7 +138,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         <StyledMenuItem
           icon="discord"
           onSelect={() => {
-            window.open("https://discord.gg/rBTTVJp", "_blank");
+            window.open(DISCORD_URL, "_blank");
           }}
           text={"Join our discord"}
         />
@@ -151,7 +156,6 @@ export default function MobileSideBar(props: MobileSideBarProps) {
             APPSMITH_DISPLAY_VERSION,
             appVersion.edition,
             appVersion.id,
-            cloudHosting,
           )}
         </span>
         {howMuchTimeBefore !== "" && (

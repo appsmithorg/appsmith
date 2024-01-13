@@ -1,5 +1,5 @@
 {
-  "upgradeSamlButton": ".t--settings-sub-category-upgrade-saml",
-  "upgradeOidcButton": ".t--settings-sub-category-upgrade-oidc",
+  "upgradeSamlButton": ".t--settings-sub-category-upgrade-saml-auth",
+  "upgradeOidcButton": ".t--settings-sub-category-upgrade-oidc-auth",
   "hideAppsmithWatermarkSetting": ".admin-settings-group-APPSMITH_HIDE_WATERMARK"
 }

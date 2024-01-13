@@ -1,4 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
+} from "./EditorNavigation";
 
 export interface ICreateJSObjectOptions {
   paste: boolean;
@@ -60,7 +66,7 @@ export class JSEditor {
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS Object')";
+  private _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
@@ -128,16 +134,17 @@ export class JSEditor {
   //#region Page functions
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
-
-    cy.get(this.locator._createNew).last().click({ force: true });
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
+    this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-    this.agHelper.PressEnter(); //for name to settle
-    this.agHelper.Sleep();
+    this.agHelper.PressEnter();
+    this.agHelper.PressEnter();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 
@@ -148,16 +155,16 @@ export class JSEditor {
 
   public CreateJSObject(
     JSCode: string,
-    options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
+    options: Partial<ICreateJSObjectOptions> = {},
   ) {
     const {
       completeReplace,
-      lineNumber = 4,
+      lineNumber,
       paste,
-      prettify = true,
+      prettify,
       shouldCreateNewJSObj,
       toRun,
-    } = options;
+    } = { ...DEFAULT_CREATE_JS_OBJECT_OPTIONS, ...options };
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
@@ -230,7 +237,7 @@ export class JSEditor {
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
-    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 15000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 
@@ -252,7 +259,7 @@ export class JSEditor {
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
-    this.ee.AssertEntityPresenceInExplorer(renameVal);
+    PageLeftPane.assertPresence(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 

@@ -2,10 +2,12 @@ import {
   agHelper,
   dataSources,
   deployMode,
-  entityExplorer,
   homePage,
   table,
 } from "../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../support/Pages/EditorNavigation";
 
 describe.skip("Authorized GSheet - in Edit & view mode", function () {
   it("Open already created GSheet in View mode, navigate back to Edit mode, Validate dropdown values", () => {
@@ -16,7 +18,7 @@ describe.skip("Authorized GSheet - in Edit & view mode", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
     //homePage.EditAppFromAppHover();
-    entityExplorer.SelectEntityByName("Api1");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     dataSources.ValidateNSelectDropdown(
       "Spreadsheet",
       "Trial-GSheetAutomation",

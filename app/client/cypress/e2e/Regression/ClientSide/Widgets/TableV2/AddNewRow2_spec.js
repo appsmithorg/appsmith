@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Validation flow", () => {
+describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   before(() => {
     cy.startServerAndRoutes();
     _.agHelper.RestoreLocalStorageCache();
@@ -144,9 +144,7 @@ describe("Validation flow", () => {
     cy.get(".error-tooltip .bp3-popover-content").should("not.exist");
     cy.get(`[data-colindex=0][data-rowindex=0] input`).focus();
     cy.get(".error-tooltip .bp3-popover-content").should("have.length", 1);
-  });
-
-  it("2.5. should test that save button is disabled when there is an error", () => {
+    // save button is disabled when there is an error
     cy.get(".t--save-new-row").should("be.disabled");
     cy.get(`.t--inlined-cell-editor-has-error`).should("have.length", 2);
     cy.enterTableCellValue(0, 0, "1");

@@ -6,7 +6,7 @@ import type { SelectComponentsConfig } from "react-select/src/components";
 import { LayersContext } from "constants/Layers";
 import { Colors } from "constants/Colors";
 
-export type DropdownProps = {
+export interface DropdownProps {
   options: Array<{
     value: string;
     label?: string;
@@ -19,7 +19,7 @@ export type DropdownProps = {
   customSelectStyles?: any;
   maxMenuHeight: number;
   components?: SelectComponentsConfig<any>;
-};
+}
 
 const selectStyles = {
   placeholder: (provided: any) => ({

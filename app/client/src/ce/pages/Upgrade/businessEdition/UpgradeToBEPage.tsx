@@ -13,8 +13,10 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 export const UpgradeToBEPageWrapper = styled.div`
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #fff 20px, transparent 1%) center,
-    linear-gradient(#fff 20px, transparent 1%) center, #d2ddec;
+  background:
+    linear-gradient(90deg, #fff 20px, transparent 1%) center,
+    linear-gradient(#fff 20px, transparent 1%) center,
+    #d2ddec;
   background-size: 22px 22px;
   position: relative;
 

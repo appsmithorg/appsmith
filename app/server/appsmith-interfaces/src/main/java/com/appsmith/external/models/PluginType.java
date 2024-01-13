@@ -5,5 +5,7 @@ public enum PluginType {
     API,
     JS,
     SAAS,
-    REMOTE
+    REMOTE,
+    AI,
+    INTERNAL,
 }

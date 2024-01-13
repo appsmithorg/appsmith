@@ -7,10 +7,12 @@ import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-type CardProps = {
+interface CardProps {
   details: WidgetCardProps;
-};
+}
 
 export const Wrapper = styled.div`
   border-radius: var(--ads-v2-border-radius);
@@ -22,7 +24,8 @@ export const Wrapper = styled.div`
   align-items: flex-start;
   justify-content: center;
   cursor: grab;
-
+  user-select: none;
+  -webkit-user-select: none;
   img {
     cursor: grab;
   }
@@ -60,6 +63,9 @@ export const BetaLabel = styled.div`
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
+  const isEditorPaneSegmentsEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
 
   const onDragStart = (e: any) => {
     e.preventDefault();
@@ -73,7 +79,9 @@ function WidgetCard(props: CardProps) {
         ...props.details,
         widgetId: generateReactKey(),
       });
-    deselectAll();
+    if (!isEditorPaneSegmentsEnabled) {
+      deselectAll();
+    }
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
@@ -84,6 +92,7 @@ function WidgetCard(props: CardProps) {
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
       draggable
+      id={`widget-card-draggable-${type}`}
       onDragStart={onDragStart}
     >
       <div className="gap-2 mt-2">

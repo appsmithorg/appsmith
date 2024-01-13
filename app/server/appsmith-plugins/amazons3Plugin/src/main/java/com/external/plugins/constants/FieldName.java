@@ -36,4 +36,6 @@ public class FieldName {
     public static final String LIST_SORT = LIST + "." + SORT;
     public static final String LIST_PAGINATE = LIST + "." + PAGINATE;
     public static final String SMART_SUBSTITUTION = "smartSubstitution";
+    public static final String KEY_BUCKET = "bucket";
+    public static final String KEY_DATA = "data";
 }

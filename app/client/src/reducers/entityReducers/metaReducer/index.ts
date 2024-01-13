@@ -13,8 +13,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { getMetaWidgetResetObj } from "./metaReducerUtils";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import {
+  getMetaWidgetResetObj,
+  getNextMetaStateWithUpdates,
+  setMetaValuesOnResetFromEval,
+} from "./metaReducerUtils";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;
@@ -28,18 +32,7 @@ export const metaReducer = createReducer(initialState, {
       evalMetaUpdates: EvalMetaUpdates;
     }>,
   ) => {
-    const { evalMetaUpdates } = action.payload;
-
-    if (!evalMetaUpdates.length) return state;
-
-    // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
-    const newMetaState = produce(state, (draftMetaState) => {
-      evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
-        set(draftMetaState, [widgetId, ...metaPropertyPath], value);
-      });
-      return draftMetaState;
-    });
-    return newMetaState;
+    return getNextMetaStateWithUpdates(state, action);
   },
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
@@ -131,6 +124,14 @@ export const metaReducer = createReducer(initialState, {
       };
     }
     return state;
+  },
+  [ReduxActionTypes.RESET_WIDGET_META_UPDATES]: (
+    state: MetaState,
+    action: ReduxAction<{
+      evalMetaUpdates: EvalMetaUpdates;
+    }>,
+  ) => {
+    return setMetaValuesOnResetFromEval(state, action);
   },
   [ReduxActionTypes.RESET_WIDGETS_META_STATE]: (
     state: MetaState,

@@ -8,7 +8,7 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getPluginPackageFromDatasourceId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { Bold, Label } from "../../styles";
 import { PluginFormInputFieldMap } from "../../constants";
@@ -18,7 +18,6 @@ import {
 } from "selectors/datasourceSelectors";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import type { AppState } from "@appsmith/reducers";
-import { Icon } from "design-system";
 import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
@@ -72,27 +71,19 @@ export function useTableOrSpreadsheet() {
       return (spreadSheets.value || []).map(({ label, value }) => ({
         id: value,
         label: label,
-        value: value,
-        icon: (
-          <Icon
-            color="var(--ads-v2-color-fg)"
-            name="layout-left-2-line"
-            size="md"
-          />
-        ),
+        value: label,
+        data: {
+          tableName: value,
+        },
       }));
     } else if (datasourceStructure) {
       return (datasourceStructure.tables || []).map(({ name }) => ({
         id: name,
         label: name,
         value: name,
-        icon: (
-          <Icon
-            color="var(--ads-v2-color-fg)"
-            name="layout-left-2-line"
-            size="md"
-          />
-        ),
+        data: {
+          tableName: name,
+        },
       }));
     } else {
       return [];
@@ -101,7 +92,7 @@ export function useTableOrSpreadsheet() {
 
   const onSelect = useCallback(
     (table: string | undefined, TableObj: DropdownOptionType) => {
-      updateConfig("table", TableObj.value);
+      updateConfig("table", TableObj.data.tableName);
 
       if (
         isGoogleSheetPluginDS(selectedDatasourcePluginPackageName) &&
@@ -111,7 +102,7 @@ export function useTableOrSpreadsheet() {
           fetchGheetSheets({
             datasourceId: config.datasource,
             pluginId: selectedDatasource.pluginId,
-            sheetUrl: TableObj.value || "",
+            sheetUrl: TableObj.data.tableName || "",
           }),
         );
       }
@@ -120,7 +111,7 @@ export function useTableOrSpreadsheet() {
         widgetName: widget.widgetName,
         widgetType: widget.type,
         propertyName: propertyName,
-        dataTableName: TableObj.value,
+        dataTableName: TableObj.data.tableName,
         pluginType: config.datasourcePluginType,
         pluginName: config.datasourcePluginName,
         connectionMode: config.datasourceConnectionMode,
@@ -137,10 +128,12 @@ export function useTableOrSpreadsheet() {
 
   const selected = useMemo(() => {
     if (config.table) {
-      const option = options.find((option) => option.value === config.table);
+      const option = options.find(
+        (option) => option.data.tableName === config.table,
+      );
 
       return {
-        label: <Option label={option?.label} leftIcon={option?.icon} />,
+        label: <Option label={option?.label} />,
         key: option?.id,
       };
     }

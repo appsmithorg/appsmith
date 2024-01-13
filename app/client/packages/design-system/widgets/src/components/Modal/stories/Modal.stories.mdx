@@ -1,0 +1,58 @@
+import {
+  Modal,
+  ModalHeader,
+  ModalFooter,
+  ModalContent,
+} from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import { SimpleModal } from "./SimpleModal";
+import { ModalExamples } from "./ModalExamples";
+import { CustomModal } from "./CustomModal";
+
+<Meta title="Design-system/Widgets/Modal" component={Modal} />
+
+export const Template = (args) => {
+  return <SimpleModal {...args} />;
+};
+
+# Modal
+
+A modal is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.
+
+Modal developed on basis of Popover headless component. Additional information about functionality of Modal component can be found in the [Popover story](/docs/design-system-headless-popover--docs).
+
+<Canvas>
+  <Story name="Modal">{Template.bind({})}</Story>
+</Canvas>
+
+## Modal props
+
+<ArgsTable story="Modal" of={Modal} />
+
+## ModalContent props
+
+<ArgsTable of={ModalContent} />
+
+## ModalHeader props
+
+<ArgsTable of={ModalHeader} />
+
+## ModalBody props
+
+`ModalBody` component has no props, it is responsible for the correct layout and supports the built-in browser scroll.
+
+## ModalFooter props
+
+<ArgsTable of={ModalFooter} />
+
+# ModalExamples
+
+<Canvas>
+  <Story name="Modal Examples">{<ModalExamples />}</Story>
+</Canvas>
+
+# Custom Modal
+
+<Canvas>
+  <Story name="Custom Modal">{<CustomModal />}</Story>
+</Canvas>

@@ -22,13 +22,16 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
   getIsFetchingMergeStatus,
+  getIsGitStatusLiteEnabled,
   getIsMergeInProgress,
   getMergeError,
   getMergeStatus,
+  getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import type { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   fetchBranchesInit,
+  fetchGitRemoteStatusInit,
   fetchGitStatusInit,
   fetchMergeStatusInit,
   mergeBranchInit,
@@ -79,6 +82,7 @@ function MergeSuccessIndicator() {
 export default function Merge() {
   const dispatch = useDispatch();
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
   const gitBranches = useSelector(getGitBranches);
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
@@ -87,6 +91,7 @@ export default function Merge() {
   const mergeError = useSelector(getMergeError);
   const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
+  const protectedBranches = useSelector(getProtectedBranchesSelector);
   let mergeStatusMessage = !gitStatus?.isClean
     ? createMessage(CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES)
     : mergeStatus?.message;
@@ -112,7 +117,10 @@ export default function Merge() {
       if (index === gitBranches.length) break;
       const branchObj = gitBranches[index];
 
-      if (currentBranch !== branchObj.branchName) {
+      if (
+        currentBranch !== branchObj.branchName &&
+        !protectedBranches.includes(branchObj.branchName)
+      ) {
         if (!branchObj.default) {
           branchOptions.push({
             label: branchObj.branchName,
@@ -172,12 +180,17 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption?.value, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit());
+    if (isGitStatusLiteEnabled) {
+      dispatch(fetchGitRemoteStatusInit());
+      dispatch(fetchGitStatusInit({ compareRemote: false }));
+    } else {
+      dispatch(fetchGitStatusInit({ compareRemote: true }));
+    }
     dispatch(fetchBranchesInit());
     return () => {
       dispatch(resetMergeStatus());
     };
-  }, []);
+  }, [isGitStatusLiteEnabled]);
 
   useEffect(() => {
     // when user selects a branch to merge
@@ -220,7 +233,9 @@ export default function Merge() {
   return (
     <>
       <ModalBody>
-        <Container style={{ overflow: "unset", paddingBottom: "4px" }}>
+        <Container
+          style={{ minHeight: 360, overflow: "unset", paddingBottom: "4px" }}
+        >
           <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
             {createMessage(SELECT_BRANCH_TO_MERGE)}
           </Text>
@@ -288,7 +303,7 @@ export default function Merge() {
           ) : null}
         </Container>
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter style={{ minHeight: 52 }}>
         {!showMergeSuccessIndicator && showMergeButton ? (
           <Button
             className="t--git-merge-button"

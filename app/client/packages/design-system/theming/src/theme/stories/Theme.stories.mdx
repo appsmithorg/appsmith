@@ -1,0 +1,101 @@
+import { Meta, ArgsTable } from "@storybook/addon-docs";
+import { ThemeProvider } from "@design-system/theming";
+
+<Meta title="Design-system/Theme/Theme" component={ThemeProvider} />
+
+# Theme
+
+The theme package substitutes hooks and components for working with theming.
+
+## ThemeProvider
+
+This page describes how to use ThemeProvider. How to access tokens, what input parameters are needed and how to change the color mode.
+
+The ThemeProvider is React component in that allows for the easy
+implementation of themes within an app. With ThemeProvider, you can define a
+set of design tokens that will be applied to specific components in your
+application, allowing for consistent styling across your entire application.
+
+export const Template = () => <ThemeProvider theme={{}} />;
+
+<ArgsTable of={ThemeProvider} />
+
+## useFluidTokens
+
+A hook that creates typography, spacing, sizing fluid tokens based
+on the passed parameters. To create tokens, we use a calculation values
+based on a musical scale. This allows us to create a harmonious set of
+tokens. Tokens also depend on user's viewport.
+
+**Related materials**
+
+- [Fluid Design with Tokens](https://www.youtube.com/watch?v=EbykWCBeqBg)
+- [Fluid Typescale Tool.](https://fluid-tokenization.vercel.app/)
+- [Spencer Mortensen. The typographic scale.](https://spencermortensen.com/articles/typographic-scale/)
+
+## useTheme
+
+A hook that helps dynamically update tokens depending on incoming parameters.
+
+```javascript
+import { ThemeProvider, useTheme } from "@design-system/theming";
+
+const { theme } = useTheme({
+  seedColor,
+  colorMode,
+  borderRadius,
+  fontFamily,
+  rootUnitRatio,
+});
+
+return <ThemeProvider theme={theme}>...</ThemeProvider>;
+```
+
+## tokensAccessor
+
+Creates an object containing tokens based on the passed parameters (see the `defaultToken` structure) for subsequent conversion to CSS variables.
+
+## defaultTokens
+
+Basic token configuration file.
+
+## Usage
+
+```javascript
+import React from "react";
+import { useEffect, useState } from "react";
+import {
+  ThemeProvider,
+  TokensAccessor,
+  defaultTokens,
+  useFluidTokens,
+} from "@design-system/theming";
+
+export const theming = (Story, args) => {
+  const { fluid, ...restDefaultTokens } = defaultTokens;
+  const { typography, spacing, sizing } = useFluidTokens(fluid);
+  const tokensAccessor = new TokensAccessor({
+    ...restDefaultTokens,
+    rootUnit,
+    spacing,
+    sizing,
+    typography,
+  });
+  const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
+
+  useEffect(() => {
+    if (args.globals.colorMode) {
+      tokensAccessor.updateColorMode(args.globals.colorMode);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getColors(),
+        };
+      });
+    }
+  }, [args.globals.colorMode]);
+
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+};
+```

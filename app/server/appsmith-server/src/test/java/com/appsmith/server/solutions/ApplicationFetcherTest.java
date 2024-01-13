@@ -7,6 +7,8 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,24 +35,34 @@ public class ApplicationFetcherTest {
     @Autowired
     private ApplicationFetcher applicationFetcher;
 
+    Workspace workspace;
+
+    @BeforeEach
+    public void setup() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("ApplicationFetcherTest");
+        workspace = workspaceService.create(newWorkspace).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
+    }
+
     @Test
     @WithUserDetails("api_user")
     public void getAllApplications_WhenUnpublishedPageExists_ReturnsApplications() {
         String randomUUID = UUID.randomUUID().toString();
-        Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("org_" + randomUUID);
 
-        Mono<UserHomepageDTO> homepageDTOMono = workspaceService
-                .create(newWorkspace)
-                .flatMap(workspace -> {
-                    Application application = new Application();
-                    application.setName("app_" + randomUUID);
-                    return applicationPageService.createApplication(application, workspace.getId());
-                })
-                .flatMap(application -> {
+        Application application = new Application();
+        application.setName("app_" + randomUUID);
+        Mono<UserHomepageDTO> homepageDTOMono = applicationPageService
+                .createApplication(application, workspace.getId())
+                .flatMap(application1 -> {
                     PageDTO pageDTO = new PageDTO();
                     pageDTO.setName("New page");
-                    return applicationPageService.createPage(pageDTO).thenReturn(application);
+                    return applicationPageService.createPage(pageDTO).thenReturn(application1);
                 })
                 .then(applicationFetcher.getAllApplications());
 
@@ -58,7 +70,7 @@ public class ApplicationFetcherTest {
             assertThat(userHomepageDTO.getWorkspaceApplications()).isNotNull();
 
             WorkspaceApplicationsDTO orgApps = userHomepageDTO.getWorkspaceApplications().stream()
-                    .filter(x -> x.getWorkspace().getName().equals(newWorkspace.getName()))
+                    .filter(x -> x.getWorkspace().getName().equals(workspace.getName()))
                     .findFirst()
                     .orElse(new WorkspaceApplicationsDTO());
 

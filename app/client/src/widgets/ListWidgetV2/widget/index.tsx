@@ -3,10 +3,9 @@ import log from "loglevel";
 import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { isEmpty, floor, isString, isNil } from "lodash";
+import { floor, isEmpty, isNil, isString } from "lodash";
 import { klona } from "klona";
 import hash from "object-hash";
-
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import derivedProperties from "./parseDerivedProperties";
@@ -18,19 +17,25 @@ import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
-import WidgetFactory from "utils/WidgetFactory";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
-} from "widgets/constants";
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import type { WidgetType } from "constants/WidgetConstants";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WIDGET_PADDING,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetState } from "../../BaseWidget";
@@ -41,17 +46,20 @@ import type {
 } from "widgets/TabsWidget/constants";
 import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "widgets/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import defaultProps from "./defaultProps";
+
+import IconSVG from "../icon.svg";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
   suffix: "]}}",
 });
 
-export const DEFAULT_TEMPLATE_BOTTOM_ROW = 10;
+export const DEFAULT_TEMPLATE_HEIGHT = 100;
 
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
@@ -59,6 +67,7 @@ export enum DynamicPathType {
   CURRENT_VIEW = "currentView",
   LEVEL = "level",
 }
+
 export type DynamicPathMap = Record<string, DynamicPathType[]>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
@@ -73,16 +82,16 @@ export type MetaWidget<TProps = void> = TProps extends void
   ? BaseMetaWidget
   : TProps & BaseMetaWidget;
 
-export type LevelData = {
+export interface LevelData {
   [level: string]: {
     currentIndex: number;
     currentItem: string;
     currentRowCache: LevelDataRowCache;
     autocomplete: Record<string, unknown>;
   };
-};
+}
 
-export type MetaWidgetCacheProps = {
+export interface MetaWidgetCacheProps {
   entityDefinition: string;
   metaWidgetId: string;
   metaWidgetName: string;
@@ -95,7 +104,7 @@ export type MetaWidgetCacheProps = {
   type: string;
   viewIndex: number;
   prevViewIndex?: number;
-};
+}
 
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
@@ -106,9 +115,9 @@ export type MetaWidgetRowCache = Record<string, MetaWidgetCacheProps>;
 
 type LevelDataRowCache = Record<string, LevelDataMetaWidgetCacheProps>;
 
-export type MetaWidgetCache = {
+export interface MetaWidgetCache {
   [key: string]: MetaWidgetRowCache | undefined;
-};
+}
 
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
@@ -116,12 +125,12 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   isListWidgetCanvas?: boolean;
 };
 
-type RenderChildrenOption = {
+interface RenderChildrenOption {
   componentWidth: number;
   parentColumnSpace: number;
   selectedItemKey?: string | null;
   startIndex: number;
-};
+}
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 const EMPTY_BINDING = "{{{}}}";
@@ -141,6 +150,72 @@ class ListWidget extends BaseWidget<
   pageChangeEventTriggerFromSelectedKey: boolean;
   pageSizeUpdated: boolean;
   primaryKeys: string[];
+
+  static type = "LIST_WIDGET_V2";
+
+  static getConfig() {
+    return {
+      name: "List",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
+      needsMeta: true,
+      isCanvas: true,
+    };
+  }
+
+  static getDefaults() {
+    return defaultProps;
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "listData",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+        return {
+          widgetBindPath: `${widget.widgetName}.selectedItem`,
+          message: `Make sure ${widget.widgetName} data matches the column names in the connected datasource and has a default selected item`,
+        };
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -244,7 +319,7 @@ class ListWidget extends BaseWidget<
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
       prefixMetaWidgetId: props.prefixMetaWidgetId || props.widgetId,
-      primaryWidgetType: ListWidget.getWidgetType(),
+      primaryWidgetType: ListWidget.type,
       renderMode: props.renderMode,
       setWidgetCache: this.setWidgetCache,
       setWidgetReferenceCache: this.setWidgetReferenceCache,
@@ -460,7 +535,7 @@ class ListWidget extends BaseWidget<
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
       primaryKeys: this.primaryKeys,
       scrollElement: this.componentRef.current,
-      templateBottomRow: this.getTemplateBottomRow(),
+      templateHeight: this.getTemplateHeight(),
       widgetName: this.props.widgetName,
       pageNo,
       pageSize,
@@ -622,24 +697,15 @@ class ListWidget extends BaseWidget<
     return flattenedChildCanvasWidgets?.[mainContainerId];
   };
 
-  getTemplateBottomRow = () => {
-    if (
-      this.props.appPositioningType === AppPositioningTypes.AUTO &&
-      this.props.isMobile
-    ) {
-      return (
-        this.getMainContainer()?.mobileBottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW
-      );
-    }
-    return this.getMainContainer()?.bottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW;
+  getTemplateHeight = () => {
+    return this.getMainContainer()?.componentHeight || DEFAULT_TEMPLATE_HEIGHT;
   };
 
   getContainerRowHeight = () => {
-    const { itemSpacing = 0, listData, parentRowSpace } = this.props;
-    const templateBottomRow = this.getTemplateBottomRow();
+    const { itemSpacing = 0, listData } = this.props;
     const containerVerticalPadding = WIDGET_PADDING * 2;
     const itemsCount = (listData || []).length;
-    const templateHeight = templateBottomRow * parentRowSpace;
+    const templateHeight = this.getTemplateHeight();
 
     const averageItemSpacing = itemsCount
       ? (itemSpacing - containerVerticalPadding) *
@@ -655,7 +721,7 @@ class ListWidget extends BaseWidget<
 
     const itemsCount = (listData || []).length;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     const spaceAvailableWithoutPaginationControls =
       componentHeight - WIDGET_PADDING * 2;
@@ -816,7 +882,7 @@ class ListWidget extends BaseWidget<
   mainMetaCanvasWidget = () => {
     const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
     const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const metaMainCanvas = klona(mainCanvasWidget) ?? {};
 
     const { metaWidgetId, metaWidgetName } =
@@ -837,7 +903,7 @@ class ListWidget extends BaseWidget<
   };
 
   mainMetaCanvasWidgetBottomRow = () => {
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     if (this.props.infiniteScroll) {
       return Math.max(
@@ -1134,7 +1200,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
-          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+          if (this.props.layoutSystemType === LayoutSystemTypes.AUTO) {
             child.isListWidgetCanvas = true;
           }
           child.children = child.children?.map((container, viewIndex) => {
@@ -1143,7 +1209,7 @@ class ListWidget extends BaseWidget<
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
             if (
-              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
               container.children?.[0]
             ) {
               container.children[0].isListWidgetCanvas = true;
@@ -1164,7 +1230,7 @@ class ListWidget extends BaseWidget<
               },
             };
           });
-          return WidgetFactory.createWidget(child, this.props.renderMode);
+          return renderAppsmithCanvas(child as WidgetProps);
         },
       );
 
@@ -1299,17 +1365,12 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getPageView() {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-    const {
-      infiniteScroll,
-      isLoading,
-      parentColumnSpace,
-      parentRowSpace,
-      selectedItemKey,
-    } = this.props;
+  getWidgetView() {
+    const { componentHeight, componentWidth } = this.props;
+    const { infiniteScroll, isLoading, parentColumnSpace, selectedItemKey } =
+      this.props;
     const startIndex = this.metaWidgetGenerator.getStartIndex();
-    const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
+    const templateHeight = this.getTemplateHeight();
 
     if (isLoading) {
       return (
@@ -1368,13 +1429,6 @@ class ListWidget extends BaseWidget<
         {this.renderPaginationUI()}
       </ListComponent>
     );
-  }
-
-  /**
-   * returns type of the widget
-   */
-  static getWidgetType(): WidgetType {
-    return "LIST_WIDGET_V2";
   }
 }
 

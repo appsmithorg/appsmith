@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import localForage from "localforage";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
 
@@ -7,6 +8,16 @@ export class Onboarding {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
   private _datasources = ObjectsRegistry.DataSources;
   private _debuggerHelper = ObjectsRegistry.DebuggerHelper;
+
+  public readonly locators = {
+    back_to_canvas: "#back-to-canvas",
+    deploy: "#application-publish-btn",
+    table_widget_card: "#widget-card-draggable-tablewidgetv2",
+    create_query: "#create-query",
+    explorer_widget_tab: `#explorer-tab-options [data-value*="widgets"]`,
+    add_datasources: "#add_datasources",
+    connect_data_overlay: "#table-overlay-connectdata",
+  };
 
   completeSignposting() {
     cy.get(OnboardingLocator.checklistStatus).should("be.visible");
@@ -22,7 +33,7 @@ export class Onboarding {
       true,
     );
     this._aggregateHelper.AssertElementVisibility(
-      OnboardingLocator.datasourcePage,
+      this._datasources._newDatasourceContainer,
     );
     this.closeIntroModal();
     this._aggregateHelper.AssertElementAbsence(
@@ -46,8 +57,7 @@ export class Onboarding {
       .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistActionBtn).click();
-    cy.get(OnboardingLocator.createQuery).should("be.visible");
-    cy.get(OnboardingLocator.createQuery).click();
+    this._datasources.CreateQueryForDS("Movies");
     cy.wait(1000);
     this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.checklistStatus).should("contain", "2 of 5");
@@ -105,6 +115,25 @@ export class Onboarding {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
         this._aggregateHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
+      }
+    });
+  }
+
+  skipSignposting() {
+    cy.get("body").then(($body) => {
+      if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
+        cy.wrap(null).then(async () => {
+          localForage.config({
+            name: "Appsmith",
+          });
+          // return a promise to cy.then() that
+          // is awaited until it resolves
+          return localForage.setItem("ENABLE_START_SIGNPOSTING", false);
+        });
+        //this._aggregateHelper.RefreshPage();//this is causing CI flakiness, so using below
+        cy.window().then((win) => {
+          win.location.reload();
+        });
       }
     });
   }

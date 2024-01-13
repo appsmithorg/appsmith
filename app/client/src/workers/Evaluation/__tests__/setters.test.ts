@@ -1,34 +1,37 @@
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import setters from "../setters";
 import TableWidget from "widgets/TableWidgetV2/widget";
-import { CONFIG } from "widgets/TableWidgetV2/index";
 import { RenderModes } from "constants/WidgetConstants";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { registerWidget } from "utils/WidgetRegisterHelpers";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { createEvaluationContext } from "../evaluate";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
-registerWidget(TableWidget, CONFIG);
+registerWidgets([TableWidget]);
 
 const evalTree: DataTree = {};
 const configTree: ConfigTree = {};
 
-const tableWidgetDataTree = generateDataTreeWidget({
-  type: TableWidget.getWidgetType(),
-  widgetId: "random",
-  widgetName: "Table1",
-  children: [],
-  bottomRow: 0,
-  isLoading: false,
-  parentColumnSpace: 0,
-  parentRowSpace: 0,
-  version: 1,
-  leftColumn: 0,
-  renderMode: RenderModes.CANVAS,
-  rightColumn: 0,
-  topRow: 0,
-  primaryColumns: [],
-  tableData: [],
-});
+const tableWidgetDataTree = generateDataTreeWidget(
+  {
+    type: TableWidget.type,
+    widgetId: "random",
+    widgetName: "Table1",
+    children: [],
+    bottomRow: 0,
+    isLoading: false,
+    parentColumnSpace: 0,
+    parentRowSpace: 0,
+    version: 1,
+    leftColumn: 0,
+    renderMode: RenderModes.CANVAS,
+    rightColumn: 0,
+    topRow: 0,
+    primaryColumns: [],
+    tableData: [],
+  },
+  {},
+  new Set(),
+);
 
 evalTree["Table1"] = tableWidgetDataTree.unEvalEntity;
 configTree["Table1"] = tableWidgetDataTree.configEntity;

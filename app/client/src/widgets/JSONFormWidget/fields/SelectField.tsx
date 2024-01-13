@@ -19,9 +19,9 @@ import { isNil } from "lodash";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
-type MetaProps = {
+interface MetaProps {
   filterText?: string;
-};
+}
 
 type DefaultValue = string | number | DropdownOption | null | undefined;
 

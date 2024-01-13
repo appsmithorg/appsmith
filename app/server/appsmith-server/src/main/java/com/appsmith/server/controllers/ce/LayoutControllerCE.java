@@ -4,13 +4,14 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
-import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
+import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutService;
-import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -31,18 +32,17 @@ import reactor.core.publisher.Mono;
 public class LayoutControllerCE {
 
     private final LayoutService service;
-    private final LayoutActionService layoutActionService;
-
-    private final RefactoringSolution refactoringSolution;
+    private final UpdateLayoutService updateLayoutService;
+    private final RefactoringService refactoringService;
 
     @Autowired
     public LayoutControllerCE(
             LayoutService layoutService,
-            LayoutActionService layoutActionService,
-            RefactoringSolution refactoringSolution) {
+            UpdateLayoutService updateLayoutService,
+            RefactoringService refactoringService) {
         this.service = layoutService;
-        this.layoutActionService = layoutActionService;
-        this.refactoringSolution = refactoringSolution;
+        this.updateLayoutService = updateLayoutService;
+        this.refactoringService = refactoringService;
     }
 
     @JsonView(Views.Public.class)
@@ -72,7 +72,7 @@ public class LayoutControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
         log.debug("update multiple layout received for application {} branch {}", applicationId, branchName);
-        return layoutActionService
+        return updateLayoutService
                 .updateMultipleLayouts(applicationId, branchName, request)
                 .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK.value(), updatedCount, null));
     }
@@ -86,7 +86,7 @@ public class LayoutControllerCE {
             @RequestBody Layout layout,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("update layout received for page {}", pageId);
-        return layoutActionService
+        return updateLayoutService
                 .updateLayout(pageId, applicationId, layoutId, layout, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
@@ -104,10 +104,11 @@ public class LayoutControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorWidgetName(
-            @RequestBody RefactorNameDTO refactorNameDTO,
+            @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return refactoringSolution
-                .refactorWidgetName(refactorNameDTO, branchName)
+        refactorEntityNameDTO.setEntityType(EntityType.WIDGET);
+        return refactoringService
+                .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 }

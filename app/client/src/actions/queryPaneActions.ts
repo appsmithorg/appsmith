@@ -2,18 +2,21 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 
-export const changeQuery = (
-  id: string,
-  newQuery?: boolean,
-  action?: Action,
-): ReduxAction<{
+export interface ChangeQueryPayload {
   id: string;
+  packageId?: string;
+  applicationId?: string;
+  pageId?: string;
+  moduleId?: string;
+  workflowId?: string;
   newQuery?: boolean;
-  action?: any;
-}> => {
+  action?: Action;
+}
+
+export const changeQuery = (payload: ChangeQueryPayload) => {
   return {
     type: ReduxActionTypes.QUERY_PANE_CHANGE,
-    payload: { id, newQuery, action },
+    payload,
   };
 };
 

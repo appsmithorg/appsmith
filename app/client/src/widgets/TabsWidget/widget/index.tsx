@@ -1,15 +1,18 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  LayoutDirection,
+  Positioning,
+} from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
@@ -21,7 +24,22 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import {
+  GridDefaults,
+  WIDGET_TAGS,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 export function selectedTabValidation(
   value: unknown,
@@ -47,6 +65,185 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
+  static type = "TABS_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Tabs",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.LAYOUT],
+      needsMeta: true,
+      isCanvas: true,
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 1,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
+      columns: 24,
+      shouldScrollContents: false,
+      widgetName: "Tabs",
+      animateLoading: true,
+      borderWidth: 1,
+      borderColor: Colors.GREY_5,
+      backgroundColor: Colors.WHITE,
+      minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
+      tabsObj: {
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+          positioning: Positioning.Vertical,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+          positioning: Positioning.Vertical,
+        },
+      },
+      shouldShowTabs: true,
+      defaultTab: "Tab 1",
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              tabId: "tab1",
+              tabName: "Tab 1",
+              children: [],
+              version: 1,
+              bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+            },
+          },
+          {
+            type: "CANVAS_WIDGET",
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              tabId: "tab2",
+              tabName: "Tab 2",
+              children: [],
+              version: 1,
+              bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+            },
+          },
+        ],
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+              const tabs = Object.values({ ...widget.tabsObj });
+              const tabIds: Record<string, string> = (
+                widget.children || []
+              ).reduce((idsObj, eachChild) => {
+                idsObj = { ...idsObj, [eachChild.tabId]: eachChild.widgetId };
+                return idsObj;
+              }, {});
+              const tabsObj = tabs.reduce((obj: any, tab: any) => {
+                const newTab = { ...tab };
+                newTab.widgetId = tabIds[newTab.id];
+                obj[newTab.id] = newTab;
+                return obj;
+              }, {});
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
+        ],
+      },
+      version: 3,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getCanvasHeightOffset: (props: WidgetProps): number => {
+        let offset =
+          props.borderWidth && props.borderWidth > 1
+            ? Math.ceil(
+                (2 * parseInt(props.borderWidth, 10) || 0) /
+                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              )
+            : 0;
+
+        if (props.shouldShowTabs === true) {
+          offset += 4;
+        }
+        return offset;
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      defaultTab: ["tabsObj", "tabs"],
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -139,7 +336,6 @@ class TabsWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
-              dependentPaths: ["tabsObj", "tabs"],
             },
             dependencies: ["tabsObj", "tabs"],
           },
@@ -346,18 +542,17 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  getPageView() {
-    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
-
+  getWidgetView() {
+    const { componentWidth } = this.props;
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
-      width:
-        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
+      width: componentWidth - WIDGET_PADDING * 2,
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidgetWithLimits(this.props);
+
     return (
       <TabsComponent
         {...tabsComponentProps}
@@ -372,7 +567,7 @@ class TabsWidget extends BaseWidget<
         selectedTabWidgetId={this.getSelectedTabWidgetId()}
         shouldScrollContents={
           this.props.shouldScrollContents &&
-          this.props.appPositioningType !== AppPositioningTypes.AUTO
+          this.props.layoutSystemType === LayoutSystemTypes.FIXED
         }
       >
         {this.renderComponent()}
@@ -392,7 +587,7 @@ class TabsWidget extends BaseWidget<
     }
 
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
@@ -404,7 +599,7 @@ class TabsWidget extends BaseWidget<
       (item) => item.widgetId === selectedTabWidgetId,
     )[0];
     const positioning: Positioning =
-      this.props.appPositioningType == AppPositioningTypes.AUTO
+      this.props.layoutSystemType == LayoutSystemTypes.AUTO
         ? Positioning.Vertical
         : Positioning.Fixed;
     childWidgetData.positioning = positioning;
@@ -415,23 +610,18 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
   private getSelectedTabWidgetId() {
     let selectedTabWidgetId = this.props.selectedTabWidgetId;
     if (this.props.children) {
       selectedTabWidgetId =
-        this.props.children.find((tab) =>
-          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        this.props.children.find(
+          (tab) => this.props.selectedWidgetAncestry?.includes(tab.widgetId),
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return selectedTabWidgetId;
-  }
-
-  static getWidgetType(): string {
-    return "TABS_WIDGET";
   }
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {

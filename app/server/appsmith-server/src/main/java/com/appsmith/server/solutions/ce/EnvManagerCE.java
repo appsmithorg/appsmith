@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
@@ -15,9 +14,11 @@ public interface EnvManagerCE {
 
     List<String> transformEnvContent(String envContent, Map<String, String> changes);
 
-    Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes);
+    Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
 
-    Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData);
+    Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes);
+
+    Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 
     void setAnalyticsEventAction(
             Map<String, Object> properties, String newVariable, String originalVariable, String authEnv);
@@ -26,6 +27,8 @@ public interface EnvManagerCE {
 
     Map<String, String> parseToMap(String content);
 
+    Mono<Map<String, String>> getAllWithoutAclCheck();
+
     Mono<Map<String, String>> getAll();
 
     Mono<Map<String, String>> getAllNonEmpty();
@@ -33,6 +36,8 @@ public interface EnvManagerCE {
     Mono<User> verifyCurrentUserIsSuper();
 
     Mono<Void> restart();
+
+    Mono<Void> restartWithoutAclCheck();
 
     Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO);
 

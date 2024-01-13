@@ -13,7 +13,6 @@ import type {
 
 export const initialState: WorkspaceReduxState = {
   loadingStates: {
-    fetchingRoles: false,
     isFetchAllRoles: false,
     isFetchAllUsers: false,
     isFetchingWorkspace: false,
@@ -30,7 +29,6 @@ export interface WorkspaceReduxState {
   list?: Workspace[];
   roles?: WorkspaceRole[];
   loadingStates: {
-    fetchingRoles: boolean;
     isFetchAllRoles: boolean;
     isFetchAllUsers: boolean;
     isFetchingWorkspace: boolean;
@@ -41,11 +39,6 @@ export interface WorkspaceReduxState {
 }
 
 export const handlers = {
-  [ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT]: (
-    draftState: WorkspaceReduxState,
-  ) => {
-    draftState.loadingStates.isFetchAllRoles = true;
-  },
   [ReduxActionTypes.FETCH_ALL_ROLES_INIT]: (
     draftState: WorkspaceReduxState,
   ) => {
@@ -55,18 +48,6 @@ export const handlers = {
     draftState: WorkspaceReduxState,
   ) => {
     draftState.loadingStates.isFetchAllUsers = true;
-  },
-  [ReduxActionTypes.FETCH_WORKSPACE_ROLES_SUCCESS]: (
-    draftState: WorkspaceReduxState,
-    action: ReduxAction<WorkspaceRole[]>,
-  ) => {
-    draftState.workspaceRoles = action.payload;
-    draftState.loadingStates.fetchingRoles = false;
-  },
-  [ReduxActionErrorTypes.FETCH_WORKSPACE_ROLES_ERROR]: (
-    draftState: WorkspaceReduxState,
-  ) => {
-    draftState.loadingStates.fetchingRoles = false;
   },
   [ReduxActionTypes.FETCH_ALL_USERS_SUCCESS]: (
     draftState: WorkspaceReduxState,

@@ -3,9 +3,9 @@ import { useFormContext } from "react-hook-form";
 
 import FormContext from "../FormContext";
 
-type UseUpdateAccessorProps = {
+interface UseUpdateAccessorProps {
   accessor: string;
-};
+}
 
 /**
  * This hook observes changes in the accessor and triggers a re-computation

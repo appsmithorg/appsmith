@@ -3,11 +3,12 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -18,12 +19,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -39,6 +41,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -76,11 +79,37 @@ public class AuthenticationServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    Workspace workspace;
+
+    @BeforeEach
+    public void setup() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("ApplicationFetcherTest");
+        workspace = workspaceService.create(newWorkspace).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null);
+                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null, null);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -92,14 +121,8 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_invalidDatasourceWithNullAuthentication() {
-        Workspace testWorkspace = new Workspace();
-        testWorkspace.setName("Another Test Workspace");
-        testWorkspace = workspaceService.create(testWorkspace).block();
-        assert testWorkspace != null;
-        String workspaceId = testWorkspace.getId();
-
         String defaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -108,14 +131,14 @@ public class AuthenticationServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("Missing OAuth2 datasource");
-        datasource.setWorkspaceId(workspaceId);
+        datasource.setWorkspaceId(workspace.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
@@ -127,7 +150,7 @@ public class AuthenticationServiceTest {
         Mono<String> authorizationCodeUrlMono = datasourceMono
                 .map(BaseDomain::getId)
                 .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null));
+                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null, null));
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -145,13 +168,8 @@ public class AuthenticationServiceTest {
         MockServerHttpRequest httpRequest =
                 MockServerHttpRequest.get("").headers(mockHeaders).build();
 
-        Workspace testWorkspace = new Workspace();
-        testWorkspace.setName("Another Test Workspace");
-        testWorkspace = workspaceService.create(testWorkspace).block();
-        assert testWorkspace != null;
-        String workspaceId = testWorkspace.getId();
         String defaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -162,8 +180,9 @@ public class AuthenticationServiceTest {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        Application application =
-                applicationPageService.createApplication(newApp, workspaceId).block();
+        Application application = applicationPageService
+                .createApplication(newApp, workspace.getId())
+                .block();
 
         testPage.setApplicationId(application.getId());
 
@@ -175,10 +194,101 @@ public class AuthenticationServiceTest {
                 .flatMap(plugin -> {
                     return pluginService.installPlugin(PluginWorkspaceDTO.builder()
                             .pluginId(plugin.getId())
-                            .workspaceId(workspaceId)
+                            .workspaceId(workspace.getId())
                             .status(WorkspacePluginStatus.FREE)
                             .build());
                 })
+                .block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Valid datasource for OAuth2");
+        datasource.setWorkspaceId(workspace.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setClientId("ClientId");
+        authenticationDTO.setClientSecret("ClientSecret");
+        authenticationDTO.setAuthorizationUrl("AuthorizationURL");
+        authenticationDTO.setAccessTokenUrl("AccessTokenURL");
+        authenticationDTO.setScope(Set.of("Scope1", "Scope2"));
+        authenticationDTO.setCustomAuthenticationParameters(Set.of(new Property("key", "value")));
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        datasource.setDatasourceStorages(storages);
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .cache();
+
+        final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
+
+        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
+                datasourceId1, defaultEnvironmentId, pageDto.getId(), null, httpRequest);
+
+        StepVerifier.create(authorizationCodeUrlMono)
+                .assertNext(url -> {
+                    assertThat(url)
+                            .matches(Pattern.compile("AuthorizationURL" + "\\?client_id=ClientId"
+                                    + "&response_type=code"
+                                    + "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize"
+                                    + "&state="
+                                    + String.join(
+                                            ",",
+                                            pageDto.getId(),
+                                            datasourceId1,
+                                            defaultEnvironmentId,
+                                            "https://mock.origin.com")
+                                    + "&scope=Scope\\d%20Scope\\d"
+                                    + "&key=value"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAuthorizationCodeURL_validDatasourceAndBranchName() {
+        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(1);
+        mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
+
+        MockServerHttpRequest httpRequest =
+                MockServerHttpRequest.get("").headers(mockHeaders).build();
+
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Test-Workspace-OAuth2-git-redirection");
+        testWorkspace = workspaceService.create(testWorkspace).block();
+        String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("Test-Page-oauth2-git-redirection");
+
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
+        Application application =
+                applicationPageService.createApplication(newApp, workspaceId).block();
+
+        testPage.setApplicationId(application.getId());
+
+        PageDTO pageDTO = applicationPageService.createPage(testPage).block();
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        // install plugin
+        pluginMono
+                .flatMap(plugin -> pluginService.installPlugin(PluginWorkspaceDTO.builder()
+                        .pluginId(plugin.getId())
+                        .workspaceId(workspaceId)
+                        .status(WorkspacePluginStatus.FREE)
+                        .build()))
                 .block();
         Datasource datasource = new Datasource();
         datasource.setName("Valid datasource for OAuth2");
@@ -194,10 +304,12 @@ public class AuthenticationServiceTest {
         authenticationDTO.setCustomAuthenticationParameters(Set.of(new Property("key", "value")));
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+
         Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
@@ -206,10 +318,10 @@ public class AuthenticationServiceTest {
                 .flatMap(datasourceService::create)
                 .cache();
 
-        final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
+        final String datasourceId = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId1, defaultEnvironmentId, pageDto.getId(), httpRequest);
+                datasourceId, null, pageDTO.getId(), "testBranch", httpRequest);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .assertNext(url -> {
@@ -220,10 +332,11 @@ public class AuthenticationServiceTest {
                                     + "&state="
                                     + String.join(
                                             ",",
-                                            pageDto.getId(),
-                                            datasourceId1,
+                                            pageDTO.getId(),
+                                            datasourceId,
                                             defaultEnvironmentId,
-                                            "https://mock.origin.com")
+                                            "https://mock.origin.com",
+                                            "testBranch")
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));
                 })

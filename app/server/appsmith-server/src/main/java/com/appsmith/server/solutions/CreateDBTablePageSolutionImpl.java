@@ -1,15 +1,16 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ce.CreateDBTablePageSolutionCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +20,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEImpl
         implements CreateDBTablePageSolution {
-
     public CreateDBTablePageSolutionImpl(
             DatasourceService datasourceService,
             DatasourceStorageService datasourceStorageService,
             NewPageService newPageService,
             LayoutActionService layoutActionService,
+            UpdateLayoutService updateLayoutService,
             ApplicationPageService applicationPageService,
             ApplicationService applicationService,
             PluginService pluginService,
@@ -42,6 +43,7 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                 datasourceStorageService,
                 newPageService,
                 layoutActionService,
+                updateLayoutService,
                 applicationPageService,
                 applicationService,
                 pluginService,

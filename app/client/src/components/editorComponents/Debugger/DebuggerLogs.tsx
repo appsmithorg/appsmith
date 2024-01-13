@@ -40,10 +40,10 @@ export const ListWrapper = styled.div`
   padding-bottom: 37px;
 `;
 
-type Props = {
+interface Props {
   searchQuery: string;
   hasShortCut?: boolean;
-};
+}
 
 const LOGS_FILTER_OPTIONS = (theme: DefaultTheme) => [
   {
@@ -68,7 +68,7 @@ const LOGS_FILTER_OPTIONS = (theme: DefaultTheme) => [
   },
 ];
 
-function DebbuggerLogs(props: Props) {
+function DebuggerLogs(props: Props) {
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
   const filter = useSelector(getDebuggerSelectedFilter);
   const dispatch = useDispatch();
@@ -159,8 +159,8 @@ function DebbuggerLogs(props: Props) {
 }
 
 // Set default props
-DebbuggerLogs.defaultProps = {
+DebuggerLogs.defaultProps = {
   searchQuery: "",
 };
 
-export default DebbuggerLogs;
+export default DebuggerLogs;

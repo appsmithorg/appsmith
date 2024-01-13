@@ -2,6 +2,7 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class ThemeSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private assertHelper = ObjectsRegistry.AssertHelper;
   public locators = {
     _changeThemeBtn: ".t--change-theme-btn",
     _themeCard: (themeName: string) =>
@@ -37,7 +38,7 @@ export class ThemeSettings {
       type == "Primary"
         ? this.locators._colorRingPrimary
         : this.locators._colorRingBackground;
-    this.agHelper.Sleep(200); //for themes to complete opening
+    this.agHelper.AssertContains("Theme settings");
     this.agHelper.GetNClick(colorType);
     if (typeof colorIndex == "number") {
       this.agHelper.GetNClick(this.locators._colorPickerV2Popover);
@@ -47,7 +48,8 @@ export class ThemeSettings {
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex); //Doing it again for since sometimes it does not type properpy
       this.agHelper.GetElement(this.locators._colorInput(type)).clear();
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex);
-      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
+      // this.agHelper.TypeText(this._colorInputField(type), colorIndex); //not working!
     }
+    this.assertHelper.AssertNetworkStatus("updateTheme");
   }
 }

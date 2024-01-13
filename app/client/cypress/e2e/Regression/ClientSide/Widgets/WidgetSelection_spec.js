@@ -1,7 +1,14 @@
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const dsl = require("../../../../fixtures/widgetSelection.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Widget Selection", function () {
+describe("Widget Selection", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("widgetSelection");
   });
@@ -40,7 +47,7 @@ describe("Widget Selection", function () {
     //select on one of the widgets from the right side panel
     cy.get(`.t-multi-widget-property-pane`).should("have.length", 1);
     cy.get(`#${dsl.dsl.children[2].widgetId}`).should("have.length", 1);
-    cy.get(`#${dsl.dsl.children[2].widgetId}`).click({
+    cy.get(`#widget_name_${dsl.dsl.children[2].widgetId}`).click({
       force: true,
     });
 
@@ -49,14 +56,13 @@ describe("Widget Selection", function () {
   });
 
   it("3. Should not select widgets if we hit CTRL + A on other Pages", function () {
-    // Switch to the Explorer Pane
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     // Click to create a New Data Source
-    cy.get(".t--entity-add-btn").eq(3).click();
+    _.dataSources.NavigateToDSCreateNew();
     // Hit CTRL +A
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");
   });

@@ -59,22 +59,27 @@ export const MULTIPLEXING_MODE_CONFIGS: MultiplexingModeConfigs = {
   },
   ...Object.values(sqlModesConfig)
     .filter((config) => config.isMultiplex)
-    .reduce((prev, current) => {
-      prev[current.mode] = {
-        outerMode: current.mime,
-        innerModes: [
-          {
-            open: BINDING_OPEN,
-            close: BINDING_CLOSE,
-          },
-        ],
-      };
-      return prev;
-    }, {} as Record<TEditorSqlModes, MultiplexingModeConfig | undefined>),
+    .reduce(
+      (prev, current) => {
+        prev[current.mode] = {
+          outerMode: current.mime,
+          innerModes: [
+            {
+              open: BINDING_OPEN,
+              close: BINDING_CLOSE,
+            },
+          ],
+        };
+        return prev;
+      },
+      {} as Record<TEditorSqlModes, MultiplexingModeConfig | undefined>,
+    ),
   "text/plain": undefined,
   "application/json": undefined,
   javascript: undefined,
   graphql: undefined,
+  css: undefined,
+  htmlmixed: undefined,
 };
 
 Object.keys(MULTIPLEXING_MODE_CONFIGS).forEach((key) => {

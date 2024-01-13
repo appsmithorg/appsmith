@@ -11,12 +11,12 @@ import fastdom from "fastdom";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import type { WidgetType } from "utils/WidgetFactory";
 import { scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
-import { getCurrentAppPositioningType } from "selectors/editorSelectors";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { WidgetType } from "WidgetProvider/factory";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -58,7 +58,7 @@ function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -126,12 +126,11 @@ function ContainerComponentWrapper(
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar ${
-        appPositioningType === AppPositioningTypes.AUTO &&
+        layoutSystemType === LayoutSystemTypes.AUTO &&
         props.widgetId === MAIN_CONTAINER_WIDGET_ID
           ? "auto-layout"
           : ""
       }`}
-      data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
       onClick={props.onClick}
       onClickCapture={props.onClickCapture}
@@ -158,7 +157,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={
           props.shouldScrollContents &&
-          props.appPositioningType !== AppPositioningTypes.AUTO
+          props.layoutSystemType === LayoutSystemTypes.FIXED
         }
         type={props.type}
         widgetId={props.widgetId}
@@ -189,7 +188,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         shouldScrollContents={
           props.shouldScrollContents &&
           // Disable scrollbar on auto-layout canvas as it meddles with canvas drag and highlight position.
-          (props.appPositioningType !== AppPositioningTypes.AUTO ||
+          (props.layoutSystemType === LayoutSystemTypes.FIXED ||
             // We need to allow scrollbars for list items as they don't have auto-height
             props.isListItemContainer)
         }
@@ -222,7 +221,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   justifyContent?: string;
   alignItems?: string;
   dropDisabled?: boolean;
-  appPositioningType?: AppPositioningTypes;
+  layoutSystemType?: LayoutSystemTypes;
   isListItemContainer?: boolean;
 }
 

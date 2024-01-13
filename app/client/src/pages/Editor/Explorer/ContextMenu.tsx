@@ -9,6 +9,7 @@ import {
   MenuSubTrigger,
   MenuSubContent,
   Tooltip,
+  MenuSeparator,
 } from "design-system";
 import {
   createMessage,
@@ -17,7 +18,7 @@ import {
 import { AddButtonWrapper, EntityClassNames } from "./Entity";
 import styled from "styled-components";
 
-export type TreeDropdownOption = {
+export interface TreeDropdownOption {
   label: string;
   value: string;
   children?: TreeDropdownOption[];
@@ -26,15 +27,18 @@ export type TreeDropdownOption = {
   confirmDelete?: boolean;
   intent?: string;
   disabled?: boolean;
-};
+  type?: "menu-item" | "menu-divider";
+  tooltipText?: string;
+}
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 
-type TreeDropdownProps = {
+interface TreeDropdownProps {
   toggle?: React.ReactNode;
   optionTree: TreeDropdownOption[];
   className?: string;
+  triggerId?: string;
   setConfirmDelete?: (val: boolean) => void;
-};
+}
 
 const StyledMenuSubContent = styled(MenuSubContent)`
   max-height: 350px;
@@ -84,20 +88,31 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       );
     }
 
+    if (option.type === "menu-divider") {
+      return <MenuSeparator />;
+    }
+
     return (
-      <MenuItem
-        className={`${option.intent === "danger" ? "error-menuitem" : ""} ${
-          option.className
-        }`}
-        disabled={option.disabled}
+      <Tooltip
+        content={option.tooltipText}
+        isDisabled={!option.tooltipText}
         key={option.value}
-        onClick={(e) => {
-          handleSelect(option);
-          e.stopPropagation();
-        }}
+        placement="top"
       >
-        {option.label}
-      </MenuItem>
+        <MenuItem
+          className={`${option.intent === "danger" ? "error-menuitem" : ""} ${
+            option.className
+          }`}
+          disabled={option.disabled}
+          key={option.value}
+          onClick={(e) => {
+            handleSelect(option);
+            e.stopPropagation();
+          }}
+        >
+          {option.label}
+        </MenuItem>
+      </Tooltip>
     );
   }
   const list = optionTree.map(renderTreeOption);
@@ -129,6 +144,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
           >
             <Button
               className={props.className}
+              id={props.triggerId}
               isIconButton
               kind="tertiary"
               startIcon="more-vertical-control"

@@ -1,20 +1,14 @@
 import type { MouseEventHandler } from "react";
 import React from "react";
-
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import WidgetFactory from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
-
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-
 import { ValidationTypes } from "constants/WidgetValidation";
-import { compact, map, sortBy } from "lodash";
-import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-
+import { compact, get, map, sortBy } from "lodash";
+import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { Positioning } from "utils/autoLayout/constants";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -22,15 +16,171 @@ import {
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
+  type AutoLayoutConfig,
+  type WidgetBaseConfiguration,
+  type WidgetDefaultProps,
+  type FlattenedWidgetProps,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import IconSVG from "../icon.svg";
+import { ButtonBoxShadowTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import {
+  FlexVerticalAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
 > {
+  static type = "CONTAINER_WIDGET";
+
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
+
+  static getConfig(): WidgetBaseConfiguration {
+    return {
+      name: "Container",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.LAYOUT],
+      isCanvas: true,
+      searchTags: ["div", "parent", "group"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0,
+        active: true,
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getCanvasHeightOffset: (props: WidgetProps): number => {
+        const offset =
+          props.borderWidth && props.borderWidth > 1
+            ? Math.ceil(
+                (2 * parseInt(props.borderWidth, 10) || 0) /
+                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              )
+            : 0;
+
+        return offset;
+      },
+    };
+  }
+
+  static getDefaults(): WidgetDefaultProps {
+    return {
+      backgroundColor: "#FFFFFF",
+      rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+      columns: 24,
+      widgetName: "Container",
+      containerStyle: "card",
+      borderColor: Colors.GREY_5,
+      borderWidth: "1",
+      boxShadow: ButtonBoxShadowTypes.NONE,
+      animateLoading: true,
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+            },
+          },
+        ],
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (
+              widget: FlattenedWidgetProps,
+              widgets: CanvasWidgetsReduxState,
+              parent: FlattenedWidgetProps,
+              layoutSystemType: LayoutSystemTypes,
+            ) => {
+              if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+                return [];
+              }
+
+              //get Canvas Widget
+              const canvasWidget: FlattenedWidgetProps = get(
+                widget,
+                "children.0",
+              );
+
+              const layout: LayoutProps[] = generateDefaultLayoutPreset();
+
+              return getWidgetBluePrintUpdates({
+                [canvasWidget.widgetId]: {
+                  layout,
+                },
+              });
+            },
+          },
+        ],
+      },
+      version: 1,
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig(): AutoLayoutConfig {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "50px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: (props: ContainerWidgetProps<WidgetProps>) => ({
+        // Disables vertical resize handles for all container widgets except for the List item container
+        vertical: !props.isListItemContainer,
+      }),
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "50px" },
+        minWidth: { base: "280px" },
+      },
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -46,7 +196,7 @@ export class ContainerWidget extends BaseWidget<
     };
   }
 
-  static getSetterConfig(): SetterConfig {
+  static getSetterConfig(): SetterConfig | null {
     return {
       __setters: {
         setVisibility: {
@@ -183,7 +333,7 @@ export class ContainerWidget extends BaseWidget<
   }
 
   getSnapSpaces = () => {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     const { snapGrid } = getSnappedGrid(this.props, componentWidth);
 
     return snapGrid;
@@ -192,7 +342,7 @@ export class ContainerWidget extends BaseWidget<
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     childWidget.rightColumn = componentWidth;
     childWidget.bottomRow = this.props.shouldScrollContents
@@ -209,7 +359,8 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
-    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
+
+    return renderAppsmithCanvas(childWidget as WidgetProps);
   }
 
   renderChildren = () => {
@@ -244,12 +395,8 @@ export class ContainerWidget extends BaseWidget<
     );
   }
 
-  getPageView() {
+  getWidgetView() {
     return this.renderAsContainerComponent(this.props);
-  }
-
-  static getWidgetType(): string {
-    return "CONTAINER_WIDGET";
   }
 }
 

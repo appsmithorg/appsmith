@@ -8,6 +8,8 @@ redis:
   replica:
     replicaCount: 1
     nodeSelector: {}
+  image:
+    tag: 7.0.13-debian-11-r10
 
 mongodb:
   enabled: true
@@ -20,6 +22,8 @@ mongodb:
   architecture: "replicaset"
   replicaSetName: rs0
   nodeSelector: {}
+  image:
+    tag: 5.0.21-debian-11-r5
   arbiter:
     nodeSelector: {}
   hidden:
@@ -62,9 +66,9 @@ strategyType: RollingUpdate
 ##
 initContainer: {}
   # redis:
-  #   image: alpine
+  #   image: docker.io/bitnami/redis-cluster:7.0.13-debian-11-r10
   # mongodb:
-  #   image:  docker.io/bitnami/mongodb:4.4.11-debian-10-r12
+  #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
 ## Image
 ##
 image:
@@ -94,13 +98,14 @@ podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# For non-root user
+#  fsGroup: 1001
+#  sysctls:
+#  - name: net.ipv4.ip_unprivileged_port_start
+#    value: "80"
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
+  # For non-root user
   # runAsNonRoot: true
   # runAsUser: 1000
 
@@ -306,4 +311,3 @@ applicationConfig:
   APPSMITH_ENCRYPTION_SALT: ""
   APPSMITH_CUSTOM_DOMAIN: ""
   APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
-  APPSMITH_ENABLE_EMBEDDED_DB: 0

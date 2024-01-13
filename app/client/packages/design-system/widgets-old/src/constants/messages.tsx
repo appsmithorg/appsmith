@@ -11,13 +11,13 @@ export const FORM_VALIDATION_INVALID_EMAIL = () =>
   `Please provide a valid email address`;
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) found`;
+  `Invalid email address(es) found`;
 
 export const REMOVE = () => "Remove";
 
 export const DISPLAY_IMAGE_UPLOAD_LABEL = () => "Upload Display Picture";
 
-export const ADD_REACTION = () => "Add Reaction";
+export const ADD_REACTION = () => "Add reaction";
 
 export const EMOJI = () => "Emoji";
 
@@ -26,7 +26,7 @@ export const NEXT = () => "NEXT";
 export const BACK = () => "BACK";
 export const SKIP = () => "SKIP";
 
-export const LEARN_MORE = () => "Learn More";
+export const LEARN_MORE = () => "Learn more";
 
 export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
@@ -35,4 +35,4 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
 
 export const ERROR_FILE_TOO_LARGE = (fileSize: string) =>
   `File size should be less than ${fileSize}!`;
-export const REMOVE_FILE_TOOL_TIP = () => "Remove Upload";
+export const REMOVE_FILE_TOOL_TIP = () => "Remove upload";

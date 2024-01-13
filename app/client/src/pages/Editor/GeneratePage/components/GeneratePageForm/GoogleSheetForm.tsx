@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEditorConfig } from "selectors/entitiesSelector";
+import { getEditorConfig } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
@@ -25,7 +25,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Icon, Option, Select, Input, Tooltip } from "design-system";
 
-type Props = {
+interface Props {
   googleSheetPluginId: string;
   selectedDatasource: DropdownOption;
   selectedSpreadsheet: DropdownOption;
@@ -42,7 +42,7 @@ type Props = {
   sheetsListProps: UseSheetListReturn;
   spreadSheetsProps: UseSpreadSheetsReturn;
   sheetColumnsHeaderProps: UseSheetColumnHeadersReturn;
-};
+}
 
 // styles
 

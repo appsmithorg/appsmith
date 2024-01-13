@@ -1,4 +1,4 @@
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 
 /**
  * PropertyName examples

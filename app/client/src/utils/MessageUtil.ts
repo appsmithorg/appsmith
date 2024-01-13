@@ -11,23 +11,23 @@ export enum MessageType {
   DEFAULT = "DEFAULT",
 }
 
-type TRequestMessage<TBody> = {
+interface TRequestMessage<TBody> {
   body: TBody;
   messageId: string;
   messageType: MessageType.REQUEST;
-};
+}
 
-type TResponseMessage<TBody> = {
+interface TResponseMessage<TBody> {
   body: TBody;
   messageId: string;
   messageType: MessageType.RESPONSE;
-};
+}
 
-export type TDefaultMessage<TBody> = {
+export interface TDefaultMessage<TBody> {
   messageId?: string;
   body: TBody;
   messageType: MessageType.DEFAULT;
-};
+}
 
 export type TMessage<TBody> =
   | TRequestMessage<TBody>

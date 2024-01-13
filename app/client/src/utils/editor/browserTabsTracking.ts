@@ -1,6 +1,8 @@
 import { generateReactKey } from "../../widgets/WidgetUtils";
 
-type TabData = { [tabId: string]: string };
+interface TabData {
+  [tabId: string]: string;
+}
 
 const LOCAL_STORAGE_KEY = "EDITOR_TABS_DATA";
 

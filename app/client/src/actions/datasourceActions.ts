@@ -7,14 +7,13 @@ import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
   AuthenticationStatus,
   Datasource,
+  DatasourceStructureContext,
   FilePickerActionStatus,
   MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
-import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -61,19 +60,19 @@ export const updateDatasource = (
   };
 };
 
-export type UpdateDatasourceSuccessAction = {
+export interface UpdateDatasourceSuccessAction {
   type: string;
   payload: Datasource;
   redirect: boolean;
   queryParams?: Record<string, string>;
-};
+}
 
-export type CreateDatasourceSuccessAction = {
+export interface CreateDatasourceSuccessAction {
   type: string;
   payload: Datasource;
   isDBCreated: boolean;
   redirect: boolean;
-};
+}
 
 export const updateDatasourceSuccess = (
   payload: Datasource,
@@ -337,20 +336,27 @@ export const getOAuthAccessToken = (datasourceId: string) => {
   };
 };
 
-export type executeDatasourceQuerySuccessPayload<T> = {
+export interface executeDatasourceQuerySuccessPayload<T> {
   responseMeta: ResponseMeta;
   data: {
     body: T;
-    trigger: T;
+    trigger?: T;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
   };
-};
+}
 type errorPayload = string;
 
+export interface executeDatasourceReduxActionPayload {
+  datasourceId: string;
+  template?: Record<string, any>;
+  data?: Record<string, any>;
+  isGeneratePage: boolean;
+}
+
 export type executeDatasourceQueryReduxAction<T> = ReduxActionWithCallbacks<
-  executeDatasourceQueryRequest,
+  executeDatasourceReduxActionPayload,
   executeDatasourceQuerySuccessPayload<T>,
   errorPayload
 >;
@@ -364,7 +370,7 @@ export const executeDatasourceQuery = ({
   onSuccessCallback?: (
     payload: executeDatasourceQuerySuccessPayload<any>,
   ) => void;
-  payload: executeDatasourceQueryRequest;
+  payload: executeDatasourceReduxActionPayload;
 }): executeDatasourceQueryReduxAction<any> => {
   return {
     type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,

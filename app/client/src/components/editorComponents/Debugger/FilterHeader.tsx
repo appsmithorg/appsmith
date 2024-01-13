@@ -22,8 +22,7 @@ const Wrapper = styled.div`
   justify-content: start;
   align-items: center;
   gap: 8px;
-  padding: 0 8px 8px 8px;
-
+  padding: var(--ads-v2-spaces-4);
   .debugger-filter {
     width: 220px;
   }
@@ -43,7 +42,7 @@ const OptionLabel = styled(Text)`
   margin-top: 2px;
 `;
 
-type FilterHeaderProps = {
+interface FilterHeaderProps {
   options: DropdownOption[];
   selected: DropdownOption;
   onChange: (value: string) => void;
@@ -51,7 +50,7 @@ type FilterHeaderProps = {
   defaultValue: string;
   value: string;
   searchQuery: string;
-};
+}
 
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
@@ -79,11 +78,12 @@ function FilterHeader(props: FilterHeaderProps) {
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
-          value={props.value || props.defaultValue}
+          value={props.value}
         />
       </div>
       <Select
         className="debugger-filter"
+        data-testid="t--log-filter"
         onSelect={props.onSelect}
         size="sm"
         value={{
@@ -98,6 +98,7 @@ function FilterHeader(props: FilterHeaderProps) {
         {props.options.map((option) => (
           <Option
             aria-label={option.label}
+            data-testid={`t--log-filter-${option.label}`}
             key={option.value}
             value={option.value}
           >

@@ -10,12 +10,12 @@ import {
 } from "constants/DefaultTheme";
 import Button from "components/editorComponents/Button";
 
-export type MessageAction = {
+export interface MessageAction {
   url?: string;
   onClick?: () => void;
   text: string;
   intent: Intent;
-};
+}
 
 const StyledMessage = styled.div`
   & {
@@ -99,11 +99,11 @@ export function ActionButton(props: MessageAction) {
   return null;
 }
 
-export type FormMessageProps = {
+export interface FormMessageProps {
   intent: Intent;
   message: string;
   actions?: MessageAction[];
-};
+}
 
 export function FormMessage(props: FormMessageProps) {
   const actions =

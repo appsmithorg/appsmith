@@ -1,12 +1,12 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type {
   AppEmbedSetting,
   ApplicationResponsePayload,
-  UpdateApplicationPayload,
-  ImportApplicationRequest,
   FetchApplicationPayload,
+  ImportApplicationRequest,
+  UpdateApplicationPayload,
 } from "@appsmith/api/ApplicationApi";
-import type { NavigationSetting } from "constants/AppConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { IconNames } from "design-system";
 import type { Datasource } from "entities/Datasource";
 
@@ -110,6 +110,13 @@ export const updateApplicationNavigationSettingAction = (
   };
 };
 
+export const updateApplicationThemeSettingAction = (theme: ThemeSetting) => {
+  return {
+    type: ReduxActionTypes.UPDATE_THEME_SETTING,
+    payload: theme,
+  };
+};
+
 export const updateApplicationNavigationLogoAction = (logo: string) => {
   return {
     type: ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,
@@ -154,6 +161,21 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
   };
 };
 
+export const importPartialApplication = (appPartialDetails: {
+  applicationFile: File;
+}) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+    payload: appPartialDetails,
+  };
+};
+
+export const importPartialApplicationSuccess = () => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_SUCCESS,
+  };
+};
+
 export const importApplicationSuccess = (
   importedApp: ApplicationResponsePayload,
 ) => {
@@ -175,14 +197,10 @@ export const resetCurrentApplication = () => {
   };
 };
 
-export const setShowAppInviteUsersDialog = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL,
-  payload,
-});
-
-export const initDatasourceConnectionDuringImportRequest = (
-  payload: string,
-) => ({
+export const initDatasourceConnectionDuringImportRequest = (payload: {
+  workspaceId: string;
+  isPartialImport?: boolean;
+}) => ({
   type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
   payload,
 });
@@ -202,9 +220,18 @@ export const setIsReconnectingDatasourcesModalOpen = (payload: {
   payload,
 });
 
-export const setWorkspaceIdForImport = (workspaceId?: string) => ({
+export const setWorkspaceIdForImport = ({
+  editorId = "",
+  workspaceId,
+}: {
+  editorId: string;
+  workspaceId?: string;
+}) => ({
   type: ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT,
-  payload: workspaceId,
+  payload: {
+    workspaceId,
+    editorId,
+  },
 });
 
 export const setPageIdForImport = (pageId?: string) => ({
@@ -227,3 +254,7 @@ export const setIsAppSidebarPinned = (payload: boolean) => ({
   type: ReduxActionTypes.SET_APP_SIDEBAR_PINNED,
   payload,
 });
+
+export const fetchAllPackages = () => {
+  return {};
+};

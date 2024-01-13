@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
@@ -45,7 +45,10 @@ import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
 import { noop } from "lodash";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { getQueryParams } from "utils/URLUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import {
@@ -59,16 +62,21 @@ import {
   builderURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
-} from "RouteBuilder";
-import { getPlugins } from "selectors/entitiesSelector";
+} from "@appsmith/RouteBuilder";
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import {
   DatasourceCreateEntryPoints,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   max-height: 530px;
-  transition: height 0.1s ease, width 0.1s ease;
+  transition:
+    height 0.1s ease,
+    width 0.1s ease;
   height: ${(props) =>
     isMenu(props.category) ||
     isActionOperation(props.category) ||
@@ -140,7 +148,7 @@ const getSortedResults = (
 };
 
 const filterCategoryList = getFilterCategoryList();
-
+const emptyObj = {};
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId) as string;
   const modalOpen = useSelector(isModalOpenSelector);
@@ -160,7 +168,7 @@ function GlobalSearch() {
     (category: SearchCategory) => {
       dispatch(setGlobalSearchFilterContext({ category: category }));
     },
-    [dispatch, setGlobalSearchFilterContext],
+    [dispatch],
   );
   const params = useParams<ExplorerURLParams>();
 
@@ -197,29 +205,32 @@ function GlobalSearch() {
     return state.entities.datasources.list.filter(
       (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
     );
-  });
+  }, shallowEqual);
   const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({
       ...datasource,
       pageId: params?.pageId,
     }));
-  }, [reducerDatasources]);
+  }, [params?.pageId, reducerDatasources]);
 
   const filteredDatasources = useMemo(() => {
     if (!query) return datasourcesList;
     return datasourcesList.filter((datasource) =>
       isMatching(datasource.name, query),
     );
-  }, [reducerDatasources, query]);
+  }, [datasourcesList, query]);
   const recentEntities = useRecentEntities();
   const recentEntityIds = recentEntities
     .map((r) => getEntityId(r))
     .filter(Boolean);
-  const recentEntityIndex = (entity: any) => {
-    const id =
-      entity.id || entity.widgetId || entity.config?.id || entity.pageId;
-    return recentEntityIds.indexOf(id);
-  };
+  const recentEntityIndex = useCallback(
+    (entity: any) => {
+      const id =
+        entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+      return recentEntityIds.indexOf(id);
+    },
+    [recentEntityIds],
+  );
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const lastSelectedWidgetId = useSelector(getLastSelectedWidget);
@@ -238,11 +249,22 @@ function GlobalSearch() {
     if (query) setActiveItemIndex(0);
   }, [query]);
 
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
   const filteredWidgets = useFilteredWidgets(query);
   const filteredActions = useFilteredActions(query);
   const filteredJSCollections = useFilteredJSCollections(query);
   const filteredPages = useFilteredPages(query);
-  const filteredFileOperations = useFilteredFileOperations(query);
+  const filteredFileOperations = useFilteredFileOperations({
+    canCreateActions,
+    query,
+  });
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
@@ -276,16 +298,20 @@ function GlobalSearch() {
       currentPageId,
     );
   }, [
-    filteredWidgets,
+    category,
+    currentPageId,
     filteredActions,
-    filteredJSCollections,
     filteredDatasources,
+    filteredFileOperations,
+    filteredJSCollections,
+    filteredPages,
+    filteredWidgets,
     query,
-    recentEntities,
+    recentEntityIndex,
   ]);
 
   const activeItem = useMemo(() => {
-    return searchResults[activeItemIndex] || {};
+    return searchResults[activeItemIndex] || emptyObj;
   }, [searchResults, activeItemIndex]);
 
   const getNextActiveItem = (nextIndex: number) => {
@@ -442,8 +468,8 @@ function GlobalSearch() {
   };
 
   const showDescription = useMemo(() => {
-    return isMenu(category) && query;
-  }, [category, query]);
+    return false;
+  }, []);
 
   const activeItemType = useMemo(() => {
     return activeItem ? getItemType(activeItem) : undefined;

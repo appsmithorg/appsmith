@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import type { MockDatasource } from "entities/Datasource";
-import { getPluginImages } from "selectors/entitiesSelector";
+import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getQueryParams } from "utils/URLUtils";
@@ -87,12 +87,12 @@ const DatasourceNameWrapper = styled.div`
   flex-direction: column;
 `;
 
-type MockDatasourceCardProps = {
+interface MockDatasourceCardProps {
   datasource: MockDatasource;
   workspaceId: string;
-};
+}
 
-function MockDatasourceCard(props: MockDatasourceCardProps) {
+export function MockDatasourceCard(props: MockDatasourceCardProps) {
   const { datasource, workspaceId } = props;
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);

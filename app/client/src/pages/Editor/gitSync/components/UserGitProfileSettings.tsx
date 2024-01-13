@@ -35,7 +35,10 @@ const DefaultConfigContainer = styled.div`
   margin-left: 3px;
 `;
 
-type AuthorInfo = { authorName: string; authorEmail: string };
+interface AuthorInfo {
+  authorName: string;
+  authorEmail: string;
+}
 
 const AUTHOR_INFO_LABEL = {
   EMAIL: "authorEmail",
@@ -74,14 +77,14 @@ const setAuthorState = ({
 };
 
 // Component
-type UserGitProfileSettingsProps = {
+interface UserGitProfileSettingsProps {
   authType: string;
   authorInfo: AuthorInfo;
   setAuthorInfo: SetAuthorInfo;
   useGlobalConfig: boolean;
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
   triedSubmit: boolean;
-};
+}
 
 function UserGitProfileSettings({
   authorInfo,

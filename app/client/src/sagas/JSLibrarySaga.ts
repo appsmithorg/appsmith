@@ -29,11 +29,12 @@ import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { selectInstalledLibraries } from "selectors/entitiesSelector";
+import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
 import { toast } from "design-system";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 export function parseErrorMessage(text: string) {
   return text.split(": ").slice(1).join("");
@@ -73,7 +74,7 @@ function* handleInstallationFailure(
   log.error(message);
 }
 
-export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
+export function* installLibrarySaga(lib: Partial<JSLibrary>) {
   const { url } = lib;
 
   const takenNamesMap: Record<string, true> = yield select(
@@ -81,9 +82,26 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     "",
   );
 
-  const installedLibraries: TJSLibrary[] = yield select(
+  const installedLibraries: JSLibrary[] = yield select(
     selectInstalledLibraries,
   );
+
+  const alreadyInstalledLibrary = installedLibraries.find(
+    (library) => library.url === url,
+  );
+
+  if (alreadyInstalledLibrary) {
+    toast.show(
+      createMessage(
+        customJSLibraryMessages.INSTALLED_ALREADY,
+        alreadyInstalledLibrary.accessor,
+      ),
+      {
+        kind: "info",
+      },
+    );
+    return;
+  }
 
   const takenAccessors = ([] as string[]).concat(
     ...installedLibraries.map((lib) => lib.accessor),
@@ -215,7 +233,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   });
 }
 
-function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
+function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
   const { accessor, name } = action.payload;
   const applicationId: string = yield select(getCurrentApplicationId);
 
@@ -292,6 +310,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
 }
 
 function* fetchJSLibraries(action: ReduxAction<string>) {
+  const span = startRootSpan("fetchJSLibraries");
   const applicationId: string = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
   try {
@@ -301,9 +320,12 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       mode,
     );
     const isValidResponse: boolean = yield validateResponse(response);
-    if (!isValidResponse) return;
+    if (!isValidResponse) {
+      endSpan(span);
+      return;
+    }
 
-    const libraries = response.data as Array<TJSLibrary & { defs: string }>;
+    const libraries = response.data as Array<JSLibrary & { defs: string }>;
 
     const { message, success }: { success: boolean; message: string } =
       yield call(
@@ -337,6 +359,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
           type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
         });
       }
+      endSpan(span);
       return;
     }
 
@@ -373,6 +396,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
         version: lib.version,
         url: lib.url,
         docsURL: lib.docsURL,
+        id: lib.id,
       })),
     });
   } catch (e) {
@@ -380,6 +404,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
     });
   }
+  endSpan(span);
 }
 
 function* startInstallationRequestChannel() {
@@ -387,9 +412,8 @@ function* startInstallationRequestChannel() {
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
   ]);
   while (true) {
-    const action: ReduxAction<Partial<TJSLibrary>> = yield take(
-      queueInstallChannel,
-    );
+    const action: ReduxAction<Partial<JSLibrary>> =
+      yield take(queueInstallChannel);
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_START,
       payload: action.payload.url,

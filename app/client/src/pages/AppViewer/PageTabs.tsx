@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import {
   getMenuItemBackgroundColorWhenActive,
   getMenuItemBackgroundColorOnHover,
@@ -140,13 +140,13 @@ function PageTabContainer({
   return <div ref={tabContainerRef}>{children}</div>;
 }
 
-type Props = {
+interface Props {
   appPages: Page[];
   currentApplicationDetails?: ApplicationPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;
-};
+}
 
 export function PageTabs(props: Props) {
   const { appPages, currentApplicationDetails } = props;

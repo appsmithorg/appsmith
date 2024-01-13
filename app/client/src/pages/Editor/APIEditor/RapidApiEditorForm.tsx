@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, formValueSelector } from "redux-form";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import type { PaginationField, BodyFormData, Property } from "api/ActionAPI";
+import type {
+  PaginationField,
+  BodyFormData,
+  Property,
+  ActionResponse,
+} from "api/ActionAPI";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -18,10 +24,12 @@ import type { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import { getActionData } from "../../../selectors/entitiesSelector";
+import { getAction, getActionData } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { ApiEditorContext } from "./ApiEditorContext";
+import { actionResponseDisplayDataFormats } from "../utils";
 
 const Form = styled.form`
   display: flex;
@@ -95,13 +103,21 @@ const TabbedViewContainer = styled.div`
   padding-top: 12px;
 `;
 
-interface APIFormProps {
-  onRunClick: (paginationField?: PaginationField) => void;
-  onDeleteClick: () => void;
-  isRunning: boolean;
-  isDeleting: boolean;
-  paginationType: PaginationType;
+interface APIFormOwnProps {
+  apiId: string;
+  apiName: string;
   appName: string;
+  isDeleting: boolean;
+  isRunning: boolean;
+  location: RouteComponentProps["location"];
+  onDeleteClick: () => void;
+  onRunClick: (paginationField?: PaginationField) => void;
+  paginationType: PaginationType;
+}
+
+interface APIFormProps {
+  actionData?: ActionResponse;
+  currentActionConfig?: Action;
   templateId: string;
   actionConfiguration?: any;
   actionConfigurationHeaders?: Property[];
@@ -110,18 +126,15 @@ interface APIFormProps {
   providerImage: string;
   providerURL: string;
   providerCredentialSteps: string;
-  location: {
-    pathname: string;
-  };
-  apiName: string;
-  apiId: string;
   dispatch: any;
   responseDataTypes: { key: string; title: string }[];
   responseDisplayFormat: { title: string; value: string };
   showDebugger: boolean;
 }
 
-type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
+type Props = APIFormProps &
+  InjectedFormProps<Action, APIFormProps & APIFormOwnProps> &
+  APIFormOwnProps;
 
 function RapidApiEditorForm(props: Props) {
   const {
@@ -142,6 +155,8 @@ function RapidApiEditorForm(props: Props) {
     templateId,
   } = props;
 
+  const { saveActionName } = useContext(ApiEditorContext);
+
   const postbodyResponsePresent =
     templateId &&
     actionConfiguration &&
@@ -158,7 +173,7 @@ function RapidApiEditorForm(props: Props) {
       <MainConfiguration>
         <FormRow>
           <NameWrapper>
-            <ActionNameEditor />
+            <ActionNameEditor saveActionName={saveActionName} />
             <a
               className="t--apiDocumentationLink"
               href={providerURL && `http://${providerURL}`}
@@ -273,7 +288,10 @@ function RapidApiEditorForm(props: Props) {
         </TabbedViewContainer>
         {showDebugger && (
           <ApiResponseView
+            actionResponse={props.actionData}
             apiName={props.apiName}
+            currentActionConfig={props.currentActionConfig}
+            isRunning={props.isRunning}
             onRunClick={onRunClick}
             responseDataTypes={responseDataTypes}
             responseDisplayFormat={responseDisplayFormat}
@@ -286,7 +304,7 @@ function RapidApiEditorForm(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-export default connect((state: AppState) => {
+export default connect((state: AppState, ownProps: APIFormOwnProps) => {
   const displayFormat = selector(state, "displayFormat");
   const providerImage = selector(state, "provider.imageUrl");
   const providerURL = selector(state, "provider.url");
@@ -314,29 +332,17 @@ export default connect((state: AppState) => {
       `${actionConfigurationBodyFormData}`,
     );
   }
+  const currentActionConfig = getAction(state, ownProps.apiId);
   const actionData = getActionData(state, actionConfiguration.id);
-  let responseDisplayFormat: { title: string; value: string };
-  let responseDataTypes: { key: string; title: string }[];
-  if (!!actionData && actionData.responseDisplayFormat) {
-    responseDataTypes = actionData.dataTypes.map((data) => {
-      return {
-        key: data.dataType,
-        title: data.dataType,
-      };
-    });
-    responseDisplayFormat = {
-      title: actionData.responseDisplayFormat,
-      value: actionData.responseDisplayFormat,
-    };
-  } else {
-    responseDataTypes = [];
-    responseDisplayFormat = {
+  const { responseDataTypes, responseDisplayFormat } =
+    actionResponseDisplayDataFormats(actionData, {
       title: "JSON",
       value: "JSON",
-    };
-  }
+    });
 
   return {
+    actionData,
+    currentActionConfig,
     displayFormat,
     actionConfiguration,
     actionConfigurationHeaders,
@@ -350,7 +356,7 @@ export default connect((state: AppState) => {
     providerCredentialSteps,
   };
 })(
-  reduxForm<Action, APIFormProps>({
+  reduxForm<Action, APIFormProps & APIFormOwnProps>({
     form: API_EDITOR_FORM_NAME,
     destroyOnUnmount: false,
   })(RapidApiEditorForm),

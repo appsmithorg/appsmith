@@ -6,7 +6,7 @@ import { NavLink } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 
-type MenuBarItemProps = {
+interface MenuBarItemProps {
   icon: Function;
   path: string;
   title: string;
@@ -18,7 +18,7 @@ type MenuBarItemProps = {
   highlight?: boolean;
   onClick?: Function;
   isActive: (currentPath: string, expectedPath: string) => boolean;
-};
+}
 
 type Props = MenuBarItemProps;
 

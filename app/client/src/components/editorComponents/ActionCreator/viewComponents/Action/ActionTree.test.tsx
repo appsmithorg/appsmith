@@ -26,6 +26,7 @@ describe("tests for Action Tree in Action Selector", () => {
         <ThemeProvider theme={lightTheme}>
           <ActionTree
             actionBlock={actionBlock}
+            dataTreePath=""
             id="xyz"
             level={0}
             onChange={() => {
@@ -59,6 +60,7 @@ describe("tests for Action Tree in Action Selector", () => {
         <ThemeProvider theme={lightTheme}>
           <ActionTree
             actionBlock={actionBlock}
+            dataTreePath=""
             id="xyz"
             level={0}
             onChange={() => {

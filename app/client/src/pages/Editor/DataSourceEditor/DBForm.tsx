@@ -14,7 +14,6 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { Callout } from "design-system";
 
@@ -30,31 +29,23 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   datasource: Datasource;
   hiddenHeader?: boolean;
   datasourceName?: string;
-  showFilterComponent: boolean;
+  isEnabledForDSViewModeSchema: boolean;
+  isPluginAllowedToPreviewData: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
 
 export const Form = styled.form<{
-  showFilterComponent: boolean;
   viewMode: boolean;
 }>`
   display: flex;
   flex-direction: column;
   ${(props) =>
     !props.viewMode && `height: ${`calc(100% - ${props?.theme.backBanner})`};`}
-  overflow-y: scroll;
-  padding-bottom: 20px;
-  margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
-`;
-
-export const ViewModeWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  padding: var(--ads-v2-spaces-7) 0;
-  gap: var(--ads-v2-spaces-4);
+  padding-bottom: var(--ads-v2-spaces-6);
+  overflow-y: auto;
+  margin-left: ${(props) => (props.viewMode ? "0px" : "24px")};
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -74,23 +65,15 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
     return this.renderDataSourceConfigForm(formConfig);
   }
+
   renderDataSourceConfigForm = (sections: any) => {
-    const {
-      datasource,
-      datasourceId,
-      formConfig,
-      messages,
-      pluginType,
-      showFilterComponent,
-      viewMode,
-    } = this.props;
+    const { datasourceId, messages, pluginType, viewMode } = this.props;
 
     return (
       <Form
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        showFilterComponent={showFilterComponent}
         viewMode={viewMode}
       >
         {messages &&
@@ -107,7 +90,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           !viewMode && (
             <Callout
               className="mt-4"
-              kind="warning"
+              kind="info"
               links={[
                 {
                   children: "Learn more",
@@ -130,17 +113,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {""}
           </>
         )}
-        {viewMode && (
-          <ViewModeWrapper data-testid="t--ds-review-section">
-            {!_.isNil(formConfig) && !_.isNil(datasource) ? (
-              <DatasourceInformation
-                config={formConfig[0]}
-                datasource={datasource}
-                viewMode={viewMode}
-              />
-            ) : undefined}
-          </ViewModeWrapper>
-        )}
       </Form>
     );
   };
@@ -162,6 +134,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 
 export default connect(mapStateToProps)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
+    destroyOnUnmount: false,
     form: DATASOURCE_DB_FORM,
     enableReinitialize: true,
   })(DatasourceDBEditor),

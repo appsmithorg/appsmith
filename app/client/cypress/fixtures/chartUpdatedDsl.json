@@ -120,6 +120,7 @@
                                         "data": ""
                                     }
                                 },
+                                "customFusionChartConfig": {},
                                 "yAxisName": "Total Order Revenue $",
                                 "parentColumnSpace": 14.59375,
                                 "dynamicTriggerPathList": [],

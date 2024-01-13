@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'Run id to download artifacts:'
+        description: "Run id to download artifacts:"
         required: true
-        type: number      
+        type: number
 
 jobs:
   ci-debugger:
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [ 0 ]
+        job: [0]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -40,9 +40,7 @@ jobs:
         uses: depot/setup-action@v1
 
       - name: Checkout the head commit of the branch
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Download Docker image artifact
         uses: dawidd6/action-download-artifact@v2
@@ -82,7 +80,7 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             cicontainer
-            
+
       - name: Execute access to ci-debug.sh
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."

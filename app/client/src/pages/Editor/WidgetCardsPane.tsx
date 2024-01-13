@@ -4,9 +4,9 @@ import styled from "styled-components";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import PaneWrapper from "pages/common/PaneWrapper";
 
-type WidgetCardPaneProps = {
+interface WidgetCardPaneProps {
   cards?: { [id: string]: WidgetCardProps[] };
-};
+}
 
 const CardsWrapper = styled.div`
   display: grid;

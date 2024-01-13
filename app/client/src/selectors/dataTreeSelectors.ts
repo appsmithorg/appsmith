@@ -1,12 +1,18 @@
 import { createSelector } from "reselect";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getAppData,
   getPluginDependencyConfig,
   getPluginEditorConfigs,
-  getJSCollectionsForCurrentPage,
-} from "./entitiesSelector";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+  getCurrentJSCollections,
+  getInputsForModule,
+  getModuleInstances,
+  getModuleInstanceEntities,
+  getCurrentModuleActions,
+  getCurrentModuleJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getIsMobileBreakPoint,
@@ -24,10 +30,55 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
+
+export const getLoadingEntities = (state: AppState) =>
+  state.evaluations.loadingEntities;
+
+/**
+ * This selector is created to combine a couple of data points required by getUnevaluatedDataTree selector.
+ * Current version of reselect package only allows upto 12 arguments. Hence, this workaround.
+ * TODO: Figure out a better way to do this in a separate task. Or update the package if possible.
+ */
+const getLayoutSystemPayload = createSelector(
+  getLayoutSystemType,
+  getIsMobileBreakPoint,
+  (layoutSystemType, isMobile) => {
+    return {
+      layoutSystemType,
+      isMobile,
+    };
+  },
+);
+
+const getCurrentActionEntities = createSelector(
+  getCurrentActions,
+  getCurrentModuleActions,
+  getCurrentJSCollections,
+  getCurrentModuleJSCollections,
+  (actions, moduleActions, jsActions, moduleJSActions) => {
+    return {
+      actions: [...actions, ...moduleActions],
+      jsActions: [...jsActions, ...moduleJSActions],
+    };
+  },
+);
+
+const getModulesData = createSelector(
+  getInputsForModule,
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInputs, moduleInstances, moduleInstanceEntities) => {
+    return {
+      moduleInputs: moduleInputs,
+      moduleInstances: moduleInstances,
+      moduleInstanceEntities: moduleInstanceEntities,
+    };
+  },
+);
 
 export const getUnevaluatedDataTree = createSelector(
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
+  getCurrentActionEntities,
   getWidgetsForEval,
   getWidgetsMeta,
   getPageList,
@@ -36,10 +87,11 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
-  getIsMobileBreakPoint,
+  getLayoutSystemPayload,
+  getLoadingEntities,
+  getModulesData,
   (
-    actions,
-    jsActions,
+    currentActionEntities,
     widgets,
     widgetsMeta,
     pageListPayload,
@@ -48,12 +100,13 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
-    isMobile,
+    layoutSystemPayload,
+    loadingEntities,
+    modulesData,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
-      actions,
-      jsActions,
+      ...currentActionEntities,
       widgets,
       widgetsMeta,
       pageList,
@@ -62,16 +115,15 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
-      isMobile,
+      loadingEntities,
+      ...layoutSystemPayload,
+      ...modulesData,
     });
   },
 );
 
 export const getEvaluationInverseDependencyMap = (state: AppState) =>
   state.evaluations.dependencies.inverseDependencyMap;
-
-export const getLoadingEntities = (state: AppState) =>
-  state.evaluations.loadingEntities;
 
 export const getIsWidgetLoading = createSelector(
   [getLoadingEntities, (_state: AppState, widgetName: string) => widgetName],

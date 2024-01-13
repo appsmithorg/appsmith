@@ -78,7 +78,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, PATH, LIST_OF_FILES_STRING);
 
-        return new Template(DELETE_MULTIPLE_FILES_TEMPLATE_NAME, configMap);
+        return new Template(DELETE_MULTIPLE_FILES_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getDeleteFileTemplate(String bucketName, String fileName) {
@@ -87,7 +87,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, PATH, fileName);
 
-        return new Template(DELETE_FILE_TEMPLATE_NAME, configMap);
+        return new Template(DELETE_FILE_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getReadFileTemplate(String bucketName, String fileName) {
@@ -98,7 +98,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, READ_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
         setDataValueSafelyInFormData(configMap, PATH, fileName);
 
-        return new Template(READ_FILE_TEMPLATE_NAME, configMap);
+        return new Template(READ_FILE_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getCreateFileTemplate(String bucketName, String fileName) {
@@ -110,7 +110,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, PATH, fileName);
         setDataValueSafelyInFormData(configMap, BODY, FILE_PICKER_DATA_EXPRESSION);
 
-        return new Template(CREATE_FILE_TEMPLATE_NAME, configMap);
+        return new Template(CREATE_FILE_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getCreateMultipleFilesTemplate(String bucketName) {
@@ -122,7 +122,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, PATH, DEFAULT_DIR);
         setDataValueSafelyInFormData(configMap, BODY, FILE_PICKER_MULTIPLE_FILES_DATA_EXPRESSION);
 
-        return new Template(CREATE_MULTIPLE_FILES_TEMPLATE_NAME, configMap);
+        return new Template(CREATE_MULTIPLE_FILES_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getListFilesTemplate(String bucketName) {
@@ -137,6 +137,6 @@ public class TemplateUtils {
             }
         });
 
-        return new Template(LIST_FILES_TEMPLATE_NAME, configMap);
+        return new Template(LIST_FILES_TEMPLATE_NAME, configMap, true);
     }
 }

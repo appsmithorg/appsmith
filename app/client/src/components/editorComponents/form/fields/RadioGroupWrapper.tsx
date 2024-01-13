@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import type { WrappedFieldInputProps } from "redux-form";
 import styled from "styled-components";
 
-export type RadioGroupWrapperProps = {
+export interface RadioGroupWrapperProps {
   placeholder: string;
   input: WrappedFieldInputProps;
   options: Array<{ value: string; label: string }>;
@@ -11,7 +11,7 @@ export type RadioGroupWrapperProps = {
   className?: string;
   columns?: number;
   rows?: number;
-};
+}
 
 const RadioContainer = styled.div`
   display: flex;

@@ -107,6 +107,24 @@ public enum AppsmithPluginError implements BasePluginError {
             ErrorType.AUTHENTICATION_ERROR,
             "{0}",
             "{1}"),
+    PLUGIN_DATASOURCE_AUTHENTICATION_ERROR(
+            401,
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR.getCode(),
+            "Invalid authentication credentials. Please check datasource configuration.",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource authentication error",
+            ErrorType.DATASOURCE_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"),
+    PLUGIN_DATASOURCE_ERROR(
+            400,
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_ERROR.getCode(),
+            "Error with datasource request. Please check datasource configuration.",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource error",
+            ErrorType.BAD_REQUEST,
+            "{0}",
+            "{1}"),
     PLUGIN_IN_MEMORY_FILTERING_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_IN_MEMORY_FILTERING_ERROR.getCode(),
@@ -155,6 +173,24 @@ public enum AppsmithPluginError implements BasePluginError {
             ErrorType.INTERNAL_ERROR,
             "{1}",
             "{2}"),
+    PLUGIN_GET_PREVIEW_DATA_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_GET_PREVIEW_DATA_ERROR.getCode(),
+            AppsmithPluginErrorCode.PLUGIN_GET_PREVIEW_DATA_ERROR.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Failed to get preview data",
+            ErrorType.DATASOURCE_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"),
+    PLUGIN_UNSUPPORTED_OPERATION(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_UNSUPPORTED_OPERATION.getCode(),
+            AppsmithPluginErrorCode.PLUGIN_UNSUPPORTED_OPERATION.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Unsupported Operation",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"),
     ;
 
     private final Integer httpErrorCode;

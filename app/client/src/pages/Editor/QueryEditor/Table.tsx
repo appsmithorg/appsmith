@@ -17,6 +17,7 @@ import type { Theme } from "constants/DefaultTheme";
 interface TableProps {
   data: Record<string, any>[];
   tableBodyHeight?: number;
+  shouldResize?: boolean;
 }
 
 const TABLE_SIZES = {
@@ -89,7 +90,6 @@ export const TableWrapper = styled.div`
     .td {
       margin: 0;
       padding: 9px 10px;
-      border-bottom: 1px solid var(--ads-v2-color-border);
       border-right: 1px solid var(--ads-v2-color-border);
       position: relative;
       font-size: ${TABLE_SIZES.ROW_FONT_SIZE}px;
@@ -120,7 +120,7 @@ export const TableWrapper = styled.div`
       background: var(--ads-v2-color-gray-50);
     }
     .td {
-      height: ${TABLE_SIZES.ROW_HEIGHT}px;
+      height: auto;
       line-height: ${TABLE_SIZES.ROW_HEIGHT}px;
       padding: 0 10px;
     }
@@ -128,6 +128,7 @@ export const TableWrapper = styled.div`
   .draggable-header,
   .hidden-header {
     width: 100%;
+    height: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -208,6 +209,7 @@ export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
 function Table(props: TableProps) {
   const theme = useTheme() as Theme;
   const tableBodyRef = React.useRef<HTMLElement>();
+  const { shouldResize = true } = props;
 
   const data = React.useMemo(() => {
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
@@ -317,7 +319,10 @@ function Table(props: TableProps) {
 
   return (
     <ErrorBoundary>
-      <TableWrapper data-guided-tour-id="query-table-response">
+      <TableWrapper
+        className="t--table-response"
+        data-guided-tour-id="query-table-response"
+      >
         <div className="tableWrap">
           <div {...getTableProps()} className="table">
             <div>
@@ -343,12 +348,14 @@ function Table(props: TableProps) {
                         >
                           <AutoToolTipComponent title={column.render("Header")}>
                             {column.render("Header")}
-                            <div
-                              {...column.getResizerProps()}
-                              className={`resizer ${
-                                column.isResizing ? "isResizing" : ""
-                              }`}
-                            />
+                            {shouldResize && (
+                              <div
+                                {...column.getResizerProps()}
+                                className={`resizer ${
+                                  column.isResizing ? "isResizing" : ""
+                                }`}
+                              />
+                            )}
                           </AutoToolTipComponent>
                         </div>
                       </div>

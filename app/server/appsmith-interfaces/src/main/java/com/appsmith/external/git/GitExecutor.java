@@ -114,9 +114,13 @@ public interface GitExecutor {
      * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName
      * @return List of branches for the application
      */
-    Mono<List<GitBranchDTO>> listBranches(
-            Path repoSuffix, String remoteUrl, String privateKey, String publicKey, Boolean isDefaultBranchNeeded);
+    //    Mono<List<GitBranchDTO>> listBranches(
+    //            Path repoSuffix, String remoteUrl, String privateKey, String publicKey, Boolean
+    // isDefaultBranchNeeded);
 
+    Mono<String> getRemoteDefaultBranch(Path repoSuffix, String remoteUrl, String privateKey, String publicKey);
+
+    Mono<List<GitBranchDTO>> listBranches(Path repoSuffix);
     /**
      * This method will handle the git-status functionality
      *

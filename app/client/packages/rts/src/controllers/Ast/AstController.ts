@@ -4,23 +4,23 @@ import { StatusCodes } from "http-status-codes";
 import BaseController from "@controllers/BaseController";
 import AstService from "@services/AstService";
 
-type ScriptToIdentifiersType = {
+interface ScriptToIdentifiersType {
   script: string;
   evalVersion?: number;
-};
+}
 
-type entityRefactorType = {
+interface entityRefactorType {
   script: string;
   oldName: string;
   newName: string;
   isJSObject: boolean;
   evalVersion?: number;
-};
+}
 
-type MultipleScriptToIdentifiersType = {
+interface MultipleScriptToIdentifiersType {
   scripts: string[];
   evalVersion?: number;
-};
+}
 export default class AstController extends BaseController {
   constructor() {
     super();

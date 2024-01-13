@@ -24,6 +24,7 @@ const initialState: UsersReduxState = {
   featureFlag: {
     data: DEFAULT_FEATURE_FLAG_VALUE,
     isFetched: false,
+    isFetching: true,
   },
   productAlert: {
     config: {
@@ -173,6 +174,14 @@ const usersReducer = createReducer(initialState, {
       photoId: action.payload.photoId,
     },
   }),
+  [ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT]: (state: UsersReduxState) => ({
+    ...state,
+    featureFlag: {
+      ...state.featureFlag,
+      isFetched: false,
+      isFetching: true,
+    },
+  }),
   [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<FeatureFlags>,
@@ -181,6 +190,7 @@ const usersReducer = createReducer(initialState, {
     featureFlag: {
       data: action.payload,
       isFetched: true,
+      isFetching: false,
     },
   }),
   [ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR]: (
@@ -190,6 +200,7 @@ const usersReducer = createReducer(initialState, {
     featureFlag: {
       data: {},
       isFetched: true,
+      isFetching: false,
     },
   }),
   [ReduxActionTypes.FETCH_PRODUCT_ALERT_SUCCESS]: (
@@ -252,6 +263,7 @@ export interface UsersReduxState {
   featureFlag: {
     isFetched: boolean;
     data: FeatureFlags;
+    isFetching: boolean;
   };
   productAlert: ProductAlertState;
 }

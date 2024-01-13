@@ -5,7 +5,7 @@ import {
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 const SelectTypeWidgets = ["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"];
 
@@ -70,6 +70,35 @@ export function migrateSelectWidgetSourceDataBindingPathList(
         dynamicBindingPathList?.splice(optionsIndex, 1, {
           key: "sourceData",
         });
+      }
+    }
+  });
+}
+
+/*
+ * Migration to add sourceData to the dynamicPropertyPathList
+ */
+export function migrateSelectWidgetAddSourceDataPropertyPathList(
+  currentDSL: DSLWidget,
+) {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"].includes(widget.type)) {
+      const dynamicPropertyPathList = widget.dynamicPropertyPathList;
+
+      const sourceDataIndex = dynamicPropertyPathList
+        ?.map((d) => d.key)
+        .indexOf("sourceData");
+
+      if (sourceDataIndex && sourceDataIndex === -1) {
+        dynamicPropertyPathList?.push({
+          key: "sourceData",
+        });
+      } else if (!Array.isArray(dynamicPropertyPathList)) {
+        widget.dynamicPropertyPathList = [
+          {
+            key: "sourceData",
+          },
+        ];
       }
     }
   });

@@ -22,3 +22,7 @@ export const getOptionLabelValueExpressionPrefix = (widget: WidgetProps) =>
   `{{${widget.widgetName}.sourceData.map((item) => (`;
 
 export const optionLabelValueExpressionSuffix = `))}}`;
+
+export const CLASSNAMES = {
+  selectButton: "select-button",
+};

@@ -1,150 +1,149 @@
 /**
  * Spec to test the events made available by each field type
  */
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  propPane,
+  entityExplorer,
+  locators,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("Radio Group Field", () => {
-  beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
-  });
+describe(
+  "Radio Group Field",
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  () => {
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
 
-  afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
-  });
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
 
-  it("1. Radio Group Field - pre condition", () => {
-    const schema = {
-      answer: "Y",
-    };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.openFieldConfiguration("answer");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
-    cy.closePropertyPane();
-  });
+    it("1. Set radio group pre condition and show alert on optionChange", () => {
+      const schema = {
+        answer: "Y",
+      };
+      agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-  it("2. shows alert on optionChange", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("answer");
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    // Enable JS mode for onSelectionChange
-    cy.get(toggleJSButton("onselectionchange")).click({ force: true });
+      cy.openFieldConfiguration("answer");
+      cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
+      // Enable JS mode for onSelectionChange
+      propPane.EnterJSContext(
+        "onSelectionChange",
+        "{{showAlert(formData.answer)}}",
+      );
 
-    // Add onSelectionChange action
-    cy.testJsontext("onselectionchange", "{{showAlert(formData.answer)}}");
+      deployMode.DeployApp();
 
-    cy.get(`${fieldPrefix}-answer`)
-      .find("label")
-      .contains("No")
-      .click({ force: true });
+      cy.get(`${fieldPrefix}-answer`)
+        .find("label")
+        .contains("No")
+        .click({ force: true });
 
-    // Check for alert
-    cy.get(commonlocators.toastmsg).contains("N");
-  });
+      // Check for alert
+      agHelper.ValidateToastMessage("N");
+      deployMode.NavigateBacktoEditor();
+    });
 
-  it("3. Multiselect Field - pre condition", () => {
-    const schema = {
-      colors: ["BLUE"],
-    };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.closePropertyPane();
-  });
+    it("2. Shows updated formData values in onOptionChange binding", () => {
+      const schema = {
+        colors: ["BLUE"],
+      };
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      // cy.closePropertyPane();
+    });
 
-  it("4. Shows updated formData values in onOptionChange binding", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("colors");
+    it("4. Shows updated formData values in onOptionChange binding", () => {
+      cy.openPropertyPane("jsonformwidget");
+      cy.openFieldConfiguration("colors");
 
-    // Enable JS mode for onOptionChange
-    cy.get(toggleJSButton("onoptionchange")).click({ force: true });
+      // Enable JS mode for onOptionChange
+      propPane.EnterJSContext(
+        "onOptionChange",
+        "{{showAlert(formData.colors.join(', '))}}",
+      );
 
-    // Add onOptionChange action
-    cy.testJsontext(
-      "onoptionchange",
-      "{{showAlert(formData.colors.join(', '))}}",
-    );
+      deployMode.DeployApp();
+      // Click on multiselect field
+      cy.get(`${fieldPrefix}-colors`)
+        .find(".rc-select-selection-search-input")
+        .first()
+        .focus({ force: true })
+        .type("{uparrow}", { force: true });
+      cy.dropdownMultiSelectDynamic("Red");
 
-    // Click on multiselect field
-    cy.get(`${fieldPrefix}-colors`)
-      .find(".rc-select-selection-search-input")
-      .first()
-      .focus({ force: true })
-      .type("{uparrow}", { force: true });
-    cy.dropdownMultiSelectDynamic("Red");
+      // Check for alert
+      cy.get(commonlocators.toastmsg).contains("BLUE, RED");
+      deployMode.NavigateBacktoEditor();
+    });
 
-    // Check for alert
-    cy.get(commonlocators.toastmsg).contains("BLUE, RED");
-  });
+    it("3. shows updated formData values in onOptionChange binding", () => {
+      const schema = {
+        color: "BLUE",
+      };
+      agHelper.AddDsl("jsonFormDslWithoutSchema");
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-  it("5. Select Field - pre condition", () => {
-    const schema = {
-      color: "BLUE",
-    };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.openFieldConfiguration("color");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
-    cy.closePropertyPane();
-  });
+      cy.openFieldConfiguration("color");
+      cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
 
-  it("6. shows updated formData values in onOptionChange binding", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("color");
+      // Add onOptionChange action
+      propPane.EnterJSContext(
+        "onOptionChange",
+        "{{showAlert(formData.color)}}",
+      );
+      deployMode.DeployApp();
+      // Click on select field
+      cy.get(`${fieldPrefix}-color`)
+        .find(widgetLocators.dropdownSingleSelect)
+        .click({ force: true });
 
-    // Enable JS mode for onOptionChange
-    cy.get(toggleJSButton("onoptionchange")).click({ force: true });
+      // Select "Red" option
+      cy.get(commonlocators.singleSelectWidgetMenuItem)
+        .contains("Red")
+        .click({ force: true });
 
-    // Add onOptionChange action
-    cy.testJsontext("onoptionchange", "{{showAlert(formData.color)}}");
+      // Check for alert
+      cy.get(commonlocators.toastmsg).contains("RED");
+      deployMode.NavigateBacktoEditor();
+    });
 
-    // Click on select field
-    cy.get(`${fieldPrefix}-color`)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
+    it("4. Shows updated formData values in onOptionChange binding", () => {
+      const schema = {
+        name: "John",
+      };
+      agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    // Select "Red" option
-    cy.get(commonlocators.singleSelectWidgetMenuItem)
-      .contains("Red")
-      .click({ force: true });
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      cy.openFieldConfiguration("name");
 
-    // Check for alert
-    cy.get(commonlocators.toastmsg).contains("RED");
-  });
+      // Add onTextChanged action
+      propPane.EnterJSContext("onTextChanged", "{{showAlert(formData.name)}}");
 
-  it("7. Input Field - pre condition", () => {
-    const schema = {
-      name: "John",
-    };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.closePropertyPane();
-  });
+      deployMode.DeployApp();
+      // Change input value
+      cy.get(`${fieldPrefix}-name`).click();
+      cy.get(`${fieldPrefix}-name`).type(" Doe");
 
-  it("8. Shows updated formData values in onOptionChange binding", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("name");
-
-    // Enable JS mode for onTextChanged
-    cy.get(toggleJSButton("ontextchanged")).click({ force: true });
-
-    // Add onTextChanged action
-    cy.testJsontext("ontextchanged", "{{showAlert(formData.name)}}");
-
-    // Change input value
-    cy.get(`${fieldPrefix}-name`).click();
-    cy.get(`${fieldPrefix}-name`).type(" Doe");
-
-    // Check for alert
-    cy.get(commonlocators.toastmsg).contains("John Doe");
-  });
-});
+      // Check for alert
+      cy.get(commonlocators.toastmsg).contains("John Doe");
+    });
+  },
+);

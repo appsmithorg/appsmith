@@ -55,11 +55,11 @@ const StyledButton = styled(Button)`
   }
 `;
 
-type DebugCTAProps = {
+interface DebugCTAProps {
   className?: string;
   // For Analytics
   source?: string;
-};
+}
 
 function DebugCTA(props: DebugCTAProps) {
   const dispatch = useDispatch();
@@ -79,10 +79,10 @@ function DebugCTA(props: DebugCTAProps) {
   return <DebugButton className={props.className} onClick={onClick} />;
 }
 
-type DebugButtonProps = {
+interface DebugButtonProps {
   className?: string;
   onClick: () => void;
-};
+}
 
 export function DebugButton(props: DebugButtonProps) {
   return (

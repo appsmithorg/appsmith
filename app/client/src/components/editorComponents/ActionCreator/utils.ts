@@ -1,6 +1,6 @@
 import { FUNC_ARGS_REGEX } from "./regex";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { isValidURL } from "utils/URLUtils";
+import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import {
   getTextArgumentAtPosition,
   getEnumArgumentAtPosition,
@@ -240,7 +240,11 @@ export const isValueValidURL = (value: string) => {
       }
     }
     const str = value.substring(indices[0], indices[1] + 1);
-    return isValidURL(str);
+    const isValid = isValidURL(str);
+    if (isValid) return isValid;
+    const looksLikeURL = matchesURLPattern(str);
+    if (!looksLikeURL) return false;
+    return isValidURL(`https://${str}`);
   }
 };
 

@@ -4,8 +4,8 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ce.PluginScheduledTaskCEImpl;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +37,10 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
             return Mono.empty();
         }
 
+        String lastUpdatedAtParam = lastUpdatedAt != null ? "&lastUpdatedAt=" + lastUpdatedAt : "";
+
         return configService.getInstanceId().flatMap(instanceId -> WebClientUtils.create(
-                        baseUrl + "/api/v1/plugins?instanceId=" + instanceId + "&lastUpdatedAt=" + lastUpdatedAt)
+                        baseUrl + "/api/v1/plugins?instanceId=" + instanceId + lastUpdatedAtParam)
                 .get()
                 .exchangeToMono(clientResponse ->
                         clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {}))

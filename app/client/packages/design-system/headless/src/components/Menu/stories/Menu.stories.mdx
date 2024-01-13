@@ -1,0 +1,109 @@
+import { Menu, Button, MenuList, Item } from "@design-system/headless";
+import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
+
+<Meta title="Design-system/Headless/Menu" component={Menu} />
+
+export const Template = (args) => {
+  return (
+    <Menu {...args}>
+      <Button>Menu trigger</Button>
+      <MenuList>
+        <Item>Cut</Item>
+        <Item>Copy</Item>
+        <Item>Paste</Item>
+      </MenuList>
+    </Menu>
+  );
+};
+
+# Menu
+
+A menu displays a list of actions or options that a user can choose.
+
+<Canvas>
+  <Story name="Menu">{Template.bind({})}</Story>
+</Canvas>
+
+## Menu props
+
+<ArgsTable story="Menu" of={Menu} />
+
+## MenuList props
+
+<ArgsTable of={MenuList} />
+
+## Item props
+
+Item props are not pulled up in the ArgsTable, the data can be found [here](https://react-spectrum.adobe.com/react-aria/Menu.html#item).
+
+# Placement
+
+The placement of the menu can be changed by passing the `placement` prop.
+
+<Story name="Menu placement">
+  <Menu placement="left">
+    <Button>Left</Button>
+    <MenuList>
+      <Item key="copy">Copy</Item>
+      <Item key="cut">Cut</Item>
+      <Item key="paste">Paste</Item>
+    </MenuList>
+  </Menu>
+  <Menu placement="top">
+    <Button>Top</Button>
+    <MenuList>
+      <Item key="copy">Copy</Item>
+      <Item key="cut">Cut</Item>
+      <Item key="paste">Paste</Item>
+    </MenuList>
+  </Menu>
+  <Menu placement="bottom">
+    <Button>Bottom</Button>
+    <MenuList>
+      <Item key="copy">Copy</Item>
+      <Item key="cut">Cut</Item>
+      <Item key="paste">Paste</Item>
+    </MenuList>
+  </Menu>
+  <Menu placement="right">
+    <Button>Right</Button>
+    <MenuList>
+      <Item key="copy">Copy</Item>
+      <Item key="cut">Cut</Item>
+      <Item key="paste">Paste</Item>
+    </MenuList>
+  </Menu>
+</Story>
+
+# Menu example
+
+<Canvas>
+  <Story name="Menu example">
+    <Menu
+      items={[
+        { id: 1, name: "New" },
+        { id: 2, name: "Open" },
+      ]}
+      onAction={(key) => console.log(key)}
+    >
+      <Button>Menu trigger</Button>
+      <MenuList>{(item) => <Item key={item.name}>{item.name}</Item>}</MenuList>
+    </Menu>
+  </Story>
+</Canvas>
+
+<Source
+  dark
+  code={`
+<Menu
+  items={[
+    { id: 1, name: "New" },
+    { id: 2, name: "Open" },
+  ]}
+  onAction={(key) => console.log(key)}
+>
+  <Button>Menu trigger</Button>
+  <MenuList>{(item) => <Item key={item.name}>{item.name}</Item>}</MenuList>
+</Menu>
+`}
+/>

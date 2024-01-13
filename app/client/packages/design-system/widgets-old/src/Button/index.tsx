@@ -44,7 +44,7 @@ export enum Size {
   large = "large",
 }
 
-type stateStyleType = {
+interface stateStyleType {
   bgColorPrimary: string;
   borderColorPrimary: string;
   txtColorPrimary: string;
@@ -54,20 +54,20 @@ type stateStyleType = {
   bgColorTertiary: string;
   borderColorTertiary: string;
   txtColorTertiary: string;
-};
+}
 
-type BtnColorType = {
+interface BtnColorType {
   bgColor: string;
   txtColor: string;
   border: string;
   outline: string;
-};
+}
 
-type BtnFontType = {
+interface BtnFontType {
   buttonFont: any;
   padding: string;
   height: number;
-};
+}
 
 export enum IconPositions {
   left = "left",
@@ -103,17 +103,17 @@ const defaultProps = {
   tag: "a",
 };
 
-type buttonVariant = {
+interface buttonVariant {
   main: string;
   light: string;
   dark: string;
   darker: string;
   darkest: string;
-};
+}
 
-type ButtonColorType = {
+interface ButtonColorType {
   [index: string]: buttonVariant;
-};
+}
 
 const ButtonColors: ButtonColorType = {
   info: {

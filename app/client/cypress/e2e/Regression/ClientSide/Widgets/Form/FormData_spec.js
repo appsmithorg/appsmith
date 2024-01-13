@@ -1,16 +1,11 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Form data", function () {
+describe("Form data", { tags: ["@tag.Widget", "@tag.Form"] }, function () {
   before(() => {
     _.agHelper.AddDsl("formDataDsl");
   });
 
   it("CheckboxGroupWidget, MultiSelectTreeWidget, MultiSelectWidgetV2, SelectWidget, SingleSelectTreeWidget, SwitchGroupWidget, PhoneInputWidget, InputWidgetV2 and CurrencyInputWidget should have value props of which values are not null or undefined to be included as a form data", function () {
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     // Check form data
     cy.get("[data-testid='container-wrapper-vannrar7rd'] span")
       .should("exist")

@@ -15,12 +15,18 @@ import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "../widget";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
+import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+import {
+  JSON_FORM_CONNECT_BUTTON_TEXT,
+  JSON_FORM_CONNECT_OVERLAY_TEXT,
+} from "../constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 
-type StyledContainerProps = {
+interface StyledContainerProps {
   backgroundColor?: string;
-};
+}
 
-export type JSONFormComponentProps<TValues = any> = {
+export interface JSONFormComponentProps<TValues = any> {
   backgroundColor?: string;
   borderColor?: Color;
   borderRadius?: number;
@@ -35,6 +41,7 @@ export type JSONFormComponentProps<TValues = any> = {
   fixMessageHeight: boolean;
   isWidgetMounting: boolean;
   isSubmitting: boolean;
+  onConnectData: () => void;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
@@ -55,7 +62,8 @@ export type JSONFormComponentProps<TValues = any> = {
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
-};
+  showConnectDataOverlay?: boolean;
+}
 
 const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
   background: ${({ backgroundColor }) => backgroundColor || "#fff"};
@@ -110,12 +118,14 @@ function JSONFormComponent<TValues>(
     getFormData,
     isSubmitting,
     isWidgetMounting,
+    onConnectData,
     onFormValidityUpdate,
     registerResetObserver,
     renderMode,
     resetButtonLabel,
     schema,
     setMetaInternalFieldState,
+    showConnectDataOverlay,
     submitButtonLabel,
     unregisterResetObserver,
     updateFormData,
@@ -140,7 +150,7 @@ function JSONFormComponent<TValues>(
 
   const renderRootField = () => {
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
-    const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
+    const RootField = FIELD_MAP[rootSchemaItem?.fieldType] || Fragment;
     const propertyPath = `schema.${ROOT_SCHEMA_KEY}`;
 
     return (
@@ -165,18 +175,23 @@ function JSONFormComponent<TValues>(
         </InfoMessage>
       );
     }
-    if (isSchemaEmpty) {
+
+    if (showConnectDataOverlay && isSchemaEmpty) {
       return (
-        <InfoMessage fixHeight={fixMessageHeight}>
-          Connect data or paste JSON to add items to this form.
-        </InfoMessage>
+        <div style={{ height: "200px" }}>
+          <ConnectDataOverlay
+            btnText={createMessage(JSON_FORM_CONNECT_BUTTON_TEXT)}
+            message={createMessage(JSON_FORM_CONNECT_OVERLAY_TEXT)}
+            onConnectData={onConnectData}
+          />
+        </div>
       );
     }
 
     return renderRootField();
   })();
 
-  const hideFooter = fieldLimitExceeded || isSchemaEmpty;
+  const hideFooter = fieldLimitExceeded && !showConnectDataOverlay;
 
   return (
     <FormContextProvider

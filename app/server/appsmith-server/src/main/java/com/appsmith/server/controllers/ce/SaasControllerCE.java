@@ -35,7 +35,7 @@ public class SaasControllerCE {
             @PathVariable String datasourceId,
             @PathVariable String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             @RequestParam(required = false) String importForGit,
             ServerWebExchange serverWebExchange) {
 
@@ -43,13 +43,7 @@ public class SaasControllerCE {
                 "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAppsmithToken(
-                        datasourceId,
-                        environmentId,
-                        pageId,
-                        branchName,
-                        serverWebExchange.getRequest(),
-                        importForGit,
-                        Boolean.TRUE)
+                        datasourceId, environmentId, pageId, branchName, serverWebExchange.getRequest(), importForGit)
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 
@@ -58,12 +52,12 @@ public class SaasControllerCE {
     public Mono<ResponseDTO<OAuth2ResponseDTO>> getAccessToken(
             @PathVariable String datasourceId,
             @RequestParam String appsmithToken,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             ServerWebExchange serverWebExchange) {
 
         log.debug("Received callback for an OAuth2 authorization request");
         return authenticationService
-                .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken, Boolean.TRUE)
+                .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 }

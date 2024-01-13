@@ -10,9 +10,6 @@ import { LIST_HEADER_HEIGHT } from "./Debugger/DebuggerLogs";
 const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
-  & > div {
-    padding-top: var(--ads-v2-spaces-4);
-  }
   &.ads-v2-tabs__panel {
     overflow: auto;
   }
@@ -23,7 +20,7 @@ const TabsListWrapper = styled(TabsList)`
     var(--ads-v2-spaces-1);
 `;
 
-type EntityBottomTabsProps = {
+interface EntityBottomTabsProps {
   className?: string;
   tabs: any;
   onSelect?: (tab: any) => void;
@@ -33,7 +30,7 @@ type EntityBottomTabsProps = {
   containerRef?: RefObject<HTMLElement>;
   // height of container when expanded
   expandedHeight?: string;
-};
+}
 
 type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
   CollapsibleTabProps;

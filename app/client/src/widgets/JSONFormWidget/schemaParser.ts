@@ -31,7 +31,7 @@ import { getFieldStylesheet } from "./helper";
 
 type Obj = Record<string, unknown>;
 
-type ParserOptions = {
+interface ParserOptions {
   baseSchemaPath: string | null;
   currSourceData?: unknown;
   fieldThemeStylesheets?: FieldThemeStylesheet;
@@ -48,26 +48,26 @@ type ParserOptions = {
   sourceDataPath?: string;
   widgetName: string;
   identifier: string;
-};
+}
 
-type SchemaItemsByFieldOptions = {
+interface SchemaItemsByFieldOptions {
   fieldThemeStylesheets?: FieldThemeStylesheet;
   schema: Schema;
   schemaItem: SchemaItem;
   schemaItemPath: string;
   widgetName: string;
-};
+}
 
-type GetKeysFromSchemaOptions = {
+interface GetKeysFromSchemaOptions {
   onlyNonCustomFieldKeys?: boolean;
   onlyCustomFieldKeys?: boolean;
-};
+}
 
-type ParseOptions = {
+interface ParseOptions {
   currSourceData?: unknown;
   schema?: Schema;
   fieldThemeStylesheets?: FieldThemeStylesheet;
-};
+}
 
 function isObject(val: unknown): val is Obj {
   return typeof val === "object" && !Array.isArray(val) && val !== null;
@@ -367,7 +367,7 @@ class SchemaParser {
    * @param schema Previous generated schema if present.
    */
   static parse = (widgetName: string, options: ParseOptions) => {
-    const { currSourceData, schema = {}, fieldThemeStylesheets } = options;
+    const { currSourceData, fieldThemeStylesheets, schema = {} } = options;
     if (!currSourceData)
       return { schema, modifiedSchemaItems: {}, removedSchemaItems: [] };
 
@@ -709,9 +709,9 @@ class SchemaParser {
   static convertObjectToSchema = ({
     baseSchemaPath,
     currSourceData,
-    removedSchemaItems,
     modifiedSchemaItems,
     prevSchema = {},
+    removedSchemaItems,
     sourceDataPath,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {

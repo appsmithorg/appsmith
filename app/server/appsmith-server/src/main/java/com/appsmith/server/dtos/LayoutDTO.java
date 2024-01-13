@@ -1,5 +1,7 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.domains.ScreenType;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,16 +24,16 @@ public class LayoutDTO {
 
     JSONObject dsl;
 
-    List<Set<DslActionDTO>> layoutOnLoadActions;
+    List<Set<DslExecutableDTO>> layoutOnLoadActions;
 
-    // this attribute will be used to display errors caused white calculating allOnLoadAction
-    // PageLoadActionsUtilCEImpl.java
+    // this attribute will be used to display errors caused white calculating allOnLoadExecutable
+    // PageLoadExcutablesUtilCEImpl.java
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     List<ErrorDTO> layoutOnLoadActionErrors;
 
-    // All the actions which have been updated as part of updateLayout function call
-    List<LayoutActionUpdateDTO> actionUpdates;
+    // All the executables which have been updated as part of updateLayout function call
+    List<LayoutExecutableUpdateDTO> actionUpdates;
 
     // All the toast messages that the developer user should be displayed to inform about the consequences of update
     // layout.

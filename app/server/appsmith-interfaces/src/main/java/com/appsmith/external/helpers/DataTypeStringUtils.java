@@ -55,8 +55,6 @@ public class DataTypeStringUtils {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    private static JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter = new Gson().getAdapter(JsonObject.class);
 
     @Deprecated(
@@ -222,6 +220,7 @@ public class DataTypeStringUtils {
         Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
 
+        JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
         String updatedReplacement;
         switch (dataType) {
             case INTEGER:

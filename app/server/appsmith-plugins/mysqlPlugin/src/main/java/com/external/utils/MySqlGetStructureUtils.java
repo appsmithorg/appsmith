@@ -151,24 +151,26 @@ public class MySqlGetStructureUtils {
 
             final String tableName = table.getName();
             table.getTemplates()
-                    .addAll(
-                            List.of(
-                                    new DatasourceStructure.Template(
-                                            "SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
-                                    new DatasourceStructure.Template(
-                                            "INSERT",
-                                            "INSERT INTO " + tableName
-                                                    + " (" + String.join(", ", columnNames) + ")\n"
-                                                    + "  VALUES (" + String.join(", ", columnValues) + ");"),
-                                    new DatasourceStructure.Template(
-                                            "UPDATE",
-                                            "UPDATE " + tableName + " SET"
-                                                    + setFragments + "\n"
-                                                    + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                    new DatasourceStructure.Template(
-                                            "DELETE",
-                                            "DELETE FROM " + tableName
-                                                    + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")));
+                    .addAll(List.of(
+                            new DatasourceStructure.Template(
+                                    "SELECT", "SELECT * FROM " + tableName + " LIMIT 10;", true),
+                            new DatasourceStructure.Template(
+                                    "INSERT",
+                                    "INSERT INTO " + tableName
+                                            + " (" + String.join(", ", columnNames) + ")\n"
+                                            + "  VALUES (" + String.join(", ", columnValues) + ");",
+                                    false),
+                            new DatasourceStructure.Template(
+                                    "UPDATE",
+                                    "UPDATE " + tableName + " SET"
+                                            + setFragments + "\n"
+                                            + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                    false),
+                            new DatasourceStructure.Template(
+                                    "DELETE",
+                                    "DELETE FROM " + tableName
+                                            + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                    false)));
         }
     }
 }

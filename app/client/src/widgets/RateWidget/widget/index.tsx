@@ -1,4 +1,3 @@
-import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -10,10 +9,20 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { Colors } from "constants/Colors";
+import IconSVG from "../icon.svg";
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -93,6 +102,114 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
 }
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
+  static type = "RATE_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Rating",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.CONTENT],
+      needsMeta: true,
+      searchTags: ["stars", "rate"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 4,
+      columns: 20,
+      animateLoading: true,
+      maxCount: 5,
+      defaultRate: 3,
+      activeColor: Colors.RATE_ACTIVE,
+      inactiveColor: Colors.ALTO2,
+      size: "LARGE",
+      isRequired: false,
+      isAllowHalf: false,
+      isDisabled: false,
+      isReadOnly: false,
+      tooltips: ["Terrible", "Bad", "Neutral", "Good", "Great"],
+      widgetName: "Rating",
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 1,
+        active: true,
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        size: "LARGE",
+      },
+      defaults: {
+        columns: 7.272727,
+        rows: 4,
+      },
+      autoDimension: {
+        width: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: (props: RateWidgetProps) => {
+            let maxCount = props.maxCount;
+            if (typeof maxCount !== "number")
+              maxCount = parseInt(props.maxCount as any, 10);
+            return {
+              // 21 is the size of a star, 5 is the margin between stars
+              minWidth: `${maxCount * 21 + (maxCount + 1) * 5}px`,
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        horizontal: true,
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: (props: RateWidgetProps) => {
+        let maxCount = props.maxCount;
+        if (typeof maxCount !== "number")
+          maxCount = parseInt(props.maxCount as any, 10);
+
+        return {
+          maxHeight: {},
+          maxWidth: {},
+          minHeight: { base: "40px" },
+          minWidth: { base: `${maxCount * 21 + (maxCount + 1) * 5}px` },
+        };
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "onRateChanged",
+            propertyValue: propValueMap.run,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc": "Rating widget is used to display ratings in your app.",
@@ -344,35 +461,27 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
           activeColor={this.props.activeColor}
-          bottomRow={this.props.bottomRow}
           inactiveColor={this.props.inactiveColor}
           isAllowHalf={this.props.isAllowHalf}
           isDisabled={this.props.isDisabled}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
           minHeight={this.props.minHeight}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isReadOnly}
-          rightColumn={this.props.rightColumn}
           size={this.props.size}
           tooltips={this.props.tooltips}
-          topRow={this.props.topRow}
           value={this.props.rate}
           widgetId={this.props.widgetId}
         />
       )
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "RATE_WIDGET";
   }
 }
 

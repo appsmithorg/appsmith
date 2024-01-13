@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -78,9 +79,28 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
                 .then();
     }
 
+    /**
+     * This method returns a list of session keys, for the given user email.
+     * @param email The email of the user whose sessions keys should be fetched.
+     * @return      A Mono of list of session keys.
+     */
     @Override
     public Mono<List<String>> getSessionKeysByUserEmail(String email) {
         // This pattern string comes from calling `ReactiveRedisSessionRepository.getSessionKey("*")` private method.
+        return getSessionKeysWithUserSessions()
+                // Now we have tuples of session keys, and the corresponding user objects.
+                // Filter the ones we need to clear out.
+                .filter(tuple ->
+                        StringUtils.equalsIgnoreCase(email, tuple.getT2().getEmail()))
+                .map(Tuple2::getT1)
+                .collectList();
+    }
+
+    /**
+     * This method returns a Flux of tuples, where the first element is the session key, and the second element is the
+     * corresponding User object.
+     */
+    public Flux<Tuple2<String, User>> getSessionKeysWithUserSessions() {
         return redisOperations
                 .keys(SPRING_SESSION_PATTERN)
                 .flatMap(key -> Mono.zip(
@@ -96,13 +116,7 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
                                 .map(e -> (User) ((SecurityContext) e.getValue())
                                         .getAuthentication()
                                         .getPrincipal())
-                                .next()))
-                // Now we have tuples of session keys, and the corresponding user objects.
-                // Filter the ones we need to clear out.
-                .filter(tuple ->
-                        StringUtils.equalsIgnoreCase(email, tuple.getT2().getEmail()))
-                .map(Tuple2::getT1)
-                .collectList();
+                                .next()));
     }
 
     @Override

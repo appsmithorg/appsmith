@@ -11,8 +11,6 @@ import {
 import { IconNames } from "@blueprintjs/icons";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 
 export default {
@@ -124,14 +122,43 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.FUNCTION,
+        type: ValidationTypes.ARRAY,
         params: {
-          expected: {
-            type: "Array of values",
-            example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
-            autocompleteDataType: AutocompleteDataType.ARRAY,
+          required: true,
+          default: [],
+          children: {
+            type: ValidationTypes.ARRAY,
+            params: {
+              required: true,
+              default: [],
+              children: {
+                type: ValidationTypes.UNION,
+                params: {
+                  required: true,
+                  types: [
+                    {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        required: true,
+                      },
+                    },
+                    {
+                      type: ValidationTypes.NUMBER,
+                      params: {
+                        required: true,
+                      },
+                    },
+                    {
+                      type: ValidationTypes.OBJECT,
+                      params: {
+                        required: true,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
           },
-          fnString: sourceDataArrayValidation.toString(),
         },
       },
       evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,

@@ -1,19 +1,20 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCEImpl;
+import com.appsmith.server.solutions.ce_compatible.UserAndAccessManagementServiceCECompatibleImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl
+public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCECompatibleImpl
         implements UserAndAccessManagementService {
 
     public UserAndAccessManagementServiceImpl(
@@ -23,8 +24,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             UserRepository userRepository,
             AnalyticsService analyticsService,
             UserService userService,
-            EmailSender emailSender,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            EmailService emailService,
+            CommonConfig commonConfig) {
 
         super(
                 sessionUserService,
@@ -33,7 +35,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 userRepository,
                 analyticsService,
                 userService,
-                emailSender,
-                permissionGroupPermission);
+                permissionGroupPermission,
+                emailService,
+                commonConfig);
     }
 }

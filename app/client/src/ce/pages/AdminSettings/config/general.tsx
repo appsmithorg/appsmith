@@ -16,6 +16,8 @@ import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system-old";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
+import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
+import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",
@@ -29,11 +31,10 @@ export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
 export const APPSMITH__ADMIN_EMAILS_SETTING: Setting = {
   id: "APPSMITH_ADMIN_EMAILS",
   category: SettingCategories.GENERAL,
-  controlType: SettingTypes.TEXTINPUT,
+  controlType: SettingTypes.TAGINPUT,
   controlSubType: SettingSubtype.EMAIL,
   label: "Admin email",
-  subText:
-    "* Emails of the users who can modify instance settings (comma separated)",
+  subText: "* Emails of the users who can modify instance settings",
   placeholder: "Jane@example.com",
   validate: (value: string) => {
     if (
@@ -72,22 +73,39 @@ export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
 };
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
-  id: "APPSMITH_HIDE_WATERMARK",
-  name: "APPSMITH_HIDE_WATERMARK",
+  id: "hideWatermark",
+  name: "hideWatermark",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "Appsmith watermark",
-  text: "Show Appsmith watermark",
-  needsUpgrade: true,
+  text: "Hide Appsmith watermark",
+  isFeatureEnabled: false,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,
 };
 
-export enum AppsmithFrameAncestorsSetting {
-  ALLOW_EMBEDDING_EVERYWHERE = "ALLOW_EMBEDDING_EVERYWHERE",
-  LIMIT_EMBEDDING = "LIMIT_EMBEDDING",
-  DISABLE_EMBEDDING_EVERYWHERE = "DISABLE_EMBEDDING_EVERYWHERE",
-}
+export const APPSMITH_SINGLE_USER_PER_SESSION_SETTING: Setting = {
+  id: "singleSessionPerUserEnabled",
+  name: "singleSessionPerUserEnabled",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "User session limit",
+  text: "Limit users to a single active session",
+  isFeatureEnabled: false,
+  isDisabled: () => true,
+};
+
+export const APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING: Setting = {
+  id: "showRolesAndGroups",
+  name: "showRolesAndGroups",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "Programmatic access control",
+  text: "Access roles and user groups in code for conditional business logic",
+  isFeatureEnabled: false,
+  isDisabled: () => true,
+};
+
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   id: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
   name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
@@ -121,22 +139,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       },
     ],
   },
-  format: (value: string) => {
-    if (value === "*") {
-      return {
-        value: AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE,
-      };
-    } else if (value === "'none'") {
-      return {
-        value: AppsmithFrameAncestorsSetting.DISABLE_EMBEDDING_EVERYWHERE,
-      };
-    } else {
-      return {
-        value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
-        additionalData: value ? value.replaceAll(" ", ",") : "",
-      };
-    }
-  },
+  format: formatEmbedSettings,
   parse: (value: { value: string; additionalData?: any }) => {
     // Retrieve values from local storage while switching to limit by url option
     const sources = isUndefined(value.additionalData)
@@ -180,6 +183,8 @@ export const config: AdminConfigType = {
     APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING,
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
+    APPSMITH_SINGLE_USER_PER_SESSION_SETTING,
+    APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 } as AdminConfigType;

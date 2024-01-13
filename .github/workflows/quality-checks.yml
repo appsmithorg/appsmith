@@ -13,10 +13,10 @@ jobs:
     steps:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
-    
+
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -84,7 +84,15 @@ jobs:
 
   qc-result:
     name: qc-result
-    needs: [server-spotless, server-unit-tests, client-build, client-prettier, client-unit-tests, client-lint]
+    needs:
+      [
+        server-spotless,
+        server-unit-tests,
+        client-build,
+        client-prettier,
+        client-unit-tests,
+        client-lint,
+      ]
     if: always()
     runs-on: ubuntu-latest
     defaults:

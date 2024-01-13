@@ -6,7 +6,7 @@ import {
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
+import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
@@ -15,12 +15,11 @@ import {
 } from "constants/WidgetConstants";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
-import type { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
@@ -31,19 +30,20 @@ import {
 } from "sagas/WidgetBlueprintSagas";
 import {
   getCanvasWidth,
-  getCurrentAppPositioningType,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
+import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "widgets/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
-export type WidgetMoveParams = {
+export interface WidgetMoveParams {
   widgetId: string;
   leftColumn: number;
   topRow: number;
@@ -59,7 +59,7 @@ export type WidgetMoveParams = {
   allWidgets: CanvasWidgetsReduxState;
   position?: number;
   useAutoLayout?: boolean;
-};
+}
 
 export function* getCanvasSizeAfterWidgetMove(
   canvasWidgetId: string,
@@ -72,9 +72,8 @@ export function* getCanvasSizeAfterWidgetMove(
   let mainCanvasMinHeight;
   let canvasParentMinHeight = canvasWidget.minHeight;
   if (canvasWidgetId === MAIN_CONTAINER_WIDGET_ID) {
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
     mainCanvasMinHeight = mainCanvasProps?.height;
   } else if (canvasWidget.parentId) {
     const parent: FlattenedWidgetProps = yield select(
@@ -335,11 +334,10 @@ function* moveWidgetsSaga(
       );
     }
 
-    const appPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
-    );
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-    if (appPositioningType === AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.AUTO) {
       /**
        * If previous parent is an auto-layout container,
        * then update the flex layers.

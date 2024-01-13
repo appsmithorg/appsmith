@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -10,10 +10,80 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
-import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
+  static type = "PROGRESS_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Progress", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.CONTENT],
+      needsMeta: false, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+      searchTags: ["percent"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "Progress",
+      rows: 4,
+      columns: 28,
+      fillColor: Colors.GREEN,
+      isIndeterminate: false,
+      showResult: false,
+      counterClosewise: false,
+      isVisible: true,
+      steps: 1,
+      progressType: ProgressType.LINEAR,
+      progress: 50,
+      version: 1,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        progressType: ProgressType.LINEAR,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "120px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -203,7 +273,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderRadius,
       counterClockwise,
@@ -214,7 +284,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       showResult,
       steps,
     } = this.props;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const isScaleY = componentHeight > componentWidth;
 
     return (
@@ -234,10 +304,6 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
         }
       />
     );
-  }
-
-  static getWidgetType(): string {
-    return "PROGRESS_WIDGET";
   }
 }
 

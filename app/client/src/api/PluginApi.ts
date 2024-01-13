@@ -55,27 +55,29 @@ class PluginsApi extends Api {
   static defaultDynamicTriggerURL(datasourceId: string): string {
     return `/v1/datasources/${datasourceId}/trigger`;
   }
-  static fetchPlugins(
+  static async fetchPlugins(
     workspaceId: string,
-  ): AxiosPromise<ApiResponse<Plugin[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Plugin[]>>> {
     return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
-  static fetchFormConfig(
+  static async fetchFormConfig(
     id: string,
-  ): AxiosPromise<ApiResponse<PluginFormPayload>> {
+  ): Promise<AxiosPromise<ApiResponse<PluginFormPayload>>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
   }
 
   // Definition to fetch the dynamic data via the URL passed in the config
-  static fetchDynamicFormValues(
+  static async fetchDynamicFormValues(
     url: string,
     body: Record<string, any>,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(url, body);
   }
 
-  static fetchDefaultPlugins(): AxiosPromise<ApiResponse<DefaultPlugin[]>> {
+  static async fetchDefaultPlugins(): Promise<
+    AxiosPromise<ApiResponse<DefaultPlugin[]>>
+  > {
     return Api.get(PluginsApi.url + `/default/icons`);
   }
 }

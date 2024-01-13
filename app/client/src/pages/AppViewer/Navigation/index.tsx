@@ -18,7 +18,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import PageMenu from "pages/AppViewer/PageMenu";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 import { useHref } from "pages/Editor/utils";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import TopHeader from "./components/TopHeader";
 import Sidebar from "./Sidebar";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";

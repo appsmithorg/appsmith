@@ -1,5 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.services.ce.UserServiceCE;
+import com.appsmith.server.services.ce_compatible.UserServiceCECompatible;
 
-public interface UserService extends UserServiceCE {}
+public interface UserService extends UserServiceCECompatible {}

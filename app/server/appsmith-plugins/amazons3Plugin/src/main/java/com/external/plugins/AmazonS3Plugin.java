@@ -87,6 +87,8 @@ import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
 import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
+import static com.external.plugins.constants.FieldName.KEY_BUCKET;
+import static com.external.plugins.constants.FieldName.KEY_DATA;
 import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_PAGINATE;
 import static com.external.plugins.constants.FieldName.LIST_PREFIX;
@@ -110,6 +112,7 @@ import static com.external.plugins.constants.S3PluginConstants.YES;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
 @Slf4j
 public class AmazonS3Plugin extends BasePlugin {
@@ -209,6 +212,36 @@ public class AmazonS3Plugin extends BasePlugin {
             }
 
             return urlList;
+        }
+
+        /**
+         * This function returns the unsigned file urls for the files present in the body
+         */
+        ArrayList<String> createFileUrlsFromBody(AmazonS3 connection, String bucketName, String path, String body)
+                throws AppsmithPluginException {
+            List<MultipartFormDataDTO> multipartFormDataDTOs;
+            ArrayList<String> urlList = new ArrayList<>();
+            try {
+                multipartFormDataDTOs = Arrays.asList(objectMapper.readValue(body, MultipartFormDataDTO[].class));
+            } catch (IOException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        S3ErrorMessages.UNPARSABLE_CONTENT_ERROR_MSG,
+                        e.getMessage());
+            }
+            multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
+                final String filePath = path + multipartFormDataDTO.getName();
+
+                urlList.add(connection.getUrl(bucketName, filePath).toString());
+            });
+            return urlList;
+        }
+
+        /**
+         * This function returns the unsigned file url for the file path
+         */
+        String createFileUrl(AmazonS3 connection, String bucketName, String path) {
+            return connection.getUrl(bucketName, path).toString();
         }
 
         /*
@@ -640,9 +673,12 @@ public class AmazonS3Plugin extends BasePlugin {
                                     signedUrl = uploadFileFromBody(
                                             connection, bucketName, path, body, false, expiryDateTime);
                                 }
+                                // gets the unsigned url for the file
+                                String url = createFileUrl(connection, bucketName, path);
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrl", signedUrl);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
+                                ((HashMap<String, Object>) actionResult).put("url", url);
                                 requestParams.add(
                                         new RequestParamDTO(CREATE_EXPIRY, expiryDateTimeString, null, null, null));
                                 requestParams.add(
@@ -691,6 +727,9 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrls", signedUrls);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
+                                // Adds the unsigned urls in the response
+                                ((HashMap<String, Object>) actionResult)
+                                        .put("urls", createFileUrlsFromBody(connection, bucketName, path, body));
 
                                 requestParams.add(
                                         new RequestParamDTO(CREATE_EXPIRY, expiryDateTimeString, null, null, null));
@@ -1034,6 +1073,29 @@ public class AmazonS3Plugin extends BasePlugin {
             transferManager
                     .upload(bucketName, path, inputStream, objectMetadata)
                     .waitForUploadResult();
+        }
+
+        /**
+         * This method is supposed to provide help with any update required to template queries that are used to create
+         * the actual select, updated, insert etc. queries as part of the generate CRUD page feature. Any plugin that
+         * needs special handling should override this method. e.g. in case of the S3 plugin some special handling is
+         * required because (a) it uses UQI config form (b) it has concept of bucket instead of table.
+         */
+        @Override
+        public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
+                List<ActionConfiguration> actionConfigurationList, Object... args) {
+            if (isEmpty(actionConfigurationList)) {
+                return Mono.empty();
+            }
+
+            /* Add mapping to replace template bucket name with user chosen bucket everywhere in the template */
+            Map<String, String> mappedColumnsAndTableName = (Map<String, String>) args[0];
+            final String userSelectedBucketName = (String) args[1];
+            Map<String, Object> formData = actionConfigurationList.get(0).getFormData();
+            mappedColumnsAndTableName.put(
+                    (String) ((Map<?, ?>) formData.get(KEY_BUCKET)).get(KEY_DATA), userSelectedBucketName);
+
+            return Mono.empty();
         }
     }
 }

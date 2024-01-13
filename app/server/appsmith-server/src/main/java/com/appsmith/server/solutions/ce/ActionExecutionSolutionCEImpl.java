@@ -17,8 +17,11 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
@@ -26,18 +29,16 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
-import com.appsmith.server.services.NewActionService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -52,6 +53,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -86,14 +88,6 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
-import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_CREATED_AT_SHORTNAME;
-import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_ID_SHORTNAME;
-import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_MOCK_SHORTNAME;
-import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_TEMPLATE_SHORTNAME;
-import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_NAME_SHORTNAME;
-import static com.appsmith.server.constants.AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME;
-import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_DEFAULT;
-import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_SHORTNAME;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -177,7 +171,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
      */
     @Override
-    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentId) {
+    public Mono<ActionExecutionResult> executeAction(
+            Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders) {
         return createExecuteActionDTO(partFlux)
                 .flatMap(executeActionDTO -> newActionService
                         .findByBranchNameAndDefaultActionId(
@@ -208,7 +203,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             environmentPermission.getExecutePermission(),
                                             isEmbedded));
                         }))
-                .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
+                .flatMap(tuple2 ->
+                        this.executeAction(tuple2.getT1(), tuple2.getT2(), httpHeaders)) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -220,7 +216,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @param environmentId
      * @return actionExecutionResult if query succeeds, error messages otherwise
      */
-    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentId) {
+    public Mono<ActionExecutionResult> executeAction(
+            ExecuteActionDTO executeActionDTO, String environmentId, HttpHeaders httpHeaders) {
 
         // 1. Validate input parameters which are required for mustache replacements
         replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
@@ -240,7 +237,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = getActionExecutionResult(
-                executeActionDTO, actionDTOMono, datasourceStorageMono, pluginMono, pluginExecutorMono);
+                executeActionDTO, actionDTOMono, datasourceStorageMono, pluginMono, pluginExecutorMono, httpHeaders);
 
         Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceStorageMono);
 
@@ -529,7 +526,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         datasourceStorageMono = Mono.empty();
                     } else {
                         // For embedded datasource, we are simply relying on datasource configuration property
-                        datasourceStorageMono = Mono.just(new DatasourceStorage(datasource, environmentId));
+                        datasourceStorageMono =
+                                Mono.just(datasourceStorageService.createDatasourceStorageFromDatasource(
+                                        datasource, environmentId));
                     }
 
                     return datasourceStorageMono
@@ -538,7 +537,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .flatMap(datasourceStorage -> {
                                 // For embedded datasourceStorage, validate the datasourceStorage for each execution
                                 if (datasourceStorage.getDatasourceId() == null) {
-                                    return datasourceStorageService.validateDatasourceStorage(datasourceStorage, true);
+                                    return datasourceStorageService.validateDatasourceConfiguration(datasourceStorage);
                                 }
 
                                 // The external datasourceStorage have already been validated. No need to validate
@@ -708,7 +707,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             Mono<ActionDTO> actionDTOMono,
             Mono<DatasourceStorage> datasourceStorageMono,
             Mono<Plugin> pluginMono,
-            Mono<PluginExecutor> pluginExecutorMono) {
+            Mono<PluginExecutor> pluginExecutorMono,
+            HttpHeaders httpHeaders) {
 
         return Mono.zip(actionDTOMono, datasourceStorageMono, pluginExecutorMono, pluginMono)
                 .flatMap(tuple -> {
@@ -725,6 +725,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             actionDTO.getName());
 
                     Integer timeoutDuration = actionDTO.getActionConfiguration().getTimeoutInMillisecond();
+
+                    setAutoGeneratedHeaders(plugin, actionDTO, httpHeaders);
 
                     Mono<ActionExecutionResult> actionExecutionResultMono = verifyDatasourceAndMakeRequest(
                                     executeActionDTO, actionDTO, datasourceStorage, plugin, pluginExecutor)
@@ -996,21 +998,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 "errorType", pluginErrorDetails.getErrorType()));
                     }
 
-                    data.putAll(Map.of(
-                            DATASOURCE_ID_SHORTNAME,
-                            ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
-                            ENVIRONMENT_ID_SHORTNAME,
-                            ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
-                            DATASOURCE_NAME_SHORTNAME,
-                            datasourceStorage.getName(),
-                            DATASOURCE_IS_TEMPLATE_SHORTNAME,
-                            ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
-                            DATASOURCE_IS_MOCK_SHORTNAME,
-                            ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
-                            DATASOURCE_CREATED_AT_SHORTNAME,
-                            dsCreatedAt,
-                            ENVIRONMENT_NAME_SHORTNAME,
-                            ObjectUtils.defaultIfNull(environmentName, ENVIRONMENT_NAME_DEFAULT)));
+                    data.putAll(DatasourceAnalyticsUtils.getAnalyticsPropertiesWithStorageOnActionExecution(
+                            datasourceStorage, dsCreatedAt, environmentName));
 
                     // Add the error message in case of erroneous execution
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {
@@ -1062,4 +1051,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     return Mono.just(request);
                 });
     }
+
+    protected void setAutoGeneratedHeaders(Plugin plugin, ActionDTO actionDTO, HttpHeaders httpHeaders) {}
 }

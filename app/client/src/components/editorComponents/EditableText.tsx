@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation } from "react-router";
 import {
   EditableText as BlueprintEditableText,
   Classes,
@@ -12,7 +13,7 @@ export enum EditInteractionKind {
   DOUBLE,
 }
 
-type EditableTextProps = {
+interface EditableTextProps {
   type: "text" | "password" | "email" | "phone" | "date";
   defaultValue: string;
   onTextChanged: (value: string) => void;
@@ -37,7 +38,7 @@ type EditableTextProps = {
   minLines?: number;
   customErrorTooltip?: string;
   useFullWidth?: boolean;
-};
+}
 
 // using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
 // which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
@@ -144,7 +145,10 @@ export function EditableText(props: EditableTextProps) {
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
   const [value, setStateValue] = useState(defaultValue);
+  const [errorMessage, setErrorMessage] = useState<string | boolean>("");
+  const [error, setError] = useState<boolean>(false);
   const inputValRef = useRef("");
+  const location = useLocation();
 
   const setValue = useCallback((value) => {
     inputValRef.current = value;
@@ -171,6 +175,12 @@ export function EditableText(props: EditableTextProps) {
         beforeUnmount(inputValRef.current);
     };
   }, [beforeUnmount]);
+
+  // this removes the error tooltip when a user click on another
+  // JS object while the previous one has the name error tooltip
+  useEffect(() => {
+    setError(false);
+  }, [location.pathname]);
 
   const edit = (e: any) => {
     setIsEditing(true);
@@ -200,12 +210,17 @@ export function EditableText(props: EditableTextProps) {
         finalVal = valueTransform(_value);
       }
       setValue(finalVal);
+      const errorMessage = isInvalid && isInvalid(finalVal);
+      if (errorMessage) {
+        setError(true);
+        setErrorMessage(errorMessage);
+      } else {
+        setError(false);
+      }
     },
-    [valueTransform],
+    [valueTransform, isInvalid],
   );
 
-  const errorMessage = isInvalid && isInvalid(value);
-  const error = errorMessage ? errorMessage : undefined;
   const showEditIcon = !(
     disabled ||
     minimal ||

@@ -1,0 +1,34 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme, ThemeProvider } from "@design-system/theming";
+import { TokenTable, StyledSquarePreview } from "@design-system/storybook";
+
+<Meta title="Design-system/Theme/Tokens/Opacity" />
+
+# Opacity
+
+Opacity is an important aspect of design system that determines the
+transparency of an element. It is measured in percentage, where 0% is
+completely transparent and 100% is completely opaque. In design system,
+opacity is used to create visual hierarchy, depth, and contrast. By
+adjusting the opacity of an element, designers can create subtle or
+dramatic effects that enhance the user experience.
+
+export const Opacity = () => {
+  const { theme } = useTheme();
+  const { opacity } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="opacity" tokens={opacity}>
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              opacity: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<Opacity />

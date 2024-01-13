@@ -17,7 +17,7 @@ import { Colors } from "constants/Colors";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -818,6 +818,14 @@ export const migrateTableWidgetTableDataJsMode = (currentDSL: DSLWidget) => {
       ]);
 
       widget.dynamicPropertyPathList = dynamicPropertyPathList;
+    }
+  });
+};
+
+export const migrateTableServerSideFiltering = (currentDSL: DSLWidget) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      widget.enableServerSideFiltering = false;
     }
   });
 };

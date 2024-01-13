@@ -81,7 +81,7 @@ const StyledAnchorButton = styled(
   ${buttonStyles}
 `;
 
-export type ButtonProps = {
+export interface ButtonProps {
   outline?: boolean;
   filled?: boolean;
   intent?: Intent;
@@ -101,7 +101,7 @@ export type ButtonProps = {
   borderRadius?: string;
   boxShadow?: string;
   boxShadowColor?: string;
-};
+}
 
 export const Button = (props: ButtonProps) => {
   const icon: IconName | undefined =

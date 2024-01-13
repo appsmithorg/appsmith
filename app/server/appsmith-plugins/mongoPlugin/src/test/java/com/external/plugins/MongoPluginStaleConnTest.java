@@ -8,14 +8,12 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
@@ -44,19 +42,15 @@ public class MongoPluginStaleConnTest {
 
     private static String address;
     private static Integer port;
-    private JsonNode value;
-    private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static GenericContainer mongoContainer = new MongoTestContainer();
+    public static MongoDBContainer mongoContainer = MongoTestDBContainerManager.getMongoDBForTest();
 
     @BeforeAll
     public static void setUp() {
-        address = mongoContainer.getContainerIpAddress();
+        address = mongoContainer.getHost();
         port = mongoContainer.getFirstMappedPort();
-        String uri = "mongodb://" + address + ":" + port;
-        mongoClient = MongoClients.create(uri);
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -134,7 +128,7 @@ public class MongoPluginStaleConnTest {
         doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).listCollectionNames();
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig, null, null);
         StepVerifier.create(structureMono)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
                 .verify();
@@ -150,7 +144,7 @@ public class MongoPluginStaleConnTest {
                 .listCollectionNames();
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig, null, null);
         StepVerifier.create(structureMono)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
                 .verify();

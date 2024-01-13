@@ -13,29 +13,62 @@ import type { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { groupBy } from "lodash";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   apiEditorIdURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
-export type ActionGroupConfig = {
+export interface ActionGroupConfig {
   groupName: string;
   types: PluginType[];
   icon: JSX.Element;
   key: string;
   getURL: (
-    pageId: string,
+    parentEntityId: string,
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
   getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
+}
+
+export interface ResolveActionURLProps {
+  plugin?: Plugin;
+  parentEntityId: string;
+  pluginType: PluginType;
+  id: string;
+}
+
+export const resolveActionURL = ({
+  id,
+  parentEntityId,
+  plugin,
+  pluginType,
+}: ResolveActionURLProps) => {
+  if (!!plugin && pluginType === PluginType.SAAS) {
+    return saasEditorApiIdURL({
+      parentEntityId,
+      pluginPackageName: plugin.packageName,
+      apiId: id,
+    });
+  } else if (
+    pluginType === PluginType.DB ||
+    pluginType === PluginType.REMOTE ||
+    pluginType === PluginType.AI
+  ) {
+    return queryEditorIdURL({
+      parentEntityId,
+      queryId: id,
+    });
+  } else {
+    return apiEditorIdURL({ parentEntityId, apiId: id });
+  }
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -44,32 +77,22 @@ export type ActionGroupConfig = {
 export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
   {
     groupName: "Datasources",
-    types: [PluginType.API, PluginType.SAAS, PluginType.DB, PluginType.REMOTE],
+    types: [
+      PluginType.API,
+      PluginType.SAAS,
+      PluginType.DB,
+      PluginType.REMOTE,
+      PluginType.AI,
+    ],
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      pageId: string,
+      parentEntityId: string,
       id: string,
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
-      if (!!plugin && pluginType === PluginType.SAAS) {
-        return saasEditorApiIdURL({
-          pageId,
-          pluginPackageName: plugin.packageName,
-          apiId: id,
-        });
-      } else if (
-        pluginType === PluginType.DB ||
-        pluginType === PluginType.REMOTE
-      ) {
-        return queryEditorIdURL({
-          pageId,
-          queryId: id,
-        });
-      } else {
-        return apiEditorIdURL({ pageId, apiId: id });
-      }
+      return resolveActionURL({ pluginType, plugin, id, parentEntityId });
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
       const isGraphql = isGraphqlPlugin(plugin);
@@ -97,8 +120,9 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
 ];
 
 export const getActionConfig = (type: PluginType) =>
-  ACTION_PLUGIN_MAP.find((configByType: ActionGroupConfig | undefined) =>
-    configByType?.types.includes(type),
+  ACTION_PLUGIN_MAP.find(
+    (configByType: ActionGroupConfig | undefined) =>
+      configByType?.types.includes(type),
   );
 
 export const useNewActionName = () => {

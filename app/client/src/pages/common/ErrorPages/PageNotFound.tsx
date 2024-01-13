@@ -13,9 +13,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import Page from "./Page";
 
-type Props = {
+interface Props {
   flushErrorsAndRedirect: any;
-};
+}
 
 function PageNotFound(props: Props) {
   const { flushErrorsAndRedirect } = props;

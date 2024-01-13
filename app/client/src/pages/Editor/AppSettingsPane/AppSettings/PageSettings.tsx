@@ -16,7 +16,6 @@ import {
   PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
 } from "@appsmith/constants/messages";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
 import { Input, Switch } from "design-system";
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
@@ -35,6 +34,9 @@ import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../Utils";
 import type { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const UrlPreviewWrapper = styled.div`
   height: 52px;
@@ -61,8 +63,10 @@ function PageSettings(props: { page: Page }) {
 
   const appNeedsUpdate = applicationVersion < ApplicationVersion.SLUG_URL;
 
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   const [canManagePages, setCanManagePages] = useState(
-    hasManagePagePermission(page?.userPermissions || []),
+    getHasManagePagePermission(isFeatureEnabled, page?.userPermissions || []),
   );
 
   const [pageName, setPageName] = useState(page.pageName);
@@ -103,7 +107,9 @@ function PageSettings(props: { page: Page }) {
     setCustomSlug(page.customSlug || "");
     setIsShown(!!!page.isHidden);
     setIsDefault(!!page.isDefault);
-    setCanManagePages(hasManagePagePermission(page?.userPermissions || []));
+    setCanManagePages(
+      getHasManagePagePermission(isFeatureEnabled, page?.userPermissions || []),
+    );
   }, [page, page.pageName, page.customSlug, page.isHidden, page.isDefault]);
 
   useEffect(() => {
@@ -279,7 +285,7 @@ function PageSettings(props: { page: Page }) {
         </UrlPreviewWrapper>
       )}
 
-      <div className="flex justify-between content-center pb-2">
+      <div className="flex content-center justify-between pb-2">
         <Switch
           className="mb-0"
           id="t--page-settings-show-nav-control"
@@ -299,7 +305,7 @@ function PageSettings(props: { page: Page }) {
         </Switch>
       </div>
 
-      <div className="flex justify-between content-center">
+      <div className="flex content-center justify-between">
         <Switch
           className="mb-0"
           id="t--page-settings-home-page-control"

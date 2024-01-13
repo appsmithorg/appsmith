@@ -119,7 +119,7 @@
   "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
   "defaultdataBinding": "{'Test','This'}",
   "dropdownErrorMsg": "This value does not evaluate to type Array<Object>",
-  "tableWidgetErrorMsg": "This value does not evaluate to type Array<Object>",
+  "tableWidgetErrorMsg": "Invalid value. This field expects an array of objects(Array<Object>) or the result of a Query such as '{{query1.data}}'.",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
   "bindingSeriesTitle": "{{Chart1.selectedDataPoint.seriesTitle",
   "bindChartData": "{{Chart1.selectedDataPoint",
@@ -142,7 +142,7 @@
   "v2Key": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
   "v3Key": "6LcnzQgfAAAAAMwMlQLppqx7STvZ6pZJoDMXti8k",
   "invalidKey": "abc123",
-  "errorMsg": "Google Re-Captcha token generation failed! Please check the Re-captcha site key.",
+  "errorMsg": "Google reCAPTCHA token generation failed! Please check the reCAPTCHA site key.",
   "treeTextBindingValue": "{{TreeSelect1.selectedOptionValue}}",
   "multiSelectTextBindingValue": "{{MultiSelect1.selectedOptionValues}}",
   "tabBindingValue": "{{Tabs1.selectedTab}}",
@@ -163,5 +163,8 @@
   "fileBindingValue": "{{FilePicker1.isDirty}}",
   "UPGRADEUSERNAME": "arslan+upgrade160@appsmith.com",
   "UPGRADEPASSWORD": "Test@123",
-  "APPURL": "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb"
+  "APPURL": "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb",
+  "iframeUrl": "https://elfsight.com/social-feed-widget/iframe/",
+  "iframeUrlSubstring": "https://elfsight.com/",
+  "iframeRandomUrl": "https://www.google.com"
 }

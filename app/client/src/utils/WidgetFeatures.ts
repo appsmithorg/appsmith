@@ -6,7 +6,7 @@ import type {
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { WidgetConfiguration } from "widgets/constants";
+import type BaseWidget from "widgets/BaseWidget";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -50,30 +50,31 @@ export const WidgetFeatureProps: Record<
 
 export const WidgetFeaturePropertyEnhancements: Record<
   RegisteredWidgetFeatures,
-  (config: WidgetConfiguration) => Record<string, unknown>
+  (config: typeof BaseWidget) => Record<string, unknown>
 > = {
-  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (config: WidgetConfiguration) => {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (widget: typeof BaseWidget) => {
+    const features = widget.getFeatures();
+    const defaults = widget.getDefaults();
+    const config = widget.getConfig();
+
     const newProperties: Partial<WidgetProps> = {};
     newProperties.dynamicHeight =
-      config.features?.dynamicHeight?.defaultValue || DynamicHeight.AUTO_HEIGHT;
+      features?.dynamicHeight?.defaultValue || DynamicHeight.AUTO_HEIGHT;
     if (config.isCanvas) {
       newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
       newProperties.minDynamicHeight =
-        config.defaults.minDynamicHeight ||
+        defaults.minDynamicHeight ||
         WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
       newProperties.maxDynamicHeight =
-        config.defaults.maxDynamicHeight ||
-        WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+        defaults.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
       newProperties.shouldScrollContents = true;
     } else {
       newProperties.minDynamicHeight =
-        config.defaults.minDynamicHeight ||
-        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+        defaults.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
       newProperties.maxDynamicHeight =
-        config.defaults.maxDynamicHeight ||
-        WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+        defaults.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
     }
-    if (config.defaults.overflow) newProperties.overflow = "NONE";
+    if (defaults.overflow) newProperties.overflow = "NONE";
     return newProperties;
   },
 };

@@ -1,4 +1,4 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
@@ -20,21 +20,28 @@ import type {
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
-import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
+import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
+import DataStore from "../dataStore";
+import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import { MessageType, sendMessage } from "utils/MessageUtil";
+import { startSpansInAnEvaluation } from "UITelemetry/generateWebWorkerTraces";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
+export let canvasWidgetsMeta: Record<string, any>;
+export let metaWidgetsCache: MetaWidgetsReduxState;
+export let canvasWidgets: CanvasWidgetsReduxState;
 
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
-  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
-  let nonDynamicFieldValidationOrder: string[] = [];
   let isCreateFirstTree = false;
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
@@ -45,7 +52,7 @@ export default function (request: EvalWorkerSyncRequest) {
   let staleMetaIds: string[] = [];
   let removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let isNewWidgetAdded = false;
-
+  const webworkerSpans = startSpansInAnEvaluation();
   const {
     allActionValidationConfig,
     appMode,
@@ -55,11 +62,15 @@ export default function (request: EvalWorkerSyncRequest) {
     theme,
     unevalTree: __unevalTree__,
     widgets,
+    widgetsMeta,
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
+  canvasWidgets = widgets;
+  canvasWidgetsMeta = widgetsMeta;
+  metaWidgetsCache = metaWidgets;
 
   try {
     if (!dataTreeEvaluator) {
@@ -72,16 +83,23 @@ export default function (request: EvalWorkerSyncRequest) {
         allActionValidationConfig,
       );
 
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-        unevalTree,
-        configTree,
+      const setupFirstTreeResponse = webworkerSpans.profileFn(
+        "setupFirstTree",
+        { description: "during initialisation" },
+        () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
       );
       evalOrder = setupFirstTreeResponse.evalOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+      const dataTreeResponse = webworkerSpans.profileFn(
+        "evalAndValidateFirstTree",
+        { description: "during initialisation" },
+        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+      );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
@@ -103,25 +121,26 @@ export default function (request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-        unevalTree,
-        configTree,
+
+      const setupFirstTreeResponse = webworkerSpans.profileFn(
+        "setupFirstTree",
+        { description: "non-initialisation" },
+        () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-
-      setEvalContext({
-        dataTree: dataTreeEvaluator.evalTree,
-        configTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
+      const dataTreeResponse = webworkerSpans.profileFn(
+        "evalAndValidateFirstTree",
+        { description: "non-initialisation" },
+        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+      );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
@@ -134,9 +153,11 @@ export default function (request: EvalWorkerSyncRequest) {
       if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
-      const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
-        unevalTree,
-        configTree,
+
+      const setupUpdateTreeResponse = webworkerSpans.profileFn(
+        "setupUpdateTree",
+        undefined,
+        () => dataTreeEvaluator?.setupUpdateTree(unevalTree, configTree),
       );
 
       evalOrder = setupUpdateTreeResponse.evalOrder;
@@ -145,28 +166,22 @@ export default function (request: EvalWorkerSyncRequest) {
       removedPaths = setupUpdateTreeResponse.removedPaths;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
-      nonDynamicFieldValidationOrder =
-        setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
-
-      const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
-        evalOrder,
-        nonDynamicFieldValidationOrder,
-        configTree,
-        unEvalUpdates,
-        Object.keys(metaWidgets),
+      const updateResponse = webworkerSpans.profileFn(
+        "evalAndValidateSubTree",
+        undefined,
+        () =>
+          dataTreeEvaluator?.evalAndValidateSubTree(
+            evalOrder,
+            configTree,
+            unEvalUpdates,
+            Object.keys(metaWidgets),
+          ),
       );
-
-      reValidatedPaths = updateResponse.reValidatedPaths;
-
-      setEvalContext({
-        dataTree: dataTreeEvaluator.evalTree,
-        configTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
 
       evalMetaUpdates = JSON.parse(
@@ -201,6 +216,8 @@ export default function (request: EvalWorkerSyncRequest) {
       makeEntityConfigsAsObjProperties(unevalTree, {
         sanitizeDataTree: false,
         evalProps: dataTreeEvaluator?.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       }),
       widgetTypeConfigMap,
       configTree,
@@ -210,14 +227,19 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
+    dataTreeEvaluator,
+  );
+
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
-    reValidatedPaths,
     jsUpdates,
+    webworkerTelemetry: webworkerSpans.allSpans,
     logs,
     unEvalUpdates,
     isCreateFirstTree,
@@ -232,9 +254,23 @@ export default function (request: EvalWorkerSyncRequest) {
   return evalTreeResponse;
 }
 
+export const evalTreeTransmissionErrorHandler: TransmissionErrorHandler = (
+  messageId: string,
+  timeTaken: number,
+  responseData: unknown,
+) => {
+  const sanitizedData = JSON.parse(JSON.stringify(responseData));
+  sendMessage.call(self, {
+    messageId,
+    messageType: MessageType.RESPONSE,
+    body: { data: sanitizedData, timeTaken },
+  });
+};
+
 export function clearCache() {
   dataTreeEvaluator = undefined;
   clearAllIntervals();
   JSObjectCollection.clear();
+  DataStore.clear();
   return true;
 }

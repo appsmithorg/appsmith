@@ -48,10 +48,10 @@ import { generateTableColumnId } from "./TableHelpers";
 import { importSvg } from "design-system-old";
 
 const CheckBoxLineIcon = importSvg(
-  () => import("assets/icons/widget/table/checkbox-line.svg"),
+  async () => import("assets/icons/widget/table/checkbox-line.svg"),
 );
 const CheckBoxCheckIcon = importSvg(
-  () => import("assets/icons/widget/table/checkbox-check.svg"),
+  async () => import("assets/icons/widget/table/checkbox-check.svg"),
 );
 
 export const renderCell = (

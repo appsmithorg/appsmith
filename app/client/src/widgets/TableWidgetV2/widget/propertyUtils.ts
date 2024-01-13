@@ -14,8 +14,10 @@ import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import type { PropertyUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -772,6 +774,50 @@ export const updateMenuItemsSource = (
   return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
 };
 
+export const updateCurrencyDefaultValues = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: unknown;
+  }> = [];
+  const baseProperty = getBasePropertyPath(propertyPath);
+
+  if (propertyValue === ColumnTypes.CURRENCY) {
+    if (!get(props, `${baseProperty}.currencyCode`)) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.currencyCode`,
+        propertyValue: "USD",
+      });
+    }
+
+    if (get(props, `${baseProperty}.decimals`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.decimals`,
+        propertyValue: 0,
+      });
+    }
+
+    if (get(props, `${baseProperty}.notation`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.notation`,
+        propertyValue: "standard",
+      });
+    }
+
+    if (get(props, `${baseProperty}.thousandSeparator`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.thousandSeparator`,
+        propertyValue: true,
+      });
+    }
+  }
+
+  return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
+};
+
 export function selectColumnOptionsValidation(
   value: unknown,
   props: TableWidgetProps,
@@ -982,7 +1028,7 @@ export const tableDataValidation = (
     messages: [
       {
         name: "TypeError",
-        message: `This value does not evaluate to type Array<Object>}`,
+        message: `Invalid value. This field expects an array of objects(Array<Object>) or the result of a Query such as "{{query1.data}}".`,
       },
     ],
   };
@@ -1049,3 +1095,282 @@ export const tableDataValidation = (
 
   return invalidResponse;
 };
+
+export function textForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : [],
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: "The evaluated value should be either a string or a number.",
+  };
+
+  if (
+    _.isString(value) ||
+    _.isNumber(value) ||
+    Array.isArray(value) ||
+    value === undefined
+  ) {
+    if (Array.isArray(value)) {
+      const isValid = value.every((item) => {
+        if (_.isString(item) || _.isNumber(item) || item === undefined) {
+          return true;
+        }
+
+        if (Array.isArray(item)) {
+          return item.every(
+            (subItem) =>
+              _.isString(subItem) ||
+              _.isNumber(subItem) ||
+              subItem === undefined,
+          );
+        }
+
+        return false;
+      });
+
+      return isValid
+        ? generateResponseAndReturn(true)
+        : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+    }
+
+    return generateResponseAndReturn(true);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function booleanForEachRowValidation(
+  value: unknown,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const isBoolean = (value: unknown) => {
+    const isABoolean = value === true || value === false;
+    const isStringTrueFalse = value === "true" || value === "false";
+
+    return isABoolean || isStringTrueFalse || value === undefined;
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: "The evaluated value should be a boolean.",
+  };
+
+  if (isBoolean(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isBoolean(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isBoolean(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function iconNamesForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+  moment: any,
+  propertyPath: string,
+  config: ValidationConfig,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message:
+      "The evaluated value should either be an icon name, undefined, null, or an empty string. We currently use the icons from the Blueprint library. You can see the list of icons at https://blueprintjs.com/docs/#icons",
+  };
+
+  const isIconName = (value: unknown) => {
+    return (
+      config?.params?.allowedValues?.includes(value as string) ||
+      value === undefined ||
+      value === null ||
+      value === ""
+    );
+  };
+
+  if (isIconName(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isIconName(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isIconName(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function iconPositionForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+  moment: any,
+  propertyPath: string,
+  config: ValidationConfig,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: `The evaluated value should be one of the allowed values => ${config?.params?.allowedValues?.join(
+      ", ",
+    )}, undefined, null, or an empty string`,
+  };
+
+  const isIconPosition = (value: unknown) => {
+    return (
+      config?.params?.allowedValues?.includes(value as string) ||
+      value === undefined ||
+      value === null ||
+      value === ""
+    );
+  };
+
+  if (isIconPosition(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isIconPosition(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isIconPosition(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function colorForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+  moment: any,
+  propertyPath: string,
+  config: ValidationConfig,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: `The evaluated value should match ${config?.params?.regex}`,
+  };
+
+  const isColor = (value: unknown) => {
+    return config?.params?.regex?.test(value as string);
+  };
+
+  if (isColor(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isColor(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isColor(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}

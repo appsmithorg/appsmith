@@ -79,3 +79,10 @@ export const MongoDefaultActionConfig = {
     },
   },
 };
+
+export enum VIEW_MODE_TABS {
+  VIEW_DATA = "VIEW_DATA",
+  CONFIGURATIONS = "CONFIGURATIONS",
+}
+
+export const MAX_DATASOURCE_SUGGESTIONS = 3;

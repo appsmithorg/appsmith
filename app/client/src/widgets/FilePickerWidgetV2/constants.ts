@@ -1,3 +1,3 @@
-import { FileDataTypes } from "widgets/constants";
+import { FileDataTypes } from "WidgetProvider/constants";
 
 export default FileDataTypes;

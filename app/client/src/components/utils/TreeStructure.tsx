@@ -67,9 +67,9 @@ const TreeStructureWrapper = styled.div`
   }
 `;
 
-type TreeStructureProps = {
+interface TreeStructureProps {
   children: React.ReactNode;
-};
+}
 
 const TreeStructure = React.forwardRef(
   (props: TreeStructureProps, ref: any) => {

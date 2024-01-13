@@ -1,35 +1,36 @@
 import React from "react";
-import styled from "styled-components";
 import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
-import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
 import { Button } from "design-system";
 import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
-
-const Container = styled.div`
-  width: 100%;
-  height: ${(props) => props.theme.bottomBarHeight};
-  display: flex;
-  position: fixed;
-  justify-content: space-between;
-  background-color: ${(props) => props.theme.colors.editorBottomBar.background};
-  z-index: ${Layers.bottomBar};
-  border-top: solid 1px var(--ads-v2-color-border);
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
+import { Container, Wrapper } from "./components";
+import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { useDispatch } from "react-redux";
+import { softRefreshActions } from "actions/pluginActionActions";
+import { START_SWITCH_ENVIRONMENT } from "@appsmith/constants/messages";
 
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
+  const appId = useSelector(getCurrentApplicationId) || "";
+  const dispatch = useDispatch();
+
+  const onChangeEnv = () => {
+    dispatch(softRefreshActions());
+  };
+
   return (
     <Container>
       <Wrapper>
-        <SwitchEnvironment viewMode={viewMode} />
+        {!viewMode && (
+          <SwitchEnvironment
+            editorId={appId}
+            onChangeEnv={onChangeEnv}
+            startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
+            viewMode={viewMode}
+          />
+        )}
         {!viewMode && <QuickGitActions />}
       </Wrapper>
       {!viewMode && (

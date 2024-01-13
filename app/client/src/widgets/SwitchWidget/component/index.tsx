@@ -4,7 +4,7 @@ import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { AlignWidgetTypes } from "widgets/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { darkenColor } from "widgets/WidgetUtils";
@@ -39,8 +39,7 @@ const SwitchComponentContainer = styled.div<{
   ${({ minHeight }) => `
     ${minHeight ? `min-height: ${minHeight}px;` : undefined}`};
 
-  ${({ width }) => `
-    ${width ? `width: ${width};` : undefined}`};
+  width: 100%;
 
   ${BlueprintControlTransform}
 `;
@@ -113,6 +112,7 @@ function SwitchComponent({
   inputRef,
   isDisabled,
   isDynamicHeightEnabled,
+  isLabelInline,
   isLoading,
   isSwitchedOn,
   label,
@@ -120,9 +120,8 @@ function SwitchComponent({
   labelStyle,
   labelTextColor,
   labelTextSize,
-  onChange,
   minHeight,
-  isLabelInline,
+  onChange,
 }: SwitchComponentProps): JSX.Element {
   const switchAlignClass =
     labelPosition === LabelPosition.Right ? "left" : "right";

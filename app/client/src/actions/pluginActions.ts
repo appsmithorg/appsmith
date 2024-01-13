@@ -20,13 +20,13 @@ export const fetchPluginFormConfigs = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_REQUEST,
 });
 
-export type PluginFormsPayload = {
+export interface PluginFormsPayload {
   formConfigs: Record<string, any[]>;
   editorConfigs: Record<string, any[]>;
   settingConfigs: Record<string, any[]>;
   dependencies: Record<string, DependencyMap>;
   datasourceFormButtonConfigs: Record<string, string[]>;
-};
+}
 
 export const fetchPluginFormConfigsSuccess = (
   payload: PluginFormsPayload,

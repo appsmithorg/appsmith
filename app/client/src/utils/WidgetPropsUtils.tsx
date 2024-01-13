@@ -1,5 +1,5 @@
 import type { FetchPageResponse } from "api/PageApi";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetConfigProps } from "WidgetProvider/constants";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
@@ -12,56 +12,70 @@ import { snapToGrid } from "./helpers";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { transformDSL } from "./DSLMigrations";
-import type { WidgetType } from "./WidgetFactory";
-import type { DSLWidget } from "widgets/constants";
-import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { WidgetType } from "../WidgetProvider/factory";
+import type { DSLWidget } from "WidgetProvider/constants";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";
-import convertDSLtoAutoAndUpdatePositions from "./DSLConversions/fixedToAutoLayout";
-import { checkIsDSLAutoLayout } from "./autoLayout/AutoLayoutUtils";
 
-export type WidgetOperationParams = {
+import type {
+  WidgetDraggingBlock,
+  XYCord,
+} from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { migrateDSL } from "@shared/dsl";
+
+export interface WidgetOperationParams {
   operation: WidgetOperation;
   widgetId: string;
   payload: any;
-};
+}
 
 const defaultDSL = defaultTemplate;
 
-export const extractCurrentDSL = (
-  fetchPageResponse?: FetchPageResponse,
-  isAutoLayout?: boolean,
-  mainCanvasWidth?: number,
-): { dsl: DSLWidget; layoutId: string | undefined } => {
-  const newPage = !fetchPageResponse;
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
+/**
+ * This function is responsible for the following operations:
+ * 1. Using the default DSL if the response doesn't give us a DSL
+ * 2. Running all the DSL migrations on the DSL (migrateDSL)
+ * 3. Transforming the DSL for the specifications of the layout system (only if a DSLTransformer is passed as an argument)
+ * @param dslTransformer A function that takes a DSL and returns a DSL transformed for the specifications of the layout system
+ * @param fetchPageResponse The response from the fetchPage API Call
+ * @returns The updated DSL and the layoutId
+ */
+export const extractCurrentDSL = ({
+  dslTransformer,
+  migrateDSLLocally = true,
+  response,
+}: {
+  dslTransformer?: (dsl: DSLWidget) => DSLWidget;
+  migrateDSLLocally?: boolean;
+  response?: FetchPageResponse;
+}): { dsl: DSLWidget; layoutId: string | undefined } => {
+  // If fetch page response doesn't exist
+  // It means we are creating a new page
+  const newPage = !response;
+  // Get the DSL from the response or default to the defaultDSL
+  const currentDSL = response?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
 
-  const transformedDSL = transformDSL(
-    currentDSL as ContainerWidgetProps<WidgetProps>,
-    newPage,
-  );
-
-  if (!isAutoLayout || checkIsDSLAutoLayout(transformedDSL)) {
-    return {
-      dsl: transformedDSL,
-      layoutId: fetchPageResponse?.data.layouts[0].id,
-    };
+  let dsl = currentDSL as DSLWidget;
+  if (migrateDSLLocally) {
+    // Run all the migrations on this DSL
+    dsl = migrateDSL(
+      currentDSL as ContainerWidgetProps<WidgetProps>,
+      newPage,
+    ) as DSLWidget;
+  }
+  // If this DSL is meant to be transformed
+  // then the dslTransformer would have been passed by the caller
+  if (dslTransformer) {
+    dsl = dslTransformer(dsl);
   }
 
-  const convertedDSL = convertDSLtoAutoAndUpdatePositions(
-    transformedDSL,
-    mainCanvasWidth,
-  );
-
   return {
-    dsl: convertedDSL,
-    layoutId: fetchPageResponse?.data.layouts[0].id,
+    dsl,
+    layoutId: response?.data.layouts[0].id,
   };
 };
 

@@ -1,7 +1,7 @@
-type Tree = {
+interface Tree {
   children?: Tree[];
   [key: string]: any;
-};
+}
 
 export const traverseTree = (tree: Tree, callback: (tree: Tree) => void) => {
   callback(tree);

@@ -3,21 +3,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDefaultPageId } from "sagas/selectors";
 import { getSettings } from "selectors/settingsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-
-import {
-  AppsmithFrameAncestorsSetting,
-  APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
-} from "@appsmith/pages/AdminSettings/config/general";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
 import { updateApplication } from "@appsmith/actions/applicationActions";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { AppsmithFrameAncestorsSetting } from "./Constants/constants";
+import { formatEmbedSettings } from "./Utils/utils";
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
@@ -48,11 +45,9 @@ function useUpdateEmbedSnippet() {
   const user = useSelector(getCurrentUser);
   const defaultPageId = useSelector(getDefaultPageId);
   const featureFlags = useSelector(selectFeatureFlags);
-  const currentSetting: EmbedSetting =
-    APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING.format &&
-    APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING.format(
-      settings["APPSMITH_ALLOWED_FRAME_ANCESTORS"] as string,
-    ).value;
+  const currentSetting: EmbedSetting = formatEmbedSettings(
+    settings["APPSMITH_ALLOWED_FRAME_ANCESTORS"] as string,
+  ).value;
   const embedSettingContent = embedSettingContentConfig[currentSetting];
   const [embedSetting, setEmbedSetting] = useState({
     height: "720px",

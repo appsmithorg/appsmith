@@ -5,17 +5,8 @@ import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import { get } from "lodash";
 import { isJSObjectVariable } from "./utils";
 import isDeepEqualES6 from "fast-deep-equal/es6";
-
-export enum PatchType {
-  "SET" = "SET",
-  "GET" = "GET",
-}
-
-export type Patch = {
-  path: string;
-  method: PatchType;
-  value?: unknown;
-};
+import type { Patch } from "./Collection";
+import { PatchType } from "./Collection";
 
 export type UpdatedPathsMap = Record<string, Patch>;
 

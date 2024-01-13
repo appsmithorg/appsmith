@@ -5,6 +5,9 @@ import {
   jsEditor,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let jsName: any;
 
@@ -19,7 +22,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests", () => {
+describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
   it("1. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
     // create js object - JSObject1
     jsEditor.CreateJSObject(jsObjectBody, {
@@ -49,13 +52,12 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
+    agHelper.GetNAssertElementText(locators._hints, "myFun1", "have.text", 4);
 
     // Same check in JSObject1
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "JSObject2");
-    agHelper.Sleep(500);
     agHelper.TypeText(locators._codeMirrorTextArea, ".");
 
     agHelper.GetNAssertElementText(
@@ -65,7 +67,7 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
+    agHelper.GetNAssertElementText(locators._hints, "myFun1", "have.text", 4);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
@@ -97,7 +99,10 @@ describe("Autocomplete tests", () => {
     agHelper.GetNAssertElementText(locators._hints, "async", "have.text", 0);
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      EditorNavigation.SelectEntityByName(
+        jsName as string,
+        EntityType.JSObject,
+      );
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",
@@ -172,7 +177,10 @@ describe("Autocomplete tests", () => {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      EditorNavigation.SelectEntityByName(
+        jsName as string,
+        EntityType.JSObject,
+      );
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",

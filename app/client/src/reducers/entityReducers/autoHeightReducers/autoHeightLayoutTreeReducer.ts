@@ -4,14 +4,14 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
 
-export type AutoHeightLayoutTreePayload = {
+export interface AutoHeightLayoutTreePayload {
   tree: Record<string, TreeNode>;
   canvasLevelMap: Record<string, number>;
-};
+}
 
-export type AutoHeightLayoutTreeReduxState = {
+export interface AutoHeightLayoutTreeReduxState {
   [widgetId: string]: TreeNode;
-};
+}
 const initialState: AutoHeightLayoutTreeReduxState = {};
 
 const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {

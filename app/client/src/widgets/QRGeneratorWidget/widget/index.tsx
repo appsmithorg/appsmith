@@ -5,7 +5,7 @@ import type { TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
@@ -643,7 +643,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const disableLink: boolean = this.props.disableLink
       ? true
       : this.shouldDisableLink();
@@ -659,20 +659,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       >
         <TextComponent
           backgroundColor={this.props.backgroundColor}
-          bottomRow={this.props.bottomRow}
           disableLink={disableLink}
           fontFamily={this.props.fontFamily}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          leftColumn={this.props.leftColumn}
           overflow={this.props.overflow}
-          rightColumn={this.props.rightColumn}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
-          topRow={this.props.topRow}
           truncateButtonColor={this.props.truncateButtonColor}
           widgetId={this.props.widgetId}
         />

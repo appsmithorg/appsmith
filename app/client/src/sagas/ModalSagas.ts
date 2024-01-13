@@ -38,9 +38,7 @@ import { updateWidgetMetaPropAndEval } from "actions/metaActions";
 import { focusWidget, showModal } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
-import AppsmithConsole from "utils/AppsmithConsole";
-
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
@@ -50,7 +48,7 @@ import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
 import {
   FlexLayerAlignment,
   LayoutDirection,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/common/utils/constants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -111,20 +109,13 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
 export function* showModalByNameSaga(
   action: ReduxAction<{ modalName: string }>,
 ) {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const modal: FlattenedWidgetProps | undefined = Object.values(widgets).find(
     (widget: FlattenedWidgetProps) =>
       widget.widgetName === action.payload.modalName,
   );
   if (modal) {
-    AppsmithConsole.info({
-      text: action.payload.modalName
-        ? `showModal('${action.payload.modalName}') was triggered`
-        : `showModal() was triggered`,
-    });
-
     yield put(showModal(modal.widgetId));
   }
 }

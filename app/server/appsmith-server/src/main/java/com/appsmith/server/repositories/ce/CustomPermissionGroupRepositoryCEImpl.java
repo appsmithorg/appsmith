@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -87,6 +88,11 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Mono<Set<String>> getCurrentUserPermissionGroups() {
         return super.getCurrentUserPermissionGroups();
+    }
+
+    @Override
+    public Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user) {
+        return super.getAllPermissionGroupsForUser(user);
     }
 
     @Override

@@ -9,6 +9,8 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
@@ -29,8 +31,10 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     return (
       <LazyCodeEditor
         additionalDynamicData={this.props.additionalAutoComplete}
+        hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{ value: propertyValue, onChange: this.onChange }}
         mode={EditorModes.TEXT_WITH_BINDING}
+        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={this.props.theme}

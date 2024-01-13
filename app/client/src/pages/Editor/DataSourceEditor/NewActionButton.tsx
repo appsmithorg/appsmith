@@ -1,6 +1,16 @@
 import React, { useCallback, useState } from "react";
 import { PluginType } from "entities/Action";
-import { Button, toast } from "design-system";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  toast,
+  Text,
+  MenuSeparator,
+  Tag,
+} from "design-system";
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,
@@ -9,14 +19,12 @@ import {
 } from "@appsmith/constants/messages";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import { noop } from "utils/AppsmithUtils";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
-type NewActionButtonProps = {
+interface NewActionButtonProps {
   datasource?: Datasource;
   disabled?: boolean;
   packageName?: string;
@@ -25,19 +33,29 @@ type NewActionButtonProps = {
   pluginType?: string;
   style?: any;
   isNewQuerySecondaryButton?: boolean;
-};
+}
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, disabled, isNewQuerySecondaryButton, pluginType } = props;
+  const {
+    datasource,
+    disabled,
+    isLoading,
+    isNewQuerySecondaryButton,
+    pluginType,
+  } = props;
   const [isSelected, setIsSelected] = useState(false);
+  const [isPageSelectionOpen, setIsPageSelectionOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
-  const currentEnvironment = getCurrentEnvironment();
+  const pages = useSelector(getPageList);
+  const currentEnvironment = useSelector(getCurrentEnvironmentId);
+  const pageMenuItems = [
+    pages.find((p) => p.pageId === currentPageId),
+    ...pages.filter((p) => p.pageId !== currentPageId),
+  ];
 
   const createQueryAction = useCallback(
-    (e) => {
-      e?.stopPropagation();
+    (pageId: string) => {
       if (
         pluginType === PluginType.API &&
         (!datasource ||
@@ -57,7 +75,7 @@ function NewActionButton(props: NewActionButtonProps) {
         if (datasource) {
           dispatch(
             createNewQueryAction(
-              currentPageId,
+              pageId,
               props.eventFrom as EventLocation,
               datasource?.id,
             ),
@@ -65,23 +83,81 @@ function NewActionButton(props: NewActionButtonProps) {
         }
       }
     },
-    [dispatch, actions, currentPageId, datasource, pluginType],
+    [dispatch, currentPageId, datasource, pluginType],
   );
 
+  const handleOnInteraction = useCallback(
+    (open: boolean) => {
+      if (disabled || isLoading) return;
+      if (!open) {
+        setIsPageSelectionOpen(false);
+        return;
+      }
+      if (pages.length === 1) {
+        createQueryAction(currentPageId);
+        return;
+      }
+      setIsPageSelectionOpen(true);
+    },
+    [pages, createQueryAction, disabled, isLoading],
+  );
   return (
-    <Button
-      className="t--create-query"
-      isDisabled={!!disabled}
-      isLoading={isSelected || props.isLoading}
-      kind={isNewQuerySecondaryButton ? "secondary" : "primary"}
-      onClick={disabled ? noop : createQueryAction}
-      size="md"
-      startIcon="plus"
-    >
-      {pluginType === PluginType.DB || pluginType === PluginType.SAAS
-        ? createMessage(NEW_QUERY_BUTTON_TEXT)
-        : createMessage(NEW_API_BUTTON_TEXT)}
-    </Button>
+    <Menu onOpenChange={handleOnInteraction} open={isPageSelectionOpen}>
+      <MenuTrigger disabled={disabled}>
+        <Button
+          className="t--create-query"
+          id={"create-query"}
+          isDisabled={!!disabled}
+          isLoading={isSelected || isLoading}
+          kind={isNewQuerySecondaryButton ? "secondary" : "primary"}
+          onClick={() => handleOnInteraction(true)}
+          size="md"
+          startIcon="plus"
+        >
+          {pluginType === PluginType.DB || pluginType === PluginType.SAAS
+            ? createMessage(NEW_QUERY_BUTTON_TEXT)
+            : createMessage(NEW_API_BUTTON_TEXT)}
+        </Button>
+      </MenuTrigger>
+      <MenuContent
+        align={"end"}
+        data-testId={"t--page-selection"}
+        height={pages.length <= 4 ? "fit-content" : "186px"}
+        side={"bottom"}
+      >
+        <Text className="pl-2" kind="heading-xs">{`Create a ${
+          pluginType === PluginType.DB || pluginType === PluginType.SAAS
+            ? "query"
+            : "api"
+        } in`}</Text>
+        {pageMenuItems.map((page, i) => {
+          if (page) {
+            return [
+              <MenuItem
+                key={page.pageId}
+                onSelect={() => createQueryAction(page.pageId)}
+                startIcon={page.isDefault ? "home-3-line" : "page-line"}
+                title={page.pageName}
+              >
+                <div className={"flex justify-between gap-2 flex-1"}>
+                  <Text
+                    className={
+                      "text-ellipsis whitespace-nowrap overflow-hidden"
+                    }
+                    kind={"action-m"}
+                  >
+                    {page.pageName}
+                  </Text>
+                  {i === 0 ? <Tag isClosable={false}>Current</Tag> : null}
+                </div>
+              </MenuItem>,
+              i === 0 ? <MenuSeparator /> : null,
+            ];
+          }
+          return null;
+        })}
+      </MenuContent>
+    </Menu>
   );
 }
 

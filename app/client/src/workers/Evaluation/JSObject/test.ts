@@ -1,4 +1,4 @@
-import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from ".";
 
 describe("updateJSCollectionInUnEvalTree", function () {

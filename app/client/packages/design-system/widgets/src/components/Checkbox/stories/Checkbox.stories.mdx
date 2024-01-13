@@ -1,0 +1,131 @@
+import { Checkbox } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
+
+<Meta
+  title="Design-system/Widgets/Checkbox"
+  component={Checkbox}
+  args={{
+    children: "Check me",
+  }}
+/>
+
+export const Template = (args) => <Checkbox {...args} />;
+
+# Checkbox
+
+Checkbox is a component that allows the user to select one or more options from a set.
+
+<Canvas>
+  <Story name="Checkbox">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Checkbox" of={Checkbox} />
+
+## States
+
+<Story
+  name="State - unchecked"
+  args={{
+    children: "Unchecked",
+  }}
+>
+  {Template.bind({})}
+</Story>
+<Story
+  name="State - Default Checked"
+  args={{
+    defaultSelected: true,
+    children: "Checked",
+  }}
+>
+  {Template.bind({})}
+</Story>
+<Story
+  name="State - Disabled"
+  args={{
+    defaultSelected: true,
+    children: "Disabled",
+    isDisabled: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+<Story
+  name="State - Disabled unchecked"
+  args={{
+    children: "Disabled unchecked",
+    isDisabled: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+<Story
+  name="State - indeterminate"
+  args={{
+    children: "Disabled indeterminate",
+    defaultSelected: true,
+    isIndeterminate: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+<Story
+  name="State - Disabled indeterminate"
+  args={{
+    children: "Disabled indeterminate",
+    isDisabled: true,
+    defaultSelected: true,
+    isIndeterminate: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+<Story
+  name="State - Error"
+  args={{
+    children: "Error",
+    validationState: "invalid",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Label Position
+
+<Story
+  parameters={{
+    width: 250,
+  }}
+  name="Label Position - Left"
+  args={{
+    labelPosition: "left",
+    children: "Label Position - Left",
+  }}
+>
+  {Template.bind({})}
+</Story>
+<Story
+  parameters={{
+    width: 250,
+  }}
+  name="Label Position - Right"
+  args={{
+    labelPosition: "right",
+    children: "Label Position - Right",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Custom Icon
+
+<Story
+  name="Custom Icon"
+  args={{
+    children: "Custom Icon",
+    icon: EmotionHappyLineIcon,
+  }}
+>
+  {Template.bind({})}
+</Story>

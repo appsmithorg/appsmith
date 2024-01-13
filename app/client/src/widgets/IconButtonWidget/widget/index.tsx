@@ -2,7 +2,6 @@ import type { IconName } from "@blueprintjs/icons";
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -13,7 +12,17 @@ import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import IconButtonComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+
+const ICON_BUTTON_SIZE_IN_AUTOLAYOUT = 32;
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -31,6 +40,72 @@ export interface IconButtonWidgetProps extends WidgetProps {
 }
 
 class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
+  static type = "ICON_BUTTON_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Icon button",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.BUTTONS],
+      searchTags: ["click", "submit"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      iconName: IconNames.PLUS,
+      buttonVariant: ButtonVariantTypes.PRIMARY,
+      isDisabled: false,
+      isVisible: true,
+      rows: 4,
+      columns: 4,
+      widgetName: "IconButton",
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+      minWidth: ICON_BUTTON_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      defaults: {
+        rows: 4,
+        columns: 2.21,
+      },
+      autoDimension: {
+        width: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "40px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        horizontal: true,
+        vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "40px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -42,6 +117,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText: "Sets the icon to be used for the icon button",
             controlType: "ICON_SELECT",
             defaultIconName: "plus",
+            hideNoneIcon: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -229,7 +305,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderRadius,
       boxShadow,
@@ -241,6 +317,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       tooltip,
       widgetId,
     } = this.props;
+    const { componentHeight, componentWidth } = this.props;
 
     return (
       <IconButtonComponent
@@ -251,9 +328,8 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         hasOnClickAction={!!this.props.onClick}
         height={
           this.isAutoLayoutMode
-            ? 32
-            : (this.props.bottomRow - this.props.topRow) *
-              this.props.parentRowSpace
+            ? ICON_BUTTON_SIZE_IN_AUTOLAYOUT
+            : componentHeight
         }
         iconName={iconName}
         isDisabled={isDisabled}
@@ -266,9 +342,8 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         widgetId={widgetId}
         width={
           this.isAutoLayoutMode
-            ? 32
-            : (this.props.rightColumn - this.props.leftColumn) *
-              this.props.parentColumnSpace
+            ? ICON_BUTTON_SIZE_IN_AUTOLAYOUT
+            : componentWidth
         }
       />
     );
@@ -281,10 +356,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       "!url": "https://docs.appsmith.com/widget-reference/icon-button",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
     };
-  }
-
-  static getWidgetType(): WidgetType {
-    return "ICON_BUTTON_WIDGET";
   }
 
   handleClick = () => {

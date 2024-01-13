@@ -1,3 +1,0 @@
-export const WDS_V2_WIDGET_MAP = {
-  BUTTON_WIDGET: "BUTTON_WIDGET_V2",
-};

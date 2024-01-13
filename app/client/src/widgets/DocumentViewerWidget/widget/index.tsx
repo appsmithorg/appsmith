@@ -6,8 +6,21 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+
+const isAirgappedInstance = isAirgapped();
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -78,6 +91,62 @@ class DocumentViewerWidget extends BaseWidget<
   DocumentViewerWidgetProps,
   WidgetState
 > {
+  static type = "DOCUMENT_VIEWER_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Document Viewer", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.MEDIA],
+      needsMeta: false, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+      searchTags: ["pdf"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "DocumentViewer",
+      docUrl: !isAirgappedInstance
+        ? "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf"
+        : "",
+      rows: 40,
+      columns: 24,
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "280px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "280px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -159,12 +228,8 @@ class DocumentViewerWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return <DocumentViewerComponent docUrl={this.props.docUrl} />;
-  }
-
-  static getWidgetType(): string {
-    return "DOCUMENT_VIEWER_WIDGET";
   }
 }
 

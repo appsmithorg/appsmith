@@ -1,4 +1,3 @@
-import { propPane } from "../../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class EmbedSettings {

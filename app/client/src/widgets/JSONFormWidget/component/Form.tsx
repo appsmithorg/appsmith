@@ -40,19 +40,19 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   updateFormData: (values: TValues, skipConversion?: boolean) => void;
 }>;
 
-type StyledFormProps = {
+interface StyledFormProps {
   fixedFooter: boolean;
   scrollContents: boolean;
-};
+}
 
-type StyledFormBodyProps = {
+interface StyledFormBodyProps {
   stretchBodyVertically: boolean;
-};
+}
 
-type StyledFooterProps = {
+interface StyledFooterProps {
   fixedFooter: boolean;
   backgroundColor?: string;
-};
+}
 
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;
@@ -288,6 +288,7 @@ function Form<TValues = any>(
               <StyledResetButtonWrapper>
                 <Button
                   {...resetButtonStyles}
+                  className="t--jsonform-reset-btn"
                   onClick={(e) => onReset(schema, e)}
                   text={resetButtonLabel}
                   type="reset"
@@ -296,6 +297,7 @@ function Form<TValues = any>(
             )}
             <Button
               {...submitButtonStyles}
+              className="t--jsonform-submit-btn"
               disabled={disabledWhenInvalid && isFormInValid}
               loading={isSubmitting}
               onClick={onSubmit}

@@ -6,7 +6,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";

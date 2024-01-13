@@ -7,53 +7,67 @@ import { Colors } from "constants/Colors";
 import { Icon as DSIcon } from "design-system";
 import { importRemixIcon, importSvg } from "design-system-old";
 
-const ApisIcon = importSvg(() => import("assets/icons/menu/api.svg"));
+const ApisIcon = importSvg(async () => import("assets/icons/menu/api.svg"));
 const WorkspaceIcon = importSvg(
-  () => import("assets/icons/menu/workspace.svg"),
+  async () => import("assets/icons/menu/workspace.svg"),
 );
 const DataSourcesIcon = importSvg(
-  () => import("assets/icons/menu/data-sources.svg"),
+  async () => import("assets/icons/menu/data-sources.svg"),
 );
-const QueriesIcon = importSvg(() => import("assets/icons/menu/queries.svg"));
-const HomepageIcon = importSvg(() => import("assets/icons/menu/homepage.svg"));
-const ExplorerIcon = importSvg(() => import("assets/icons/menu/explorer.svg"));
+const QueriesIcon = importSvg(
+  async () => import("assets/icons/menu/queries.svg"),
+);
+const HomepageIcon = importSvg(
+  async () => import("assets/icons/menu/homepage.svg"),
+);
+const ExplorerIcon = importSvg(
+  async () => import("assets/icons/menu/explorer.svg"),
+);
 const ApisColoredIcon = importSvg(
-  () => import("assets/icons/menu/api-colored.svg"),
+  async () => import("assets/icons/menu/api-colored.svg"),
 );
 const DataSourcesColoredIcon = importSvg(
-  () => import("assets/icons/menu/datasource-colored.svg"),
+  async () => import("assets/icons/menu/datasource-colored.svg"),
 );
 const DatasourceTableIcon = importSvg(
-  () => import("assets/icons/menu/datasource-table.svg"),
+  async () => import("assets/icons/menu/datasource-table.svg"),
 );
 const PrimaryKeyIcon = importSvg(
-  () => import("assets/icons/menu/primary-key.svg"),
+  async () => import("assets/icons/menu/primary-key.svg"),
 );
 const ForeignKeyIcon = importSvg(
-  () => import("assets/icons/menu/foreign-key.svg"),
+  async () => import("assets/icons/menu/foreign-key.svg"),
 );
 const DatasourceColumnIcon = importSvg(
-  () => import("assets/icons/menu/datasource-column.svg"),
+  async () => import("assets/icons/menu/datasource-column.svg"),
 );
 const WidgetsColoredIcon = importSvg(
-  () => import("assets/icons/menu/widgets-colored.svg"),
+  async () => import("assets/icons/menu/widgets-colored.svg"),
 );
-const JSIcon = importSvg(() => import("assets/icons/menu/js-group.svg"));
+const JSIcon = importSvg(async () => import("assets/icons/menu/js-group.svg"));
 const JSFileIcon = importSvg(
-  () => import("assets/icons/menu/js-file-icon.svg"),
+  async () => import("assets/icons/menu/js-file-icon.svg"),
 );
-const LinkIcon = importSvg(() => import("assets/icons/menu/link.svg"));
+const LinkIcon = importSvg(async () => import("assets/icons/menu/link.svg"));
 const JSFunctionIcon = importSvg(
-  () => import("assets/icons/menu/js-function.svg"),
+  async () => import("assets/icons/menu/js-function.svg"),
 );
 const DataSourcesIconV2 = importSvg(
-  () => import("assets/icons/menu/datasources-2.svg"),
+  async () => import("assets/icons/menu/datasources-2.svg"),
 );
-const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
-const JSIconV2 = importSvg(() => import("assets/icons/menu/js-icon.svg"));
-const QueryMain = importSvg(() => import("assets/icons/menu/query-main.svg"));
+const CurlIcon = importSvg(async () => import("assets/images/Curl-logo.svg"));
+const JSIconV2 = importSvg(async () => import("assets/icons/menu/js-icon.svg"));
+const QueryMain = importSvg(
+  async () => import("assets/icons/menu/query-main.svg"),
+);
 const SortIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowUpDownLineIcon"),
+  async () => import("remixicon-react/ArrowUpDownLineIcon"),
+);
+const GroupQueryIcon = importSvg(
+  async () => import("assets/icons/menu/query-group.svg"),
+);
+const LibraryIcon = importSvg(
+  async () => import("assets/icons/menu/library.svg"),
 );
 
 /* eslint-disable react/display-name */
@@ -224,6 +238,16 @@ export const MenuIcons: {
   CURL_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <CurlIcon />
+    </IconWrapper>
+  ),
+  GROUP_QUERY_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <GroupQueryIcon />
+    </IconWrapper>
+  ),
+  LIBRARY_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <LibraryIcon />
     </IconWrapper>
   ),
 };

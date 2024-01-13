@@ -7,11 +7,11 @@ class OAuthApi extends Api {
   static url = "v1/saas";
 
   // Api endpoint to get "Appsmith token" from server
-  static getAppsmithToken(
+  static async getAppsmithToken(
     datasourceId: string,
     pageId: string,
     isImport?: boolean,
-  ): AxiosPromise<ApiResponse<string>> {
+  ): Promise<AxiosPromise<ApiResponse<string>>> {
     const isImportQuery = isImport ? "?importForGit=true" : "";
     return Api.post(
       `${OAuthApi.url}/${datasourceId}/pages/${pageId}/oauth${isImportQuery}`,
@@ -19,10 +19,10 @@ class OAuthApi extends Api {
   }
 
   // Api endpoint to get access token for datasource authorization
-  static getAccessToken(
+  static async getAccessToken(
     datasourceId: string,
     token: string,
-  ): AxiosPromise<ApiResponse<Datasource>> {
+  ): Promise<AxiosPromise<ApiResponse<Datasource>>> {
     return Api.post(
       `${OAuthApi.url}/${datasourceId}/token?appsmithToken=${token}`,
     );

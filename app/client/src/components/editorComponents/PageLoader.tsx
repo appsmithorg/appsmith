@@ -19,9 +19,9 @@ const PageLoaderWrapper = styled.div`
   }
 `;
 
-type PageLoaderProps = {
+interface PageLoaderProps {
   value?: number;
-};
+}
 
 export function PageLoader(props: PageLoaderProps) {
   return (

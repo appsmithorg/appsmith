@@ -25,10 +25,10 @@ export const isTrueObject = (
 export const getNameFromPropertyNode = (node: PropertyNode): string =>
   isLiteralNode(node.key) ? String(node.key.value) : node.key.name;
 
-type Position = {
+interface Position {
   line: number;
   ch: number;
-};
+}
 
 export const extractContentByPosition = (
   content: string,
@@ -57,4 +57,15 @@ export const extractContentByPosition = (
     }
   }
   return returnedString;
+};
+
+export const getStringValue = (
+  inputValue: string | number | boolean | RegExp,
+) => {
+  if (typeof inputValue === "object" || typeof inputValue === "boolean") {
+    inputValue = JSON.stringify(inputValue);
+  } else if (typeof inputValue === "number" || typeof inputValue === "string") {
+    inputValue += "";
+  }
+  return inputValue;
 };

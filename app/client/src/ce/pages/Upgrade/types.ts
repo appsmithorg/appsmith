@@ -1,17 +1,17 @@
 import type React from "react";
 
-export type Header = {
+export interface Header {
   heading: string;
   subHeadings: string[];
-};
+}
 
-export type CarouselTrigger = {
+export interface CarouselTrigger {
   icon: string;
   heading: string;
   details: string[];
-};
+}
 
-export type Carousel = {
+export interface Carousel {
   triggers: CarouselTrigger[];
   targets: any[];
   design:
@@ -19,19 +19,19 @@ export type Carousel = {
     | "split-right-trigger"
     | "trigger-contains-target"
     | "no-target";
-};
+}
 
-export type Footer = {
+export interface Footer {
   onClick: ((event: React.MouseEvent<HTMLElement>) => void) | undefined;
   message: string;
   showHeading?: boolean;
   isEnterprise?: boolean;
-};
-export type UpgradePageProps = {
+}
+export interface UpgradePageProps {
   header: Header;
   carousel: Carousel;
   footer: Footer;
-};
+}
 
 export type HeaderProps = Header;
 

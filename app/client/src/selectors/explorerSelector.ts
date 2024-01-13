@@ -1,5 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
-import { ExplorerPinnedState } from "reducers/uiReducers/explorerReducer";
+import { ExplorerPinnedState } from "@appsmith/reducers/uiReducers/explorerReducer";
 
 /**
  * returns the pinned state of explorer

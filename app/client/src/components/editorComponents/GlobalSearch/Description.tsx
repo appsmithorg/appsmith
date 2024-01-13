@@ -6,12 +6,12 @@ import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "design-system-old";
 import type { SearchItem } from "./utils";
 
-type Props = {
+interface Props {
   activeItem: SearchItem;
   activeItemType?: SEARCH_ITEM_TYPES;
   query: string;
   scrollPositionRef: React.MutableRefObject<number>;
-};
+}
 
 const Container = styled.div`
   flex: 2;
@@ -199,4 +199,4 @@ function Description(props: Props) {
   );
 }
 
-export default Description;
+export default React.memo(Description);

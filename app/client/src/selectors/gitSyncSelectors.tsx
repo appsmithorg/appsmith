@@ -6,12 +6,15 @@ import {
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
 import type { Branch } from "entities/GitSync";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
 
 export const getIsGitSyncModalOpen = (state: AppState) =>
   state.ui.gitSync.isGitSyncModalOpen;
+
+export const getIsDeploying = (state: AppState) => state.ui.gitSync.isDeploying;
 
 export const getIsDisconnectGitModalOpen = (state: AppState) =>
   state.ui.gitSync.isDisconnectGitModalOpen;
@@ -55,12 +58,15 @@ export const getIsGlobalConfigDefined = createSelector(
 );
 
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
-  state.ui.gitSync.isFetchingGitConfig;
+  state.ui.gitSync.isFetchingGlobalGitConfig;
 
 export const getIsFetchingLocalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingLocalGitConfig;
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
+
+export const getGitRemoteStatus = (state: AppState) =>
+  state.ui.gitSync.gitRemoteStatus;
 
 export const getGitConnectError = (state: AppState) =>
   state.ui.gitSync.connectError?.error;
@@ -79,6 +85,9 @@ export const getGitDiscardError = (state: AppState) =>
 
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
+
+export const getIsFetchingGitRemoteStatus = (state: AppState) =>
+  state.ui.gitSync.isFetchingGitRemoteStatus;
 
 export const getIsPullingProgress = (state: AppState) =>
   state.ui.gitSync.pullInProgress;
@@ -175,7 +184,7 @@ export const getDisconnectDocUrl = () =>
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/disconnect-the-git-repository";
 
 export const getConnectingErrorDocUrl = (state: AppState) =>
-  state.ui.gitSync.connectError?.error.referenceDoc ||
+  state.ui.gitSync.connectError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
 
 export const getUpstreamErrorDocUrl = (state: AppState) =>
@@ -196,3 +205,59 @@ export const getBranchSwitchingDetails = (state: AppState) => ({
   isSwitchingBranch: state.ui.gitSync.isSwitchingBranch,
   switchingToBranch: state.ui.gitSync.switchingToBranch,
 });
+
+// feature flag selectors
+export const getIsGitStatusLiteEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_git_status_lite_enabled,
+);
+
+export const getIsGitConnectV2Enabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_git_connect_v2_enabled,
+);
+
+export const getProtectedBranchesSelector = (state: AppState) =>
+  state.ui.gitSync.protectedBranches;
+
+export const protectedModeSelector = createSelector(
+  getIsGitConnected,
+  getCurrentGitBranch,
+  getProtectedBranchesSelector,
+  (isGitConnected, currentBranch, protectedBranches = []) => {
+    if (!isGitConnected || !currentBranch) {
+      return false;
+    } else {
+      return protectedBranches.includes(currentBranch);
+    }
+  },
+);
+
+export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
+  return (
+    state.ui.gitSync.isUpdateProtectedBranchesLoading ||
+    state.ui.gitSync.protectedBranchesLoading
+  );
+};
+
+export const getIsGetProtectedBranchesLoading = (state: AppState) => {
+  return state.ui.gitSync.protectedBranchesLoading;
+};
+
+export const getIsAutocommitToggling = (state: AppState) =>
+  state.ui.gitSync.togglingAutocommit;
+
+export const getIsAutocommitModalOpen = (state: AppState) =>
+  state.ui.gitSync.isAutocommitModalOpen;
+
+export const getIsPollingAutocommit = (state: AppState) =>
+  state.ui.gitSync.pollingAutocommitStatus;
+
+export const getGitMetadataSelector = (state: AppState) =>
+  state.ui.gitSync.gitMetadata;
+
+export const getGitMetadataLoadingSelector = (state: AppState) =>
+  state.ui.gitSync.gitMetadataLoading;
+
+export const getAutocommitEnabledSelector = (state: AppState) =>
+  !!state.ui.gitSync.gitMetadata?.autoCommitConfig?.enabled;

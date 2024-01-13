@@ -3,9 +3,10 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
+import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
+import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 
 const initialState: WidgetDragResizeState = {
-  isDraggingDisabled: false,
   isDragging: false,
   dragDetails: {},
   autoLayoutDragDetails: {},
@@ -16,6 +17,11 @@ const initialState: WidgetDragResizeState = {
   selectedWidgetAncestry: [],
   entityExplorerAncestry: [],
   isAutoCanvasResizing: false,
+  anvil: {
+    highlightShown: undefined,
+    isDistributingSpace: false,
+  },
+  isDraggingDisabled: false,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -31,7 +37,9 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       draggedOn: string;
     }>,
   ) => {
-    state.dragDetails.draggedOn = action.payload.draggedOn;
+    if (state.dragDetails.draggedOn !== action.payload.draggedOn) {
+      state.dragDetails.draggedOn = action.payload.draggedOn;
+    }
   },
   [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
@@ -108,33 +116,54 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.entityExplorerAncestry = action.payload;
   },
+  //space distribution redux
+  [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START]: (
+    state: WidgetDragResizeState,
+  ) => {
+    state.anvil.isDistributingSpace = true;
+  },
+  [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP]: (
+    state: WidgetDragResizeState,
+  ) => {
+    state.anvil.isDistributingSpace = false;
+  },
+  [AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ highlight?: AnvilHighlightInfo }>,
+  ) => {
+    state.anvil.highlightShown = action.payload.highlight;
+  },
 });
 
-type DraggingGroupCenter = {
+export interface DraggingGroupCenter {
   widgetId?: string;
   top?: number;
   left?: number;
-};
-export type DragDetails = {
+}
+export interface DragDetails {
   dragGroupActualParent?: string;
   draggingGroupCenter?: DraggingGroupCenter;
   newWidget?: any;
   draggedOn?: string;
   dragOffset?: any;
-};
+}
 
-export type WidgetDragResizeState = {
-  isDraggingDisabled: boolean;
+export interface WidgetDragResizeState {
   isDragging: boolean;
   dragDetails: DragDetails;
   autoLayoutDragDetails: any;
   isResizing: boolean;
+  anvil: {
+    highlightShown?: AnvilHighlightInfo;
+    isDistributingSpace: boolean;
+  };
   lastSelectedWidget?: string;
   focusedWidget?: string;
   selectedWidgetAncestry: string[];
   entityExplorerAncestry: string[];
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
-};
+  isDraggingDisabled: boolean;
+}
 
 export default widgetDraggingReducer;

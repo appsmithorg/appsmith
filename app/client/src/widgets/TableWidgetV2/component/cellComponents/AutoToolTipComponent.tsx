@@ -7,7 +7,7 @@ import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { importSvg } from "design-system-old";
 
 const OpenNewTabIcon = importSvg(
-  () => import("assets/icons/control/open-new-tab.svg"),
+  async () => import("assets/icons/control/open-new-tab.svg"),
 );
 
 export const OpenNewTabIconWrapper = styled.div`

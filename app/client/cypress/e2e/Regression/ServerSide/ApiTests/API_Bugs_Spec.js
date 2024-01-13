@@ -1,13 +1,22 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {
   agHelper,
   locators,
-  entityExplorer,
   apiPage,
+  dataManager,
+  entityExplorer,
+  draggableWidgets,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
-describe("Rest Bugs tests", function () {
+describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -45,7 +54,7 @@ describe("Rest Bugs tests", function () {
     );
     agHelper.PressEscape();
 
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
@@ -128,7 +137,7 @@ describe("Rest Bugs tests", function () {
 
   it("2. Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
     cy.startErrorRoutes();
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     //Api 1
     apiPage.CreateAndFillApi(
       "https://api.thecatapi.com/v1/images/search",
@@ -145,35 +154,34 @@ describe("Rest Bugs tests", function () {
   });
 
   it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
-    agHelper.AddDsl("apiTableDsl");
-    cy.wait(5000); //settling time for dsl!
-    cy.get(".ads-v2-spinner").should("not.exist");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    propPane.EnterJSContext("Table data", "{{MockApi.data}}");
     //Api 1
     apiPage.CreateAndFillApi(
-      "https://api.coinbase.com/v2/currencies",
-      "Currencies",
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+      "MockApi",
     );
-    apiPage.RunAPI(false);
+    apiPage.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
-    entityExplorer.SelectEntityByName("Currencies", "Queries/JS");
-    apiPage.EnterURL("https://api.coinbase.com/v2/");
-    agHelper.Sleep();
-    // cy.get(".t--dataSourceField").then(($el) => {
-    //   cy.updateCodeInput($el, "https://api.coinbase.com/v2/");
-    // });
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    table.WaitUntilTableLoad(0, 0, "v2");
+
+    EditorNavigation.SelectEntityByName("MockApi", EntityType.Api);
+    apiPage.EnterURL(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockHttpCodeUrl +
+        "404",
+    );
     apiPage.RunAPI(false);
     agHelper.AssertElementAbsence(
       locators._specificToast("Cyclic dependency found while evaluating"),
     );
     cy.ResponseStatusCheck("404 NOT_FOUND");
-    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
-    cy.get(commonlocators.debuggerToggle).click();
-    cy.wait(1000);
+    agHelper.GetNClick(commonlocators.errorTab);
+    agHelper.GetNClick(commonlocators.debuggerToggle);
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
-        expect($text).contains("Not found");
+        expect($text.toLowerCase()).contains("Not Found".toLowerCase());
       });
   });
 

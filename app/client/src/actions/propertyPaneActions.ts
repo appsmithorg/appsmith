@@ -11,7 +11,10 @@ export const updateWidgetName = (widgetId: string, newName: string) => {
   };
 };
 
-export const bindDataToWidget = (payload: { widgetId: string }) => {
+export const bindDataToWidget = (payload: {
+  widgetId: string;
+  bindingQuery?: string;
+}) => {
   return {
     type: ReduxActionTypes.BIND_DATA_TO_WIDGET,
     payload,

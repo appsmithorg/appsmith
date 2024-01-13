@@ -1,6 +1,7 @@
 name: Cleanup Deploy Previews
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: 0 0 * * *
 
@@ -10,8 +11,6 @@ jobs:
     steps:
       # Checkout the code
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Install mongosh
         run: |

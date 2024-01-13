@@ -17,7 +17,7 @@ jobs:
       # get all the files changes in the cypress/e2e folder
       - name: Get changed files in the cypress/e2e folder
         id: files
-        uses: umani/changed-files@v4.0.0
+        uses: umani/changed-files@v4.1.0
         with:
           repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
           pattern: "app/client/cypress/.*"
@@ -30,7 +30,7 @@ jobs:
             echo "No files changed in the specified folder"
             exit 1
           else
-            echo "::set-output name=files_changed_count::$filesChangedCount"            
+            echo "files_changed_count=$filesChangedCount" >> $GITHUB_OUTPUT
           fi
 
       - name: Check if PR is merged

@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -10,12 +11,11 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ApplicationPermissionImpl;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.google.gson.Gson;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,10 @@ public class ApplicationSnapshotServiceUnitTest {
     ApplicationService applicationService;
 
     @MockBean
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @MockBean
+    ExportApplicationService exportApplicationService;
 
     @MockBean
     ApplicationSnapshotRepository applicationSnapshotRepository;
@@ -54,7 +57,8 @@ public class ApplicationSnapshotServiceUnitTest {
     @Autowired
     ApplicationSnapshotService applicationSnapshotService;
 
-    ApplicationPermission applicationPermission = new ApplicationPermissionImpl();
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     @Autowired
     Gson gson;
@@ -83,7 +87,7 @@ public class ApplicationSnapshotServiceUnitTest {
                         branchName, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.just(branchedAppId));
 
-        Mockito.when(importExportApplicationService.exportApplicationById(
+        Mockito.when(exportApplicationService.exportApplicationById(
                         branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
                 .thenReturn(Mono.just(applicationJson));
 
@@ -140,7 +144,7 @@ public class ApplicationSnapshotServiceUnitTest {
         ArgumentMatcher<ApplicationJson> matchApplicationJson;
         matchApplicationJson = applicationJson1 ->
                 applicationJson1.getExportedApplication().getName().equals(application.getName());
-        Mockito.when(importExportApplicationService.restoreSnapshot(
+        Mockito.when(importApplicationService.restoreSnapshot(
                         eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
                 .thenReturn(Mono.just(application));
 
@@ -189,7 +193,7 @@ public class ApplicationSnapshotServiceUnitTest {
         Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))
                 .thenReturn(Flux.fromIterable(snapshots));
 
-        Mockito.when(importExportApplicationService.restoreSnapshot(
+        Mockito.when(importApplicationService.restoreSnapshot(
                         eq(application.getWorkspaceId()), any(), eq(branchedAppId), eq(branch)))
                 .thenReturn(Mono.just(application));
 
@@ -265,7 +269,7 @@ public class ApplicationSnapshotServiceUnitTest {
                 .thenReturn(Flux.just(applicationSnapshot));
 
         // mock the import application service to return the application that was passed to it
-        Mockito.when(importExportApplicationService.restoreSnapshot(
+        Mockito.when(importApplicationService.restoreSnapshot(
                         eq(application.getWorkspaceId()),
                         argThat(applicationJson1 -> applicationJson1
                                 .getExportedApplication()
