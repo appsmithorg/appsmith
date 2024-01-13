@@ -98,8 +98,9 @@ describe(
     it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
       EditorNavigation.SelectEntityByName("smtpquery", EntityType.Query);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      const fromEmail = `smtp.datasource.tester.${(Math.random().toString(36).substring(0, 7))}@appsmith.com`
       cy.wait(2000);
-      cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
+      cy.xpath("//input[@class='bp3-input']").eq(0).type(fromEmail);
       cy.xpath("//input[@class='bp3-input']").eq(2).type("this is a smtp test");
       // adding an attachment in file picker
       const fixturePath = "testFile.mov";
@@ -112,22 +113,14 @@ describe(
       agHelper.ValidateToastMessage("Sent the email successfully");
 
       //Verifying if mail is sent/received using ted
-      const tedUrl = "http://localhost:5001/v1/cmd";
-      cy.request({
-        method: "GET",
-        url: tedUrl,
-        qs: {
-          cmd: "exim -bp",
-        },
-      }).then((res) => {
+      cy.request("http://localhost:5001/api/v1/maildev-emails").then((res) => {
         expect(res.status).equal(200);
-        const responseBody = JSON.stringify(res.body);
-        cy.log(responseBody);
-        const containsTestAppsmith = /test@appsmith\.com/.test(responseBody);
-        const containsQwertyAppsmith = /qwerty@appsmith\.com/.test(
-          responseBody,
-        );
-        expect(containsTestAppsmith || containsQwertyAppsmith).to.be.true;
+        cy.log(res.body);
+        const thisTestEmail = res.body.find((email) => email.headers.from === fromEmail);
+        expect(thisTestEmail).to.exist;
+        expect(thisTestEmail.headers.subject).equal("this is a smtp test");
+        expect(thisTestEmail.headers.to).equal("qwerty@appsmith.com");
+        expect(thisTestEmail.attachments.length).equal(1);
       });
     });
   },
