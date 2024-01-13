@@ -96,6 +96,7 @@ describe(
     });
 
     it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
+      cy.wait(2000);
       EditorNavigation.SelectEntityByName("smtpquery", EntityType.Query);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       cy.wait(2000);
