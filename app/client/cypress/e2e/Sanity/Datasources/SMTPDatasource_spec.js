@@ -98,7 +98,8 @@ describe(
     it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
       EditorNavigation.SelectEntityByName("smtpquery", EntityType.Query);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      const fromEmail = `smtp.datasource.tester.${(Math.random().toString(36).substring(0, 7))}@appsmith.com`
+      const noise = Math.random().toString(36).substring(0, 7);
+      const fromEmail = `smtp.datasource.tester.${noise}@appsmith.com`;
       cy.wait(2000);
       cy.xpath("//input[@class='bp3-input']").eq(0).type(fromEmail);
       cy.xpath("//input[@class='bp3-input']").eq(2).type("this is a smtp test");
@@ -116,7 +117,9 @@ describe(
       cy.request("http://localhost:5001/api/v1/maildev-emails").then((res) => {
         expect(res.status).equal(200);
         cy.log(res.body);
-        const thisTestEmail = res.body.find((email) => email.headers.from === fromEmail);
+        const thisTestEmail = res.body.find(
+          (email) => email.headers.from === fromEmail,
+        );
         expect(thisTestEmail).to.exist;
         expect(thisTestEmail.headers.subject).equal("this is a smtp test");
         expect(thisTestEmail.headers.to).equal("qwerty@appsmith.com");
