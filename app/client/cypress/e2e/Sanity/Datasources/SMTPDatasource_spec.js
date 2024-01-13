@@ -124,10 +124,15 @@ describe(
         expect(res.status).equal(200);
         const responseBody = JSON.stringify(res.body);
         cy.log(responseBody);
+        cy.log("response recieved");
+
         const containsTestAppsmith = /test@appsmith\.com/.test(responseBody);
         const containsQwertyAppsmith = /qwerty@appsmith\.com/.test(
           responseBody,
         );
+        cy.log(containsTestAppsmith);
+        cy.log(containsQwertyAppsmith);
+
         expect(containsTestAppsmith || containsQwertyAppsmith).to.be.true;
       });
     });
