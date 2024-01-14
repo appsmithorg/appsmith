@@ -64,11 +64,10 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
      */
     @Deprecated(forRemoval = true)
     @JsonView(Views.Internal.class)
-    @Transient
     @QueryTransient
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    protected final Boolean deleted = false;
+    protected Boolean deleted = false;
 
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
