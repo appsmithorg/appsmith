@@ -69,7 +69,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                         ActionDTO publishedActionDTO = newAction.getPublishedAction();
                         ActionDTO actionDTO = unpublishedActionDTO != null ? unpublishedActionDTO : publishedActionDTO;
                         String newActionName = actionDTO != null
-                                ? actionDTO.getValidName() + NAME_SEPARATOR + actionDTO.getPageId()
+                                ? actionDTO.getUserExecutableName() + NAME_SEPARATOR + actionDTO.getPageId()
                                 : null;
                         // TODO: check whether resource updated after last commit - move to a function
                         String pageName = actionDTO.getPageId();

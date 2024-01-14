@@ -5,6 +5,7 @@ import {
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import Canvas from "../../../../support/Pages/Canvas";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -70,7 +71,9 @@ describe(
         "height",
         "440px",
       );
-      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget, {}, [
+        "NewContainer",
+      ]);
       propPane.TogglePropertyState("visible", "Off");
 
       // Preview mode
@@ -92,15 +95,7 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       // Verify multiple widgets selected groups into single container
-      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {
-        ctrlKey: true,
-      });
-      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget, {
-        ctrlKey: true,
-      });
-      EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, {
-        ctrlKey: true,
-      });
+      Canvas.selectMultipleWidgets(["Input1", "Select1", "Text3"]);
       agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{g}`);
       agHelper.Sleep(1000);
       PageLeftPane.assertPresence("Container3");

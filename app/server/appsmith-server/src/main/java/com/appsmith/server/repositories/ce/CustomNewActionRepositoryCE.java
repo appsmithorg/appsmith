@@ -71,8 +71,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    Optional<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions);
-
     Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);

@@ -12,6 +12,8 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -22,10 +24,13 @@ import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -496,31 +501,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                     .is(null);
             criteriaList.add(deletedCriteria);
         }*/
-    }
-
-    @Override
-    public Optional<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions) {
-        return Optional.empty(); /*
-        if (CollectionUtils.isEmpty(newActions)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of new actions to a list of DBObjects
-        List<WriteModel<Document>> dbObjects = newActions.stream()
-                .map(newAction -> {
-                    assert newAction.getId() != null;
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(newAction, document);
-                    document.remove("_id");
-                    return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(newAction.getId())), new Document("$set", document));
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(NewAction.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();*/
     }
 
     @Override

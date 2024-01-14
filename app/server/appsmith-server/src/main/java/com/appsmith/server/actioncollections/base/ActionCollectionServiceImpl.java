@@ -2,6 +2,8 @@ package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
@@ -31,7 +33,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            DefaultResourcesService<ActionCollection> defaultResourcesService) {
         super(
                 scheduler,
                 validator,
@@ -44,6 +47,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                defaultResourcesService);
     }
 }

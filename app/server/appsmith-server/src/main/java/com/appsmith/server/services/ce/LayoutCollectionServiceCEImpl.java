@@ -160,7 +160,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     defaultResources.setBranchName(branchName);
                     collectionDTO.setDefaultResources(defaultResources);
                     actionCollection.setDefaultResources(defaultResources);
-                    actionCollection.setUnpublishedCollection(collectionDTO);
                     actionCollectionService.generateAndSetPolicies(newPage, actionCollection);
                     actionCollection.setUnpublishedCollection(collectionDTO);
                     return Mono.zip(

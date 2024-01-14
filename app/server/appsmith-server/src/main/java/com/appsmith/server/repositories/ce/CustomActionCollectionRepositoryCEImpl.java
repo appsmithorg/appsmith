@@ -5,15 +5,22 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import org.apache.commons.lang3.StringUtils;
 import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
@@ -230,32 +237,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
                 .in(pageIds);
         return queryAll(List.of(pageIdCriteria), permission);*/
-    }
-
-    @Override
-    public Optional<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections) {
-        return Optional.empty(); /*
-        if (CollectionUtils.isEmpty(actionCollections)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of new actions to a list of DBObjects
-        List<WriteModel<Document>> dbObjects = actionCollections.stream()
-                .map(actionCollection -> {
-                    assert actionCollection.getId() != null;
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(actionCollection, document);
-                    document.remove("_id");
-                    return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(actionCollection.getId())),
-                            new Document("$set", document));
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(ActionCollection.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();*/
     }
 
     @Override

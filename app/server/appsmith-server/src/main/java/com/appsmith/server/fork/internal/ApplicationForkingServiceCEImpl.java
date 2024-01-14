@@ -63,12 +63,14 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     protected final PagePermission pagePermission;
     protected final ActionPermission actionPermission;
     private final PermissionGroupService permissionGroupService;
+    private final ActionCollectionRepository actionCollectionRepository;
+    private final NewActionRepository newActionRepository;
+    private final WorkspaceRepository workspaceRepository;
     private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final NewActionRepositoryCake newActionRepository;
     private final WorkspaceRepositoryCake workspaceRepository;
 
     private final ForkableService<Datasource> datasourceForkableService;
-
     /**
      * Clone all applications (except deleted ones), including its pages and actions from one workspace into
      * another. Also clones all datasources (not just the ones used by any applications) provided in the parameter list.
@@ -732,7 +734,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         });//*/
     }
 
-    private Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
+    protected Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
         return applicationMono
                 .map(application -> Boolean.TRUE.equals(application.getForkingEnabled()))
                 .defaultIfEmpty(Boolean.FALSE);

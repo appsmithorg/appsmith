@@ -43,7 +43,5 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Optional<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission);
 
-    Optional<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages);
-
     List<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 }

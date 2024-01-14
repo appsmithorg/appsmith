@@ -12,6 +12,7 @@ import { Widgets } from "../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 describe(
@@ -316,6 +317,9 @@ describe(
       EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
       //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
       dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
+      let query = `FOR document IN ${collectionName}
+      RETURN { country: document.places_to_visit }`;
+      dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
       propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
@@ -332,7 +336,7 @@ describe(
 
     after("Delete collection via curl & then data source", () => {
       //Deleting all queries created on this DB
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.DeleteAllQueriesForDB(dsName);
 
       //Deleting collection via Curl

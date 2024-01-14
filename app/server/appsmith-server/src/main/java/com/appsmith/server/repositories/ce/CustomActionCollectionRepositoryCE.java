@@ -4,7 +4,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
-import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -46,8 +45,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
 
     List<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
-
-    Optional<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections);
 
     List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
 

@@ -1,4 +1,7 @@
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
@@ -14,7 +17,7 @@ describe(
     it("1. Expect tooltip on long names only", function () {
       // create an API with a short name
       cy.CreateAPI(shortName);
-      PageLeftPane.expandCollapseItem("Queries/JS", true);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       // assert that a tooltip does not show up during hover
       cy.get(`.t--entity-item:contains(${shortName})`).realHover();
       cy.get(tooltTipQuery).should("not.exist");

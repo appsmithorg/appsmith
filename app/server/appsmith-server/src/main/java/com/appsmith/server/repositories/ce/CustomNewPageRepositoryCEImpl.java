@@ -13,12 +13,17 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -277,31 +282,6 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     .subscribeOn(Schedulers.boundedElastic())
                     .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
         });*/
-    }
-
-    @Override
-    public Optional<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
-        return Optional.empty(); /*
-        if (CollectionUtils.isEmpty(newPages)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of new pages to a list of DBObjects
-        List<WriteModel<Document>> dbObjects = newPages.stream()
-                .map(newPage -> {
-                    assert newPage.getId() != null;
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(newPage, document);
-                    document.remove("_id");
-                    return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(newPage.getId())), new Document("$set", document));
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(NewPage.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();*/
     }
 
     @Override

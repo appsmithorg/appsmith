@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -44,4 +45,6 @@ public interface AppsmithRepository<T> {
      * @return List of actions that were passed in the method
      */
     Optional<List<InsertManyResult>> bulkInsert(List<T> domainList);
+
+    Mono<List<BulkWriteResult>> bulkUpdate(List<T> domainList);
 }

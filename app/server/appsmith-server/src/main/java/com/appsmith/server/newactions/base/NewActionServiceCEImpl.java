@@ -23,6 +23,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ApplicationMode;
@@ -132,6 +133,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     private final ObservationRegistry observationRegistry;
     private final Map<String, Plugin> defaultPluginMap = new HashMap<>();
     private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();
+    private final DefaultResourcesService<NewAction> defaultResourcesService;
+    private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
 
     public NewActionServiceCEImpl(
             Scheduler scheduler,
@@ -157,7 +160,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             PagePermission pagePermission,
             ActionPermission actionPermission,
             EntityValidationService entityValidationService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            DefaultResourcesService<NewAction> defaultResourcesService,
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -179,6 +184,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
+        this.defaultResourcesService = defaultResourcesService;
+        this.dtoDefaultResourcesService = dtoDefaultResourcesService;
     }
 
     protected void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
@@ -195,7 +202,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
         // action.setId(newAction.getId());
         action.setUserPermissions(newAction.getUserPermissions());
         action.setPolicies(newAction.getPolicies());
-        action.setCreatedAt(newAction.getCreatedAt());
+        /*
+         * Important: This null check before setting the createdAt field to ActionDTO is temporary.
+         * createdAt is part of exported JSON, and we used to import actions with the same value from JSON.
+         * It's wrong but if we fix this, the existing Git connected applications will show a diff for all actions.
+         * We want to avoid this and hence this null check is there.
+         * We're going to remove the createdAt field from JSON and post that this null check will be removed.
+         */
+        if (action.getCreatedAt() == null) {
+            action.setCreatedAt(newAction.getCreatedAt());
+        }
     }
 
     @Override
@@ -291,18 +307,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
         ActionDTO action = newAction.getUnpublishedAction();
 
+        defaultResourcesService.initialize(
+                newAction, newAction.getDefaultResources().getBranchName(), false);
+        dtoDefaultResourcesService.initialize(
+                action, newAction.getDefaultResources().getBranchName(), false);
+
         setCommonFieldsFromNewActionIntoAction(newAction, action);
-
-        if (action.getDefaultResources() == null) {
-            return Mono.error(
-                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getName()));
-        }
-
-        // Remove default appId, branchName and actionId to avoid duplication these resources will be present in
-        // NewAction level default resource
-        action.getDefaultResources().setActionId(null);
-        action.getDefaultResources().setBranchName(null);
-        action.getDefaultResources().setApplicationId(null);
 
         // Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
@@ -1644,33 +1654,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     }
 
     @Override
-    public void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName) {
-        DefaultResources defaultResources = branchedAction.getDefaultResources();
-        // Create new action but keep defaultApplicationId and defaultActionId same for both the actions
-        defaultResources.setBranchName(branchName);
-        newAction.setDefaultResources(defaultResources);
-
-        String defaultPageId = branchedAction.getUnpublishedAction() != null
-                ? branchedAction.getUnpublishedAction().getDefaultResources().getPageId()
-                : branchedAction.getPublishedAction().getDefaultResources().getPageId();
-        DefaultResources defaultsDTO = new DefaultResources();
-        defaultsDTO.setPageId(defaultPageId);
-        if (newAction.getUnpublishedAction() != null) {
-            newAction.getUnpublishedAction().setDefaultResources(defaultsDTO);
-        }
-        if (newAction.getPublishedAction() != null) {
-            newAction.getPublishedAction().setDefaultResources(defaultsDTO);
-        }
-
-        newAction
-                .getUnpublishedAction()
-                .setDeletedAt(branchedAction.getUnpublishedAction().getDeletedAt());
-        newAction.setDeletedAt(branchedAction.getDeletedAt());
-        // Set policies from existing branch object
-        newAction.setPolicies(branchedAction.getPolicies());
-    }
-
-    @Override
     public Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
             ImportActionResultDTO importActionResultDTO) {
@@ -1720,7 +1703,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
                                 .get(newAction.getId())
                                 .get(0));
                         if (unpublishedAction.getDefaultResources() != null
-                                && org.apache.commons.lang3.StringUtils.isEmpty(
+                                && !StringUtils.hasText(
                                         unpublishedAction.getDefaultResources().getCollectionId())) {
 
                             unpublishedAction
@@ -1786,7 +1769,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     @Override
     public Flux<NewAction> findByPageIdsForExport(
             List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
-        return repository.findByPageIds(unpublishedPages, optionalPermission);
+        return repository.findByPageIds(unpublishedPages, optionalPermission).doOnNext(newAction -> {
+            this.setCommonFieldsFromNewActionIntoAction(newAction, newAction.getUnpublishedAction());
+            this.setCommonFieldsFromNewActionIntoAction(newAction, newAction.getPublishedAction());
+        });
     }
 
     @Override
@@ -1855,8 +1841,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             defaults.setApplicationId(newAction.getApplicationId());
         }
         newAction.setDefaultResources(defaults);
-
-        newAction.setUnpublishedAction(action);
     }
 
     @Override
