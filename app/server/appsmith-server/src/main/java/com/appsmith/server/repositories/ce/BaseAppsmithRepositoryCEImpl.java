@@ -11,14 +11,10 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -767,9 +763,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .collectList();*/
     }
 
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {
+    public Optional<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {
+        return Optional.empty(); /*
         if (CollectionUtils.isEmpty(domainObjects)) {
-            return Mono.just(Collections.emptyList());
+            return Optional.of(Collections.emptyList());
         }
 
         // convert the list of new actions to a list of DBObjects
@@ -788,6 +785,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();
+                .collectList();*/
     }
 }

@@ -46,5 +46,5 @@ public interface AppsmithRepository<T> {
      */
     Optional<List<InsertManyResult>> bulkInsert(List<T> domainList);
 
-    Mono<List<BulkWriteResult>> bulkUpdate(List<T> domainList);
+    Optional<List<BulkWriteResult>> bulkUpdate(List<T> domainList);
 }

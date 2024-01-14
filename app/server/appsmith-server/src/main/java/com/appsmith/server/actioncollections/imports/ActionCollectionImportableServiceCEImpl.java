@@ -1,8 +1,8 @@
 package com.appsmith.server.actioncollections.imports;
 
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -18,14 +18,16 @@ import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
 @RequiredArgsConstructor

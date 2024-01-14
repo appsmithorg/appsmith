@@ -4,7 +4,6 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryTransient;
-import lombok.AccessLevel;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;

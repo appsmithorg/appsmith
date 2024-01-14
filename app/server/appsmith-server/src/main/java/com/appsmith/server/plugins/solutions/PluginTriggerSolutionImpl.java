@@ -1,7 +1,7 @@
 package com.appsmith.server.plugins.solutions;
 
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ public class PluginTriggerSolutionImpl extends PluginTriggerSolutionCEImpl imple
     public PluginTriggerSolutionImpl(
             DatasourceTriggerSolution datasourceTriggerSolution,
             PluginExecutorHelper pluginExecutorHelper,
-            PluginRepository pluginRepository) {
+            PluginRepositoryCake pluginRepository) {
         super(datasourceTriggerSolution, pluginExecutorHelper, pluginRepository);
     }
 }

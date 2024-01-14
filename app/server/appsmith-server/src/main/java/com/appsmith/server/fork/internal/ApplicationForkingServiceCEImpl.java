@@ -63,9 +63,6 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     protected final PagePermission pagePermission;
     protected final ActionPermission actionPermission;
     private final PermissionGroupService permissionGroupService;
-    private final ActionCollectionRepository actionCollectionRepository;
-    private final NewActionRepository newActionRepository;
-    private final WorkspaceRepository workspaceRepository;
     private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final NewActionRepositoryCake newActionRepository;
     private final WorkspaceRepositoryCake workspaceRepository;

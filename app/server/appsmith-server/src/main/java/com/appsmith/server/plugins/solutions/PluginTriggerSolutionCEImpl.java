@@ -7,7 +7,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -21,12 +21,12 @@ import java.util.Map;
 public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
     private final DatasourceTriggerSolution datasourceTriggerSolution;
     private final PluginExecutorHelper pluginExecutorHelper;
-    private final PluginRepository pluginRepository;
+    private final PluginRepositoryCake pluginRepository;
 
     public PluginTriggerSolutionCEImpl(
             DatasourceTriggerSolution datasourceTriggerSolution,
             PluginExecutorHelper pluginExecutorHelper,
-            PluginRepository pluginRepository) {
+            PluginRepositoryCake pluginRepository) {
 
         this.datasourceTriggerSolution = datasourceTriggerSolution;
         this.pluginExecutorHelper = pluginExecutorHelper;

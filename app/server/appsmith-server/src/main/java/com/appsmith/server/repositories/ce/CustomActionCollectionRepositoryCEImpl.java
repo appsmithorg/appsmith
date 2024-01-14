@@ -5,22 +5,14 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import org.apache.commons.lang3.StringUtils;
-import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
