@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -36,7 +37,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            OtlpTelemetry otlpTelemetry) {
         super(
                 newActionService,
                 actionPermission,
@@ -54,6 +56,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                environmentPermission);
+                environmentPermission,
+                otlpTelemetry);
     }
 }

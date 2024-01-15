@@ -25,4 +25,5 @@ public class OtlpSpanNames {
     public static final String DATASOURCES_SPAN = "datasources";
     public static final String FORM_CONFIG_SPAN = "form_config";
     public static final String MOCK_DATASOURCES_SPAN = "mock_datasources";
+    public static final String PLUGIN_EXECUTION = "plugin_execution";
 }

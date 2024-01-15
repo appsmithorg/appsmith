@@ -14,6 +14,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -130,6 +131,9 @@ class ActionExecutionSolutionCEImplTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    OtlpTelemetry otlpTelemetry;
+
     private BodyExtractor.Context context;
 
     private Map<String, Object> hints;
@@ -153,7 +157,8 @@ class ActionExecutionSolutionCEImplTest {
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                environmentPermission);
+                environmentPermission,
+                otlpTelemetry);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
@@ -194,7 +199,7 @@ class ActionExecutionSolutionCEImplTest {
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID, null);
+                actionExecutionSolution.executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -218,7 +223,7 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID, null);
+                actionExecutionSolution.executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -242,7 +247,7 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, null, null);
+                actionExecutionSolution.executeAction(partsFlux, null, null, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -278,7 +283,7 @@ class ActionExecutionSolutionCEImplTest {
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null);
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -295,7 +300,7 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), null);
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
@@ -336,7 +341,7 @@ class ActionExecutionSolutionCEImplTest {
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null);
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -353,7 +358,7 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), null);
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)

@@ -31,6 +31,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -48,6 +49,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
+import io.opentelemetry.api.trace.Span;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -88,6 +90,7 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.server.constants.OtlpSpanNames.PLUGIN_EXECUTION;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -112,6 +115,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final AnalyticsService analyticsService;
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
+    private final OtlpTelemetry otlpTelemetry;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -119,6 +123,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     static final String EXECUTE_ACTION_DTO = "executeActionDTO";
     static final String PARAMETER_MAP = "parameterMap";
     List<Pattern> patternList = new ArrayList<>();
+    public static final String SPAN_ATTRIBUTE_KEY_PLUGIN_NAME = "pluginName";
 
     public ActionExecutionSolutionCEImpl(
             NewActionService newActionService,
@@ -137,7 +142,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            OtlpTelemetry otlpTelemetry) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -155,6 +161,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
+        this.otlpTelemetry = otlpTelemetry;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -168,11 +175,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @param partFlux
      * @param branchName
      * @param environmentId
+     * @param parentSpan
      * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
      */
     @Override
     public Mono<ActionExecutionResult> executeAction(
-            Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders) {
+            Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders, Span parentSpan) {
         return createExecuteActionDTO(partFlux)
                 .flatMap(executeActionDTO -> newActionService
                         .findByBranchNameAndDefaultActionId(
@@ -203,8 +211,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             environmentPermission.getExecutePermission(),
                                             isEmbedded));
                         }))
-                .flatMap(tuple2 ->
-                        this.executeAction(tuple2.getT1(), tuple2.getT2(), httpHeaders)) // getTrue is temporary call
+                .flatMap(tuple2 -> this.executeAction(
+                        tuple2.getT1(), tuple2.getT2(), httpHeaders, parentSpan)) // getTrue is temporary
+                // call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -214,10 +223,11 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      *
      * @param executeActionDTO
      * @param environmentId
+     * @param parentSpan
      * @return actionExecutionResult if query succeeds, error messages otherwise
      */
     public Mono<ActionExecutionResult> executeAction(
-            ExecuteActionDTO executeActionDTO, String environmentId, HttpHeaders httpHeaders) {
+            ExecuteActionDTO executeActionDTO, String environmentId, HttpHeaders httpHeaders, Span parentSpan) {
 
         // 1. Validate input parameters which are required for mustache replacements
         replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
@@ -237,7 +247,13 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = getActionExecutionResult(
-                executeActionDTO, actionDTOMono, datasourceStorageMono, pluginMono, pluginExecutorMono, httpHeaders);
+                executeActionDTO,
+                actionDTOMono,
+                datasourceStorageMono,
+                pluginMono,
+                pluginExecutorMono,
+                httpHeaders,
+                parentSpan);
 
         Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceStorageMono);
 
@@ -610,6 +626,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @param datasourceStorage
      * @param plugin
      * @param pluginExecutor
+     * @param parentSpan
      * @return actionExecutionResultMono
      */
     protected Mono<ActionExecutionResult> verifyDatasourceAndMakeRequest(
@@ -617,7 +634,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             ActionDTO actionDTO,
             DatasourceStorage datasourceStorage,
             Plugin plugin,
-            PluginExecutor pluginExecutor) {
+            PluginExecutor pluginExecutor,
+            Span parentSpan) {
 
         Mono<ActionExecutionResult> executionMono = authenticationValidator
                 .validateAuthentication(datasourceStorage)
@@ -632,6 +650,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
+                    List<Span> pluginExecutionSpanList = new ArrayList<>();
                     return ((PluginExecutor<Object>) pluginExecutor)
                             .executeParameterizedWithMetrics(
                                     resourceContext.getConnection(),
@@ -640,6 +659,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                     actionDTO.getActionConfiguration(),
                                     observationRegistry)
                             .map(actionExecutionResult -> {
+                                this.otlpTelemetry.endOtlpSpanSafely(pluginExecutionSpanList.get(0));
+
                                 ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                 if (actionExecutionRequest == null) {
                                     actionExecutionRequest = new ActionExecutionRequest();
@@ -650,6 +671,18 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
                                 actionExecutionResult.setRequest(actionExecutionRequest);
                                 return actionExecutionResult;
+                            })
+                            .doOnSubscribe(subscription -> {
+                                Span pluginExecutionSpan =
+                                        this.otlpTelemetry.startOTLPSpan(PLUGIN_EXECUTION + "_test", null, parentSpan);
+
+                                /**
+                                 * Using plugin.getPackageName() instead of plugin.getName() because over time a
+                                 * plugin's package name has shown itself to be more stable over its displayed name.
+                                 */
+                                pluginExecutionSpan.setAttribute(
+                                        SPAN_ATTRIBUTE_KEY_PLUGIN_NAME, plugin.getPackageName());
+                                pluginExecutionSpanList.add(pluginExecutionSpan);
                             });
                 });
 
@@ -700,6 +733,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @param datasourceStorageMono
      * @param pluginMono
      * @param pluginExecutorMono
+     * @param parentSpan
      * @return actionExecutionResultMono
      */
     protected Mono<ActionExecutionResult> getActionExecutionResult(
@@ -708,7 +742,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             Mono<DatasourceStorage> datasourceStorageMono,
             Mono<Plugin> pluginMono,
             Mono<PluginExecutor> pluginExecutorMono,
-            HttpHeaders httpHeaders) {
+            HttpHeaders httpHeaders,
+            Span parentSpan) {
 
         return Mono.zip(actionDTOMono, datasourceStorageMono, pluginExecutorMono, pluginMono)
                 .flatMap(tuple -> {
@@ -729,7 +764,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     setAutoGeneratedHeaders(plugin, actionDTO, httpHeaders);
 
                     Mono<ActionExecutionResult> actionExecutionResultMono = verifyDatasourceAndMakeRequest(
-                                    executeActionDTO, actionDTO, datasourceStorage, plugin, pluginExecutor)
+                                    executeActionDTO, actionDTO, datasourceStorage, plugin, pluginExecutor, parentSpan)
                             .timeout(Duration.ofMillis(timeoutDuration));
 
                     return actionExecutionResultMono
