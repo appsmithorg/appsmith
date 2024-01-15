@@ -11,6 +11,7 @@ import type { Action } from "entities/Action";
 import { klona } from "klona";
 
 interface SettingsFormOwnProps<TValues> {
+  moduleInstanceId: string;
   settings: Module["settingsForm"];
   onFormValuesChange: (formValues: TValues) => void;
 }
@@ -23,9 +24,11 @@ type SettingsFormProps<TValues> = InjectedFormProps<
 
 function SettingsForm<TValues>({
   initialValues,
+  moduleInstanceId,
   onFormValuesChange,
   settings,
 }: SettingsFormProps<TValues>) {
+  const instanceRef = useRef(moduleInstanceId);
   const valuesRef = useRef(initialValues);
   const formValues = useSelector(
     (state) =>
@@ -34,11 +37,19 @@ function SettingsForm<TValues>({
   );
 
   useEffect(() => {
-    if (!equal(formValues, valuesRef.current)) {
+    if (
+      moduleInstanceId === instanceRef.current &&
+      !equal(formValues, valuesRef.current)
+    ) {
       valuesRef.current = klona(formValues);
-      onFormValuesChange(formValues);
+      onFormValuesChange(
+        formValues,
+      ); /* on page load setting change triggers 3 API calls due to different payloads */
     }
-  }, [formValues, onFormValuesChange]);
+    if (moduleInstanceId !== instanceRef.current) {
+      instanceRef.current = moduleInstanceId;
+    }
+  }, [formValues, onFormValuesChange, moduleInstanceId, instanceRef.current]);
 
   return (
     <ActionSettings
@@ -50,5 +61,5 @@ function SettingsForm<TValues>({
 
 export default reduxForm<Action, SettingsFormOwnProps<Action>>({
   form: QUERY_MODULE_INSTANCE_SETTINGS_FORM_NAME,
-  enableReinitialize: false,
+  enableReinitialize: true,
 })(SettingsForm);

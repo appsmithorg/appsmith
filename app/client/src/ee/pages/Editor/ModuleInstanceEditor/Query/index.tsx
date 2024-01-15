@@ -132,6 +132,7 @@ function QueryModuleInstanceEditor({
           <StyledDivider />
           <SettingsForm
             initialValues={publicAction}
+            moduleInstanceId={moduleInstanceId}
             onFormValuesChange={onSettingsFormChange}
             settings={moduleSettings}
           />
