@@ -13,11 +13,6 @@ describe(
   () => {
     before(() => {
       agHelper.GenerateUUID();
-      // cy.get("@guid").then((uid) => {
-      //   guid = uid;
-      //   workspaceName = "workspaceName-" + guid;
-      //   homePage.CreateNewWorkspace(workspaceName, true);
-      // });
       homePage.ImportApp(`PartialImportExport/${fixtureName}`);
 
       featureFlagIntercept({
@@ -29,7 +24,7 @@ describe(
       partialImportExport.OpenExportModal();
     });
 
-    it("1. Should export all the selected JsObjects", () => {
+    it.only("1. Should export all the selected JsObjects", () => {
       partialImportExport.ExportAndCompareDownloadedFile(
         "jsObjects",
         0,

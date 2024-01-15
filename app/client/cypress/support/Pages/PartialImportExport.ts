@@ -87,16 +87,14 @@ export default class PartialImportExport {
       false,
     );
     this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
+    this.agHelper.FailIfErrorToast(
+      "Error exporting application. Please try again.",
+    );
 
     cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
       cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
         (expectedFile) => {
           const propertyName = exportedPropertiesToUIEntitiesMap[sectionName];
-          cy.log("####################");
-          cy.log(expectedFile);
-          cy.log("####################");
-          cy.log(exportedFile);
-          cy.log("####################");
 
           if (propertyName in exportedFile && propertyName in expectedFile) {
             const exportedPropertyContents = JSON.stringify(
@@ -120,7 +118,7 @@ export default class PartialImportExport {
         },
       );
     });
-    cy.exec(`rm cypress/downloads/${fixtureName}`);
+    // cy.exec(`rm cypress/downloads/${fixtureName}`);
   }
 
   ImportPartiallyExportedFile(
