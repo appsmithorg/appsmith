@@ -15,6 +15,7 @@ describe("Test Sidebar navigation style", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     // Import an application
     homePage.NavigateToHome();
+    agHelper.RefreshPage();
     homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
     assertHelper
       .WaitForNetworkCall("@importNewApplication")

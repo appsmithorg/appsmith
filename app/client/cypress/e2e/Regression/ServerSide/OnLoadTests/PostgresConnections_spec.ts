@@ -11,6 +11,7 @@ import {
   AppSidebar,
   AppSidebarButton,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 let guid: any, dsName_1: any, dsName_2: any;
 
@@ -159,7 +160,7 @@ describe(
       () => {
         //Verify Deletion of all created queries
         AppSidebar.navigate(AppSidebarButton.Editor);
-        PageLeftPane.expandCollapseItem("Queries/JS");
+        PageLeftPane.switchSegment(PagePaneSegment.Queries);
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "create_user",
           action: "Delete",
@@ -187,7 +188,6 @@ describe(
         //Verify deletion of datasource
         deployMode.DeployApp();
         deployMode.NavigateBacktoEditor();
-        PageLeftPane.expandCollapseItem("Queries/JS");
         dataSources.DeleteDatasourceFromWithinDS(dsName_1, 200);
         dataSources.DeleteDatasourceFromWithinDS(dsName_2, 200);
       },

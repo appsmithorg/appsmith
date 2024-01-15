@@ -63,7 +63,6 @@
   "exploreWidget": "[class$=bp3-panel-stack-view] > div:nth-child(1) > div:nth-child(1) > span:nth-child(4)",
   "widgetRelatedDocument": "div.main > div:nth-child(1) > div:nth-child(1)",
   "dropdowonChevranDown": ".t--widget-selectwidget .bp3-icon-chevron-down",
-  "addWidget": ".t--entity.group.widgets > div:nth-child(1) >div:nth-child(5)",
   "dropdownDefaultButton": ".t--widget-selectwidget .bp3-button",
   "toggleVisible": ".t--property-control-visible .t--js-toggle",
   "inputToggleVisible": "div.t--property-control-visible div.CodeMirror-lines",

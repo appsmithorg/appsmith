@@ -24,7 +24,7 @@ describe(
         100,
         draggableWidgets.CONTAINER,
       );
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.assertPresence("Statbox1");
       PageLeftPane.expandCollapseItem("Container1");
       PageLeftPane.assertPresence("Statbox2");
