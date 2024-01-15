@@ -12,18 +12,7 @@ import { setIdeEditorPagesActiveStatus } from "actions/ideActions";
 import { useSegmentNavigation } from "pages/Editor/IDE/hooks";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-
-const tabsStyle = {
-  alignItems: "center",
-  borderRadius: "var(--ads-v2-border-radius)",
-  className: "hover:bg-[var(--ads-v2-colors-content-surface-hover-bg)]",
-  cursor: "pointer",
-  flex: "1",
-  gap: "spaces-2",
-  height: "100%",
-  justifyContent: "center",
-  width: "100%",
-};
+import { MinimalTab } from "./components/MinimalTab";
 
 const MinimalSegment = () => {
   const dispatch = useDispatch();
@@ -51,29 +40,26 @@ const MinimalSegment = () => {
       px={"spaces-3"}
       width={"100%"}
     >
-      <Flex
-        {...tabsStyle}
-        onClick={() => onClickHandler(EditorEntityTab.QUERIES)}
-      >
+      <MinimalTab onClick={() => onClickHandler(EditorEntityTab.QUERIES)}>
         <Text kind={"body-m"}>
           {createMessage(EDITOR_PANE_TEXTS.queries_tab)}
         </Text>
         <Tag isClosable={false} size="md">
           {actionsCount}
         </Tag>
-      </Flex>
-      <Flex {...tabsStyle} onClick={() => onClickHandler(EditorEntityTab.JS)}>
+      </MinimalTab>
+      <MinimalTab onClick={() => onClickHandler(EditorEntityTab.JS)}>
         <Text kind={"body-m"}>{createMessage(EDITOR_PANE_TEXTS.js_tab)}</Text>
         <Tag isClosable={false} size="md">
           {jsActionsCount}
         </Tag>
-      </Flex>
-      <Flex {...tabsStyle} onClick={() => onClickHandler(EditorEntityTab.UI)}>
+      </MinimalTab>
+      <MinimalTab onClick={() => onClickHandler(EditorEntityTab.UI)}>
         <Text kind={"body-m"}>{createMessage(EDITOR_PANE_TEXTS.ui_tab)}</Text>
         <Tag isClosable={false} size="md">
           {widgetsCount}
         </Tag>
-      </Flex>
+      </MinimalTab>
     </Flex>
   );
 };
