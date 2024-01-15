@@ -27,6 +27,9 @@ describe(
       agHelper.Sleep(2000); // adding wait for app to load
       homePage.LogOutviaAPI();
       cy.generateUUID().then((uid) => {
+        featureFlagIntercept({
+          ab_create_new_apps_enabled: false,
+        });
         cy.Signup(`${uid}@appsmithtest.com`, uid);
       });
       homePage.NavigateToHome();
