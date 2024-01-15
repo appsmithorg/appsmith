@@ -82,7 +82,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
     AutoCommitConfig autoCommitConfig;
 
     @JsonView(Views.Metadata.class)
-    Set<AutoDeployment> autoDeployment;
+    Set<AutoDeployment> autoDeploymentConfigs;
 
     public AutoCommitConfig getAutoCommitConfig() {
         // by default, the auto commit should be enabled.
