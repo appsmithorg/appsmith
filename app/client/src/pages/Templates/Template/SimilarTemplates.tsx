@@ -9,8 +9,10 @@ import React from "react";
 import type { MasonryProps } from "react-masonry-css";
 import Masonry from "react-masonry-css";
 import styled from "styled-components";
-import Template from ".";
 import { Section } from "./TemplateDescription";
+import FixedHeightTemplate from "./FixedHeightTemplate";
+import BuildingBlock from "../BuildingBlock";
+import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "../constants";
 
 export const SimilarTemplatesWrapper = styled.div`
   padding-right: 132px;
@@ -72,15 +74,32 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
           className="grid"
           columnClassName="grid_column"
         >
-          {props.similarTemplates.map((template) => (
-            <Template
-              hideForkTemplateButton={props.isForkingEnabled}
-              key={template.id}
-              onClick={() => props.onClick(template)}
-              onForkTemplateClick={props.onFork}
-              template={template}
-            />
-          ))}
+          {props.similarTemplates.map((template) => {
+            if (
+              template.functions.includes(
+                TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
+              )
+            ) {
+              return (
+                <BuildingBlock
+                  buildingBlock={template}
+                  hideForkTemplateButton={props.isForkingEnabled}
+                  key={template.id}
+                  onClick={() => props.onClick(template)}
+                  onForkTemplateClick={props.onFork}
+                />
+              );
+            }
+            return (
+              <FixedHeightTemplate
+                hideForkTemplateButton={props.isForkingEnabled}
+                key={template.id}
+                onClick={() => props.onClick(template)}
+                onForkTemplateClick={props.onFork}
+                template={template}
+              />
+            );
+          })}
         </Masonry>
       </Section>
     </SimilarTemplatesWrapper>
