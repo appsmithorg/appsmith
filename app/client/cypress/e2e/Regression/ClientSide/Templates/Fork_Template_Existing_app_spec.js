@@ -30,7 +30,7 @@ describe(
       agHelper.GetNClick(template.vehicleMaintenenceApp);
       agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       agHelper.Sleep();
-      agHelper.CheckForErrorToast(
+      agHelper.FailIfErrorToast(
         "Internal server error while processing request",
       );
       cy.get("body").then(($ele) => {

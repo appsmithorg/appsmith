@@ -55,7 +55,7 @@ export class ApiPage {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _responseBody = ".CodeMirror-code  span.cm-string.cm-property";
-  private _blankAPI = "span:contains('New blank API')";
+  private _blankAPI = "span:contains('REST API')";
   private _apiVerbDropdown = ".t--apiFormHttpMethod div";
   private _verbToSelect = (verb: string) =>
     "//div[contains(@class, 'rc-select-item-option')]//div[contains(text(),'" +
@@ -97,7 +97,7 @@ export class ApiPage {
     else {
       AppSidebar.navigate(AppSidebarButton.Editor);
       this.agHelper.RemoveUIElement("EvaluatedPopUp");
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
       this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
@@ -436,11 +436,10 @@ export class ApiPage {
   }
 
   CreateGraphqlApi(apiName = "") {
-    cy.get(this.locator._createNew).click({ force: true });
-    this.agHelper.GetNClickByContains(
-      this._fileOperation,
-      "New blank GraphQL API",
-    );
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
+    this.agHelper.GetNClickByContains(".ads-v2-listitem", "GraphQL API");
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);

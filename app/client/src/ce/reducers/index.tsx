@@ -81,6 +81,7 @@ import type { IDEState } from "reducers/uiReducers/ideReducer";
     or done so by a module that is designed to be eventually pluggable */
 import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
+import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -94,6 +95,7 @@ export const reducerObject = {
 
 export interface AppState {
   ui: {
+    consolidatedPageLoad: ConsolidatedPageLoadState;
     analytics: AnalyticsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;

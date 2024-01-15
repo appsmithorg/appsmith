@@ -2,6 +2,8 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* Contains all methods related to Workspace features*/
 
+import { AppSidebar } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
@@ -207,7 +209,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("launchApp", () => {
   cy.get(homePage.appView).should("be.visible").first().click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForViewApp").should(
+  cy.wait("@getConsolidatedData").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -292,9 +294,8 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
       }
     });
   });
-  agHelper.AssertElementVisibility("#sidebar");
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
+  AppSidebar.assertVisible();
+  assertHelper.AssertNetworkResponseData("@getConsolidatedData"); //for auth rest api
 
   // If the intro modal is open, close it
   cy.skipSignposting();

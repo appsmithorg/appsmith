@@ -18,7 +18,7 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
   });
 
   beforeEach(() => {

@@ -192,11 +192,11 @@ describe("FirstTimeUserOnboarding", function () {
   it("3. onboarding flow - should check directly opening widget pane", function () {
     agHelper.AssertElementVisibility(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     agHelper.AssertElementVisibility(OnboardingLocator.widgetSidebar);
     agHelper.AssertElementVisibility(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
-    agHelper.RefreshPage("getPage");
+    agHelper.RefreshPage("getConsolidatedData");
     agHelper.AssertElementEnabledDisabled(
       debuggerHelper.locators._helpButton,
       0,

@@ -14,6 +14,7 @@ import {
   inviteModal,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  AppSidebar,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -54,8 +55,8 @@ describe(
         .should("eq", 200);
       cy.wait("@getWorkspace");
       // check that forked application has same dsl
-      cy.get("@getPage").then((httpResponse) => {
-        const data = httpResponse.response.body.data;
+      cy.get("@getConsolidatedData").then((httpResponse) => {
+        const data = httpResponse.response.body.data?.pageWithMigratedDsl?.data;
         forkedApplicationDsl = data.layouts[0].dsl;
         cy.log(JSON.stringify(forkedApplicationDsl));
         cy.log(JSON.stringify(parentApplicationDsl));
@@ -85,7 +86,7 @@ describe(
           });
           cy.wait(2000);
         }
-        cy.get("#sidebar").should("be.visible");
+        AppSidebar.assertVisible();
         deployMode.DeployApp();
         agHelper.Sleep(2000);
         cy.get("button:contains('Share')").first().click({ force: true });
