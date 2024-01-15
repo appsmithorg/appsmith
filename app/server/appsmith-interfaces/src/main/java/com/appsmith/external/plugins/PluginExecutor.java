@@ -171,6 +171,9 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         return Mono.just(new DatasourceTestResult());
     }
 
+    /**
+     * This function is being called as a hook before saving a datasource.
+     */
     default Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
         return Mono.just(datasourceStorage);
     }

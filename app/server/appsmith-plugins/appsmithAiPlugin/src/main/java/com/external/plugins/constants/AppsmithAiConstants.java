@@ -29,25 +29,26 @@ public class AppsmithAiConstants {
     public static final String INSTANCE_ID = "instanceId";
     public static final String SOURCE_DETAILS = "sourceDetail";
 
+    public static final String PERIOD_DELIMITER = ".";
     // Action properties
-    public static final String TEXT_SUMMARY_INPUT = TEXT_SUMMARY + "." + INPUT;
-    public static final String TEXT_SUMMARY_INSTRUCTIONS = TEXT_SUMMARY + "." + INSTRUCTIONS;
-    public static final String TEXT_GENERATION_INPUT = TEXT_GENERATION + "." + INPUT;
-    public static final String TEXT_GENERATION_INSTRUCTIONS = TEXT_GENERATION + "." + INSTRUCTIONS;
-    public static final String TEXT_ENTITY_INPUT = TEXT_ENTITY_EXTRACTION + "." + INPUT;
-    public static final String TEXT_ENTITY_LABELS = TEXT_ENTITY_EXTRACTION + "." + LABELS;
-    public static final String TEXT_ENTITY_INSTRUCTIONS = TEXT_ENTITY_EXTRACTION + "." + INSTRUCTIONS;
-    public static final String TEXT_CLASSIFY_INPUT = TEXT_CLASSIFICATION + "." + INPUT;
-    public static final String TEXT_CLASSIFY_LABELS = TEXT_CLASSIFICATION + "." + LABELS;
-    public static final String TEXT_CLASSIFY_INSTRUCTIONS = TEXT_CLASSIFICATION + "." + INSTRUCTIONS;
-    public static final String IMAGE_ENTITY_INPUT = IMAGE_ENTITY_EXTRACTION + "." + INPUT;
-    public static final String IMAGE_ENTITY_LABELS = IMAGE_ENTITY_EXTRACTION + "." + LABELS;
-    public static final String IMAGE_ENTITY_INSTRUCTIONS = IMAGE_ENTITY_EXTRACTION + "." + INSTRUCTIONS;
-    public static final String IMAGE_CLASSIFY_INPUT = IMAGE_CLASSIFICATION + "." + INPUT;
-    public static final String IMAGE_CLASSIFY_LABELS = IMAGE_CLASSIFICATION + "." + LABELS;
-    public static final String IMAGE_CLASSIFY_INSTRUCTIONS = IMAGE_CLASSIFICATION + "." + INSTRUCTIONS;
-    public static final String IMAGE_CAPTION_INPUT = IMAGE_CAPTIONING + "." + INPUT;
-    public static final String IMAGE_CAPTION_INSTRUCTIONS = IMAGE_CAPTIONING + "." + INSTRUCTIONS;
+    public static final String TEXT_SUMMARY_INPUT = TEXT_SUMMARY + PERIOD_DELIMITER + INPUT;
+    public static final String TEXT_SUMMARY_INSTRUCTIONS = TEXT_SUMMARY + PERIOD_DELIMITER + INSTRUCTIONS;
+    public static final String TEXT_GENERATION_INPUT = TEXT_GENERATION + PERIOD_DELIMITER + INPUT;
+    public static final String TEXT_GENERATION_INSTRUCTIONS = TEXT_GENERATION + PERIOD_DELIMITER + INSTRUCTIONS;
+    public static final String TEXT_ENTITY_INPUT = TEXT_ENTITY_EXTRACTION + PERIOD_DELIMITER + INPUT;
+    public static final String TEXT_ENTITY_LABELS = TEXT_ENTITY_EXTRACTION + PERIOD_DELIMITER + LABELS;
+    public static final String TEXT_ENTITY_INSTRUCTIONS = TEXT_ENTITY_EXTRACTION + PERIOD_DELIMITER + INSTRUCTIONS;
+    public static final String TEXT_CLASSIFY_INPUT = TEXT_CLASSIFICATION + PERIOD_DELIMITER + INPUT;
+    public static final String TEXT_CLASSIFY_LABELS = TEXT_CLASSIFICATION + PERIOD_DELIMITER + LABELS;
+    public static final String TEXT_CLASSIFY_INSTRUCTIONS = TEXT_CLASSIFICATION + PERIOD_DELIMITER + INSTRUCTIONS;
+    public static final String IMAGE_ENTITY_INPUT = IMAGE_ENTITY_EXTRACTION + PERIOD_DELIMITER + INPUT;
+    public static final String IMAGE_ENTITY_LABELS = IMAGE_ENTITY_EXTRACTION + PERIOD_DELIMITER + LABELS;
+    public static final String IMAGE_ENTITY_INSTRUCTIONS = IMAGE_ENTITY_EXTRACTION + PERIOD_DELIMITER + INSTRUCTIONS;
+    public static final String IMAGE_CLASSIFY_INPUT = IMAGE_CLASSIFICATION + PERIOD_DELIMITER + INPUT;
+    public static final String IMAGE_CLASSIFY_LABELS = IMAGE_CLASSIFICATION + PERIOD_DELIMITER + LABELS;
+    public static final String IMAGE_CLASSIFY_INSTRUCTIONS = IMAGE_CLASSIFICATION + PERIOD_DELIMITER + INSTRUCTIONS;
+    public static final String IMAGE_CAPTION_INPUT = IMAGE_CAPTIONING + PERIOD_DELIMITER + INPUT;
+    public static final String IMAGE_CAPTION_INSTRUCTIONS = IMAGE_CAPTIONING + PERIOD_DELIMITER + INSTRUCTIONS;
 
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))

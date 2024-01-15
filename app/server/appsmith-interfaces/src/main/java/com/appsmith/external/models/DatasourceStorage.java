@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -147,6 +148,6 @@ public class DatasourceStorage extends BaseDomain {
          * DEFAULT_REST_DATASOURCE is the embedded datasource name for both REST API plugin and GraphQL plugin.
          */
         return (DEFAULT_REST_DATASOURCE.equals(this.name) || DEFAULT_APPSMITH_AI_DATASOURCE.equals(this.name))
-                && this.getDatasourceId() == null;
+                && !StringUtils.hasText(this.datasourceId);
     }
 }

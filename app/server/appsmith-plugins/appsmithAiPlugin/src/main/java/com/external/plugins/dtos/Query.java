@@ -4,11 +4,12 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * This object is query param that we send to AI server for action executions.
+ */
 @Data
 public class Query {
     String input;
     List<String> labels;
-    String id;
-    String instructions;
-    String imageFormat;
+    String instructions; // instruction for AI model about input and labels
 }

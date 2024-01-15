@@ -161,9 +161,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
 
-        return pluginExecutorMono.flatMap(pluginExecutor -> {
-            return pluginExecutor.preSaveHook(datasourceStorage);
-        });
+        return pluginExecutorMono.flatMap(pluginExecutor -> pluginExecutor.preSaveHook(datasourceStorage));
     }
 
     @Override
