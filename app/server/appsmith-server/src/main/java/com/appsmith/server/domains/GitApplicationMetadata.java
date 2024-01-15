@@ -81,6 +81,13 @@ public class GitApplicationMetadata implements AppsmithDomain {
     @JsonView(Views.Metadata.class)
     AutoCommitConfig autoCommitConfig;
 
+    /**
+     * autoDeploymentConfigs field will hold the list of branches that are enabled for auto deployment.
+     * It'll also show the latest deployedAt date for the corresponding branch.
+     * If auto deployment is enabled for 2 branches - main and develop, autoDeploymentConfigs will have two entries
+     * each for one branch. This attribute will be present inside the root application only. The branched applications
+     * will not have this field set.
+     */
     @JsonView(Views.Metadata.class)
     Set<AutoDeployment> autoDeploymentConfigs;
 
