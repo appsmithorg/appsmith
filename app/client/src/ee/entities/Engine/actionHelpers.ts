@@ -1,12 +1,12 @@
 export * from "ce/entities/Engine/actionHelpers";
-import { fetchConsumablePackagesInWorkspace } from "@appsmith/actions/packageActions";
+// import { fetchConsumablePackagesInWorkspace } from "@appsmith/actions/packageActions";
+// import {
+//   ReduxActionErrorTypes,
+//   ReduxActionTypes,
+// } from "@appsmith/constants/ReduxActionConstants";
+// import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
 import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
-import {
-  getPageDependencyActions as CE_getPageDependencyActions,
+  // getPageDependencyActions as CE_getPageDependencyActions,
   ActionParentEntityType as CE_ActionParentEntityType,
   CreateNewActionKey as CE_CreateNewActionKey,
 } from "ce/entities/Engine/actionHelpers";
@@ -28,7 +28,7 @@ export const ActionParentEntityType = {
 
 export type ActionParentEntityTypeInterface =
   (typeof ActionParentEntityType)[keyof typeof ActionParentEntityType];
-
+/*
 export const getPageDependencyActions = (
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
@@ -65,3 +65,4 @@ export const getPageDependencyActions = (
     errorActions,
   };
 };
+*/

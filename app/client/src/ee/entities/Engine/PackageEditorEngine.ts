@@ -65,7 +65,7 @@ export default class PackageEditorEngine {
     ];
 
     if (!isAirgappedInstance) {
-      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
+      initActions.push(fetchMockDatasources());
       successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
       errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
     }
