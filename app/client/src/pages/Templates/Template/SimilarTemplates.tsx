@@ -35,14 +35,6 @@ export const SimilarTemplatesTitleWrapper = styled.div`
   justify-content: space-between;
 `;
 
-// const BackButtonWrapper = styled.div<{ width?: number }>`
-//   cursor: pointer;
-//   display: flex;
-//   align-items: center;
-//   gap: ${(props) => props.theme.spaces[2]}px;
-//   ${(props) => props.width && `width: ${props.width};`}
-// `;
-
 interface SimilarTemplatesProp {
   similarTemplates: TemplateInterface[];
   onBackPress: (e: React.MouseEvent) => void;
