@@ -11,7 +11,6 @@ export enum UIComponentTypes {
   DbEditorForm = "DbEditorForm",
   UQIDbEditorForm = "UQIDbEditorForm",
   ApiEditorForm = "ApiEditorForm",
-  RapidApiEditorForm = "RapidApiEditorForm",
   JsEditorForm = "JsEditorForm",
 }
 

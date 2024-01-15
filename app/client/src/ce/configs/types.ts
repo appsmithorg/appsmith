@@ -51,7 +51,6 @@ export interface AppsmithUIConfigs {
     snippetIndex: string;
   };
 
-  enableRapidAPI: boolean;
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 
