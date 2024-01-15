@@ -23,7 +23,10 @@ import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { CUSTOM_WIDGET_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
+import {
+  CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL,
+  CUSTOM_WIDGET_DOC_URL,
+} from "pages/Editor/CustomWidgetBuilder/constants";
 import { Link } from "design-system";
 import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -142,7 +145,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
                   kind="secondary"
                   rel="noopener noreferrer"
                   target="_blank"
-                  to={CUSTOM_WIDGET_DOC_URL}
+                  to={CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL}
                 >
                   Read more
                 </StyledLink>
