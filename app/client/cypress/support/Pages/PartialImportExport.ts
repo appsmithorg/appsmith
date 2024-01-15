@@ -118,7 +118,7 @@ export default class PartialImportExport {
         },
       );
     });
-    // cy.exec(`rm cypress/downloads/${fixtureName}`);
+    cy.exec(`rm cypress/downloads/${fixtureName}`);
   }
 
   ImportPartiallyExportedFile(
