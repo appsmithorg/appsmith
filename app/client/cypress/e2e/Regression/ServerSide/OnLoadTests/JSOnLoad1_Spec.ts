@@ -106,7 +106,7 @@ describe(
       table.WaitForTableEmpty();
       agHelper.WaitUntilAllToastsDisappear();
 
-      agHelper.RefreshPage("viewPage");
+      agHelper.RefreshPage("getConsolidatedData");
       agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
       agHelper.AssertElementVisibility(
         jsEditor._dialogBody((jsName as string) + ".getEmployee"),
