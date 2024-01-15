@@ -16,7 +16,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Input"] },
   function () {
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     });
 
     it("1. Validate Required field", function () {
