@@ -552,11 +552,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             actionViewDTO.setRootModuleInstanceId(action.getRootModuleInstanceId());
             if (!viewMode) {
                 actionViewDTO.setPluginId(action.getPluginId());
-                actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
-                if (!Boolean.TRUE.equals(actionDTO.getUserSetOnLoad())) {
-                    actionViewDTO.setExecuteOnLoad(
-                            actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
-                }
+                actionViewDTO.setExecuteOnLoad(
+                        actionDTO.getExecuteOnLoad() == null ? false : actionDTO.getExecuteOnLoad());
             }
         }
         if (StringUtils.isNotBlank(action.getWorkflowId())) {
