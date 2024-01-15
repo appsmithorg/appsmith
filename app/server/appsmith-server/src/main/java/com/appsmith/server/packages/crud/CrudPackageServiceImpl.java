@@ -406,10 +406,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
-    public Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version) {
+    public Mono<PackageDTO> getConsumablePackageByOriginPackageIdAndVersion(String originPackageId, String version) {
         return repository
-                .findPackageBySourcePackageIdAndVersion(
-                        sourcePackageId,
+                .findPackageByOriginPackageIdAndVersion(
+                        originPackageId,
                         version,
                         Optional.of(packagePermission.getCreatePackageModuleInstancePermission()))
                 .flatMap(aPackage ->

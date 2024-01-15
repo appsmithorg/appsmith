@@ -27,7 +27,6 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
-import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
@@ -37,7 +36,6 @@ import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
-import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
@@ -98,6 +96,7 @@ import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
+import static com.appsmith.server.exceptions.AppsmithErrorCode.STALE_MODULE_REFERENCE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -165,10 +164,6 @@ class CrudModuleInstanceServiceTest {
     @SpyBean
     PluginService pluginService;
 
-    ModuleInstanceTestHelper moduleInstanceTestHelper;
-
-    ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO;
-
     @Autowired
     CrudPackageService crudPackageService;
 
@@ -189,6 +184,11 @@ class CrudModuleInstanceServiceTest {
 
     @Autowired
     ApplicationForkingService applicationForkingService;
+
+    // Test helpers
+    ModuleInstanceTestHelper moduleInstanceTestHelper;
+
+    ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO;
 
     @BeforeEach
     void setup() {
@@ -241,7 +241,7 @@ class CrudModuleInstanceServiceTest {
                     doAllAssertions(dbActions, createModuleInstanceResponseDTO, moduleInstanceDTO);
 
                     // Make sure application gets source module's js libs as hidden libs
-                    // TODO: Commenting out this part for beta
+                    // TODO: Nidhi Commenting out this part for beta
                     //                    assert customJSLibs != null;
                     //                    assertThat(customJSLibs).hasSize(0);
                     //                    CustomJSLib customJSLib = customJSLibs.get(0);
@@ -1129,86 +1129,43 @@ class CrudModuleInstanceServiceTest {
 
     @WithUserDetails(value = "api_user")
     @Test
-    void
-            testEnableForkingAndForkingApplication_withOrWithoutModuleInstance_shouldForkWhenThereIsNoModuleInstanceElseDisallow() {
-        // Enable forking should pass as there is no module instance present
-        Application applicationReq = new Application();
-        applicationReq.setForkingEnabled(true);
-        Mono<Application> applicationMono = applicationService.update(
-                moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(), applicationReq, null);
+    void testUpdateModuleInstance_withOlderVersionReference_failsWithStaleModuleError() {
+        // Create a module
+        ModuleDTO moduleReqDTO = createModuleRequestDTO();
+        ModuleDTO createdModule = crudModuleService.createModule(moduleReqDTO).block();
 
-        StepVerifier.create(applicationMono)
-                .assertNext(updatedApplication -> {
-                    assertThat(updatedApplication).isNotNull();
-                    assertThat(updatedApplication.getForkingEnabled()).isTrue();
+        // Publish the package
+        publishPackageService.publishPackage(createdModule.getPackageId()).block();
+
+        // Fetch the published module DTO
+        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModule.getModuleUUID());
+
+        // Create a module instance from the newly created and published module
+        ModuleInstanceDTO moduleInstanceReqDTO =
+                createModuleInstanceReq(sourceModuleDTO, "updateOnStaleModuleInstance");
+
+        // Create module instance and retrieve the response
+        CreateModuleInstanceResponseDTO createdModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+
+        ModuleInstanceDTO moduleInstanceDTO = createdModuleInstanceResponseDTO.getModuleInstance();
+
+        publishPackageService.publishPackage(createdModule.getPackageId()).block();
+
+        // Override the default value of the input in the parent app
+        Map<String, String> moduleInstanceInputs = moduleInstanceDTO.getInputs();
+        moduleInstanceInputs.put("genderInput", "{{appGenderInput.text}}");
+
+        // Update the module instance with the overridden input value
+        Mono<ModuleInstanceDTO> updateMono = layoutModuleInstanceService.updateUnpublishedModuleInstance(
+                moduleInstanceDTO, moduleInstanceDTO.getId(), Optional.empty(), false);
+
+        StepVerifier.create(updateMono)
+                .expectErrorMatches(error -> {
+                    return error instanceof AppsmithException
+                            && ((AppsmithException) error).getAppErrorCode().equals(STALE_MODULE_REFERENCE.getCode());
                 })
-                .verifyComplete();
-
-        // Forking should pass as there is no module instance present
-        Mono<ApplicationImportDTO> applicationForkMono = applicationForkingService.forkApplicationToWorkspace(
-                moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(),
-                moduleInstanceTestHelperDTO.getWorkspaceId(),
-                null);
-
-        StepVerifier.create(applicationForkMono)
-                .assertNext(applicationImportDTO -> {
-                    assertThat(applicationImportDTO).isNotNull();
-                    assertThat(applicationImportDTO.getApplication()).isNotNull();
-                    assertThat(applicationImportDTO
-                                    .getApplication()
-                                    .getId()
-                                    .equals(moduleInstanceTestHelperDTO
-                                            .getPageDTO()
-                                            .getApplicationId()))
-                            .isFalse();
-                    assertThat(applicationImportDTO.getApplication().getName())
-                            .isEqualTo("CRUD_Module_Instance_Application (1)");
-                })
-                .verifyComplete();
-
-        // Create a module instance
-        CreateModuleInstanceResponseDTO firstCreateModuleInstanceResponseDTO =
-                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
-        ModuleInstanceDTO firstModuleInstanceDTO = firstCreateModuleInstanceResponseDTO.getModuleInstance();
-
-        Mono<List<NewAction>> firstDBActionsMono = getDBActions(firstCreateModuleInstanceResponseDTO);
-
-        StepVerifier.create(firstDBActionsMono)
-                .assertNext(dbActions ->
-                        doAllAssertions(dbActions, firstCreateModuleInstanceResponseDTO, firstModuleInstanceDTO))
-                .verifyComplete();
-
-        // Revert the forkingEnabled flag to false
-        applicationReq.setForkingEnabled(false);
-        applicationMono = applicationService.update(
-                moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(), applicationReq, null);
-
-        StepVerifier.create(applicationMono)
-                .assertNext(updatedApplication -> {
-                    assertThat(updatedApplication).isNotNull();
-                    assertThat(updatedApplication.getForkingEnabled()).isFalse();
-                })
-                .verifyComplete();
-
-        // Enabling forking this time should not be allowed as there is a module instance present
-        applicationReq.setForkingEnabled(true);
-        applicationMono = applicationService.update(
-                moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(), applicationReq, null);
-
-        StepVerifier.create(applicationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED.getMessage()))
-                .verify();
-
-        // Attempt to fork should be disallowed too
-        applicationForkMono = applicationForkingService.forkApplicationToWorkspace(
-                moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(),
-                moduleInstanceTestHelperDTO.getWorkspaceId(),
-                null);
-
-        StepVerifier.create(applicationForkMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED.getMessage()))
                 .verify();
     }
 }

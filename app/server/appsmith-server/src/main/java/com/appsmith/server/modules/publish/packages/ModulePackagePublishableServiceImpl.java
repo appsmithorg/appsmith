@@ -28,7 +28,7 @@ public class ModulePackagePublishableServiceImpl implements PackagePublishableSe
     @Override
     public Mono<List<Module>> publishEntities(PackagePublishingMetaDTO publishingMetaDTO) {
         Mono<List<Module>> sourceModuleListMono = crudModuleService
-                .getAllModules(publishingMetaDTO.getSourcePackageId())
+                .getAllModules(publishingMetaDTO.getOriginPackageId())
                 .collectList();
 
         return sourceModuleListMono.flatMap(sourceModules -> {
@@ -56,6 +56,7 @@ public class ModulePackagePublishableServiceImpl implements PackagePublishableSe
             module.setId(null);
             module.setOriginModuleId(sourceModule.getId());
             module.setPackageId(publishingMetaDTO.getPublishedPackage().getId());
+            module.setVersion(publishingMetaDTO.getPublishedPackage().getVersion());
             module.setPublishedModule(sourceModule.getUnpublishedModule());
             module.setUnpublishedModule(new ModuleDTO());
 

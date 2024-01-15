@@ -547,7 +547,7 @@ class CrudPackageServiceTest {
                 .verifyComplete();
 
         PackagePublishingMetaDTO publishingMetaDTO = new PackagePublishingMetaDTO();
-        publishingMetaDTO.setSourcePackageId(packageId.get());
+        publishingMetaDTO.setOriginPackageId(packageId.get());
         Package publishedPackage = new Package();
         publishedPackage.setId(new ObjectId().toString());
         publishingMetaDTO.setPublishedPackage(publishedPackage);
@@ -603,7 +603,7 @@ class CrudPackageServiceTest {
                 .verifyComplete();
 
         PackagePublishingMetaDTO publishingMetaDTO = new PackagePublishingMetaDTO();
-        publishingMetaDTO.setSourcePackageId(packageId.get());
+        publishingMetaDTO.setOriginPackageId(packageId.get());
         Package publishedPackage = new Package();
         publishedPackage.setId(new ObjectId().toString());
         publishingMetaDTO.setPublishedPackage(publishedPackage);

@@ -48,7 +48,7 @@ public class CrudPackageServiceCECompatibleImpl extends BasePackageServiceImpl
     }
 
     @Override
-    public Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version) {
+    public Mono<PackageDTO> getConsumablePackageByOriginPackageIdAndVersion(String sourcePackageId, String version) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

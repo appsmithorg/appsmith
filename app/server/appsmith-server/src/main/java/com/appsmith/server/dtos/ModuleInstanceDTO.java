@@ -43,6 +43,10 @@ public class ModuleInstanceDTO implements Identifiable {
     String sourceModuleId;
 
     @Transient
+    @JsonView(Views.Public.class)
+    String version;
+
+    @Transient
     @JsonView(Views.Internal.class)
     String originModuleId;
 

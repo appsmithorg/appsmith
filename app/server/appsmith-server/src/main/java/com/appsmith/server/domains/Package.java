@@ -37,10 +37,10 @@ public class Package extends BranchAwareDomain {
     @JsonView(Views.Internal.class)
     PackageDTO publishedPackage;
 
-    // `srcPackageId` will be null for the DEV version; It will contain the `id` of the package that
+    // `originPackageId` will be null for the DEV version; It will contain the `id` of the package that
     // the package editor is working on
     @JsonView(Views.Internal.class)
-    String sourcePackageId;
+    String originPackageId;
 
     @JsonView(Views.Internal.class)
     String version;

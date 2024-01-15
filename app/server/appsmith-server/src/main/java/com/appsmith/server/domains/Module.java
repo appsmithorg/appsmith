@@ -30,6 +30,9 @@ public class Module extends BranchAwareDomain {
     String packageId; // this refers to the `id` field of the Package domain
 
     @JsonView(Views.Public.class)
+    String version; // this refers to the `version` field of the Package domain
+
+    @JsonView(Views.Public.class)
     ModuleType type;
 
     @JsonView(Views.Public.class)

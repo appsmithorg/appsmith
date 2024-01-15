@@ -1230,6 +1230,14 @@ public enum AppsmithError {
             "License upgrade required.",
             ErrorType.ARGUMENT_ERROR,
             null),
+    STALE_MODULE_REFERENCE(
+            423,
+            AppsmithErrorCode.STALE_MODULE_REFERENCE.getCode(),
+            "You are working with an older version of this module. Please refresh and retry.",
+            AppsmithErrorAction.DEFAULT,
+            "Stale module instance.",
+            ErrorType.CONFIGURATION_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

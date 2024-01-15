@@ -92,7 +92,7 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                     // the latest version and when did it get published
                     originalPackage.setVersion(nextVersion);
                     originalPackage.setLastPublishedAt(packageToBePublished.getLastPublishedAt());
-                    publishingMetaDTO.setSourcePackageId(packageId);
+                    publishingMetaDTO.setOriginPackageId(packageId);
 
                     Mono<Package> saveOriginalPackage = packageRepository.save(originalPackage);
                     Mono<Package> savePackageToBePublished = packageRepository.save(packageToBePublished);
@@ -233,7 +233,7 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
         AppsmithBeanUtils.copyNestedNonNullProperties(sourcePkg, pkgToBePublished);
         pkgToBePublished.setPublishedPackage(sourcePkg.getUnpublishedPackage());
         pkgToBePublished.setUnpublishedPackage(new PackageDTO());
-        pkgToBePublished.setSourcePackageId(sourcePkg.getId());
+        pkgToBePublished.setOriginPackageId(sourcePkg.getId());
         pkgToBePublished.setVersion(nextVersion);
         pkgToBePublished.setLastPublishedAt(Instant.now());
         pkgToBePublished.setId(null);

@@ -149,7 +149,7 @@ public enum AppsmithErrorCode {
     TENANT_DOWNGRADE_EXCEPTION("AE-LIC-4000", "Tenant downgrade to free plan failed"),
     KNOWLEDGE_BASE_EXCEPTION("AE-KB-5000", "Knowledge base exception"),
     NO_IMPLEMENTATION_EXCEPTION("AE-NI-4000", "No implementation exception"),
-    MODULE_HAS_INSTANCES("AE-MOD-4090", "Module has instances"),
+    MODULE_HAS_INSTANCES("AE-MOD-4001", "Module has instances"),
     UPDATE_ACCESS_TOKEN_FAILED("AE-OIDC-4000", "Updating access token failed"),
     PACKAGE_CANNOT_BE_PUBLISHED("AE-PKG-4000", "Package cannot be published"),
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
@@ -162,6 +162,7 @@ public enum AppsmithErrorCode {
     WORKFLOW_NOT_TRIGGERED_MAIN_JS_OBJECT_NOT_FOUND(
             "AE-APP-5028", "Unable to trigger workflow. Main JS Object not found."),
     LICENSE_KEY_ACTIVATION_WARNING("AE-LIC-4001", "License activation warning."),
+    STALE_MODULE_REFERENCE("AE-MOD-4002", "Current module instance is stale."),
     ;
     private final String code;
     private final String description;

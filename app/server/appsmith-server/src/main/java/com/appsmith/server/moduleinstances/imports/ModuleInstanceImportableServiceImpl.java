@@ -216,6 +216,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             unpublishedModuleInstance.setId(moduleInstance.getId());
                             unpublishedModuleInstance.setSourceModuleId(moduleInstance.getSourceModuleId());
                             unpublishedModuleInstance.setModuleUUID(moduleInstance.getModuleUUID());
+                            unpublishedModuleInstance.setVersion(moduleInstance.getVersion());
                             parentPage = updatePageInModuleInstance(
                                     unpublishedModuleInstance, mappedImportableResourcesDTO.getPageNameMap());
                             unpublishedModuleInstance.setContextId(unpublishedModuleInstance.getPageId());

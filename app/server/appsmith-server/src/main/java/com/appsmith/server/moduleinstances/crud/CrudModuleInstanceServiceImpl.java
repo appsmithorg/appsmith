@@ -367,6 +367,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                     moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
                     moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
                     moduleInstance.setId(new ObjectId().toString());
+                    moduleInstance.setVersion(sourceModule.getVersion());
 
                     return generateBareBonesModuleInstanceAndReturnPage(
                                     moduleInstantiatingMetaDTO,
@@ -470,6 +471,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
         moduleInstance.setType(moduleInstanceReqDTO.getType());
         moduleInstance.setModuleUUID(moduleInstanceReqDTO.getModuleUUID());
+        moduleInstance.setVersion(moduleInstanceReqDTO.getVersion());
         moduleInstance.setDefaultResources(moduleInstanceReqDTO.getDefaultResources());
         moduleInstance.setWorkspaceId(moduleInstanceReqDTO.getWorkspaceId());
 

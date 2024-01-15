@@ -22,5 +22,5 @@ public interface CrudPackageServiceCECompatible extends BasePackageServiceCEComp
 
     Flux<Package> getAllPublishedPackagesByUniqueRef(String workspaceId, List<ExportableModule> packageList);
 
-    Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version);
+    Mono<PackageDTO> getConsumablePackageByOriginPackageIdAndVersion(String sourcePackageId, String version);
 }

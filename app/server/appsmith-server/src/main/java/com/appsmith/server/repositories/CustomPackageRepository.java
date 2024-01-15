@@ -35,8 +35,8 @@ public interface CustomPackageRepository extends AppsmithRepository<Package> {
     Flux<Package> findAllPublishedByUniqueReference(
             String workspaceId, List<ExportableModule> packageList, Optional<AclPermission> aclPermission);
 
-    Mono<Package> findPackageBySourcePackageIdAndVersion(
-            String sourcePackageId, String version, Optional<AclPermission> permission);
+    Mono<Package> findPackageByOriginPackageIdAndVersion(
+            String originPackageId, String version, Optional<AclPermission> permission);
 
     Flux<Package> findAllPackagesByWorkspaceId(
             String workspaceId, List<String> projectionFields, Optional<AclPermission> permissionOptional);

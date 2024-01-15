@@ -159,6 +159,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             moduleDTO.setId(module.getId());
             moduleDTO.setType(module.getType());
             moduleDTO.setPackageId(module.getPackageId());
+            moduleDTO.setVersion(module.getVersion());
             moduleDTO.setPackageUUID(module.getPackageUUID());
             moduleDTO.setUserPermissions(module.getUserPermissions());
             moduleDTO.setEntity(null);
@@ -249,6 +250,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 .flatMap(aPackage -> isValidName(moduleDTO.getName(), aPackage.getId(), null)
                         .flatMap(valid -> {
                             module.setPackageId(aPackage.getId());
+                            module.setVersion(aPackage.getVersion());
                             module.setPackageUUID(aPackage.getPackageUUID());
 
                             Set<Policy> modulePolicyMap = policyGenerator.getAllChildPolicies(

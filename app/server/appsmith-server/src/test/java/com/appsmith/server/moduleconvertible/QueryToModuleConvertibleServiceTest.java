@@ -356,7 +356,7 @@ class QueryToModuleConvertibleServiceTest {
                 packageRepository.findById(packageIdRef.get()).block();
         assertThat(publishedPackage).isNotNull();
         Package sourcePackage = packageRepository
-                .findById(publishedPackage.getSourcePackageId())
+                .findById(publishedPackage.getOriginPackageId())
                 .block();
         assertThat(sourcePackage).isNotNull();
         return sourcePackage;

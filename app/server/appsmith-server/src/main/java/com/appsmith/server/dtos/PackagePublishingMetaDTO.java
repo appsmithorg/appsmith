@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class PackagePublishingMetaDTO {
-    String sourcePackageId;
+    String originPackageId;
     Package publishedPackage;
 
     // Map of all published entities
