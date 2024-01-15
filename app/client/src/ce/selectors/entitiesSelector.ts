@@ -1486,3 +1486,6 @@ export const getAllJSCollections = createSelector(
 export const getIsActionConverting = (state: AppState, actionId: string) => {
   return false;
 };
+
+export const getSelectedTableName = (state: AppState) =>
+  state.ui.datasourcePane.selectedTableName;
