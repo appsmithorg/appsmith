@@ -40,7 +40,6 @@ public class FieldNameCE {
     public static String CHILDREN = "children";
     public static String ORIGIN = "origin";
     public static String USER = "user";
-    public static String PROVIDER_ID = "providerId";
     public static String CATEGORY = "category";
     public static String PAGE = "page";
     public static String PAGES = "pages";
