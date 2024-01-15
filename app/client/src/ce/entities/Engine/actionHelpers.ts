@@ -18,7 +18,11 @@ export const ActionParentEntityType = {
   PAGE: "PAGE",
 } as const;
 
-export const getPageDependencyActions = (allResponses: EditConsolidatedApi) => {
+export const getPageDependencyActions = (
+  allResponses: EditConsolidatedApi,
+  currentWorkspaceId: string = "",
+  featureFlags: DependentFeatureFlags = {},
+) => {
   const { datasources, pagesWithMigratedDsl, plugins } = allResponses || {};
   const initActions = [
     fetchPlugins({ plugins }),
