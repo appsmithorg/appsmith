@@ -6,8 +6,12 @@ import { Icon, TextArea } from "@design-system/widgets";
 
 import { INPUT_TYPES } from "../constants";
 import type { InputComponentProps } from "./types";
+import { useDebouncedValue } from "@mantine/hooks";
 
 function InputComponent(props: InputComponentProps) {
+  const [validationStatus] = useDebouncedValue(props.validationStatus, 300);
+  const [errorMessage] = useDebouncedValue(props.errorMessage, 300);
+
   const startIcon = (() => {
     if (props.iconName && props.iconAlign === "left") {
       return (
@@ -93,7 +97,7 @@ function InputComponent(props: InputComponentProps) {
       contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
       endIcon={endIcon}
-      errorMessage={props.errorMessage}
+      errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
@@ -108,7 +112,7 @@ function InputComponent(props: InputComponentProps) {
       spellCheck={props.spellCheck}
       startIcon={startIcon}
       type={type}
-      validationState={props.validationStatus}
+      validationState={validationStatus}
       value={props.value}
     />
   );
