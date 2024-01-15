@@ -61,6 +61,7 @@ const ListJSObjects = () => {
       {JSObjects && JSObjects.length > 0 && canCreateActions && (
         <Flex flexDirection="column" px="spaces-3">
           <Button
+            className="t--add-item"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}
@@ -99,6 +100,7 @@ const ListJSObjects = () => {
 
       {(!JSObjects || JSObjects.length === 0) && (
         <EmptyState
+          buttonClassName="t--add-item"
           buttonText={createMessage(EDITOR_PANE_TEXTS.js_add_button)}
           description={createMessage(
             EDITOR_PANE_TEXTS.js_blank_state_description,
