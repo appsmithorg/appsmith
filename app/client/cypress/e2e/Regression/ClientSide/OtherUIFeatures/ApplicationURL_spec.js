@@ -66,8 +66,8 @@ describe("Slug URLs", () => {
 
       cy.SearchApp(applicationName);
 
-      cy.wait("@getPagesForCreateApp").then((intercept) => {
-        const { application, pages } = intercept.response.body.data;
+      cy.wait("@getConsolidatedData").then((intercept) => {
+        const { application, pages } = intercept.response.body.data.pages.data;
         const defaultPage = pages.find((p) => p.isDefault);
 
         cy.location().should((loc) => {
@@ -99,8 +99,10 @@ describe("Slug URLs", () => {
 
           cy.get(".t--upgrade-confirm").click({ force: true });
 
-          cy.wait("@getPagesForCreateApp").then((intercept) => {
-            const { application, pages } = intercept.response.body.data;
+          cy.wait("@getConsolidatedData").then((intercept) => {
+            const { application, pages } =
+              intercept.response.body.data.pages.data;
+
             const currentPage = pages.find((p) => p.id === currentPageId);
 
             cy.location().should((loc) => {
@@ -132,7 +134,12 @@ describe("Slug URLs", () => {
   it("4. Checks redirect url", () => {
     cy.url().then((url) => {
       homePage.Signout(true);
-      agHelper.VisitNAssert(url + "?embed=true&a=b", "signUpLogin");
+      agHelper.VisitNAssert(url + "?embed=true&a=b");
+
+      // status should be 401 since the user is still unauthenticated from the previous signin request
+      cy.wait("@getConsolidatedData").then((res1) => {
+        expect(res1.response).to.have.property("statusCode", 401);
+      });
       agHelper.AssertURL(
         `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
       );
