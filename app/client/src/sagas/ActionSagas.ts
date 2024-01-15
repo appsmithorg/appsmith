@@ -193,18 +193,18 @@ export function* createDefaultActionPayload({
 
   const dsPreviewTableName: string = yield select(getSelectedTableName);
 
-  // since table name has been consumed, we no longer need it, hence resetting it
-  yield put({
-    type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
-    payload: "",
-  });
-
   const defaultActionConfig: any = getDefaultTemplateActionConfig(
     plugin,
     dsPreviewTableName,
     dsStructure,
     datasource?.isMock,
   );
+
+  // since table name has been consumed, we no longer need it, hence resetting it
+  yield put({
+    type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
+    payload: "",
+  });
 
   const defaultAction: Partial<Action> = {
     pluginId: datasource?.pluginId,
