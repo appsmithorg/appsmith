@@ -16,7 +16,7 @@ public class AutoDeployment {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AutoDeployment that = (AutoDeployment) o;
-        return Objects.equals(branchName, that.branchName);
+        return branchName.equals(that.branchName);
     }
 
     @Override
