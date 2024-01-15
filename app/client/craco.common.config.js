@@ -116,7 +116,7 @@ module.exports = {
             warning.module.resource.includes("node_modules") &&
             warning.details &&
             warning.details.includes("source-map-loader")) ||
-            warning.module?.resource.includes("/node_modules/@babel/standalone/babel.js")
+            warning.module.resource.includes("/node_modules/@babel/standalone/babel.js")
           );
         },
       ],
