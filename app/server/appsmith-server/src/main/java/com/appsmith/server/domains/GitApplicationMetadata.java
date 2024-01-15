@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
 @Data
@@ -81,7 +82,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
     AutoCommitConfig autoCommitConfig;
 
     @JsonView(Views.Metadata.class)
-    AutoDeployment autoDeployment;
+    Set<AutoDeployment> autoDeployment;
 
     public AutoCommitConfig getAutoCommitConfig() {
         // by default, the auto commit should be enabled.
