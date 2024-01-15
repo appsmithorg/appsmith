@@ -164,7 +164,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
         urlObject.searchParams.set(branchQueryKey, parentBranchKey);
         cy.visit(urlObject.toString(), { timeout: 60000 });
 
-        cy.wait("@getConsolidatedData").should(
+        cy.wait("@getPagesForViewApp").should(
           "have.nested.property",
           "response.body.responseMeta.status",
           200,
