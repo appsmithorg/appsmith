@@ -27,6 +27,9 @@ describe(
 
       agHelper.GetNClick(FirstTimeUserOnboardingLocators.introModalCloseBtn);
 
+      featureFlagIntercept({
+        ab_show_templates_instead_of_blank_canvas_enabled: true,
+      });
       agHelper.GetNClick(onboarding.locators.seeMoreButtonOnCanvas, 0, true);
 
       agHelper.AssertElementVisibility(template.templateDialogBox);
