@@ -36,6 +36,7 @@ import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
@@ -490,7 +491,7 @@ class CrudModuleInstanceServiceTest {
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
 
         Mono<ModuleDTO> deleteModuleMono = crudModuleService.deleteModule(
-                moduleInstanceTestHelperDTO.getSourceModuleDTO().getId());
+                moduleInstanceTestHelperDTO.getOriginModuleDTO().getId());
 
         // Module cannot be deleted as it has one reference
         StepVerifier.create(deleteModuleMono)
@@ -510,7 +511,7 @@ class CrudModuleInstanceServiceTest {
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
 
         Mono<ModuleDTO> deleteModuleMono = crudModuleService.deleteModule(
-                moduleInstanceTestHelperDTO.getSourceModuleDTO().getId());
+                moduleInstanceTestHelperDTO.getOriginModuleDTO().getId());
 
         // Module cannot be deleted as it has one reference
         StepVerifier.create(deleteModuleMono)
@@ -692,7 +693,7 @@ class CrudModuleInstanceServiceTest {
         // Publish the package again
         publishPackageService
                 .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                        moduleInstanceTestHelperDTO.getOriginPackageDTO().getId())
                 .block();
 
         // But the old second module instances should remain as it is since we altered the moduleUUID to keep it out of
@@ -733,7 +734,7 @@ class CrudModuleInstanceServiceTest {
         // Publish the package again
         publishPackageService
                 .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                        moduleInstanceTestHelperDTO.getOriginPackageDTO().getId())
                 .block();
 
         // Fetch all module instances by moduleUUID after the package is published
@@ -890,7 +891,7 @@ class CrudModuleInstanceServiceTest {
         // Publish the package again
         publishPackageService
                 .publishPackage(
-                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                        moduleInstanceTestHelperDTO.getOriginPackageDTO().getId())
                 .block();
 
         // Verify the new module instance has the correct input values
@@ -999,21 +1000,21 @@ class CrudModuleInstanceServiceTest {
         return consumableModuleOptional.get();
     }
 
-    //    private ModuleDTO fetchLatestConsumableModule(String sourcePackageId, String version, String originModuleId) {
-    //        PackageDTO latestPackageDTO = crudPackageService
-    //                .getConsumablePackageBySourcePackageIdAndVersion(sourcePackageId, version)
-    //                .block();
-    //
-    //        return crudModuleService
-    //                .getConsumableModuleByPackageIdAndOriginModuleId(latestPackageDTO.getId(), originModuleId)
-    //                .block();
-    //    }
+    private ModuleDTO fetchLatestConsumableModule(String originPackageId, String originModuleId) {
+        Package latestPackage = packageRepository
+                .findLatestPackageByOriginPackageId(originPackageId, Optional.empty())
+                .block();
+
+        return crudModuleService
+                .getConsumableModuleByPackageIdAndOriginModuleId(latestPackage.getId(), originModuleId)
+                .block();
+    }
 
     private ModuleDTO createModuleRequestDTO() {
         ModuleDTO moduleReqDTO = new ModuleDTO();
         moduleReqDTO.setName("GetFilteredUsers");
         moduleReqDTO.setPackageId(
-                moduleInstanceTestHelperDTO.getSourcePackageDTO().getId());
+                moduleInstanceTestHelperDTO.getOriginPackageDTO().getId());
         moduleReqDTO.setType(ModuleType.QUERY_MODULE);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
@@ -1079,7 +1080,7 @@ class CrudModuleInstanceServiceTest {
                 .block();
 
         Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(
-                moduleInstanceTestHelperDTO.getSourcePackageDTO().getId());
+                moduleInstanceTestHelperDTO.getOriginPackageDTO().getId());
 
         StepVerifier.create(deletePackageMono)
                 .assertNext(deletedPackage -> {
@@ -1089,7 +1090,7 @@ class CrudModuleInstanceServiceTest {
 
         // Double-check package deletion by making an explicit db call
         Package dbPackage = packageRepository
-                .findById(moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                .findById(moduleInstanceTestHelperDTO.getOriginPackageDTO().getId())
                 .block();
         assertThat(dbPackage).isNull();
     }
@@ -1122,7 +1123,7 @@ class CrudModuleInstanceServiceTest {
                 .block();
 
         Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(
-                moduleInstanceTestHelperDTO.getSourcePackageDTO().getId());
+                moduleInstanceTestHelperDTO.getOriginPackageDTO().getId());
 
         StepVerifier.create(deletePackageMono)
                 .assertNext(deletedPackage -> {
@@ -1132,7 +1133,7 @@ class CrudModuleInstanceServiceTest {
 
         // Double-check package deletion by making an explicit db call
         Package dbPackage = packageRepository
-                .findById(moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
+                .findById(moduleInstanceTestHelperDTO.getOriginPackageDTO().getId())
                 .block();
         assertThat(dbPackage).isNull();
     }
@@ -1179,74 +1180,72 @@ class CrudModuleInstanceServiceTest {
                 .verify();
     }
 
-    //    @WithUserDetails(value = "api_user")
-    //    @Test
-    //    void testCreateModuleInstance_whenOutdatedModuleIdProvided_shouldNotAllowInstantiation() {
-    //        // Create a module
-    //        ModuleDTO moduleReqDTO = createModuleRequestDTO();
-    //        ModuleDTO createdModuleDTO =
-    //                crudModuleService.createModule(moduleReqDTO).block();
-    //
-    //        // Publish the package
-    //        publishPackageService.publishPackage(createdModuleDTO.getPackageId()).block();
-    //
-    //        // Fetch the published module DTO
-    //        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModuleDTO.getModuleUUID());
-    //
-    //        Module sourceModule = moduleRepository.findById(sourceModuleDTO.getId()).block();
-    //
-    //        // Create a module instance from the newly created and published module
-    //        ModuleInstanceDTO firstModuleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO,
-    // "GetFilteredUsers1");
-    //
-    //        // Create module instance and retrieve the response
-    //        CreateModuleInstanceResponseDTO firstCreatedModuleInstanceResponseDTO = crudModuleInstanceService
-    //                .createModuleInstance(firstModuleInstanceReqDTO, null)
-    //                .block();
-    //
-    //        // Publish the package again
-    //        publishPackageService
-    //                .publishPackage(
-    //                        moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
-    //                .block();
-    //
-    //        // Fetch the source package (editable)
-    //        Package sourcePackage = packageRepository
-    //                .findById(moduleInstanceTestHelperDTO.getSourcePackageDTO().getId())
-    //                .block();
-    //
-    //        ModuleInstanceDTO secondModuleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO,
-    // "GetFilteredUsers2");
-    //
-    //        // Try to create instance with the outdated version of the module and expect error
-    //        Mono<CreateModuleInstanceResponseDTO> secondCreatedModuleInstanceReqMono =
-    //                crudModuleInstanceService.createModuleInstance(secondModuleInstanceReqDTO, null);
-    //
-    //        StepVerifier.create(secondCreatedModuleInstanceReqMono)
-    //                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-    //                        && throwable.getMessage().equals(AppsmithError.MODULE_VERSION_OUTDATED.getMessage()))
-    //                .verify();
-    //
-    //        // Fetch the latest version of the module
-    //        ModuleDTO latestModuleDTO = fetchLatestConsumableModule(
-    //                sourcePackage.getId(), sourcePackage.getVersion(), sourceModule.getOriginModuleId());
-    //        secondModuleInstanceReqDTO = createModuleInstanceReq(latestModuleDTO, "GetFilteredUsers2");
-    //
-    //        secondCreatedModuleInstanceReqMono =
-    //                crudModuleInstanceService.createModuleInstance(secondModuleInstanceReqDTO, null);
-    //
-    //        StepVerifier.create(secondCreatedModuleInstanceReqMono)
-    //                .assertNext(createModuleInstanceResponseDTO -> {
-    //                    assertThat(createModuleInstanceResponseDTO).isNotNull();
-    //                    assertThat(createModuleInstanceResponseDTO.getModuleInstance())
-    //                            .isNotNull();
-    //                    assertThat(createModuleInstanceResponseDTO
-    //                                    .getModuleInstance()
-    //                                    .getSourceModuleId())
-    //                            .isEqualTo(latestModuleDTO.getId());
-    //                })
-    //                .verifyComplete();
-    //    }
+    @WithUserDetails(value = "api_user")
+    @Test
+    void testCreateModuleInstance_whenOutdatedModuleIdProvided_shouldNotAllowInstantiation() {
+        // Create a module
+        ModuleDTO moduleReqDTO = createModuleRequestDTO();
+        ModuleDTO createdModuleDTO =
+                crudModuleService.createModule(moduleReqDTO).block();
+
+        // Publish the package
+        publishPackageService.publishPackage(createdModuleDTO.getPackageId()).block();
+
+        // Fetch the published module DTO
+        ModuleDTO sourceModuleDTO = fetchConsumableModule(createdModuleDTO.getModuleUUID());
+
+        Module sourceModule = moduleRepository.findById(sourceModuleDTO.getId()).block();
+
+        // Create a module instance from the newly created and published module
+        ModuleInstanceDTO firstModuleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers1");
+
+        // Create module instance and retrieve the response
+        CreateModuleInstanceResponseDTO firstCreatedModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(firstModuleInstanceReqDTO, null)
+                .block();
+
+        // Publish the package again
+        publishPackageService
+                .publishPackage(
+                        moduleInstanceTestHelperDTO.getOriginPackageDTO().getId())
+                .block();
+
+        // Fetch the origin package (editable)
+        Package originPackage = packageRepository
+                .findById(moduleInstanceTestHelperDTO.getOriginPackageDTO().getId())
+                .block();
+
+        ModuleInstanceDTO secondModuleInstanceReqDTO = createModuleInstanceReq(sourceModuleDTO, "GetFilteredUsers2");
+
+        // Try to create instance with the outdated version of the module and expect error
+        Mono<CreateModuleInstanceResponseDTO> secondCreatedModuleInstanceReqMono =
+                crudModuleInstanceService.createModuleInstance(secondModuleInstanceReqDTO, null);
+
+        StepVerifier.create(secondCreatedModuleInstanceReqMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.STALE_MODULE_REFERENCE.getMessage()))
+                .verify();
+
+        // Fetch the latest version of the module
+        ModuleDTO latestModuleDTO =
+                fetchLatestConsumableModule(originPackage.getId(), sourceModule.getOriginModuleId());
+        secondModuleInstanceReqDTO = createModuleInstanceReq(latestModuleDTO, "GetFilteredUsers2");
+
+        secondCreatedModuleInstanceReqMono =
+                crudModuleInstanceService.createModuleInstance(secondModuleInstanceReqDTO, null);
+
+        StepVerifier.create(secondCreatedModuleInstanceReqMono)
+                .assertNext(createModuleInstanceResponseDTO -> {
+                    assertThat(createModuleInstanceResponseDTO).isNotNull();
+                    assertThat(createModuleInstanceResponseDTO.getModuleInstance())
+                            .isNotNull();
+                    assertThat(createModuleInstanceResponseDTO
+                                    .getModuleInstance()
+                                    .getSourceModuleId())
+                            .isEqualTo(latestModuleDTO.getId());
+                })
+                .verifyComplete();
+    }
 
     @WithUserDetails(value = "api_user")
     @Test

@@ -46,6 +46,9 @@ public class Package extends BranchAwareDomain {
     String version;
 
     @JsonView(Views.Internal.class)
+    Boolean latest;
+
+    @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

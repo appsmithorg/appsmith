@@ -28,6 +28,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ObjectUtils;
+import com.appsmith.server.helpers.PackageUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
@@ -145,6 +146,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     Package newPackage = new Package();
                     newPackage.setWorkspaceId(workspace.getId());
                     newPackage.setPackageUUID(new ObjectId().toString());
+                    newPackage.setVersion(PackageUtils.getNextVersion(null));
 
                     newPackage.setUnpublishedPackage(packageToBeCreated);
                     packageToBeCreated.setCustomJSLibs(new HashSet<>());
@@ -406,12 +408,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
-    public Mono<PackageDTO> getConsumablePackageByOriginPackageIdAndVersion(String originPackageId, String version) {
+    public Mono<PackageDTO> getLatestConsumablePackageByOriginPackageId(String originPackageId) {
         return repository
-                .findPackageByOriginPackageIdAndVersion(
-                        originPackageId,
-                        version,
-                        Optional.of(packagePermission.getCreatePackageModuleInstancePermission()))
+                .findLatestPackageByOriginPackageId(
+                        originPackageId, Optional.of(packagePermission.getCreatePackageModuleInstancePermission()))
                 .flatMap(aPackage ->
                         setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getPublishedPackage()));
     }

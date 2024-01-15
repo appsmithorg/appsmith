@@ -160,9 +160,8 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
     private Mono<Tuple2<PackageDTO, ModuleDTO>> fetchConsumablePackageAndModuleMono(
             ModuleConvertibleMetaDTO moduleConvertibleMetaDTO, ModuleInstanceDTO moduleInstanceReqDTO) {
 
-        Mono<PackageDTO> consumablePackageMono = crudPackageService.getConsumablePackageByOriginPackageIdAndVersion(
-                moduleConvertibleMetaDTO.getSourcePackage().getId(),
-                moduleConvertibleMetaDTO.getSourcePackage().getVersion());
+        Mono<PackageDTO> consumablePackageMono = crudPackageService.getLatestConsumablePackageByOriginPackageId(
+                moduleConvertibleMetaDTO.getSourcePackage().getId());
         return consumablePackageMono.flatMap(consumablePackageDTO -> {
             return crudModuleService
                     .getConsumableModuleByPackageIdAndOriginModuleId(

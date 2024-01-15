@@ -29,4 +29,6 @@ public interface CrudPackageService extends BasePackageService, CrudPackageServi
     Mono<PackageDTO> deletePackage(String packageId);
 
     Flux<Package> getUniquePublishedReference(Set<String> packageIds);
+
+    Mono<PackageDTO> getLatestConsumablePackageByOriginPackageId(String originPackageId);
 }

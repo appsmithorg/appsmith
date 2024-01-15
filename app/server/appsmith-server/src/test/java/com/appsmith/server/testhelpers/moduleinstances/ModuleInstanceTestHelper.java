@@ -224,7 +224,7 @@ public class ModuleInstanceTestHelper {
         PackageDTO aPackage = getPackageRequestDTO();
 
         PackageDTO packageDTO = createPackage(moduleInstanceTestHelperDTO, aPackage);
-        moduleInstanceTestHelperDTO.setSourcePackageDTO(packageDTO);
+        moduleInstanceTestHelperDTO.setOriginPackageDTO(packageDTO);
 
         ModuleDTO moduleReqDTO = createModuleRequestDTO(moduleInstanceTestHelperDTO, packageDTO);
 
@@ -235,7 +235,7 @@ public class ModuleInstanceTestHelper {
                 .addJSLibsToContext(packageDTO.getId(), CreatorContextType.PACKAGE, Set.of(jsLib), null, false)
                 .block();
 
-        moduleInstanceTestHelperDTO.setSourceModuleDTO(sourceModuleDTO);
+        moduleInstanceTestHelperDTO.setOriginModuleDTO(sourceModuleDTO);
 
         publishPackageService.publishPackage(packageDTO.getId()).block();
     }

@@ -40,4 +40,8 @@ public interface CustomPackageRepository extends AppsmithRepository<Package> {
 
     Flux<Package> findAllPackagesByWorkspaceId(
             String workspaceId, List<String> projectionFields, Optional<AclPermission> permissionOptional);
+
+    Mono<UpdateResult> unsetLatestPackageByOriginId(String originPackageId, AclPermission permission);
+
+    Mono<Package> findLatestPackageByOriginPackageId(String originPackageId, Optional<AclPermission> permission);
 }

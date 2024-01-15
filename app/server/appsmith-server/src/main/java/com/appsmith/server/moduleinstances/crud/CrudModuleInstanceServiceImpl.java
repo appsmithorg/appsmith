@@ -339,9 +339,14 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         Mono<Package> packageMono = sourceModuleMono
                 .map(Module::getPackageId)
                 .flatMap(packageRepository::findById)
-                .doOnNext(aPackage -> {
+                .flatMap(aPackage -> {
+                    if (!Boolean.TRUE.equals(aPackage.getLatest())) {
+                        return Mono.error(new AppsmithException(AppsmithError.STALE_MODULE_REFERENCE));
+                    }
+
                     String packageId = aPackage.getId();
                     moduleInstantiatingMetaDTO.setSourcePackageId(packageId);
+                    return Mono.just(aPackage);
                 })
                 .cache();
 

@@ -12,11 +12,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuples;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -39,24 +37,12 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
 
     @Override
     public Flux<Package> findAllConsumablePackages(String workspaceId, AclPermission permission) {
-        return findAllOriginPackages(workspaceId, Optional.empty())
-                .flatMap(originPackage -> Mono.just(Tuples.of(originPackage.getId(), originPackage.getVersion())))
-                .collectList()
-                .flatMapMany(allTuple2s -> {
-                    if (allTuple2s.isEmpty()) {
-                        return Flux.empty();
-                    }
-                    List<Criteria> allCriteria = allTuple2s.stream()
-                            .map(tuple2 -> Criteria.where(fieldName(QPackage.package$.originPackageId))
-                                    .is(tuple2.getT1())
-                                    .and(fieldName(QPackage.package$.version))
-                                    .is(tuple2.getT2()))
-                            .collect(Collectors.toList());
+        Criteria criteria = where(fieldName(QPackage.package$.workspaceId))
+                .is(workspaceId)
+                .and(fieldName(QPackage.package$.latest))
+                .is(true);
 
-                    Criteria finalCriteria = new Criteria().orOperator(allCriteria.toArray(new Criteria[0]));
-
-                    return queryAll(List.of(finalCriteria), Optional.of(permission));
-                });
+        return queryAll(List.of(criteria), Optional.of(permission));
     }
 
     @NotNull private Flux<Package> findAllOriginPackages(String workspaceId, Optional<AclPermission> permission) {
@@ -150,5 +136,28 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 permissionOptional,
                 Optional.empty(),
                 NO_RECORD_LIMIT);
+    }
+
+    @Override
+    public Mono<UpdateResult> unsetLatestPackageByOriginId(String originPackageId, AclPermission permission) {
+        Criteria latestPackageCriteria =
+                where(completeFieldName(QPackage.package$.latest)).is(true);
+        Criteria originPackageIdCriteria =
+                where(completeFieldName(QPackage.package$.originPackageId)).is(originPackageId);
+
+        Update update = new Update();
+        update.set(completeFieldName(QPackage.package$.latest), false);
+        return updateByCriteria(List.of(latestPackageCriteria, originPackageIdCriteria), update, permission);
+    }
+
+    @Override
+    public Mono<Package> findLatestPackageByOriginPackageId(
+            String originPackageId, Optional<AclPermission> permission) {
+        Criteria originPackageCriteria = Criteria.where(fieldName(QPackage.package$.originPackageId))
+                .is(originPackageId)
+                .and(fieldName(QPackage.package$.latest))
+                .is(true);
+
+        return queryOne(List.of(originPackageCriteria), null, permission);
     }
 }

@@ -64,8 +64,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.MODULE_CREATE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.MODULE_READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULE_INSTANCES;
@@ -257,7 +255,7 @@ class ModuleInstanceRoleConfigurationsTest {
                 .contains(sampleRoleViewDTO.getId()));
 
         // Check package permissions
-        PackageDTO sourcePackageDTO = moduleInstanceTestHelperDTO.getSourcePackageDTO();
+        PackageDTO sourcePackageDTO = moduleInstanceTestHelperDTO.getOriginPackageDTO();
         Package aPackage = packageRepository.findById(sourcePackageDTO.getId()).block();
         Set<Policy> packagePolicies = aPackage.getPolicies().stream()
                 .filter(policy -> Set.of(
@@ -269,7 +267,7 @@ class ModuleInstanceRoleConfigurationsTest {
                 .contains(sampleRoleViewDTO.getId()));
 
         // Check module permissions
-        ModuleDTO sourceModuleDTO = moduleInstanceTestHelperDTO.getSourceModuleDTO();
+        ModuleDTO sourceModuleDTO = moduleInstanceTestHelperDTO.getOriginModuleDTO();
         Module module = moduleRepository.findById(sourceModuleDTO.getId()).block();
         Set<Policy> modulePolicies = module.getPolicies().stream()
                 .filter(policy -> Set.of(
@@ -380,7 +378,7 @@ class ModuleInstanceRoleConfigurationsTest {
         });
 
         // Check package permissions
-        PackageDTO sourcePackageDTO = moduleInstanceTestHelperDTO.getSourcePackageDTO();
+        PackageDTO sourcePackageDTO = moduleInstanceTestHelperDTO.getOriginPackageDTO();
         Package aPackage = packageRepository.findById(sourcePackageDTO.getId()).block();
         Set<Policy> packagePolicies = aPackage.getPolicies().stream()
                 .filter(policy -> Set.of(
@@ -400,7 +398,7 @@ class ModuleInstanceRoleConfigurationsTest {
         });
 
         // Check module permissions
-        ModuleDTO sourceModuleDTO = moduleInstanceTestHelperDTO.getSourceModuleDTO();
+        ModuleDTO sourceModuleDTO = moduleInstanceTestHelperDTO.getOriginModuleDTO();
         Module module = moduleRepository.findById(sourceModuleDTO.getId()).block();
         Set<Policy> modulePolicies = module.getPolicies().stream()
                 .filter(policy -> Set.of(

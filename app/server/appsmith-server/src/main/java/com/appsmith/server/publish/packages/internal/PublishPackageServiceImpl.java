@@ -23,6 +23,7 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.publish.packages.upgradable.PackageUpgradableService;
 import com.appsmith.server.repositories.PackageRepository;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -81,12 +82,10 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)))
                 .flatMap(originalPackage -> {
-                    int[] currentRawVersion = PackageUtils.parseVersion(originalPackage.getVersion());
-                    String nextVersion = PackageUtils.getNextVersion(
-                            currentRawVersion[0], currentRawVersion[1], currentRawVersion[2]);
+                    String nextVersion = PackageUtils.getNextVersion(originalPackage.getVersion());
 
                     // construct the package that's going to be published
-                    Package packageToBePublished = constructPackageToBePublished(originalPackage, nextVersion);
+                    Package packageToBePublished = constructPackageToBePublished(originalPackage);
 
                     // set the next version to the original package, so that the original package can always tell what's
                     // the latest version and when did it get published
@@ -94,10 +93,13 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                     originalPackage.setLastPublishedAt(packageToBePublished.getLastPublishedAt());
                     publishingMetaDTO.setOriginPackageId(packageId);
 
+                    Mono<UpdateResult> unsetCurrentLatestMono =
+                            packageRepository.unsetLatestPackageByOriginId(originalPackage.getId(), null);
                     Mono<Package> saveOriginalPackage = packageRepository.save(originalPackage);
                     Mono<Package> savePackageToBePublished = packageRepository.save(packageToBePublished);
 
-                    return Mono.zip(saveOriginalPackage, savePackageToBePublished)
+                    return unsetCurrentLatestMono
+                            .then(Mono.zip(saveOriginalPackage, savePackageToBePublished))
                             .flatMap(tuple2 -> {
                                 Package publishedPackage = tuple2.getT2();
                                 publishingMetaDTO.setPublishedPackage(publishedPackage);
@@ -228,24 +230,15 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
         }
     }
 
-    private Package constructPackageToBePublished(Package sourcePkg, String nextVersion) {
+    private Package constructPackageToBePublished(Package sourcePkg) {
         Package pkgToBePublished = new Package();
         AppsmithBeanUtils.copyNestedNonNullProperties(sourcePkg, pkgToBePublished);
         pkgToBePublished.setPublishedPackage(sourcePkg.getUnpublishedPackage());
         pkgToBePublished.setUnpublishedPackage(new PackageDTO());
         pkgToBePublished.setOriginPackageId(sourcePkg.getId());
-        pkgToBePublished.setVersion(nextVersion);
+        pkgToBePublished.setLatest(true);
         pkgToBePublished.setLastPublishedAt(Instant.now());
         pkgToBePublished.setId(null);
-
-        // The published version of the package should only be instantiable and exportable
-        //        Set<Policy> updatedPolicies = pkgToBePublished.getPolicies().stream()
-        //                .filter(policy -> policy.getPermission()
-        //
-        // .equals(packagePermission.getCreatePackageModuleInstancePermission().getValue())
-        //                        || policy.getPermission()
-        //                                .equals(packagePermission.getExportPermission().getValue()))
-        //                .collect(Collectors.toSet());
 
         pkgToBePublished.setPolicies(pkgToBePublished.getPolicies());
 

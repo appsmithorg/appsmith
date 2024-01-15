@@ -17,8 +17,8 @@ public class ModuleInstanceTestHelperDTO {
     String defaultEnvironmentId;
     Datasource datasource;
     PageDTO pageDTO;
-    PackageDTO sourcePackageDTO;
-    ModuleDTO sourceModuleDTO;
+    PackageDTO originPackageDTO;
+    ModuleDTO originModuleDTO;
     Optional<ModuleDTO> consumableModuleOptional;
     NewAction modulePublicAction;
     String moduleInstanceName;

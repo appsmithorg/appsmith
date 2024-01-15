@@ -6,7 +6,9 @@ public class PackageUtils {
     private static final int UPPER_LIMIT_PATCH_VERSION = Integer.MAX_VALUE;
     private static final int UPPER_LIMIT_MINOR_VERSION = Integer.MAX_VALUE;
 
-    public static String getNextVersion(int major, int minor, int patch) {
+    public static String getNextVersion(String version) {
+        int[] ints = parseVersion(version);
+        int major = ints[0], minor = ints[1], patch = ints[2];
         patch++;
 
         if (patch == UPPER_LIMIT_PATCH_VERSION) {

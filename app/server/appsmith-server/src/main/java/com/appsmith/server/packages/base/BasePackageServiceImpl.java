@@ -25,6 +25,7 @@ public abstract class BasePackageServiceImpl extends BasePackageServiceCECompati
         packageDTO.setPolicies(aPackage.getPolicies());
         packageDTO.setOriginPackageId(aPackage.getOriginPackageId());
         packageDTO.setVersion(aPackage.getVersion());
+        packageDTO.setLatest(aPackage.getLatest());
 
         return Mono.just(packageDTO);
     }
