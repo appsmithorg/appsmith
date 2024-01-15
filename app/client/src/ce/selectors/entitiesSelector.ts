@@ -52,6 +52,8 @@ import {
   getCurrentWorkflowJSActions,
 } from "@appsmith/selectors/workflowSelectors";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -67,6 +69,12 @@ export enum PluginCategory {
   Databases = "Databases",
   APIs = "APIs",
   Others = "Others",
+}
+
+export interface NewEntityNameOptions {
+  prefix: string;
+  parentEntityId: string;
+  parentEntityKey: CreateNewActionKeyInterface;
 }
 
 export type DatasourceGroupByPluginCategory = Record<
@@ -1486,3 +1494,21 @@ export const getAllJSCollections = createSelector(
 export const getIsActionConverting = (state: AppState, actionId: string) => {
   return false;
 };
+
+export const getNewEntityName = createSelector(
+  getActions,
+  getJSCollections,
+  (_state: AppState, options: NewEntityNameOptions) => options,
+  (actions, jsCollections, options) => {
+    const { parentEntityId, parentEntityKey, prefix } = options;
+
+    const actionNames = actions
+      .filter((a) => a.config[parentEntityKey] === parentEntityId)
+      .map((a) => a.config.name);
+    const jsActionNames = jsCollections
+      .filter((a) => a.config[parentEntityKey] === parentEntityId)
+      .map((a) => a.config.name);
+
+    return getNextEntityName(prefix, actionNames.concat(jsActionNames));
+  },
+);

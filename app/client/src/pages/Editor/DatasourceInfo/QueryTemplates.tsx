@@ -2,7 +2,6 @@ import React, { useCallback, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { AppState } from "@appsmith/reducers";
-import { createNewQueryName } from "utils/AppsmithUtils";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -81,7 +80,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   );
   const createQueryAction = useCallback(
     (template: QueryTemplate) => {
-      const newQueryName = createNewQueryName(actions, currentPageId || "");
       const queryactionConfiguration: Partial<QueryAction> = {
         actionConfiguration: {
           body: template.body,
@@ -93,7 +91,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
       dispatch(
         createActionRequest({
-          name: newQueryName,
           pageId: currentPageId,
           pluginId: dataSource?.pluginId,
           datasource: {
