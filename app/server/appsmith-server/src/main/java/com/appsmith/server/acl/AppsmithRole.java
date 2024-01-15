@@ -21,9 +21,11 @@ import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.MODULE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.MODULE_READ_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_MODULES;
-import static com.appsmith.server.acl.AclPermission.READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.READ_TENANT_AUDIT_LOGS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
@@ -32,6 +34,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_ENVIRONMENT;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
@@ -51,6 +54,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGE_INSTANCES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_ROLE;
@@ -141,10 +145,14 @@ public enum AppsmithRole {
                     READ_APPLICATIONS,
                     APPLICATION_CREATE_PAGES,
                     WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS,
+                    WORKSPACE_CREATE_PACKAGE_INSTANCES,
+                    WORKSPACE_READ_PACKAGE_INSTANCES,
                     INVITE_USERS_APPLICATIONS,
                     EXECUTE_ENVIRONMENTS,
-                    READ_MODULES,
-                    READ_PACKAGES)),
+                    PACKAGE_CREATE_MODULE_INSTANCES,
+                    PACKAGE_READ_MODULE_INSTANCES,
+                    MODULE_CREATE_MODULE_INSTANCES,
+                    MODULE_READ_MODULE_INSTANCES)),
     /**
      * Default Application Viewer Role
      * The role's name will be of format <b>App Viewer - application_name</b>

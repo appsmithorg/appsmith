@@ -37,6 +37,19 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     }
 
     @Override
+    public Flux<Module> getAllModulesByPackageIds(
+            List<String> packageIds, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
+        Criteria packageIdsCriteria = where(fieldName(QModule.module.packageId)).in(packageIds);
+
+        return queryAll(
+                List.of(packageIdsCriteria),
+                Optional.ofNullable(projectionFields),
+                permissionOptional,
+                Optional.empty(),
+                NO_RECORD_LIMIT);
+    }
+
+    @Override
     public Flux<Module> getAllConsumableModulesByPackageIds(List<String> packageIds, AclPermission permission) {
         Criteria packageIdInCriteria =
                 where(fieldName(QModule.module.packageId)).in(packageIds);
@@ -96,5 +109,17 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
 
         criteria.add(packageIdAndOriginModuleIdCriterion);
         return queryOne(criteria, null, permission);
+    }
+
+    @Override
+    public Flux<Module> findAllByOriginModuleId(
+            String originModuleId, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria originModuleIdCriterion =
+                where(fieldName(QModule.module.originModuleId)).is(originModuleId);
+
+        criteria.add(originModuleIdCriterion);
+        return queryAll(
+                criteria, Optional.ofNullable(projectionFields), permissionOptional, Optional.empty(), NO_RECORD_LIMIT);
     }
 }

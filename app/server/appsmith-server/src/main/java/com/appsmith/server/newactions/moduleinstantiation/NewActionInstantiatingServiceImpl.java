@@ -17,7 +17,6 @@ import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingService<NewAction, NewAction> {
     private final NewActionRepository newActionRepository;
-    private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
     private final RefactoringService refactoringService;
     private final NewActionService newActionService;
@@ -49,10 +47,7 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
     @Override
     public Mono<List<NewAction>> generateInstantiatedEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         Flux<NewAction> sourceActionFlux = newActionRepository.findAllPublishedActionsByContextIdAndContextType(
-                moduleInstantiatingMetaDTO.getSourceModuleId(),
-                CreatorContextType.MODULE,
-                actionPermission.getExecutePermission(),
-                false);
+                moduleInstantiatingMetaDTO.getSourceModuleId(), CreatorContextType.MODULE, null, false);
         return sourceActionFlux
                 .flatMap(sourceAction -> {
                     NewAction toBeInstantiatedAction = createNewActionFromSourceAction(sourceAction);
@@ -72,9 +67,6 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
                     dtoDefaultResourcesService.initialize(
                             unpublishedAction, moduleInstantiatingMetaDTO.getBranchName(), true);
                     toBeInstantiatedAction.setGitSyncId(null);
-
-                    //                    setDefaultResources(moduleInstantiatingMetaDTO, sourceAction,
-                    // toBeInstantiatedAction);
 
                     setPolicies(moduleInstantiatingMetaDTO, toBeInstantiatedAction);
 
@@ -134,20 +126,6 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
 
         toBeInstantiatedAction.setPolicies(policies);
     }
-
-    //    private void setDefaultResources(
-    //            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,
-    //            NewAction sourceAction,
-    //            NewAction toBeInstantiatedAction) {
-    //        DefaultResources defaultResources = sourceAction.getDefaultResources();
-    //        defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
-    //        defaultResources.setActionId(toBeInstantiatedAction.getId());
-    //        defaultResources.setPageId(
-    //                moduleInstantiatingMetaDTO.getPage().getDefaultResources().getPageId());
-    //
-    //        toBeInstantiatedAction.setDefaultResources(defaultResources);
-    //        toBeInstantiatedAction.getUnpublishedAction().setDefaultResources(defaultResources);
-    //    }
 
     private void setRootModuleInstanceIdAndModuleInstanceId(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,

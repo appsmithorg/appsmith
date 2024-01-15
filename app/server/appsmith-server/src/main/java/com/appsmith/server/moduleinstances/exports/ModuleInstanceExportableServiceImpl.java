@@ -154,6 +154,7 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
         moduleInstanceList.forEach(moduleInstance -> {
             moduleInstance.setPolicies(null);
             moduleInstance.setApplicationId(null);
+            moduleInstance.setWorkspaceId(null);
 
             // Set unique id for module instance
             if (moduleInstance.getUnpublishedModuleInstance() != null) {

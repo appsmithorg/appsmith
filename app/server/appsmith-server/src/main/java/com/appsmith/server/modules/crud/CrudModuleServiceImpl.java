@@ -414,7 +414,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     @Override
     public Mono<List<ModuleDTO>> getAllConsumableModules(List<String> packageIds) {
         return repository
-                .getAllConsumableModulesByPackageIds(packageIds, modulePermission.getReadPermission())
+                .getAllConsumableModulesByPackageIds(packageIds, modulePermission.getReadModuleInstancePermission())
                 .flatMap(module -> setTransientFieldsFromModuleToModuleDTO(module, module.getPublishedModule()))
                 .collectList();
     }
@@ -450,7 +450,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     public Mono<ModuleDTO> getConsumableModuleByPackageIdAndOriginModuleId(String packageId, String originModuleId) {
         return repository
                 .findConsumableModuleByPackageIdAndOriginModuleId(
-                        packageId, originModuleId, Optional.of(modulePermission.getReadPermission()))
+                        packageId, originModuleId, Optional.of(modulePermission.getCreateModuleInstancePermission()))
                 .flatMap(module -> generateModuleByViewMode(module, ResourceModes.VIEW));
     }
 

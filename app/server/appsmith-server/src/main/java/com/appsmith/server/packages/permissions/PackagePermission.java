@@ -11,4 +11,8 @@ public interface PackagePermission extends DomainPermission {
     AclPermission getExportPermission();
 
     AclPermission getPublishPermission();
+
+    AclPermission getCreatePackageModuleInstancePermission();
+
+    AclPermission getReadPackageModuleInstancePermission();
 }

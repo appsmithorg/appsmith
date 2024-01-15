@@ -342,56 +342,65 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 .doOnNext(aPackage -> {
                     String packageId = aPackage.getId();
                     moduleInstantiatingMetaDTO.setSourcePackageId(packageId);
+                })
+                .cache();
+
+        return packageMono
+                .then(updateEntityNamesMapMono)
+                .then(sourceModuleMono)
+                .zipWith(packageMono)
+                .flatMap(tuple2 -> {
+                    Module sourceModule = tuple2.getT1();
+                    Package sourcePackage = tuple2.getT2();
+
+                    ModuleInstance moduleInstance = new ModuleInstance();
+                    moduleInstance.setType(sourceModule.getType());
+                    moduleInstance.setSourceModuleId(sourceModule.getId());
+                    moduleInstance.setModuleUUID(sourceModule.getModuleUUID());
+                    moduleInstance.setOriginModuleId(sourceModule.getOriginModuleId());
+                    moduleInstance.setDefaultResources(moduleInstanceReqDTO.getDefaultResources());
+                    moduleInstance.setWorkspaceId(sourcePackage.getWorkspaceId());
+
+                    ModuleInstanceDTO unpublishedModuleInstanceDTO = prepareUnpublishedModuleInstanceFromRequest(
+                            moduleInstanceReqDTO, sourceModule.getPublishedModule());
+
+                    moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
+                    moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
+                    moduleInstance.setId(new ObjectId().toString());
+
+                    return generateBareBonesModuleInstanceAndReturnPage(
+                                    moduleInstantiatingMetaDTO,
+                                    moduleInstanceReqDTO,
+                                    branchName,
+                                    moduleInstance,
+                                    cachedPageMono)
+                            .map(page -> {
+                                moduleInstantiatingMetaDTO.setOldToNewModuleEntityRefactorDTOsMap(
+                                        sourceToInstantiatedEntityRefactorDTOsMap);
+
+                                moduleInstantiatingMetaDTO.setRootModuleInstanceId(moduleInstance.getId());
+                                moduleInstantiatingMetaDTO.setRootModuleInstanceName(moduleInstanceReqDTO.getName());
+                                moduleInstantiatingMetaDTO.setContextType(moduleInstanceReqDTO.getContextType());
+                                moduleInstantiatingMetaDTO.setContextId(moduleInstanceReqDTO.getContextId());
+                                moduleInstantiatingMetaDTO.setSourceModuleId(sourceModule.getId());
+                                moduleInstantiatingMetaDTO.setPage(page);
+
+                                Mono<Integer> evalVersionMono = applicationService
+                                        .findById(page.getApplicationId())
+                                        .map(application -> {
+                                            Integer evaluationVersion = application.getEvaluationVersion();
+                                            if (evaluationVersion == null) {
+                                                evaluationVersion = EVALUATION_VERSION;
+                                            }
+                                            return evaluationVersion;
+                                        })
+                                        .cache();
+
+                                moduleInstantiatingMetaDTO.setEvalVersionMono(evalVersionMono);
+
+                                return moduleInstance;
+                            });
                 });
-
-        return packageMono.then(updateEntityNamesMapMono).then(sourceModuleMono).flatMap(sourceModule -> {
-            ModuleInstance moduleInstance = new ModuleInstance();
-            moduleInstance.setType(sourceModule.getType());
-            moduleInstance.setSourceModuleId(sourceModule.getId());
-            moduleInstance.setModuleUUID(sourceModule.getModuleUUID());
-            moduleInstance.setOriginModuleId(sourceModule.getOriginModuleId());
-            moduleInstance.setDefaultResources(moduleInstanceReqDTO.getDefaultResources());
-
-            ModuleInstanceDTO unpublishedModuleInstanceDTO = prepareUnpublishedModuleInstanceFromRequest(
-                    moduleInstanceReqDTO, sourceModule.getPublishedModule());
-
-            moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
-            moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
-            moduleInstance.setId(new ObjectId().toString());
-
-            return generateBareBonesModuleInstanceAndReturnPage(
-                            moduleInstantiatingMetaDTO,
-                            moduleInstanceReqDTO,
-                            branchName,
-                            moduleInstance,
-                            cachedPageMono)
-                    .map(page -> {
-                        moduleInstantiatingMetaDTO.setOldToNewModuleEntityRefactorDTOsMap(
-                                sourceToInstantiatedEntityRefactorDTOsMap);
-
-                        moduleInstantiatingMetaDTO.setRootModuleInstanceId(moduleInstance.getId());
-                        moduleInstantiatingMetaDTO.setRootModuleInstanceName(moduleInstanceReqDTO.getName());
-                        moduleInstantiatingMetaDTO.setContextType(moduleInstanceReqDTO.getContextType());
-                        moduleInstantiatingMetaDTO.setContextId(moduleInstanceReqDTO.getContextId());
-                        moduleInstantiatingMetaDTO.setSourceModuleId(sourceModule.getId());
-                        moduleInstantiatingMetaDTO.setPage(page);
-
-                        Mono<Integer> evalVersionMono = applicationService
-                                .findById(page.getApplicationId())
-                                .map(application -> {
-                                    Integer evaluationVersion = application.getEvaluationVersion();
-                                    if (evaluationVersion == null) {
-                                        evaluationVersion = EVALUATION_VERSION;
-                                    }
-                                    return evaluationVersion;
-                                })
-                                .cache();
-
-                        moduleInstantiatingMetaDTO.setEvalVersionMono(evalVersionMono);
-
-                        return moduleInstance;
-                    });
-        });
     }
 
     private Mono<ModuleInstance> saveModuleInstance(ModuleInstance moduleInstance) {
@@ -462,6 +471,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         moduleInstance.setType(moduleInstanceReqDTO.getType());
         moduleInstance.setModuleUUID(moduleInstanceReqDTO.getModuleUUID());
         moduleInstance.setDefaultResources(moduleInstanceReqDTO.getDefaultResources());
+        moduleInstance.setWorkspaceId(moduleInstanceReqDTO.getWorkspaceId());
 
         moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
         moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
@@ -611,7 +621,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 .cache();
 
         AclPermission permission =
-                viewMode ? actionPermission.getExecutePermission() : actionPermission.getEditPermission();
+                viewMode ? actionPermission.getExecutePermission() : actionPermission.getReadPermission();
 
         Mono<List<ActionViewDTO>> actionDTOListMono = pageMono.flatMapMany(
                         newPage -> newActionService.getAllModuleInstanceActionInContext(
@@ -675,7 +685,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     public Mono<List<ModuleInstance>> archiveModuleInstancesByRootModuleInstanceId(String rootModuleInstanceId) {
         return repository
                 .findAllByRootModuleInstanceId(
-                        rootModuleInstanceId, Optional.of(moduleInstancePermission.getDeletePermission()))
+                        rootModuleInstanceId, null, Optional.of(moduleInstancePermission.getDeletePermission()))
                 .flatMap(composedModuleInstance -> {
                     if (composedModuleInstance.getPublishedModuleInstance() != null
                             && composedModuleInstance

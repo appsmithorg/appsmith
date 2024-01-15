@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface CustomPackageRepository extends AppsmithRepository<Package> {
-    Flux<Package> findAllUserPackages(AclPermission permission);
+    Flux<Package> findAllEditablePackages(AclPermission permission);
 
     Flux<Package> findAllConsumablePackages(String workspaceId, AclPermission permission);
 
@@ -37,4 +37,7 @@ public interface CustomPackageRepository extends AppsmithRepository<Package> {
 
     Mono<Package> findPackageBySourcePackageIdAndVersion(
             String sourcePackageId, String version, Optional<AclPermission> permission);
+
+    Flux<Package> findAllPackagesByWorkspaceId(
+            String workspaceId, List<String> projectionFields, Optional<AclPermission> permissionOptional);
 }

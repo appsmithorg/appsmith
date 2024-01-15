@@ -19,7 +19,6 @@ import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
 import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,6 @@ public class ActionCollectionModuleInstantiatingServiceImpl
     private final ActionCollectionService actionCollectionService;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ModuleInstantiatingService<JSActionType, NewAction> jsActionInstantiatingService;
-    private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
     private final RefactoringService refactoringService;
     private final DefaultResourcesService<ActionCollection> defaultResourcesService;
@@ -80,9 +78,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         Flux<ActionCollection> actionCollectionFlux =
                 actionCollectionRepository.findAllPublishedActionCollectionsByContextIdAndContextType(
-                        moduleInstantiatingMetaDTO.getSourceModuleId(),
-                        CreatorContextType.MODULE,
-                        actionPermission.getReadPermission());
+                        moduleInstantiatingMetaDTO.getSourceModuleId(), CreatorContextType.MODULE, null);
 
         final List<String> sourceCollectionIds = new ArrayList<>();
         final Map<String, String> oldToNewCollectionIdMap = new HashMap<>();
@@ -187,8 +183,6 @@ public class ActionCollectionModuleInstantiatingServiceImpl
                 unpublishedActionCollectionDTO, moduleInstantiatingMetaDTO.getBranchName(), true);
         toBeInstantiatedActionCollection.setGitSyncId(null);
 
-        //        setDefaultResources(moduleInstantiatingMetaDTO, toBeInstantiatedActionCollection);
-
         // Set the truncated policies for this new instance
         toBeInstantiatedActionCollection.setPolicies(policies);
 
@@ -237,28 +231,6 @@ public class ActionCollectionModuleInstantiatingServiceImpl
                         moduleInstantiatingMetaDTO.getEvalVersionMono()))
                 .then(Mono.just(toBeInstantiatedActionCollection));
     }
-
-    //    private void setDefaultResources(
-    //        ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ActionCollection toBeInstantiatedActionCollection)
-    // {
-    //        // Set relevant fields in the default resources
-    //        DefaultResources defaultResources = new DefaultResources();
-    //        defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
-    //        defaultResources.setCollectionId(toBeInstantiatedActionCollection.getId());
-    //        defaultResources.setApplicationId(toBeInstantiatedActionCollection.getApplicationId());
-    //
-    //        DefaultResources unpublishedDefaultResources =
-    // toBeInstantiatedActionCollection.getUnpublishedCollection().getDefaultResources();
-    //        if (unpublishedDefaultResources == null) {
-    //            unpublishedDefaultResources = new DefaultResources();
-    //        }
-    //        unpublishedDefaultResources.setPageId(moduleInstantiatingMetaDTO.getContextId());
-    //
-    //
-    // toBeInstantiatedActionCollection.getUnpublishedCollection().setDefaultResources(unpublishedDefaultResources);
-    //
-    //        toBeInstantiatedActionCollection.setDefaultResources(defaultResources);
-    //    }
 
     private void setRootModuleInstanceIdAndModuleInstanceId(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,

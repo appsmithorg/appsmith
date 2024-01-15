@@ -119,6 +119,8 @@ public enum AclPermission {
     WORKSPACE_PUBLISH_PACKAGES("publish:workspacePackages", Workspace.class),
     WORKSPACE_EXPORT_PACKAGES("export:workspacePackages", Workspace.class),
     WORKSPACE_DELETE_PACKAGES("delete:workspacePackages", Workspace.class),
+    WORKSPACE_CREATE_PACKAGE_INSTANCES("create:workspacePackageInstances", Workspace.class),
+    WORKSPACE_READ_PACKAGE_INSTANCES("read:workspacePackageInstances", Workspace.class),
 
     // Was the user assigned a global permission at the workspace level to manage workflows?
     WORKSPACE_MANAGE_WORKFLOWS("manage:workspaceWorkflows", Workspace.class),
@@ -159,7 +161,9 @@ public enum AclPermission {
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
 
     // Due to this edge in the hierarchy graph, access to creating module instances would be limited to default
-    // workspace admins and workspace developers
+    // workspace admins and workspace developers,
+    PACKAGE_CREATE_MODULE_INSTANCES("create:packageModuleInstances", Package.class),
+    PACKAGE_READ_MODULE_INSTANCES("read:packageModuleInstances", Package.class),
     PACKAGE_CREATE_MODULES("create:modules", Package.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
@@ -170,7 +174,8 @@ public enum AclPermission {
     READ_MODULES("read:modules", Module.class),
     DELETE_MODULES("delete:modules", Module.class),
 
-    CREATE_MODULE_INSTANCES("create:moduleInstances", Module.class),
+    MODULE_CREATE_MODULE_INSTANCES("create:moduleInstances", Module.class),
+    MODULE_READ_MODULE_INSTANCES("read:moduleInstances", Module.class),
 
     // This permission would be used to add actions, JS objects and other module instances to the module in the context
     // of creator

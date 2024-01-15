@@ -31,8 +31,10 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     }
 
     @Override
-    public Flux<Package> findAllUserPackages(AclPermission permission) {
-        return queryAll(List.of(), Optional.ofNullable(permission));
+    public Flux<Package> findAllEditablePackages(AclPermission permission) {
+        Criteria onlyUnpublishedPackages = where(completeFieldName(QPackage.package$.publishedPackage.name))
+                .exists(false);
+        return queryAll(List.of(onlyUnpublishedPackages), Optional.ofNullable(permission));
     }
 
     @Override
@@ -136,5 +138,17 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .is(version);
 
         return queryOne(List.of(sourcePackageCriteria), null, permission);
+    }
+
+    @Override
+    public Flux<Package> findAllPackagesByWorkspaceId(
+            String workspaceId, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
+        Criteria idCriteria = where(fieldName(QPackage.package$.workspaceId)).is(workspaceId);
+        return queryAll(
+                List.of(idCriteria),
+                Optional.ofNullable(projectionFields),
+                permissionOptional,
+                Optional.empty(),
+                NO_RECORD_LIMIT);
     }
 }

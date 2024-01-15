@@ -63,7 +63,7 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
 
             if (ResourceModes.EDIT.equals(resourceMode)) {
                 moduleInstanceFlux = repository.findAllUnpublishedByContextIdAndContextType(
-                        branchedContextId, contextType, moduleInstancePermission.getEditPermission());
+                        branchedContextId, contextType, moduleInstancePermission.getReadPermission());
             } else {
                 moduleInstanceFlux = repository.findAllPublishedByContextIdAndContextType(
                         branchedContextId, contextType, moduleInstancePermission.getExecutePermission());
@@ -167,6 +167,6 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
     @Override
     public Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission) {
-        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.ofNullable(permission));
+        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, null, Optional.ofNullable(permission));
     }
 }

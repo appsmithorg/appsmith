@@ -15,8 +15,8 @@ import java.util.Optional;
 public interface CustomActionCollectionRepository extends CustomActionCollectionRepositoryCE {
     Flux<ActionCollection> findAllByModuleIds(List<String> moduleIds, Optional<AclPermission> permission);
 
-    Flux<ActionCollection> findAllByRootModuleInstanceIds(
-            List<String> moduleInstanceIds, Optional<AclPermission> permission);
+    Flux<ActionCollection> findAllByRootModuleInstanceId(
+            String moduleInstanceId, List<String> projectionFields, Optional<AclPermission> permission);
 
     Flux<ActionCollection> findByWorkflowId(
             String workflowId, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
@@ -34,4 +34,6 @@ public interface CustomActionCollectionRepository extends CustomActionCollection
             boolean viewMode);
 
     Mono<ActionCollection> findPublicActionCollectionByModuleId(String moduleId, ResourceModes resourceMode);
+
+    Flux<ActionCollection> findAllUncomposedByApplicationIds(List<String> applicationIds, List<String> includeFields);
 }

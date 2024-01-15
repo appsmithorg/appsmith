@@ -1,7 +1,6 @@
 package com.appsmith.server.modules.publish.packages;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackagePublishingMetaDTO;
@@ -14,7 +13,6 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,16 +60,16 @@ public class ModulePackagePublishableServiceImpl implements PackagePublishableSe
             module.setUnpublishedModule(new ModuleDTO());
 
             // The published version of a module should only be readable and executable
-            Set<Policy> updatedPolicies = module.getPolicies().stream()
-                    .filter(policy -> policy.getPermission()
-                                    .equals(modulePermission.getReadPermission().getValue())
-                            || policy.getPermission()
-                                    .equals(modulePermission
-                                            .getCreateModuleInstancePermission()
-                                            .getValue()))
-                    .collect(Collectors.toSet());
+            //            Set<Policy> updatedPolicies = module.getPolicies().stream()
+            //                    .filter(policy -> policy.getPermission()
+            //                                    .equals(modulePermission.getExportPermission().getValue())
+            //                            || policy.getPermission()
+            //                                    .equals(modulePermission
+            //                                            .getCreateModuleInstancePermission()
+            //                                            .getValue()))
+            //                    .collect(Collectors.toSet());
 
-            module.setPolicies(updatedPolicies);
+            module.setPolicies(module.getPolicies());
 
             modulesToBeSaved.add(module);
         });

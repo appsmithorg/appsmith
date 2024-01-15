@@ -12,7 +12,6 @@ import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.moduleinstances.base.BaseModuleInstanceServiceImpl;
-import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
 import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -30,18 +29,15 @@ import java.util.Set;
 public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceServiceImpl
         implements ModuleInstantiatingService<ModuleInstance, ModuleInstance> {
     private final ModuleInstanceRepository repository;
-    private final ModuleInstancePermission moduleInstancePermission;
     private final PolicyGenerator policyGenerator;
     private final RefactoringService refactoringService;
 
     public ModuleInstanceInstantiatingServiceImpl(
             ModuleInstanceRepository repository,
-            ModuleInstancePermission moduleInstancePermission,
             PolicyGenerator policyGenerator,
             RefactoringService refactoringService) {
         super(repository);
         this.repository = repository;
-        this.moduleInstancePermission = moduleInstancePermission;
         this.policyGenerator = policyGenerator;
         this.refactoringService = refactoringService;
     }
@@ -58,9 +54,7 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
     public Mono<List<ModuleInstance>> generateInstantiatedEntities(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
         Flux<ModuleInstance> allModuleInstancesFlux = repository.findAllPublishedByContextIdAndContextType(
-                moduleInstantiatingMetaDTO.getSourceModuleId(),
-                CreatorContextType.MODULE,
-                moduleInstancePermission.getReadPermission());
+                moduleInstantiatingMetaDTO.getSourceModuleId(), CreatorContextType.MODULE, null);
         return allModuleInstancesFlux
                 .flatMap(sourceModuleInstance -> {
                     ModuleInstance toBeInstantiatedModuleInstance =

@@ -15,13 +15,17 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.modules.metadata.ModuleMetadataService;
@@ -70,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
@@ -88,6 +93,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final WorkflowPermission workflowPermission;
     private final ResponseUtils responseUtils;
     private final ModuleMetadataService moduleMetadataService;
+    private final PolicyGenerator policyGenerator;
 
     public NewActionServiceImpl(
             Scheduler scheduler,
@@ -157,6 +163,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.workflowPermission = workflowPermission;
         this.responseUtils = responseUtils;
         this.moduleMetadataService = moduleMetadataService;
+        this.policyGenerator = policyGenerator;
     }
 
     /**
@@ -408,7 +415,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public Mono<List<ActionDTO>> archiveActionsByRootModuleInstanceId(String rootModuleInstanceId) {
         return repository
                 .findAllByRootModuleInstanceId(
-                        rootModuleInstanceId, Optional.of(actionPermission.getDeletePermission()), false)
+                        rootModuleInstanceId, null, Optional.of(actionPermission.getDeletePermission()), false)
                 .flatMap(newAction -> deleteUnpublishedAction(newAction.getId()))
                 .collectList();
     }
@@ -430,14 +437,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public Flux<NewAction> findAllUnpublishedComposedActionsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission, boolean includeJs) {
         return repository.findAllByRootModuleInstanceId(
-                rootModuleInstanceId, Optional.ofNullable(permission), includeJs);
+                rootModuleInstanceId, null, Optional.ofNullable(permission), includeJs);
     }
 
     @Override
     public Flux<ActionViewDTO> findAllUnpublishedComposedActionViewDTOsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission, boolean includeJs) {
         return repository
-                .findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.ofNullable(permission), includeJs)
+                .findAllByRootModuleInstanceId(rootModuleInstanceId, null, Optional.ofNullable(permission), includeJs)
                 .map(newAction -> this.generateActionViewDTO(newAction, newAction.getUnpublishedAction(), false))
                 .map(responseUtils::updateActionViewDTOWithDefaultResources);
     }
@@ -670,6 +677,17 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                     return this.generateActionViewDTO(newAction, actionDTO, viewMode);
                 })
                 .map(responseUtils::updateActionViewDTOWithDefaultResources);
+    }
+
+    @Override
+    public void generateAndSetActionPolicies(ModuleInstance moduleInstance, NewAction action) {
+        if (moduleInstance == null) {
+            throw new AppsmithException(
+                    AppsmithError.INTERNAL_SERVER_ERROR, "No module instance found to copy policies from.");
+        }
+        Set<Policy> documentPolicies =
+                policyGenerator.getAllChildPolicies(moduleInstance.getPolicies(), ModuleInstance.class, Action.class);
+        action.setPolicies(documentPolicies);
     }
 
     @Override

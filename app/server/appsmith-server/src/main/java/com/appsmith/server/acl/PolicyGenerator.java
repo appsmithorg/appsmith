@@ -12,7 +12,6 @@ import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.CREATE_MODULE_EXECUTABLES;
-import static com.appsmith.server.acl.AclPermission.CREATE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
@@ -50,7 +49,11 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.MODULE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.MODULE_READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_PACKAGES;
@@ -88,6 +91,7 @@ import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_ENVIRONMENT;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_ENVIRONMENTS;
@@ -110,6 +114,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_HISTORY_WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGE_INSTANCES;
 
 @Component
 public class PolicyGenerator extends PolicyGeneratorCE {
@@ -249,6 +254,8 @@ public class PolicyGenerator extends PolicyGeneratorCE {
 
         lateralGraph.addEdge(WORKSPACE_CREATE_PACKAGE, WORKSPACE_MANAGE_PACKAGES);
         lateralGraph.addEdge(WORKSPACE_CREATE_PACKAGE, WORKSPACE_DELETE_PACKAGES);
+        lateralGraph.addEdge(WORKSPACE_READ_PACKAGES, WORKSPACE_CREATE_PACKAGE_INSTANCES);
+        lateralGraph.addEdge(WORKSPACE_CREATE_PACKAGE_INSTANCES, WORKSPACE_READ_PACKAGE_INSTANCES);
 
         lateralGraph.addEdge(WORKSPACE_MANAGE_PACKAGES, WORKSPACE_READ_PACKAGES);
 
@@ -322,10 +329,13 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     @Override
     protected void createActionPolicyGraph() {
         super.createActionPolicyGraph();
+        hierarchyGraph.addEdge(MANAGE_MODULE_INSTANCES, MANAGE_ACTIONS);
+        hierarchyGraph.addEdge(READ_MODULE_INSTANCES, READ_ACTIONS);
+        hierarchyGraph.addEdge(DELETE_MODULE_INSTANCES, DELETE_ACTIONS);
         hierarchyGraph.addEdge(EXECUTE_MODULE_INSTANCES, EXECUTE_ACTIONS);
         // creator
         hierarchyGraph.addEdge(MANAGE_MODULES, MANAGE_ACTIONS);
-        hierarchyGraph.addEdge(READ_MODULES, EXECUTE_ACTIONS);
+        hierarchyGraph.addEdge(READ_MODULES, READ_ACTIONS);
         hierarchyGraph.addEdge(DELETE_MODULES, DELETE_ACTIONS);
 
         hierarchyGraph.addEdge(MANAGE_WORKFLOWS, MANAGE_ACTIONS);
@@ -367,11 +377,14 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_PUBLISH_PACKAGES, PUBLISH_PACKAGES);
         hierarchyGraph.addEdge(WORKSPACE_EXPORT_PACKAGES, EXPORT_PACKAGES);
         hierarchyGraph.addEdge(WORKSPACE_CREATE_PACKAGE, PACKAGE_CREATE_MODULES);
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_PACKAGE_INSTANCES, PACKAGE_CREATE_MODULE_INSTANCES);
+        hierarchyGraph.addEdge(WORKSPACE_READ_PACKAGE_INSTANCES, PACKAGE_READ_MODULE_INSTANCES);
         hierarchyGraph.addEdge(WORKSPACE_DELETE_PACKAGES, DELETE_PACKAGES);
 
         // If the user is being given MANAGE_PACKAGES permission, they must also be given READ_PACKAGES perm
         lateralGraph.addEdge(MANAGE_PACKAGES, READ_PACKAGES);
         lateralGraph.addEdge(DELETE_PACKAGES, READ_PACKAGES);
+        lateralGraph.addEdge(PACKAGE_CREATE_MODULE_INSTANCES, PACKAGE_READ_MODULE_INSTANCES);
     }
 
     protected void createModulePolicyGraph() {
@@ -379,7 +392,8 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(READ_PACKAGES, READ_MODULES);
         hierarchyGraph.addEdge(DELETE_PACKAGES, DELETE_MODULES);
         hierarchyGraph.addEdge(PACKAGE_CREATE_MODULES, CREATE_MODULE_EXECUTABLES);
-        hierarchyGraph.addEdge(PACKAGE_CREATE_MODULES, CREATE_MODULE_INSTANCES);
+        hierarchyGraph.addEdge(PACKAGE_CREATE_MODULE_INSTANCES, MODULE_CREATE_MODULE_INSTANCES);
+        hierarchyGraph.addEdge(PACKAGE_READ_MODULE_INSTANCES, MODULE_READ_MODULE_INSTANCES);
 
         lateralGraph.addEdge(MANAGE_MODULES, READ_MODULES);
         lateralGraph.addEdge(DELETE_MODULES, READ_MODULES);

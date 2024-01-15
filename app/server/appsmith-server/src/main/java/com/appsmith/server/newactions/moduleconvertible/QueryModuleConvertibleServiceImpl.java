@@ -110,14 +110,10 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
                                                                     moduleConvertibleMetaDTO.setOriginModuleId(
                                                                             createdModuleDTO.getId());
                                                                     // Fetch the newly created module after publishing
-                                                                    // the
-                                                                    // package
-                                                                    Mono<Tuple2<PackageDTO, ModuleDTO>>
-                                                                            consumablePackageAndModuleMono =
-                                                                                    fetchConsumablePackageAndModuleMono(
-                                                                                            moduleConvertibleMetaDTO,
-                                                                                            moduleInstanceReqDTO);
-                                                                    return consumablePackageAndModuleMono;
+                                                                    // the package
+                                                                    return fetchConsumablePackageAndModuleMono(
+                                                                            moduleConvertibleMetaDTO,
+                                                                            moduleInstanceReqDTO);
                                                                 });
                                                     })
                                                     .then(Mono.defer(() -> deleteOriginalQueryMono))
@@ -153,13 +149,12 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
 
     private Mono<CreateModuleInstanceResponseDTO> getCreateModuleInstanceResponseDTOMono(
             ModuleConvertibleMetaDTO moduleConvertibleMetaDTO, ModuleInstanceDTO moduleInstanceReqDTO) {
-        Mono<CreateModuleInstanceResponseDTO> createModuleInstanceMono = crudModuleInstanceService
+        return crudModuleInstanceService
                 .createModuleInstance(moduleInstanceReqDTO, moduleConvertibleMetaDTO.getBranchName())
                 .map(createModuleInstanceResponseDTO -> {
                     moduleConvertibleMetaDTO.setModuleInstanceData(createModuleInstanceResponseDTO);
                     return createModuleInstanceResponseDTO;
                 });
-        return createModuleInstanceMono;
     }
 
     private Mono<Tuple2<PackageDTO, ModuleDTO>> fetchConsumablePackageAndModuleMono(

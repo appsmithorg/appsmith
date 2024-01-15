@@ -478,6 +478,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
         }
 
         moduleInstanceDTO.setType(moduleInstance.getType());
+        moduleInstanceDTO.setWorkspaceId(importingMetaDTO.getWorkspaceId());
 
         if (TRUE.equals(moduleInstanceDTO.getIsValid())) {
             return crudModuleInstanceService.createModuleInstance(moduleInstanceDTO, importingMetaDTO.getBranchName());

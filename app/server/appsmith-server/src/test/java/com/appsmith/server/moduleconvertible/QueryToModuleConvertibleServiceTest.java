@@ -446,7 +446,7 @@ class QueryToModuleConvertibleServiceTest {
     private void verifyModuleAssertions(ModuleDTO moduleDTO, String expectedName, int numberOfInputs) {
         assertThat(moduleDTO.getName()).isEqualTo(expectedName);
         assertThat(moduleDTO.getInputsForm().get(0).getChildren()).hasSize(numberOfInputs);
-        assertThat(moduleDTO.getUserPermissions()).hasSize(2);
+        assertThat(moduleDTO.getUserPermissions()).hasSize(6);
         assertThat(moduleDTO.getOriginModuleId()).isNotNull();
         moduleDTO.getInputsForm().get(0).getChildren().forEach(moduleInput -> {
             assertThat(moduleInput.getId()).isNotNull();
@@ -462,7 +462,7 @@ class QueryToModuleConvertibleServiceTest {
         assertThat(packageDTO.getName()).isEqualTo("Untitled Package 1");
         assertThat(packageDTO.getColor()).isNotNull();
         assertThat(packageDTO.getLastPublishedAt()).isNotNull();
-        assertThat(packageDTO.getUserPermissions()).hasSize(2);
+        assertThat(packageDTO.getUserPermissions()).hasSize(8);
     }
 
     private void updateLayoutWithReferences() throws JsonProcessingException {

@@ -2,7 +2,6 @@ package com.appsmith.server.publish.packages.internal;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -34,8 +33,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -241,15 +238,16 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
         pkgToBePublished.setLastPublishedAt(Instant.now());
         pkgToBePublished.setId(null);
 
-        // The published version of the package should only be readable and exportable
-        Set<Policy> updatedPolicies = pkgToBePublished.getPolicies().stream()
-                .filter(policy -> policy.getPermission()
-                                .equals(packagePermission.getReadPermission().getValue())
-                        || policy.getPermission()
-                                .equals(packagePermission.getExportPermission().getValue()))
-                .collect(Collectors.toSet());
+        // The published version of the package should only be instantiable and exportable
+        //        Set<Policy> updatedPolicies = pkgToBePublished.getPolicies().stream()
+        //                .filter(policy -> policy.getPermission()
+        //
+        // .equals(packagePermission.getCreatePackageModuleInstancePermission().getValue())
+        //                        || policy.getPermission()
+        //                                .equals(packagePermission.getExportPermission().getValue()))
+        //                .collect(Collectors.toSet());
 
-        pkgToBePublished.setPolicies(updatedPolicies);
+        pkgToBePublished.setPolicies(pkgToBePublished.getPolicies());
 
         return pkgToBePublished;
     }

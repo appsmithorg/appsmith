@@ -46,12 +46,16 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     }
 
     @Override
-    public Flux<ActionCollection> findAllByRootModuleInstanceIds(
-            List<String> moduleInstanceIds, Optional<AclPermission> permission) {
+    public Flux<ActionCollection> findAllByRootModuleInstanceId(
+            String moduleInstanceId, List<String> projectionFields, Optional<AclPermission> permission) {
         Criteria rootModuleInstanceIdCriterion = Criteria.where(
                         fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
-                .in(moduleInstanceIds);
-        return queryAll(List.of(rootModuleInstanceIdCriterion), permission);
+                .is(moduleInstanceId);
+        return queryAll(
+                List.of(rootModuleInstanceIdCriterion),
+                Optional.ofNullable(projectionFields),
+                permission,
+                Optional.empty());
     }
 
     @Override
@@ -170,7 +174,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         String contextTypePath = completeFieldName(QActionCollection.actionCollection.publishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 
     @Override
@@ -248,5 +252,18 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         criteria.add(moduleIdCriteria);
         criteria.add(isPublicCriteria);
         return queryOne(criteria);
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllUncomposedByApplicationIds(
+            List<String> applicationIds, List<String> includeFields) {
+        Criteria applicationCriteria = Criteria.where(fieldName(QActionCollection.actionCollection.applicationId))
+                .in(applicationIds);
+
+        Criteria notComposedCriteria = Criteria.where(
+                        fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
+                .exists(false);
+
+        return queryAll(List.of(applicationCriteria, notComposedCriteria), includeFields, null, null, NO_RECORD_LIMIT);
     }
 }

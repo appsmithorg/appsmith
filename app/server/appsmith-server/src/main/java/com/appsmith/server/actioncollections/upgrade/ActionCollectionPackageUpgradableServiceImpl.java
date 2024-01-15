@@ -256,6 +256,10 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                                         .getUnpublishedAction()
                                         .getDefaultResources()
                                         .setCollectionId(existingActionCollection.getId());
+
+                                newActionService.generateAndSetActionPolicies(
+                                        existingModuleInstance, simulatedNewAction);
+
                                 return simulatedNewAction;
                             })
                             .collectList()
@@ -333,6 +337,9 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
 
                     List<NewAction> newActionsToSave = originCollectionIdToSimulatedJSActionsMap.get(
                             simulatedActionCollection.getOriginActionCollectionId());
+
+                    actionCollectionService.generateAndSetPolicies(existingModuleInstance, simulatedActionCollection);
+
                     return Flux.fromIterable(newActionsToSave)
                             .map(newAction -> {
                                 newAction.setRootModuleInstanceId(existingModuleInstance.getId());
@@ -353,6 +360,8 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                                     actionDTO.setUserSetOnLoad(invalidActionDTO.getUserSetOnLoad());
                                     actionDTO.setConfirmBeforeExecute(invalidActionDTO.getConfirmBeforeExecute());
                                 }
+
+                                newActionService.generateAndSetActionPolicies(existingModuleInstance, newAction);
                                 return newAction;
                             })
                             .collectList()

@@ -60,6 +60,10 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     String applicationId;
 
+    @Transient
+    @JsonView(Views.Public.class)
+    String workspaceId;
+
     @JsonView(Views.Internal.class)
     String pageId; // if module is instantiated in the context of PAGE then this moduleId will have the id of that page
 

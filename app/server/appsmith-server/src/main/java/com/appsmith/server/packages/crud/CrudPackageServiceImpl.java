@@ -187,7 +187,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<List<PackageDTO>> getAllEditablePackages() {
         return repository
-                .findAllUserPackages(packagePermission.getEditPermission())
+                .findAllEditablePackages(packagePermission.getEditPermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.EDIT))
                 .collectList();
     }
@@ -343,7 +343,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ConsumablePackagesAndModulesDTO> getAllPackagesForConsumer(String workspaceId) {
         return repository
-                .findAllConsumablePackages(workspaceId, packagePermission.getReadPermission())
+                .findAllConsumablePackages(workspaceId, packagePermission.getReadPackageModuleInstancePermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.VIEW))
                 .collectList()
                 .flatMap(packageDTOS -> {
@@ -409,7 +409,9 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     public Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version) {
         return repository
                 .findPackageBySourcePackageIdAndVersion(
-                        sourcePackageId, version, Optional.of(packagePermission.getReadPermission()))
+                        sourcePackageId,
+                        version,
+                        Optional.of(packagePermission.getCreatePackageModuleInstancePermission()))
                 .flatMap(aPackage ->
                         setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getPublishedPackage()));
     }

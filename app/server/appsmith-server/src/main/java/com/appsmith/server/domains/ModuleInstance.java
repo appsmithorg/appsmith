@@ -33,8 +33,8 @@ public class ModuleInstance extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    // TODO: Identify if there is any use case of workspaceId. If there is any use case found then we should add
-    //  `workspaceId` field here otherwise we should remove `workspaceId` from other entities too to achieve uniformity
+    @JsonView(Views.Public.class)
+    String workspaceId;
 
     @JsonView(Views.Public.class)
     String rootModuleInstanceId;
@@ -58,6 +58,7 @@ public class ModuleInstance extends BranchAwareDomain {
     @Override
     public void sanitiseToExportDBObject() {
         this.setApplicationId(null);
+        this.setWorkspaceId(null);
         this.setSourceModuleId(null);
         this.setOriginModuleId(null);
         this.setOriginModuleInstanceId(null);

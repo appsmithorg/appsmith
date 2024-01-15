@@ -15,6 +15,9 @@ import java.util.Set;
 public interface CustomModuleRepository extends AppsmithRepository<Module> {
     Flux<Module> getAllModulesByPackageId(String packageId, AclPermission permission);
 
+    Flux<Module> getAllModulesByPackageIds(
+            List<String> packageIds, List<String> projectionFields, Optional<AclPermission> permissionOptional);
+
     Flux<Module> getAllConsumableModulesByPackageIds(List<String> packageIds, AclPermission permission);
 
     Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission);
@@ -26,4 +29,7 @@ public interface CustomModuleRepository extends AppsmithRepository<Module> {
 
     Mono<Module> findConsumableModuleByPackageIdAndOriginModuleId(
             String packageId, String originModuleId, Optional<AclPermission> permission);
+
+    Flux<Module> findAllByOriginModuleId(
+            String originModuleId, List<String> projectionFields, Optional<AclPermission> permissionOptional);
 }

@@ -163,7 +163,6 @@ public class ActionCollectionServiceImplTest {
                 applicationPermission,
                 actionPermission,
                 actionCollectionDefaultResourcesService,
-                modulePermissionChecker,
                 moduleMetadataService);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(

@@ -23,7 +23,8 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
     Mono<ModuleInstance> findByBranchNameAndDefaultModuleInstanceId(
             String branchName, String defaultModuleInstanceId, AclPermission permission);
 
-    Flux<ModuleInstance> findAllByRootModuleInstanceId(String rootModuleInstanceId, Optional<AclPermission> permission);
+    Flux<ModuleInstance> findAllByRootModuleInstanceId(
+            String rootModuleInstanceId, List<String> projectionFields, Optional<AclPermission> permission);
 
     Flux<ModuleInstance> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields);
 
@@ -40,4 +41,6 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
             String defaultApplicationId, Optional<AclPermission> permissionOptional);
 
     Mono<Long> getModuleInstanceCountByApplicationId(String applicationId, Optional<AclPermission> permission);
+
+    Flux<ModuleInstance> findAllUncomposedByApplicationIds(List<String> applicationIds, List<String> projectionFields);
 }
