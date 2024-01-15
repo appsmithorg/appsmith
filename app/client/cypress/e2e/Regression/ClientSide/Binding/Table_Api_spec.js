@@ -1,6 +1,5 @@
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -68,7 +67,6 @@ describe(
     });
 
     it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-      PageLeftPane.expandCollapseItem("Widgets");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
         "Container3",
       ]);

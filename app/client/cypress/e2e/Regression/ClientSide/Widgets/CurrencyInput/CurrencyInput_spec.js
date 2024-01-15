@@ -1,5 +1,4 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const explorer = require("../../../../../locators/explorerlocators.json");
 const themelocators = require("../../../../../locators/ThemeLocators.json");
 
 const widgetName = "currencyinputwidget";
@@ -11,10 +10,11 @@ describe(
   () => {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");
+      cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
     });
 
     it("1. Add new dropdown widget", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(`.t--widget-${widgetName}`).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
@@ -286,7 +286,7 @@ describe(
       //Should check that widget input is not showing any errors on input
       cy.get(widgetInput).type("123456789");
       cy.focused().then(() => {
-        cy.get(themelocators.popover).eq(1).should("not.exist");
+        expect(Cypress.$(themelocators.popover)).not.to.exist;
       });
     });
   },

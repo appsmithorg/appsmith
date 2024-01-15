@@ -11,6 +11,7 @@ import {
   AppSidebar,
   AppSidebarButton,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
 
@@ -92,7 +93,7 @@ describe(
 
     afterEach(() => {
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",

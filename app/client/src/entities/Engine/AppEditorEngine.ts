@@ -18,10 +18,7 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -29,6 +26,7 @@ import {
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
 import { call, fork, put, select, spawn } from "redux-saga/effects";
+import type { EditConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -63,11 +61,6 @@ import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import {
-  getFeatureFlagsForEngine,
-  type DependentFeatureFlags,
-} from "@appsmith/selectors/engineSelectors";
 import { fetchJSCollections } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
@@ -115,13 +108,22 @@ export default class AppEditorEngine extends AppEngine {
   private *loadPageThemesAndActions(
     toLoadPageId: string,
     applicationId: string,
+    allResponses: EditConsolidatedApi,
   ) {
+    const {
+      currentTheme,
+      customJSLibraries,
+      pageWithMigratedDsl,
+      themes,
+      unpublishedActionCollections,
+      unpublishedActions,
+    } = allResponses;
     const initActionsCalls = [
-      setupPage(toLoadPageId, true),
-      fetchActions({ applicationId }, []),
-      fetchJSCollections({ applicationId }),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
+      setupPage(toLoadPageId, true, pageWithMigratedDsl),
+      fetchActions({ applicationId, unpublishedActions }, []),
+      fetchJSCollections({ applicationId, unpublishedActionCollections }),
+      fetchSelectedAppThemeAction(applicationId, currentTheme),
+      fetchAppThemesAction(applicationId, themes),
     ];
 
     const successActionEffects = [
@@ -140,7 +142,7 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.SETUP_PAGE_ERROR,
     ];
 
-    initActionsCalls.push(fetchJSLibraries(applicationId));
+    initActionsCalls.push(fetchJSLibraries(applicationId, customJSLibraries));
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
 
     const allActionCalls: boolean = yield call(
@@ -161,17 +163,15 @@ export default class AppEditorEngine extends AppEngine {
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
-  private *loadPluginsAndDatasources() {
+  private *loadPluginsAndDatasources(allResponses: EditConsolidatedApi) {
+    const { mockDatasources, pluginFormConfigs } = allResponses || {};
     const isAirgappedInstance = isAirgapped();
-    const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
-    const featureFlags: DependentFeatureFlags = yield select(
-      getFeatureFlagsForEngine,
-    );
+
     const { errorActions, initActions, successActions } =
-      getPageDependencyActions(currentWorkspaceId, featureFlags);
+      getPageDependencyActions(allResponses);
 
     if (!isAirgappedInstance) {
-      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
+      initActions.push(fetchMockDatasources(mockDatasources));
       successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
       errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
     }
@@ -188,7 +188,7 @@ export default class AppEditorEngine extends AppEngine {
 
     const pluginFormCall: boolean = yield call(
       failFastApiCalls,
-      [fetchPluginFormConfigs()],
+      [fetchPluginFormConfigs(pluginFormConfigs)],
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
@@ -198,9 +198,18 @@ export default class AppEditorEngine extends AppEngine {
       );
   }
 
-  public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield call(this.loadPageThemesAndActions, toLoadPageId, applicationId);
-    yield call(this.loadPluginsAndDatasources);
+  public *loadAppEntities(
+    toLoadPageId: string,
+    applicationId: string,
+    allResponses: EditConsolidatedApi,
+  ): any {
+    yield call(
+      this.loadPageThemesAndActions,
+      toLoadPageId,
+      applicationId,
+      allResponses,
+    );
+    yield call(this.loadPluginsAndDatasources, allResponses);
   }
 
   public *completeChore() {
