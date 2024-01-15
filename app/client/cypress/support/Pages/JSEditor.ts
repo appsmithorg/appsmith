@@ -66,7 +66,7 @@ export class JSEditor {
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS Object')";
+  private _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
@@ -135,8 +135,7 @@ export class JSEditor {
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    cy.get(this.locator._createNew).last().click({ force: true });
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
     this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
@@ -144,7 +143,8 @@ export class JSEditor {
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-    this.agHelper.PressEnter(1000); //for name to settle
+    this.agHelper.PressEnter();
+    this.agHelper.PressEnter();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 

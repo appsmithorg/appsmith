@@ -1,6 +1,3 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
 import HomePageLocators from "../../../../locators/HomePage";
 
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
@@ -122,10 +119,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
 
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
-    cy.dragAndDropToCanvas("buttonwidget", {
-      x: 845,
-      y: 750,
-    });
+    entityExplorer.DragNDropWidget("buttonwidget", 845, 750);
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Step 7: Execute a query onClick

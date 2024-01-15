@@ -82,6 +82,7 @@ import type { IDEState } from "reducers/uiReducers/ideReducer";
 import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
+import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -95,6 +96,7 @@ export const reducerObject = {
 
 export interface AppState {
   ui: {
+    consolidatedPageLoad: ConsolidatedPageLoadState;
     analytics: AnalyticsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;

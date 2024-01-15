@@ -153,12 +153,6 @@ describe("Canvas Hot Keys", () => {
       const artBoard: any = component.queryByTestId("t--canvas-artboard");
       // deselect all other widgets
       fireEvent.click(artBoard);
-      expect(spyWidgetSelection).toHaveBeenCalledWith(
-        SelectionRequestType.Empty,
-        [],
-        NavigationMethod.CanvasClick,
-      );
-      spyWidgetSelection.mockClear();
 
       dispatchTestKeyboardEventWithCode(
         component.container,

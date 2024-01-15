@@ -22,7 +22,6 @@ import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextPr
 import { useJSAdd } from "./hooks";
 
 const JSContainer = styled(Flex)`
-  gap: var(--ads-v2-spaces-4);
   & .t--entity-item {
     grid-template-columns: 0 auto 1fr auto auto auto auto auto;
     height: 32px;
@@ -55,12 +54,14 @@ const ListJSObjects = () => {
     <JSContainer
       className="ide-editor-left-pane__content-js"
       flexDirection="column"
+      gap="spaces-3"
       overflow="hidden"
       py="spaces-3"
     >
       {JSObjects && JSObjects.length > 0 && canCreateActions && (
         <Flex flexDirection="column" px="spaces-3">
           <Button
+            className="t--add-item"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}
@@ -99,6 +100,7 @@ const ListJSObjects = () => {
 
       {(!JSObjects || JSObjects.length === 0) && (
         <EmptyState
+          buttonClassName="t--add-item"
           buttonText={createMessage(EDITOR_PANE_TEXTS.js_add_button)}
           description={createMessage(
             EDITOR_PANE_TEXTS.js_blank_state_description,

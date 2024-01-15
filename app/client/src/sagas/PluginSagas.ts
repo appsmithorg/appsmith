@@ -39,11 +39,15 @@ import type {
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchPluginsSaga(
-  action: ReduxAction<{ workspaceId?: string } | undefined>,
+  action: ReduxAction<
+    { workspaceId?: string; plugins?: ApiResponse<Plugin[]> } | undefined
+  >,
 ) {
   try {
+    const plugins = action.payload?.plugins;
     let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
@@ -51,9 +55,11 @@ function* fetchPluginsSaga(
       throw Error("Workspace id does not exist");
     }
     const pluginsResponse: ApiResponse<Plugin[]> = yield call(
-      PluginsApi.fetchPlugins,
-      workspaceId,
+      getFromServerWhenNoPrefetchedResult,
+      plugins,
+      () => call(PluginsApi.fetchPlugins, workspaceId),
     );
+
     const isValid: boolean = yield validateResponse(pluginsResponse);
     if (isValid) {
       yield put({
@@ -69,7 +75,10 @@ function* fetchPluginsSaga(
   }
 }
 
-function* fetchPluginFormConfigsSaga() {
+function* fetchPluginFormConfigsSaga(action?: {
+  payload?: { pluginFormConfigs?: ApiResponse<PluginFormPayload[]> };
+}) {
+  const pluginFormConfigs = action?.payload?.pluginFormConfigs;
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
@@ -96,10 +105,19 @@ function* fetchPluginFormConfigsSaga() {
     }
 
     const pluginFormData: PluginFormPayload[] = [];
-    const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
-      [...pluginIdFormsToFetch].map((id) =>
-        call(PluginsApi.fetchFormConfig, id),
-      ),
+    const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      pluginFormConfigs &&
+        [...pluginIdFormsToFetch].map((id) => ({
+          ...pluginFormConfigs,
+          data: pluginFormConfigs?.data?.[id as any],
+        })),
+      () =>
+        all(
+          [...pluginIdFormsToFetch].map((id) =>
+            call(PluginsApi.fetchFormConfig, id),
+          ),
+        ),
     );
 
     for (let i = 0; i < pluginFormResponses.length; i++) {
