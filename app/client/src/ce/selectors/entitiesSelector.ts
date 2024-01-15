@@ -1486,3 +1486,10 @@ export const getAllJSCollections = createSelector(
 export const getIsActionConverting = (state: AppState, actionId: string) => {
   return false;
 };
+
+interface EntityItem {
+  title: string;
+  group?: string;
+  icon?: unknown;
+  onClick: () => void;
+}
