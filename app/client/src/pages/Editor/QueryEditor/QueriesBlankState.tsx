@@ -2,7 +2,7 @@ import React from "react";
 import { Flex, Text } from "design-system";
 import { importSvg } from "design-system-old";
 
-import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
+import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 
 const QueriesBlankState = () => {
   const BlankStateIllustration = importSvg(
@@ -20,7 +20,7 @@ const QueriesBlankState = () => {
     >
       <BlankStateIllustration />
       <Text color={"var(--ads-v2-color-fg)"} kind={"heading-xs"}>
-        {createMessage(PAGES_PANE_TEXTS.query_blank_state)}
+        {createMessage(EDITOR_PANE_TEXTS.query_blank_state)}
       </Text>
     </Flex>
   );

@@ -84,6 +84,9 @@ public class ImportApplicationTransactionServiceTest {
     @MockBean
     ImportableService<NewAction> newActionImportableService;
 
+    @Autowired
+    private Gson gson;
+
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
     private ApplicationJson applicationJson = new ApplicationJson();
 
@@ -123,7 +126,6 @@ public class ImportApplicationTransactionServiceTest {
 
         return stringifiedFile
                 .map(data -> {
-                    Gson gson = new Gson();
                     return gson.fromJson(data, ApplicationJson.class);
                 })
                 .map(JsonSchemaMigration::migrateApplicationToLatestSchema);

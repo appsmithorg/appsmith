@@ -12,20 +12,19 @@ ENV LC_ALL C.UTF-8
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron nfs-common gnupg wget netcat openssh-client \
+    supervisor curl nfs-common gnupg wget netcat openssh-client \
     gettext \
     python3-pip git ca-certificates \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
-  && apt-get remove --yes git python3-pip \
-  && apt-get autoremove --yes
-
-# Install MongoDB v5, Redis, PostgreSQL v13
-RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
+  # Install MongoDB v5, Redis, PostgreSQL v13
+  && curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-13 \
+  && apt-get remove --yes git python3-pip \
+  && apt-get autoremove --yes \
   && apt-get clean
 
 # Install Java
@@ -36,8 +35,8 @@ RUN set -o xtrace \
   #       Temporarily using hardcoded version in URL until we figure out a more elaborate/smarter solution.
   #&& version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
   && version="17.0.9+9" \
-  && curl --location --output /tmp/java.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m | sed s/x86_64/x64/)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
-  && tar -xzf /tmp/java.tar.gz -C /opt/java --strip-components 1
+  && curl --location "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m | sed s/x86_64/x64/)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
+  | tar -xz -C /opt/java --strip-components 1
 
 # Install NodeJS
 RUN set -o xtrace \

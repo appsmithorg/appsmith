@@ -2,7 +2,6 @@ package com.appsmith.server.configurations.mongo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.ConvertingParameterAccessor;
 import org.springframework.data.mongodb.repository.query.ReactiveMongoQueryMethod;
@@ -13,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 
-import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
 public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
@@ -52,10 +51,5 @@ public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
             query.addCriteria(notDeleted());
             return query;
         });
-    }
-
-    private Criteria notDeleted() {
-        return new Criteria()
-                .orOperator(where("deleted").exists(false), where("deleted").is(false));
     }
 }

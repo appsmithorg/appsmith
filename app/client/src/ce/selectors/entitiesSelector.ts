@@ -47,7 +47,6 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
@@ -55,6 +54,7 @@ import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
 } from "@appsmith/selectors/workflowSelectors";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1407,8 +1407,14 @@ export const getModuleInstanceEntities = () => {
   return null;
 };
 
+export interface PagePaneDataObject {
+  id: string;
+  name: string;
+  type: PluginType;
+}
+
 export interface PagePaneData {
-  [key: string]: { id: string; name: string; type: PluginType }[];
+  [key: string]: PagePaneDataObject[];
 }
 
 const GroupAndSortPagePaneData = (
@@ -1487,3 +1493,7 @@ export const getAllJSCollections = createSelector(
     return [...moduleInstanceJSCollections, ...currentContextJSCollections];
   },
 );
+
+export const getIsActionConverting = (state: AppState, actionId: string) => {
+  return false;
+};
