@@ -66,11 +66,6 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import {
-  getFeatureFlagsForEngine,
-  type DependentFeatureFlags,
-} from "@appsmith/selectors/engineSelectors";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -169,15 +164,11 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   private *loadPluginsAndDatasources(allResponses: EditConsolidatedApi) {
-    const isAirgappedInstance = isAirgapped();
-    const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
-    const featureFlags: DependentFeatureFlags = yield select(
-      getFeatureFlagsForEngine,
-    );
     const { mockDatasources, pluginFormConfigs } = allResponses || {};
+    const isAirgappedInstance = isAirgapped();
 
     const { errorActions, initActions, successActions } =
-      getPageDependencyActions(allResponses, currentWorkspaceId, featureFlags);
+      getPageDependencyActions(allResponses);
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources(mockDatasources));
