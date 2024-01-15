@@ -12,15 +12,15 @@ export const COMMUNITY_PORTAL = {
 
 const RecordEdit = importSvg(
   async () =>
-    import("../assets/icons/templates/starter-template-record-edit.svg"),
+    import("../assets/icons/templates/canvas-starter-record-edit.svg"),
 );
 const RecordDetails = importSvg(
   async () =>
-    import("../assets/icons/templates/starter-template-record-details.svg"),
+    import("../assets/icons/templates/canvas-starter-record-details.svg"),
 );
 const SortFilterTable = importSvg(
   async () =>
-    import("../assets/icons/templates/starter-template-sort-filter-table.svg"),
+    import("../assets/icons/templates/canvas-starter-sort-filter-table.svg"),
 );
 
 export const STARTER_BUILDING_BLOCK_TEMPLATE_NAME = "Starter Building Block";
