@@ -30,7 +30,6 @@ describe(
         cy.log("Creation of FirstAPI Action successful");
         AppSidebar.navigate(AppSidebarButton.Editor);
         cy.CreateAPI(`SecondAPI_${uid}`);
-        cy.CheckAndUnfoldEntityItem("Queries/JS");
         cy.log("Creation of SecondAPI Action successful");
         PageLeftPane.assertPresence(`FirstAPI_${uid}`);
         PageLeftPane.assertPresence(`SecondAPI_${uid}`);

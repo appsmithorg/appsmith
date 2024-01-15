@@ -273,7 +273,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         <ScrollableSection>
           {entities.map(
             ({ content, icon, onResetClick, shouldShowReset, title }) => (
-              <>
+              <React.Fragment key={title}>
                 <Collapsible className="mt-4" key={title}>
                   <CollapsibleHeader>
                     <div className="w-full flex justify-between">
@@ -291,6 +291,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
                       {shouldShowReset && (
                         <Button
                           className="mr-2"
+                          data-testid={`t--partial-export-modal-reset-${title}`}
                           endIcon="restart-line"
                           kind="tertiary"
                           onClick={onResetClick}
@@ -304,12 +305,13 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
                   <CollapsibleContent>{content}</CollapsibleContent>
                 </Collapsible>
                 <Bar />
-              </>
+              </React.Fragment>
             ),
           )}
         </ScrollableSection>
         <ModalFooter>
           <Button
+            data-testid="t-partial-export-entities-btn"
             isDisabled={disableExportCTA}
             isLoading={partialImportExportLoadingState.isExporting}
             onClick={onExportClick}

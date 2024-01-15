@@ -8,25 +8,17 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -237,31 +229,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections) {
-        if (CollectionUtils.isEmpty(actionCollections)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of new actions to a list of DBObjects
-        List<WriteModel<Document>> dbObjects = actionCollections.stream()
-                .map(actionCollection -> {
-                    assert actionCollection.getId() != null;
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(actionCollection, document);
-                    document.remove("_id");
-                    return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(actionCollection.getId())),
-                            new Document("$set", document));
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(ActionCollection.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();
-    }
-
-    @Override
     public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
         return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
@@ -276,7 +243,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 
     @Override
@@ -288,6 +255,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 }

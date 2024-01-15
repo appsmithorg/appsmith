@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import { dataSources } from "../../../../support/Objects/ObjectsCore";
 
@@ -23,8 +27,7 @@ describe(
       cy.WaitAutoSave();
       cy.runQuery();
       cy.get(queryEditor.suggestedTableWidget).click();
-      cy.CheckAndUnfoldEntityItem("Widgets");
-      cy.selectEntityByName("Table1");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "0").then((tabData) => {
         cy.log("the value is " + tabData);

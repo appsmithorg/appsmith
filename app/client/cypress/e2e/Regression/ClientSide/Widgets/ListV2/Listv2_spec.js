@@ -63,7 +63,7 @@ describe(
       "should validate that all widgets can be added to List",
       { tags: ["@tag.excludeForAirgap"] },
       () => {
-        PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         allowed.forEach((widget) => {
           entityExplorer.DragDropWidgetNVerify(widget);
           //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
@@ -77,7 +77,7 @@ describe(
       "airgap",
       "should validate that all widgets can be added to List except mapwidget - airgap",
       () => {
-        PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         const airgapAllowed = allowed.filter(
           (widget) => widget !== "mapwidget",
         );
