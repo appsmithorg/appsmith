@@ -58,7 +58,10 @@ export const TemplateLayoutHeaderText = styled(Text)<{ layoutActive: boolean }>`
   opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
 `;
 
-export const TemplateLayoutRowItemTitle = styled.p<{ layoutActive: boolean }>`
+export const TemplateLayoutRowItemTitle = styled(Text)<{
+  layoutActive: boolean;
+}>`
+  font-family: SF Pro Text;
   font-size: 14px;
   line-height: 20px;
   text-align: center;
@@ -67,9 +70,10 @@ export const TemplateLayoutRowItemTitle = styled.p<{ layoutActive: boolean }>`
   opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
 `;
 
-export const TemplateLayoutRowItemDescription = styled.p<{
+export const TemplateLayoutRowItemDescription = styled(Text)<{
   layoutActive: boolean;
 }>`
+  margin-top: 2px;
   font-size: 12px;
   line-height: 16px;
   text-align: center;
