@@ -305,4 +305,4 @@ const mapDispatchToProps = (dispatch: any): DatasourceViewModeFunctions => ({
     dispatch(setDatasourcePreviewSelectedTableName(tableName)),
 });
 
-export default connect(mapDispatchToProps)(DatasourceViewModeSchema);
+export default connect(null, mapDispatchToProps)(DatasourceViewModeSchema);

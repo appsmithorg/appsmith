@@ -501,7 +501,9 @@ export const setDatasourcePreviewSelectedTableName = (
 ) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
-    payload: selectedTableName,
+    payload: {
+      selectedTableName: selectedTableName,
+    },
   };
 };
 

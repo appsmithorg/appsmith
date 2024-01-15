@@ -166,11 +166,11 @@ const datasourcePaneReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME]: (
     state: DatasourcePaneReduxState,
-    action: ReduxAction<string>,
+    action: ReduxAction<{ selectedTableName: string }>,
   ) => {
     return {
       ...state,
-      selectedTableName: action.payload,
+      selectedTableName: action.payload.selectedTableName,
     };
   },
 });
