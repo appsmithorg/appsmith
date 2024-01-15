@@ -136,11 +136,11 @@ import {
   mergeDynamicPropertyPaths,
   purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
+import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import {
-  partialImportSaga,
   partialExportSaga,
-  widgetSelectionSagas,
-} from "./WidgetSelectionSagas";
+  partialImportSaga,
+} from "./PartialImportExportSagas";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";

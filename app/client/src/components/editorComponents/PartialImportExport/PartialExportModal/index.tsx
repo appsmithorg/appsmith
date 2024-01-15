@@ -27,7 +27,7 @@ import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/ho
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
+import type { PartialExportParams } from "sagas/PartialImportExportSagas";
 import { getCurrentPageName } from "selectors/editorSelectors";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
