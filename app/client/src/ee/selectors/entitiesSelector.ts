@@ -81,7 +81,7 @@ export const selectFilesForExplorer = createSelector(
   getAllModuleInstances,
   getAllModules,
   getPackages,
-  (CE_files, moduleInstances, modules, packages) => {
+  (CE_files, moduleInstances = {}, modules = {}, packages = {}) => {
     const modulesArray = convertModulesToArray(modules);
     const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
