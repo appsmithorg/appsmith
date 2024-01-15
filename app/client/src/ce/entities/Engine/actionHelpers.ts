@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -7,16 +8,27 @@ import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors"
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
+import type { EditConsolidatedApi } from "sagas/InitSagas";
 
-export enum ACTION_PARENT_ENTITY_TYPE {
-  PAGE = "PAGE",
-}
+export const CreateNewActionKey = {
+  PAGE: "pageId",
+} as const;
+
+export const ActionParentEntityType = {
+  PAGE: "PAGE",
+} as const;
 
 export const getPageDependencyActions = (
+  allResponses: EditConsolidatedApi,
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
 ) => {
-  const initActions = [fetchPlugins(), fetchDatasources(), fetchPageDSLs()];
+  const { datasources, pagesWithMigratedDsl, plugins } = allResponses || {};
+  const initActions = [
+    fetchPlugins({ plugins }),
+    fetchDatasources({ datasources }),
+    fetchPageDSLs({ pagesWithMigratedDsl }),
+  ] as Array<ReduxAction<unknown>>;
 
   const successActions = [
     ReduxActionTypes.FETCH_PLUGINS_SUCCESS,

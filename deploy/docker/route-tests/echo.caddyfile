@@ -1,0 +1,12 @@
+{
+  admin off
+}
+
+http://:5050
+
+respond "Scheme = '{scheme}'
+X-Forwarded-Proto = '{header.x-forwarded-proto}'
+Host = '{host}'
+X-Forwarded-Host = '{header.x-forwarded-host}'
+Forwarded = '{header.forwarded}'
+"

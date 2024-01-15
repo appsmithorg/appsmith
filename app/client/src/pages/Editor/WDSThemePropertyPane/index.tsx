@@ -99,11 +99,11 @@ function WDSThemePropertyPane() {
           />
         </section>
         <Switch
-          defaultSelected={theme.colorMode === "dark"}
+          defaultSelected={theme.colorMode === "DARK"}
           onChange={(isSelected: boolean) => {
             updateTheme({
               ...theme,
-              colorMode: isSelected ? "dark" : "light",
+              colorMode: isSelected ? "DARK" : "LIGHT",
             });
           }}
         >

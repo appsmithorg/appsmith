@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const pagename = "ChildPage";
@@ -21,7 +22,7 @@ const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 
-describe("Git sync Bug #10773", function () {
+describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
   let repoName;
 
   beforeEach(() => {
@@ -89,11 +90,11 @@ describe("Git sync Bug #10773", function () {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(1000);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -107,9 +108,10 @@ describe("Git sync Bug #10773", function () {
       "response.body.responseMeta.status",
       201,
     );
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject is not duplicated
     PageLeftPane.assertPresence(jsObject);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -141,9 +143,10 @@ describe("Git sync Bug #10773", function () {
     gitSync.CreateGitBranch(tempBranch, true);
     cy.wait(2000);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject is not duplicated
     PageLeftPane.assertPresence(jsObject);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -167,11 +170,11 @@ describe("Git sync Bug #10773", function () {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       agHelper.AddDsl("JsObjecWithGitdsl");
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(1000);
+    EditorNavigation.ShowCanvas();
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -223,16 +226,18 @@ describe("Git sync Bug #10773", function () {
           }
 
           // verify jsObject data binding on Page 1
-          PageLeftPane.expandCollapseItem("Queries/JS");
+          PageLeftPane.switchSegment(PagePaneSegment.JS);
           PageLeftPane.assertPresence(jsObject);
+          EditorNavigation.ShowCanvas();
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );
           // switch to Page1 copy and verify jsObject data binding
           EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-          PageLeftPane.expandCollapseItem("Queries/JS");
+          PageLeftPane.switchSegment(PagePaneSegment.JS);
           // verify jsObject is not duplicated
           PageLeftPane.assertPresence(jsObject);
+          EditorNavigation.ShowCanvas();
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );

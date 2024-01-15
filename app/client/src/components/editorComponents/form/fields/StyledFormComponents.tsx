@@ -20,6 +20,12 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
       ? "1px"
       : "0px"};
   margin-top: 5px;
+  margin-bottom: ${(props) =>
+    //SWITCH and CHECKBOX display label text and form input aligned side by side but not for others
+    props?.config?.controlType !== "SWITCH" &&
+    props?.config?.controlType !== "CHECKBOX"
+      ? "5px"
+      : "0px"};
   line-height: 16px;
 `;
 

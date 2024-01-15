@@ -48,8 +48,8 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
 
         Optional<AclPermission> optionalPermission = Optional.ofNullable(actionPermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
-        Flux<ActionCollection> actionCollectionFlux =
-                actionCollectionService.findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+        Flux<ActionCollection> actionCollectionFlux = actionCollectionService.findByPageIdsForExport(
+                exportingMetaDTO.getUnpublishedPages(), optionalPermission);
         return actionCollectionFlux
                 .collectList()
                 .map(actionCollectionList -> {
@@ -73,9 +73,9 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                         // we've replaced page id with page name in previous step
                         String pageName = actionCollectionDTO.getPageId();
                         boolean isPageUpdated = ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
-                        String actionCollectionName = actionCollectionDTO != null
-                                ? actionCollectionDTO.getName() + NAME_SEPARATOR + actionCollectionDTO.getPageId()
-                                : null;
+                        String actionCollectionName = actionCollectionDTO.getUserExecutableName()
+                                + NAME_SEPARATOR
+                                + actionCollectionDTO.getPageId();
                         Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
                         boolean isActionCollectionUpdated = exportingMetaDTO.isClientSchemaMigrated()
                                 || exportingMetaDTO.isServerSchemaMigrated()
@@ -85,7 +85,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                                 || exportingMetaDTO
                                         .getApplicationLastCommittedAt()
                                         .isBefore(actionCollectionUpdatedAt);
-                        if (isActionCollectionUpdated && actionCollectionName != null) {
+                        if (isActionCollectionUpdated) {
                             updatedActionCollectionSet.add(actionCollectionName);
                         }
                         actionCollection.sanitiseToExportDBObject();

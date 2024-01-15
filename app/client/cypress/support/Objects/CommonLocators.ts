@@ -64,7 +64,6 @@ export class CommonLocators {
     this._widgetInDeployed("inputwidgetv2") + " textarea";
   _imageWidget = ".t--draggable-imagewidget";
   _backToEditor = ".t--back-to-editor";
-  _newPage = ".pages .t--entity-add-btn";
   _toastMsg = "div.Toastify__toast";
   _toastContainer = "div.Toastify__toast-container";
   _specificToast = (toastText: string) =>
@@ -83,11 +82,10 @@ export class CommonLocators {
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _visibleTextSpan = (spanText: string, isCss = false) =>
     isCss ? `span:contains("${spanText}")` : `//span[text()="${spanText}"]`;
-  _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
-  _createNew = ".t--entity-add-btn.group.files button";
+  _createNew = ".t--add-item";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
   _errorTab = "[data-testid=t--tab-ERROR]";
@@ -287,6 +285,7 @@ export class CommonLocators {
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
   _walkthrough_overlay = `.t--walkthrough-overlay`;
+  _autoHeightOverlay = "[data-testid='t--auto-height-overlay']";
   _autoHeightHandles = "[data-testid='t-auto-height-overlay-handles']";
   _autoHeightMin = "[data-testid='t--auto-height-overlay-handles-min']";
   _autoHeightMax = "[data-testid='t--auto-height-overlay-handles-max']";

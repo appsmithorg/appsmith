@@ -92,7 +92,7 @@ export interface NavigationSetting {
 
 export interface ThemeSetting {
   accentColor: string;
-  colorMode: "light" | "dark";
+  colorMode: "LIGHT" | "DARK";
   borderRadius: string;
   density: number;
   sizing: number;
@@ -132,7 +132,7 @@ export const defaultNavigationSetting = {
 export const defaultThemeSetting: ThemeSetting = {
   fontFamily: "System Default",
   accentColor: "#553DE9",
-  colorMode: "light",
+  colorMode: "LIGHT",
   borderRadius: "6px",
   density: 1,
   sizing: 1,

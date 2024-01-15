@@ -11,6 +11,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -55,7 +57,6 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
     // 1. Button group widget autocomplete verification
     agHelper.TypeText(locators._codeMirrorTextArea, "ButtonGroup1.");
     agHelper.GetNAssertElementText(locators._hints, "isVisible");
-    agHelper.Sleep();
     agHelper.GetNClickByContains(locators._hints, "isVisible");
 
     // 2. Document view widget autocomplete verification
@@ -65,7 +66,6 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
 
     agHelper.TypeText(locators._codeMirrorTextArea, "DocumentViewer1.");
     agHelper.GetNAssertElementText(locators._hints, "docUrl");
-    agHelper.Sleep();
     agHelper.GetNClickByContains(locators._hints, "docUrl");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
@@ -186,7 +186,6 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
-    agHelper.Sleep(2000);
     apiPage.RunAPI();
     // Using same js object
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
@@ -195,10 +194,8 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
     //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "Api1.d");
     agHelper.GetNAssertElementText(locators._hints, "data");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "ata[0].e");
     agHelper.GetNAssertElementText(locators._hints, "email");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "mail");
     EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
@@ -228,7 +225,6 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
 
     // component re-render cause DOM element of cy.get to lost
     // added wait to finish re-render before cy.get
-    //agHelper.Sleep();
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, codeToType);
     agHelper.GetNClick(jsEditor._lineinJsEditor(7));
@@ -236,16 +232,13 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
       locators._codeMirrorTextArea,
       "const callBack = (user) => user",
     );
-    agHelper.Sleep(500);
     agHelper.TypeText(locators._codeMirrorTextArea, ".l");
     agHelper.GetNAssertElementText(locators._hints, "label");
     agHelper.TypeText(locators._codeMirrorTextArea, "abel;");
     agHelper.TypeText(locators._codeMirrorTextArea, "data.");
     agHelper.GetNAssertElementText(locators._hints, "userCollection");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "userCollection[0].");
     agHelper.GetNAssertElementText(locators._hints, "users");
-    agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "users[0].");
     agHelper.GetNAssertElementText(locators._hints, "label");
     agHelper.GetNAssertElementText(locators._hints, "value", "have.text", 1);
@@ -262,6 +255,7 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
         entityType: entityItems.JSObject,
       });
     });
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",

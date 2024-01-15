@@ -50,9 +50,6 @@ describe("Dynamic input autocomplete", { tags: ["@tag.JS"] }, () => {
       .click({ force: true })
       .type("{backspace}".repeat(12))
       .type("{{storeValue()}}", { parseSpecialCharSequences: false });
-
-    cy.wait(1000);
-
     cy.evaluateErrorMessage(
       "Please remove any direct/indirect references to {{actionName}} and try again. Data fields cannot execute framework actions.".replaceAll(
         "{{actionName}}",

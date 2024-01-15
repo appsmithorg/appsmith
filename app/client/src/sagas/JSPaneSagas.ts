@@ -194,8 +194,8 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = update.parsedBody;
-    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-    if (parsedBody) {
+    if (parsedBody && !!jsAction) {
+      const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
       // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
       if (data.nameChangedActions.length) {
@@ -206,6 +206,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
                 actionId: data.nameChangedActions[i].id,
                 collectionName: jsAction.name,
                 pageId: data.nameChangedActions[i].pageId,
+                moduleId: data.nameChangedActions[i].moduleId,
                 oldName: data.nameChangedActions[i].oldName,
                 newName: data.nameChangedActions[i].newName,
               },
@@ -602,8 +603,15 @@ function* handleRefactorJSActionNameSaga(
     actionCollection: JSCollection;
   }>,
 ) {
+  const { pageId } = data.payload.refactorAction;
+  if (!pageId) {
+    return;
+  }
+
   const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
-  const params: FetchPageRequest = { id: data.payload.refactorAction.pageId };
+  const params: FetchPageRequest = {
+    id: data.payload.refactorAction.pageId || "",
+  };
   if (isServerDSLMigrationsEnabled) {
     params.migrateDSL = true;
   }

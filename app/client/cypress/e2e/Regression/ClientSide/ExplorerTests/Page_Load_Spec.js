@@ -9,7 +9,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Page Load tests", () => {
+describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -47,7 +47,7 @@ describe("Page Load tests", () => {
       "This is Page 2",
     );
     // Test after reload
-    agHelper.RefreshPage("viewPage");
+    agHelper.RefreshPage("getConsolidatedData");
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")

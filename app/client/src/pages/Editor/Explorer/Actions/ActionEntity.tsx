@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history, { NavigationMethod } from "utils/history";
-import { saveActionName } from "actions/pluginActionActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -25,9 +24,15 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
-const getUpdateActionNameReduxAction = (id: string, name: string) => {
-  return saveActionName({ id, name });
+const getUpdateActionNameReduxAction = (
+  id: string,
+  name: string,
+  parentEntityType: ActionParentEntityTypeInterface,
+) => {
+  return saveActionNameBasedOnParentEntity(id, name, parentEntityType);
 };
 
 interface ExplorerActionEntityProps {
@@ -37,6 +42,7 @@ interface ExplorerActionEntityProps {
   type: PluginType;
   isActive: boolean;
   parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
 }
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
@@ -113,7 +119,9 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       name={action.name}
       searchKeyword={props.searchKeyword}
       step={props.step}
-      updateEntityName={getUpdateActionNameReduxAction}
+      updateEntityName={(id, name) =>
+        getUpdateActionNameReduxAction(id, name, props.parentEntityType)
+      }
     />
   );
 });

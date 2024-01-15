@@ -1,5 +1,5 @@
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
-describe("Switch datasource", function () {
+describe("Switch datasource", { tags: ["@tag.Datasource"] }, function () {
   let dsName_1, dsName_2, MongoDB;
   beforeEach(() => {
     cy.startRoutesForDatasource();

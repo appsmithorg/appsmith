@@ -26,6 +26,7 @@ export const StyledTable = styled.table`
   td {
     text-align: left;
     padding: var(--spacing-2);
+    background-color: var(--color-bg-elevation-1);
   }
 
   td {

@@ -6,6 +6,7 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
@@ -59,6 +60,8 @@ export class DataSources {
   }; //Container KeyValuePair
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
   public _addNewDataSource = ".t--add-datasource-button";
+  private _addNewDatasourceFromBlankScreen =
+    ".t--add-datasource-button-blank-screen";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -445,11 +448,14 @@ export class DataSources {
 
   public NavigateToDSCreateNew() {
     AppSidebar.navigate(AppSidebarButton.Data);
-    Cypress._.times(2, () => {
-      this.agHelper.GetNClick(this._addNewDataSource, 0, true);
-      this.agHelper.Sleep();
+    cy.get("body").then(($body) => {
+      if ($body.find(this._addNewDataSource).length > 0) {
+        this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+      } else {
+        this.agHelper.GetNClick(this._addNewDatasourceFromBlankScreen, 0, true);
+      }
     });
-    cy.get(this._newDatabases).should("be.visible");
+    this.agHelper.AssertElementVisibility(this._newDatabases);
   }
 
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
@@ -955,7 +961,7 @@ export class DataSources {
   }
 
   DeleteQuery(queryName: string) {
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",
@@ -1002,7 +1008,7 @@ export class DataSources {
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
     this.TestSaveDatasource(true, true);
-    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
   public ReconnectModalValidation(
@@ -1104,17 +1110,19 @@ export class DataSources {
     isMongo = false,
   ) {
     let jsonHeaderString = "";
-    this.table.ReadTableRowColumnData(rowindex, colIndex).then(($cellData) => {
-      if (validateCellData) expect($cellData).to.eq(validateCellData);
+    this.table
+      .ReadTableRowColumnData(rowindex, colIndex, "v2")
+      .then(($cellData) => {
+        if (validateCellData) expect($cellData).to.eq(validateCellData);
 
-      jsonHeaderString =
-        isMongo == true
-          ? "Update Document " + headerString + ": " + $cellData
-          : "Update Row " + headerString + ": " + $cellData;
-      this.agHelper
-        .GetText(this.locator._jsonFormHeader)
-        .then(($header: any) => expect($header).to.eq(jsonHeaderString));
-    });
+        jsonHeaderString =
+          isMongo == true
+            ? "Update Document " + headerString + ": " + $cellData
+            : "Update Row " + headerString + ": " + $cellData;
+        this.agHelper
+          .GetText(this.locator._jsonFormHeader)
+          .then(($header: any) => expect($header).to.eq(jsonHeaderString));
+      });
   }
 
   ToggleUsePreparedStatement(

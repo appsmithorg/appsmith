@@ -77,7 +77,6 @@ describe("Autocomplete bug fixes", { tags: ["@tag.JS"] }, function () {
     ).click();
 
     propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
-    cy.wait(500);
     // select text widget
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
 

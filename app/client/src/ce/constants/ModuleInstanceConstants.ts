@@ -19,7 +19,7 @@ export interface ModuleInstance {
 
 export interface ModuleInstanceData {
   config: ModuleInstance;
-  data: ActionResponse;
+  data: ActionResponse | undefined;
   isLoading: boolean;
 }
 export type ModuleInstanceDataState = ModuleInstanceData[];

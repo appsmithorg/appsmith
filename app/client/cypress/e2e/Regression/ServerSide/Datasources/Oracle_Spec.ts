@@ -17,11 +17,10 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Validate Oracle DS", () => {
+describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
 
   before("Generate GUID", () => {
@@ -460,12 +459,9 @@ WHERE aircraft_type = 'Passenger Plane'`;
     "Verify Deletion of the Oracle datasource after all created queries are deleted",
     () => {
       dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 409); //Since all queries exists
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dataSourceName);
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 200);
     },
   );

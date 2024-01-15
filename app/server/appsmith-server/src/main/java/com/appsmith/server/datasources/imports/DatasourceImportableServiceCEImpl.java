@@ -28,6 +28,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -178,8 +180,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                     }
                                     datasourceStorage.setId(null);
                                     // Don't update datasource config as the saved datasource is already configured by
-                                    // user
-                                    // for this instance
+                                    // user for this instance
                                     datasourceStorage.setDatasourceConfiguration(null);
                                     datasourceStorage.setPluginId(null);
                                     datasourceStorage.setEnvironmentId(environmentId);
@@ -190,7 +191,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                     copyNestedNonNullProperties(newDatasource, existingDatasource);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.save(existingDatasource);
+                                    return datasourceService
+                                            .save(existingDatasource)
+                                            .map(createdDatasource ->
+                                                    Tuples.of(createdDatasource.getName(), createdDatasource.getId()));
                                 } else {
                                     // This is explicitly copied over from the map we created before
                                     datasourceStorage.setPluginId(pluginMap.get(datasourceStorage.getPluginId()));
@@ -208,15 +212,17 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                         updateAuthenticationDTO(datasourceStorage, decryptedFields);
                                     }
                                     return createUniqueDatasourceIfNotPresent(
-                                            existingDatasourcesFlux,
-                                            datasourceStorage,
-                                            workspace,
-                                            environmentId,
-                                            importingMetaDTO.getPermissionProvider());
+                                                    existingDatasourcesFlux,
+                                                    datasourceStorage,
+                                                    workspace,
+                                                    environmentId,
+                                                    importingMetaDTO.getPermissionProvider())
+                                            .map(createdDatasource ->
+                                                    Tuples.of(importedDatasourceName, createdDatasource.getId()));
                                 }
                             });
                 })
-                .collectMap(Datasource::getName, Datasource::getId)
+                .collectMap(Tuple2::getT1, Tuple2::getT2)
                 .onErrorResume(error -> {
                     log.error("Error importing datasources", error);
                     return Mono.error(error);

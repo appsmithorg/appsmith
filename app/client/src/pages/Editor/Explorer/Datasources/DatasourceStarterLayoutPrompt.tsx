@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Popover,
   PopoverContent,
@@ -32,6 +32,7 @@ import { INTEGRATION_TABS } from "constants/routes";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
+import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 
 function DatasourceStarterLayoutPrompt() {
   const dispatch = useDispatch();
@@ -45,12 +46,21 @@ function DatasourceStarterLayoutPrompt() {
   const buildingBlockSourcePageId = useSelector(
     buildingBlocksSourcePageIdSelector,
   );
+  const { appWideDS } = useAppWideAndOtherDatasource();
 
   const disablePrompt = () =>
     dispatch(hideStarterBuildingBlockDatasourcePrompt());
 
-  const showActivePageDatasourcePrompt =
-    buildingBlockSourcePageId === pageId && showDatasourcePrompt;
+  const showActivePageDatasourcePrompt = useMemo(
+    () =>
+      buildingBlockSourcePageId === pageId &&
+      showDatasourcePrompt &&
+      // Here we are checking, if user already has some datasources added to the application
+      // in few cases user go through "start with data" and then "forks a starter building block from canvas"
+      // this condition prevents showing the popup if datasource is already connected.
+      appWideDS.length === 1,
+    [buildingBlockSourcePageId, pageId, showDatasourcePrompt, appWideDS],
+  );
 
   const onClickConnect = useCallback(() => {
     dispatch(hideStarterBuildingBlockDatasourcePrompt());
@@ -120,7 +130,7 @@ const PromptImage = importSvg(
 );
 
 const StyledPopoverContent = styled(PopoverContent)`
-  margin-left: 23px;
+  margin-left: 43px;
   width: 282px;
   padding-vertical: 12px;
   border-radius: 4px;
@@ -133,7 +143,7 @@ const StyledPopoverContent = styled(PopoverContent)`
 const Ellipse = styled.div`
   position: absolute;
   top: 0px;
-  left: -15px;
+  left: 5px;
   width: 36px;
   height: 36px;
   background: rgba(225, 86, 21, 0.2);

@@ -106,6 +106,7 @@ class WidgetFactory {
       iconSVG: config.iconSVG,
       isCanvas: config.isCanvas,
       needsHeightForContent: config.needsHeightForContent,
+      isSearchWildcard: config.isSearchWildcard,
     };
 
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));

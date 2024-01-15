@@ -135,6 +135,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       isValid: "bool",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
+      isReadOnly: "bool",
     };
 
     return definitions;
@@ -183,6 +184,10 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         },
         setDisabled: {
           path: "isDisabled",
+          type: "boolean",
+        },
+        setReadOnly: {
+          path: "isReadOnly",
           type: "boolean",
         },
         setRequired: {
@@ -339,6 +344,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         inputType={inputType}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
+        isReadOnly={this.props.isReadOnly}
         isRequired={this.props.isRequired}
         label={this.props.label}
         maxChars={this.props.maxChars}

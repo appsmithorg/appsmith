@@ -325,7 +325,8 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
-  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (_state: AppState) =>
+    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
   (isAutoLayout, isWDSEnabled) => {
     const widgetConfigs = WidgetFactory.getConfigs();
 
@@ -355,6 +356,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout = false,
         displayName,
         iconSVG,
+        isSearchWildcard,
         key,
         searchTags,
         tags,
@@ -379,6 +381,7 @@ export const getWidgetCards = createSelector(
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
+        isSearchWildcard: isSearchWildcard,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);

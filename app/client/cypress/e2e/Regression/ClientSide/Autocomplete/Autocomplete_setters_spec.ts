@@ -74,7 +74,6 @@ describe("Autocomplete tests for setters", { tags: ["@tag.JS"] }, () => {
 
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled");
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setRequired");
-    agHelper.Sleep(); //a bit for time for CI
   });
 
   it("2. Check if setters are present in autocomplete for widgets in property Pane", () => {

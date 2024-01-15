@@ -1,12 +1,12 @@
-const explorerLocators = require("../../../../locators/explorerlocators.json");
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "excludeForAirgap",
   "Creating new app after discontinuing guided tour should not start the same",
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     it("1. Creating new app after discontinuing guided tour should not start the same", function () {
       // Start guided tour
@@ -29,7 +29,7 @@ describe(
       cy.get(commonlocators.homeIcon).click({ force: true });
       cy.get(homePage.createNewAppButton).first().click();
       // Check if explorer is visible, explorer is collapsed initialy in guided tour
-      cy.get(explorerLocators.entityExplorer).should("be.visible");
+      cy.get(PageLeftPane.locators.selector).should("be.visible");
     });
   },
 );

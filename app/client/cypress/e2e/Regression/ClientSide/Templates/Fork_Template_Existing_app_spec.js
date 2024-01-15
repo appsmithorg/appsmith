@@ -17,8 +17,8 @@ beforeEach(() => {
 });
 
 describe(
-  "excludeForAirgap",
   "Fork a template to the current app from new page popover",
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
     it("1. Fork template from page section", () => {
       //Fork template button to be visible always
@@ -30,7 +30,7 @@ describe(
       agHelper.GetNClick(template.vehicleMaintenenceApp);
       agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       agHelper.Sleep();
-      agHelper.CheckForErrorToast(
+      agHelper.FailIfErrorToast(
         "Internal server error while processing request",
       );
       cy.get("body").then(($ele) => {

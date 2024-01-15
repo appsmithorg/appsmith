@@ -683,7 +683,7 @@
   --sizing-200: calc(
     200 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
   );
-  --color-bg: rgb(97.488% 97.871% 100%);
+  --color-bg: rgb(94.217% 94.598% 97.227%);
   --color-bg-accent: rgb(33.333% 23.922% 91.373%);
   --color-bg-accent-hover: rgb(38.033% 31.188% 98.353%);
   --color-bg-accent-active: rgb(31.537% 20.805% 88.597%);
@@ -716,10 +716,16 @@
   --color-bg-warning-subtle: rgb(100% 94.114% 80.142%);
   --color-bg-warning-subtle-hover: rgb(100% 97.012% 87.859%);
   --color-bg-warning-subtle-active: rgb(99.63% 92.81% 78.869%);
+  --color-bg-elevation-1: rgb(96.832% 97.215% 99.857%);
+  --color-bg-elevation-2: rgb(98.836% 99.192% 100%);
+  --color-bg-elevation-3: rgb(100% 100% 100%);
+  --color-shadow-elevation-1: rgb(0% 0% 0%);
+  --color-shadow-elevation-2: rgb(13.355% 0% 21.478%);
+  --color-shadow-elevation-3: rgb(19.719% 0% 40.53%);
   --color-fg: rgb(1.6475% 1.7126% 6.8084%);
   --color-fg-accent: rgb(33.333% 23.922% 91.373%);
-  --color-fg-neutral: rgb(37.193% 38.537% 50.855%);
-  --color-fg-neutral-subtle: rgb(48.439% 49.938% 62.827%);
+  --color-fg-neutral: rgb(26.531% 27.672% 39.337%);
+  --color-fg-neutral-subtle: rgb(37.193% 38.537% 50.855%);
   --color-fg-positive: rgb(6.7435% 63.436% 18.481%);
   --color-fg-negative: rgb(100% 0% 28.453%);
   --color-fg-warning: rgb(71.79% 51.231% 0%);
@@ -747,7 +753,9 @@
   --color-bd-on-negative: rgb(21.923% 0% 2.8118%);
   --color-bd-on-warning: rgb(39.972% 27.552% 0%);
   --border-radius-1: 0px;
-  --box-shadow-1: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+  --box-shadow-1: 0 4px 6px 0 var(--color-shadow-elevation-1);
+  --box-shadow-2: 0 2px 4px 0 var(--color-shadow-elevation-2);
+  --box-shadow-3: 0 1px 2px 0 var(--color-shadow-elevation-3);
   --border-width-1: 1px;
   --border-width-2: 2px;
   --opacity-disabled: 0.3;

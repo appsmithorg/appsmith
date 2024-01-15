@@ -7,6 +7,8 @@ import {
   getCurrentActions,
   getDatasources,
   getJSCollections,
+  getModuleInstanceEntities,
+  getModuleInstances,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
@@ -25,6 +27,7 @@ import type { AppState } from "@appsmith/reducers";
 import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
+import { getModuleInstanceNavigationData } from "@appsmith/utils/moduleInstanceNavigationData";
 
 export interface NavigationData {
   name: string;
@@ -45,6 +48,17 @@ export interface NavigationData {
 }
 export type EntityNavigationData = Record<string, NavigationData>;
 
+export const getModulesData = createSelector(
+  getModuleInstances,
+  getModuleInstanceEntities,
+  (moduleInstances, moduleInstanceEntities) => {
+    return {
+      moduleInstances,
+      moduleInstanceEntities,
+    };
+  },
+);
+
 export const getEntitiesForNavigation = createSelector(
   getCurrentActions,
   getPlugins,
@@ -53,6 +67,7 @@ export const getEntitiesForNavigation = createSelector(
   getCurrentPageId,
   getDataTree,
   getDatasources,
+  getModulesData,
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,
@@ -62,6 +77,7 @@ export const getEntitiesForNavigation = createSelector(
     pageId,
     dataTree: DataTree,
     datasources: Datasource[],
+    modulesData,
     entityName: string | undefined,
   ) => {
     // data tree retriggers this
@@ -129,6 +145,14 @@ export const getEntitiesForNavigation = createSelector(
         widgetType: widget.type,
       });
     });
+    let moduleInstanceNavigationData: EntityNavigationData = {};
+    if (!!modulesData.moduleInstances) {
+      moduleInstanceNavigationData = getModuleInstanceNavigationData(
+        modulesData.moduleInstances,
+        modulesData.moduleInstanceEntities,
+      );
+    }
+
     if (
       entityName &&
       isJSAction(dataTree[entityName]) &&
@@ -136,10 +160,14 @@ export const getEntitiesForNavigation = createSelector(
     ) {
       return {
         ...navigationData,
+        ...moduleInstanceNavigationData,
         this: navigationData[entityName],
       };
     }
-    return navigationData;
+    return {
+      ...navigationData,
+      ...moduleInstanceNavigationData,
+    };
   },
 );
 export const getPathNavigationUrl = createSelector(

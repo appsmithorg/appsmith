@@ -60,8 +60,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         this.newActionService = newActionService;
     }
 
-    // Updates pageNametoIdMap and pageNameMap in importable resources.
-    // Also directly updates required information in DB
+    // Updates pageNameToIdMap and pageNameMap in importable resources.
+    // Also, directly updates required information in DB
     @Override
     public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
@@ -428,7 +428,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                     .getUnpublishedPage()
                                     .setDeletedAt(newPage.getUnpublishedPage().getDeletedAt());
                             existingPage.setDeletedAt(newPage.getDeletedAt());
-                            existingPage.setDeleted(newPage.getDeleted());
                             existingPage.setPolicies(existingPagePolicy);
                             return newPageService.save(existingPage);
                         } else {
@@ -469,7 +468,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                                             .getUnpublishedPage()
                                                             .getDeletedAt());
                                             newPage.setDeletedAt(branchedPage.getDeletedAt());
-                                            newPage.setDeleted(branchedPage.getDeleted());
                                             // Set policies from existing branch object
                                             newPage.setPolicies(branchedPage.getPolicies());
                                             return newPageService.save(newPage);

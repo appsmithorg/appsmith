@@ -14,7 +14,7 @@ export const defaultsConfig = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
-  labelPosition: "left",
+  labelPosition: "right",
   label: "Label",
   orientation: "vertical",
   version: 1,

@@ -561,7 +561,7 @@ export class Table {
     col: number,
     expectedURL: string,
     tableVersion: "v1" | "v2" = "v1",
-    networkCall = "viewPage",
+    networkCall = "getConsolidatedData",
   ) {
     this.deployMode.StubWindowNAssert(
       this._tableRowColumnData(row, col, tableVersion),

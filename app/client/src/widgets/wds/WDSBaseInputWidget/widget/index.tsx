@@ -49,6 +49,7 @@ class WDSBaseInputWidget<
       labelStyle: "",
       resetOnSubmit: true,
       isRequired: false,
+      isReadOnly: false,
       isDisabled: false,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,

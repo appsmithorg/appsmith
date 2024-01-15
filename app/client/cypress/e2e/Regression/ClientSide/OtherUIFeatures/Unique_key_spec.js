@@ -1,4 +1,3 @@
-const explorer = require("../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -16,7 +15,6 @@ describe("Unique react keys", function () {
   });
 
   it("1. Should not create duplicate versions of widget on drop from explorer", function () {
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 700 });
@@ -29,7 +27,6 @@ describe("Unique react keys", function () {
 
   it("2. Should not create duplicate versions of widget on widget copy", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
     //copy and paste

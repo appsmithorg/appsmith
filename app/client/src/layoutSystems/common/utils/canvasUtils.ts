@@ -33,13 +33,13 @@ export function renderChildWidget({
   layoutSystemProps: LayoutSystemProps;
   defaultWidgetProps: Record<string, any>;
   noPad: boolean;
-}): React.ReactNode {
+}): React.ReactNode | null {
+  if (!childWidgetData) return null;
   const childWidget = {
     ...defaultWidgetProps,
     ...childWidgetData,
     ...layoutSystemProps,
   };
-  if (!childWidgetData) return null;
   if (noPad) childWidget.noContainerOffset = true;
   childWidget.parentId = widgetId;
   return WidgetFactory.createWidget(childWidget, renderMode);
@@ -77,5 +77,5 @@ export const renderChildren = (
       renderMode,
       widgetId,
     }),
-  );
+  ).filter(Boolean);
 };

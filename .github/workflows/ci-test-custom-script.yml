@@ -13,6 +13,12 @@ on:
         description: "These are the optional tags a developer can specify in order to run a subset of all the tests"
         required: false
         type: string
+        default: ""
+      matrix:
+        description: "Matrix jobs"
+        required: false
+        type: string
+        default: "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]"
 
 jobs:
   ci-test:
@@ -21,76 +27,15 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' 
     defaults:
       run:
         shell: bash
     strategy:
       fail-fast: false
       matrix:
-        job:
-          [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-            31,
-            32,
-            33,
-            34,
-            35,
-            36,
-            37,
-            38,
-            39,
-            40,
-            41,
-            42,
-            43,
-            44,
-            45,
-            46,
-            47,
-            48,
-            49,
-            50,
-            51,
-            52,
-            53,
-            54,
-            55,
-            56,
-            57,
-            58,
-            59,
-          ]
+        job: ${{ fromJson(inputs.matrix) }}
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -262,6 +207,17 @@ jobs:
         run: |
           yarn install --immutable
 
+      - name: Set cypress tags to exclude
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+            echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
+            echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
+        
+      - name: Print the tags
+        run: |
+          echo "tags_to_exclude: ${{ env.tags_to_exclude }}"
+          echo "_grepTags: ${{ env.CYPRESS_grepTags }}"
+
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
@@ -362,7 +318,7 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_EXCLUDE_TAGS: ${{ env.tags_to_exclude }}
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
@@ -370,6 +326,7 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
@@ -383,8 +340,9 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-          CYPRESS_grepTags: ${{ inputs.tags }} # This is a comma separated list of tags to run a subset of the suite
+          CYPRESS_grepTags: ${{ env.CYPRESS_grepTags }} # This is a comma separated list of tags to run a subset of the suite
           CYPRESS_SKIP_FLAKY: true
+          CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
         with:
           browser: ${{ env.BROWSER_PATH }}

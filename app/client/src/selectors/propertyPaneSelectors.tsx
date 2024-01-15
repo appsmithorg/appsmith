@@ -21,6 +21,8 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { getRenderMode } from "./editorSelectors";
+import { RenderModes } from "constants/WidgetConstants";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -96,6 +98,15 @@ export const getWidgetPropsForPropertyPane = createSelector(
   },
 );
 
+export const isWidgetSelectedForPropertyPane = createSelector(
+  getWidgetPropsForPropertyPane,
+  getRenderMode,
+  (_state: AppState, widgetId: string) => widgetId,
+  (widget: WidgetProps | undefined, renderMode: RenderModes, widgetId) => {
+    return renderMode === RenderModes.CANVAS && widget?.widgetId === widgetId;
+  },
+);
+
 export const selectedWidgetsPresentInCanvas = createSelector(
   getWidgets,
   getSelectedWidgets,
@@ -112,7 +123,12 @@ const populateWidgetProperties = (
   widget: WidgetProps | undefined,
   propertyPath: string,
   dependencies: string[],
+  dynamicDependencies?: (widget: WidgetProps) => string[],
 ) => {
+  if (widget && typeof dynamicDependencies === "function") {
+    dependencies = [...dependencies, ...dynamicDependencies(widget)];
+  }
+
   const widgetProperties: any = {};
 
   if (!widget) return widgetProperties;
@@ -194,6 +210,7 @@ export const getWidgetPropsForPropertyName = (
   propertyName: string,
   dependencies: string[] = [],
   evaluatedDependencies: string[] = [],
+  dynamicDependencies?: (widget: WidgetProps) => string[],
 ) => {
   return createSelector(
     getCurrentWidgetProperties,
@@ -208,6 +225,7 @@ export const getWidgetPropsForPropertyName = (
         widget,
         propertyName,
         dependencies,
+        dynamicDependencies,
       );
 
       // if the widget has a googleMapsApiKey dependency, add it to the widget properties

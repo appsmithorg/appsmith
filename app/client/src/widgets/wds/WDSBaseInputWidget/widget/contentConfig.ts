@@ -104,6 +104,17 @@ export const propertyPaneContentConfig = [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {
+        helpText:
+          "Whether the input can be selected but not changed by the user. Readonly has a higher priority than disabled.",
+        propertyName: "isReadOnly",
+        label: "Readonly",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         propertyName: "animateLoading",
         label: "Animate loading",
         controlType: "SWITCH",

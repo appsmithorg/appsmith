@@ -49,8 +49,9 @@ import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import useCurrentAppState from "pages/Editor/IDE/hooks";
-import { EditorState as IDEAppState } from "entities/IDE/constants";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { EditorState as IDEAppState } from "@appsmith/entities/IDE/constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -82,6 +83,7 @@ function Onboarding() {
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
+  const isAirgappedInstance = isAirgapped();
 
   const currentApplicationId = useSelector(
     (state: AppState) => state.ui.applications.currentApplication?.id,
@@ -91,8 +93,14 @@ function Onboarding() {
     () =>
       showStarterTemplatesInsteadofBlankCanvas &&
       !isMobileCanvas &&
+      isUsersFirstApp &&
+      !isAirgappedInstance,
+    [
+      isMobileCanvas,
       isUsersFirstApp,
-    [isMobileCanvas, isUsersFirstApp, showStarterTemplatesInsteadofBlankCanvas],
+      showStarterTemplatesInsteadofBlankCanvas,
+      isAirgappedInstance,
+    ],
   );
   useEffect(() => {
     (async () => {
@@ -286,7 +294,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   // This shows the property pane
   const showPropertyPane = useShowPropertyPane();
 
-  const { deselectAll, focusWidget } = useWidgetSelection();
+  const { focusWidget, goToWidgetAdd } = useWidgetSelection();
 
   // Everytime we get a new bottomRow, or we toggle shouldScrollContents
   // we call this effect
@@ -337,7 +345,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
       // Check if Target is the MainCanvas
       if (isTargetMainCanvas) {
-        deselectAll();
+        goToWidgetAdd();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
         e.preventDefault();

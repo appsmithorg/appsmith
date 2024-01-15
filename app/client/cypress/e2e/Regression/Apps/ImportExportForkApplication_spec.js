@@ -9,7 +9,7 @@ import {
 
 describe(
   "Import, Export and Fork application and validate data binding",
-  { tags: ["@tag.Migrate"] },
+  { tags: ["@tag.ImportExport"] },
   function () {
     let workspaceId;
     let newWorkspaceName;
@@ -136,8 +136,8 @@ describe(
               }
               const importedApp = interception.response.body.data.application;
               const appSlug = importedApp.slug;
-              cy.wait("@getPagesForCreateApp").then((interception) => {
-                const pages = interception.response.body.data.pages;
+              cy.wait("@getConsolidatedData").then((interception) => {
+                const pages = interception.response.body.data.pages.data.pages;
                 let defaultPage = pages.find(
                   (eachPage) => !!eachPage.isDefault,
                 );

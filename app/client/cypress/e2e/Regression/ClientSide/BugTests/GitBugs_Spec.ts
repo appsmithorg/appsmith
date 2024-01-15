@@ -13,7 +13,7 @@ let tempBranch1: any;
 let tempBranch2: any;
 let tempBranch3: any;
 
-describe("Git Bugs", function () {
+describe("Git Bugs", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

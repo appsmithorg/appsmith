@@ -34,7 +34,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,7 +90,6 @@ public class ThemeImportableServiceCETest {
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Theme Service Test workspace");
-        workspace.setUserRoles(new ArrayList<>());
         this.workspace = workspaceService.create(workspace).block();
     }
 

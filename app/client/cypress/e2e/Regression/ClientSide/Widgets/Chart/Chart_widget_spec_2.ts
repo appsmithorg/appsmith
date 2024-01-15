@@ -10,9 +10,9 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("", () => {
+describe("", { tags: ["@tag.Widget", "@tag.Chart"] }, () => {
   before(() => {
-    entityExplorer.DragNDropWidget(draggableWidgets.CHART);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART);
   });
 
   it("1. Test Series tile chart", () => {

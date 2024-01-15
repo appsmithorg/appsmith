@@ -11,14 +11,14 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context Property Pane", function () {
+describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
     PageList.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
   });
 
   beforeEach(() => {

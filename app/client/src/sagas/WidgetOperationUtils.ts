@@ -1522,7 +1522,7 @@ export const getAllWidgetsInTree = (
         widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
       );
   }
-  return widgetList;
+  return widgetList.filter(Boolean);
 };
 
 /**
