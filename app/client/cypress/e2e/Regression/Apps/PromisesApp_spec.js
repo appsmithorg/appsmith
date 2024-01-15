@@ -60,7 +60,7 @@ describe(
         },
       );
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      cy.wait("@getPage");
+      cy.wait("@getConsolidatedData");
       // verify text in the text widget
 
       agHelper.AssertContains(

@@ -12,7 +12,7 @@ import type {
   MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
-import type { ResponseMeta } from "api/ApiResponses";
+import type { ApiResponse, ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export const createDatasourceFromForm = (
@@ -273,16 +273,20 @@ export const setDatasourceCollapsible = (key: string, isOpen: boolean) => {
   };
 };
 
-export const fetchDatasources = (payload?: { workspaceId?: string }) => {
+export const fetchDatasources = (payload?: {
+  workspaceId?: string;
+  datasources?: ApiResponse<Datasource[]>;
+}) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
     payload,
   };
 };
 
-export const fetchMockDatasources = () => {
+export const fetchMockDatasources = (mockDatasources?: ApiResponse) => {
   return {
     type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
+    payload: { mockDatasources },
   };
 };
 
