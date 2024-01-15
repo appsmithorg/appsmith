@@ -1,0 +1,109 @@
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="56" height="56" rx="3" fill="white"/>
+<rect x="4.5" y="4.5" width="16" height="5" rx="0.5" fill="white" stroke="#CDD5DF"/>
+<rect x="22.5" y="4.5" width="16" height="5" rx="0.5" fill="white" stroke="#CDD5DF"/>
+<rect x="40.5" y="4.5" width="11" height="5" rx="0.5" fill="#FFEEE5" stroke="#CC3D00"/>
+<g clip-path="url(#clip0_2501_6696)">
+<mask id="path-7-outside-1_2501_6696" maskUnits="userSpaceOnUse" x="3" y="16" width="9" height="8" fill="black">
+<rect fill="white" x="3" y="16" width="9" height="8"/>
+<path d="M4 16H12V23H4V16Z"/>
+</mask>
+<path d="M4 16H12V23H4V16Z" fill="#E3E8EF"/>
+<path d="M4 23H3V24H4V23ZM12 22H4V24H12V22ZM5 23V16H3V23H5Z" fill="#CDD5DF" mask="url(#path-7-outside-1_2501_6696)"/>
+<mask id="path-9-outside-2_2501_6696" maskUnits="userSpaceOnUse" x="11" y="16" width="21" height="8" fill="black">
+<rect fill="white" x="11" y="16" width="21" height="8"/>
+<path d="M12 16H32V23H12V16Z"/>
+</mask>
+<path d="M12 16H32V23H12V16Z" fill="#E3E8EF"/>
+<path d="M12 23H11V24H12V23ZM32 22H12V24H32V22ZM13 23V16H11V23H13Z" fill="#CDD5DF" mask="url(#path-9-outside-2_2501_6696)"/>
+<mask id="path-11-outside-3_2501_6696" maskUnits="userSpaceOnUse" x="31" y="16" width="21" height="8" fill="black">
+<rect fill="white" x="31" y="16" width="21" height="8"/>
+<path d="M32 16H52V23H32V16Z"/>
+</mask>
+<path d="M32 16H52V23H32V16Z" fill="#E3E8EF"/>
+<path d="M32 23H31V24H32V23ZM52 22H32V24H52V22ZM33 23V16H31V23H33Z" fill="#CDD5DF" mask="url(#path-11-outside-3_2501_6696)"/>
+<mask id="path-13-outside-4_2501_6696" maskUnits="userSpaceOnUse" x="3" y="23" width="9" height="8" fill="black">
+<rect fill="white" x="3" y="23" width="9" height="8"/>
+<path d="M4 23H12V30H4V23Z"/>
+</mask>
+<path d="M4 23H12V30H4V23Z" fill="white"/>
+<path d="M4 30H3V31H4V30ZM12 29H4V31H12V29ZM5 30V23H3V30H5Z" fill="#CDD5DF" mask="url(#path-13-outside-4_2501_6696)"/>
+<mask id="path-15-outside-5_2501_6696" maskUnits="userSpaceOnUse" x="11" y="23" width="21" height="8" fill="black">
+<rect fill="white" x="11" y="23" width="21" height="8"/>
+<path d="M12 23H32V30H12V23Z"/>
+</mask>
+<path d="M12 23H32V30H12V23Z" fill="white"/>
+<path d="M12 30H11V31H12V30ZM32 29H12V31H32V29ZM13 30V23H11V30H13Z" fill="#CDD5DF" mask="url(#path-15-outside-5_2501_6696)"/>
+<mask id="path-17-outside-6_2501_6696" maskUnits="userSpaceOnUse" x="31" y="23" width="21" height="8" fill="black">
+<rect fill="white" x="31" y="23" width="21" height="8"/>
+<path d="M32 23H52V30H32V23Z"/>
+</mask>
+<path d="M32 23H52V30H32V23Z" fill="white"/>
+<path d="M32 30H31V31H32V30ZM52 29H32V31H52V29ZM33 30V23H31V30H33Z" fill="#CDD5DF" mask="url(#path-17-outside-6_2501_6696)"/>
+<mask id="path-19-outside-7_2501_6696" maskUnits="userSpaceOnUse" x="3" y="30" width="9" height="8" fill="black">
+<rect fill="white" x="3" y="30" width="9" height="8"/>
+<path d="M4 30H12V37H4V30Z"/>
+</mask>
+<path d="M4 30H12V37H4V30Z" fill="white"/>
+<path d="M4 37H3V38H4V37ZM12 36H4V38H12V36ZM5 37V30H3V37H5Z" fill="#CDD5DF" mask="url(#path-19-outside-7_2501_6696)"/>
+<mask id="path-21-outside-8_2501_6696" maskUnits="userSpaceOnUse" x="11" y="30" width="21" height="8" fill="black">
+<rect fill="white" x="11" y="30" width="21" height="8"/>
+<path d="M12 30H32V37H12V30Z"/>
+</mask>
+<path d="M12 30H32V37H12V30Z" fill="white"/>
+<path d="M12 37H11V38H12V37ZM32 36H12V38H32V36ZM13 37V30H11V37H13Z" fill="#CDD5DF" mask="url(#path-21-outside-8_2501_6696)"/>
+<mask id="path-23-outside-9_2501_6696" maskUnits="userSpaceOnUse" x="31" y="30" width="21" height="8" fill="black">
+<rect fill="white" x="31" y="30" width="21" height="8"/>
+<path d="M32 30H52V37H32V30Z"/>
+</mask>
+<path d="M32 30H52V37H32V30Z" fill="white"/>
+<path d="M32 37H31V38H32V37ZM52 36H32V38H52V36ZM33 37V30H31V37H33Z" fill="#CDD5DF" mask="url(#path-23-outside-9_2501_6696)"/>
+<mask id="path-25-outside-10_2501_6696" maskUnits="userSpaceOnUse" x="3" y="37" width="9" height="8" fill="black">
+<rect fill="white" x="3" y="37" width="9" height="8"/>
+<path d="M4 37H12V44H4V37Z"/>
+</mask>
+<path d="M4 37H12V44H4V37Z" fill="white"/>
+<path d="M4 44H3V45H4V44ZM12 43H4V45H12V43ZM5 44V37H3V44H5Z" fill="#CDD5DF" mask="url(#path-25-outside-10_2501_6696)"/>
+<mask id="path-27-outside-11_2501_6696" maskUnits="userSpaceOnUse" x="11" y="37" width="21" height="8" fill="black">
+<rect fill="white" x="11" y="37" width="21" height="8"/>
+<path d="M12 37H32V44H12V37Z"/>
+</mask>
+<path d="M12 37H32V44H12V37Z" fill="white"/>
+<path d="M12 44H11V45H12V44ZM32 43H12V45H32V43ZM13 44V37H11V44H13Z" fill="#CDD5DF" mask="url(#path-27-outside-11_2501_6696)"/>
+<mask id="path-29-outside-12_2501_6696" maskUnits="userSpaceOnUse" x="31" y="37" width="21" height="8" fill="black">
+<rect fill="white" x="31" y="37" width="21" height="8"/>
+<path d="M32 37H52V44H32V37Z"/>
+</mask>
+<path d="M32 37H52V44H32V37Z" fill="white"/>
+<path d="M32 44H31V45H32V44ZM52 43H32V45H52V43ZM33 44V37H31V44H33Z" fill="#CDD5DF" mask="url(#path-29-outside-12_2501_6696)"/>
+<mask id="path-31-outside-13_2501_6696" maskUnits="userSpaceOnUse" x="3" y="44" width="9" height="9" fill="black">
+<rect fill="white" x="3" y="44" width="9" height="9"/>
+<path d="M4 44H12V52H4V44Z"/>
+</mask>
+<path d="M4 44H12V52H4V44Z" fill="white"/>
+<path d="M4 52H3V53H4V52ZM12 51H4V53H12V51ZM5 52V44H3V52H5Z" fill="#CDD5DF" mask="url(#path-31-outside-13_2501_6696)"/>
+<mask id="path-33-outside-14_2501_6696" maskUnits="userSpaceOnUse" x="11" y="44" width="21" height="9" fill="black">
+<rect fill="white" x="11" y="44" width="21" height="9"/>
+<path d="M12 44H32V52H12V44Z"/>
+</mask>
+<path d="M12 44H32V52H12V44Z" fill="white"/>
+<path d="M12 52H11V53H12V52ZM32 51H12V53H32V51ZM13 52V44H11V52H13Z" fill="#CDD5DF" mask="url(#path-33-outside-14_2501_6696)"/>
+<mask id="path-35-outside-15_2501_6696" maskUnits="userSpaceOnUse" x="31" y="44" width="21" height="9" fill="black">
+<rect fill="white" x="31" y="44" width="21" height="9"/>
+<path d="M32 44H52V52H32V44Z"/>
+</mask>
+<path d="M32 44H52V52H32V44Z" fill="white"/>
+<path d="M32 52H31V53H32V52ZM52 51H32V53H52V51ZM33 52V44H31V52H33Z" fill="#CDD5DF" mask="url(#path-35-outside-15_2501_6696)"/>
+</g>
+<rect x="4.5" y="16.5" width="47" height="35" rx="0.5" stroke="#CDD5DF"/>
+<rect x="32" y="31" width="24" height="24" rx="2" fill="white"/>
+<path d="M40.5 49V40.5" stroke="#CC3D00" stroke-linecap="round"/>
+<path d="M38.5 47.5L40.5 49.5L42.5 47.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M46.5 45.5V37" stroke="#CC3D00" stroke-linecap="round"/>
+<path d="M44.5 38.5L46.5 36.5L48.5 38.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<defs>
+<clipPath id="clip0_2501_6696">
+<rect x="4" y="16" width="48" height="36" rx="1" fill="white"/>
+</clipPath>
+</defs>
+</svg>
