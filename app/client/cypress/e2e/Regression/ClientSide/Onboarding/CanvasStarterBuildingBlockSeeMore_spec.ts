@@ -5,6 +5,7 @@ import {
   onboarding,
   templates,
 } from "../../../../support/Objects/ObjectsCore";
+import FirstTimeUserOnboardingLocators from "../../../../locators/FirstTimeUserOnboarding.json";
 
 describe(
   "Start with scratch userflow",
@@ -23,6 +24,9 @@ describe(
 
     it("1. onboarding flow - should check page entity selection in explorer", function () {
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
+
+      agHelper.GetNClick(FirstTimeUserOnboardingLocators.introModalCloseBtn);
+
       agHelper.GetNClick(onboarding.locators.seeMoreButtonOnCanvas, 0, true);
 
       agHelper.AssertElementVisibility(template.templateDialogBox);
