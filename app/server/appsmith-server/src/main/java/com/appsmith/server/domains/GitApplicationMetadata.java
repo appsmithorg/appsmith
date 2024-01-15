@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.domains.ce.AutoDeployment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
@@ -78,6 +79,9 @@ public class GitApplicationMetadata implements AppsmithDomain {
 
     @JsonView(Views.Metadata.class)
     AutoCommitConfig autoCommitConfig;
+
+    @JsonView(Views.Metadata.class)
+    AutoDeployment autoDeployment;
 
     public AutoCommitConfig getAutoCommitConfig() {
         // by default, the auto commit should be enabled.
