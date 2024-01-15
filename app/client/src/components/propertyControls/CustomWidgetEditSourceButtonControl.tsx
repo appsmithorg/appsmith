@@ -85,6 +85,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED, () => {
         CustomWidgetBuilderService.closeConnection(
           this.props.widgetProperties.widgetId,
+          true,
         );
 
         this.setState({

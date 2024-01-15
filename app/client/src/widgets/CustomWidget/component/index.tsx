@@ -17,6 +17,12 @@ import type { AppThemeProperties } from "entities/AppTheming";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
+import { connect } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 
 const StyledIframe = styled.iframe<{ width: number; height: number }>`
   width: ${(props) => props.width - 8}px;
@@ -242,4 +248,22 @@ export interface CustomComponentProps {
   widgetId: string;
 }
 
-export default CustomComponent;
+/**
+ * TODO: Balaji soundararajan - to refactor code to move out selected widget details to platform
+ */
+export const mapStateToProps = (
+  state: AppState,
+  ownProps: CustomComponentProps,
+) => {
+  const isPreviewMode = combinedPreviewModeSelector(state);
+  const appMode = getAppMode(state);
+
+  return {
+    needsOverlay:
+      appMode == APP_MODE.EDIT &&
+      !isPreviewMode &&
+      ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
+  };
+};
+
+export default connect(mapStateToProps)(CustomComponent);

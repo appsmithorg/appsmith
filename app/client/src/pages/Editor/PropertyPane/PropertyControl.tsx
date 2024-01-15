@@ -70,6 +70,11 @@ const ResetIcon = importSvg(
 const StyledDeviated = styled.div`
   background-color: var(--ads-v2-color-bg-brand);
 `;
+
+const LabelContainer = styled.div<{ hasEditIcon: boolean }>`
+  ${(props) => props.hasEditIcon && "max-width: calc(100% - 110px);"}
+`;
+
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
@@ -921,8 +926,15 @@ const PropertyControl = memo((props: Props) => {
             </div>
           ) : (
             <div className="flex items-center justify-between">
-              <div className={clsx("flex items-center justify-right  gap-1")}>
+              <LabelContainer
+                className={clsx("flex items-center justify-right gap-1")}
+                hasEditIcon={
+                  !!config.controlConfig?.allowEdit ||
+                  !!config.controlConfig?.allowDelete
+                }
+              >
                 <PropertyHelpLabel
+                  className="w-full"
                   label={label}
                   theme={props.theme}
                   tooltip={helpText}
@@ -972,7 +984,7 @@ const PropertyControl = memo((props: Props) => {
                     </button>
                   </>
                 )}
-              </div>
+              </LabelContainer>
               <div className={clsx("flex items-center justify-right")}>
                 {config.controlConfig?.allowEdit && (
                   <Button

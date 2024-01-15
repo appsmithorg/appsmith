@@ -86,11 +86,13 @@ export default class CustomWidgetBuilderService {
     }
   }
 
-  static closeConnection(widgetId: string) {
+  static closeConnection(widgetId: string, skipClosing: boolean) {
     if (this.builderWindowConnections.has(widgetId)) {
-      const connection = this.builderWindowConnections.get(widgetId);
+      if (!skipClosing) {
+        const connection = this.builderWindowConnections.get(widgetId);
 
-      connection?.window?.close();
+        connection?.window?.close();
+      }
 
       this.builderWindowConnections.delete(widgetId);
     }

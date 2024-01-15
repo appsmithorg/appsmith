@@ -61,7 +61,7 @@ export default function Debugger() {
               .length || 0
           }
         />
-        <Tooltip content="clear console">
+        <Tooltip content="Clear console">
           <Icon
             name="forbid-line"
             onClick={() => {
@@ -74,7 +74,7 @@ export default function Debugger() {
             style={{ cursor: "pointer" }}
           />
         </Tooltip>
-        <Tooltip content={open ? "close console" : "open console"}>
+        <Tooltip content={open ? "Close console" : "Open console"}>
           <Icon
             name={open ? "arrow-down-s-line" : "arrow-up-s-line"}
             onClick={() => toggle()}

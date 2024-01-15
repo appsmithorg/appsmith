@@ -8,7 +8,7 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
-import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type {
   AppThemeProperties,
@@ -206,6 +206,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
               },
             },
             dependencies: ["events"],
+            helpText: "when the event is triggered from custom widget",
           }));
         },
         children: [
@@ -358,10 +359,6 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         execute={this.execute}
         height={this.props.componentHeight}
         model={this.props.model || {}}
-        needsOverlay={
-          this.props.renderMode === RenderModes.CANVAS &&
-          !this.props.isWidgetSelected
-        }
         renderMode={this.getRenderMode()}
         srcDoc={this.props.srcDoc}
         theme={this.props.theme}

@@ -43,7 +43,7 @@ export default {
 	background: var(--appsmith-theme-primaryColor) !important;
 }
 
-.button-container button.reset {
+.button-container button.reset:not([disabled]) {
 	color: var(--appsmith-theme-primaryColor) !important;
 	border-color: var(--appsmith-theme-primaryColor) !important;
 }`,
@@ -75,7 +75,7 @@ function App() {
 			</div>
 			<div className="button-container">
 				<Button className="primary" onClick={handleNext} type="primary">Next Tip</Button>
-				<Button className="reset" onClick={handleReset}>Reset</Button>
+				<Button className="reset" disabled={currentIndex === 0} onClick={handleReset}>Reset</Button>
 			</div>
 	</Card>
 );
@@ -129,7 +129,7 @@ appsmith.onReady(() => {
 	background: var(--appsmith-theme-primaryColor) !important;
 }
 
-.button-container button.reset {
+.button-container button.reset:not([disabled]) {
 	color: var(--appsmith-theme-primaryColor) !important;
 	border-color: var(--appsmith-theme-primaryColor) !important;
 }`,
@@ -161,6 +161,7 @@ function App() {
     type: "primary"
   }, "Next Tip"), /*#__PURE__*/React.createElement(Button, {
 	className: "reset",
+	disabled: currentIndex === 0,
     onClick: handleReset
   }, "Reset")));
 }
