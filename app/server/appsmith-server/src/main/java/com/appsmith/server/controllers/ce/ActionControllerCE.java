@@ -99,7 +99,7 @@ public class ActionControllerCE {
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             @RequestHeader(value = OtlpTelemetry.OTLP_HEADER_KEY, required = false) String traceparent,
             ServerWebExchange serverWebExchange) {
-        Span span = this.otlpTelemetry.startOTLPSpan("action service execute", null, null);
+        Span span = this.otlpTelemetry.startOtlpSpanFromTraceparent("action service execute", traceparent);
 
         return actionExecutionSolution
                 .executeAction(

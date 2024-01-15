@@ -674,7 +674,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             })
                             .doOnSubscribe(subscription -> {
                                 Span pluginExecutionSpan =
-                                        this.otlpTelemetry.startOTLPSpan(PLUGIN_EXECUTION + "_test", null, parentSpan);
+                                        this.otlpTelemetry.startOTLPSpan(PLUGIN_EXECUTION, null, parentSpan);
 
                                 /**
                                  * Using plugin.getPackageName() instead of plugin.getName() because over time a
