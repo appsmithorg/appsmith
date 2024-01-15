@@ -7,7 +7,6 @@ import java.util.Objects;
 
 @Data
 public class AutoDeployment {
-    private Boolean enabled = Boolean.FALSE;
     private Instant lastDeployedAt;
     private String branchName;
 
