@@ -24,7 +24,7 @@ describe(
       partialImportExport.OpenExportModal();
     });
 
-    it.only("1. Should export all the selected JsObjects", () => {
+    it("1. Should export all the selected JsObjects", () => {
       partialImportExport.ExportAndCompareDownloadedFile(
         "jsObjects",
         0,
