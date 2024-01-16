@@ -71,6 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -300,7 +301,7 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), null);
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), isNull());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
@@ -358,7 +359,7 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), null);
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), isNull());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
