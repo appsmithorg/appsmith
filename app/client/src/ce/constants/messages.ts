@@ -2356,7 +2356,7 @@ export const CUSTOM_WIDGET_FEATURE = {
   },
   templateKey: {
     blank: () => "Blank",
-    vanilaJs: () => "Vanila JS",
+    vanillaJs: () => "Vanilla JS",
     react: () => "React",
     vue: () => "Vue",
   },

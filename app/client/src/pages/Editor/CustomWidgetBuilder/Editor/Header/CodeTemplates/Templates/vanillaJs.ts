@@ -5,7 +5,7 @@ import {
 import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
 
 export default {
-  key: createMessage(CUSTOM_WIDGET_FEATURE.templateKey.vanilaJs),
+  key: createMessage(CUSTOM_WIDGET_FEATURE.templateKey.vanillaJs),
   uncompiledSrcDoc: {
     html: `<div class="app">
 	<div class="tip-container">
