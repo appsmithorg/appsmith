@@ -1,5 +1,6 @@
 import type { Ref } from "react";
 import React, { Suspense, forwardRef, lazy } from "react";
+import { useThemeContext } from "@design-system/theming";
 import { Icon as HeadlessIcon } from "@design-system/headless";
 
 import styles from "./styles.module.css";
@@ -8,7 +9,9 @@ import { FallbackIcon } from "./FallbackIcon";
 import { toPascalCase } from "../../../utils";
 
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
-  const { filled, icon, name, size = "medium", ...rest } = props;
+  const { filled: filledProp, icon, name, size = "medium", ...rest } = props;
+  const theme = useThemeContext();
+  const filled = theme.iconStyle === "filled" || filledProp;
 
   let Icon: React.ComponentType | null = null;
 

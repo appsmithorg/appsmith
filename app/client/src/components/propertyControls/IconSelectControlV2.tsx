@@ -125,7 +125,7 @@ export interface IconSelectControlState {
 
 const NONE = "(none)";
 type IconType = Required<IconProps>["name"] | typeof NONE;
-const ICON_NAMES = ICONS.slice(0, 5) as any as IconType[];
+const ICON_NAMES = ICONS as any as IconType[];
 const icons = new Set(ICON_NAMES);
 
 const TypedSelect = Select.ofType<IconType>();

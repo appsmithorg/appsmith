@@ -137,6 +137,7 @@ export const defaultThemeSetting: ThemeSetting = {
   borderRadius: "6px",
   density: 1,
   sizing: 1,
+  iconStyle: "outlined",
 };
 
 export const SIDEBAR_WIDTH = {
