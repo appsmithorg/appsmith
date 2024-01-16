@@ -23,8 +23,6 @@ public class DatasourceConfiguration implements AppsmithDomain {
 
     Connection connection;
 
-    String description;
-
     List<Endpoint> endpoints;
 
     AuthenticationDTO authentication;
