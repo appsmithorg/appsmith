@@ -5,23 +5,22 @@ import {
 import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
 
 export default {
-  key: createMessage(CUSTOM_WIDGET_FEATURE.templateKey.vue),
+  key: createMessage(CUSTOM_WIDGET_FEATURE.templateKey.vanilaJs),
   uncompiledSrcDoc: {
-    html: `<div id="app">
+    html: `<div class="app">
 	<div class="tip-container">
 		<div class="tip-header">
 			<h2>Custom Widget</h2>
-			<div id="index">{{ currentIndex + 1 }} / {{ tips.length }}</div>
+			<div id="index"></div>
 		</div>
-		<div id="tip">{{ tips[currentIndex] }}</div>
+		<div id="tip"></div>
 	</div>
 	<div class="button-container">
-		<button @click="next" id="next">Next Tip</button>
-		<button @click="reset" id="reset">Reset</button>
+		<button id="next">Next Tip</button>
+		<button id="reset">Reset</button>
 	</div>
-</div>
-<script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.1.6/vue.min.js"></script>`,
-    css: `#app {
+</div>`,
+    css: `.app {
 	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
@@ -36,7 +35,7 @@ export default {
 .tip-container {
   margin-bottom: 20px;
 	font-size: 14px;
-  line-height: 1.571429;
+	line-height: 1.571429;
 }
 
 .tip-container h2 {
@@ -90,30 +89,41 @@ export default {
 .button-container button#reset:disabled {
 	cursor: default;
 }`,
-    js: `appsmith.onReady(() => {
-  /*
+    js: `function initApp() {
+	const index = document.getElementById("index");
+	const tip = document.getElementById("tip");
+	const next = document.getElementById("next");
+	const reset = document.getElementById("reset");
+
+	let currentIndex = 0;
+	
+	const updateDom = () => {
+		tip.innerHTML = appsmith.model.tips[currentIndex];
+		index.innerHTML = (currentIndex + 1) + " / " + appsmith.model.tips.length;
+		reset.disabled = currentIndex === 0;
+	};
+	
+	next.addEventListener("click", () => {
+		currentIndex = (currentIndex + 1) % appsmith.model.tips.length;
+		updateDom();
+	});
+	
+	reset.addEventListener("click", () => {
+		currentIndex = 0;
+		updateDom();
+		appsmith.triggerEvent("onReset");
+	});
+
+	updateDom();
+}
+
+appsmith.onReady(() => {
+	/*
 	 * This handler function will get called when parent application is ready.
 	 * Initialize your component here
 	 * more info - ${CUSTOM_WIDGET_ONREADY_DOC_URL}
 	 */
-	new Vue({
-		el: "#app",
-		data() {
-			return {
-				currentIndex: 0,
-				tips: appsmith.model.tips,
-			};
-		},
-		methods: {
-			next() {
-				this.currentIndex = (this.currentIndex + 1) % this.tips.length;
-			},
-			reset() {
-				this.currentIndex = 0;
-				appsmith.triggerEvent("onReset");
-			},
-		},
-	});
+	initApp();
 });`,
   },
 };

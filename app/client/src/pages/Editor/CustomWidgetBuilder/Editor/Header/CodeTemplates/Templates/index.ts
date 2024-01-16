@@ -1,4 +1,4 @@
-import blank from "./blank";
+import blank from "./vanilajs";
 import react from "./react";
 import vue from "./vue";
 
