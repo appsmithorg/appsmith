@@ -268,7 +268,7 @@ describe(
       agHelper.AssertCSS(
         widgetLocators.radioWidgetLabelContainer,
         "width",
-        "55.859375px",
+        "55.9375px",
       );
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
@@ -307,7 +307,7 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       //Tooltip
-      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 300);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
       propPane.UpdatePropertyFieldValue("Text", "Tooltip text");
       EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
       propPane.EnterJSContext(

@@ -44,7 +44,7 @@ describe(
         .scrollIntoView()
         .wait(500)
         .click();
-      agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
+      agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
       cy.wait(6000);
       cy.get("body").then(($ele) => {
         if ($ele.find(widgetLocators.toastAction).length <= 0) {
@@ -82,7 +82,7 @@ describe(
       cy.wait(5000);
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//h1[text()='Applicant Tracker-test']").click();
-      agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
+      agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
       cy.wait("@getTemplatePages").should(
         "have.nested.property",
         "response.body.responseMeta.status",

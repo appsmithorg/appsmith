@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,4 +29,15 @@ public class TriggerRequestDTO {
     Map<String, Object> parameters;
 
     ClientDataDisplayType displayType;
+
+    List<Property> headers = new ArrayList<>();
+
+    String datasourceId;
+    String actionId;
+
+    public TriggerRequestDTO(String requestType, Map<String, Object> parameters, ClientDataDisplayType displayType) {
+        this.requestType = requestType;
+        this.parameters = parameters;
+        this.displayType = displayType;
+    }
 }
