@@ -7,7 +7,6 @@ export const FEATURE_FLAG = {
     "release_appnavigationlogoupload_enabled",
   release_embed_hide_share_settings_enabled:
     "release_embed_hide_share_settings_enabled",
-  ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_table_serverside_filtering_enabled:
     "release_table_serverside_filtering_enabled",
@@ -19,7 +18,6 @@ export const FEATURE_FLAG = {
   release_git_connect_v2_enabled: "release_git_connect_v2_enabled",
   deprecate_custom_fusioncharts_enabled:
     "deprecate_custom_fusioncharts_enabled",
-  ab_mock_mongo_schema_enabled: "ab_mock_mongo_schema_enabled",
   license_private_embeds_enabled: "license_private_embeds_enabled",
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
@@ -60,7 +58,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_datasource_environments_enabled: false,
   release_appnavigationlogoupload_enabled: false,
   release_embed_hide_share_settings_enabled: false,
-  ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
   release_table_serverside_filtering_enabled: false,
   release_custom_echarts_enabled: false,
@@ -70,7 +67,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_sso_oidc_enabled: false,
   release_git_connect_v2_enabled: false,
   deprecate_custom_fusioncharts_enabled: false,
-  ab_mock_mongo_schema_enabled: false,
   license_private_embeds_enabled: false,
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
