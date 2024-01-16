@@ -93,6 +93,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
     private static boolean isExpired(OAuth2 oAuth2) {
         if (oAuth2.getAuthenticationResponse().getExpiresAt() == null) {
+            // If the token did not return with an expiry time, assume that it has always expired
             return true;
         }
 
