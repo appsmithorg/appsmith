@@ -8,8 +8,8 @@ import reactor.core.publisher.Mono;
 @Data
 public class ModuleConvertibleMetaDTO {
     Mono<Reusable> publicEntityMono;
-    Mono<PackageDTO> sourcePackageMono;
-    PackageDTO sourcePackage;
+    Mono<PackageDTO> originPackageMono;
+    PackageDTO originPackageDTO;
     String publicEntityId;
     ModuleType moduleType;
     String branchName;

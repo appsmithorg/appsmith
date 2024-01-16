@@ -111,7 +111,9 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
         }
 
         return moduleInstanceMono.flatMap(moduleInstance -> {
-            if (!moduleInstanceDTO.getVersion().equals(moduleInstance.getVersion())) {
+            if (!moduleInstanceDTO
+                    .getVersion()
+                    .equals(moduleInstance.getUnpublishedModuleInstance().getVersion())) {
                 return Mono.error(new AppsmithException(AppsmithError.STALE_MODULE_REFERENCE));
             }
             validateModuleInstanceDTO(moduleInstanceDTO, false);

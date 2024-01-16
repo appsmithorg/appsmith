@@ -5,8 +5,8 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackagePublishingMetaDTO;
 import com.appsmith.server.modules.crud.CrudModuleService;
-import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -15,15 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class ModulePackagePublishableServiceImpl implements PackagePublishableService<Module> {
     private final CrudModuleService crudModuleService;
-    private final ModulePermission modulePermission;
-
-    public ModulePackagePublishableServiceImpl(CrudModuleService crudModuleService, ModulePermission modulePermission) {
-        this.crudModuleService = crudModuleService;
-        this.modulePermission = modulePermission;
-    }
 
     @Override
     public Mono<List<Module>> publishEntities(PackagePublishingMetaDTO publishingMetaDTO) {
@@ -59,16 +54,6 @@ public class ModulePackagePublishableServiceImpl implements PackagePublishableSe
             module.setVersion(publishingMetaDTO.getPublishedPackage().getVersion());
             module.setPublishedModule(sourceModule.getUnpublishedModule());
             module.setUnpublishedModule(new ModuleDTO());
-
-            // The published version of a module should only be readable and executable
-            //            Set<Policy> updatedPolicies = module.getPolicies().stream()
-            //                    .filter(policy -> policy.getPermission()
-            //                                    .equals(modulePermission.getExportPermission().getValue())
-            //                            || policy.getPermission()
-            //                                    .equals(modulePermission
-            //                                            .getCreateModuleInstancePermission()
-            //                                            .getValue()))
-            //                    .collect(Collectors.toSet());
 
             module.setPolicies(module.getPolicies());
 

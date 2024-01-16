@@ -1,4 +1,4 @@
-package com.appsmith.server.moduleinstances.publish;
+package com.appsmith.server.moduleinstances.publish.applications;
 
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ModuleInstancePackagePublishableServiceImpl implements ApplicationPublishableService<ModuleInstance> {
+public class ModuleInstanceApplicationPublishableServiceImpl implements ApplicationPublishableService<ModuleInstance> {
     private final ModuleInstanceRepository repository;
     private final ModuleInstancePermission moduleInstancePermission;
 
@@ -30,8 +30,7 @@ public class ModuleInstancePackagePublishableServiceImpl implements ApplicationP
         // 3. For each module instance, copy unpublished data to published state
 
         return repository
-                .archiveDeletedUnpublishedModuleInstances(
-                        applicationPublishingMetaDTO.getApplicationId(), moduleInstancePermission.getDeletePermission())
+                .archiveDeletedUnpublishedModuleInstances(applicationPublishingMetaDTO.getApplicationId(), null)
                 .then(moduleInstanceFlux
                         .flatMap(moduleInstance -> {
                             moduleInstance.setPublishedModuleInstance(moduleInstance.getUnpublishedModuleInstance());

@@ -28,9 +28,6 @@ public class ModuleInstance extends BranchAwareDomain {
     String sourceModuleId;
 
     @JsonView(Views.Public.class)
-    String version;
-
-    @JsonView(Views.Public.class)
     ModuleType type;
 
     @JsonView(Views.Public.class)

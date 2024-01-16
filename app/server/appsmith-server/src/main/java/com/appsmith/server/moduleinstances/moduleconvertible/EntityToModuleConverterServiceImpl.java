@@ -52,9 +52,9 @@ public class EntityToModuleConverterServiceImpl extends EntityToModuleConverterS
                 .cache();
 
         // If `packageId` is `null` we will create a new package following naming convention of the package
-        Mono<PackageDTO> sourcePackageMono;
+        Mono<PackageDTO> originPackageMono;
         if (ValidationUtils.isEmptyParam(convertToModuleRequestDTO.getPackageId())) {
-            sourcePackageMono = publicEntityCandidateMono.flatMap(reusable -> {
+            originPackageMono = publicEntityCandidateMono.flatMap(reusable -> {
                 ActionDTO actionDTO = (ActionDTO) reusable;
                 return getExistingPackageNames(actionDTO.getWorkspaceId())
                         .map(takenNames -> {
@@ -68,7 +68,7 @@ public class EntityToModuleConverterServiceImpl extends EntityToModuleConverterS
                         .cache();
             });
         } else {
-            sourcePackageMono = Mono.just(convertToModuleRequestDTO.getPackageId())
+            originPackageMono = Mono.just(convertToModuleRequestDTO.getPackageId())
                     .flatMap(packageId -> packagePermissionChecker
                             .findById(packageId, packagePermission.getEditPermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(
@@ -80,7 +80,7 @@ public class EntityToModuleConverterServiceImpl extends EntityToModuleConverterS
         final ModuleConvertibleMetaDTO moduleConvertibleMetaDTO = prepareModuleConvertibleMetaDTO(
                 convertToModuleRequestDTO.getPublicEntityId(),
                 convertToModuleRequestDTO.getModuleType(),
-                sourcePackageMono,
+                originPackageMono,
                 publicEntityCandidateMono,
                 branchName);
 
@@ -111,30 +111,24 @@ public class EntityToModuleConverterServiceImpl extends EntityToModuleConverterS
         moduleConvertibleMetaDTO.setPublicEntityId(publicEntityId);
         moduleConvertibleMetaDTO.setModuleType(moduleType);
         moduleConvertibleMetaDTO.setBranchName(branchName);
-        moduleConvertibleMetaDTO.setSourcePackageMono(sourcePackageMono);
+        moduleConvertibleMetaDTO.setOriginPackageMono(sourcePackageMono);
         moduleConvertibleMetaDTO.setPublicEntityMono(publicEntityMono);
         return moduleConvertibleMetaDTO;
     }
 
     private static Mono<CreateExistingEntityToModuleResponseDTO> getCreateExistingEntityToModuleResponseDTOMono(
             ModuleConvertibleMetaDTO moduleConvertibleMetaDTO) {
-        Mono<CreateExistingEntityToModuleResponseDTO> createExistingEntityToModuleResponseDTOMono = Mono.just(
-                        moduleConvertibleMetaDTO)
-                .flatMap(filledModuleConvertibleMetaDTO -> {
-                    CreateExistingEntityToModuleResponseDTO createExistingEntityToModuleResponseDTO =
-                            new CreateExistingEntityToModuleResponseDTO();
-                    createExistingEntityToModuleResponseDTO.setModule(filledModuleConvertibleMetaDTO.getModuleDTO());
-                    createExistingEntityToModuleResponseDTO.setPackageData(
-                            filledModuleConvertibleMetaDTO.getPackageDTO());
-                    createExistingEntityToModuleResponseDTO.setModuleInstanceData(
-                            moduleConvertibleMetaDTO.getModuleInstanceData());
-                    createExistingEntityToModuleResponseDTO.setOriginPackageId(
-                            moduleConvertibleMetaDTO.getOriginPackageId());
-                    createExistingEntityToModuleResponseDTO.setOriginModuleId(
-                            moduleConvertibleMetaDTO.getOriginModuleId());
-                    return Mono.just(createExistingEntityToModuleResponseDTO);
-                });
-        return createExistingEntityToModuleResponseDTOMono;
+        return Mono.just(moduleConvertibleMetaDTO).flatMap(filledModuleConvertibleMetaDTO -> {
+            CreateExistingEntityToModuleResponseDTO createExistingEntityToModuleResponseDTO =
+                    new CreateExistingEntityToModuleResponseDTO();
+            createExistingEntityToModuleResponseDTO.setModule(filledModuleConvertibleMetaDTO.getModuleDTO());
+            createExistingEntityToModuleResponseDTO.setPackageData(filledModuleConvertibleMetaDTO.getPackageDTO());
+            createExistingEntityToModuleResponseDTO.setModuleInstanceData(
+                    moduleConvertibleMetaDTO.getModuleInstanceData());
+            createExistingEntityToModuleResponseDTO.setOriginPackageId(moduleConvertibleMetaDTO.getOriginPackageId());
+            createExistingEntityToModuleResponseDTO.setOriginModuleId(moduleConvertibleMetaDTO.getOriginModuleId());
+            return Mono.just(createExistingEntityToModuleResponseDTO);
+        });
     }
 
     private int findHighestPackageNumber(List<String> takenNames) {

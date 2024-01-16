@@ -68,7 +68,7 @@ public class ModuleInstancePackageUpgradableServiceImpl implements PackageUpgrad
 
         existingModuleInstance.setOriginModuleId(createdModuleInstanceDTO.getOriginModuleId());
         existingModuleInstance.setSourceModuleId(createdModuleInstanceDTO.getSourceModuleId());
-        existingModuleInstance.setVersion(createdModuleInstanceDTO.getVersion());
+        existingModuleInstanceDTO.setVersion(createdModuleInstanceDTO.getVersion());
 
         // TODO: Do this validation step properly in a centralized method
         existingModuleInstanceDTO.setIsValid(true);

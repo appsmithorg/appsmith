@@ -58,25 +58,25 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
 
         return moduleConvertibleMetaDTO.getPublicEntityMono().flatMap(publicEntityReusable -> {
             return moduleConvertibleMetaDTO
-                    .getSourcePackageMono()
-                    .flatMap(sourcePackage -> {
+                    .getOriginPackageMono()
+                    .flatMap(originPackageDTO -> {
                         ActionDTO publicEntity = (ActionDTO) publicEntityReusable;
-                        moduleConvertibleMetaDTO.setSourcePackage(sourcePackage);
-                        moduleConvertibleMetaDTO.setOriginPackageId(sourcePackage.getId());
+                        moduleConvertibleMetaDTO.setOriginPackageDTO(originPackageDTO);
+                        moduleConvertibleMetaDTO.setOriginPackageId(originPackageDTO.getId());
 
                         // Save the pageId before resetting
                         final String pageId = publicEntity.getPageId();
                         resetContextSpecificFieldsAndSetContextType(publicEntity);
 
                         Mono<List<ModuleDTO>> moduleNamesMono =
-                                crudModuleService.getAllModuleDTOs(sourcePackage.getId(), ResourceModes.EDIT);
+                                crudModuleService.getAllModuleDTOs(originPackageDTO.getId(), ResourceModes.EDIT);
 
                         // Generate inputs for the module to be created
                         return moduleNamesMono
                                 .flatMap(existingModuleDTOs -> {
                                     // Create module request DTO
                                     ModuleDTO moduleDTO =
-                                            createModuleDTO(sourcePackage.getId(), publicEntity, existingModuleDTOs);
+                                            createModuleDTO(originPackageDTO.getId(), publicEntity, existingModuleDTOs);
                                     // Set the inputs form to the module
                                     List<ModuleInputForm> inputForms = constructInputsForm(publicEntity);
                                     moduleDTO.setInputsForm(inputForms);
@@ -98,14 +98,14 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
                                     return crudModuleService
                                             .createModule(moduleDTO)
                                             .flatMap(createdModuleDTO -> publishPackageService
-                                                    .publishPackage(sourcePackage.getId())
+                                                    .publishPackage(originPackageDTO.getId())
                                                     .flatMap(published -> {
                                                         // Need to fetch the updated source package after the
                                                         // publish-package event as the version number has been updated
                                                         return crudPackageService
-                                                                .getPackageDetails(sourcePackage.getId())
+                                                                .getPackageDetails(originPackageDTO.getId())
                                                                 .flatMap(packageDetailsDTO -> {
-                                                                    moduleConvertibleMetaDTO.setSourcePackage(
+                                                                    moduleConvertibleMetaDTO.setOriginPackageDTO(
                                                                             packageDetailsDTO.getPackageData());
                                                                     moduleConvertibleMetaDTO.setOriginModuleId(
                                                                             createdModuleDTO.getId());
@@ -137,7 +137,7 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
                                                                     .getModuleDTO()
                                                                     .setInputsForm(updatedModuleDTO.getInputsForm());
                                                             return publishPackageService.publishPackage(
-                                                                    sourcePackage.getId());
+                                                                    originPackageDTO.getId());
                                                         });
                                             });
                                 })
@@ -161,7 +161,7 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
             ModuleConvertibleMetaDTO moduleConvertibleMetaDTO, ModuleInstanceDTO moduleInstanceReqDTO) {
 
         Mono<PackageDTO> consumablePackageMono = crudPackageService.getLatestConsumablePackageByOriginPackageId(
-                moduleConvertibleMetaDTO.getSourcePackage().getId());
+                moduleConvertibleMetaDTO.getOriginPackageDTO().getId());
         return consumablePackageMono.flatMap(consumablePackageDTO -> {
             return crudModuleService
                     .getConsumableModuleByPackageIdAndOriginModuleId(
