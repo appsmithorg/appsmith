@@ -597,7 +597,7 @@ export const getPluginIdPackageNamesMap = createSelector(
 export const getCurrentActions = createSelector(
   getCurrentPageId,
   getActions,
-  (pageId, actions) => {
+  (pageId, actions): ActionData[] => {
     if (!pageId) return [];
     return actions.filter((a) => a.config.pageId === pageId);
   },
@@ -1400,66 +1400,71 @@ export const getModuleInstanceEntities = () => {
   return null;
 };
 
-export interface PagePaneDataObject {
-  id: string;
-  name: string;
+export type EditorSegmentList = Array<{
+  group: string | "NA";
+  items: EntityItem[];
+}>;
+
+export interface EntityItem {
+  title: string;
   type: PluginType;
+  key: string;
+  group?: string;
 }
 
-export interface PagePaneData {
-  [key: string]: PagePaneDataObject[];
-}
-
-const GroupAndSortPagePaneData = (
-  files: ActionData[] | JSCollectionData[],
-  datasourceIdToNameMap: Record<string, string>,
-) => {
-  let data: PagePaneData = {};
-
-  files.forEach((file) => {
-    let group = "";
-
-    if (file.config.pluginType === PluginType.JS) {
-      group = "JS Objects";
-    } else if (file.config.pluginType === PluginType.API) {
-      group = isEmbeddedRestDatasource(file.config.datasource)
-        ? "APIs"
-        : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-    } else {
-      group = datasourceIdToNameMap[file.config.datasource.id];
-    }
-    if (!data[group]) {
-      data[group] = [];
-    }
-    data[group].push({
-      id: file.config.id,
-      name: file.config.name,
-      type: file.config.pluginType,
-    });
+const GroupAndSortEntitySegmentList = (
+  items: EntityItem[],
+): EditorSegmentList => {
+  const groups = groupBy(items, (item) => {
+    if (item.group) return item.group;
+    return "NA";
   });
 
-  data = Object.keys(data)
-    .sort()
-    .reduce(function (acc, key) {
-      acc[key] = sortBy(data[key], (file) => file.name);
-      return acc;
-    }, {} as PagePaneData);
-  return data;
+  // Entity Segment Lists are sorted alphabetically at both group and item level
+  return sortBy(
+    Object.keys(groups).map((group) => {
+      return {
+        group: group,
+        items: sortBy(groups[group], "title"),
+      };
+    }),
+    "group",
+  );
 };
 
-export const selectQueriesForPagespane = createSelector(
+export const selectQuerySegmentEditorList = createSelector(
   getCurrentActions,
   selectDatasourceIdToNameMap,
   (actions, datasourceIdToNameMap) => {
-    return GroupAndSortPagePaneData(actions, datasourceIdToNameMap);
+    const items: EntityItem[] = actions.map((action) => {
+      let group = "";
+      if (action.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(action.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[action.config.datasource.id];
+      }
+      return {
+        title: action.config.name,
+        key: action.config.id,
+        type: action.config.pluginType,
+        group,
+      };
+    });
+    return GroupAndSortEntitySegmentList(items);
   },
 );
 
-export const selectJSForPagespane = createSelector(
+export const selectJSSegmentEditorList = createSelector(
   getCurrentJSCollections,
-  selectDatasourceIdToNameMap,
-  (jsActions, datasourceIdToNameMap) => {
-    return GroupAndSortPagePaneData(jsActions, datasourceIdToNameMap);
+  (jsActions) => {
+    const items: EntityItem[] = jsActions.map((js) => ({
+      title: js.config.name,
+      key: js.config.id,
+      type: PluginType.JS,
+    }));
+    return GroupAndSortEntitySegmentList(items);
   },
 );
 
@@ -1486,10 +1491,3 @@ export const getAllJSCollections = createSelector(
 export const getIsActionConverting = (state: AppState, actionId: string) => {
   return false;
 };
-
-interface EntityItem {
-  title: string;
-  group?: string;
-  icon?: unknown;
-  onClick: () => void;
-}

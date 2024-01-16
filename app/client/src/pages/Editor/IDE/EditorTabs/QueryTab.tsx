@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import clsx from "classnames";
 import { useSelector } from "react-redux";
 
-import type { PagePaneDataObject } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -13,12 +13,12 @@ import type { Action } from "entities/Action";
 import keyBy from "lodash/keyBy";
 import { StyledTab } from "./StyledComponents";
 
-const QueryTab = ({ data }: { data: PagePaneDataObject }) => {
+const QueryTab = ({ data }: { data: EntityItem }) => {
   const activeActionId = useActiveAction();
   const pageId = useSelector(getCurrentPageId);
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const action = useSelector((state) => getAction(state, data.id)) as Action;
+  const action = useSelector((state) => getAction(state, data.key)) as Action;
 
   const config = getActionConfig(data.type);
   const url = config?.getURL(
@@ -34,10 +34,10 @@ const QueryTab = ({ data }: { data: PagePaneDataObject }) => {
 
   return (
     <StyledTab
-      className={clsx("editor-tab", activeActionId === data.id && "active")}
+      className={clsx("editor-tab", activeActionId === data.key && "active")}
       onClick={navigateToQuery}
     >
-      {data.name}
+      {data.title}
     </StyledTab>
   );
 };
