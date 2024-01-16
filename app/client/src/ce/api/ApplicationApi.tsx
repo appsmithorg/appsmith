@@ -67,7 +67,6 @@ export interface ApplicationResponsePayload {
 export interface FetchApplicationPayload {
   applicationId?: string;
   pageId?: string;
-  pages?: FetchApplicationResponse;
   mode: APP_MODE;
 }
 

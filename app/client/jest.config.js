@@ -106,7 +106,6 @@ module.exports = {
           ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
           : LOG_LEVELS[1],
       cloudHosting: "CLOUD_HOSTING",
-      enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
       appVersion: {
         id: parseConfig("__APPSMITH_VERSION_ID__"),
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__"),

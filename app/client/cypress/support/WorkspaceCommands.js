@@ -209,7 +209,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("launchApp", () => {
   cy.get(homePage.appView).should("be.visible").first().click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getConsolidatedData").should(
+  cy.wait("@getPagesForViewApp").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -296,7 +296,8 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     });
   });
   AppSidebar.assertVisible();
-  assertHelper.AssertNetworkResponseData("@getConsolidatedData"); //for auth rest api
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
   // If the intro modal is open, close it
   cy.skipSignposting();
