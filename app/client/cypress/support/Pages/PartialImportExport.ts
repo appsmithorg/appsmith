@@ -123,7 +123,7 @@ export default class PartialImportExport {
 
   ImportPartiallyExportedFile(
     fileName: string,
-    sectionTitle: string,
+    sectionTitle: "JSObjects" | "Queries" | "Widgets" | "Data" | "Libraries",
     elementsToCheck: string[],
   ) {
     cy.intercept("POST", "/api/v1/applications/import/partial/**").as(
@@ -154,18 +154,25 @@ export default class PartialImportExport {
             dsName,
           );
         });
-        break;
+        return;
       case "Libraries":
         AppSidebar.navigate(AppSidebarButton.Libraries);
         elementsToCheck.forEach((customJsLib) => {
           cy.contains(customJsLib);
         });
+        return;
+      case "Widgets":
+        PageLeftPane.switchSegment("UI");
         break;
-      default:
-        PageLeftPane.expandCollapseItem(sectionTitle);
-        elementsToCheck.forEach((element) => {
-          PageLeftPane.assertPresence(element);
-        });
+      case "JSObjects":
+        PageLeftPane.switchSegment("JS");
+        break;
+      case "Queries":
+        PageLeftPane.switchSegment("Queries");
+        break;
     }
+    elementsToCheck.forEach((element) => {
+      PageLeftPane.assertPresence(element);
+    });
   }
 }

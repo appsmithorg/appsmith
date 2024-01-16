@@ -18,7 +18,7 @@ describe(
     it("1. Should import all the selected JsObjects", () => {
       partialImportExport.ImportPartiallyExportedFile(
         "JSExportedOnly.json",
-        "Queries/JS",
+        "JSObjects",
         ["JSObject1"],
       );
     });
@@ -26,7 +26,7 @@ describe(
     it("2. Should import all the selected queries", () => {
       partialImportExport.ImportPartiallyExportedFile(
         "QueriesExportedOnly.json",
-        "Queries/JS",
+        "Queries",
         ["DeleteQuery", "InsertQuery", "SelectQuery", "UpdateQuery"],
       );
     });
