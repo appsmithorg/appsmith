@@ -16,7 +16,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { WidgetOperation } from "widgets/BaseWidget";
 import type {
   FetchPageRequest,
-  FetchPageResponse,
   PageLayout,
   SavePageResponse,
   UpdatePageRequest,
@@ -549,21 +548,18 @@ export const resetApplicationWidgets = () => ({
   type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
 });
 
-export const fetchPageDSLs = (payload?: any) => ({
+export const fetchPageDSLs = () => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
-  payload,
 });
 
 export const setupPage = (
   pageId: string,
   isFirstLoad = false,
-  pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<FetchPageRequest> => ({
   type: ReduxActionTypes.SETUP_PAGE_INIT,
   payload: {
     id: pageId,
     isFirstLoad,
-    pageWithMigratedDsl,
   },
 });
 
@@ -571,13 +567,11 @@ export const setupPublishedPage = (
   pageId: string,
   bustCache = false,
   firstLoad = false,
-  pageWithMigratedDsl?: FetchPageResponse,
 ) => ({
   type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
     firstLoad,
-    pageWithMigratedDsl,
   },
 });
