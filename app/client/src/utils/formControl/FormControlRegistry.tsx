@@ -31,6 +31,8 @@ import EntitySelectorControl from "components/formControls/EntitySelectorControl
 import formControlTypes from "./formControlTypes";
 import SegmentedControl from "components/formControls/SegmentedControl";
 import type { SegmentedControlProps } from "components/formControls/SegmentedControl";
+import FormTemplateControl from "components/formControls/FormTemplateControl";
+import type { FormTemplateControlProps } from "components/formControls/FormTemplateControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -160,6 +162,13 @@ class FormControlRegistry {
             {...controlProps}
           />
         );
+      },
+    });
+    FormControlFactory.registerControlBuilder(formControlTypes.FORM_TEMPLATE, {
+      buildPropertyControl(
+        controlProps: FormTemplateControlProps,
+      ): JSX.Element {
+        return <FormTemplateControl {...controlProps} />;
       },
     });
   }

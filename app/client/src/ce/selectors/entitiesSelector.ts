@@ -10,7 +10,10 @@ import type {
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
-import { isEmbeddedRestDatasource } from "entities/Datasource";
+import {
+  isEmbeddedAIDataSource,
+  isEmbeddedRestDatasource,
+} from "entities/Datasource";
 import type { Action } from "entities/Action";
 import {
   isStoredDatasource,
@@ -1032,6 +1035,10 @@ export const selectFilesForExplorer = createSelector(
         group = isEmbeddedRestDatasource(file.config.datasource)
           ? "APIs"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else if (file.config.pluginType === PluginType.AI) {
+        group = isEmbeddedAIDataSource(file.config.datasource)
+          ? "AI Queries"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
