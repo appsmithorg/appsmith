@@ -15,6 +15,7 @@ export class Templates {
     _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
     _requestForTemplateBtn: "span:contains('Request for a template')",
     _tempaltesFilterItem: "[data-testid='t--templates-filter-item']",
+    _templateFilterItemSelectedIcon: `[data-testid="t--templates-filter-item-selected-icon"]`,
   };
 
   FilterTemplatesByName(query: string) {
