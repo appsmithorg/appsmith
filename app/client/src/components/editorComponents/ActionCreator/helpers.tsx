@@ -11,7 +11,10 @@ import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
 import type { AppState } from "@appsmith/reducers";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isEntityAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "design-system-old";
 import { Icon } from "design-system";
 import { PluginType } from "entities/Action";
@@ -62,10 +65,7 @@ import {
 } from "./utils";
 import store from "store";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
-import {
-  isAction,
-  isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
@@ -111,7 +111,7 @@ export function getFieldFromValue(
   const entity = dataTree && dataTree[entityProps.entityName];
 
   if (entity && "ENTITY_TYPE" in entity) {
-    if (isAction(entity as DataTreeEntity)) {
+    if (isEntityAction(entity as DataTreeEntity)) {
       // get fields for API action
       return getActionEntityFields(
         fields,

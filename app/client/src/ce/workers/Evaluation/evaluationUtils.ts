@@ -988,3 +988,7 @@ export const isAPathDynamicBindingPath = (
 export const isNotEntity = (entity: DataTreeEntity) => {
   return !isAction(entity) && !isWidget(entity) && !isJSAction(entity);
 };
+
+export const isEntityAction = (entity: DataTreeEntity) => {
+  return isAction(entity);
+};
