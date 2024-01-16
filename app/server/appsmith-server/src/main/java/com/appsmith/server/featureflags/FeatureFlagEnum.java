@@ -13,7 +13,6 @@ public enum FeatureFlagEnum {
     license_custom_environments_enabled,
     APP_NAVIGATION_LOGO_UPLOAD,
     release_embed_hide_share_settings_enabled,
-    ab_mock_mongo_schema_enabled,
     rollout_datasource_test_rate_limit_enabled,
     release_query_module_enabled,
     release_git_autocommit_feature_enabled,
