@@ -3,7 +3,7 @@ import type { IconProps as HeadlessIconProps } from "@design-system/headless";
 
 import type { ICONS } from "./icons";
 
-export type IconProps = HeadlessIconProps & {
+export type IconProps = Omit<HeadlessIconProps, "children"> & {
   /** Size of the icon
    * @default medium
    */

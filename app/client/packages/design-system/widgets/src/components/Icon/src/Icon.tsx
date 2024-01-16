@@ -47,7 +47,7 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
       <HeadlessIcon
         className={styles.icon}
         data-icon-button=""
-        data-size={size ? size : undefined}
+        data-size={Boolean(size) ? size : undefined}
         ref={ref}
         {...rest}
       >

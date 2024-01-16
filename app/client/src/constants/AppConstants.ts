@@ -97,6 +97,7 @@ export interface ThemeSetting {
   density: number;
   sizing: number;
   fontFamily: string;
+  iconStyle: "filled" | "outlined";
 }
 
 export type StringsFromNavigationSetting = Omit<
