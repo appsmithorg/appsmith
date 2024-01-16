@@ -68,6 +68,7 @@ import type {
 } from "@appsmith/api/JSActionAPI";
 import type { JSCollection } from "entities/JSCollection";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
+import analytics from "@appsmith/utils/Packages/analytics";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   try {
@@ -82,6 +83,7 @@ export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
         type: ReduxActionTypes.DELETE_QUERY_MODULE_SUCCESS,
         payload: action.payload,
       });
+      analytics.deleteModule(action.payload.id);
 
       if (!!action.payload.onSuccess) {
         action.payload.onSuccess();
@@ -166,7 +168,7 @@ export function* updateModuleInputsSaga(
       inputsForm,
     };
 
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<Module> = yield call(
       ModuleApi.updateModule,
       updatedModule,
     );
@@ -177,6 +179,8 @@ export function* updateModuleInputsSaga(
         type: ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS,
         payload: response.data,
       });
+
+      analytics.updateModule(response.data);
     }
   } catch (error) {
     yield put({
@@ -263,6 +267,8 @@ export function* createQueryModuleSaga(
         payload: response.data,
       });
 
+      analytics.createModule(response.data);
+
       history.push(moduleEditorURL({ moduleId: response.data.id }));
     }
   } catch (error) {
@@ -318,6 +324,8 @@ export function* createJSModuleSaga(
         type: ReduxActionTypes.CREATE_JS_MODULE_SUCCESS,
         payload: response.data,
       });
+
+      analytics.createModule(response.data);
 
       history.push(moduleEditorURL({ moduleId: response.data.id }));
     }

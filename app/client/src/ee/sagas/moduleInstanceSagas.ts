@@ -62,6 +62,7 @@ import { fetchAllPackagesSaga } from "./packagesSagas";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import analytics from "@appsmith/utils/Packages/analytics";
 
 export interface RefactorModuleInstanceNameProps {
   id: string;
@@ -96,6 +97,9 @@ function* createQueryModuleInstanceSaga(
         pageId: contextId,
         moduleInstanceId: response.data.moduleInstance.id,
       });
+
+      analytics.createModuleInstance(response.data.moduleInstance);
+
       if (redirectURL) {
         history.push(redirectURL);
       }
@@ -156,7 +160,7 @@ function* updateModuleInstanceSaga(
       ...action.payload.moduleInstance,
     };
 
-    const response: ApiResponse<ModuleInstance[]> = yield call(
+    const response: ApiResponse<ModuleInstance> = yield call(
       ModuleInstanceApi.updateModuleInstance,
       payload,
     );
@@ -167,6 +171,8 @@ function* updateModuleInstanceSaga(
         type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS,
         payload: response.data,
       });
+
+      analytics.updateModuleInstance(response.data);
     }
   } catch (error) {
     yield put({
@@ -371,6 +377,9 @@ function* deleteModuleInstanceSaga(
         type: ReduxActionTypes.DELETE_MODULE_INSTANCE_SUCCESS,
         payload: action.payload,
       });
+
+      analytics.deleteModuleInstance(action.payload.id);
+
       history.push(builderURL({ pageId: currentPageId }));
     }
   } catch (error) {
@@ -510,6 +519,19 @@ function* convertEntityToInstanceSaga(
         type: ReduxActionTypes.CONVERT_ENTITY_TO_INSTANCE_SUCCESS,
         payload: { ...response?.data, originalEntityId: publicEntityId },
       });
+
+      analytics.createModule({
+        ...response.data.module,
+        from: publicEntityId,
+      });
+
+      analytics.createModuleInstance(
+        response.data.moduleInstanceData.moduleInstance,
+      );
+
+      if (!packageId) {
+        analytics.createPackage(response.data.packageData);
+      }
 
       if (location.pathname === initiatedFromPathname) {
         const redirectUrl = moduleInstanceEditorURL({
