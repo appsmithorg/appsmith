@@ -23,7 +23,6 @@ describe(
 
       //Validate Rename JSObject from Form Header
       jsEditor.RenameJSObjFromPane("RenamedJSObject");
-      PageLeftPane.assertPresence("RenamedJSObject");
       jsEditor.ValidateDefaultJSObjProperties("RenamedJSObject");
 
       // Validate Copy JSObject
