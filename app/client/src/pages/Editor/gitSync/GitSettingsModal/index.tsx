@@ -1,5 +1,8 @@
 import React from "react";
-import { isGitSettingsModalOpenSelector } from "selectors/gitSyncSelectors";
+import {
+  activeGitSettingsModalTabSelector,
+  isGitSettingsModalOpenSelector,
+} from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 
@@ -7,7 +10,27 @@ import GitErrorPopup from "../components/GitErrorPopup";
 
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import styled from "styled-components";
-// import type { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import Menu from "../Menu";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import {
+  BRANCH,
+  GENERAL,
+  SETTINGS,
+  createMessage,
+} from "@appsmith/constants/messages";
+import TabGeneral from "./TabGeneral";
+import TabBranch from "./TabBranch";
+
+const menuOptions = [
+  {
+    key: GitSettingsTab.GENERAL,
+    title: createMessage(GENERAL),
+  },
+  {
+    key: GitSettingsTab.BRANCH,
+    title: createMessage(BRANCH),
+  },
+];
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -21,16 +44,17 @@ const StyledModalContent = styled(ModalContent)`
 
 function GitSettingsModal() {
   const isModalOpen = useSelector(isGitSettingsModalOpenSelector);
+  const activeTabKey = useSelector(activeGitSettingsModalTabSelector);
   const dispatch = useDispatch();
 
-  // const setActiveTabKey = (tabKey: GitSettingsTab) => {
-  //   dispatch(
-  //     setGitSettingsModalOpenAction({
-  //       open: true,
-  //       tab: tabKey,
-  //     }),
-  //   );
-  // };
+  const setActiveTabKey = (tabKey: GitSettingsTab) => {
+    dispatch(
+      setGitSettingsModalOpenAction({
+        open: true,
+        tab: tabKey,
+      }),
+    );
+  };
 
   const handleClose = () => {
     dispatch(setGitSettingsModalOpenAction({ open: false }));
@@ -46,9 +70,17 @@ function GitSettingsModal() {
         }}
         open={isModalOpen}
       >
-        <StyledModalContent data-testid="t--git-sync-modal">
-          <ModalHeader>Settings</ModalHeader>
-          Settings
+        <StyledModalContent data-testid="t--git-settings-modal">
+          <ModalHeader>{createMessage(SETTINGS)}</ModalHeader>
+          <Menu
+            activeTabKey={activeTabKey}
+            onSelect={(tabKey: string) =>
+              setActiveTabKey(tabKey as GitSettingsTab)
+            }
+            options={menuOptions}
+          />
+          {activeTabKey === GitSettingsTab.GENERAL && <TabGeneral />}
+          {activeTabKey === GitSettingsTab.BRANCH && <TabBranch />}
         </StyledModalContent>
       </Modal>
       <GitErrorPopup />

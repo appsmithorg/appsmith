@@ -1110,6 +1110,10 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
   `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
+
+export const GENERAL = () => "General";
+export const SETTINGS = () => "Settings";
+export const BRANCH = () => "Branch";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
