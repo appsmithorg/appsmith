@@ -119,7 +119,8 @@ export const TemplateLayoutContentItemContent = styled.div`
 export const IconContainer = styled.div<{ layoutItemActive: boolean }>`
   border-width: 1px;
   border-radius: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  margin-top: 8px;
   border-color: ${(props) =>
     props.layoutItemActive ? Colors.PRIMARY_ORANGE : "transparent"};
 `;
