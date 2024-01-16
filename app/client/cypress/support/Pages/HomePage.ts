@@ -24,7 +24,7 @@ export class HomePage {
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceNoApps = (workspaceName: string) =>
     this._workspaceList(workspaceName) +
-    ":contains('There are no apps in this workspace.')";
+    ":contains('There are no applications in this workspace.')";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ") .ads-v2-avatar";
   _shareWorkspace = (workspaceName: string) =>
