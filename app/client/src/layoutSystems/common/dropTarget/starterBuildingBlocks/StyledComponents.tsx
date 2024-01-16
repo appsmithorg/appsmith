@@ -61,7 +61,6 @@ export const TemplateLayoutHeaderText = styled(Text)<{ layoutActive: boolean }>`
 export const TemplateLayoutRowItemTitle = styled(Text)<{
   layoutActive: boolean;
 }>`
-  font-family: SF Pro Text;
   font-size: 14px;
   line-height: 20px;
   text-align: center;
