@@ -36,18 +36,6 @@ const StyledPageHeader = styled(StyledHeader)<{
   ${({ isBannerVisible }) => isBannerVisible && `top: 40px;`};
 `;
 
-export const VersionData = styled.div`
-  display: flex;
-  color: var(--ads-v2-color-fg-muted);
-  font-size: 8px;
-  position: relative;
-  padding: 6px 12px 12px;
-  gap: 8px;
-  span {
-    width: 50%;
-  }
-`;
-
 interface PageHeaderProps {
   user?: User;
   hideShadow?: boolean;

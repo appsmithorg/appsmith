@@ -137,8 +137,8 @@ function EntitySearchBar(props: any) {
 
   function handleInputClicked() {
     if (searchInput?.trim()?.length || !noSearchResults) {
-      setIsDropdownOpen(false);
-      dispatch(searchWorkspaceEntitiesLoader(false));
+      dispatch(searchEntities(searchInput));
+      setIsDropdownOpen(true);
     }
   }
 

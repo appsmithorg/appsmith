@@ -43,9 +43,19 @@ import { IntercomConsent } from "pages/Editor/HelpButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { VersionData } from "../PageHeader";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import styled from "styled-components";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+
+export const VersionData = styled.div`
+  display: flex;
+  flex-direction: column;
+  color: var(--ads-v2-color-fg-muted);
+  font-size: 8px;
+  position: relative;
+  padding: 6px 12px 12px;
+  gap: 4px;
+`;
 
 const HomepageHeaderAction = ({
   setIsProductUpdatesModalOpen,
@@ -172,7 +182,7 @@ const HomepageHeaderAction = ({
                   {createMessage(WHATS_NEW)}
                 </MenuItem>
                 <VersionData>
-                  <div className="mb-1">
+                  <div>
                     {createMessage(
                       APPSMITH_DISPLAY_VERSION,
                       appVersion.edition,
