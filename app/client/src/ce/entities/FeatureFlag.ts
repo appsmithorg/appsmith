@@ -48,6 +48,7 @@ export const FEATURE_FLAG = {
     "ab_one_click_learning_popover_enabled",
   release_side_by_side_ide_enabled: "release_side_by_side_ide_enabled",
   release_global_add_pane_enabled: "release_global_add_pane_enabled",
+  ab_appsmith_ai_query: "ab_appsmith_ai_query",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -89,6 +90,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_one_click_learning_popover_enabled: false,
   release_side_by_side_ide_enabled: false,
   release_global_add_pane_enabled: false,
+  ab_appsmith_ai_query: true,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
