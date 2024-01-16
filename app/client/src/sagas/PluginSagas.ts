@@ -31,7 +31,11 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import { getGraphQLPlugin, PluginType } from "entities/Action";
+import {
+  getAppsmithAIPlugin,
+  getGraphQLPlugin,
+  PluginType,
+} from "entities/Action";
 import type {
   FormEditorConfigs,
   FormSettingsConfigs,
@@ -90,12 +94,17 @@ function* fetchPluginFormConfigsSaga(action?: {
     const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
     const jsPlugin = plugins.find((plugin) => plugin.type === PluginType.JS);
     const graphqlPlugin = getGraphQLPlugin(plugins);
+    const appsmithAIPlugin = getAppsmithAIPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
 
     if (graphqlPlugin) {
       pluginIdFormsToFetch.add(graphqlPlugin.id);
+    }
+
+    if (appsmithAIPlugin) {
+      pluginIdFormsToFetch.add(appsmithAIPlugin.id);
     }
 
     const actions: ActionDataState = yield select(getActions);
@@ -105,20 +114,23 @@ function* fetchPluginFormConfigsSaga(action?: {
     }
 
     const pluginFormData: PluginFormPayload[] = [];
-    const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield call(
-      getFromServerWhenNoPrefetchedResult,
-      pluginFormConfigs &&
-        [...pluginIdFormsToFetch].map((id) => ({
-          ...pluginFormConfigs,
-          data: pluginFormConfigs?.data?.[id as any],
-        })),
-      () =>
-        all(
-          [...pluginIdFormsToFetch].map((id) =>
-            call(PluginsApi.fetchFormConfig, id),
-          ),
-        ),
+    const pluginCalls = [...pluginIdFormsToFetch].map((id) =>
+      call(
+        getFromServerWhenNoPrefetchedResult,
+        // Set the data if it exists in the prefetched data
+        // This is to avoid making a call to the server for the data
+        pluginFormConfigs?.data?.[id as any]
+          ? {
+              ...pluginFormConfigs,
+              data: pluginFormConfigs?.data?.[id as any],
+            }
+          : undefined,
+        // If the data does not exist in the prefetched data, make a call to the server
+        () => call(PluginsApi.fetchFormConfig, id),
+      ),
     );
+    const pluginFormResponses: ApiResponse<PluginFormPayload>[] =
+      yield all(pluginCalls);
 
     for (let i = 0; i < pluginFormResponses.length; i++) {
       const response = pluginFormResponses[i];
