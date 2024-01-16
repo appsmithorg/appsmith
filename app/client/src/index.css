@@ -17,8 +17,8 @@
 body {
   margin: 0;
   padding: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
   background-color: #fff !important;
   color: var(--ads-v2-color-fg);
 }
