@@ -91,6 +91,7 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.constants.OtlpSpanNames.PLUGIN_EXECUTION;
+import static com.appsmith.server.helpers.OtlpTelemetry.safelySetSpanAttribute;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -680,8 +681,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                  * Using plugin.getPackageName() instead of plugin.getName() because over time a
                                  * plugin's package name has shown itself to be more stable over its displayed name.
                                  */
-                                pluginExecutionSpan.setAttribute(
-                                        SPAN_ATTRIBUTE_KEY_PLUGIN_NAME, plugin.getPackageName());
+                                safelySetSpanAttribute(
+                                        pluginExecutionSpan, SPAN_ATTRIBUTE_KEY_PLUGIN_NAME, plugin.getPackageName());
                                 pluginExecutionSpanList.add(pluginExecutionSpan);
                             });
                 });

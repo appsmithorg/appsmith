@@ -44,6 +44,14 @@ public class OtlpTelemetry {
     private Tracer tracer = null;
     public static final String OTLP_HEADER_KEY = "traceparent-otlp";
 
+    public static void safelySetSpanAttribute(Span span, String key, String value) {
+        if (span == null) {
+            return;
+        }
+
+        span.setAttribute(key, value);
+    }
+
     @Autowired
     public OtlpTelemetry(@Nullable OpenTelemetry openTelemetry) {
 
@@ -102,9 +110,15 @@ public class OtlpTelemetry {
         if (this.tracer == null) {
             return null;
         }
-        if (isBlank(spanName) || isBlank(traceparent)) {
-            return null;
+
+        if (isBlank(spanName)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "spanName");
         }
+
+        if (isBlank(traceparent)) {
+            return this.startOTLPSpan(spanName, null, null);
+        }
+
         Context context = generateContextFromTraceHeader(traceparent);
         return startOTLPSpan(spanName, context, null);
     }
