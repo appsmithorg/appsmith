@@ -16,6 +16,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.VariableReplacementService;
@@ -54,7 +55,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
-            VariableReplacementService variableReplacementService) {
+            VariableReplacementService variableReplacementService,
+            ConfigService configService) {
         super(
                 newActionService,
                 actionPermission,
@@ -72,7 +74,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                environmentPermission);
+                environmentPermission,
+                configService);
 
         this.variableReplacementService = variableReplacementService;
     }
