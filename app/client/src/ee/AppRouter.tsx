@@ -1,5 +1,10 @@
 export * from "ce/AppRouter";
-import { Routes as CE_Routes, SentryRoute } from "ce/AppRouter";
+import {
+  Routes as CE_Routes,
+  SentryRoute,
+  mapStateToProps as CE_mapStateToProps,
+  mapDispatchToProps as CE_mapDispatchToProps,
+} from "ce/AppRouter";
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
 import AppHeader from "@appsmith/pages/common/AppHeader";
@@ -7,12 +12,14 @@ import { Router, Switch } from "react-router-dom";
 import ErrorPage from "pages/common/ErrorPage";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { useDispatch, useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { connect, useSelector } from "react-redux";
 
 import {
   getCurrentUserLoading,
   getFeatureFlagsFetching,
 } from "selectors/usersSelectors";
+import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import {
@@ -31,12 +38,6 @@ import { Migrations } from "./pages/Billing/Migrations";
 import { WORKFLOW_EDITOR_URL } from "./constants/routes/workflowRoutes";
 import WorkflowEditorLoader from "./pages/Editor/WorkflowEditor/WorkflowEditorLoader";
 import { getShowWorkflowFeature } from "./selectors/workflowSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getIsConsolidatedPageLoading } from "selectors/ui";
-import { initCurrentPage } from "actions/initActions";
-import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
-import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 const loadingIndicator = <PageLoadingBar />;
 
@@ -44,36 +45,46 @@ const EE_Routes = requiresLicenseCheck(() => {
   return <CE_Routes />;
 });
 
-function AppRouter() {
-  const isLicenseValid = useSelector(isValidLicense);
-  const safeCrash: boolean = useSelector(getSafeCrash);
-  const safeCrashCode: ERROR_CODES | undefined = useSelector(getSafeCrashCode);
-
+function AppRouter(props: {
+  safeCrash: boolean;
+  getCurrentUser: () => void;
+  getFeatureFlags: () => void;
+  getCurrentTenant: () => void;
+  initCurrentPage: () => void;
+  fetchProductAlert: () => void;
+  isLicenseValid: boolean;
+  safeCrashCode?: ERROR_CODES;
+}) {
+  const {
+    fetchProductAlert,
+    getCurrentTenant,
+    getCurrentUser,
+    getFeatureFlags,
+    initCurrentPage,
+  } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
   const showQueryModule = useSelector(getShowQueryModule);
   const showWorkflows = useSelector(getShowWorkflowFeature);
   const featuresIsLoading = useSelector(getFeatureFlagsFetching);
-  const isConsolidatedPageLoading = useSelector(getIsConsolidatedPageLoading);
-  const dispatch = useDispatch();
-  const isConsolidatedFetchEnabled = useFeatureFlag(
-    FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled,
-  );
 
   useEffect(() => {
-    dispatch(initCurrentPage());
+    getCurrentUser();
+    getFeatureFlags();
+    getCurrentTenant();
+    initCurrentPage();
+    fetchProductAlert();
   }, []);
 
   useBrandingTheme();
-  let isLoading: boolean;
-  if (isConsolidatedFetchEnabled) {
-    isLoading = isConsolidatedPageLoading;
-  } else {
-    isLoading = tenantIsLoading || currentUserIsLoading || featuresIsLoading;
-  }
+
   // hide the top loader once the tenant is loaded
   useEffect(() => {
-    if (!isLoading) {
+    if (
+      tenantIsLoading === false &&
+      currentUserIsLoading === false &&
+      featuresIsLoading === false
+    ) {
       const loader = document.getElementById("loader") as HTMLDivElement;
 
       if (loader) {
@@ -84,25 +95,25 @@ function AppRouter() {
         });
       }
     }
-  }, [isLoading]);
+  }, [tenantIsLoading, currentUserIsLoading, featuresIsLoading]);
 
-  if (isLoading) return null;
+  if (tenantIsLoading || currentUserIsLoading || featuresIsLoading) return null;
 
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
         <RouteChangeListener />
-        {safeCrash && safeCrashCode ? (
+        {props.safeCrash && props.safeCrashCode ? (
           <>
             <ErrorPageHeader />
-            <ErrorPage code={safeCrashCode} />
+            <ErrorPage code={props.safeCrashCode} />
           </>
         ) : (
           <>
             <Walkthrough>
-              {isLicenseValid && <AppHeader />}
+              {props.isLicenseValid && <AppHeader />}
               <Switch>
-                {!isLicenseValid && (
+                {!props.isLicenseValid && (
                   <SentryRoute
                     component={LicenseCheckPage}
                     path={LICENSE_CHECK_PATH}
@@ -134,4 +145,19 @@ function AppRouter() {
   );
 }
 
-export default AppRouter;
+const mapStateToProps = (state: AppState) => {
+  const ceMapStateToProps = CE_mapStateToProps(state);
+  return {
+    ...ceMapStateToProps,
+    isLicenseValid: isValidLicense(state),
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  const ceMapDispatchToProps = CE_mapDispatchToProps(dispatch);
+  return {
+    ...ceMapDispatchToProps,
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

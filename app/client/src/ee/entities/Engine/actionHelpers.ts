@@ -10,7 +10,6 @@ import {
   ActionParentEntityType as CE_ActionParentEntityType,
   CreateNewActionKey as CE_CreateNewActionKey,
 } from "ce/entities/Engine/actionHelpers";
-import type { EditConsolidatedApi } from "sagas/InitSagas";
 
 export const CreateNewActionKey = {
   ...CE_CreateNewActionKey,
@@ -31,15 +30,10 @@ export type ActionParentEntityTypeInterface =
   (typeof ActionParentEntityType)[keyof typeof ActionParentEntityType];
 
 export const getPageDependencyActions = (
-  allResponses: EditConsolidatedApi,
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
 ) => {
-  const CE = CE_getPageDependencyActions(
-    allResponses,
-    currentWorkspaceId,
-    featureFlags,
-  );
+  const CE = CE_getPageDependencyActions(currentWorkspaceId, featureFlags);
   const initActions = [
     ...CE.initActions,
     ...(featureFlags.showQueryModule
