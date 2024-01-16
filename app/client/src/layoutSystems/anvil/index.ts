@@ -5,6 +5,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { LayoutSystem } from "layoutSystems/types";
 import { AnvilMainCanvas } from "./canvas/AnvilMainCanvas";
 import { AnvilCanvas } from "./canvas/AnvilCanvas";
+import { generateClassName } from "utils/generators";
 
 /**
  * getAnvilSystemPropsEnhancer
@@ -13,7 +14,11 @@ import { AnvilCanvas } from "./canvas/AnvilCanvas";
  *
  */
 const getAnvilSystemPropsEnhancer = (props: BaseWidgetProps) => {
-  return props;
+  const _props = { ...props };
+  if (props.detachFromLayout) {
+    _props.className = generateClassName(props.widgetId);
+  }
+  return _props;
 };
 
 const getAnvilSystemWrapper = (renderMode: RenderModes) => {

@@ -12,6 +12,27 @@ import { call } from "redux-saga/effects";
 
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import { anvilWidgets } from "widgets/anvil/constants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  addNewWidgetToDsl,
+  getCreateWidgetPayload,
+} from "../../widgetAdditionUtils";
+
+export function* addDetachedWidgetToMainCanvas(
+  allWidgets: CanvasWidgetsReduxState,
+  draggedWidget: { widgetId: string; type: string },
+) {
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    addNewWidgetToDsl,
+    allWidgets,
+    getCreateWidgetPayload(
+      draggedWidget.widgetId,
+      draggedWidget.type,
+      MAIN_CONTAINER_WIDGET_ID,
+    ),
+  );
+  return updatedWidgets;
+}
 
 export function* addWidgetsToMainCanvasLayout(
   allWidgets: CanvasWidgetsReduxState,
@@ -23,6 +44,7 @@ export function* addWidgetsToMainCanvasLayout(
    * Step 1: Get layout for MainCanvas.
    */
   let mainCanvasWidget: WidgetProps = allWidgets[highlight.canvasId];
+
   let mainCanvasPreset: LayoutProps[] = mainCanvasWidget.layout;
   let mainCanvasLayout: LayoutProps | undefined = getAffectedLayout(
     mainCanvasPreset,

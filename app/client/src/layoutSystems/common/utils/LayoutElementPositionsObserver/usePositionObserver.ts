@@ -7,7 +7,21 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { generateClassName } from "utils/generators";
 export type ObservableElementType = "widget" | "layout";
+
+export function useObserveDetachedWidget(widgetId: string) {
+  const className = generateClassName(widgetId);
+  const ref = {
+    current: document.querySelector(`.${className}`) as HTMLDivElement,
+  };
+  positionObserver.observeWidget(widgetId, "", ref);
+  return () => {
+    const element = document.querySelector(`.${className}`) as HTMLDivElement;
+    const domID = element.getAttribute("id");
+    if (domID) positionObserver.unObserveWidget(domID);
+  };
+}
 
 /**
  * A hook to register a widget or a layout with the position observer

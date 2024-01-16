@@ -23,6 +23,7 @@ export interface AnvilNewWidgetsPayload {
     height: number;
     newWidgetId: string;
     type: string;
+    detachFromLayout: boolean;
   };
 }
 

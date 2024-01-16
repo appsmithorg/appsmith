@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { AnvilViewerModalOnion } from "./AnvilViewerModalOnion";
+import { AnvilViewerDetachedWidgetOnion } from "./AnvilViewerDetachedWidgetOnion";
 import { AnvilViewerWidgetOnion } from "./AnvilViewerWidgetOnion";
 
 /**
@@ -15,7 +15,7 @@ import { AnvilViewerWidgetOnion } from "./AnvilViewerWidgetOnion";
 export const AnvilViewerWrapper = (props: WidgetProps) => {
   const WidgetOnion = useMemo(() => {
     return props.type === "MODAL_WIDGET"
-      ? AnvilViewerModalOnion
+      ? AnvilViewerDetachedWidgetOnion
       : AnvilViewerWidgetOnion;
   }, [props.type]);
 

@@ -21,6 +21,7 @@ import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponent
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
+  addDetachedWidgetToMainCanvas,
   addWidgetsToMainCanvasLayout,
   moveWidgetsToMainCanvas,
 } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
@@ -78,6 +79,7 @@ function* addSuggestedWidgetsAnvilSaga(
       rows?: number;
       columns?: number;
       props: WidgetProps;
+      detachFromLayout: boolean;
     };
   }>,
 ) {
@@ -100,6 +102,7 @@ function* addSuggestedWidgetsAnvilSaga(
       newWidgetId: newWidget.newWidgetId,
       parentId: MAIN_CONTAINER_WIDGET_ID,
       type: wdsType,
+      detachFromLayout: newWidget.detachFromLayout,
     };
 
     // Get highlighting information for the last row in the main canvas
@@ -142,6 +145,7 @@ export function* addNewChildToDSL(
     height: number;
     newWidgetId: string;
     type: string;
+    detachFromLayout: boolean;
   },
   isMainCanvas: boolean, // Indicates if the drop zone is the main canvas
   isSection: boolean, // Indicates if the drop zone is a section
@@ -158,31 +162,38 @@ export function* addNewChildToDSL(
     },
   ];
 
-  // Handle different scenarios based on the drop zone type (main canvas, section, or generic layout)
-  if (!!isMainCanvas) {
-    updatedWidgets = yield call(
-      addWidgetsToMainCanvasLayout,
-      updatedWidgets,
-      draggedWidgets,
-      highlight,
-    );
-  } else if (!!isSection) {
-    const res: { canvasWidgets: CanvasWidgetsReduxState } = yield call(
-      addWidgetsToSection,
-      updatedWidgets,
-      draggedWidgets,
-      highlight,
-      updatedWidgets[canvasId],
-    );
-    updatedWidgets = res.canvasWidgets;
+  if (newWidget.detachFromLayout) {
+    updatedWidgets = yield call(addDetachedWidgetToMainCanvas, updatedWidgets, {
+      widgetId: newWidget.newWidgetId,
+      type: newWidget.type,
+    });
   } else {
-    updatedWidgets = yield call(
-      addWidgetToGenericLayout,
-      updatedWidgets,
-      draggedWidgets,
-      highlight,
-      newWidget,
-    );
+    // Handle different scenarios based on the drop zone type (main canvas, section, or generic layout)
+    if (!!isMainCanvas) {
+      updatedWidgets = yield call(
+        addWidgetsToMainCanvasLayout,
+        updatedWidgets,
+        draggedWidgets,
+        highlight,
+      );
+    } else if (!!isSection) {
+      const res: { canvasWidgets: CanvasWidgetsReduxState } = yield call(
+        addWidgetsToSection,
+        updatedWidgets,
+        draggedWidgets,
+        highlight,
+        updatedWidgets[canvasId],
+      );
+      updatedWidgets = res.canvasWidgets;
+    } else {
+      updatedWidgets = yield call(
+        addWidgetToGenericLayout,
+        updatedWidgets,
+        draggedWidgets,
+        highlight,
+        newWidget,
+      );
+    }
   }
   return updatedWidgets;
 }
