@@ -453,7 +453,7 @@ class QueryToModuleConvertibleServiceTest {
             assertThat(moduleInput.getLabel()).isNotNull();
             assertThat(moduleInput.getControlType()).isEqualTo("INPUT_TEXT");
             assertThat(moduleInput.getPropertyName()).isEqualTo("inputs." + moduleInput.getLabel());
-            assertThat(moduleInput.getDefaultValue()).isNotNull();
+            assertThat(moduleInput.getDefaultValue()).isEmpty();
         });
     }
 
