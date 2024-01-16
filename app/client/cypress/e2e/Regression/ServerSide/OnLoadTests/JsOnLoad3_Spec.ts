@@ -15,6 +15,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsName: any;
@@ -43,7 +44,6 @@ describe(
       });
       cy.fixture("datasources").then((datasourceFormData: any) => {
         AppSidebar.navigate(AppSidebarButton.Editor);
-        PageLeftPane.expandCollapseItem("Queries/JS");
         apiPage.CreateAndFillApi(
           "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
           "Quotes",
@@ -153,7 +153,7 @@ describe(
 
         agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
-        agHelper.RefreshPage("viewPage");
+        agHelper.RefreshPage("getConsolidatedData");
         // agHelper.AssertElementVisibility(
         //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
         // );
@@ -208,7 +208,6 @@ describe(
       // agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       // jsEditor.ConfirmationClick("No");
       agHelper.AssertContains("cancelled");
-      PageLeftPane.expandCollapseItem("Queries/JS");
       cy.fixture("datasources").then((datasourceFormData) => {
         apiPage.CreateAndFillApi(
           datasourceFormData.randomCatfactUrl,
@@ -224,12 +223,9 @@ describe(
         `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data,'success'), () => showAlert('Oh No!','error'))}}`,
       );
 
-      EditorNavigation.SelectEntityByName("Quotes", EntityType.JSObject);
+      EditorNavigation.SelectEntityByName("Quotes", EntityType.Query);
       apiPage.ToggleOnPageLoadRun(false);
-      EditorNavigation.SelectEntityByName(
-        "WhatTrumpThinks",
-        EntityType.JSObject,
-      );
+      EditorNavigation.SelectEntityByName("WhatTrumpThinks", EntityType.Api);
       apiPage.ToggleOnPageLoadRun(false);
 
       EditorNavigation.SelectEntityByName(
@@ -258,7 +254,6 @@ describe(
       homePage.ImportApp("JSObjOnLoadApp.json");
       homePage.AssertImportToast();
 
-      PageLeftPane.expandCollapseItem("Queries/JS");
       apiPage.CreateAndFillApi(
         "https://anapioficeandfire.com/api/books/{{this.params.id}}",
         "getBooks",
@@ -416,17 +411,18 @@ describe(
         EntityType.JSObject,
       );
       entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: jsName as string,
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "getCitiesList",
         action: "Delete",
         entityType: entityItems.Query,
       });
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "getBooks",
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: jsName as string,
         action: "Delete",
         entityType: entityItems.Query,
       });

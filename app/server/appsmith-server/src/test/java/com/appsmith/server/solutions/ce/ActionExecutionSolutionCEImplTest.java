@@ -190,7 +190,7 @@ class ActionExecutionSolutionCEImplTest {
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID);
+                actionExecutionSolution.executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -214,7 +214,7 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
+                actionExecutionSolution.executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -238,7 +238,7 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, null);
+                actionExecutionSolution.executeAction(partsFlux, null, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -292,7 +292,7 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null);
+                executionSolutionSpy.executeAction(partsFlux, null, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -350,7 +350,7 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null);
+                executionSolutionSpy.executeAction(partsFlux, null, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {

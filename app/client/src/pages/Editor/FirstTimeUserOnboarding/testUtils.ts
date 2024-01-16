@@ -65,15 +65,19 @@ const mockStore = configureStore();
 
 export function getStore(step: number) {
   switch (step) {
+    // Step 0: Base State - Use this for the initial setup before making any changes to the state.
     case 0:
       state = _.cloneDeep(initialState);
       break;
+    // Step 1: Adding a Datasource - Use this if your test involves a scenario where a datasource is added.
     case 1:
       state.entities.datasources.list.push({});
       break;
+    // Step 2: Adding an Action with PageId - Use this if your test involves a scenario where an action with a `pageId` is added.
     case 2:
       state.entities.actions.push({ config: { pageId: PAGE_ID } });
       break;
+    // Step 3: Adding an Action and Canvas Widget - Use this if your test involves a scenario where an action and a canvas widget are added.
     case 3:
       state.entities.actions = [
         {
@@ -91,6 +95,7 @@ export function getStore(step: number) {
         text: "",
       };
       break;
+    // Step 4: Adding an Action with Dynamic Trigger and Canvas Widget - Use this if your test involves a scenario where an action with a dynamic trigger and a canvas widget are added.
     case 4:
       state.entities.actions = [
         {
@@ -115,6 +120,7 @@ export function getStore(step: number) {
         "Query.data": ["widget.text"],
       };
       break;
+    // Step 5: Updating UI State - Use this if your test involves a scenario where UI-related states are updated.
     case 5:
       state.ui.applications.currentApplication.lastDeployedAt = Math.random();
       state.ui.onBoarding.firstTimeUserOnboardingComplete = true;

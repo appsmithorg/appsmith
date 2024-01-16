@@ -3,17 +3,28 @@ import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorState,
-} from "entities/IDE/constants";
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
-import { getCurrentAppState } from "entities/IDE/utils";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { useSelector } from "react-redux";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import history, { NavigationMethod } from "utils/history";
+import {
+  jsCollectionListURL,
+  queryListURL,
+  widgetListURL,
+} from "@appsmith/RouteBuilder";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
   const { pathname } = useLocation();
+  const entityInfo = identifyEntityFromPath(pathname);
   useEffect(() => {
-    setAppState(getCurrentAppState(pathname));
-  }, [pathname]);
+    setAppState(entityInfo.appState);
+  }, [entityInfo.appState]);
 
   return appState;
 };
@@ -67,6 +78,10 @@ export const useCurrentEditorState = () => {
         setSelectedSegment(EditorEntityTab.UI);
         setSelectedSegmentState(EditorEntityTabState.List);
         break;
+      default:
+        setSelectedSegment(EditorEntityTab.UI);
+        setSelectedSegmentState(EditorEntityTabState.Add);
+        break;
     }
   }, [location.pathname]);
 
@@ -74,4 +89,60 @@ export const useCurrentEditorState = () => {
     segment: selectedSegment,
     segmentMode: selectedSegmentState,
   };
+};
+
+export const useEditorPaneWidth = (): number => {
+  const [width, setWidth] = useState(255);
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
+  const { segment } = useCurrentEditorState();
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
+  useEffect(() => {
+    if (
+      isSideBySideEnabled &&
+      editorMode === EditorViewMode.SplitScreen &&
+      segment !== EditorEntityTab.UI
+    ) {
+      setWidth(255 + propertyPaneWidth);
+    } else {
+      setWidth(255);
+    }
+  }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
+
+  return width;
+};
+
+export const useSegmentNavigation = (): {
+  onSegmentChange: (value: string) => void;
+} => {
+  const pageId = useSelector(getCurrentPageId);
+
+  /**
+   * Callback to handle the segment change
+   *
+   * @param value
+   * @returns
+   *
+   */
+  const onSegmentChange = (value: string) => {
+    switch (value) {
+      case EditorEntityTab.QUERIES:
+        history.push(queryListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
+        break;
+      case EditorEntityTab.JS:
+        history.push(jsCollectionListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
+        break;
+      case EditorEntityTab.UI:
+        history.push(widgetListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
+        break;
+    }
+  };
+
+  return { onSegmentChange };
 };

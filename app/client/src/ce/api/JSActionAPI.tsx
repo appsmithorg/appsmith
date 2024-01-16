@@ -47,14 +47,16 @@ export interface SetFunctionPropertyPayload {
   value: any;
 }
 export interface RefactorAction {
-  pageId: string;
+  pageId?: string;
   actionId: string;
   newName: string;
   oldName: string;
   collectionName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
 }
 export interface RefactorActionRequest extends RefactorAction {
-  layoutId: string;
+  layoutId?: string;
 }
 
 export interface UpdateCollectionActionNameRequest

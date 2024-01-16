@@ -1,18 +1,20 @@
 import React from "react";
 import { Button, Flex, SegmentedControl } from "design-system";
-import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EditorEntityTab } from "entities/IDE/constants";
-import history, { NavigationMethod } from "utils/history";
+import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import {
-  globalAddURL,
-  jsCollectionListURL,
-  queryListURL,
-  widgetListURL,
-} from "@appsmith/RouteBuilder";
-import { useSelector } from "react-redux";
+  EditorEntityTab,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
+import history from "utils/history";
+import { globalAddURL } from "@appsmith/RouteBuilder";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import { useCurrentEditorState } from "../../hooks";
+import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
 import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { setIdeEditorViewMode } from "actions/ideActions";
 
 const Container = styled(Flex)`
   button {
@@ -22,71 +24,66 @@ const Container = styled(Flex)`
 `;
 
 const SegmentedHeader = () => {
+  const dispatch = useDispatch();
+  const isGlobalAddPaneEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_global_add_pane_enabled,
+  );
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
   const pageId = useSelector(getCurrentPageId);
   const onAddButtonClick = () => {
     history.push(globalAddURL({ pageId }));
   };
   const { segment } = useCurrentEditorState();
-  /**
-   * Callback to handle the segment change
-   *
-   * @param value
-   * @returns
-   *
-   */
-  const onSegmentChange = (value: string) => {
-    switch (value) {
-      case EditorEntityTab.QUERIES:
-        history.push(queryListURL({ pageId }), {
-          invokedBy: NavigationMethod.SegmentControl,
-        });
-        break;
-      case EditorEntityTab.JS:
-        history.push(jsCollectionListURL({ pageId }), {
-          invokedBy: NavigationMethod.SegmentControl,
-        });
-        break;
-      case EditorEntityTab.UI:
-        history.push(widgetListURL({ pageId }), {
-          invokedBy: NavigationMethod.SegmentControl,
-        });
-        break;
-    }
-  };
+  const { onSegmentChange } = useSegmentNavigation();
+
   return (
     <Container
       alignItems="center"
       backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
-      className="ide-pages-pane__header"
+      className="ide-editor-left-pane__header"
       gap="spaces-2"
       padding="spaces-2"
     >
       <SegmentedControl
+        id="editor-pane-segment-control"
         onChange={onSegmentChange}
         options={[
           {
-            label: createMessage(PAGES_PANE_TEXTS.queries_tab),
+            label: createMessage(EDITOR_PANE_TEXTS.queries_tab),
             value: EditorEntityTab.QUERIES,
           },
           {
-            label: createMessage(PAGES_PANE_TEXTS.js_tab),
+            label: createMessage(EDITOR_PANE_TEXTS.js_tab),
             value: EditorEntityTab.JS,
           },
           {
-            label: createMessage(PAGES_PANE_TEXTS.ui_tab),
+            label: createMessage(EDITOR_PANE_TEXTS.ui_tab),
             value: EditorEntityTab.UI,
           },
         ]}
         value={segment}
       />
-      <Button
-        className={"t--add-editor-button"}
-        isIconButton
-        kind="primary"
-        onClick={onAddButtonClick}
-        size="sm"
-        startIcon="add-line"
-      />
+      {isGlobalAddPaneEnabled ? (
+        <Button
+          className={"t--add-editor-button"}
+          isIconButton
+          kind="primary"
+          onClick={onAddButtonClick}
+          size="sm"
+          startIcon="add-line"
+        />
+      ) : null}
+      {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() =>
+            dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
+          }
+          startIcon="icon-align-right"
+        />
+      ) : null}
     </Container>
   );
 };

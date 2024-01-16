@@ -68,7 +68,6 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                     Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
 
                     Update update = new Update();
-                    update.set(fieldName(QTheme.theme.deleted), true);
                     update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
                     return updateByCriteria(List.of(criteria, permissionCriteria), update, null);
                 })

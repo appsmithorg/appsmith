@@ -5,7 +5,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -23,7 +22,6 @@ describe(
     });
 
     it("1. Add new Modal", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
       cy.get(".t--modal-widget").should("exist");
     });
@@ -63,10 +61,7 @@ describe(
 
       cy.get("body").type(`{${modifierKey}}v`);
 
-      cy.get('.bp3-collapse-body > [step="0"]')
-        .eq(1)
-        .children()
-        .should("have.length", 3);
+      PageLeftPane.assertPresence("Modal1Copy");
       //make sure modalis open on paste
       cy.get(".t--modal-widget").should("have.length", 1);
     });
@@ -96,7 +91,6 @@ describe(
     it("6. It should paste modal widget on main Container even when copied in group and paste when a container is selected", () => {
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-      cy.get(explorer.addWidget).click();
       //add an additional modal widget and a container widget
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.MODAL,
@@ -109,13 +103,9 @@ describe(
         300,
         300,
       );
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-      PageLeftPane.expandCollapseItem("Widgets", true);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
 
       //select all widgets and copy
-      cy.get(`#div-selection-0`).click({
-        force: true,
-      });
       cy.get("body").type(`{${modifierKey}}a`);
       cy.get("body").type(`{${modifierKey}}c`);
 
@@ -123,23 +113,16 @@ describe(
       cy.get(`#div-selection-0`).click({
         force: true,
       });
-      cy.get(`.t--widget-containerwidget`).click({
-        ctrlKey: true,
-      });
+      EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
 
       //paste
       cy.get("body").type(`{${modifierKey}}v`);
 
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-      PageLeftPane.expandCollapseItem("Widgets", true);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
 
       //verify that the two modal widget should have pasted on the main canvas
-      _.agHelper.AssertElementVisibility(
-        _.entityExplorer._entityNameInExplorer("Modal1"),
-      );
-      _.agHelper.AssertElementVisibility(
-        _.entityExplorer._entityNameInExplorer("Modal1Copy"),
-      );
+      PageLeftPane.assertPresence("Modal1");
+      PageLeftPane.assertPresence("Modal1Copy");
     });
   },
 );

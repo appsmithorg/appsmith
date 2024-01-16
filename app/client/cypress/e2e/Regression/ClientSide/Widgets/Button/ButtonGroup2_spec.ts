@@ -150,7 +150,7 @@ describe(
       agHelper.GetNClick(buttongroupwidgetlocators.menu);
       agHelper.GetNClick(buttongroupwidgetlocators.menuSettingInPropPane, 0);
       propPane.TogglePropertyState("Disabled", "On");
-      propPane.TogglePropertyState("Visible", "On", "updateLayout", false);
+      propPane.TogglePropertyState("Visible", "On", "updateLayout");
       agHelper.GetNClick(propPane._goBackToProperty);
       deployMode.DeployApp();
       agHelper.ClickButton("More");
@@ -159,7 +159,7 @@ describe(
     });
 
     it("5. Assert On click button group ", function () {
-      entityExplorer.DragNDropWidget(draggableWidgets.MODAL, 250, 250);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 250, 250);
       agHelper.ClickButton("Close");
       EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
       agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 0);
