@@ -3,8 +3,9 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getPartialImportExportLoadingState } from "@appsmith/selectors/applicationSelectors";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { selectFilesForExplorer } from "ce/selectors/entitiesSelector";
 import {
-  selectFilesForExplorer,
   selectLibrariesForExplorer,
   selectWidgetsForCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";

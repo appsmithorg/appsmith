@@ -633,7 +633,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryAll(criteriaList, Optional.of(permission));
+        return queryAll(criteriaList, Optional.ofNullable(permission));
     }
 
     @Override
@@ -658,6 +658,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryAll(criteriaList, Optional.of(permission));
+        return queryAll(criteriaList, Optional.ofNullable(permission));
     }
 }

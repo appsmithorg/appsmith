@@ -189,14 +189,10 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param connection
      * @param datasourceConfiguration
      * @param isMock
-     * @param isMongoSchemaEnabledForMockDB
      * @return
      */
     default Mono<DatasourceStructure> getStructure(
-            C connection,
-            DatasourceConfiguration datasourceConfiguration,
-            Boolean isMock,
-            Boolean isMongoSchemaEnabledForMockDB) {
+            C connection, DatasourceConfiguration datasourceConfiguration, Boolean isMock) {
         return this.getStructure(connection, datasourceConfiguration);
     }
 
