@@ -6,26 +6,18 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { ApiResponse } from "api/ApiResponses";
 import type { PluginFormPayload } from "api/PluginApi";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { Plugin } from "api/PluginApi";
 
 export const fetchPlugins = (payload?: {
   workspaceId?: string;
-  plugins?: ApiResponse<Plugin[]>;
 }): ReduxAction<{ workspaceId?: string } | undefined> => ({
   type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
   payload,
 });
 
-export const fetchPluginFormConfigs = (
-  pluginFormConfigs?: ApiResponse<PluginFormPayload>[],
-): ReduxAction<{
-  pluginFormConfigs?: ApiResponse<PluginFormPayload>[];
-}> => ({
+export const fetchPluginFormConfigs = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_REQUEST,
-  payload: { pluginFormConfigs },
 });
 
 export interface PluginFormsPayload {

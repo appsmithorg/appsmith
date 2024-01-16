@@ -1,14 +1,10 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ApiResponse } from "api/ApiResponses";
 import type { JSLibrary } from "workers/common/JSLibrary";
 
-export function fetchJSLibraries(
-  applicationId: string,
-  customJSLibraries?: ApiResponse,
-) {
+export function fetchJSLibraries(applicationId: string) {
   return {
     type: ReduxActionTypes.FETCH_JS_LIBRARIES_INIT,
-    payload: { applicationId, customJSLibraries },
+    payload: applicationId,
   };
 }
 
