@@ -1,0 +1,59 @@
+import React from "react";
+import { isGitSettingsModalOpenSelector } from "selectors/gitSyncSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
+
+import GitErrorPopup from "../components/GitErrorPopup";
+
+import { Modal, ModalContent, ModalHeader } from "design-system";
+import styled from "styled-components";
+// import type { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+
+const StyledModalContent = styled(ModalContent)`
+  &&& {
+    width: 640px;
+    transform: none !important;
+    top: 100px;
+    left: calc(50% - 320px);
+    max-height: calc(100vh - 200px);
+  }
+`;
+
+function GitSettingsModal() {
+  const isModalOpen = useSelector(isGitSettingsModalOpenSelector);
+  const dispatch = useDispatch();
+
+  // const setActiveTabKey = (tabKey: GitSettingsTab) => {
+  //   dispatch(
+  //     setGitSettingsModalOpenAction({
+  //       open: true,
+  //       tab: tabKey,
+  //     }),
+  //   );
+  // };
+
+  const handleClose = () => {
+    dispatch(setGitSettingsModalOpenAction({ open: false }));
+  };
+
+  return (
+    <>
+      <Modal
+        onOpenChange={(open) => {
+          if (!open) {
+            handleClose();
+          }
+        }}
+        open={isModalOpen}
+      >
+        <StyledModalContent data-testid="t--git-sync-modal">
+          <ModalHeader>Settings</ModalHeader>
+          Settings
+        </StyledModalContent>
+      </Modal>
+      <GitErrorPopup />
+    </>
+  );
+}
+
+export default GitSettingsModal;
