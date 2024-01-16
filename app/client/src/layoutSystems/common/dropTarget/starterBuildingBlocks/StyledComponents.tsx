@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { Text } from "design-system";
 
 import { Colors } from "constants/Colors";
 
@@ -47,38 +46,6 @@ export const TemplateLayoutContainer = styled.div`
     background-color: ${Colors.WHITE};
     box-shadow: 0px 1px 20px 0px rgba(76, 86, 100, 0.11);
   }
-`;
-
-export const TemplateLayoutHeaderText = styled(Text)<{ layoutActive: boolean }>`
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 24px;
-  margin-bottom: 16px;
-  color: var(--colors-semantics-text-emphasis);
-  opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
-`;
-
-export const TemplateLayoutRowItemTitle = styled(Text)<{
-  layoutActive: boolean;
-}>`
-  font-size: 14px;
-  line-height: 20px;
-  text-align: center;
-  font-weight: 500;
-  color: var(--colors-ui-content-heading-sub-section-heading);
-  opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
-`;
-
-export const TemplateLayoutRowItemDescription = styled(Text)<{
-  layoutActive: boolean;
-}>`
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 16px;
-  text-align: center;
-  font-weight: 400;
-  color: var(--colors-ui-content-supplementary);
-  opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
 `;
 
 export const TemplateLayoutContentGrid = styled.div`
