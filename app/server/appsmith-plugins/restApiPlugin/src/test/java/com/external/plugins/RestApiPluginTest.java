@@ -1363,7 +1363,7 @@ public class RestApiPluginTest {
                         recordedRequestBody.close();
 
                         assertEquals(
-                                "{\"headers\":{\"X-RANDOM-HEADER\":\"random-value\",\"Content-Type\":\"application/json\"},\"body\":\"invalid json text\"}",
+                                "{\"headers\":{\"Content-Type\":\"application/json\",\"X-RANDOM-HEADER\":\"random-value\"},\"body\":\"invalid json text\"}",
                                 new String(bodyBytes));
 
                         String contentType = recordedRequest.getHeaders().get("Content-Type");

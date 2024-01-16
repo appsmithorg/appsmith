@@ -11,9 +11,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
-import net.minidev.json.JSONArray;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import net.minidev.json.writer.CollectionMapper;
@@ -46,6 +48,14 @@ import java.util.stream.Collectors;
 public class DataUtils {
 
     public static String FIELD_API_CONTENT_TYPE = "apiContentType";
+
+    private static final Gson gson = new GsonBuilder()
+            .setLenient()
+            .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
+            .setNumberToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
+            .create();
+
+    private static final JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     private final ObjectMapper objectMapper;
 
@@ -304,24 +314,37 @@ public class DataUtils {
             return null;
         }
 
-        JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-
-        Object parsedJson;
-
         if (type.equals(List.class)) {
-            parsedJson = (JSONArray) jsonParser.parse(jsonString);
+            return parseJsonIntoListWithOrderedObjects(jsonString, gson, jsonParser);
         } else {
             // We learned from issue #23456 that some use-cases require the order of keys to be preserved
             //  i.e. for AWS authorisation, one signature header is required whose value holds the hash
             // of the body.
+            return parseJsonIntoOrderedObject(jsonString, gson, jsonParser);
+        }
+    }
+
+    private static Object parseJsonIntoListWithOrderedObjects(String jsonString, Gson gson, JSONParser jsonParser)
+            throws ParseException {
+        TypeToken<List<Object>> listTypeToken = new TypeToken<>() {};
+        try {
+            return gson.fromJson(jsonString, listTypeToken.getType());
+        } catch (JsonSyntaxException jsonSyntaxException) {
+            return jsonParser.parse(jsonString);
+        }
+    }
+
+    private static Object parseJsonIntoOrderedObject(String jsonString, Gson gson, JSONParser jsonParser)
+            throws ParseException {
+        TypeToken<LinkedHashMap<String, Object>> linkedHashMapTypeToken = new TypeToken<>() {};
+        try {
+            return gson.fromJson(jsonString, linkedHashMapTypeToken.getType());
+        } catch (JsonSyntaxException jsonSyntaxException) {
             JsonReader jsonReader = new JsonReader();
-            TypeToken<LinkedHashMap<String, Object>> linkedHashMapTypeToken = new TypeToken<>() {};
             CollectionMapper.MapClass<LinkedHashMap<String, Object>> collectionMapper =
                     new CollectionMapper.MapClass<>(jsonReader, linkedHashMapTypeToken.getRawType());
-            parsedJson = jsonParser.parse(jsonString, collectionMapper);
+            return jsonParser.parse(jsonString, collectionMapper);
         }
-
-        return parsedJson;
     }
 
     public Object getRequestBodyObject(
