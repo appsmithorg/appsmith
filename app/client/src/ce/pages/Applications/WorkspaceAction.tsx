@@ -95,7 +95,7 @@ function WorkspaceAction({
             onSelect={() =>
               setSelectedWorkspaceIdForImportApplication(workspace.id)
             }
-            startIcon="download"
+            startIcon="upload-cloud"
           >
             {createMessage(IMPORT_BTN_LABEL)}
           </MenuItem>
