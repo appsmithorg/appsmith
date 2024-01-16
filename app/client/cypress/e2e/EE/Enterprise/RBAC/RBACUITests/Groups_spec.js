@@ -6,7 +6,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Groups tab Tests", function () {
+describe("Groups tab Tests", { tags: ["@tag.AccessControl"] }, function () {
   let groups;
   before(() => {
     cy.AddIntercepts();
