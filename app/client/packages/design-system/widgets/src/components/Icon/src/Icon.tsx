@@ -49,7 +49,6 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
     <Suspense fallback={<FallbackIcon {...rest} />}>
       <HeadlessIcon
         className={styles.icon}
-        data-icon-button=""
         data-size={Boolean(size) ? size : undefined}
         ref={ref}
         {...rest}

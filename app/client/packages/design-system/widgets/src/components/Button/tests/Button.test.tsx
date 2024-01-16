@@ -39,8 +39,8 @@ describe("@design-system/widgets/Button", () => {
 
   it("renders icon when passed", () => {
     const { container } = render(<Button icon="star" />);
-
     const icon = container.querySelector("button [data-icon]") as HTMLElement;
+
     expect(icon).toBeInTheDocument();
   });
 
