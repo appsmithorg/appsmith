@@ -114,8 +114,9 @@ describe(
       // Bind the postgres query to a table
       multipleEnv.SwitchEnv(stagingEnv);
       dataSources.RunQueryNVerifyResponseViews(43);
-      agHelper.GetNClick(
-        entityExplorer._entityNameInExplorer(meStagingOnlyQueryName),
+      EditorNavigation.SelectEntityByName(
+        meStagingOnlyQueryName,
+        EntityType.Query,
       );
       dataSources.AddSuggestedWidget(Widgets.Table);
       assertHelper.AssertNetworkStatus("@updateLayout", 200);

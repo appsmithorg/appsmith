@@ -79,7 +79,7 @@ describe(
       // Run and verify the response for the query
       dataSources.RunQueryNVerifyResponseViews(23, false);
       // Bind the mongo query to a table
-      agHelper.GetNClick(entityExplorer._entityNameInExplorer(meQueryName));
+      EditorNavigation.SelectEntityByName(meQueryName, EntityType.Query);
       // Check both query responses on staging
       multipleEnv.SwitchEnv(stagingEnv);
       agHelper.Sleep();
@@ -112,8 +112,9 @@ describe(
       // Bind the mongo query to a table
       multipleEnv.SwitchEnv(stagingEnv);
       dataSources.RunQueryNVerifyResponseViews(17, false);
-      agHelper.GetNClick(
-        entityExplorer._entityNameInExplorer(meStagingOnlyQueryName),
+      EditorNavigation.SelectEntityByName(
+        meStagingOnlyQueryName,
+        EntityType.Query,
       );
       dataSources.AddSuggestedWidget(Widgets.Table);
       assertHelper.AssertNetworkStatus("@updateLayout", 200);

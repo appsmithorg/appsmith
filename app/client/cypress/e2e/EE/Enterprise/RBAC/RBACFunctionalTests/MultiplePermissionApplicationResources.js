@@ -232,8 +232,7 @@ describe(
       cy.SaveAndRunAPI();
       cy.ResponseStatusCheck("200");
       // verify user is able to edit jsObject
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.get(RBAC.JsObject1).click();
+      EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
       cy.wait(1000);
       cy.get(".CodeMirror textarea")
         .first()

@@ -2,11 +2,7 @@ import homePageLocators from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-import {
-  gitSync,
-  entityExplorer,
-  homePage,
-} from "../../../../../support/Objects/ObjectsCore";
+import { gitSync, homePage } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
 
@@ -81,7 +77,6 @@ describe(
       // verify user is able to create JSObject
       cy.createJSObject('return "Success";');
       // verify user is able to edit the page
-      PageLeftPane.switchSegment("Widgets");
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
       // verify user is able to create new page
       cy.CheckAndUnfoldEntityItem("Pages");
@@ -102,7 +97,6 @@ describe(
       cy.Createpage("page4");
       gitSync.DiscardChanges();
       cy.wait(5000);
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
       // verify new page is deleted after discarding changes
       PageLeftPane.assertAbsence("page4");
     });

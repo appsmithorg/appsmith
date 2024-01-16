@@ -150,21 +150,11 @@ describe(
       agHelper.RefreshPage();
 
       // Validate that the pages without access are not showing up & the pages which have access are showing up
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer("Customer_Data_" + pageId),
-      );
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer("Application_Upload_" + pageId),
-      );
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer("1 Track Applications"),
-      );
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer("Send Messages"),
-      );
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer("Crud_page"),
-      );
+      PageList.assertAbsence("Customer_Data_" + pageId);
+      PageList.assertAbsence("Application_Upload_" + pageId);
+      PageList.assertPresence("1 Track Applications");
+      PageList.assertPresence("Send Messages");
+      PageList.assertPresence("Crud_page");
 
       //Git sync modal should not show any changes
       agHelper.AssertElementVisibility(gitSync._bottomBarCommit);
@@ -179,21 +169,11 @@ describe(
       // Refresh page & recheck above validation
       agHelper.RefreshPage();
 
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer("Customer_Data_" + pageId),
-      );
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer("Application_Upload_" + pageId),
-      );
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer("1 Track Applications"),
-      );
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer("Send Messages"),
-      );
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer("Crud_page"),
-      );
+      PageList.assertAbsence("Customer_Data_" + pageId);
+      PageList.assertAbsence("Application_Upload_" + pageId);
+      PageList.assertPresence("1 Track Applications");
+      PageList.assertPresence("Send Messages");
+      PageList.assertPresence("Crud_page");
 
       //Validate if roles are unchecked for customer data & application tracker pages (Pages without access)
       adminSettings.NavigateToAdminSettings();
