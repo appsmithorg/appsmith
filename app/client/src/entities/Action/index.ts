@@ -29,6 +29,7 @@ export enum PluginPackageName {
   MY_SQL = "mysql-plugin",
   MS_SQL = "mssql-plugin",
   SNOWFLAKE = "snowflake-plugin",
+  APPSMITH_AI = "appsmithai-plugin",
 }
 
 // more can be added subsequently.
@@ -52,6 +53,7 @@ export enum PluginName {
   ELASTIC_SEARCH = "Elasticsearch",
   GRAPHQL = "Authenticated GraphQL API",
   OPEN_AI = "Open AI",
+  APPSMITH_AI = "Appsmith AI",
 }
 
 export enum PaginationType {
@@ -256,8 +258,16 @@ export function isSaaSAction(action: Action): action is SaaSAction {
   return action.pluginType === PluginType.SAAS;
 }
 
+export function isAIAction(action: Action): action is SaaSAction {
+  return action.pluginType === PluginType.AI;
+}
+
 export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
   return plugins.find((p) => p.packageName === PluginPackageName.GRAPHQL);
+}
+
+export function getAppsmithAIPlugin(plugins: Plugin[]): Plugin | undefined {
+  return plugins.find((p) => p.packageName === PluginPackageName.APPSMITH_AI);
 }
 
 export function isGraphqlPlugin(plugin: Plugin | undefined) {

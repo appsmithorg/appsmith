@@ -152,6 +152,15 @@ export function isGoogleSheetPluginDS(pluginPackageName?: string) {
 }
 
 /**
+ * Determines whether plugin is Appsmith AI
+ * @param pluginPackageName string
+ * @returns boolean
+ */
+export function isAppsmithAIPlugin(pluginPackageName?: PluginPackageName) {
+  return pluginPackageName === PluginPackageName.APPSMITH_AI;
+}
+
+/**
  * Returns datasource property value from datasource?.datasourceConfiguration?.properties
  * @param datasource Datasource
  * @param propertyKey string

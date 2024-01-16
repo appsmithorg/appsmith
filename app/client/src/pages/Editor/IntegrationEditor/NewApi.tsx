@@ -260,9 +260,7 @@ function NewApiScreen(props: Props) {
   const API_PLUGINS = plugins.filter((p) =>
     !showSaasAPIs
       ? p.packageName === PluginPackageName.GRAPHQL
-      : p.type === PluginType.SAAS ||
-        p.type === PluginType.REMOTE ||
-        p.type === PluginType.AI,
+      : p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
   );
 
   return (
