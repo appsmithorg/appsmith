@@ -115,6 +115,7 @@ function AppViewer(props: Props) {
     fontFamily: themeSetting.fontFamily as FontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
+    iconStyle: themeSetting.iconStyle,
   };
   const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
   const focusRef = useWidgetFocus();

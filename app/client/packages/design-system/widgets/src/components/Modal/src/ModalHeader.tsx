@@ -1,10 +1,10 @@
 import React, { useLayoutEffect } from "react";
-import { useId } from "@floating-ui/react";
 import { usePopoverContext } from "@design-system/headless";
 
 import { Text } from "../../Text";
-import { Flex } from "../../Flex";
 import { IconButton } from "../../IconButton";
+import { Flex } from "../../Flex";
+import { useId } from "@floating-ui/react";
 
 import type { ModalHeaderProps } from "./types";
 
