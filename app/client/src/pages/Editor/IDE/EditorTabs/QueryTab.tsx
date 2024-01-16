@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import clsx from "classnames";
 import { useSelector } from "react-redux";
 
-import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/selectors/appIDESelectors";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
