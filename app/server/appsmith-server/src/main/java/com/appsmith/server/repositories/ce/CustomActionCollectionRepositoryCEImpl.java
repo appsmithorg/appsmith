@@ -243,7 +243,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 
     @Override
@@ -255,6 +255,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 }
