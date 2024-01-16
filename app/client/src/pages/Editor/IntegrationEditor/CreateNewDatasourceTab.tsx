@@ -41,6 +41,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { useEditorType } from "@appsmith/hooks";
 import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
+import AIDataSources from "./AIDataSources";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -205,6 +206,29 @@ function CreateNewSaasIntegration({
   ) : null;
 }
 
+function CreateNewAIIntegration({
+  history,
+  isCreating,
+  pageId,
+  showUnsupportedPluginDialog,
+}: any) {
+  const isAirgappedInstance = isAirgapped();
+
+  return !isAirgappedInstance ? (
+    <div id="new-ai-query">
+      <Text kind="heading-m">AI Integrations</Text>
+      <AIDataSources
+        history={history}
+        isCreating={isCreating}
+        location={location}
+        pageId={pageId}
+        showSaasAPIs
+        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
+      />
+    </div>
+  ) : null;
+}
+
 interface CreateNewDatasourceScreenProps {
   isCreating: boolean;
   dataSources: Datasource[];
@@ -308,6 +332,13 @@ class CreateNewDatasourceTab extends React.Component<
           history={history}
           isCreating={isCreating}
           location={location}
+          pageId={pageId}
+          showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+        />
+        <StyledDivider />
+        <CreateNewAIIntegration
+          history={history}
+          isCreating={isCreating}
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />

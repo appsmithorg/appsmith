@@ -35,7 +35,6 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
 import { toast } from "design-system";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 export function parseErrorMessage(text: string) {
   return text.split(": ").slice(1).join("");
@@ -310,23 +309,16 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
   }
 }
 
-function* fetchJSLibraries(
-  action: ReduxAction<{
-    applicationId: string;
-    customJSLibraries: ApiResponse;
-  }>,
-) {
+function* fetchJSLibraries(action: ReduxAction<string>) {
   const span = startRootSpan("fetchJSLibraries");
-  const { applicationId, customJSLibraries } = action.payload;
+  const applicationId: string = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
-
   try {
     const response: ApiResponse = yield call(
-      getFromServerWhenNoPrefetchedResult,
-      customJSLibraries,
-      () => call(LibraryApi.getLibraries, applicationId, mode),
+      LibraryApi.getLibraries,
+      applicationId,
+      mode,
     );
-
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
       endSpan(span);

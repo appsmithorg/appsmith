@@ -1,7 +1,6 @@
 import type { AppTheme } from "entities/AppTheming";
 import type { AppThemingMode } from "selectors/appThemingSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ApiResponse } from "api/ApiResponses";
 
 /**
  * ----------------------------------------------------------------------------
@@ -11,12 +10,10 @@ import type { ApiResponse } from "api/ApiResponses";
 
 export interface FetchAppThemesAction {
   applicationId: string;
-  themes?: ApiResponse<AppTheme>;
 }
 
 export interface FetchSelectedAppThemeAction {
   applicationId: string;
-  currentTheme?: ApiResponse<AppTheme[]>;
 }
 
 export interface UpdateSelectedAppThemeAction {
@@ -68,14 +65,10 @@ export const setAppThemingModeStackAction = (stack: AppThemingMode[]) => ({
  * @param mode
  * @returns
  */
-export const fetchAppThemesAction = (
-  applicationId: string,
-  themes?: ApiResponse<AppTheme>,
-) => ({
+export const fetchAppThemesAction = (applicationId: string) => ({
   type: ReduxActionTypes.FETCH_APP_THEMES_INIT,
   payload: {
     applicationId,
-    themes,
   },
 });
 
@@ -85,14 +78,10 @@ export const fetchAppThemesAction = (
  * @param mode
  * @returns
  */
-export const fetchSelectedAppThemeAction = (
-  applicationId: string,
-  currentTheme?: ApiResponse<AppTheme[]>,
-) => ({
+export const fetchSelectedAppThemeAction = (applicationId: string) => ({
   type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_INIT,
   payload: {
     applicationId,
-    currentTheme,
   },
 });
 

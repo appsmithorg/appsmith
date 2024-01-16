@@ -30,7 +30,6 @@ export interface INJECTED_CONFIGS {
     licenseKey: string;
   };
   enableMixpanel: boolean;
-  enableTNCPP: boolean;
   cloudHosting: boolean;
   algolia: {
     apiId: string;
@@ -104,9 +103,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         | "debug"
         | "error"
         | undefined) || "error",
-    enableTNCPP: process.env.REACT_APP_TNC_PP
-      ? process.env.REACT_APP_TNC_PP.length > 0
-      : false,
     enableRapidAPI: process.env.REACT_APP_MARKETPLACE_URL
       ? process.env.REACT_APP_MARKETPLACE_URL.length > 0
       : false,
@@ -302,8 +298,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       false,
     logLevel:
       ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS?.logLevel || false,
-    enableTNCPP:
-      ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS?.enableTNCPP || false,
     appVersion: {
       id:
         APPSMITH_FEATURE_CONFIGS?.appVersion?.id ||

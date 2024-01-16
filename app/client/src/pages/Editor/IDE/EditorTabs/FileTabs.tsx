@@ -3,11 +3,11 @@ import { Flex } from "design-system";
 import { useCurrentEditorState } from "../hooks";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import { useSelector } from "react-redux";
-import type { PagePaneDataObject } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/selectors/appIDESelectors";
 import {
-  selectJSForPagespane,
-  selectQueriesForPagespane,
-} from "@appsmith/selectors/entitiesSelector";
+  selectJSSegmentEditorTabs,
+  selectQuerySegmentEditorTabs,
+} from "@appsmith/selectors/appIDESelectors";
 import { JSTab } from "./JSTab";
 import { QueryTab } from "./QueryTab";
 
@@ -16,18 +16,12 @@ const FileTabs = () => {
 
   const files = useSelector((state) => {
     if (segment === EditorEntityTab.JS) {
-      return selectJSForPagespane(state);
+      return selectJSSegmentEditorTabs(state);
     } else if (segment === EditorEntityTab.QUERIES) {
-      return selectQueriesForPagespane(state);
+      return selectQuerySegmentEditorTabs(state);
     } else {
-      return {};
+      return [];
     }
-  });
-
-  // convert files object to array
-  const tabs: PagePaneDataObject[] = [];
-  Object.keys(files).forEach((key) => {
-    tabs.push(...files[key]);
   });
 
   if (segment === EditorEntityTab.UI) {
@@ -42,11 +36,11 @@ const FileTabs = () => {
       overflow="hidden"
       paddingBottom="spaces-2"
     >
-      {tabs.map((tab: PagePaneDataObject) =>
+      {files.map((tab: EntityItem) =>
         segment === EditorEntityTab.JS ? (
-          <JSTab data={tab} key={tab.id} />
+          <JSTab data={tab} key={tab.key} />
         ) : (
-          <QueryTab data={tab} key={tab.id} />
+          <QueryTab data={tab} key={tab.key} />
         ),
       )}
     </Flex>

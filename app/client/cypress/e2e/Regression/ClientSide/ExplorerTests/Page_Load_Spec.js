@@ -47,7 +47,7 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
       "This is Page 2",
     );
     // Test after reload
-    agHelper.RefreshPage("getConsolidatedData");
+    agHelper.RefreshPage("viewPage");
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
