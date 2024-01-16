@@ -1,9 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { Table } from "design-system-old";
 import { Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
-import { ListingType, type ListingProps, type MenuItemProps } from "./types";
+import {
+  ListingType,
+  type MenuItemProps,
+  type ListingProps,
+  type InfiniteListingProps,
+} from "./types";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -19,6 +24,7 @@ import {
 const ListingWrapper = styled.div`
   height: calc(100vh - 148px);
   overflow: auto;
+
   table {
     border-collapse: separate;
     table-layout: fixed;
@@ -94,7 +100,7 @@ const ListingWrapper = styled.div`
   }
 `;
 
-export function Listing(props: ListingProps) {
+export function Listing(props: ListingProps | InfiniteListingProps) {
   const {
     columns,
     data = [],
@@ -214,6 +220,10 @@ export function Listing(props: ListingProps) {
     },
   ].filter(Boolean);
 
+  if ("infiniteScroll" in props) {
+    return <InfiniteList {...props} columns={updatedColumns} />;
+  }
+
   return (
     <ListingWrapper data-testid="listing-wrapper">
       <Table
@@ -224,6 +234,58 @@ export function Listing(props: ListingProps) {
         loaderComponent={<Loader />}
         noDataComponent={emptyState}
       />
+    </ListingWrapper>
+  );
+}
+
+function InfiniteList(props: InfiniteListingProps) {
+  const { columns, data = [], emptyState, isLoading } = props;
+  const observerTarget = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          if (props.infiniteScroll && !props.isLoading) {
+            props.loadMore();
+          }
+        }
+      },
+      { threshold: 1 },
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [observerTarget, props.isLoading, props.infiniteScroll, props.loadMore]);
+
+  const showLoader =
+    props.infiniteScroll &&
+    !props.isLoading &&
+    data.length > 0 &&
+    props.hasMore;
+
+  return (
+    <ListingWrapper data-testid="listing-wrapper">
+      <Table
+        columns={columns}
+        data={data}
+        data-testid="listing-table"
+        isLoading={isLoading}
+        loaderComponent={<Loader />}
+        noDataComponent={emptyState}
+      />
+      {showLoader && (
+        <div className="w-full h-[40px] px-9 py-4 text-md" ref={observerTarget}>
+          Loading...
+        </div>
+      )}
     </ListingWrapper>
   );
 }

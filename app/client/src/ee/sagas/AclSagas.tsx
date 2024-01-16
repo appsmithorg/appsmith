@@ -16,7 +16,10 @@ import { takeLatest, all, call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { User } from "constants/userConstants";
-import type { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
+import type {
+  RoleProps,
+  UserProps,
+} from "@appsmith/pages/AdminSettings/AccessControl/types";
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
 import log from "loglevel";
@@ -36,10 +39,15 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import {
+  getAllAclUsers,
+  selectHasMoreUsers,
+} from "@appsmith/selectors/aclSelectors";
+import type { AclReduxState } from "@appsmith/reducers/aclReducers";
 
 export function* fetchAclUsersSaga(action: any) {
   try {
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<AclReduxState["users"]> = yield call(
       AclApi.fetchAclUsers,
       action?.payload,
     );
@@ -49,6 +57,40 @@ export function* fetchAclUsersSaga(action: any) {
       yield put({
         type: ReduxActionTypes.FETCH_ACL_USERS_SUCCESS,
         payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_ACL_USERS_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ACL_USERS_ERROR,
+    });
+  }
+}
+
+export function* fetchNextAclUsersSaga(action: any) {
+  try {
+    const hasMore: boolean = yield select(selectHasMoreUsers);
+    if (!hasMore) return;
+
+    const aclUsers: UserProps[] = yield select(getAllAclUsers);
+
+    const response: ApiResponse<AclReduxState["users"]> = yield call(
+      AclApi.fetchAclUsers,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ACL_USERS_SUCCESS,
+        payload: {
+          ...response.data,
+          content: [...aclUsers, ...response.data.content],
+        },
       });
     } else {
       yield put({
@@ -897,6 +939,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
         ReduxActionTypes.FETCH_ICON_LOCATIONS,
         fetchIconLocationsSagas,
       ),
+      takeLatest(ReduxActionTypes.FETCH_NEXT_ACL_USERS, fetchNextAclUsersSaga),
     ]);
   }
 }

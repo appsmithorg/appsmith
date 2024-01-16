@@ -19,7 +19,11 @@ public interface CustomUserRepository extends CustomUserRepositoryCE {
     Flux<String> getAllUserEmail(String defaultTenantId);
 
     Flux<User> getAllUserObjectsWithEmail(
-            String defaultTenantId, MultiValueMap<String, String> filters, Optional<AclPermission> aclPermission);
+            String defaultTenantId,
+            MultiValueMap<String, String> filters,
+            int startIndex,
+            int pageLimit,
+            Optional<AclPermission> aclPermission);
 
     Mono<PagedDomain<User>> getUsersWithParamsPaginated(
             int count, int startIndex, List<String> filterEmails, Optional<AclPermission> aclPermission);
@@ -36,4 +40,6 @@ public interface CustomUserRepository extends CustomUserRepositoryCE {
             String id, Boolean isProvisioned, Set<Policy> policies);
 
     Mono<Boolean> makeUserPristineBasedOnLoginSourceAndTenantId(LoginSource loginSource, String tenantId);
+
+    Mono<Long> countAllUsers(MultiValueMap<String, String> queryParams, AclPermission aclPermission);
 }

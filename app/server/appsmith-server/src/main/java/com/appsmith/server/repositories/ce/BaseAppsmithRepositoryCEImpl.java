@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -556,7 +558,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         userAcl(permissionGroups, aclPermission).ifPresent(criteria -> criteriaList.add(criteria));
         andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
         query.addCriteria(andCriteria);
-        sortOptional.ifPresent(sort -> query.with(sort));
+        sortOptional.ifPresent(sort -> {
+            query.with(sort);
+            query.collation(Collation.of(Locale.ENGLISH));
+        });
+
         return mongoOperations
                 .query(this.genericDomain)
                 .matching(query.cursorBatchSize(10000))

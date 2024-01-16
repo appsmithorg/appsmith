@@ -10,7 +10,6 @@ import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.repositories.ce.CustomUserRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -19,6 +18,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,8 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static com.appsmith.server.constants.QueryParams.PROVISIONED_FILTER;
+import static com.appsmith.server.constants.QueryParams.SEARCH_TERM;
+import static com.appsmith.server.constants.QueryParams.SORT;
 import static com.appsmith.server.helpers.RegexHelper.getStringsToRegex;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -59,7 +62,11 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
 
     @Override
     public Flux<User> getAllUserObjectsWithEmail(
-            String defaultTenantId, MultiValueMap<String, String> filters, Optional<AclPermission> aclPermission) {
+            String defaultTenantId,
+            MultiValueMap<String, String> filters,
+            int startIndex,
+            int pageLimit,
+            Optional<AclPermission> aclPermission) {
         List<Criteria> criteriaList = new ArrayList<>();
         Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(defaultTenantId);
         criteriaList.add(tenantIdCriteria);
@@ -67,7 +74,20 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                 fieldName(QUser.user.email), fieldName(QUser.user.isProvisioned), fieldName(QUser.user.policies));
         List<Criteria> criteriaListFromFilters = getCriteriaListFromFilters(filters);
         criteriaList.addAll(criteriaListFromFilters);
-        return queryAll(criteriaList, Optional.of(includedFields), aclPermission, Optional.empty(), NO_RECORD_LIMIT);
+
+        Sort.Direction sortDirection = Sort.Direction.ASC;
+        if (StringUtils.hasLength(filters.getFirst(SORT))) {
+            try {
+                sortDirection = Sort.Direction.fromString(filters.getFirst(SORT));
+            } catch (IllegalArgumentException e) {
+                log.debug("Invalid sort direction provided: {}", filters.getFirst(SORT));
+                // Reset to default in case of error :
+                sortDirection = Sort.Direction.ASC;
+            }
+        }
+        Sort sort = Sort.by(sortDirection, fieldName(QUser.user.email));
+
+        return queryAll(criteriaList, Optional.of(includedFields), aclPermission, sort, pageLimit, startIndex);
     }
 
     @Override
@@ -129,13 +149,17 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
 
     private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {
         List<Criteria> criteriaList = new ArrayList<>();
-        if (StringUtils.isNotEmpty(filters.getFirst(PROVISIONED_FILTER))) {
+        if (StringUtils.hasLength(filters.getFirst(PROVISIONED_FILTER))) {
             String provisionValue = filters.getFirst(PROVISIONED_FILTER).toLowerCase();
             if (provisionValue.equals(Boolean.TRUE.toString())) {
                 criteriaList.add(where(fieldName(QUser.user.isProvisioned)).is(Boolean.TRUE));
             } else if (provisionValue.equals(Boolean.FALSE.toString())) {
                 criteriaList.add(where(fieldName(QUser.user.isProvisioned)).is(Boolean.FALSE));
             }
+        }
+        if (StringUtils.hasLength(filters.getFirst(SEARCH_TERM))) {
+            criteriaList.add(Criteria.where(fieldName(QUser.user.email))
+                    .regex(".*" + Pattern.quote(filters.getFirst(SEARCH_TERM)) + ".*", "i"));
         }
         return criteriaList;
     }
@@ -152,5 +176,11 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         update.set(fieldName(QUser.user.source), LoginSource.FORM);
         update.set(fieldName(QUser.user.isEnabled), false);
         return updateByCriteria(criterias, update, null).map(updateResult -> updateResult.getModifiedCount() > 0);
+    }
+
+    @Override
+    public Mono<Long> countAllUsers(MultiValueMap<String, String> queryParams, AclPermission aclPermission) {
+        List<Criteria> criteriaList = getCriteriaListFromFilters(queryParams);
+        return count(criteriaList, Optional.of(aclPermission));
     }
 }

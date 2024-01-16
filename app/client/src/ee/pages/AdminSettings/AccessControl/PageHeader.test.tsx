@@ -36,7 +36,12 @@ function renderUserListing() {
   const store = configureStore()({
     acl: {
       roles: [],
-      users: allUsers,
+      users: {
+        content: allUsers,
+        count: allUsers.length,
+        startIndex: 0,
+        total: allUsers.length,
+      },
       groups: [],
       isLoading: false,
       isSaving: false,

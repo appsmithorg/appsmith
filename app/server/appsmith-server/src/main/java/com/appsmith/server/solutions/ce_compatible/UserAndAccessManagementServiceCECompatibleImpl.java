@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.ce_compatible;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -53,7 +54,7 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
     }
 
     @Override
-    public Mono<List<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams) {
+    public Mono<PagedDomain<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
