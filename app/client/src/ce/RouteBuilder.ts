@@ -1,4 +1,5 @@
 import {
+  ADD_PATH,
   ADMIN_SETTINGS_PATH,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
@@ -73,11 +74,12 @@ export const integrationEditorURL = (
 export const queryEditorIdURL = (
   props: URLBuilderParams & {
     queryId: string;
+    add?: boolean;
   },
 ): string =>
   urlBuilder.build({
     ...props,
-    suffix: `queries/${props.queryId}`,
+    suffix: `queries/${props.queryId}${props.add ? ADD_PATH : ""}`,
   });
 
 export const apiEditorIdURL = (

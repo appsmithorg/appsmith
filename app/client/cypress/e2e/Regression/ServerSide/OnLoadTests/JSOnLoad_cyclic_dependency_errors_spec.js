@@ -48,7 +48,7 @@ describe(
           dataSources.ToggleUsePreparedStatement(false);
           dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         });
-        PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         cy.openPropertyPane("inputwidgetv2");
         cy.get(widgetsPage.defaultInput).type(
           "{{" + queryName + ".data[0].gender",
@@ -75,7 +75,7 @@ describe(
         dataSources.CreateQueryAfterDSSaved();
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         dataSources.ToggleUsePreparedStatement(false);
-        PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         cy.openPropertyPane("inputwidgetv2");
         cy.get(widgetsPage.defaultInput).type(
           "{{" + queryName + ".data[0].gender",
@@ -94,9 +94,9 @@ describe(
       // cy.get(widgetsPage.NavHomePage).click({ force: true });
       cy.reload();
       cy.openPropertyPane("inputwidgetv2");
-      cy.wait("@getPage").should(
+      cy.wait("@getConsolidatedData").should(
         "have.nested.property",
-        "response.body.data.layouts[0].layoutOnLoadActionErrors.length",
+        "response.body.data.pageWithMigratedDsl.data.layouts[0].layoutOnLoadActionErrors.length",
         0,
       );
 

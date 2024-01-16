@@ -10,6 +10,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -116,7 +117,6 @@ describe(
           JSObject1.myFun2()
       }}}`,
       );
-      PageLeftPane.expandCollapseItem("Queries/JS");
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
       agHelper.AssertElementAbsence(locators._lintWarningElement);
     });
@@ -137,14 +137,15 @@ describe(
     after(() => {
       //deleting all test data
       entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Api1",
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
-      entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
         action: "Delete",
         entityType: entityItems.JSObject,
+      });
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Api1",
+        action: "Delete",
+        entityType: entityItems.Api,
       });
     });
   },

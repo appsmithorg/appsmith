@@ -43,10 +43,10 @@ describe(
         .its("response.body.responseMeta.status")
         .should("eq", 200);
       // check that forked application has same dsl
-      cy.get("@getPage")
+      cy.get("@getConsolidatedData")
         .its("response.body.data")
         .then((data) => {
-          forkedApplicationDsl = data.layouts[0].dsl;
+          forkedApplicationDsl = data.pageWithMigratedDsl.data.layouts[0].dsl;
           expect(JSON.stringify(forkedApplicationDsl)).to.contain(
             JSON.stringify(parentApplicationDsl),
           );

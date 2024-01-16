@@ -12,7 +12,6 @@ import {
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
   AppSidebarButton,
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
@@ -80,7 +79,6 @@ describe(
         .then(($noRecMsg) =>
           expect($noRecMsg).to.eq("No data records to show"),
         );
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("2. Inserting record - boolenumtypes", () => {
@@ -175,7 +173,6 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad();
       query = `SELECT * FROM boolenumtypes WHERE workingday > 'Tuesday';`;
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.CreateNewDsQuery(dsName);
       agHelper.RenameWithInPane("verifyEnumOrdering");
       dataSources.EnterQuery(query);
@@ -255,18 +252,15 @@ describe(
         dataSources.ReadQueryTableResponse(0).then(($cellData) => {
           expect($cellData).to.eq("0"); //Success response for dropped table!
         });
-        PageLeftPane.expandCollapseItem("Queries/JS", false);
 
         //Delete queries
         dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
         AppSidebar.navigate(AppSidebarButton.Editor);
-        PageLeftPane.expandCollapseItem("Queries/JS");
         entityExplorer.DeleteAllQueriesForDB(dsName);
 
         //Delete ds
         deployMode.DeployApp();
         deployMode.NavigateBacktoEditor();
-        PageLeftPane.expandCollapseItem("Queries/JS");
         dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
       },
     );
