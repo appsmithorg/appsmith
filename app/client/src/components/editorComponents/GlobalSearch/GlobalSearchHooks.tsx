@@ -107,14 +107,14 @@ export const useFilteredAndSortedFileOperations = ({
   query: string;
 }) => {
   const fileOperations: ActionOperation[] = [];
-  const isAppsmithAIQueryEnabled = useFeatureFlag(
-    FEATURE_FLAG.ab_appsmith_ai_query,
-  );
+  // const isAppsmithAIQueryEnabled = useFeatureFlag(
+  //   FEATURE_FLAG.ab_appsmith_ai_query,
+  // );
 
   if (!canCreateActions) return fileOperations;
 
   // Add appsmith AI operation if the feature flag is enabled
-  const allActionOperations = isAppsmithAIQueryEnabled
+  const allActionOperations = true
     ? [...actionOperations, appsmithAIActionOperation]
     : actionOperations;
 
