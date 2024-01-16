@@ -1008,7 +1008,7 @@ export class DataSources {
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
     this.TestSaveDatasource(true, true);
-    this.assertHelper.AssertNetworkStatus("@getConsolidatedData", 200);
+    this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
   public ReconnectModalValidation(
