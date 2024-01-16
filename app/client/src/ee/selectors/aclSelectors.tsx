@@ -1,6 +1,9 @@
 import type { AppState } from "@appsmith/reducers";
 
-export const getAllAclUsers = (state: AppState) => state.acl.users;
+export const getAllAclUsers = (state: AppState) => state.acl.users.content;
+export const selectTotalAclUsers = (state: AppState) => state.acl.users.total;
+export const selectHasMoreUsers = (state: AppState) =>
+  state.acl.users.startIndex + state.acl.users.count < state.acl.users.total;
 export const getGroups = (state: AppState) => state.acl.groups;
 export const getRoles = (state: AppState) => state.acl.roles;
 export const getSelectedUser = (state: AppState) => state.acl.selectedUser;

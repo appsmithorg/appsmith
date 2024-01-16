@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.UserControllerCE;
+import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.services.SessionUserService;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(Url.USER_URL)
@@ -49,7 +48,7 @@ public class UserController extends UserControllerCE {
     }
 
     @GetMapping("/manage/all")
-    public Mono<ResponseDTO<List<UserForManagementDTO>>> getAllUsersForManagement(
+    public Mono<ResponseDTO<PagedDomain<UserForManagementDTO>>> getAllUsersForManagement(
             @RequestParam MultiValueMap<String, String> queryParams) {
         return userAndAccessManagementService
                 .getAllUsers(queryParams)

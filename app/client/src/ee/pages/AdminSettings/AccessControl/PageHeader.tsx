@@ -134,6 +134,8 @@ export function PageHeader(props: PageHeaderProps) {
     title,
   } = props;
 
+  const [value, setValue] = useState(searchValue);
+
   useEffect(() => {
     setIsEditingTitle(props.isEditingTitle || false);
   }, [props.isEditingTitle]);
@@ -143,6 +145,7 @@ export function PageHeader(props: PageHeaderProps) {
   }, [props.isEditingDesc]);
 
   const handleSearch = (search: string) => {
+    setValue(search);
     onSearch?.(search.toLocaleUpperCase());
   };
 
@@ -267,7 +270,7 @@ export function PageHeader(props: PageHeaderProps) {
             onChange={handleSearch}
             placeholder={searchPlaceholder}
             size="md"
-            value={searchValue.toLowerCase()}
+            value={value}
           />
         )}
         {buttonText && (

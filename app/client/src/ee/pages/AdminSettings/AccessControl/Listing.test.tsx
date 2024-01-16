@@ -6,13 +6,13 @@ import { allUsers } from "./mocks/UserListingMock";
 import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import type { MenuItemProps } from "./types";
+import type { ListingProps, MenuItemProps } from "./types";
 import { ListingType } from "./types";
 
 let container: any = null;
 const onSelectFn = jest.fn();
 
-const props = {
+const props: ListingProps = {
   data: [],
   columns: [],
   listMenuItems: [],
@@ -21,7 +21,7 @@ const props = {
   listingType: ListingType.USERS,
 };
 
-const userListingProps = {
+const userListingProps: ListingProps = {
   data: allUsers,
   columns: [],
   listMenuItems: [
@@ -54,7 +54,12 @@ function renderUserListing() {
   const store = configureStore()({
     acl: {
       roles: [],
-      users: allUsers,
+      users: {
+        content: allUsers,
+        count: allUsers.length,
+        startIndex: 0,
+        total: allUsers.length,
+      },
       groups: [],
       isLoading: false,
       isSaving: false,

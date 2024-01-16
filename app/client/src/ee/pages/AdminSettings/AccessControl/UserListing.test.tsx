@@ -7,6 +7,10 @@ import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import * as userSelectors from "selectors/usersSelectors";
 import type { UserProps } from "./types";
+import * as aclActions from "@appsmith/actions/aclActions";
+jest.mock("lodash/debounce", () => jest.fn((fn) => fn));
+
+const spy = jest.spyOn(aclActions, "fetchAclUsers");
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -33,7 +37,12 @@ function renderComponent() {
   const store = configureStore()({
     acl: {
       roles: [],
-      users: allUsers,
+      users: {
+        content: allUsers,
+        count: allUsers.length,
+        startIndex: 0,
+        total: 4,
+      },
       groups: [],
       isLoading: false,
       isSaving: false,
@@ -57,6 +66,7 @@ describe("<UserListing />", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    spy.mockClear();
   });
   it("is rendered", async () => {
     renderComponent();
@@ -139,14 +149,8 @@ describe("<UserListing />", () => {
 
     await fireEvent.change(searchInput[0], { target: { value: "sangy123" } });
     expect(searchInput[0]).toHaveValue("sangy123");
-
-    const searched = screen.queryAllByText("sangy123@appsmith.com");
-    expect(searched).toHaveLength(1);
-
-    await waitFor(() => {
-      const filtered = screen.queryAllByText("techak@appsmith.com");
-      return expect(filtered).toHaveLength(0);
-    });
+    expect(spy).toBeCalled();
+    expect(spy).toHaveBeenLastCalledWith({ searchTerm: "SANGY123" });
   });
   it("should delete the user when Delete menu option is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();
