@@ -248,6 +248,7 @@ export class JSEditor {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
+    PageLeftPane.assertPresence(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 
