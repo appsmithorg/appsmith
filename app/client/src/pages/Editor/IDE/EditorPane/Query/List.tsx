@@ -11,10 +11,8 @@ import {
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import {
-  getCurrentPageId,
-  selectQuerySegmentEditorList,
-} from "@appsmith/selectors/entitiesSelector";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";

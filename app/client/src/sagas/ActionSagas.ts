@@ -66,7 +66,8 @@ import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReduce
 import type {
   EditorSegmentList,
   EntityItem,
-} from "@appsmith/selectors/entitiesSelector";
+} from "@appsmith/selectors/appIDESelectors";
+import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -77,7 +78,6 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-  selectQuerySegmentEditorList,
   getPageActions,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";

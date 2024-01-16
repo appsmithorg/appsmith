@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Button, Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import { selectJSSegmentEditorList } from "@appsmith/selectors/entitiesSelector";
+import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
 import type { PluginType } from "entities/Action";
