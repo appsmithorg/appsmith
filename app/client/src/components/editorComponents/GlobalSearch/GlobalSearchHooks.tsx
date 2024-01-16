@@ -23,6 +23,7 @@ import {
   generateCreateNewDSOption,
   isMatching,
   SEARCH_ITEM_TYPES,
+  appsmithAIActionOperation,
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
@@ -106,13 +107,22 @@ export const useFilteredAndSortedFileOperations = ({
   query: string;
 }) => {
   const fileOperations: ActionOperation[] = [];
+  const isAppsmithAIQueryEnabled = useFeatureFlag(
+    FEATURE_FLAG.ab_appsmith_ai_query,
+  );
+
   if (!canCreateActions) return fileOperations;
+
+  // Add appsmith AI operation if the feature flag is enabled
+  const allActionOperations = isAppsmithAIQueryEnabled
+    ? [...actionOperations, appsmithAIActionOperation]
+    : actionOperations;
 
   /**
    *  Work around to get the rest api cloud image.
    *  We don't have it store as a svg
    */
-  const actionOps = updateActionOperations(plugins, actionOperations);
+  const actionOps = updateActionOperations(plugins, allActionOperations);
 
   // Add JS Object operation
   fileOperations.push(actionOps[2]);

@@ -272,6 +272,26 @@ export interface ActionOperation {
   entityExplorerTitle?: string;
 }
 
+export const appsmithAIActionOperation: ActionOperation = {
+  title: "New Appsmith AI Query",
+  entityExplorerTitle: "Appsmith AI",
+  desc: "Create an Appsmith AI Query",
+  icon: <AppsmithAIIcon />,
+  kind: SEARCH_ITEM_TYPES.actionOperation,
+  action: (
+    entityId: string,
+    location: EventLocation,
+    entityType?: ActionParentEntityTypeInterface,
+  ) =>
+    createNewAPIBasedOnParentEntity(
+      entityId,
+      location,
+      PluginPackageName.APPSMITH_AI,
+      entityType,
+    ),
+  focusEntityType: FocusEntity.API,
+};
+
 export const actionOperations: ActionOperation[] = [
   {
     title: "New blank API",
@@ -322,25 +342,6 @@ export const actionOperations: ActionOperation[] = [
       entityType?: ActionParentEntityTypeInterface,
     ) => createNewJSCollectionBasedOnParentEntity(entityId, from, entityType),
     focusEntityType: FocusEntity.JS_OBJECT,
-  },
-  {
-    title: "New Appsmith AI Query",
-    entityExplorerTitle: "Appsmith AI",
-    desc: "Create an Appsmith AI Query",
-    icon: <AppsmithAIIcon />,
-    kind: SEARCH_ITEM_TYPES.actionOperation,
-    action: (
-      entityId: string,
-      location: EventLocation,
-      entityType?: ActionParentEntityTypeInterface,
-    ) =>
-      createNewAPIBasedOnParentEntity(
-        entityId,
-        location,
-        PluginPackageName.APPSMITH_AI,
-        entityType,
-      ),
-    focusEntityType: FocusEntity.API,
   },
   {
     title: "New cURL import",

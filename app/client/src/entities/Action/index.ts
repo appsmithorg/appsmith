@@ -266,6 +266,10 @@ export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
   return plugins.find((p) => p.packageName === PluginPackageName.GRAPHQL);
 }
 
+export function getAppsmithAIPlugin(plugins: Plugin[]): Plugin | undefined {
+  return plugins.find((p) => p.packageName === PluginPackageName.APPSMITH_AI);
+}
+
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
   return plugin?.packageName === PluginPackageName.GRAPHQL;
 }
