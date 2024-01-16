@@ -63,7 +63,10 @@ import {
 } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
+import {
+  checkAndLogErrorsIfCyclicDependency,
+  getFromServerWhenNoPrefetchedResult,
+} from "../../sagas/helper";
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -79,9 +82,14 @@ import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/js
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
+  const { unpublishedActionCollections, ...payload } = action.payload;
   try {
-    const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollections(action.payload);
+    const response: ApiResponse<JSCollection[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      unpublishedActionCollections,
+      async () => JSActionAPI.fetchJSCollections(payload),
+    );
+
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data || [],
@@ -495,10 +503,15 @@ export function* fetchJSCollectionsForPageSaga(
 export function* fetchJSCollectionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, publishedActionCollections } = action.payload;
+
   try {
-    const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollectionsForViewMode(applicationId);
+    const response: ApiResponse<JSCollection[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      publishedActionCollections,
+      async () => JSActionAPI.fetchJSCollectionsForViewMode(applicationId),
+    );
+
     const resultJSCollections = response.data;
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
