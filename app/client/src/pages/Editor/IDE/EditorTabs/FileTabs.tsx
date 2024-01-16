@@ -3,11 +3,11 @@ import { Flex } from "design-system";
 import { useCurrentEditorState } from "../hooks";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import { useSelector } from "react-redux";
-import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/selectors/appIDESelectors";
 import {
-  selectJSSegmentEditorList,
-  selectQuerySegmentEditorList,
-} from "@appsmith/selectors/entitiesSelector";
+  selectJSSegmentEditorTabs,
+  selectQuerySegmentEditorTabs,
+} from "@appsmith/selectors/appIDESelectors";
 import { JSTab } from "./JSTab";
 import { QueryTab } from "./QueryTab";
 
@@ -16,18 +16,12 @@ const FileTabs = () => {
 
   const files = useSelector((state) => {
     if (segment === EditorEntityTab.JS) {
-      return selectJSSegmentEditorList(state);
+      return selectJSSegmentEditorTabs(state);
     } else if (segment === EditorEntityTab.QUERIES) {
-      return selectQuerySegmentEditorList(state);
+      return selectQuerySegmentEditorTabs(state);
     } else {
       return [];
     }
-  });
-
-  // convert files object to array
-  const tabs: EntityItem[] = [];
-  files.forEach(({ items }) => {
-    tabs.push(...items);
   });
 
   if (segment === EditorEntityTab.UI) {
@@ -42,7 +36,7 @@ const FileTabs = () => {
       overflow="hidden"
       paddingBottom="spaces-2"
     >
-      {tabs.map((tab: EntityItem) =>
+      {files.map((tab: EntityItem) =>
         segment === EditorEntityTab.JS ? (
           <JSTab data={tab} key={tab.key} />
         ) : (

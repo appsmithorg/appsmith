@@ -7,14 +7,16 @@ import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
 import type {
   Datasource,
-  MockDatasource,
   DatasourceStructure,
+  MockDatasource,
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
-import { isStoredDatasource } from "entities/Action";
-import { PluginType } from "entities/Action";
+import {
+  isStoredDatasource,
+  PluginPackageName,
+  PluginType,
+} from "entities/Action";
 import { find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -27,6 +29,7 @@ import type {
 import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
+  Plugin,
 } from "api/PluginApi";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
@@ -45,7 +48,6 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { Module } from "@appsmith/constants/ModuleConstants";
-import type { Plugin } from "api/PluginApi";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import {
   getCurrentWorkflowActions,
@@ -1399,88 +1401,6 @@ export const getModuleInstances = (
 export const getModuleInstanceEntities = () => {
   return null;
 };
-
-export type EditorSegmentList = Array<{
-  group: string | "NA";
-  items: EntityItem[];
-}>;
-
-export interface EntityItem {
-  title: string;
-  type: PluginType;
-  key: string;
-  group?: string;
-}
-
-const GroupAndSortEntitySegmentList = (
-  items: EntityItem[],
-): EditorSegmentList => {
-  const groups = groupBy(items, (item) => {
-    if (item.group) return item.group;
-    return "NA";
-  });
-
-  // Entity Segment Lists are sorted alphabetically at both group and item level
-  return sortBy(
-    Object.keys(groups).map((group) => {
-      return {
-        group: group,
-        items: sortBy(groups[group], "title"),
-      };
-    }),
-    "group",
-  );
-};
-
-export const getQuerySegmentItems = createSelector(
-  getCurrentActions,
-  selectDatasourceIdToNameMap,
-  (actions, datasourceIdToNameMap) => {
-    const items: EntityItem[] = actions.map((action) => {
-      let group = "";
-      if (action.config.pluginType === PluginType.API) {
-        group = isEmbeddedRestDatasource(action.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
-      } else {
-        group = datasourceIdToNameMap[action.config.datasource.id];
-      }
-      return {
-        title: action.config.name,
-        key: action.config.id,
-        type: action.config.pluginType,
-        group,
-      };
-    });
-    return items;
-  },
-);
-
-export const selectQuerySegmentEditorList = createSelector(
-  getQuerySegmentItems,
-  (items) => {
-    return GroupAndSortEntitySegmentList(items);
-  },
-);
-
-export const getJSSegmentItems = createSelector(
-  getCurrentJSCollections,
-  (jsActions) => {
-    const items: EntityItem[] = jsActions.map((js) => ({
-      title: js.config.name,
-      key: js.config.id,
-      type: PluginType.JS,
-    }));
-    return items;
-  },
-);
-
-export const selectJSSegmentEditorList = createSelector(
-  getJSSegmentItems,
-  (items) => {
-    return GroupAndSortEntitySegmentList(items);
-  },
-);
 
 export const getQueryModuleInstances = () => {
   return [];
