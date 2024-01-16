@@ -1432,7 +1432,7 @@ const GroupAndSortEntitySegmentList = (
   );
 };
 
-export const selectQuerySegmentEditorList = createSelector(
+export const getQuerySegmentItems = createSelector(
   getCurrentActions,
   selectDatasourceIdToNameMap,
   (actions, datasourceIdToNameMap) => {
@@ -1452,11 +1452,18 @@ export const selectQuerySegmentEditorList = createSelector(
         group,
       };
     });
+    return items;
+  },
+);
+
+export const selectQuerySegmentEditorList = createSelector(
+  getQuerySegmentItems,
+  (items) => {
     return GroupAndSortEntitySegmentList(items);
   },
 );
 
-export const selectJSSegmentEditorList = createSelector(
+export const getJSSegmentItems = createSelector(
   getCurrentJSCollections,
   (jsActions) => {
     const items: EntityItem[] = jsActions.map((js) => ({
@@ -1464,6 +1471,13 @@ export const selectJSSegmentEditorList = createSelector(
       key: js.config.id,
       type: PluginType.JS,
     }));
+    return items;
+  },
+);
+
+export const selectJSSegmentEditorList = createSelector(
+  getJSSegmentItems,
+  (items) => {
     return GroupAndSortEntitySegmentList(items);
   },
 );
