@@ -2388,7 +2388,7 @@ export const CUSTOM_WIDGET_FEATURE = {
     split: () => "Splits",
   },
   referrences: {
-    title: () => "Referrences",
+    title: () => "References",
     tooltip: {
       open: () => "Open references",
       close: () => "Close references",

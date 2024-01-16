@@ -70,9 +70,8 @@ describe(
                   "contain",
                   "Application imported successfully",
                 );
-                cy.wait("@getConsolidatedData").then((interception) => {
-                  const pages =
-                    interception.response.body.data.pages.data.pages;
+                cy.wait("@getPagesForCreateApp").then((interception) => {
+                  const pages = interception.response.body.data.pages;
                   const pageSlug =
                     pages.find((page) => page.isDefault)?.slug ?? "page";
                   cy.url().should(

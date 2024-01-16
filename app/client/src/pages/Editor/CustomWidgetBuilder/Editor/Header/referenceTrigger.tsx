@@ -6,14 +6,23 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export default function ReferenceTrigger() {
-  const { isReferenceOpen, toggleReference } = useContext(
+  const { isReferenceOpen, toggleReference, widgetId } = useContext(
     CustomWidgetBuilderContext,
   );
 
   const onClick = () => {
     toggleReference?.();
+
+    AnalyticsUtil.logEvent(
+      "CUSTOM_WIDGET_BUILDER_REFERENCE_VISIBILITY_CHANGED",
+      {
+        widgetId: widgetId,
+        visible: !isReferenceOpen,
+      },
+    );
   };
 
   return (
