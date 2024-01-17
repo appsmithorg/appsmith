@@ -3,7 +3,7 @@
                 "messageId": "0",
                 "title": "Service Degradation",
                 "message": "Appsmith is facing degraded performance because of operational issues on our DB partner MongoDB Atlas. We apologise for the inconvenience.",
-                "canDismiss": false,
+                "canDismiss": true,
                 "context": "COMMON_CONFIG",
                 "applicabilityExpression": "isCloudHosting",
                 "precedenceIndex": 1
