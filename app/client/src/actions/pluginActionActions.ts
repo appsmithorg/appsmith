@@ -10,15 +10,19 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { Action, ActionViewMode } from "entities/Action";
+import type { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
-import type { ApiResponse } from "api/ApiResponses";
-import type { JSCollection } from "entities/JSCollection";
 
 export const createActionRequest = (payload: Partial<Action>) => {
+  return {
+    type: ReduxActionTypes.CREATE_ACTION_REQUEST,
+    payload,
+  };
+};
+export const createActionInit = (payload: Partial<Action>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
@@ -34,36 +38,27 @@ export const createActionSuccess = (payload: Action) => {
 
 export interface FetchActionsPayload {
   applicationId: string;
-  publishedActions?: ApiResponse<ActionViewMode[]>;
-  publishedActionCollections?: ApiResponse<JSCollection[]>;
-  unpublishedActionCollections?: ApiResponse<JSCollection[]>;
-  unpublishedActions?: ApiResponse<Action[]>;
 }
 
 export const fetchActions = (
-  {
-    applicationId,
-    unpublishedActions,
-  }: { applicationId: string; unpublishedActions?: ApiResponse<Action[]> },
+  { applicationId }: { applicationId: string },
   postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload: { applicationId, unpublishedActions },
+    payload: { applicationId },
     postEvalActions,
   };
 };
 
 export const fetchActionsForView = ({
   applicationId,
-  publishedActions,
 }: {
   applicationId: string;
-  publishedActions?: ApiResponse<ActionViewMode[]>;
 }): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId, publishedActions },
+    payload: { applicationId },
   };
 };
 

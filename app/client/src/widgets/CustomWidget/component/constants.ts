@@ -7,15 +7,22 @@ export const CUSTOM_WIDGET_LOAD_EVENTS = {
 export const getAppsmithScriptSchema = (model: Record<string, unknown>) => ({
   appsmith: {
     mode: "",
-    onUiChange: Function,
-    onModelChange: Function,
-    updateModel: Function,
-    triggerEvent: Function,
     model: model,
     ui: {
       width: 1,
       height: 2,
     },
+    theme: {
+      primaryColor: "",
+      backgroundColor: "",
+      borderRadius: "",
+      boxShadow: "",
+    },
+    onUiChange: Function,
+    onModelChange: Function,
+    onThemeChange: Function,
+    updateModel: Function,
+    triggerEvent: Function,
     onReady: Function,
   },
 });
