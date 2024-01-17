@@ -41,7 +41,6 @@ import appThemingReducer from "reducers/uiReducers/appThemingReducer";
 import mainCanvasReducer from "reducers/uiReducers/mainCanvasReducer";
 import focusHistoryReducer from "reducers/uiReducers/focusHistoryReducer";
 import { editorContextReducer } from "@appsmith/reducers/uiReducers/editorContextReducer";
-import guidedTourReducer from "reducers/uiReducers/guidedTourReducer";
 import libraryReducer from "reducers/uiReducers/libraryReducer";
 import appSettingsPaneReducer from "reducers/uiReducers/appSettingsPaneReducer";
 import autoHeightUIReducer from "reducers/uiReducers/autoHeightReducer";
@@ -79,7 +78,6 @@ export const uiReducerObject = {
   theme: themeReducer,
   modalAction: modalActionReducer,
   onBoarding: onBoardingReducer,
-  guidedTour: guidedTourReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
   websocket: websocketReducer,

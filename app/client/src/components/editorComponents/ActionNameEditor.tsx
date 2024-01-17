@@ -60,7 +60,6 @@ function ActionNameEditor(props: ActionNameEditorProps) {
 
   return (
     <NameEditorComponent
-      checkForGuidedTour
       /**
        * This component is used by module editor in EE which uses a different
        * action to save the name of an action. The current callers of this component

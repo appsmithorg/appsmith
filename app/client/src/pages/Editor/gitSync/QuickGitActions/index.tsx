@@ -8,13 +8,10 @@ import {
   COMING_SOON,
   COMMIT_CHANGES,
   CONFLICTS_FOUND,
-  CONNECT_GIT,
   CONNECT_GIT_BETA,
-  CONNECTING_TO_REPO_DISABLED,
   CONTACT_ADMIN_FOR_GIT,
   createMessage,
   DISCARD_AND_PULL_SUCCESS,
-  DURING_ONBOARDING_TOUR,
   GIT_SETTINGS,
   MERGE,
   NO_COMMITS_TO_PULL,
@@ -41,7 +38,6 @@ import {
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getTypographyByKey } from "design-system-old";
 import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -229,16 +225,6 @@ const StyledIcon = styled(Icon)`
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
-const PlaceholderButton = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
-  border: solid 1px ${Colors.MERCURY};
-  ${getTypographyByKey("btnSmall")};
-  text-transform: uppercase;
-  background-color: ${Colors.ALABASTER_ALT};
-  color: ${Colors.GRAY};
-`;
-
 const OuterContainer = styled.div`
   padding: 4px 16px;
   height: 100%;
@@ -250,21 +236,12 @@ const CenterDiv = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
-  const isInGuidedTour = useSelector(inGuidedTour);
   const isConnectToGitPermitted = useHasConnectToGitPermission();
 
-  const isTooltipEnabled = isInGuidedTour || !isConnectToGitPermitted;
+  const isTooltipEnabled = !isConnectToGitPermitted;
   const tooltipContent = useMemo(() => {
     if (!isConnectToGitPermitted) {
       return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
-    }
-    if (isInGuidedTour) {
-      return (
-        <>
-          <div>{createMessage(CONNECTING_TO_REPO_DISABLED)}</div>
-          <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
-        </>
-      );
     }
     return (
       <>
@@ -272,9 +249,7 @@ function ConnectGitPlaceholder() {
         <div>{createMessage(COMING_SOON)}</div>
       </>
     );
-  }, [isInGuidedTour, isConnectToGitPermitted]);
-
-  const isGitConnectionEnabled = !isInGuidedTour;
+  }, [isConnectToGitPermitted]);
 
   return (
     <OuterContainer>
@@ -285,32 +260,26 @@ function ConnectGitPlaceholder() {
             name="git-commit"
             size="lg"
           />
-          {isGitConnectionEnabled ? (
-            <Button
-              className="t--connect-git-bottom-bar"
-              isDisabled={!isConnectToGitPermitted}
-              kind="secondary"
-              onClick={() => {
-                AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
-                  source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
-                });
+          <Button
+            className="t--connect-git-bottom-bar"
+            isDisabled={!isConnectToGitPermitted}
+            kind="secondary"
+            onClick={() => {
+              AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+                source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
+              });
 
-                dispatch(
-                  setIsGitSyncModalOpen({
-                    isOpen: true,
-                    tab: GitSyncModalTab.GIT_CONNECTION,
-                  }),
-                );
-              }}
-              size="sm"
-            >
-              {createMessage(CONNECT_GIT_BETA)}
-            </Button>
-          ) : (
-            <PlaceholderButton className="t--disabled-connect-git-bottom-bar">
-              {createMessage(CONNECT_GIT)}
-            </PlaceholderButton>
-          )}
+              dispatch(
+                setIsGitSyncModalOpen({
+                  isOpen: true,
+                  tab: GitSyncModalTab.GIT_CONNECTION,
+                }),
+              );
+            }}
+            size="sm"
+          >
+            {createMessage(CONNECT_GIT_BETA)}
+          </Button>
         </Container>
       </Tooltip>
     </OuterContainer>

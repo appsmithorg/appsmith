@@ -3,7 +3,6 @@ import type { FeatureParams } from "./walkthroughContext";
 import { DEFAULT_DELAY } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
-import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";

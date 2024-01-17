@@ -108,7 +108,6 @@ import DEFAULT_TEMPLATE from "templates/default";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageError,
@@ -116,7 +115,6 @@ import {
 } from "actions/jsActionActions";
 
 import WidgetFactory from "WidgetProvider/factory";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
   failFastApiCalls,
@@ -525,7 +523,6 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
   if (!editorConfigs) return;
 
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const savePageRequest: SavePageRequest = getLayoutSavePayload(
     widgets,
     editorConfigs,
@@ -571,7 +568,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       const { actionUpdates, messages } = savePageResponse.data;
       // We do not want to show these toasts in guided tour
       // Show toast messages from the server
-      if (messages && messages.length && !guidedTourEnabled) {
+      if (messages && messages.length) {
         savePageResponse.data.messages.forEach((message) => {
           toast.show(message, {
             kind: "info",
@@ -787,7 +784,6 @@ export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
-    const guidedTourEnabled: boolean = yield select(inGuidedTour);
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
     const mainCanvasProps: MainCanvasReduxState =
@@ -797,11 +793,6 @@ export function* createPageSaga(
       mainCanvasProps.width,
     );
 
-    // Prevent user from creating a new page during the guided tour
-    if (guidedTourEnabled) {
-      yield put(toggleShowDeviationDialog(true));
-      return;
-    }
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse: boolean = yield validateResponse(response);

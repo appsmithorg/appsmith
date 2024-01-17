@@ -26,7 +26,6 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
-import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import { setupPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
@@ -56,7 +55,6 @@ import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
-  showGuidedTourMessage: boolean;
 }>`
   display: flex;
   flex-direction: row;
@@ -92,7 +90,6 @@ function AppViewer(props: Props) {
   const lightTheme = useSelector((state: AppState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
-  const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
@@ -218,7 +215,6 @@ function AppViewer(props: Props) {
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
             ref={focusRef}
-            showGuidedTourMessage={showGuidedTourMessage}
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>

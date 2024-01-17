@@ -11,7 +11,6 @@ import {
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { loadGuidedTourInit } from "actions/onboardingActions";
 import { fetchAllPageEntityCompletion, setupPage } from "actions/pageActions";
 import {
   executePageLoadActions,
@@ -224,7 +223,6 @@ export default class AppEditorEngine extends AppEngine {
         currentTabs,
       });
     }
-    yield put(loadGuidedTourInit());
     if (isFirstTimeUserOnboardingComplete) {
       yield put({
         type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
