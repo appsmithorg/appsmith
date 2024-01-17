@@ -7,7 +7,6 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../../fixtures/REPO";
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe(
@@ -28,9 +27,6 @@ describe(
       agHelper.Sleep(2000); // adding wait for app to load
       homePage.LogOutviaAPI();
       cy.generateUUID().then((uid) => {
-        featureFlagIntercept({
-          ab_create_new_apps_enabled: false,
-        });
         cy.Signup(`${uid}@appsmithtest.com`, uid);
       });
       homePage.NavigateToHome();
