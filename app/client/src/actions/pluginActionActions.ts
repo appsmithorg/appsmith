@@ -18,6 +18,12 @@ import type { OtlpSpan } from "UITelemetry/generateTraces";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
+    type: ReduxActionTypes.CREATE_ACTION_REQUEST,
+    payload,
+  };
+};
+export const createActionInit = (payload: Partial<Action>) => {
+  return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
   };

@@ -108,7 +108,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     const activeEnv = getCurrentEnvironmentId(state);
 
     if (activeEnv && config.headers) {
-      config.headers.environmentId = activeEnv;
+      config.headers["X-Appsmith-EnvironmentId"] = activeEnv;
     }
   }
 

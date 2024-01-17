@@ -135,6 +135,7 @@ function StarterBuildingBlocks() {
         <TemplateLayoutContentGrid>
           {layoutItems.map((item, index) => (
             <TemplateLayoutContentItem
+              data-testid="t--canvas-building-block-item"
               key={item.id}
               onClick={() =>
                 onClick(
@@ -167,6 +168,7 @@ function StarterBuildingBlocks() {
 
         <Button
           className="mt-4"
+          data-testid="t--canvas-building-block-see-more"
           kind="tertiary"
           onClick={onSeeMoreClick}
           size="md"

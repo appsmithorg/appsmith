@@ -1,6 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+import { AppSidebar } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
@@ -162,9 +164,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
     timeout: Cypress.config().pageLoadTimeout,
   }).should("not.exist");
   assertHelper.AssertDocumentReady();
-  cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
-    "be.visible",
-  );
+  AppSidebar.assertVisible(Cypress.config().pageLoadTimeout);
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
@@ -183,9 +183,7 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
     }).should("not.exist");
   }
   assertHelper.AssertDocumentReady();
-  cy.get("#sidebar", { timeout: Cypress.config().pageLoadTimeout }).should(
-    "be.visible",
-  );
+  AppSidebar.assertVisible(Cypress.config().pageLoadTimeout);
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {

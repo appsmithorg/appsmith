@@ -60,9 +60,7 @@ describe(
       cy.SaveAndRunAPI();
 
       // Going to HomePage where the button widget is located and opeing it's property pane.
-      cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
-        force: true,
-      });
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.expandCollapseItem("Container3", "Widgets");
       EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
       cy.reload();
@@ -99,7 +97,7 @@ describe(
       cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
         force: true,
       });
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("selectwidget");
       cy.reload();
       // Adding the query in the onOptionChangeAction of the dropdown widget.

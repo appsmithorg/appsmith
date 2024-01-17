@@ -190,6 +190,7 @@ function PartialImportModal(props: PartialImportModalProps) {
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
       <ModalContent
         className={"t--import-application-modal"}
+        data-testid="t--partialImportModal"
         style={{
           width: importingPartialApplication ? "40vw" : "fit-content",
           minWidth: "30vw",

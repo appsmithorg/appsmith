@@ -675,8 +675,8 @@ export class AggregateHelper {
     this.Sleep(sleep);
   }
 
-  public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
-    cy.get(parentWidget).type(this.isMac ? "{meta}A" : "{ctrl}A");
+  public SelectAllWidgets() {
+    cy.get("body").type(this.isMac ? "{meta}A" : "{ctrl}A");
   }
 
   public SetCanvasViewportWidth(width: number) {

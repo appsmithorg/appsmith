@@ -7,6 +7,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
@@ -477,16 +478,6 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
-  cy.get(commonlocators.widgetSection)
-    .invoke("attr", "id")
-    .then((id) => {
-      if (id === "arrow-right-s-line") {
-        cy.get(commonlocators.widgetSection).click({ force: true });
-      }
-    });
-});
-
 Cypress.Commands.add("clickTest", (testbutton) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -684,9 +675,9 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
 });
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
-  cy.get(explorer.createNew).click({ force: true });
-  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
-  cy.get("span:contains('New JS Object')").eq(0).click({ force: true });
+  PageLeftPane.switchSegment(PagePaneSegment.JS);
+  PageLeftPane.switchToAddNew();
+  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
 });
 
 Cypress.Commands.add("importCurl", () => {
@@ -732,6 +723,9 @@ Cypress.Commands.add("deleteDataSource", () => {
 });
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
+  PageLeftPane.switchSegment(PagePaneSegment.UI);
+  PageLeftPane.switchToAddNew();
+  cy.get("body").type("{esc}");
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
@@ -751,6 +745,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
 Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
@@ -771,6 +767,8 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   "dragAndDropToWidgetBySelector",
   (widgetType, destinationSelector, { x, y }) => {
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
@@ -1341,7 +1339,7 @@ Cypress.Commands.add("createSuperUser", () => {
 
   if (CURRENT_REPO === REPO.CE) {
     cy.get("#loading").should("not.exist");
-    cy.get("#sidebar").should("be.visible");
+    AppSidebar.assertVisible();
   }
 
   cy.LogOut();

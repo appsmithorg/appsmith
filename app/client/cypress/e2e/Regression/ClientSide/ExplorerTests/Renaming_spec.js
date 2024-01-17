@@ -8,7 +8,11 @@ import {
   entityItems,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 const firstApiName = "First";
 const secondApiName = "Second";
@@ -22,7 +26,7 @@ describe(
       apiPage.CreateApi(firstApiName);
       // create another API
       apiPage.CreateApi(secondApiName);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       // try to rename one of the APIs with an existing API name
       cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
         cy.get(".t--context-menu").click({ force: true });
@@ -52,25 +56,28 @@ describe(
     it("2. It expects actions on different pages can have identical names", function () {
       // create a new API
       cy.CreateAPI(firstApiName);
-      PageLeftPane.expandCollapseItem("Queries/JS", true);
 
       // create a new page and an API on that page
       PageList.AddNewPage();
       cy.CreateAPI(firstApiName);
-      PageLeftPane.expandCollapseItem("Queries/JS", true);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       PageLeftPane.assertPresence(firstApiName);
-      cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
-        cy.get(".t--context-menu").click({ force: true });
+      entityExplorer.ActionContextMenuByEntityName({
+        action: "Delete",
+        entityType: EntityItems.Api,
+        entityNameinLeftSidebar: firstApiName,
       });
-      cy.deleteActionAndConfirm();
-      cy.get(`.t--entity-item:contains(Page2)`).within(() => {
-        cy.get(".t--context-menu").click({ force: true });
+      entityExplorer.ActionContextMenuByEntityName({
+        action: "Delete",
+        entityType: EntityItems.Page,
+        entityNameinLeftSidebar: "Page2",
       });
-      cy.deleteActionAndConfirm();
-      cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
-        cy.get(".t--context-menu").click({ force: true });
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      entityExplorer.ActionContextMenuByEntityName({
+        action: "Delete",
+        entityType: EntityItems.Api,
+        entityNameinLeftSidebar: firstApiName,
       });
-      cy.deleteActionAndConfirm();
       cy.wait(1000);
     });
   },
@@ -78,7 +85,7 @@ describe(
 
 describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
   it("3. Expects JS objects and actions to not have identical names on the same page.", function () {
-    PageLeftPane.expandCollapseItem("Queries/JS", true);
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     // create JS object and name it
     jsEditor.CreateJSObject('return "Hello World";');
     entityExplorer.RenameEntityFromExplorer("JSObject1", firstApiName);
@@ -95,13 +102,16 @@ describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
     entityExplorer.ValidateDuplicateMessageToolTip(firstApiName);
     cy.get("body").click(0, 0);
     cy.wait(2000);
-    cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+    entityExplorer.ActionContextMenuByEntityName({
+      action: "Delete",
+      entityNameinLeftSidebar: secondApiName,
+      entityType: EntityItems.Api,
     });
-    cy.deleteActionAndConfirm();
-    cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
+    entityExplorer.ActionContextMenuByEntityName({
+      action: "Delete",
+      entityNameinLeftSidebar: firstApiName,
+      entityType: EntityItems.JSObject,
     });
-    cy.deleteActionAndConfirm();
   });
 });
