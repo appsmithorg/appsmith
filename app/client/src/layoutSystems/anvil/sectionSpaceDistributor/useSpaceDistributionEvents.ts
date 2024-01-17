@@ -15,6 +15,7 @@ interface SpaceDistributionEventsProps {
   spaceToWorkWith: number;
 }
 const shrinkablePixels = 10;
+const minimumMouseMoveRequirement = 3;
 let lastMouseX: number | null = null;
 let lastMouseY: number | null = null;
 let lastTimestamp: number | null = null;
@@ -51,7 +52,6 @@ const getMouseSpeedTrackingCallback = (
   };
 };
 let prevX = 0;
-const threshold = 3;
 const getMouseDirectionCallback = (
   currentMouseDirection: MutableRefObject<"left" | "right" | undefined>,
 ) => {
@@ -59,7 +59,7 @@ const getMouseDirectionCallback = (
     const { clientX } = event;
 
     // Check if the change in position exceeds the threshold
-    if (Math.abs(clientX - prevX) >= threshold) {
+    if (Math.abs(clientX - prevX) >= minimumMouseMoveRequirement) {
       if (clientX > prevX) {
         currentMouseDirection.current = "right";
       } else if (clientX < prevX) {
@@ -100,47 +100,26 @@ const updatedCSSOfWidgetsOnHittingMinimumLimit = (
     currentGrowthFactor.rightZone = minSpacePerBlock;
   }
 };
+const maxSpeedLimit = 4000;
+const ratioOfSpeedToAnimation = 0.55 / maxSpeedLimit;
+const baseAnimationDuration = 0.75;
 const checkForNeedToAddMagneticForce = (
   mouseSpeed: number,
-  mouseDirection: "left" | "right" | undefined,
-  columnWidth: number,
   leftZoneDom: HTMLElement,
   rightZoneDom: HTMLElement,
-  leftZoneComputedColumns: number,
-  rightZoneComputedColumns: number,
   leftZoneComputedColumnsRoundOff: number,
   rightZoneComputedColumnsRoundOff: number,
-  minimumShrinkableSpacePerBlock: number,
 ) => {
-  const magneticRange = 15;
-  const leftZoneFlexGrow = Math.max(
-    leftZoneComputedColumns,
-    minimumShrinkableSpacePerBlock,
-  );
-  const rightZoneFlexGrow = Math.max(
-    rightZoneComputedColumns,
-    minimumShrinkableSpacePerBlock,
-  );
-  const flexGrowDifference =
-    (mouseDirection === "right"
-      ? Math.abs(rightZoneFlexGrow - rightZoneComputedColumnsRoundOff)
-      : Math.abs(leftZoneFlexGrow - leftZoneComputedColumnsRoundOff)) *
-    columnWidth;
-  const isInMagneticZone =
-    mouseSpeed < 300 && flexGrowDifference <= magneticRange;
-  if (isInMagneticZone) {
-    leftZoneDom.style.transition = "all 0.2s ease";
-    rightZoneDom.style.transition = "all 0.2s ease";
-    leftZoneDom.style.flexGrow = leftZoneComputedColumnsRoundOff.toString();
-    rightZoneDom.style.flexGrow = rightZoneComputedColumnsRoundOff.toString();
-  } else {
-    // adjust the zones flex grow property to the minimum shrinkable space
-    leftZoneDom.style.flexGrow = leftZoneFlexGrow.toString();
-    rightZoneDom.style.flexGrow = rightZoneFlexGrow.toString();
-    leftZoneDom.style.transition = "";
-    rightZoneDom.style.transition = "";
-  }
-  return isInMagneticZone;
+  leftZoneDom.style.transition = `all ${
+    baseAnimationDuration -
+    Math.min(mouseSpeed, maxSpeedLimit) * ratioOfSpeedToAnimation
+  }s ease-in-out`;
+  rightZoneDom.style.transition = `all ${
+    baseAnimationDuration -
+    Math.min(mouseSpeed, maxSpeedLimit) * ratioOfSpeedToAnimation
+  }s ease-in-out`;
+  leftZoneDom.style.flexGrow = leftZoneComputedColumnsRoundOff.toString();
+  rightZoneDom.style.flexGrow = rightZoneComputedColumnsRoundOff.toString();
 };
 const updatedCSSOfWidgetsOnHandleMove = (
   ref: React.RefObject<HTMLDivElement>,
@@ -153,12 +132,9 @@ const updatedCSSOfWidgetsOnHandleMove = (
   currentGrowthFactor: { [key: string]: number },
   leftZoneComputedColumnsRoundOff: number,
   rightZoneComputedColumnsRoundOff: number,
-  minimumShrinkableSpacePerBlock: number,
   columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
   columnPosition: number,
-  columnWidth: number,
   mouseSpeed: number,
-  mouseDirection: "left" | "right" | undefined,
 ) => {
   checkForNeedToAddResistiveForce(
     leftZoneComputedColumns,
@@ -170,15 +146,10 @@ const updatedCSSOfWidgetsOnHandleMove = (
   );
   checkForNeedToAddMagneticForce(
     mouseSpeed,
-    mouseDirection,
-    columnWidth,
     leftZoneDom,
     rightZoneDom,
-    leftZoneComputedColumns,
-    rightZoneComputedColumns,
     leftZoneComputedColumnsRoundOff,
     rightZoneComputedColumnsRoundOff,
-    minimumShrinkableSpacePerBlock,
   );
 
   // note down the new growth factor for the zones
@@ -220,49 +191,49 @@ const resetCSSOnZones = (spaceDistributed: { [key: string]: number }) => {
 };
 
 // Create a visual column indicator
-const createColumnIndicator = (
-  columnPosition: number,
-  columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
-) => {
-  const columnIndicatorDiv = document.createElement("div");
-  // Display the current column position and total columns
-  columnIndicatorDiv.innerHTML = `${columnPosition} / ${SectionColumns}`;
-  columnIndicatorDiv.style.position = "absolute";
-  // Styling for the indicator
-  columnIndicatorDiv.style.background = "white";
-  columnIndicatorDiv.style.color = "black";
-  columnIndicatorDiv.style.padding = "2px";
-  columnIndicatorDiv.style.borderRadius = "2px";
-  columnIndicatorDiv.style.boxShadow = "0px 0px 2px 2px black";
-  columnIndicatorDiv.style.zIndex = "1000";
-  columnIndicatorDiv.style.fontSize = "10px";
-  columnIndicatorDiv.style.fontWeight = "bold";
-  document.body.appendChild(columnIndicatorDiv);
-  columnIndicatorDivRef.current = columnIndicatorDiv;
-};
+// const createColumnIndicator = (
+//   columnPosition: number,
+//   columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
+// ) => {
+//   const columnIndicatorDiv = document.createElement("div");
+//   // Display the current column position and total columns
+//   columnIndicatorDiv.innerHTML = `${columnPosition} / ${SectionColumns}`;
+//   columnIndicatorDiv.style.position = "absolute";
+//   // Styling for the indicator
+//   columnIndicatorDiv.style.background = "white";
+//   columnIndicatorDiv.style.color = "black";
+//   columnIndicatorDiv.style.padding = "2px";
+//   columnIndicatorDiv.style.borderRadius = "2px";
+//   columnIndicatorDiv.style.boxShadow = "0px 0px 2px 2px black";
+//   columnIndicatorDiv.style.zIndex = "1000";
+//   columnIndicatorDiv.style.fontSize = "10px";
+//   columnIndicatorDiv.style.fontWeight = "bold";
+//   document.body.appendChild(columnIndicatorDiv);
+//   columnIndicatorDivRef.current = columnIndicatorDiv;
+// };
 
 // Remove the visual column indicator
-const removeColumnIndicator = (
-  columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
-) => {
-  if (columnIndicatorDivRef.current) {
-    columnIndicatorDivRef.current.remove();
-    columnIndicatorDivRef.current = undefined;
-  }
-};
+// const removeColumnIndicator = (
+//   columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
+// ) => {
+//   if (columnIndicatorDivRef.current) {
+//     columnIndicatorDivRef.current.remove();
+//     columnIndicatorDivRef.current = undefined;
+//   }
+// };
 
 // Reposition the column indicator based on mouse movement
-const repositionColumnIndicator = (
-  columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
-  e: MouseEvent,
-) => {
-  if (columnIndicatorDivRef.current) {
-    columnIndicatorDivRef.current.style.left =
-      e.clientX + shrinkablePixels + "px";
-    columnIndicatorDivRef.current.style.top =
-      e.clientY - shrinkablePixels + "px";
-  }
-};
+// const repositionColumnIndicator = (
+//   columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
+//   e: MouseEvent,
+// ) => {
+//   if (columnIndicatorDivRef.current) {
+//     columnIndicatorDivRef.current.style.left =
+//       e.clientX + shrinkablePixels + "px";
+//     columnIndicatorDivRef.current.style.top =
+//       e.clientY - shrinkablePixels + "px";
+//   }
+// };
 
 // Check if resistive force is needed for the zones
 const checkForNeedToAddResistiveForce = (
@@ -282,8 +253,8 @@ const checkForNeedToAddResistiveForce = (
 
     // Apply transition if zones are below the minimum space, else remove transition
     if (isLeftZoneLessThanMinimum || isRightZoneLessThanMinimum) {
-      leftZoneDom.style.transition = "all 0.6s ease";
-      rightZoneDom.style.transition = "all 0.6s ease";
+      leftZoneDom.style.transition = `all ${baseAnimationDuration}s ease`;
+      rightZoneDom.style.transition = `all ${baseAnimationDuration}s ease`;
     } else {
       leftZoneDom.style.transition = "";
       rightZoneDom.style.transition = "";
@@ -416,8 +387,9 @@ export const useSpaceDistributionEvents = ({
           type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START,
         });
         addMouseMoveHandlers();
-        createColumnIndicator(columnPosition, columnIndicatorDivRef);
-        repositionColumnIndicator(columnIndicatorDivRef, e);
+
+        // createColumnIndicator(columnPosition, columnIndicatorDivRef);
+        // repositionColumnIndicator(columnIndicatorDivRef, e);
       };
 
       // Callback when mouse button is released
@@ -425,7 +397,7 @@ export const useSpaceDistributionEvents = ({
         e.stopPropagation();
         e.preventDefault();
         if (isCurrentHandleDistributingSpace.current && ref.current) {
-          removeColumnIndicator(columnIndicatorDivRef);
+          // removeColumnIndicator(columnIndicatorDivRef);
           resetHandleCSS(ref);
           requestAnimationFrame(onCSSTransitionEnd);
           isCurrentHandleDistributingSpace.current = false;
@@ -476,12 +448,9 @@ export const useSpaceDistributionEvents = ({
                 currentGrowthFactor,
                 leftZoneComputedColumnsRoundOff,
                 rightZoneComputedColumnsRoundOff,
-                minimumShrinkableSpacePerBlock,
                 columnIndicatorDivRef,
                 columnPosition,
-                columnWidth,
                 currentMouseSpeed.current,
-                currentMouseDirection.current,
               );
             } else {
               updatedCSSOfWidgetsOnHittingMinimumLimit(
@@ -498,7 +467,7 @@ export const useSpaceDistributionEvents = ({
           }
         }
         // Always reposition the column indicator to follow the mouse, even if no other action is taken
-        repositionColumnIndicator(columnIndicatorDivRef, e);
+        // repositionColumnIndicator(columnIndicatorDivRef, e);
       };
 
       // Attach mouse down event listener to the handle
@@ -510,7 +479,7 @@ export const useSpaceDistributionEvents = ({
           ref.current.removeEventListener("mousedown", onMouseDown);
         }
         if (columnIndicatorDivRef.current) {
-          removeColumnIndicator(columnIndicatorDivRef);
+          // removeColumnIndicator(columnIndicatorDivRef);
         }
       };
     }
