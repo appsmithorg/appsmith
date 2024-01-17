@@ -70,4 +70,4 @@ const LeftPane = () => {
   );
 };
 
-export default LeftPane;
+export default React.memo(LeftPane);
