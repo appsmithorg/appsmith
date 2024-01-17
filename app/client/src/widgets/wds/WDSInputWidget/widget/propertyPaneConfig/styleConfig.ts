@@ -19,7 +19,7 @@ export const propertyPaneStyleConfig = [
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ICONS,
+            allowedValues: Object.keys(ICONS),
           },
         },
         hidden: (props: InputWidgetProps) => {

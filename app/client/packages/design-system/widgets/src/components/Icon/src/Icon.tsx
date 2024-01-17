@@ -3,10 +3,10 @@ import React, { Suspense, forwardRef, lazy } from "react";
 import { useThemeContext } from "@design-system/theming";
 import { Icon as HeadlessIcon } from "@design-system/headless";
 
+import { ICONS } from "./icons";
 import styles from "./styles.module.css";
 import type { IconProps } from "./types";
 import { FallbackIcon } from "./FallbackIcon";
-import { toPascalCase } from "../../../utils";
 
 const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   const { filled: filledProp, icon, name, size = "medium", ...rest } = props;
@@ -18,7 +18,7 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   if (icon !== undefined) {
     Icon = icon as React.ComponentType;
   } else if (name !== undefined) {
-    const pascalName = `Icon${toPascalCase(name)}`;
+    const pascalName = ICONS[name];
 
     Icon = lazy(async () =>
       import("@tabler/icons-react").then((module) => {

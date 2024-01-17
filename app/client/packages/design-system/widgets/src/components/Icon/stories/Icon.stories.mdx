@@ -59,7 +59,7 @@ You can also pass a custom icon to the Icon component.
       width: "-webkit-fill-available",
     }}
   >
-    {ICONS.map((icon) => (
+    {Object.keys(ICONS).map((icon) => (
       <div key={icon} style={{ height: 24, width: 24 }}>
         <Icon name={icon} />
       </div>

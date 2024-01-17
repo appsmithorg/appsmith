@@ -13,7 +13,7 @@ export type IconProps = Omit<HeadlessIconProps, "children"> & {
    */
   icon?: ComponentType;
   /** Name of the icon*/
-  name?: (typeof ICONS)[number];
+  name?: keyof typeof ICONS;
   /** storke width */
   stroke?: number;
   /** filled variant */
