@@ -5,7 +5,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { Text, Link } from "design-system";
-import React from "react";
+import React, { useCallback } from "react";
 import type { MasonryProps } from "react-masonry-css";
 import styled from "styled-components";
 import { Section } from "./TemplateDescription";
@@ -42,6 +42,13 @@ interface SimilarTemplatesProp {
 }
 
 function SimilarTemplates(props: SimilarTemplatesProp) {
+  const handleClick = useCallback(
+    (template: TemplateInterface) => {
+      props.onClick(template);
+    },
+    [props.onClick],
+  );
+
   if (!props.similarTemplates.length) {
     return null;
   }
@@ -69,7 +76,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
                   buildingBlock={template}
                   hideForkTemplateButton={props.isForkingEnabled}
                   key={template.id}
-                  onClick={() => props.onClick(template)}
+                  onClick={() => handleClick(template)}
                   onForkTemplateClick={props.onFork}
                 />
               );
@@ -78,7 +85,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
               <FixedHeightTemplate
                 hideForkTemplateButton={props.isForkingEnabled}
                 key={template.id}
-                onClick={() => props.onClick(template)}
+                onClick={() => handleClick(template)}
                 onForkTemplateClick={props.onFork}
                 template={template}
               />
