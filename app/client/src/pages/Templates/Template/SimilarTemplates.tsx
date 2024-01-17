@@ -7,32 +7,28 @@ import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { Text, Link } from "design-system";
 import React from "react";
 import type { MasonryProps } from "react-masonry-css";
-import Masonry from "react-masonry-css";
 import styled from "styled-components";
 import { Section } from "./TemplateDescription";
 import FixedHeightTemplate from "./FixedHeightTemplate";
 import BuildingBlock from "../BuildingBlock";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "../constants";
 
-export const SimilarTemplatesWrapper = styled.div`
+const SimilarTemplatesWrapper = styled.div`
   padding-right: 132px;
   padding-left: 132px;
-
-  .grid {
-    display: flex;
-    margin-left: ${(props) => -props.theme.spaces[9]}px;
-    margin-top: ${(props) => props.theme.spaces[12]}px;
-  }
-
-  .grid_column {
-    padding-left: ${(props) => props.theme.spaces[9]}px;
-  }
 `;
 
-export const SimilarTemplatesTitleWrapper = styled.div`
+const SimilarTemplatesTitleWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+const TemplateGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-gap: 16px;
+  margin-top: ${(props) => props.theme.spaces[12]}px;
 `;
 
 interface SimilarTemplatesProp {
@@ -61,11 +57,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
             {createMessage(VIEW_ALL_TEMPLATES)}
           </Link>
         </SimilarTemplatesTitleWrapper>
-        <Masonry
-          breakpointCols={props.breakpointCols}
-          className="grid"
-          columnClassName="grid_column"
-        >
+        <TemplateGrid>
           {props.similarTemplates.map((template) => {
             if (
               template.functions.includes(
@@ -92,7 +84,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
               />
             );
           })}
-        </Masonry>
+        </TemplateGrid>
       </Section>
     </SimilarTemplatesWrapper>
   );

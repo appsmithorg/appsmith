@@ -36,6 +36,7 @@ const breakpointColumnsObject = {
 const Wrapper = styled.div`
   overflow: auto;
   position: relative;
+  width: 100%;
 `;
 
 const TemplateViewWrapper = styled.div`
