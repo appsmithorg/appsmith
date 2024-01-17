@@ -70,7 +70,6 @@ function WorkspaceAction({
           isLoading={isCreatingApplication}
           onClick={openActionMenu}
           size="md"
-          startIcon={"plus"}
         >
           {createMessage(WORKSPACE_ACTION_BUTTON)}
         </Button>
