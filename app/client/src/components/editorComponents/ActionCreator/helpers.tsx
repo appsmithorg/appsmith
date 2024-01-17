@@ -604,7 +604,7 @@ export function getJSOptions(
             const jsFunction = {
               label: js.name,
               id: js.id,
-              value: jsModuleInstance.config.name + "." + js.name,
+              value: jsModuleInstance.name + "." + js.name,
               type: jsOption.value,
               icon: <Icon name="js-function" size="md" />,
               args: argValue,
