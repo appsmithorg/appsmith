@@ -136,19 +136,7 @@ describe(
       agHelper.AssertElementAbsence(locators._saveStatusError);
       EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      PageLeftPane.switchToAddNew();
-      agHelper.WaitUntilEleAppear(
-        locators._widgetPageIcon(draggableWidgets.INPUT_V2),
-      );
-      entityExplorer.DragDropWidgetNVerify(
-        draggableWidgets.INPUT_V2,
-        500,
-        300,
-        "",
-        "",
-        true,
-      );
-      agHelper.AssertElementExist(locators._saveStatusError);
+      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem());
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
       agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
