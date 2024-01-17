@@ -215,8 +215,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
-                .cache();
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         Mono<RecentlyUsedEntityDTO> userDataMono = userDataService
                 .getForCurrentUser()
