@@ -55,7 +55,7 @@ describe(
     });
 
     it("2. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {
-      agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas, 0);
+      agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas);
 
       agHelper.WaitUntilEleDisappear("Importing template");
       agHelper.AssertElementVisibility(
