@@ -9,7 +9,7 @@ let prodEnv: string, stagingEnv: string;
 
 describe(
   "Tests general functionality of multi environment",
-  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.MultiEnv", "@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });

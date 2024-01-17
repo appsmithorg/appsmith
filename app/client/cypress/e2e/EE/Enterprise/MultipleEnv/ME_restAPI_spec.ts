@@ -24,7 +24,7 @@ let meDatasourceName: string,
 
 describe(
   "Multiple environment datasource creation and test flow",
-  { tags: ["@tag.excludeForAirgap"] },
+  { tags: ["@tag.MultiEnv", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       // Need to remove the previous user preference for the callout
@@ -84,6 +84,7 @@ describe(
       cy.get(locators._tableRecordsContainer).should("contain", "1 Record");
     });
 
+    // it is not possible to test multiple env on deployed application as env switcher has been removed from the deployed app
     it("4. Deploy the app, check for modal and check table response for both envs", function () {
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
@@ -95,13 +96,8 @@ describe(
         true,
       );
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      // Check for env switcher
-      agHelper.AssertElementExist(multipleEnv.env_switcher);
       // Check table values
-      multipleEnv.SwitchEnv(prodEnv);
       cy.get(locators._tableRecordsContainer).should("contain", "1 Records");
-      multipleEnv.SwitchEnv(stagingEnv);
-      cy.get(locators._tableRecordsContainer).should("contain", "2 Records");
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up

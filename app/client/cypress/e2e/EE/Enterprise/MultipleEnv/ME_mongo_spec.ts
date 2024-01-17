@@ -26,7 +26,7 @@ let meDatasourceName: string,
   meStagingOnlyQueryName: string;
 describe(
   "Multiple environment datasource creation and test flow",
-  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.MultiEnv", "@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });
@@ -166,14 +166,13 @@ describe(
       cy.get(dataSources._datasourceCardGeneratePageBtn).should("not.exist");
     });
 
+    // it is not possible to test multiple env on deployed application as env switcher has been removed from the deployed app
     it("5. Deploy the app, check for modal and check table response for both envs", function () {
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       agHelper.Sleep();
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      // Check for env switcher
-      agHelper.AssertElementExist(multipleEnv.env_switcher);
       agHelper.AssertElementExist(dataSources._selectedRow);
       table.SelectTableRow(1, 0, true, "v2");
       table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
@@ -197,33 +196,7 @@ describe(
       });
       dataSources.AssertJSONFormHeader(1, 4, "Id", "4", true);
 
-      multipleEnv.SwitchEnv(stagingEnv); //Assert data is changed for Staging env
-      //Validating loaded table
-      agHelper.AssertElementExist(dataSources._selectedRow);
-      table.SelectTableRow(1, 0, true, "v2");
-      table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
-        expect($cellData).to.be.empty;
-      });
-      table.ReadTableRowColumnData(1, 2, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("45");
-      });
-      table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Women's T-shirt");
-      });
-
-      //Validating loaded JSON form
-      cy.xpath(locators._buttonByText("Update")).then((selector) => {
-        cy.wrap(selector)
-          .invoke("attr", "class")
-          .then((classes) => {
-            //cy.log("classes are:" + classes);
-            expect(classes).not.contain("bp3-disabled");
-          });
-      });
-      dataSources.AssertJSONFormHeader(1, 4, "Id", "5", true);
-
       // Check table values
-      multipleEnv.SwitchEnv(prodEnv);
 
       agHelper.GetNClickByContains(locators._deployedPage, "Page1");
       agHelper.GetNAssertContains(
@@ -235,16 +208,7 @@ describe(
         'The action "mongo_stageonly_select" has failed.',
       );
       agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
-      multipleEnv.SwitchEnv(stagingEnv);
-      agHelper.GetNAssertContains(
-        locators._tableRecordsContainer,
-        "17 Records",
-      );
-      agHelper.GetNClickByContains(locators._deployedPage, "Page1");
-      agHelper.GetNAssertContains(
-        locators._tableRecordsContainer,
-        "17 Records",
-      );
+      // Won't be deleting the ds since it is being used by a query in deploy mode
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up
@@ -254,8 +218,7 @@ describe(
         action: "Delete",
         entityType: entityItems.Widget,
       });
-      dataSources.DeleteQuery(meQueryName);
-      // Won't be deleting the ds since it is being used by a query in deploy mode
+      // dataSources.DeleteQuery(meQueryName);
     });
   },
 );
