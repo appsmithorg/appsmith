@@ -1,5 +1,4 @@
 import commonLocators from "../../../../../locators/commonlocators.json";
-import explorer from "../../../../../locators/explorerlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 import {
@@ -41,7 +40,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   });
 
   it("1. create branch input", function () {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(gitSyncLocators.branchButton).click();
 
     // validate of the branch name
@@ -110,8 +109,9 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
     EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
     PageLeftPane.assertAbsence("ChildPage1");
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ChildApi1");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.assertAbsence("ChildJSAction1");
   });
 
@@ -125,21 +125,20 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       true,
     );
     agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
     cy.switchGitBranch(parentBranchKey);
 
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.assertAbsence("ParentPageRenamed");
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ParentApiRenamed");
   });
 
   it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
       EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");
       cy.commitAndPush();
@@ -229,7 +228,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(`.t--entity.page`)
         .contains("Page1")
         .closest(".t--entity")
@@ -242,7 +241,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
   it("7. branch list search", function () {
     cy.get(".ads-v2-spinner").should("not.exist");
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
     gitSync.CreateGitBranch("parentBranch", true);

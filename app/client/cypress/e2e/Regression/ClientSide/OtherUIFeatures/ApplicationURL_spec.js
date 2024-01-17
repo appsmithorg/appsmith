@@ -1,4 +1,3 @@
-const explorer = require("../../../../locators/explorerlocators.json");
 import {
   agHelper,
   assertHelper,
@@ -84,12 +83,11 @@ describe("Slug URLs", () => {
               `/applications/${application.id}/pages/${currentPageId}`,
             );
           });
-          cy.get(explorer.addWidget).click();
           entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
 
-          propPane.UpdatePropertyFieldValue(
-            "Text",
-            "{{appsmith.URL.pathname}}",
+          cy.updateCodeInput(
+            ".t--property-control-text",
+            `{{appsmith.URL.pathname}}`,
           );
 
           cy.get(".t--draggable-textwidget .bp3-ui-text").should(

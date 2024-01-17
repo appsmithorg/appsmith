@@ -8,7 +8,10 @@ const jsObject = "Utils";
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Fork a template to the current app",
@@ -81,7 +84,7 @@ describe(
           "template added successfully",
         );
         // [Bug]: On forking a template the JS Objects are not cloned #17425
-        cy.CheckAndUnfoldEntityItem("Queries/JS");
+        PageLeftPane.switchSegment(PagePaneSegment.JS);
         PageLeftPane.assertPresence(jsObject);
         _.homePage.NavigateToHome();
         cy.get(homePage.searchInput).clear().type(newWorkspaceName);

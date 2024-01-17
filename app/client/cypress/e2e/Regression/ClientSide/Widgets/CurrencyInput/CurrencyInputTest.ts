@@ -241,7 +241,10 @@ describe(
     });
 
     it("8. Validate 'visible', 'disable' and 'auto Focus' toggle", () => {
-      EditorNavigation.SelectEntityByName("NewCurrencyInput", EntityType.Query);
+      EditorNavigation.SelectEntityByName(
+        "NewCurrencyInput",
+        EntityType.Widget,
+      );
 
       // Verify Disabled toggle
       propPane.TogglePropertyState("disabled", "On");

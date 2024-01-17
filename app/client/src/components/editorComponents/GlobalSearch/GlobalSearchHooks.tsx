@@ -23,6 +23,7 @@ import {
   generateCreateNewDSOption,
   isMatching,
   SEARCH_ITEM_TYPES,
+  appsmithAIActionOperation,
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
@@ -56,6 +57,7 @@ export const useFilteredFileOperations = ({
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
   const moduleOptions = useModuleOptions();
+  const showAppsmithAIQuery = useFeatureFlag(FEATURE_FLAG.ab_appsmith_ai_query);
   const workflowOptions = useWorkflowOptions();
 
   // helper map for sorting based on recent usage
@@ -90,6 +92,7 @@ export const useFilteredFileOperations = ({
     plugins,
     recentlyUsedDSMap,
     query,
+    showAppsmithAIQuery,
   });
 };
 
@@ -101,6 +104,7 @@ export const useFilteredAndSortedFileOperations = ({
   plugins = [],
   query,
   recentlyUsedDSMap = {},
+  showAppsmithAIQuery = false,
   workflowOptions = [],
 }: {
   allDatasources?: Datasource[];
@@ -111,9 +115,16 @@ export const useFilteredAndSortedFileOperations = ({
   query: string;
   recentlyUsedDSMap?: Record<string, number>;
   workflowOptions?: ActionOperation[];
+  showAppsmithAIQuery?: boolean;
 }) => {
   const fileOperations: ActionOperation[] = [];
+
   if (!canCreateActions) return fileOperations;
+
+  // Add appsmith AI operation if the feature flag is enabled
+  const allActionOperations = showAppsmithAIQuery
+    ? [...actionOperations, appsmithAIActionOperation]
+    : actionOperations;
 
   // Add Workflow operations
   if (workflowOptions.length > 0) {
@@ -124,7 +135,7 @@ export const useFilteredAndSortedFileOperations = ({
    *  Work around to get the rest api cloud image.
    *  We don't have it store as a svg
    */
-  const actionOps = updateActionOperations(plugins, actionOperations);
+  const actionOps = updateActionOperations(plugins, allActionOperations);
 
   // Add JS Object operation
   fileOperations.push(actionOps[2]);

@@ -63,7 +63,11 @@ import {
   SlashCommand,
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { PagePaneData } from "@appsmith/selectors/entitiesSelector";
+import type {
+  EditorSegmentList,
+  EntityItem,
+} from "@appsmith/selectors/appIDESelectors";
+import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -74,7 +78,6 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-  selectQueriesForPagespane,
   getPageActions,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
@@ -531,20 +534,17 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
 
   // Check if another action is present in the group and redirect to it, orelse
   // navigate to tht top of the list
-  const currentSortedList: PagePaneData = yield select(
-    selectQueriesForPagespane,
+  const currentSortedList: EditorSegmentList = yield select(
+    selectQuerySegmentEditorList,
   );
-  let deletedActionGroup;
-  for (const [group, actions] of Object.entries(currentSortedList)) {
-    if (actions.find((a) => a.id === deletedAction.id)) {
-      deletedActionGroup = group;
+  let remainingGroupActions: EntityItem[] = [];
+  for (const { items } of currentSortedList) {
+    if (items.find((a) => a.key === deletedAction.id)) {
+      remainingGroupActions = items.filter((a) => a.key !== deletedAction.id);
       break;
     }
   }
-  const groupActions = currentSortedList[deletedActionGroup || ""];
-  const remainingGroupActions = groupActions.filter(
-    (a) => a.id !== deletedAction.id,
-  );
+
   let url;
   if (remainingGroupActions.length === 0) {
     const toRedirect = otherActions[0];
@@ -557,7 +557,7 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
   } else {
     const toRedirect = remainingGroupActions[0];
     const config = getActionConfig(toRedirect.type);
-    url = config?.getURL(pageId, toRedirect.id, toRedirect.type);
+    url = config?.getURL(pageId, toRedirect.key, toRedirect.type);
   }
   if (url) {
     history.push(url);

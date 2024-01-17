@@ -286,7 +286,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<Application>> restoreSnapshot(
             @PathVariable String id,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService

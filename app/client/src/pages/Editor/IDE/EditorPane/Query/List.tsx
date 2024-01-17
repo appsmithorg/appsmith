@@ -11,10 +11,8 @@ import {
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import {
-  getCurrentPageId,
-  selectQueriesForPagespane,
-} from "@appsmith/selectors/entitiesSelector";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
@@ -24,7 +22,7 @@ import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
-  const files = useSelector(selectQueriesForPagespane);
+  const files = useSelector(selectQuerySegmentEditorList);
   const activeActionId = useActiveAction();
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -49,6 +47,7 @@ const ListQuery = () => {
       {Object.keys(files).length > 0 && canCreateActions && (
         <Flex flexDirection={"column"} px="spaces-3">
           <Button
+            className="t--add-item"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}
@@ -64,15 +63,15 @@ const ListQuery = () => {
         overflowY="auto"
         px="spaces-3"
       >
-        {Object.keys(files).map((key) => {
+        {files.map(({ group, items }) => {
           return (
-            <Flex flexDirection={"column"} key={key}>
+            <Flex flexDirection={"column"} key={group}>
               <Flex px="spaces-3" py="spaces-1">
                 <Text
                   className="overflow-hidden overflow-ellipsis whitespace-nowrap"
                   kind="body-s"
                 >
-                  {key}
+                  {group}
                 </Text>
               </Flex>
               <FilesContextProvider
@@ -82,12 +81,12 @@ const ListQuery = () => {
                 parentEntityType={ActionParentEntityType.PAGE}
                 showWorkflows={showWorkflows}
               >
-                {files[key].map((file: any) => {
+                {items.map((file) => {
                   return (
                     <ExplorerActionEntity
-                      id={file.id}
-                      isActive={file.id === activeActionId}
-                      key={file.id}
+                      id={file.key}
+                      isActive={file.key === activeActionId}
+                      key={file.key}
                       parentEntityId={pageId}
                       parentEntityType={ActionParentEntityType.PAGE}
                       searchKeyword={""}
@@ -104,6 +103,7 @@ const ListQuery = () => {
 
       {Object.keys(files).length === 0 && (
         <EmptyState
+          buttonClassName="t--add-item"
           buttonText={createMessage(EDITOR_PANE_TEXTS.query_add_button)}
           description={createMessage(
             EDITOR_PANE_TEXTS.query_blank_state_description,

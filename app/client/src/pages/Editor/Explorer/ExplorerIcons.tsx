@@ -18,6 +18,9 @@ const CurlIcon = importSvg(async () => import("assets/images/Curl-logo.svg"));
 const GraphqlIcon = importSvg(
   async () => import("assets/images/Graphql-logo.svg"),
 );
+const AppsmithAISVG = importSvg(
+  async () => import("assets/images/appsmith-ai.svg"),
+);
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -316,6 +319,14 @@ export function GraphQLIconV2() {
   return (
     <EntityIcon>
       <GraphqlIcon />
+    </EntityIcon>
+  );
+}
+
+export function AppsmithAIIcon() {
+  return (
+    <EntityIcon>
+      <AppsmithAISVG />
     </EntityIcon>
   );
 }
