@@ -58,12 +58,13 @@ describe(
       agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas, 0);
 
       agHelper.WaitUntilEleDisappear("Importing template");
-      agHelper.GetNClick(
+      agHelper.AssertElementVisibility(
         templates.locators._datasourceConnectPromptSubmitBtn,
+        true,
         0,
-        false,
         5000,
       );
+      agHelper.GetNClick(templates.locators._datasourceConnectPromptSubmitBtn);
       cy.url().should("include", "datasources/NEW");
     });
 
@@ -75,12 +76,9 @@ describe(
 
       agHelper.WaitUntilEleDisappear("Importing template");
 
-      // there is no way of avoiding this wait
-      // the pop up has a hardcode timeout of 3 seconds
-      // to ensure it is not coming up, we need to wait for 4 seconds
-      agHelper.Sleep(4000);
       agHelper.AssertElementAbsence(
         templates.locators._datasourceConnectPromptSubmitBtn,
+        4000,
       );
     });
   },
