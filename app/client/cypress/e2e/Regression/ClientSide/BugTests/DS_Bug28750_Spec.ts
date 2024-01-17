@@ -6,7 +6,6 @@ describe(
   { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
-      featureFlagIntercept({ ab_gsheet_schema_enabled: true });
       dataSources.CreateMockDB("Users");
     });
 

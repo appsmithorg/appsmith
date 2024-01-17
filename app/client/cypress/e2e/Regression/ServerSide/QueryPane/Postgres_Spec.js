@@ -138,15 +138,13 @@ describe(
 
     it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function () {
       //Verifying Select from UI
-      cy.NavigateToDSGeneratePage(datasourceName);
-      cy.get(generatePage.selectTableDropdown).click();
-      cy.get(generatePage.dropdownOption)
-        .contains("public.users_crud")
-        .scrollIntoView()
-        .should("be.visible")
-        .click();
-
-      cy.get(generatePage.generatePageFormSubmitBtn).click();
+      EditorNavigation.SelectEntityByName(
+        datasourceName,
+        EntityType.Datasource,
+      );
+      dataSources.RefreshDatasourceSchema();
+      dataSources.SelectTableFromPreviewSchemaList("public.users_crud");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
 
       cy.wait("@replaceLayoutWithCRUDPage").should(
         "have.nested.property",

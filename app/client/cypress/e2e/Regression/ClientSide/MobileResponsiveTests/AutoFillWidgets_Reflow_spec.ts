@@ -40,7 +40,7 @@ describe(
         currentUrl = url;
         cy.log(currentUrl);
         homePage.Signout(false);
-        agHelper.VisitNAssert(url, "getConsolidatedData");
+        agHelper.VisitNAssert(url, "getPagesForViewApp");
         agHelper.AssertCSS(
           autoLayout.getAutoLayoutLayerClassName("0", 0),
           "flex-wrap",

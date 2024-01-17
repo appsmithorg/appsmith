@@ -25,12 +25,6 @@ describe(
   "Validate MySQL Generate CRUD with JSON Form",
   { tags: ["@tag.Datasource"] },
   () => {
-    before(() => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
-    });
     // beforeEach(function() {
     //   if (INTERCEPT.MYSQL) {
     //     cy.log("MySQL DB is not found. Using intercept");
@@ -116,9 +110,8 @@ describe(
     });
 
     it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "employees");
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("employees");
 
       GenerateCRUDNValidateDeployPage(
         "1002",
@@ -182,10 +175,9 @@ describe(
     });
 
     it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "productlines");
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("productlines");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
       agHelper.AssertContains("Successfully generated a page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       assertHelper.AssertNetworkStatus("@getActions", 200);
@@ -321,7 +313,9 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      agHelper.GetNClick(
+        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
+      );
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes

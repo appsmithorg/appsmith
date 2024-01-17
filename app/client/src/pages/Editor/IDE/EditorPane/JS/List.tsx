@@ -1,9 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Button, Flex } from "design-system";
+import { Button, Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import { selectJSForPagespane } from "@appsmith/selectors/entitiesSelector";
+import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
 import type { PluginType } from "entities/Action";
@@ -34,8 +34,7 @@ const JSContainer = styled(Flex)`
 
 const ListJSObjects = () => {
   const pageId = useSelector(getCurrentPageId);
-  const files = useSelector(selectJSForPagespane);
-  const JSObjects = files["JS Objects"];
+  const jsList = useSelector(selectJSSegmentEditorList);
   const activeActionId = useActiveAction();
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -58,7 +57,7 @@ const ListJSObjects = () => {
       overflow="hidden"
       py="spaces-3"
     >
-      {JSObjects && JSObjects.length > 0 && canCreateActions && (
+      {jsList && jsList.length > 0 && canCreateActions && (
         <Flex flexDirection="column" px="spaces-3">
           <Button
             className="t--add-item"
@@ -78,27 +77,44 @@ const ListJSObjects = () => {
         parentEntityType={ActionParentEntityType.PAGE}
       >
         <Flex flex="1" flexDirection="column" overflowY="auto" px="spaces-3">
-          {JSObjects &&
-            JSObjects.map((JSobject) => {
-              return (
-                <Flex flexDirection={"column"} key={JSobject.id}>
-                  <ExplorerJSCollectionEntity
-                    id={JSobject.id}
-                    isActive={JSobject.id === activeActionId}
-                    key={JSobject.id}
-                    parentEntityId={pageId}
-                    parentEntityType={ActionParentEntityType.PAGE}
-                    searchKeyword={""}
-                    step={2}
-                    type={JSobject.type as PluginType}
-                  />
-                </Flex>
-              );
-            })}
+          {jsList.map(({ group, items }) => {
+            return (
+              <>
+                {group !== "NA" ? (
+                  <Flex px="spaces-3" py="spaces-1">
+                    <Text
+                      className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+                      kind="body-s"
+                    >
+                      {group}
+                    </Text>
+                  </Flex>
+                ) : null}
+                <>
+                  {items.map((item) => {
+                    return (
+                      <Flex flexDirection={"column"} key={item.key}>
+                        <ExplorerJSCollectionEntity
+                          id={item.key}
+                          isActive={item.key === activeActionId}
+                          key={item.key}
+                          parentEntityId={pageId}
+                          parentEntityType={ActionParentEntityType.PAGE}
+                          searchKeyword={""}
+                          step={2}
+                          type={item.type as PluginType}
+                        />
+                      </Flex>
+                    );
+                  })}
+                </>
+              </>
+            );
+          })}
         </Flex>
       </FilesContextProvider>
 
-      {(!JSObjects || JSObjects.length === 0) && (
+      {(!jsList || jsList.length === 0) && (
         <EmptyState
           buttonClassName="t--add-item"
           buttonText={createMessage(EDITOR_PANE_TEXTS.js_add_button)}
