@@ -15,7 +15,7 @@ import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import {
   BRANCH,
   GENERAL,
-  SETTINGS,
+  SETTINGS_GIT,
   createMessage,
 } from "@appsmith/constants/messages";
 import TabGeneral from "./TabGeneral";
@@ -71,7 +71,7 @@ function GitSettingsModal() {
         open={isModalOpen}
       >
         <StyledModalContent data-testid="t--git-settings-modal">
-          <ModalHeader>{createMessage(SETTINGS)}</ModalHeader>
+          <ModalHeader>{createMessage(SETTINGS_GIT)}</ModalHeader>
           <Menu
             activeTabKey={activeTabKey}
             onSelect={(tabKey: string) =>
