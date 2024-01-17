@@ -683,17 +683,19 @@ export function ApplicationsSection(props: any) {
         );
       }
     };
+
     const showWorkspaceMenuOptions =
       canInviteToWorkspace ||
       hasManageWorkspacePermissions ||
-      hasCreateNewApplicationPermission ||
       (canDeleteWorkspace && applications.length === 0) ||
       renderManageEnvironmentMenu;
+
     const handleResetMenuState = () => {
       setWorkspaceToOpenMenu(null);
       setWarnLeavingWorkspace(false);
       setWarnDeleteWorkspace(false);
     };
+
     const handleWorkspaceMenuClose = (open: boolean) => {
       if (!open && !warnLeavingWorkspace && !warnDeleteWorkspace) {
         handleResetMenuState();
@@ -878,8 +880,8 @@ export const ApplictionsMainPage = (props: any) => {
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: { ...activeWorkspace },
         });
-        fetchWorkspaceEntities({ dispatch, activeWorkspaceId, featureFlags });
       }
+      fetchWorkspaceEntities({ dispatch, activeWorkspaceId, featureFlags });
     }
   }, [urlHash, fetchedWorkspaces, activeWorkspaceId]);
 
