@@ -1,0 +1,29 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "Description",
+          "configProperty": "datasourceConfiguration.description",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true
+        },
+        {
+          "label": "Endpoint URL (with or without protocol and port no)",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "https://ai.appsmith.com",
+          "isRequired": true,
+          "hidden": true
+        }
+      ]
+    }
+  ],
+  "formButton": [
+    "CANCEL",
+    "SAVE"
+  ]
+}
