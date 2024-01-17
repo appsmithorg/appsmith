@@ -22,14 +22,14 @@ public class MappedImportableResourcesCE_DTO {
 
     // Artifact dependent
     // This attribute is re-usable across artifacts according to the needs
-    Map<String, String> newEntityNameToOldEntityName;
+    Map<String, String> pageOrModuleNewNameToOldName;
 
     /**
      * Attribute used to carry objects specific to the context of the Artifacts.
      * In case of application it carries the NewPage entity
      * In case of packages it would carry modules
      */
-    Map<String, ? extends BranchAwareDomain> branchAwareEntityMap;
+    Map<String, ? extends BranchAwareDomain> pageOrModuleMap;
 
     // Artifact dependent and common
     List<CustomJSLibContextDTO> installedJsLibsList;

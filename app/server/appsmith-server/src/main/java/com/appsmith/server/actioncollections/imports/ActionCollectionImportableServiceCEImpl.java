@@ -77,12 +77,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
         if (importingMetaDTO.getAppendToArtifact()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollectionList1 -> {
-                List<NewPage> importedNewPages =
-                        mappedImportableResourcesDTO.getBranchAwareEntityMap().values().stream()
-                                .distinct()
-                                .map(branchAwareDomain -> (NewPage) branchAwareDomain)
-                                .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewEntityNameToOldEntityName();
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
+                        .distinct()
+                        .map(branchAwareDomain -> (NewPage) branchAwareDomain)
+                        .toList();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getPageOrModuleNewNameToOldName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -197,7 +196,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .get(unpublishedCollection.getPluginId()));
                                         parentPage = updatePageInActionCollection(
                                                 unpublishedCollection, (Map<String, NewPage>)
-                                                        mappedImportableResourcesDTO.getBranchAwareEntityMap());
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap());
                                     }
 
                                     if (publishedCollection != null && publishedCollection.getName() != null) {
@@ -214,7 +213,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         }
                                         NewPage publishedCollectionPage =
                                                 updatePageInActionCollection(publishedCollection, (Map<String, NewPage>)
-                                                        mappedImportableResourcesDTO.getBranchAwareEntityMap());
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap());
                                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                                     }
 

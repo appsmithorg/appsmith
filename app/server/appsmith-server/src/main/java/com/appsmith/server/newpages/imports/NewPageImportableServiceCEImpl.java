@@ -121,7 +121,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 mappedImportableResourcesDTO.getActionAndCollectionMapsDTO();
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
-        List<NewPage> newPages = mappedImportableResourcesDTO.getBranchAwareEntityMap().values().stream()
+        List<NewPage> newPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
                 .distinct()
                 .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                 .toList();
@@ -185,7 +185,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         newToOldNameMap = Map.of();
                     }
 
-                    mappedImportableResourcesDTO.setNewEntityNameToOldEntityName(newToOldNameMap);
+                    mappedImportableResourcesDTO.setPageOrModuleNewNameToOldName(newToOldNameMap);
                     return Tuples.of(importedNewPages, newToOldNameMap);
                 })
                 .zipWith(importApplicationMono)
@@ -251,7 +251,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                     Map<String, NewPage> pageNameMap = objects.getT3();
                     Application savedApp = objects.getT4();
 
-                    mappedImportableResourcesDTO.setBranchAwareEntityMap(pageNameMap);
+                    mappedImportableResourcesDTO.setPageOrModuleMap(pageNameMap);
 
                     log.debug("New pages imported for application: {}", savedApp.getId());
                     Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();

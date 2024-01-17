@@ -261,7 +261,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     // update page name reference with newPage
                     Map<String, NewPage> pageNameMap = new HashMap<>();
                     pageNameMap.put(pageName, newPage);
-                    mappedImportableResourcesDTO.setBranchAwareEntityMap(pageNameMap);
+                    mappedImportableResourcesDTO.setPageOrModuleMap(pageNameMap);
 
                     if (applicationJson.getActionList() == null) {
                         return Mono.just(pageName);
