@@ -67,7 +67,7 @@ describe(
       cy.url().should("include", "datasources/NEW");
     });
 
-    it("2. `Connect your data` pop up should NOT come up when user already has a datasource.", function () {
+    it("3. `Connect your data` pop up should NOT come up when user already has a datasource.", function () {
       dataSources.CreateMockDB("Users");
       AppSidebar.navigate(AppSidebarButton.Editor);
 
