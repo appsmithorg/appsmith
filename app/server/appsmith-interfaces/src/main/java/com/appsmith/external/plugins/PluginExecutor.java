@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -168,6 +169,13 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      */
     default Mono<DatasourceTestResult> testDatasource(C connection) {
         return Mono.just(new DatasourceTestResult());
+    }
+
+    /**
+     * This function is being called as a hook before saving a datasource.
+     */
+    default Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+        return Mono.just(datasourceStorage);
     }
 
     /**
