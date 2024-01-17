@@ -223,7 +223,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             // error message according to the context
             return Mono.error(new AppsmithException(
                     AppsmithError.INVALID_PARAMETER,
-                    contextBasedImportService.getConstantsMap().get(FieldName.ID)));
+                    contextBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ID)));
         }
 
         // Check if the application is connected to git and if it's connected throw exception asking user to update
@@ -423,7 +423,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 getContextBasedImportService(artifactExchangeJson);
 
         String artifactContextString =
-                contextBasedImportService.getConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
+                contextBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
 
         // step 1: Schema Migration
         ArtifactExchangeJson importedDoc =
@@ -540,7 +540,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         String errorField = "";
         if (importedDoc.getImportableArtifact() == null) {
             // the error field will be either application, packages, or workflows
-            errorField = contextBasedImportService.getConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
+            errorField =
+                    contextBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
         } else {
             // validate contextSpecific-errors
             errorField = getContextBasedImportService(importedDoc).validateArtifactSpecificFields(importedDoc);
@@ -695,9 +696,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             AnalyticsEvents event) {
         // this would result in "application", "packages", or "workflows"
         String artifactContextString =
-                contextBasedImportService.getConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
+                contextBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
         // this would result in "applicationId", "packageId", or "workflowId"
-        String contextIdString = contextBasedImportService.getConstantsMap().get(FieldName.ID);
+        String contextIdString =
+                contextBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ID);
         return workspaceService.getById(importableArtifact.getWorkspaceId()).flatMap(workspace -> {
             final Map<String, Object> eventData =
                     Map.of(artifactContextString, importableArtifact, FieldName.WORKSPACE, workspace);

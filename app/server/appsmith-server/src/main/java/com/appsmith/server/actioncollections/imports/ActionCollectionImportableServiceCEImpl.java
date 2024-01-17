@@ -78,7 +78,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         if (importingMetaDTO.getAppendToArtifact()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollectionList1 -> {
                 List<NewPage> importedNewPages =
-                        mappedImportableResourcesDTO.getEntityNameToEntityMap().values().stream()
+                        mappedImportableResourcesDTO.getBranchAwareEntityMap().values().stream()
                                 .distinct()
                                 .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                                 .toList();
@@ -197,7 +197,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .get(unpublishedCollection.getPluginId()));
                                         parentPage = updatePageInActionCollection(
                                                 unpublishedCollection, (Map<String, NewPage>)
-                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap());
+                                                        mappedImportableResourcesDTO.getBranchAwareEntityMap());
                                     }
 
                                     if (publishedCollection != null && publishedCollection.getName() != null) {
@@ -214,7 +214,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         }
                                         NewPage publishedCollectionPage =
                                                 updatePageInActionCollection(publishedCollection, (Map<String, NewPage>)
-                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap());
+                                                        mappedImportableResourcesDTO.getBranchAwareEntityMap());
                                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                                     }
 

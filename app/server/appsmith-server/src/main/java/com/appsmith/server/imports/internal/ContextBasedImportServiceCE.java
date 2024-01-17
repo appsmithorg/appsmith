@@ -143,5 +143,11 @@ public interface ContextBasedImportServiceCE<
 
     String validateArtifactSpecificFields(ArtifactExchangeJson artifactExchangeJson);
 
-    Map<String, String> getConstantsMap();
+    /**
+     *  This map keeps constants which are specific to the contexts i.e. Application, packages.
+     *  which is parallel to other Artifacts.
+     *  i.e. Artifact --> Application, Packages
+     *  i.e. ID --> applicationId, packageId
+     */
+    Map<String, String> getArtifactSpecificConstantsMap();
 }

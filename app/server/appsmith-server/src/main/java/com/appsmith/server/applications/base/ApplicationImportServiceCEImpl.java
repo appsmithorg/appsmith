@@ -705,7 +705,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Map<String, String> getConstantsMap() {
+    public Map<String, String> getArtifactSpecificConstantsMap() {
         return applicationConstantsMap;
     }
 }

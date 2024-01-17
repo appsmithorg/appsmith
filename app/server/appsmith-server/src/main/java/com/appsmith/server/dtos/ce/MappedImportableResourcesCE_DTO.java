@@ -29,7 +29,7 @@ public class MappedImportableResourcesCE_DTO {
      * In case of application it carries the NewPage entity
      * In case of packages it would carry modules
      */
-    Map<String, ? extends BranchAwareDomain> entityNameToEntityMap;
+    Map<String, ? extends BranchAwareDomain> branchAwareEntityMap;
 
     // Artifact dependent and common
     List<CustomJSLibContextDTO> installedJsLibsList;

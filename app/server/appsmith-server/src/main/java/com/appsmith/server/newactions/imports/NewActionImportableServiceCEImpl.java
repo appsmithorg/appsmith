@@ -72,7 +72,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         if (TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
                 List<NewPage> importedNewPages =
-                        mappedImportableResourcesDTO.getEntityNameToEntityMap().values().stream()
+                        mappedImportableResourcesDTO.getBranchAwareEntityMap().values().stream()
                                 .distinct()
                                 .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                                 .toList();
@@ -276,7 +276,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         parentPage = updatePageInAction(
                                                 unpublishedAction,
                                                 (Map<String, NewPage>)
-                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap(),
+                                                        mappedImportableResourcesDTO.getBranchAwareEntityMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         sanitizeDatasourceInActionDTO(
                                                 unpublishedAction,
@@ -294,7 +294,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         NewPage publishedActionPage = updatePageInAction(
                                                 publishedAction,
                                                 (Map<String, NewPage>)
-                                                        mappedImportableResourcesDTO.getEntityNameToEntityMap(),
+                                                        mappedImportableResourcesDTO.getBranchAwareEntityMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         parentPage = parentPage == null ? publishedActionPage : parentPage;
                                         sanitizeDatasourceInActionDTO(
