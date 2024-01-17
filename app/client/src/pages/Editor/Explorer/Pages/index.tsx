@@ -70,6 +70,14 @@ function Pages() {
     }
   }, [pageResizeRef]);
 
+  useEffect(() => {
+    // scroll to the current page
+    const currentPage = document.getElementById("entity-" + currentPageId);
+    if (currentPage) {
+      setTimeout(() => currentPage.scrollIntoView(), 0);
+    }
+  }, [currentPageId]);
+
   const switchPage = useCallback(
     (page: Page) => {
       const navigateToUrl =

@@ -74,6 +74,7 @@ const FilterItem = ({
       {selectedFilter && (
         <Icon
           color="var(--ads-v2-color-bg-brand-secondary-emphasis-plus)"
+          data-testid="t--templates-filter-item-selected-icon"
           name="check-line"
           size="md"
         />
