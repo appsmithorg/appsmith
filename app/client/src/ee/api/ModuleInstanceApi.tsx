@@ -2,9 +2,11 @@ import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ActionResponse } from "api/ActionAPI";
 import type { AxiosPromise } from "axios";
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type {
-  CreateQueryModuleInstancePayload,
+  ModuleInstance,
+  ModuleInstanceCreatorType,
+} from "@appsmith/constants/ModuleInstanceConstants";
+import type {
   DeleteModuleInstancePayload,
   FetchModuleInstanceEntitiesPayload,
   FetchModuleInstancesPayload,
@@ -59,6 +61,13 @@ export interface ConvertEntityToInstanceResponse {
   originModuleId: string;
 }
 
+export interface CreateQueryModuleInstanceApiPayload {
+  sourceModuleId: string;
+  contextId: string;
+  contextType: ModuleInstanceCreatorType;
+  name: string;
+}
+
 class ModuleInstancesApi extends Api {
   static moduleInstancesUrl = "v1/moduleInstances";
 
@@ -77,7 +86,7 @@ class ModuleInstancesApi extends Api {
   }
 
   static async createModuleInstance(
-    payload: CreateQueryModuleInstancePayload,
+    payload: CreateQueryModuleInstanceApiPayload,
   ): Promise<AxiosPromise<ApiResponse<CreateModuleInstanceResponse>>> {
     const url = ModuleInstancesApi.moduleInstancesUrl;
     return Api.post(url, payload);

@@ -9,7 +9,6 @@ import {
   type Action,
   type ApiAction,
   PluginPackageName,
-  PluginType,
 } from "entities/Action";
 import type {
   ActionData,
@@ -18,25 +17,17 @@ import type {
 import {
   getActions,
   getCurrentModuleActions,
-  getDatasource,
   getJSCollection,
   getJSCollections,
-  getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import {
-  createNewApiName,
-  createNewJSFunctionName,
-  createNewQueryName,
-} from "utils/AppsmithUtils";
+import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import {
   clearActionResponse,
   createActionRequest,
   updateActionData,
 } from "actions/pluginActionActions";
-import type { Datasource } from "entities/Datasource";
 import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
-import type { Plugin } from "api/PluginApi";
 import {
   ActionParentEntityType,
   CreateNewActionKey,
@@ -89,21 +80,13 @@ export function* createNewAPIActionForPackageSaga(
   } = action.payload;
 
   if (moduleId) {
-    const actions: ActionDataState = yield select(getActions);
-    const newActionName = createNewApiName(
-      actions,
-      moduleId || "",
-      CreateNewActionKey.MODULE,
-    );
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
-
     const createApiActionPayload: Partial<ApiAction> = yield call(
       createDefaultApiActionPayload,
       {
         apiType,
         from,
-        newActionName,
       },
     );
 
@@ -125,25 +108,12 @@ export function* createNewQueryActionForPackageSaga(
   }>,
 ) {
   const { datasourceId, from, moduleId } = action.payload;
-  const actions: ActionDataState = yield select(getActions);
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  const newActionName =
-    plugin?.type === PluginType.DB
-      ? createNewQueryName(
-          actions,
-          moduleId || "",
-          undefined,
-          CreateNewActionKey.MODULE,
-        )
-      : createNewApiName(actions, moduleId || "", CreateNewActionKey.MODULE);
 
   const createActionPayload: Partial<Action> = yield call(
     createDefaultActionPayloadWithPluginDefaults,
     {
       datasourceId,
       from,
-      newActionName,
     },
   );
 

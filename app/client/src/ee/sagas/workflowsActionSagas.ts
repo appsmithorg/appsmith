@@ -5,26 +5,14 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import {
-  getActions,
-  getDatasource,
-  getJSCollections,
-  getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
+import { getJSCollections } from "@appsmith/selectors/entitiesSelector";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type { Action, ApiAction } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
-import type { Datasource } from "entities/Datasource";
+import { PluginPackageName } from "entities/Action";
 import { select, put, takeLatest, call, all } from "redux-saga/effects";
 import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
 import { validateResponse } from "sagas/ErrorSagas";
-import {
-  createNewQueryName,
-  createNewApiName,
-  createNewJSFunctionName,
-} from "utils/AppsmithUtils";
-import type { Plugin } from "api/PluginApi";
+import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/pluginActionActions";
 import ActionAPI from "api/ActionAPI";
 import PerformanceTracker, {
@@ -32,10 +20,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import type { FetchWorkflowActionsPayload } from "@appsmith/actions/workflowActions";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
-import {
-  ActionParentEntityType,
-  CreateNewActionKey,
-} from "@appsmith/entities/Engine/actionHelpers";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import type { JSCollection } from "entities/JSCollection";
@@ -57,29 +42,12 @@ export function* createWorkflowQueryActionSaga(
   }>,
 ) {
   const { datasourceId, from, workflowId } = action.payload;
-  const actions: ActionDataState = yield select(getActions);
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  const newActionName =
-    plugin?.type === PluginType.DB
-      ? createNewQueryName(
-          actions,
-          workflowId || "",
-          undefined,
-          CreateNewActionKey.WORKFLOW,
-        )
-      : createNewApiName(
-          actions,
-          workflowId || "",
-          CreateNewActionKey.WORKFLOW,
-        );
 
   const createActionPayload: Partial<Action> = yield call(
     createDefaultActionPayloadWithPluginDefaults,
     {
       datasourceId,
       from,
-      newActionName,
     },
   );
 
@@ -110,21 +78,11 @@ export function* createWorkflowApiActionSaga(
   } = action.payload;
 
   if (workflowId) {
-    const actions: ActionDataState = yield select(getActions);
-    const newActionName = createNewApiName(
-      actions,
-      workflowId || "",
-      CreateNewActionKey.WORKFLOW,
-    );
-    // Note: Do NOT send pluginId on top level here.
-    // It breaks embedded rest datasource flow.
-
     const createApiActionPayload: Partial<ApiAction> = yield call(
       createDefaultApiActionPayload,
       {
         apiType,
         from,
-        newActionName,
       },
     );
 

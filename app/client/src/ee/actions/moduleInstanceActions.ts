@@ -13,7 +13,6 @@ export interface CreateQueryModuleInstancePayload {
   sourceModuleId: string;
   contextId: string;
   contextType: ModuleInstanceCreatorType;
-  name: string;
 }
 
 export interface UpdateModuleInstancePayload {

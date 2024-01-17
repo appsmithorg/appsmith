@@ -61,7 +61,10 @@ import { updateActionData } from "actions/pluginActionActions";
 import { fetchAllPackagesSaga } from "./packagesSagas";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
-import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { MODULE_TYPE, Module } from "@appsmith/constants/ModuleConstants";
+import { getModuleById } from "@appsmith/selectors/modulesSelector";
+import { getNewEntityName } from "@appsmith/selectors/entitiesSelector";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 import analytics from "@appsmith/utils/Packages/analytics";
 
 export interface RefactorModuleInstanceNameProps {
@@ -72,11 +75,20 @@ export interface RefactorModuleInstanceNameProps {
   type: MODULE_TYPE | undefined;
 }
 
-function* createQueryModuleInstanceSaga(
+function* createModuleInstanceSaga(
   action: ReduxAction<CreateQueryModuleInstancePayload>,
 ) {
-  const { contextId, contextType, name, sourceModuleId } = action.payload;
+  const { contextId, contextType, sourceModuleId } = action.payload;
+
   try {
+    const module: Module = yield select(getModuleById, sourceModuleId);
+
+    const name: string = yield select(getNewEntityName, {
+      prefix: `${module.name}_`,
+      parentEntityId: contextId,
+      parentEntityKey: CreateNewActionKey.PAGE,
+    });
+
     const response: ApiResponse<CreateModuleInstanceResponse> = yield call(
       ModuleInstancesApi.createModuleInstance,
       {
@@ -561,7 +573,7 @@ export default function* moduleInstanceSaga() {
   yield all([
     takeLatest(
       ReduxActionTypes.CREATE_MODULE_INSTANCE_INIT,
-      createQueryModuleInstanceSaga,
+      createModuleInstanceSaga,
     ),
     takeLatest(
       ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,
