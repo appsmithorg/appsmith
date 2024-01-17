@@ -103,6 +103,12 @@ export interface ListingProps {
   listingType: string;
 }
 
+export interface InfiniteListingProps extends ListingProps {
+  infiniteScroll: true;
+  loadMore: () => void;
+  hasMore: boolean;
+}
+
 export interface PageHeaderProps {
   buttonText?: string;
   searchPlaceholder: string;

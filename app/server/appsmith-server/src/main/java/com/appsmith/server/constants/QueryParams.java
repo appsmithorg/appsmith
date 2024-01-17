@@ -13,4 +13,5 @@ public class QueryParams {
     public static String RESOLUTION = "resolution";
     public static String RESOLVED_BY = "resolvedBy";
     public static final String SORT = "sort";
+    public static final String SEARCH_TERM = "searchTerm";
 }

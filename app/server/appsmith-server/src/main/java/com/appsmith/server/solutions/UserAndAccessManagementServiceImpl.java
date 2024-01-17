@@ -15,6 +15,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
@@ -24,7 +25,6 @@ import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupHelper;
 import com.appsmith.server.helpers.PermissionGroupHelperImpl;
 import com.appsmith.server.helpers.UserPermissionUtils;
@@ -34,7 +34,6 @@ import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -77,6 +76,8 @@ import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
+import static com.appsmith.server.constants.PaginationConstants.RECORD_LIMIT;
+import static com.appsmith.server.constants.QueryParams.START_INDEX;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static java.lang.Boolean.TRUE;
@@ -106,7 +107,6 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final EmailService emailService;
 
     private final ApplicationService applicationService;
-    private final ConfigService configService;
 
     public UserAndAccessManagementServiceImpl(
             SessionUserService sessionUserService,
@@ -124,7 +124,6 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             PermissionGroupHelperImpl permissionGroupHelper,
             EnvManager envManager,
             ConfigRepository configRepository,
-            ConfigService configService,
             EmailService emailService,
             CommonConfig commonConfig,
             ApplicationService applicationService) {
@@ -156,55 +155,73 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.emailService = emailService;
-        this.configService = configService;
         this.applicationService = applicationService;
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
-    public Mono<List<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams) {
-        return tenantService
+    public Mono<PagedDomain<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams) {
+
+        int startIndex;
+        int pageSize = RECORD_LIMIT;
+        Mono<Long> totalUserCountMono = Mono.just(-1L);
+
+        if (StringUtils.hasLength(queryParams.getFirst(START_INDEX))) {
+            startIndex = Integer.parseInt(queryParams.getFirst(START_INDEX));
+        } else {
+            // default to zero in case no start index has been provided
+            startIndex = 0;
+            // Only fetch the total count (aka a heavy query) if the startIndex is 0. In other words, when the API is
+            // called the first time. Else we can just return -1 as the total count.
+            totalUserCountMono = userRepository.countAllUsers(queryParams, READ_USERS);
+        }
+
+        Mono<List<UserForManagementDTO>> userListMono = tenantService
                 .getDefaultTenantId()
                 .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_READ_ALL_USERS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMapMany(tenant -> userRepository
-                        .getAllUserObjectsWithEmail(tenant.getId(), queryParams, Optional.of(READ_USERS))
+                        .getAllUserObjectsWithEmail(
+                                tenant.getId(), queryParams, startIndex, pageSize, Optional.of(READ_USERS))
                         .flatMap(userRepository::setUserPermissionsInObject))
-                .flatMap(this::addGroupsAndRolesForUser)
-                .sort(AppsmithComparators.managementUserComparator())
-                .collectList()
-                .flatMap(this::addPhotoIdForUsers);
-    }
+                .flatMapSequential(user -> {
+                    Mono<String> photoIdForUserMono = getPhotoIdForUser(user.getId());
+                    Mono<UserForManagementDTO> userDTO_WithGroupsAndRolesMono = addGroupsAndRolesForUser(user);
 
-    private Mono<List<UserForManagementDTO>> addPhotoIdForUsers(List<UserForManagementDTO> userForManagementDTOList) {
-        List<String> userIds = userForManagementDTOList.stream()
-                .map(UserForManagementDTO::getId)
-                .toList();
-        Mono<Map<String, UserData>> userDataMapMono =
-                userDataRepository.findPhotoAssetsByUserIds(userIds).collectMap(UserData::getUserId);
+                    return Mono.zip(photoIdForUserMono, userDTO_WithGroupsAndRolesMono)
+                            .map(tuple -> {
+                                String photoId = tuple.getT1();
+                                UserForManagementDTO userDTO = tuple.getT2();
 
-        return Mono.zip(Mono.just(userForManagementDTOList), userDataMapMono).map(pair -> {
-            List<UserForManagementDTO> userForManagementDTOList1 = pair.getT1();
-            Map<String, UserData> userIdUserDataMap = pair.getT2();
-            userForManagementDTOList1.forEach(userForManagementDTO -> {
-                String userId = userForManagementDTO.getId();
-                if (userIdUserDataMap.containsKey(userId)
-                        && StringUtils.hasLength(userIdUserDataMap.get(userId).getProfilePhotoAssetId())) {
-                    userForManagementDTO.setPhotoId(
-                            userIdUserDataMap.get(userId).getProfilePhotoAssetId());
-                }
-            });
-            return userForManagementDTOList1;
+                                // If the user's photo has been set, then set it in the response.
+                                if (StringUtils.hasLength(photoId)) {
+                                    userDTO.setPhotoId(photoId);
+                                }
+
+                                return userDTO;
+                            });
+                })
+                .collectList();
+
+        return Mono.zip(totalUserCountMono, userListMono).map(tuple -> {
+            Long totalUsers = tuple.getT1();
+            List<UserForManagementDTO> userForManagementDTOList = tuple.getT2();
+            return new PagedDomain<>(userForManagementDTOList, userForManagementDTOList.size(), startIndex, totalUsers);
         });
     }
 
-    private Mono<UserForManagementDTO> addPhotoIdForUser(UserForManagementDTO userForManagementDTO) {
-        return addPhotoIdForUsers(List.of(userForManagementDTO)).map(userForManagementDTOList -> {
-            if (userForManagementDTOList.isEmpty()) {
-                return userForManagementDTO;
-            }
-            return userForManagementDTOList.get(0);
-        });
+    private Mono<String> getPhotoIdForUser(String userId) {
+
+        return userDataRepository
+                .findByUserId(userId)
+                .switchIfEmpty(Mono.just(new UserData()))
+                .map(userData -> {
+                    String profilePhotoAssetId = userData.getProfilePhotoAssetId();
+                    if (StringUtils.hasLength(profilePhotoAssetId)) {
+                        return profilePhotoAssetId;
+                    }
+                    return "";
+                });
     }
 
     @Override
@@ -216,17 +233,27 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(tenant -> userRepository.findById(userId, READ_USERS))
                 // Add the name of the user in response.
-                .flatMap(user -> addGroupsAndRolesForUser(user)
-                        .flatMap(this::addPhotoIdForUser)
-                        .map(dto -> {
-                            String name = user.getName();
-                            if (StringUtils.hasLength(name)) {
-                                dto.setName(name);
-                            } else {
-                                dto.setName(user.getUsername());
-                            }
-                            return dto;
-                        }));
+                .flatMap(user -> {
+                    Mono<String> photoIdForUserMono = getPhotoIdForUser(user.getId());
+                    Mono<UserForManagementDTO> userDTO_WithGroupsAndRolesMono = addGroupsAndRolesForUser(user);
+
+                    return Mono.zip(photoIdForUserMono, userDTO_WithGroupsAndRolesMono)
+                            .map(tuple -> {
+                                String photoId = tuple.getT1();
+                                UserForManagementDTO userDTO = tuple.getT2();
+                                userDTO.setPhotoId(photoId);
+                                return userDTO;
+                            })
+                            .map(dto -> {
+                                String name = user.getName();
+                                if (StringUtils.hasLength(name)) {
+                                    dto.setName(name);
+                                } else {
+                                    dto.setName(user.getUsername());
+                                }
+                                return dto;
+                            });
+                });
     }
 
     private Mono<UserForManagementDTO> addGroupsAndRolesForUser(User user) {

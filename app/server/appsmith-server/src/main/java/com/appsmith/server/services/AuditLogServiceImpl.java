@@ -92,6 +92,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
+import static com.appsmith.server.constants.PaginationConstants.RECORD_LIMIT;
 import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_SHORTNAME;
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static org.apache.commons.lang.WordUtils.capitalize;
@@ -116,7 +117,6 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
     private final CommonConfig commonConfig;
     private final EnvironmentRepository environmentRepository;
     private final WorkflowRepository workflowRepository;
-    private static int RECORD_LIMIT = 200;
     private static int EXPORT_RECORD_LIMIT = 5000;
     public static String DELIMITER = ",";
     public static String LOG_EVENT_ERROR = "Error while saving the Audit Logs";

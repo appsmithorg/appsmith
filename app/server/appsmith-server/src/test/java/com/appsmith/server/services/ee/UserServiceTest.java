@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
@@ -686,14 +687,14 @@ public class UserServiceTest {
         ProvisionResourceDto provisionUser =
                 userService.createProvisionUser(user2).block();
 
-        List<UserForManagementDTO> allUsers = userAndAccessManagementService
+        PagedDomain<UserForManagementDTO> allUsers = userAndAccessManagementService
                 .getAllUsers(new LinkedMultiValueMap<>())
                 .block();
-        Optional<UserForManagementDTO> regularUserFetched = allUsers.stream()
+        Optional<UserForManagementDTO> regularUserFetched = allUsers.getContent().stream()
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com"))
                 .findAny();
         assertThat(regularUserFetched.isPresent()).isTrue();
-        Optional<UserForManagementDTO> provisionUserFetched = allUsers.stream()
+        Optional<UserForManagementDTO> provisionUserFetched = allUsers.getContent().stream()
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com"))
                 .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();
@@ -716,14 +717,14 @@ public class UserServiceTest {
         ProvisionResourceDto provisionUser =
                 userService.createProvisionUser(user2).block();
 
-        List<UserForManagementDTO> allUsers = userAndAccessManagementService
+        PagedDomain<UserForManagementDTO> allUsers = userAndAccessManagementService
                 .getAllUsers(new LinkedMultiValueMap<>())
                 .block();
-        Optional<UserForManagementDTO> regularUserFetched = allUsers.stream()
+        Optional<UserForManagementDTO> regularUserFetched = allUsers.getContent().stream()
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com"))
                 .findAny();
         assertThat(regularUserFetched.isPresent()).isTrue();
-        Optional<UserForManagementDTO> provisionUserFetched = allUsers.stream()
+        Optional<UserForManagementDTO> provisionUserFetched = allUsers.getContent().stream()
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com"))
                 .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();

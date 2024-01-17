@@ -13,7 +13,12 @@ export const initialState: AclReduxState = {
   isLoading: false,
   isSaving: false,
   isEditing: false,
-  users: [],
+  users: {
+    content: [],
+    count: 0,
+    startIndex: 0,
+    total: 0,
+  },
   groups: [],
   roles: [],
   selectedUser: null,
@@ -30,7 +35,12 @@ export interface AclReduxState {
   isLoading: boolean;
   isSaving: boolean;
   isEditing: boolean;
-  users: UserProps[];
+  users: {
+    content: UserProps[];
+    count: number;
+    startIndex: number;
+    total: number;
+  };
   groups: GroupProps[];
   roles: RoleProps[];
   selectedUser: UserProps | null;

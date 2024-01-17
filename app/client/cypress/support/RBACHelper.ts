@@ -406,7 +406,7 @@ export class RBACHelper {
     }).as("inviteUser");
     cy.intercept("DELETE", "api/v1/users/id/*").as("deleteUser");
     cy.intercept("PUT", "/api/v1/user-groups/*").as("updateGroup");
-    cy.intercept("GET", "/api/v1/users/manage/all").as("fetchUsers");
+    cy.intercept("GET", "/api/v1/users/manage/all*").as("fetchUsers");
     cy.intercept("PUT", "/api/v1/roles/associate", (req) => {
       req.headers["origin"] = "Cypress";
     }).as("associateRoles");

@@ -7,6 +7,29 @@ import type {
   UpdateRoleData,
 } from "@appsmith/pages/AdminSettings/AccessControl/types";
 
+export const fetchAclUsers = (payload: {
+  sort?: string;
+  searchTerm?: string;
+  provisioned?: string;
+}) => {
+  return {
+    type: ReduxActionTypes.FETCH_ACL_USERS,
+    payload,
+  };
+};
+
+export const fetchNextAclUsers = (payload: {
+  sort?: string;
+  searchTerm?: string;
+  provisioned?: string;
+  startIndex: number;
+}) => {
+  return {
+    type: ReduxActionTypes.FETCH_NEXT_ACL_USERS,
+    payload,
+  };
+};
+
 export const getUserById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
   payload,

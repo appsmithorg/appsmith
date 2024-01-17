@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -23,6 +23,8 @@ import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import {
   deleteAclUser,
+  fetchAclUsers,
+  fetchNextAclUsers,
   getUserById,
   inviteUsersViaGroups,
   inviteUsersViaRoles,
@@ -45,6 +47,8 @@ import {
   getGroupsForInvite,
   getRolesForInvite,
   getSelectedUser,
+  selectHasMoreUsers,
+  selectTotalAclUsers,
 } from "@appsmith/selectors/aclSelectors";
 import type { BaseAclProps, MenuItemProps, UserProps } from "./types";
 import { ListingType } from "./types";
@@ -143,8 +147,6 @@ export function UserListing() {
   const [activeTab, setActiveTab] = useState<string>(
     INVITE_USERS_TAB_ID.VIA_ROLES,
   );
-
-  const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -153,14 +155,7 @@ export function UserListing() {
   const user = useSelector(getCurrentUser);
 
   const canInviteUser = user?.isSuperUser;
-
-  useEffect(() => {
-    if (searchValue) {
-      onSearch(searchValue);
-    } else {
-      setData(aclUsers);
-    }
-  }, [aclUsers]);
+  const hasMore = useSelector(selectHasMoreUsers);
 
   useEffect(() => {
     setSelectedUser(selUser);
@@ -171,16 +166,15 @@ export function UserListing() {
       setSelectedUser(null);
       dispatch(getUserById({ id: selectedUserId }));
     } else if (!selectedUserId) {
-      dispatch({
-        type: ReduxActionTypes.FETCH_ACL_USERS,
-        ...(provisionedQueryParam
-          ? {
-              payload: {
+      dispatch(
+        fetchAclUsers(
+          provisionedQueryParam
+            ? {
                 provisioned: provisionedQueryParam,
-              },
-            }
-          : {}),
-      });
+              }
+            : {},
+        ),
+      );
     }
   }, [selectedUserId]);
 
@@ -226,10 +220,13 @@ export function UserListing() {
     setShowModal(false);
   };
 
+  const totalUsers = useSelector(selectTotalAclUsers);
+
   const columns = [
     {
-      Header: `Users (${data.length})`,
+      Header: `Users (${totalUsers})`,
       accessor: "username",
+      disableSortBy: true,
       Cell: function UserCell(cellProps: any) {
         const { username } = cellProps.cell.row.values;
         const { id, isProvisioned, photoId } = cellProps.cell.row.original;
@@ -276,6 +273,7 @@ export function UserListing() {
     {
       Header: "Roles",
       accessor: "roles",
+      disableSortBy: true,
       Cell: function RoleCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
         const values = cellProps.cell.row.values;
@@ -348,6 +346,7 @@ export function UserListing() {
     {
       Header: "Groups",
       accessor: "groups",
+      disableSortBy: true,
       Cell: function GroupCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
         const values = cellProps.cell.row.values;
@@ -498,28 +497,40 @@ export function UserListing() {
   };
 
   const onSearch = debounce((search: string) => {
-    if (search && search.trim().length > 0) {
-      setSearchValue(search);
-      const results =
-        aclUsers &&
-        aclUsers.filter(
-          (user: UserProps) =>
-            user.username?.toLocaleUpperCase().includes(search),
-        );
-      setData(results);
-    } else {
-      setSearchValue("");
-      setData(aclUsers);
+    if (searchValue?.trim() !== search?.trim()) {
+      dispatch(
+        fetchAclUsers({
+          ...(search?.trim() ? { searchTerm: search.trim() } : {}),
+          ...(provisionedQueryParam
+            ? {
+                provisioned: provisionedQueryParam,
+              }
+            : {}),
+        }),
+      );
     }
+    setSearchValue(search);
   }, 300);
 
   const onDeleteHandler = (userId: string) => {
     dispatch(deleteAclUser({ id: userId }));
-    const updatedData = data.filter((user) => {
-      return user.id !== userId;
-    });
-    setData(updatedData);
   };
+
+  const loadMore = useCallback(() => {
+    if (!hasMore) return;
+
+    dispatch(
+      fetchNextAclUsers({
+        startIndex: aclUsers.length,
+        ...(searchValue?.trim() ? { searchTerm: searchValue.trim() } : {}),
+        ...(provisionedQueryParam
+          ? {
+              provisioned: provisionedQueryParam,
+            }
+          : {}),
+      }),
+    );
+  }, [hasMore, aclUsers.length, provisionedQueryParam, searchValue]);
 
   return (
     <AclWrapper data-testid="user-listing-wrapper">
@@ -551,7 +562,7 @@ export function UserListing() {
           />
           <Listing
             columns={columns}
-            data={data}
+            data={aclUsers}
             data-testid="acl-user-listing"
             emptyState={
               searchValue ? (
@@ -560,10 +571,13 @@ export function UserListing() {
                 <EmptyDataState page="users" />
               )
             }
+            hasMore={hasMore}
+            infiniteScroll
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
             listingType={ListingType.USERS}
+            loadMore={loadMore}
           />
           <Modal
             onOpenChange={(isOpen) => setShowModal(isOpen)}

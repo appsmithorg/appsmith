@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
@@ -571,16 +572,16 @@ public class UserAndAccessManagementServiceTest {
         UserData userData2PostUpdate =
                 userDataService.updateForUser(createdUser2, userData2).block();
 
-        List<UserForManagementDTO> usersList = userAndAccessManagementService
+        PagedDomain<UserForManagementDTO> usersList = userAndAccessManagementService
                 .getAllUsers(new LinkedMultiValueMap<>())
                 .block();
-        Optional<UserForManagementDTO> userForManagementDTO1 = usersList.stream()
+        Optional<UserForManagementDTO> userForManagementDTO1 = usersList.getContent().stream()
                 .filter(_user -> createdUser1.getId().equals(_user.getId()))
                 .findFirst();
         assertThat(userForManagementDTO1.isPresent()).isTrue();
         assertThat(userForManagementDTO1.get().getPhotoId()).isEqualTo(testName + 1);
 
-        Optional<UserForManagementDTO> userForManagementDTO2 = usersList.stream()
+        Optional<UserForManagementDTO> userForManagementDTO2 = usersList.getContent().stream()
                 .filter(_user -> createdUser2.getId().equals(_user.getId()))
                 .findFirst();
         assertThat(userForManagementDTO2.isPresent()).isTrue();
