@@ -33,7 +33,9 @@ interface EntityActionParams {
     | "Move to page"
     | "Hide"
     | "Refresh"
-    | "Set as home page";
+    | "Set as home page"
+    | "Export"
+    | "Import";
   subAction?: string;
   //@ts-expect-error: type mismatch
   entityType?: EntityItems;
